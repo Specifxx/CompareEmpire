@@ -7,6 +7,7 @@ import { NavDropdown } from "./NavDropdown";
 import { CountrySwitcher } from "./CountrySwitcher";
 import { UserMenu } from "./UserMenu";
 import { WishlistSync } from "./WishlistSync";
+import { Logo } from "./Logo";
 import { getCurrentUser } from "@/lib/auth";
 
 export async function Navbar() {
@@ -16,12 +17,11 @@ export async function Navbar() {
       <WishlistSync loggedIn={!!user} />
       <div className="container-app">
        <div className="flex h-16 items-center gap-4">
-        {/* Logo: standalone R mark + text wordmark */}
+        {/* Logo: mark + text wordmark */}
         <Link href="/" className="flex shrink-0 items-center gap-2" aria-label="CameraCompare home">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-r-green.png" alt="" aria-hidden className="h-9 w-auto" />
+          <Logo size={36} />
           <span className="hidden text-lg font-extrabold tracking-tight text-white sm:block">
-            Rift<span className="text-brand-400">Compare</span>
+            Camera<span className="text-brand-400">Compare</span>
           </span>
         </Link>
 

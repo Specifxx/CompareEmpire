@@ -120,7 +120,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
         {/* Card visual */}
         <div className="lg:sticky lg:top-20 lg:self-start">
           <div className="card-surface mx-auto max-w-[320px] p-4">
-            <CardImage card={card} full className="aspect-[5/7] w-full" />
+            <CardImage card={card} full className="aspect-square w-full" />
           </div>
         </div>
 
@@ -139,20 +139,18 @@ export default async function CardPage({ params }: { params: { id: string } }) {
             <div className="mt-3 flex items-start justify-between gap-3">
               <div>
                 <h1 className="text-2xl font-extrabold text-white">{card.name}</h1>
-                <p className="mt-1 font-mono text-xs text-slate-500">
-                  {card.setName} ({card.setCode}) · {card.collectorNumber}
+                <p className="mt-1 text-xs text-slate-500">
+                  {card.setName} · {card.collectorNumber}
                 </p>
               </div>
               <WishlistButton cardId={card.id} variant="full" />
             </div>
 
             <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <Metric label={cheapestFoil != null ? "Standard from" : "Cheapest price"} value={(cheapestStandard ?? lowestPrice) != null ? fmt((cheapestStandard ?? lowestPrice)!) : "—"} highlight />
-              {cheapestFoil != null && <Metric label="✦ Foil from" value={fmt(cheapestFoil)} highlight />}
-              <Metric label="In stock at" value={`${prices.length} ${prices.length === 1 ? "store" : "stores"}`} />
-              {card.energyCost != null && <Metric label="Energy" value={String(card.energyCost)} />}
-              {card.might != null && cheapestFoil == null && <Metric label="Might" value={String(card.might)} />}
-              {card.might == null && card.power != null && cheapestFoil == null && <Metric label="Power" value={String(card.power)} />}
+              <Metric label="Cheapest price" value={lowestPrice != null ? fmt(lowestPrice) : "—"} highlight />
+              <Metric label="Compared at" value={`${prices.length} ${prices.length === 1 ? "store" : "stores"}`} />
+              {card.might != null && <Metric label="Resolution" value={`${card.might}MP`} />}
+              <Metric label="Sensor" value={card.domain} />
             </div>
           </div>
 

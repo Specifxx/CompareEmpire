@@ -7,6 +7,7 @@ import { getCheapestCards } from "@/lib/cheapest-cards";
 import { getCountry } from "@/lib/get-country";
 import { COUNTRIES, priceField, type CountryInfo } from "@/lib/country";
 import { SETS, domainInfo, DOMAIN_KEYS } from "@/lib/constants";
+import { Logo } from "@/components/Logo";
 
 // ISR while AU-only; becomes dynamic per-request when NZ mode is enabled (getCountry
 // then reads the country cookie).
@@ -17,15 +18,15 @@ export const revalidate = 180;
 export const metadata: Metadata = {
   title: { absolute: "Compare Camera Prices | CameraCompare" },
   description:
-    "Compare live cameras card prices across stores in Australia, New Zealand and the United States, and find the cheapest place to buy cameras and sealed. Updated daily.",
+    "Compare live camera prices across stores in Australia, the US and the UK, and find the cheapest place to buy your next mirrorless, DSLR or compact camera. Updated daily.",
   keywords: [
     "buy cameras",
     "camera prices",
     "compare camera prices",
     "cheapest cameras",
-    "cameras",
-    "cameras",
-    "camera prices",
+    "mirrorless camera deals",
+    "DSLR prices",
+    "camera price comparison",
   ],
   alternates: { canonical: "/" },
 };
@@ -42,15 +43,15 @@ function faqsFor(info: CountryInfo, ebay: string | null): { q: string; a: string
   return [
     {
       q: `Where can I buy cameras in ${place}?`,
-      a: `CameraCompare compares live camera prices across a wide range of ${adjective} stores${ebay ? ` plus ${ebay}` : ""}, so you can buy cameras from whichever shop is cheapest. Search any card to see every store's price and click straight through to buy.`,
+      a: `CameraCompare compares live camera prices across a wide range of ${adjective} stores${ebay ? ` plus ${ebay}` : ""}, so you can buy from whichever shop is cheapest. Search any camera to see every store's price and click straight through to buy.`,
     },
     {
       q: `How do I find the cheapest camera prices in ${place}?`,
-      a: `Search or browse the card database and each card shows the lowest live price across ${adjective} stores, ranked by total delivered cost (item plus shipping). It's the fastest way to find the cheapest cameras in ${place}.`,
+      a: `Search or browse the camera database and each camera shows the lowest live price across ${adjective} stores, ranked by total delivered cost (item plus shipping). It's the fastest way to find the cheapest cameras in ${place}.`,
     },
     {
-      q: "Does CameraCompare cover cameras and sealed products?",
-      a: `Yes — compare prices on individual cameras as well as sealed products like booster boxes, booster packs, Proving Grounds and Nexus Night packs, all priced across ${adjective} retailers.`,
+      q: "What cameras does CameraCompare cover?",
+      a: `We compare prices on mirrorless cameras, DSLRs, compacts, action cameras and lenses from the major brands, all priced across ${adjective} retailers.`,
     },
     {
       q: `Are the camera prices shown in ${currency}?`,
@@ -81,14 +82,13 @@ export default async function HomePage() {
       <section className="card-surface animate-fade-up overflow-hidden">
         <div className="relative bg-gradient-to-br from-brand-600/25 via-ink-850 to-gold/15 px-6 py-12 text-center">
           <div className="mx-auto mb-5 flex items-center justify-center">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-r-green.png" alt="CameraCompare" className="animate-float h-16 w-auto sm:h-20" />
+            <span className="animate-float"><Logo size={76} /></span>
           </div>
           <h1 className="mx-auto max-w-3xl text-2xl font-extrabold text-white sm:text-4xl">
             Compare camera prices across {info.adjective} stores
           </h1>
           <p className="mx-auto mt-3 max-w-2xl text-sm text-slate-400 sm:text-base">
-            Find the cheapest place to buy cameras cards in {info.place} — live prices in{" "}
+            Find the cheapest place to buy your next camera in {info.place} — live prices in{" "}
             {info.currency} compared across {storeCount} {info.adjective} stores, updated daily.
           </p>
 
@@ -128,47 +128,32 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Browse by set */}
+      {/* Browse by brand */}
       <section>
-        <h2 className="mb-4 text-xl font-extrabold text-white">Browse by set</h2>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-          {SETS.map((s) =>
-            s.comingSoon ? (
-              <div
-                key={s.code}
-                className="card-surface flex flex-col gap-1 p-4 opacity-60"
-                aria-disabled
-              >
-                <span className="flex items-center gap-2 text-lg font-bold text-white">
-                  {s.code}
-                  <span className="chip bg-gold/20 text-gold">Coming soon</span>
-                </span>
-                <span className="text-xs text-slate-400">{s.name}</span>
-              </div>
-            ) : (
-              <Link
-                key={s.code}
-                href={`/sets/${s.slug}`}
-                className="card-surface flex flex-col gap-1 p-4 transition-colors hover:border-brand-500"
-              >
-                <span className="text-lg font-bold text-white">{s.code}</span>
-                <span className="text-xs text-slate-400">{s.name}</span>
-              </Link>
-            )
-          )}
+        <h2 className="mb-4 text-xl font-extrabold text-white">Browse by brand</h2>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          {SETS.map((s) => (
+            <Link
+              key={s.code}
+              href={`/browse?set=${s.code}`}
+              className="card-surface flex items-center justify-center p-5 text-center text-base font-bold text-white transition-colors hover:border-brand-500"
+            >
+              {s.name}
+            </Link>
+          ))}
         </div>
       </section>
 
-      {/* Browse by domain */}
+      {/* Browse by sensor */}
       <section>
-        <h2 className="mb-4 text-xl font-extrabold text-white">Browse by domain</h2>
+        <h2 className="mb-4 text-xl font-extrabold text-white">Browse by sensor format</h2>
         <div className="flex flex-wrap gap-2">
           {DOMAIN_KEYS.map((k) => {
             const d = domainInfo(k);
             return (
               <Link
                 key={k}
-                href={`/browse?domain=${k}`}
+                href={`/browse?domain=${encodeURIComponent(k)}`}
                 className="chip border border-ink-700 px-3 py-1.5 text-sm hover:border-brand-500"
                 style={{ color: d.color }}
               >
@@ -182,12 +167,12 @@ export default async function HomePage() {
 
       {/* About + FAQ — keyword-relevant content for search */}
       <section className="card-surface p-6">
-        <h2 className="text-xl font-extrabold text-white">camera prices in {info.place}, all in one place</h2>
+        <h2 className="text-xl font-extrabold text-white">Camera prices in {info.place}, all in one place</h2>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-slate-400">
-          CameraCompare is a free, independent price-comparison tool for camera: League of Legends
-          TCG, built for {info.adjective} players. We track live prices for every camera across
-          {" "}{info.adjective} stores{ebay ? ` and ${ebay}` : ""} so you can buy cameras in {info.place} for
-          less — whether you&apos;re chasing singles for a deck or sealed booster boxes.
+          CameraCompare is a free, independent price-comparison tool for cameras, built for
+          {" "}{info.adjective} buyers. We track live prices for mirrorless bodies, DSLRs, compacts,
+          action cameras and lenses across {info.adjective} stores{ebay ? ` and ${ebay}` : ""} so you
+          can buy your next camera in {info.place} for less.
         </p>
         <div className="mt-6 grid gap-5 sm:grid-cols-2">
           {faqs.map((f) => (

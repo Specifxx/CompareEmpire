@@ -7,6 +7,7 @@ import { getCheapestCards } from "@/lib/cheapest-cards";
 import { getCountry } from "@/lib/get-country";
 import { COUNTRIES, priceField, type CountryInfo } from "@/lib/country";
 import { SETS, domainInfo, DOMAIN_KEYS } from "@/lib/constants";
+import { Logo } from "@/components/Logo";
 
 // ISR while AU-only; becomes dynamic per-request when NZ mode is enabled (getCountry
 // then reads the country cookie).
@@ -81,8 +82,7 @@ export default async function HomePage() {
       <section className="card-surface animate-fade-up overflow-hidden">
         <div className="relative bg-gradient-to-br from-brand-600/25 via-ink-850 to-gold/15 px-6 py-12 text-center">
           <div className="mx-auto mb-5 flex items-center justify-center">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-r-green.png" alt="DexCompare" className="animate-float h-16 w-auto sm:h-20" />
+            <span className="animate-float"><Logo size={76} /></span>
           </div>
           <h1 className="mx-auto max-w-3xl text-2xl font-extrabold text-white sm:text-4xl">
             Compare Pokémon card prices across {info.adjective} stores

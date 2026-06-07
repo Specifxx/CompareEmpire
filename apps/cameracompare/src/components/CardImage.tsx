@@ -1,5 +1,3 @@
-import { CardArt } from "./CardArt";
-
 export interface CardImageData {
   name: string;
   domain: string;
@@ -23,86 +21,48 @@ interface Props {
   className?: string;
 }
 
-// Small "PROMO" stamp centred at the bottom of the card art (where the real card's
-// rarity symbol sits) — promo printings reuse the base art, so this marks them.
-function PromoStamp() {
+// Clean camera-shaped placeholder when a product photo isn't available — looks
+// like a camera, not a trading card.
+function CameraPlaceholder({ name }: { name: string }) {
   return (
-    <div className="pointer-events-none absolute inset-x-0 bottom-1.5 z-20 flex justify-center">
-      <span className="rounded-full bg-gradient-to-br from-amber-400 to-amber-600 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-amber-950 shadow ring-1 ring-amber-300/50">
-        Promo
-      </span>
+    <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-gradient-to-br from-ink-800 to-ink-900 p-4 text-center">
+      <svg viewBox="0 0 48 48" className="h-16 w-16 opacity-70" fill="none">
+        <rect x="6" y="15" width="36" height="24" rx="4" fill="#2b3344" stroke="#475569" strokeWidth="1.5" />
+        <path d="M17 15l2.5-4h9L31 15z" fill="#2b3344" stroke="#475569" strokeWidth="1.5" />
+        <circle cx="24" cy="27" r="8" fill="#0b0f16" stroke="#64748b" strokeWidth="1.5" />
+        <circle cx="24" cy="27" r="4.5" fill="#334155" />
+        <rect x="34" y="18" width="4" height="3" rx="1" fill="#fbbf24" />
+      </svg>
+      <span className="line-clamp-2 text-xs font-medium text-slate-400">{name}</span>
     </div>
   );
 }
 
-// Renders the real camera image (manufacturer data CDN) over a blurred backdrop
-// so both portrait and landscape cards look good. Falls back to generated SVG art
-// when no image is available.
-export function CardImage({ card, isFoil = false, full = false, className }: Props) {
+// Renders the real camera product photo (contained on a clean light backdrop so
+// the whole body is visible). Falls back to a camera placeholder when missing.
+export function CardImage({ card, full = false, className }: Props) {
   const src = full
     ? card.imageUrl ?? card.imageThumbUrl
     : card.imageThumbUrl ?? card.imageUrl;
 
   if (!src) {
     return (
-      <div className={`relative ${className ?? ""}`}>
-        <CardArt
-          name={card.name}
-          domain={card.domain}
-          type={card.type}
-          rarity={card.rarity}
-          energyCost={card.energyCost}
-          might={card.might}
-          collectorNumber={card.collectorNumber}
-          artSeed={card.artSeed ?? 1}
-          isFoil={isFoil}
-          className="h-full w-full"
-        />
-        {card.isPromo && <PromoStamp />}
+      <div className={`relative overflow-hidden rounded-lg ${className ?? ""}`}>
+        <CameraPlaceholder name={card.name} />
       </div>
     );
   }
 
-  const isLandscape = card.orientation === "landscape";
-
   return (
-    <div
-      className={`relative overflow-hidden rounded-lg ${className ?? ""}`}
-      style={
-        card.blurDataUrl
-          ? {
-              backgroundImage: `url(${card.blurDataUrl})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }
-          : { backgroundColor: "#080b11" }
-      }
-    >
-      {/* darken the (already-blurred) backdrop. No backdrop-filter here: it's a
-          GPU-expensive effect and with infinite scroll there can be hundreds of
-          tiles on screen, which made scrolling janky. The blurDataUrl background is
-          pre-blurred, so a plain dark overlay gives the same look far cheaper. */}
-      <div className="absolute inset-0 bg-ink-950/40" />
+    <div className={`relative flex items-center justify-center overflow-hidden rounded-lg bg-white ${className ?? ""}`}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={src}
         alt={card.name}
         loading="lazy"
         decoding="async"
-        className={`relative z-10 h-full w-full ${
-          isLandscape ? "object-contain" : "object-cover"
-        }`}
+        className="relative z-10 h-full w-full object-contain p-2"
       />
-      {isFoil && (
-        <div
-          className="pointer-events-none absolute inset-0 z-20 opacity-50 mix-blend-screen"
-          style={{
-            background:
-              "linear-gradient(115deg, #ff0080 0%, #ffea00 25%, #00ffd5 50%, #7a5cff 75%, #ff0080 100%)",
-          }}
-        />
-      )}
-      {card.isPromo && <PromoStamp />}
     </div>
   );
 }

@@ -59,7 +59,7 @@ export function CardTile({ card }: { card: CardTileData }) {
       </div>
       <Link href={cardHref(card)} prefetch={false} onClick={onClick} className="flex flex-1 flex-col">
         <div
-          className="relative aspect-[5/7] w-full overflow-hidden p-3"
+          className="relative aspect-[4/3] w-full overflow-hidden p-3"
           style={{ background: `radial-gradient(120% 80% at 50% 0%, ${r.color}22, transparent 60%)` }}
         >
           <CardImage
@@ -78,7 +78,7 @@ export function CardTile({ card }: { card: CardTileData }) {
           {card.name}
         </h3>
         <p className="text-xs text-slate-500">
-          {card.setCode} · {card.collectorNumber}
+          {card.type} · {card.domain}
         </p>
 
         <div className="mt-auto flex items-end justify-between pt-1">

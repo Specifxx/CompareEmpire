@@ -1,5 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { CAMERAS } from "./cameras";
 import { normalizeSearch } from "../src/lib/format";
 
@@ -40,7 +42,19 @@ async function main() {
   });
   console.log("Created demo account: demo@cameracompare.com / password123");
 
+  // Real product photos fetched in CI (scripts/fetch-camera-images.ts). Optional —
+  // falls back to a camera placeholder when the file isn't present.
+  let images: Record<string, string> = {};
+  try {
+    images = JSON.parse(readFileSync(join(process.cwd(), "prisma", "camera-images.json"), "utf8"));
+    console.log(`Loaded ${Object.keys(images).length} camera images.`);
+  } catch {
+    console.warn("camera-images.json not found — run scripts/fetch-camera-images.ts. Using placeholders.");
+  }
+
   const cardRows = CAMERAS.map((c) => {
+    const key = `${c.brand}-${c.model}`.toLowerCase();
+    const img = images[key] ?? null;
     const usLow = cents(c.baseUsd * 100 * between(0.92, 1.0));
     const auLow = cents(usLow * USD_TO_AUD * between(0.98, 1.08));
     const gbLow = cents(usLow * USD_TO_GBP * between(0.98, 1.08));
@@ -58,6 +72,8 @@ async function main() {
       might: c.mp, // reuse `might` to surface megapixels
       tags: `${c.year}, ${c.mp}MP, ${c.sensor}`,
       description: `${c.name} — ${c.mp}MP ${c.sensor} ${c.category.toLowerCase()} (${c.year}).`,
+      imageUrl: img,
+      imageThumbUrl: img,
       marketPriceCents: usLow,
       lowestPriceCents: auLow,
       lowestPriceCentsNz: gbLow, // UK price lives in the Nz column (see country.ts)

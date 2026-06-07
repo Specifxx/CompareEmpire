@@ -128,19 +128,19 @@ export function Filters() {
               className="mt-2"
               checked={sp.get("priced") === "1"}
               onChange={() => update((p) => (p.get("priced") === "1" ? p.delete("priced") : p.set("priced", "1")))}
-              label="Only cards with a price"
+              label="Only cameras with a price"
             />
           </Section>
 
-          <Section title="Set" defaultOpen>
+          <Section title="Brand" defaultOpen>
             <div className="flex flex-col gap-1">
               {SETS.map((s) => (
-                <Check key={s.code} checked={isActive("set", s.code)} onChange={() => update((p) => setCsv(p, "set", s.code))} label={`${s.name} (${s.code})`} />
+                <Check key={s.code} checked={isActive("set", s.code)} onChange={() => update((p) => setCsv(p, "set", s.code))} label={s.name} />
               ))}
             </div>
           </Section>
 
-          <Section title="Domain">
+          <Section title="Sensor" defaultOpen>
             <div className="flex flex-col gap-1">
               {DOMAIN_KEYS.map((k) => {
                 const d = domainInfo(k);
@@ -149,15 +149,7 @@ export function Filters() {
             </div>
           </Section>
 
-          <Section title="Rarity">
-            <div className="flex flex-col gap-1">
-              {RARITY_KEYS.map((k) => (
-                <Check key={k} checked={isActive("rarity", k)} onChange={() => update((p) => setCsv(p, "rarity", k))} label={k} dot={rarityInfo(k).color} />
-              ))}
-            </div>
-          </Section>
-
-          <Section title="Card type">
+          <Section title="Type">
             <div className="flex flex-col gap-1">
               {CARD_TYPES.map((k) => (
                 <Check key={k} checked={isActive("type", k)} onChange={() => update((p) => setCsv(p, "type", k))} label={k} />
@@ -165,11 +157,11 @@ export function Filters() {
             </div>
           </Section>
 
-          <Section title="Printing" last defaultOpen>
+          <Section title="Tier" last>
             <div className="flex flex-col gap-1">
-              <Check checked={sp.get("variant") === "alt"} onChange={() => update((p) => (p.get("variant") === "alt" ? p.delete("variant") : p.set("variant", "alt")))} label="Alternate art" dot="#f5a524" />
-              <Check checked={sp.get("sig") === "1"} onChange={() => update((p) => (p.get("sig") === "1" ? p.delete("sig") : p.set("sig", "1")))} label="Signature" dot="#f59e0b" />
-              <Check checked={sp.get("promo") === "1"} onChange={() => update((p) => (p.get("promo") === "1" ? p.delete("promo") : p.set("promo", "1")))} label="Promo" dot="#06b6d4" />
+              {RARITY_KEYS.map((k) => (
+                <Check key={k} checked={isActive("rarity", k)} onChange={() => update((p) => setCsv(p, "rarity", k))} label={k} dot={rarityInfo(k).color} />
+              ))}
             </div>
           </Section>
         </div>
