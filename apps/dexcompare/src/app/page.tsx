@@ -7,6 +7,7 @@ import { getCheapestCards, getValuableCards } from "@/lib/cheapest-cards";
 import { getCountry } from "@/lib/get-country";
 import { COUNTRIES, priceField, type CountryInfo } from "@/lib/country";
 import { SETS, domainInfo, DOMAIN_KEYS } from "@/lib/constants";
+import { POKEMON_SETS } from "@/lib/pokemon-sets";
 import { Logo } from "@/components/Logo";
 
 // ISR while AU-only; becomes dynamic per-request when NZ mode is enabled (getCountry
@@ -158,14 +159,21 @@ export default async function HomePage() {
           <Link href="/sets" className="btn-ghost text-xs shrink-0">View all {SETS.length} sets →</Link>
         </div>
         <div className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-2">
-          {SETS.slice(0, 24).map((s) => (
+          {POKEMON_SETS.slice(0, 24).map((s) => (
             <Link
               key={s.code}
               href={`/sets/${s.slug}`}
-              className="card-surface flex w-40 shrink-0 flex-col gap-1 p-4 transition-colors hover:border-brand-500"
+              className="card-surface group flex w-40 shrink-0 flex-col items-center gap-2 p-4 transition-colors hover:border-brand-500"
             >
-              <span className="text-lg font-bold text-white">{s.code.toUpperCase()}</span>
-              <span className="truncate text-xs text-slate-400">{s.name}</span>
+              <div className="flex h-14 w-full items-center justify-center">
+                {s.logo ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={s.logo} alt={s.name} loading="lazy" className="max-h-14 max-w-full object-contain transition-transform group-hover:scale-105" />
+                ) : (
+                  <span className="text-lg font-bold text-white">{s.code.toUpperCase()}</span>
+                )}
+              </div>
+              <span className="line-clamp-1 text-center text-xs text-slate-400">{s.name}</span>
             </Link>
           ))}
         </div>
