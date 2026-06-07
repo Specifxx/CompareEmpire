@@ -74,10 +74,91 @@ function ageMult(releaseDate: string): number {
   return 1;
 }
 
+// Chase premium for the heuristic fallback: popular Pokémon and modern
+// special cards trade far above their rarity baseline.
+const CHASE_NAMES = [
+  "charizard", "pikachu", "umbreon", "rayquaza", "mewtwo", "mew", "lugia",
+  "gengar", "eevee", "gyarados", "snorlax", "sylveon", "glaceon", "leafeon",
+  "blastoise", "venusaur", "gardevoir", "lucario", "dragonite", "greninja",
+];
+function chaseMult(name: string, subtype: string | null): number {
+  let m = 1;
+  const n = name.toLowerCase();
+  if (CHASE_NAMES.some((k) => n.includes(k))) m *= 2.6;
+  const st = (subtype ?? "").toLowerCase();
+  if (/vmax|vstar/.test(st)) m *= 2.2;
+  else if (/\bex\b|\bgx\b|\bv\b|\bv-union\b/.test(st)) m *= 1.8;
+  return m;
+}
+
 const USD_TO_AUD = 1.55;
 const USD_TO_NZD = 1.68;
 const USD_TO_GBP = 0.82;
 const cents = (n: number, floor = 8) => Math.max(floor, Math.round(n));
+
+// ---- real prices from the pokemontcg.io API (blocked in the sandbox, but
+// reachable from CI where this seed actually runs). Falls back to the heuristic
+// for any card the API doesn't price. -----------------------------------------
+async function fetchJson(url: string): Promise<any> {
+  const headers: Record<string, string> = {};
+  if (process.env.POKEMONTCG_API_KEY) headers["X-Api-Key"] = process.env.POKEMONTCG_API_KEY;
+  const res = await fetch(url, { headers });
+  if (!res.ok) throw new Error(`${res.status}`);
+  return res.json();
+}
+function extractUsdCents(card: any): number | null {
+  const tp = card.tcgplayer?.prices;
+  if (tp) {
+    const order = ["holofoil", "reverseHolofoil", "normal", "1stEditionHolofoil", "1stEditionNormal", "unlimitedHolofoil"];
+    for (const k of [...order, ...Object.keys(tp)]) {
+      const v = tp[k]?.market ?? tp[k]?.mid ?? tp[k]?.low;
+      if (v) return Math.round(v * 100);
+    }
+  }
+  const cm = card.cardmarket?.prices;
+  const v = cm?.trendPrice ?? cm?.averageSellPrice ?? cm?.avg30 ?? cm?.avg7;
+  if (v) return Math.round(v * 100 * 1.08); // EUR → USD approx
+  return null;
+}
+export interface RealPrice {
+  usd: number;
+  tcgUrl?: string; // real TCGplayer product page
+  cmUrl?: string; // real Cardmarket product page
+}
+async function loadRealPrices(setIds: string[]): Promise<Map<string, RealPrice>> {
+  const map = new Map<string, RealPrice>();
+  try {
+    await fetchJson("https://api.pokemontcg.io/v2/sets?pageSize=1");
+  } catch {
+    console.warn("pokemontcg.io unreachable — using heuristic prices for all cards.");
+    return map;
+  }
+  let idx = 0, sets = 0;
+  async function worker() {
+    while (idx < setIds.length) {
+      const id = setIds[idx++];
+      try {
+        for (let page = 1; page <= 4; page++) {
+          const data = await fetchJson(
+            `https://api.pokemontcg.io/v2/cards?q=set.id:${id}&pageSize=250&page=${page}&select=id,tcgplayer,cardmarket`
+          );
+          const arr: any[] = data.data ?? [];
+          for (const card of arr) {
+            const usd = extractUsdCents(card);
+            if (usd) map.set(card.id, { usd, tcgUrl: card.tcgplayer?.url, cmUrl: card.cardmarket?.url });
+          }
+          if (arr.length < 250) break;
+        }
+      } catch {
+        /* skip this set, fall back to heuristic */
+      }
+      sets++;
+    }
+  }
+  await Promise.all(Array.from({ length: 8 }, worker));
+  console.log(`Real prices: matched ${map.size} cards from pokemontcg.io across ${sets}/${setIds.length} sets.`);
+  return map;
+}
 
 async function main() {
   const cards = JSON.parse(
@@ -107,16 +188,21 @@ async function main() {
   });
   console.log("Created demo account: demo@dexcompare.com / password123");
 
+  // Real prices (TCGplayer/Cardmarket) from the API where reachable; heuristic otherwise.
+  const realPrices = await loadRealPrices([...new Set(cards.map((c) => c.setCode))]);
+
   // ---- cards (compute per-market lowest price) -------------------------------
   const cardRows = cards.map((c) => {
-    const baseUsd = refUsd(c.rarity) * ageMult(c.releaseDate);
-    const usLow = cents(baseUsd * between(0.92, 1.0));
+    const real = realPrices.get(c.externalId);
+    const heuristicUsd = refUsd(c.rarity) * ageMult(c.releaseDate) * chaseMult(c.name, c.subtype);
+    // Real US market price when we have it; otherwise the heuristic estimate.
+    const usLow = real ? cents(real.usd) : cents(heuristicUsd * between(0.92, 1.0));
     const auLow = cents(usLow * USD_TO_AUD * between(0.95, 1.08), 10);
     const nzLow = cents(usLow * USD_TO_NZD * between(0.96, 1.1), 10);
     const gbLow = cents(usLow * USD_TO_GBP * between(0.95, 1.08), 8);
     return {
       externalId: c.externalId,
-      slug: `${c.externalId}-${normalizeSearch(c.name).replace(/\s+/g, "-")}`.slice(0, 80),
+      slug: `${c.externalId}-${normalizeSearch(c.name).replace(/\s+/g, "-")}`.toLowerCase().slice(0, 80),
       name: c.name,
       nameNormalized: normalizeSearch(c.name),
       setCode: c.setCode,
@@ -149,7 +235,7 @@ async function main() {
   console.log("\nCards inserted.");
 
   const dbCards = await prisma.card.findMany({
-    select: { id: true, externalId: true, lowestPriceCentsUs: true, lowestPriceCents: true, lowestPriceCentsGb: true },
+    select: { id: true, externalId: true, name: true, setName: true, lowestPriceCentsUs: true, lowestPriceCents: true, lowestPriceCentsGb: true },
   });
   console.log(`Building retailer prices for ${dbCards.length} cards…`);
 
@@ -160,9 +246,23 @@ async function main() {
     { key: "ebay_us", name: "eBay US", url: (c: string) => `https://www.ebay.com/sch/i.html?_nkw=${c}+pokemon+card`, spread: [0.9, 1.2] as [number, number] },
     { key: "cardmarket", name: "Cardmarket", url: (c: string) => `https://www.cardmarket.com/en/Pokemon/Products/Search?searchString=${c}`, spread: [0.85, 1.05] as [number, number] },
   ];
+  // AUSTRALIAN stores (market scan, 15). Prices in AUD.
   const auRetailers = [
-    { key: "ebay_au", name: "eBay AU", url: (c: string) => `https://www.ebay.com.au/sch/i.html?_nkw=${c}+pokemon+card`, spread: [0.95, 1.2] as [number, number] },
-    { key: "pokemarket", name: "Pokémon Market AU", url: (c: string) => `https://pokemarket.com.au/search?q=${c}`, spread: [0.98, 1.15] as [number, number] },
+    { key: "ebay_au", name: "eBay AU", url: (c: string) => `https://www.ebay.com.au/sch/i.html?_nkw=${c}`, spread: [0.95, 1.2] as [number, number] },
+    { key: "pokemarket", name: "Pokémon Market Australia", url: (c: string) => `https://pokemarket.com.au/search?q=${c}`, spread: [0.98, 1.15] as [number, number] },
+    { key: "cherry", name: "Cherry Collectables", url: (c: string) => `https://www.cherrycollectables.com.au/search?q=${c}`, spread: [0.97, 1.12] as [number, number] },
+    { key: "ozzie", name: "Ozzie Collectables", url: (c: string) => `https://www.ozziecollectables.com/search?q=${c}`, spread: [0.98, 1.14] as [number, number] },
+    { key: "collectiblemadness", name: "Collectible Madness", url: (c: string) => `https://collectiblemadness.com.au/search?q=${c}`, spread: [0.98, 1.13] as [number, number] },
+    { key: "gameology", name: "Gameology", url: (c: string) => `https://www.gameology.com.au/catalogsearch/result/?q=${c}`, spread: [0.99, 1.15] as [number, number] },
+    { key: "goodgames", name: "Good Games", url: (c: string) => `https://goodgames.com.au/search?q=${c}`, spread: [0.99, 1.16] as [number, number] },
+    { key: "bantertoys", name: "Banter Toys & Collectables", url: (c: string) => `https://bantertoys.com.au/search?q=${c}`, spread: [0.99, 1.16] as [number, number] },
+    { key: "ebgames", name: "EB Games", url: (c: string) => `https://www.ebgames.com.au/search?q=${c}`, spread: [1.0, 1.2] as [number, number] },
+    { key: "zing", name: "Zing Pop Culture", url: (c: string) => `https://www.zingpopculture.com.au/search?q=${c}`, spread: [1.0, 1.2] as [number, number] },
+    { key: "mightyape_au", name: "Mighty Ape", url: (c: string) => `https://www.mightyape.com.au/search?q=${c}`, spread: [0.99, 1.16] as [number, number] },
+    { key: "amazon_au", name: "Amazon AU", url: (c: string) => `https://www.amazon.com.au/s?k=${c}`, spread: [0.95, 1.2] as [number, number] },
+    { key: "gamesmen", name: "The Gamesmen", url: (c: string) => `https://www.gamesmen.com.au/catalogsearch/result/?q=${c}`, spread: [1.0, 1.18] as [number, number] },
+    { key: "hobbymaster_au", name: "Hobbymaster", url: (c: string) => `https://hobbymaster.com.au/search?q=${c}`, spread: [0.99, 1.15] as [number, number] },
+    { key: "skyfoxes", name: "Sky Foxes Cards", url: (c: string) => `https://skyfoxescards.com.au/search?q=${c}`, spread: [0.98, 1.13] as [number, number] },
   ];
 
   // UK MODE: the biggest UK TCG retailers (market scan). Prices in GBP.
@@ -191,10 +291,16 @@ async function main() {
     priceCents: number; currency: string; inStock: boolean; country: string;
   }[] = [];
   for (const c of dbCards) {
-    const q = encodeURIComponent(c.externalId);
+    // Search by the card NAME + set (so links land on the right product), not the
+    // internal id. TCGplayer/Cardmarket get their REAL product URL from the API.
+    const q = encodeURIComponent(`${c.name} ${c.setName}`);
+    const real = realPrices.get(c.externalId);
     for (const r of usRetailers) {
+      const url = r.key === "tcgplayer" && real?.tcgUrl ? real.tcgUrl
+        : r.key === "cardmarket" && real?.cmUrl ? real.cmUrl
+        : r.url(q);
       priceRows.push({
-        cardId: c.id, retailer: r.key, retailerName: r.name, title: r.name, url: r.url(q),
+        cardId: c.id, retailer: r.key, retailerName: r.name, title: r.name, url,
         priceCents: cents((c.lowestPriceCentsUs ?? 50) * between(r.spread[0], r.spread[1])),
         currency: "USD", inStock: true, country: "US",
       });

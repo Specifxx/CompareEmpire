@@ -314,7 +314,7 @@ export async function searchEbaySealed(name: string, productType: string, setCod
   const setName = setCode ? (SET_NAMES[setCode] ?? setCode) : null;
   const valid = items
     .filter((it) => it?.price?.value)
-    .filter((it) => /riftbound/i.test(it.title ?? ""))
+    .filter((it) => /pokemon/i.test(it.title ?? ""))
     .filter((it) => !kw || kw.test(it.title ?? ""))
     .filter((it) => !setName || new RegExp(setName.replace(/\s+/g, "\\s*"), "i").test(it.title ?? "") || !setCode)
     .filter((it) => !SEALED_EXCLUDE_EBAY.test(it.title ?? ""))

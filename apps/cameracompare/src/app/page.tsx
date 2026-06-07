@@ -93,9 +93,7 @@ export default async function HomePage() {
           </p>
 
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-            <Link href="/browse" className="btn-primary">Browse the database</Link>
-            <Link href="/decks" className="btn-ghost">Top meta decks</Link>
-            <Link href="/deck" className="btn-ghost">Deck builder &amp; pricing</Link>
+            <Link href="/browse" className="btn-primary">Browse cameras</Link>
           </div>
 
           {/* Country / market toggle */}

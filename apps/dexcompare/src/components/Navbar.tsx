@@ -42,15 +42,6 @@ export async function Navbar() {
           </Link>
           <div className="hidden lg:block">
             <NavDropdown
-              label="Decks"
-              items={[
-                { href: "/decks", label: "Meta Decks", desc: "Top tournament decklists" },
-                { href: "/deck", label: "Deck Builder", desc: "Build & price your own" },
-              ]}
-            />
-          </div>
-          <div className="hidden lg:block">
-            <NavDropdown
               label="More"
               items={[
                 { href: "/sealed", label: "Sealed Products", desc: "Boxes, packs & promos" },

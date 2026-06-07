@@ -94,8 +94,7 @@ export default async function HomePage() {
 
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
             <Link href="/browse" className="btn-primary">Browse the database</Link>
-            <Link href="/decks" className="btn-ghost">Top meta decks</Link>
-            <Link href="/deck" className="btn-ghost">Deck builder &amp; pricing</Link>
+            <Link href="/sealed" className="btn-ghost">Sealed products</Link>
           </div>
 
           {/* Country / market toggle */}
@@ -130,34 +129,23 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Browse by set */}
+      {/* Browse by set — newest first, horizontal sliding window. Full list on /sets. */}
       <section>
-        <h2 className="mb-4 text-xl font-extrabold text-white">Browse by set</h2>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-          {SETS.map((s) =>
-            s.comingSoon ? (
-              <div
-                key={s.code}
-                className="card-surface flex flex-col gap-1 p-4 opacity-60"
-                aria-disabled
-              >
-                <span className="flex items-center gap-2 text-lg font-bold text-white">
-                  {s.code}
-                  <span className="chip bg-gold/20 text-gold">Coming soon</span>
-                </span>
-                <span className="text-xs text-slate-400">{s.name}</span>
-              </div>
-            ) : (
-              <Link
-                key={s.code}
-                href={`/sets/${s.slug}`}
-                className="card-surface flex flex-col gap-1 p-4 transition-colors hover:border-brand-500"
-              >
-                <span className="text-lg font-bold text-white">{s.code}</span>
-                <span className="text-xs text-slate-400">{s.name}</span>
-              </Link>
-            )
-          )}
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <h2 className="text-xl font-extrabold text-white">Browse by set</h2>
+          <Link href="/sets" className="btn-ghost text-xs shrink-0">View all {SETS.length} sets →</Link>
+        </div>
+        <div className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-2">
+          {SETS.slice(0, 24).map((s) => (
+            <Link
+              key={s.code}
+              href={`/sets/${s.slug}`}
+              className="card-surface flex w-40 shrink-0 flex-col gap-1 p-4 transition-colors hover:border-brand-500"
+            >
+              <span className="text-lg font-bold text-white">{s.code.toUpperCase()}</span>
+              <span className="truncate text-xs text-slate-400">{s.name}</span>
+            </Link>
+          ))}
         </div>
       </section>
 

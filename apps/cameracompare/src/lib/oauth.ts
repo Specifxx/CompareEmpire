@@ -5,8 +5,8 @@
 //   GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET
 //   DISCORD_CLIENT_ID / DISCORD_CLIENT_SECRET
 // Redirect URI to register with each provider:
-//   https://riftcompare.com/api/auth/oauth/google/callback
-//   https://riftcompare.com/api/auth/oauth/discord/callback
+//   https://cameracompare.com/api/auth/oauth/google/callback
+//   https://cameracompare.com/api/auth/oauth/discord/callback
 import { SITE_URL } from "./site";
 
 export type OAuthProvider = "google" | "discord";

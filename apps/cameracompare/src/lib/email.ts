@@ -13,11 +13,11 @@ export async function sendEmail(to: string, subject: string, html: string): Prom
     console.warn(`[email] RESEND_API_KEY not set — "${subject}" to ${to} was NOT sent.`);
     return false;
   }
-  // Send from the verified riftcompare.com domain by default so Resend allows
+  // Send from the verified cameracompare.com domain by default so Resend allows
   // delivery to ANY recipient (the old onboarding@resend.dev fallback is Resend's
   // shared test sender and can only email the Resend account owner). Override with
   // EMAIL_FROM if you want a different address on the verified domain.
-  const from = process.env.EMAIL_FROM ?? `${SITE_NAME} <noreply@riftcompare.com>`;
+  const from = process.env.EMAIL_FROM ?? `${SITE_NAME} <noreply@cameracompare.com>`;
   try {
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",

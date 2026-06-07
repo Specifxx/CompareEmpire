@@ -1,44 +1,43 @@
-// CameraCompare logo — a camera aperture/iris with amber blades on a dark tile.
-// Vector so it stays crisp at any size (favicon → hero).
+// CameraCompare logo — a clean, generic camera (body + lens + flash) in amber
+// on a dark tile. Vector so it stays crisp at any size (favicon → hero).
 export function Logo({ size = 36 }: { size?: number }) {
-  const cx = 24, cy = 24, r = 13;
-  // Six aperture blades arranged around the centre.
-  const blades = Array.from({ length: 6 }, (_, i) => {
-    const a0 = (i * 60 - 90) * (Math.PI / 180);
-    const a1 = ((i + 1) * 60 - 90) * (Math.PI / 180);
-    const x0 = cx + r * Math.cos(a0), y0 = cy + r * Math.sin(a0);
-    const x1 = cx + r * Math.cos(a1), y1 = cy + r * Math.sin(a1);
-    // Inner point offset toward the next blade for the classic iris look.
-    const xm = cx + r * 0.34 * Math.cos(a1), ym = cy + r * 0.34 * Math.sin(a1);
-    return `M${cx} ${cy} L${x0.toFixed(2)} ${y0.toFixed(2)} L${x1.toFixed(2)} ${y1.toFixed(2)} L${xm.toFixed(2)} ${ym.toFixed(2)} Z`;
-  });
-  const shades = ["#ffb020", "#f59e0b", "#ffc24d", "#e8890c", "#ffcf6b", "#f0a317"];
   return (
-    <svg width={size} height={size} viewBox="0 0 48 48" role="img" aria-label="CameraCompare logo" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 48 48"
+      role="img"
+      aria-label="CameraCompare logo"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <defs>
         <linearGradient id="ccBg" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0%" stopColor="#1b2330" />
           <stop offset="100%" stopColor="#0b0f16" />
         </linearGradient>
-        <filter id="ccGlow" x="-40%" y="-40%" width="180%" height="180%">
-          <feGaussianBlur stdDeviation="0.6" result="b" />
-          <feMerge>
-            <feMergeNode in="b" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
+        <linearGradient id="ccLens" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#fbbf24" />
+          <stop offset="100%" stopColor="#d97706" />
+        </linearGradient>
       </defs>
+
+      {/* tile */}
       <rect x="2" y="2" width="44" height="44" rx="11" fill="url(#ccBg)" stroke="#33405a" strokeWidth="1" />
-      {/* lens barrel */}
-      <circle cx={cx} cy={cy} r={r + 2.5} fill="none" stroke="#3c4a66" strokeWidth="1.6" />
-      {/* aperture blades */}
-      <g stroke="#0b0f16" strokeWidth="0.5" strokeLinejoin="round">
-        {blades.map((d, i) => (
-          <path key={i} d={d} fill={shades[i]} />
-        ))}
-      </g>
-      {/* central highlight */}
-      <circle cx={cx} cy={cy} r="2.6" fill="#fff7e6" filter="url(#ccGlow)" />
+
+      {/* camera body */}
+      <rect x="8" y="16" width="32" height="20" rx="3.5" fill="#e8edf5" />
+      {/* viewfinder hump */}
+      <path d="M17 16 l2.2 -3.6 h9.6 L31 16 Z" fill="#e8edf5" />
+      {/* shutter button */}
+      <rect x="32.5" y="12.8" width="4" height="2.4" rx="1" fill="#cbd5e1" />
+      {/* flash */}
+      <rect x="11" y="19" width="3.2" height="2.4" rx="0.6" fill="#fde68a" />
+
+      {/* lens */}
+      <circle cx="24" cy="26.5" r="7.4" fill="#0b0f16" />
+      <circle cx="24" cy="26.5" r="6" fill="url(#ccLens)" />
+      <circle cx="24" cy="26.5" r="3" fill="#1b2330" />
+      <circle cx="21.8" cy="24.3" r="1.4" fill="#fff7e6" opacity="0.85" />
     </svg>
   );
 }

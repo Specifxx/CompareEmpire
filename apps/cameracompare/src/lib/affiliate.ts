@@ -7,7 +7,7 @@
 export const EBAY_CAMPAIGN_ID = process.env.EBAY_AFFILIATE_CAMPAIGN ?? "5339155912";
 
 // Amazon Associates store/tracking id, appended to amazon.* product links.
-export const AMAZON_ASSOCIATE_TAG = process.env.AMAZON_ASSOCIATE_TAG ?? "riftcompare-20";
+export const AMAZON_ASSOCIATE_TAG = process.env.AMAZON_ASSOCIATE_TAG ?? "cameracompare-20";
 
 // Impact (TCGplayer affiliate) site-ownership verification token. Rendered as a
 // <meta> in the document <head>.

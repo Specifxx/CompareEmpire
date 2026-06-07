@@ -18,97 +18,33 @@ export interface Article {
 
 export const ARTICLES: Article[] = [
   {
-    slug: "welcome-to-riftcompareau",
+    slug: "welcome-to-dexcompare",
     category: "blog",
     title: "Welcome to DexCompare",
     excerpt:
-      "What DexCompare is, why we built it, and how it helps Australian Pokémon players find the cheapest cards.",
+      "What DexCompare is, why we built it, and how it helps you find the cheapest Pokémon cards across stores.",
     author: "DexCompare",
     date: "2026-06-06",
     readMins: 2,
     tags: ["news", "about"],
-    body: `DexCompare is a free price-comparison tool for **the Pokémon Trading Card Game**, built for Australian players.
+    body: `DexCompare is a free price-comparison tool for **the Pokémon Trading Card Game**.
 
-Pokémon is exciting, but tracking down the cheapest copy of a card across a dozen different stores is tedious — every shop prices differently, stock changes daily, and overseas sites quietly show you the wrong currency. We built DexCompare to do that legwork for you.
+Pokémon is fun to collect, but tracking down the cheapest copy of a card across a dozen different stores is tedious — every shop prices differently, stock changes daily, and overseas sites quietly show you the wrong currency. We built DexCompare to do that legwork for you.
 
 ## What you can do here
 
-- **[Browse the card database](/browse)** — every Pokémon card, with the lowest live price across Australian stores.
-- **[Compare sealed products](/sealed)** — booster boxes, packs, Proving Grounds and more, priced across shops.
-- **[Explore meta decks](/decks)** — real top-finishing tournament lists, with a live "build cost" so you know what it costs to assemble.
-- **[Buy & sell on the forum](/forum)** — post want-to-buy / want-to-sell listings and trade directly with other AU collectors.
+- **[Browse the card database](/browse)** — every Pokémon card across 173 sets, with the lowest live price.
+- **[Compare sealed products](/sealed)** — booster boxes, Elite Trainer Boxes, bundles and packs, priced across shops.
+- **[Buy & sell on the forum](/forum)** — post want-to-buy / want-to-sell listings and trade directly with other collectors.
 
-## How prices work
+## Markets we cover
 
-We pull live prices from public Australian store feeds (and eBay AU) and always request the **Australian price**, so what you see is what you'd actually pay locally. Each card links straight out to the cheapest store so you can buy in a couple of clicks.
+Use the market switcher to price cards in **Australia, New Zealand, the United States** and the **United Kingdom** — including big stores like TCGplayer, Troll and Toad, Cardmarket, and the UK's Chaos Cards, Magic Madhouse and more. Each card links straight out to the cheapest store so you can buy in a couple of clicks.
 
-We're just getting started — the database, decks and price coverage grow every day. Spotted something off, or want a store added? Use the [contact form](/contact) or the [forum](/forum). Thanks for stopping by, and happy hunting.`,
+Spotted something off, or want a store added? Use the [contact form](/contact) or the [forum](/forum). Thanks for stopping by, and happy hunting.`,
   },
   {
-    slug: "unleashed-meta-snapshot-june-2026",
-    category: "blog",
-    title: "Pokémon Unleashed Meta Snapshot — June 2026",
-    excerpt:
-      "The decks defining the Unleashed metagame right now, from the current tournament data — and what each costs to build in Australia.",
-    author: "DexCompare",
-    date: "2026-06-06",
-    readMins: 3,
-    tags: ["meta", "decks"],
-    body: `The **Unleashed** metagame has settled into a clear top tier. Here's a snapshot of the most-played and best-performing legends right now, based on tournament results aggregated by [riftDecks.com](https://riftdecks.com/legends).
-
-## Tier 1 — the decks to beat
-
-- **Master Yi, Wuju Bladesman** (Body/Calm) — the defining aggro-tempo deck: cheap units backed by combat tricks to close games fast.
-- **Irelia, Blade Dancer** (Calm/Chaos) — flexible tempo with a deep spell package that snowballs the board.
-- **LeBlanc, Deceiver** (Mind/Order) — go-wide midrange that floods cheap units and converts with value.
-
-## Tier 2 — strong and popular
-
-- **Diana, Scorn of the Moon** (Chaos/Mind) — spell-tempo built around burst finishers like Moonfall.
-- **Fiora, Grand Duelist** (Body/Order) — wide, aggressive units that duel down blockers and race.
-- **Vex, Gloomist** (Calm/Chaos) — evasive threats plus a deep trick suite to dominate combat.
-
-## See the full lists (and build cost)
-
-Every one of these is a real, legal tournament list on our **[Meta Decks page](/decks)** — card-by-card, split into Legend, Champion, Main Deck, Battlefields, Runes and Sideboard, with a live **build cost** priced across Australian stores so you can see exactly what it takes to assemble.
-
-Decklists are sourced from riftDecks.com and refresh with the metagame — we'll post a new snapshot as the meta shifts.`,
-  },
-  {
-    slug: "how-a-riftbound-deck-is-built",
-    category: "guide",
-    title: "How a Pokémon Deck Is Built",
-    excerpt:
-      "Legend, Champion, main deck, runes, battlefields and sideboard — the anatomy of a Pokémon deck, explained with real examples.",
-    author: "DexCompare",
-    date: "2026-06-06",
-    readMins: 4,
-    tags: ["beginner", "deckbuilding"],
-    body: `New to Pokémon deckbuilding? A constructed deck is made of a few distinct parts. Here's how the current tournament lists are put together.
-
-## The parts of a deck
-
-- **Legend (1)** — your identity card. It sets your deck's direction and which Champion you build around (e.g. *Master Yi, Wuju Bladesman*).
-- **Champion (1)** — your signature unit, tied to your legend (e.g. *Master Yi, Tempered*).
-- **Main deck (~40 cards)** — your **Units**, **Gear** and **Spells**. This is where most of your strategy lives.
-- **Runes (12)** — your resource cards. Their colours must match your deck's **domains**.
-- **Battlefields (3)** — the locations you contest during the game.
-- **Sideboard (up to 8)** — extra cards you can swap in between games at tournaments.
-
-Add it up and a full tournament list is **64 cards** (56 in the main deck plus the sideboard).
-
-## Domains and runes
-
-Pokémon has seven domains — **Fury, Calm, Mind, Body, Chaos, Order** and **Colorless**. Most competitive decks commit to **one or two** domains (for example *Master Yi* is Body/Calm, while *Irelia* is Calm/Chaos). Your 12 runes are split to match those domains, which is how you reliably cast your cards.
-
-## Building on a budget
-
-A deck's cost is dominated by a handful of chase cards — the commons, runes and battlefields are cheap. On every **[meta deck page](/decks)** we show the build cost broken down card-by-card and priced across Australian stores, so you can see exactly where the money goes and where to save. Want to tweak a list? Open it in the **[Deck Builder](/deck)** to re-price your own version.
-
-This guide is a work in progress — we'll expand it with mulligan and sideboarding tips as the section grows.`,
-  },
-  {
-    slug: "where-to-buy-riftbound-australia",
+    slug: "where-to-buy-pokemon-cards-australia",
     category: "guide",
     title: "Where to Buy Pokémon Cards in Australia",
     excerpt:
@@ -121,20 +57,20 @@ This guide is a work in progress — we'll expand it with mulligan and sideboard
 
 ## Singles vs sealed
 
-- **Singles** are individual cards — the cheapest way to get exactly what your deck needs. Browse them in our **[card database](/browse)**, where each card shows the lowest live AU price and links straight to the store.
-- **Sealed** product (booster boxes, packs, Proving Grounds, Nexus Night packs) is better for opening and collecting. Compare it on the **[Sealed Products page](/sealed)**.
+- **Singles** are individual cards — the cheapest way to get exactly what you need. Browse them in our **[card database](/browse)**, where each card shows the lowest live price and links straight to the store.
+- **Sealed** product (booster boxes, Elite Trainer Boxes, bundles, packs) is better for opening and collecting. Compare it on the **[Sealed Products page](/sealed)**.
 
-## Why our prices are accurate for Australia
+## Pick your market
 
-Many overseas-hosted stores quietly show prices in the wrong currency depending on where their server thinks you are. We always request the **Australian** price from each store, so the numbers you see are what you'd actually pay locally — no surprise currency conversion at checkout.
+Set the market switcher to **Australia** to see AUD prices across Australian stores plus eBay AU, or switch to the **US** and **UK** to compare against TCGplayer, Troll and Toad and the major UK retailers. We always request the local price for the market you choose, so there are no surprise currency conversions at checkout.
 
 ## Tips for the cheapest basket
 
-1. **Check the build cost on a deck page.** It already finds the cheapest copy of each card across every store we track.
+1. **Sort by price.** The database finds the cheapest in-stock copy of each card across every store we track.
 2. **Watch shipping.** A card that's 20c cheaper isn't a win if it adds postage from a separate store — we show an estimated shipping figure per shop.
-3. **Use the [forum](/forum).** Other AU players list cards for sale (often below retail), and you can post a want-to-buy for anything you're chasing.
+3. **Use the [forum](/forum).** Other collectors list cards for sale (often below retail), and you can post a want-to-buy for anything you're chasing.
 
-We currently compare a wide range of Australian stores plus eBay AU, and we add more regularly. If your favourite shop is missing, let us know via [contact](/contact) — this guide will grow as coverage does.`,
+If your favourite shop is missing, let us know via [contact](/contact) — this guide will grow as coverage does.`,
   },
 ];
 

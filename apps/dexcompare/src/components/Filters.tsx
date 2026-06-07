@@ -42,6 +42,14 @@ export function Filters() {
   const [min, setMin] = useState(params.get("min") ?? "");
   const [max, setMax] = useState(params.get("max") ?? "");
   const [mobileOpen, setMobileOpen] = useState(false);
+  // There are 170+ Pokémon sets, so the Set facet is searchable + scrollable
+  // instead of rendering the whole list inline.
+  const [setQuery, setSetQuery] = useState("");
+  const filteredSets = useMemo(() => {
+    const q = setQuery.trim().toLowerCase();
+    if (!q) return SETS;
+    return SETS.filter((s) => s.name.toLowerCase().includes(q) || s.code.toLowerCase().includes(q));
+  }, [setQuery]);
 
   function update(mutate: (p: URLSearchParams) => void) {
     // Build from the optimistic state (not the URL) so rapid clicks accumulate.
@@ -133,10 +141,20 @@ export function Filters() {
           </Section>
 
           <Section title="Set" defaultOpen>
-            <div className="flex flex-col gap-1">
-              {SETS.map((s) => (
-                <Check key={s.code} checked={isActive("set", s.code)} onChange={() => update((p) => setCsv(p, "set", s.code))} label={`${s.name} (${s.code})`} />
+            <input
+              type="search"
+              value={setQuery}
+              onChange={(e) => setSetQuery(e.target.value)}
+              placeholder={`Search ${SETS.length} sets…`}
+              className="input mb-2 w-full text-sm"
+            />
+            <div className="flex max-h-64 flex-col gap-1 overflow-y-auto pr-1">
+              {filteredSets.map((s) => (
+                <Check key={s.code} checked={isActive("set", s.code)} onChange={() => update((p) => setCsv(p, "set", s.code))} label={`${s.name} (${s.code.toUpperCase()})`} />
               ))}
+              {filteredSets.length === 0 && (
+                <span className="px-1 py-2 text-xs text-slate-500">No sets match “{setQuery}”.</span>
+              )}
             </div>
           </Section>
 

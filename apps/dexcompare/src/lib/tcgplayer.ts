@@ -14,7 +14,7 @@ import { prisma } from "@/lib/db";
 import type { Prisma } from "@prisma/client";
 
 const SEARCH_URL = "https://mp-search-api.tcgplayer.com/v1/search/request?q=&isList=false";
-const PRODUCT_LINE = "riftbound-league-of-legends-trading-card-game";
+const PRODUCT_LINE = "pokemon";
 const PAGE_SIZE = 50;
 
 // Mirror of price-import.ts numKey: strip leading zeros, lowercase any letter
@@ -128,7 +128,7 @@ export async function fetchTcgplayerSealed(): Promise<TcgProduct[]> {
 }
 
 export function tcgProductUrl(p: TcgProduct): string {
-  const slug = `${p.productLineUrlName ?? "riftbound-league-of-legends-trading-card-game"}-${p.setUrlName ?? ""}-${p.productUrlName ?? ""}`
+  const slug = `${p.productLineUrlName ?? "pokemon"}-${p.setUrlName ?? ""}-${p.productUrlName ?? ""}`
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");

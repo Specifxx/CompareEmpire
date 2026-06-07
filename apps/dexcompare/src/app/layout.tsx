@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   description:
     "The Pokémon TCG card database and price comparison. Browse every card and compare live prices across stores in Australia, New Zealand and the United States to find the cheapest place to buy.",
   applicationName: SITE_NAME,
-  keywords: ["Pokémon", "Pokémon TCG", "Pokémon prices", "Pokémon singles", "League of Legends TCG", "card prices"],
+  keywords: ["Pokémon", "Pokémon TCG", "Pokémon prices", "Pokémon singles", "Pokémon sealed", "card prices"],
   alternates: { canonical: "/" },
   openGraph: {
     type: "website",
@@ -54,7 +54,7 @@ const orgJsonLd = {
       "@type": "Organization",
       "@id": `${SITE_URL}/#org`,
       name: SITE_NAME,
-      alternateName: ["Rift Compare", "DexCompare.com"],
+      alternateName: ["Dex Compare", "DexCompare.com"],
       url: SITE_URL,
       logo: `${SITE_URL}/icon-512.png`,
       description:
@@ -65,7 +65,7 @@ const orgJsonLd = {
       "@id": `${SITE_URL}/#website`,
       url: SITE_URL,
       name: SITE_NAME,
-      alternateName: ["Rift Compare", "DexCompare.com"],
+      alternateName: ["Dex Compare", "DexCompare.com"],
       publisher: { "@id": `${SITE_URL}/#org` },
       potentialAction: {
         "@type": "SearchAction",
@@ -85,8 +85,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             the non-standard `value` attribute, so spread it past the meta typing. */}
         <meta {...({ name: "impact-site-verification", value: IMPACT_SITE_VERIFICATION } as any)} />
         {/* Warm up the image CDN connection so card thumbnails start loading sooner. */}
-        <link rel="preconnect" href="https://cdn.riftscribe.gg" crossOrigin="" />
-        <link rel="dns-prefetch" href="https://cdn.riftscribe.gg" />
+        <link rel="preconnect" href="https://images.pokemontcg.io" crossOrigin="" />
+        <link rel="dns-prefetch" href="https://images.pokemontcg.io" />
       </head>
       <body className="min-h-screen bg-ink-950">
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }} />

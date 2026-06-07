@@ -24,9 +24,9 @@ export const metadata: Metadata = {
     template: "%s — CameraCompare",
   },
   description:
-    "The cameras card database and price comparison. Browse every card and compare live prices across stores in Australia, New Zealand and the United States to find the cheapest place to buy.",
+    "The camera database and price comparison. Browse cameras and compare live prices across stores in Australia, the United States and the United Kingdom to find the cheapest place to buy.",
   applicationName: SITE_NAME,
-  keywords: ["camera", "cameras", "camera prices", "cameras", "League of Legends TCG", "card prices"],
+  keywords: ["camera", "cameras", "camera prices", "mirrorless camera", "DSLR", "buy camera"],
   alternates: { canonical: "/" },
   openGraph: {
     type: "website",
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     url: SITE_URL,
     title: "CameraCompare — Camera Database & Price Comparison",
     description:
-      "Compare live cameras card prices across stores in Australia, New Zealand and the US to find the cheapest place to buy.",
+      "Compare live camera prices across stores in Australia, the US and the UK to find the cheapest place to buy.",
   },
   twitter: { card: "summary_large_image" },
   // Search engine site verification. Google's "HTML tag" method verifies a
@@ -54,18 +54,18 @@ const orgJsonLd = {
       "@type": "Organization",
       "@id": `${SITE_URL}/#org`,
       name: SITE_NAME,
-      alternateName: ["Rift Compare", "CameraCompare.com"],
+      alternateName: ["Camera Compare", "CameraCompare.com"],
       url: SITE_URL,
       logo: `${SITE_URL}/icon-512.png`,
       description:
-        "cameras card database and live price-comparison across Australia, New Zealand and the US.",
+        "Camera database and live price-comparison across Australia, the US and the UK.",
     },
     {
       "@type": "WebSite",
       "@id": `${SITE_URL}/#website`,
       url: SITE_URL,
       name: SITE_NAME,
-      alternateName: ["Rift Compare", "CameraCompare.com"],
+      alternateName: ["Camera Compare", "CameraCompare.com"],
       publisher: { "@id": `${SITE_URL}/#org` },
       potentialAction: {
         "@type": "SearchAction",
@@ -84,9 +84,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Impact / TCGplayer affiliate site-ownership verification. Impact looks for
             the non-standard `value` attribute, so spread it past the meta typing. */}
         <meta {...({ name: "impact-site-verification", value: IMPACT_SITE_VERIFICATION } as any)} />
-        {/* Warm up the image CDN connection so card thumbnails start loading sooner. */}
-        <link rel="preconnect" href="https://cdn.riftscribe.gg" crossOrigin="" />
-        <link rel="dns-prefetch" href="https://cdn.riftscribe.gg" />
       </head>
       <body className="min-h-screen bg-ink-950">
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }} />
