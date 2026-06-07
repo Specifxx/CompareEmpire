@@ -21,8 +21,8 @@ export async function generateMetadata({ params }: { params: { set: string } }):
   if (!set) return { title: "Set not found", robots: { index: false, follow: false } };
   // Market-neutral title (no country) so it ranks globally; the page itself is
   // tailored to the visitor's market.
-  const title = `camera ${set.name} Card Prices, Values & Full Card List`;
-  const description = `Every camera ${set.name} card with live prices compared across stores — find the cheapest ${set.name} singles. Full ${set.name} card list and values, updated daily.`;
+  const title = `${set.name} Cameras — Prices & Range`;
+  const description = `Every ${set.name} camera with live prices compared across stores — find the cheapest ${set.name} body. Updated daily.`;
   return {
     title: { absolute: `${title} | CameraCompare` },
     description,
@@ -81,19 +81,15 @@ export default async function SetPage({ params }: { params: { set: string } }) {
         <nav className="mb-3 flex items-center gap-1.5 text-xs text-slate-500" aria-label="Breadcrumb">
           <Link href="/" className="hover:text-slate-300">Home</Link>
           <span>/</span>
-          <Link href="/browse" className="hover:text-slate-300">Database</Link>
+          <Link href="/browse" className="hover:text-slate-300">Cameras</Link>
           <span>/</span>
           <span className="text-slate-300">{set.name}</span>
         </nav>
         <h1 className="text-2xl font-extrabold text-white sm:text-3xl">
-          camera {set.name} — card prices &amp; full list
+          {set.name} cameras — prices &amp; range
         </h1>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-slate-400">
-          {set.comingSoon ? (
-            <>camera <strong className="text-slate-200">{set.name}</strong> isn&apos;t out yet. This page will list every {set.name} card with live prices the moment it releases — check back soon.</>
-          ) : (
-            <>Browse all {cards.length} camera <strong className="text-slate-200">{set.name}</strong> cards and compare live prices across stores to find the cheapest singles. {priced.toLocaleString()} cards are priced right now, updated daily — switch your country at the top to see local prices.</>
-          )}
+          Browse all {cards.length} <strong className="text-slate-200">{set.name}</strong> cameras and compare live prices across stores to find the cheapest. {priced.toLocaleString()} are priced right now, updated daily — switch your country at the top to see local prices.
         </p>
       </div>
 
@@ -116,15 +112,14 @@ export default async function SetPage({ params }: { params: { set: string } }) {
 
       {/* Internal links to the other sets (crawl + UX) */}
       <section>
-        <h2 className="mb-3 text-lg font-bold text-white">Other camera sets</h2>
+        <h2 className="mb-3 text-lg font-bold text-white">Other brands</h2>
         <div className="flex flex-wrap gap-2">
           {otherSets.map((s) => (
             <Link key={s.slug} href={`/sets/${s.slug}`} className="chip border border-ink-700 px-3 py-1.5 text-sm hover:border-brand-500">
               {s.name}
             </Link>
           ))}
-          <Link href="/browse" className="chip border border-ink-700 px-3 py-1.5 text-sm hover:border-brand-500">All cards →</Link>
-          <Link href="/sealed" className="chip border border-ink-700 px-3 py-1.5 text-sm hover:border-brand-500">Sealed products →</Link>
+          <Link href="/browse" className="chip border border-ink-700 px-3 py-1.5 text-sm hover:border-brand-500">All cameras →</Link>
         </div>
       </section>
 

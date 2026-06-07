@@ -101,7 +101,7 @@ export default async function HomePage() {
 
           {/* Stats */}
           <div className="mx-auto mt-8 grid max-w-lg grid-cols-3 gap-4">
-            <Stat value={totalCards.toLocaleString()} label="cards" />
+            <Stat value={totalCards.toLocaleString()} label="cameras" />
             <Stat value={pricedCards.toLocaleString()} label="priced" />
             <Stat value={String(storeCount)} label={`${info.code} stores`} />
           </div>
@@ -114,7 +114,7 @@ export default async function HomePage() {
           <div>
             <h2 className="text-xl font-extrabold text-white">Cheapest cameras</h2>
             <p className="mt-0.5 text-xs text-slate-500">
-              The lowest live prices right now — we check {storeCount} {info.adjective} stores for every card so you always pay the least.
+              The lowest live prices right now — we check {storeCount} {info.adjective} stores for every camera so you always pay the least.
             </p>
           </div>
           <Link href="/browse?priced=1&sort=price_asc" className="btn-ghost text-xs shrink-0">View all →</Link>
