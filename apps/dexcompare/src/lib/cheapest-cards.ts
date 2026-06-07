@@ -26,3 +26,15 @@ export async function getCheapestCards(limit = 12, country: Country = "AU"): Pro
     )
     .slice(0, limit);
 }
+
+// "Most valuable cards" — the priciest singles in the visitor's market (chase
+// cards). Great for a Pokémon audience: it's the grails, sorted highest-first.
+export async function getValuableCards(limit = 12, country: Country = "AU"): Promise<CardTileData[]> {
+  const cards = (await prisma.card.findMany({
+    where: buildCardWhere({ priced: "1" }, country),
+    orderBy: buildCardOrderBy("price_desc", country),
+    take: limit,
+    select: cardTileSelect(country),
+  })) as CardTileData[];
+  return cards;
+}

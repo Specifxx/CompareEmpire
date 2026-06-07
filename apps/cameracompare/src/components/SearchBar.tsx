@@ -99,9 +99,9 @@ export function SearchBar() {
             setOpen(true);
           }}
           onFocus={() => setOpen(true)}
-          placeholder="Search cards, champions, sets…"
+          placeholder="Search cameras, brands…"
           className="input pl-9"
-          aria-label="Search cards"
+          aria-label="Search cameras"
           autoComplete="off"
           enterKeyHint="search"
         />

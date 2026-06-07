@@ -3,7 +3,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { CardTile } from "@/components/CardTile";
 import { CountryHeroToggle } from "@/components/CountryHeroToggle";
-import { getCheapestCards } from "@/lib/cheapest-cards";
+import { getCheapestCards, getValuableCards } from "@/lib/cheapest-cards";
 import { getCountry } from "@/lib/get-country";
 import { COUNTRIES, priceField, type CountryInfo } from "@/lib/country";
 import { SETS, domainInfo, DOMAIN_KEYS } from "@/lib/constants";
@@ -66,11 +66,13 @@ export default async function HomePage() {
   const ebay = ebayLabel(country);
   const faqs = faqsFor(info, ebay);
   const field = priceField(country);
-  const [totalCards, pricedCards, cheapestCards, storeGroups] = await Promise.all([
+  const [totalCards, pricedCards, cheapestCards, valuableCards, storeGroups] = await Promise.all([
     prisma.card.count(),
     prisma.card.count({ where: { [field]: { not: null } } }),
     // Lowest-priced singles, leading with the best-stocked bargains (price, then coverage).
     getCheapestCards(12, country),
+    // Most valuable singles (chase cards), highest-first.
+    getValuableCards(12, country),
     // Stores serving the selected market (eBay excluded from the count).
     prisma.retailerPrice.groupBy({ by: ["retailer"], where: { country, NOT: { retailer: { startsWith: "ebay" } } } }),
   ]);
@@ -122,6 +124,26 @@ export default async function HomePage() {
         </div>
         <div className="-mx-1 flex gap-4 overflow-x-auto px-1 pb-2">
           {cheapestCards.map((c) => (
+            <div key={c.id} className="w-36 shrink-0 sm:w-44">
+              <CardTile card={c} />
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Most valuable cards — the chase grails, highest-first */}
+      <section>
+        <div className="mb-4 flex items-end justify-between gap-3">
+          <div>
+            <h2 className="text-xl font-extrabold text-white">Most valuable cards</h2>
+            <p className="mt-0.5 text-xs text-slate-500">
+              The biggest chase cards by market value — Charizards, alt-arts, vintage holos and more.
+            </p>
+          </div>
+          <Link href="/browse?priced=1&sort=price_desc" className="btn-ghost text-xs shrink-0">View all →</Link>
+        </div>
+        <div className="-mx-1 flex gap-4 overflow-x-auto px-1 pb-2">
+          {valuableCards.map((c) => (
             <div key={c.id} className="w-36 shrink-0 sm:w-44">
               <CardTile card={c} />
             </div>

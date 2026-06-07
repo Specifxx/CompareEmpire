@@ -35,19 +35,14 @@ export async function Navbar() {
         {/* Nav */}
         <nav className="ml-auto flex items-center gap-1 lg:ml-0">
           <Link href="/browse" className="rounded-lg px-2.5 py-2 text-sm font-medium text-slate-200 hover:bg-ink-800 hover:text-white">
-            Database
-          </Link>
-          <Link href="/forum" className="rounded-lg px-2.5 py-2 text-sm font-medium text-slate-200 hover:bg-ink-800 hover:text-white">
-            Forum
+            Browse cameras
           </Link>
           <div className="hidden lg:block">
             <NavDropdown
               label="More"
               items={[
-                { href: "/sealed", label: "Sealed Products", desc: "Boxes, packs & promos" },
-                { href: "/proxy", label: "Proxy Printer", desc: "Pick & print test cards" },
-                { href: "/guides", label: "Guides", desc: "Learn camera" },
-                { href: "/blog", label: "Blog", desc: "News & meta" },
+                { href: "/guides", label: "Buying guides", desc: "How to choose a camera" },
+                { href: "/blog", label: "Blog", desc: "News & deals" },
               ]}
             />
           </div>
