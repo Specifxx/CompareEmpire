@@ -1,0 +1,64 @@
+name: Seed Neon databases
+
+# Seeds CameraCompare and DexCompare into their Neon Postgres databases.
+# Runs on GitHub's runners (open internet), since the dev container can't reach Neon.
+# Trigger from the Actions tab → "Seed Neon databases" → Run workflow, pasting each
+# app's Neon DATABASE_URL. (The URLs are masked in logs; rotate the DB password
+# afterwards if you like — it's one click in Neon.)
+
+on:
+  workflow_dispatch:
+    inputs:
+      cameracompare_url:
+        description: "CameraCompare Neon DATABASE_URL (pooled, sslmode=require)"
+        required: true
+      dexcompare_url:
+        description: "DexCompare Neon DATABASE_URL (pooled, sslmode=require)"
+        required: true
+      seed_cameracompare:
+        description: "Seed CameraCompare?"
+        type: boolean
+        default: true
+      seed_dexcompare:
+        description: "Seed DexCompare?"
+        type: boolean
+        default: true
+
+jobs:
+  seed:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Mask connection strings in logs
+        run: |
+          echo "::add-mask::${{ inputs.cameracompare_url }}"
+          echo "::add-mask::${{ inputs.dexcompare_url }}"
+
+      - name: Seed CameraCompare
+        if: ${{ inputs.seed_cameracompare }}
+        working-directory: apps/cameracompare
+        env:
+          DATABASE_URL: ${{ inputs.cameracompare_url }}
+        run: |
+          npm install --no-audit --no-fund
+          npx prisma db push
+          npx tsx prisma/seed.ts
+
+      - name: Seed DexCompare
+        if: ${{ inputs.seed_dexcompare }}
+        working-directory: apps/dexcompare
+        env:
+          DATABASE_URL: ${{ inputs.dexcompare_url }}
+        run: |
+          npm install --no-audit --no-fund
+          npx prisma db push
+          npx tsx prisma/seed.ts
+
+      - name: Done
+        run: echo "Seeding complete. Your Neon databases are populated."
