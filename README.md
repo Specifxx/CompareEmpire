@@ -9,10 +9,11 @@ Tailwind), tuned to its vertical.
 | **CompareEmpire** (hub) | `apps/hub` | 3000 | Tracks all subsidiaries with live counts |
 | **CameraCompare** | `apps/cameracompare` | 3002 | Cameras, across **AU · US · UK** |
 | **DexCompare** | `apps/dexcompare` | 3003 | Pokémon TCG — **all 20,324 cards** across 173 sets, markets **AU · NZ · US · UK** |
+| **CarCompare** | `apps/carcompare` | 3004 | New cars (72 models, 18 makes), across **AU · US · UK** |
 
-> **RiftCompare** (Riftbound) runs on its own separate instance and is **archived**
-> under `archived/riftcompare/` — it's excluded from the hub, the dev launcher and
-> deployment. See `archived/README.md`.
+> **RiftCompare** (Riftbound) is owned but runs on its **own separate instance**.
+> It's shown on the hub as an external subsidiary (set `RIFTCOMPARE_URL`); a
+> reference copy is kept under `archived/riftcompare/`.
 
 > Each app is self-contained (its own `node_modules` and generated Prisma client)
 > so the three different database schemas don't collide. Extracting shared
@@ -22,10 +23,10 @@ Tailwind), tuned to its vertical.
 
 - Node 20+
 - A PostgreSQL server (local is fine). The apps expect these databases in the
-  cluster: `cameracompare`, `dexcompare`.
+  cluster: `cameracompare`, `dexcompare`, `carcompare`.
 
 ```bash
-createdb cameracompare && createdb dexcompare
+createdb cameracompare && createdb dexcompare && createdb carcompare
 ```
 
 ## Setup
@@ -40,9 +41,10 @@ npm run install:all          # or: cd apps/<app> && npm install
 # 3. Create schema + seed data
 npm run seed:cameracompare
 npm run seed:dexcompare      # the full Pokémon catalogue (incl. UK Mode stores)
+npm run seed:carcompare
 
-# 4. Run everything (hub 3000, cameracompare 3002, dexcompare 3003)
-npm run dev                  # or run one: npm run dev:dexcompare
+# 4. Run everything (hub 3000, cameracompare 3002, dexcompare 3003, carcompare 3004)
+npm run dev                  # or run one: npm run dev:carcompare
 ```
 
 ### DexCompare data
