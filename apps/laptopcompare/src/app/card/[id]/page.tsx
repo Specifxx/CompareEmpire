@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   const lowest = pickPrice(card, country);
   const price = lowest != null ? ` from ${formatMoney(lowest, info.currency)}` : "";
   const title = `${card.name} (${card.setCode} ${card.collectorNumber}) — laptop price in ${info.place}`;
-  const description = `Compare live ${info.adjective} prices for ${card.name}, laptop ${card.setName} ${card.collectorNumber}${price}. Find the cheapest store to buy this card in ${info.place}.`;
+  const description = `Compare live ${info.adjective} prices for ${card.name}, laptop ${card.setName} ${card.collectorNumber}${price}. Find the cheapest store to buy this laptop in ${info.place}.`;
   const image = card.imageUrl ?? card.imageThumbUrl ?? undefined;
 
   return {
@@ -91,7 +91,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
     "@context": "https://schema.org",
     "@type": "Product",
     name: card.name,
-    category: "Trading Card",
+    category: "Laptop",
     description: `${card.name} — laptop ${card.setName} (${card.setCode}) ${card.collectorNumber}. Compare ${info.adjective} prices.`,
     ...(card.imageUrl ? { image: card.imageUrl } : {}),
     ...(prices.length && lowestPrice != null
