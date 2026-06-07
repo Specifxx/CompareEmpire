@@ -11,11 +11,27 @@ export interface Subsidiary {
   status: "live" | "soon";
   region: string;
   emoji: string;
+  // External = runs on its own separate instance (not in this monorepo). The hub
+  // links to it and treats it as live; live counts are only shown if a
+  // <KEY>_DATABASE_URL is provided.
+  external?: boolean;
 }
 
 // The empire's holdings. Add a new compare site here and it appears on the hub.
-// (RiftCompare runs on its own separate instance and is archived from this repo.)
 export const SUBSIDIARIES: Subsidiary[] = [
+  {
+    key: "riftcompare",
+    name: "RiftCompare",
+    vertical: "Riftbound TCG",
+    tagline: "Compare live Riftbound (League of Legends TCG) singles & sealed prices.",
+    url: "https://riftcompare.com",
+    db: "riftcompare",
+    accent: "#1ea65c",
+    status: "live",
+    region: "AU · NZ · US",
+    emoji: "⚔️",
+    external: true,
+  },
   {
     key: "cameracompare",
     name: "CameraCompare",
@@ -83,6 +99,11 @@ async function one(s: Subsidiary, sql: string): Promise<number | null> {
 }
 
 export async function getStats(s: Subsidiary): Promise<SubsidiaryStats> {
+  // External sites (separate instance) are treated as live; we only query live
+  // counts if a connection string was explicitly provided for them.
+  if (s.external && !process.env[`${s.key.toUpperCase()}_DATABASE_URL`]) {
+    return { products: null, pricePoints: null, retailers: null, sealed: null, online: true };
+  }
   const [products, pricePoints, retailers, sealed] = await Promise.all([
     one(s, 'SELECT count(*)::text AS count FROM "Card"'),
     one(s, 'SELECT count(*)::text AS count FROM "RetailerPrice"'),

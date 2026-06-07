@@ -116,20 +116,27 @@ export default async function Home() {
                 </div>
                 <p className="mt-3 text-sm text-white/65">{s.tagline}</p>
 
-                <div className="mt-5 grid grid-cols-3 gap-2 border-t border-white/10 pt-4 text-center">
-                  <div>
-                    <div className="text-base font-bold text-white">{fmt(st?.products ?? null)}</div>
-                    <div className="text-[10px] uppercase tracking-wide text-white/45">products</div>
+                {s.external && st?.products == null ? (
+                  <div className="mt-5 flex items-center gap-2 border-t border-white/10 pt-4 text-xs text-white/50">
+                    <span className="rounded-full bg-white/10 px-2 py-0.5 font-semibold text-white/70">Owned</span>
+                    <span>Independently hosted compare site</span>
                   </div>
-                  <div>
-                    <div className="text-base font-bold text-white">{fmt(st?.retailers ?? null)}</div>
-                    <div className="text-[10px] uppercase tracking-wide text-white/45">retailers</div>
+                ) : (
+                  <div className="mt-5 grid grid-cols-3 gap-2 border-t border-white/10 pt-4 text-center">
+                    <div>
+                      <div className="text-base font-bold text-white">{fmt(st?.products ?? null)}</div>
+                      <div className="text-[10px] uppercase tracking-wide text-white/45">products</div>
+                    </div>
+                    <div>
+                      <div className="text-base font-bold text-white">{fmt(st?.retailers ?? null)}</div>
+                      <div className="text-[10px] uppercase tracking-wide text-white/45">retailers</div>
+                    </div>
+                    <div>
+                      <div className="text-base font-bold text-white">{fmt(st?.pricePoints ?? null)}</div>
+                      <div className="text-[10px] uppercase tracking-wide text-white/45">prices</div>
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-base font-bold text-white">{fmt(st?.pricePoints ?? null)}</div>
-                    <div className="text-[10px] uppercase tracking-wide text-white/45">prices</div>
-                  </div>
-                </div>
+                )}
 
                 <div className="mt-5 inline-flex items-center gap-1 text-sm font-semibold" style={{ color: s.accent }}>
                   Visit {s.name}
