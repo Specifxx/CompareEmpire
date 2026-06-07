@@ -15,6 +15,7 @@ interface MiniCard {
   imageThumbUrl: string | null;
   lowestPriceCents: number | null;
   lowestPriceCentsNz?: number | null;
+  lowestPriceCentsGb?: number | null;
   lowestPriceCentsUs?: number | null;
 }
 

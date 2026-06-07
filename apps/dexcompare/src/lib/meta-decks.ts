@@ -72,6 +72,7 @@ const CARD_SELECT = {
   imageUrl: true,
   lowestPriceCents: true,
   lowestPriceCentsNz: true,
+  lowestPriceCentsGb: true,
   lowestPriceCentsUs: true,
 } as const;
 

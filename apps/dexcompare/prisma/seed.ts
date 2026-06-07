@@ -76,6 +76,7 @@ function ageMult(releaseDate: string): number {
 
 const USD_TO_AUD = 1.55;
 const USD_TO_NZD = 1.68;
+const USD_TO_GBP = 0.82;
 const cents = (n: number, floor = 8) => Math.max(floor, Math.round(n));
 
 async function main() {
@@ -112,6 +113,7 @@ async function main() {
     const usLow = cents(baseUsd * between(0.92, 1.0));
     const auLow = cents(usLow * USD_TO_AUD * between(0.95, 1.08), 10);
     const nzLow = cents(usLow * USD_TO_NZD * between(0.96, 1.1), 10);
+    const gbLow = cents(usLow * USD_TO_GBP * between(0.95, 1.08), 8);
     return {
       externalId: c.externalId,
       slug: `${c.externalId}-${normalizeSearch(c.name).replace(/\s+/g, "-")}`.slice(0, 80),
@@ -133,6 +135,7 @@ async function main() {
       lowestPriceCents: auLow,
       lowestPriceCentsNz: nzLow,
       lowestPriceCentsUs: usLow,
+      lowestPriceCentsGb: gbLow,
       artSeed: Math.floor(rng() * 1_000_000),
     };
   });
@@ -146,7 +149,7 @@ async function main() {
   console.log("\nCards inserted.");
 
   const dbCards = await prisma.card.findMany({
-    select: { id: true, externalId: true, lowestPriceCentsUs: true, lowestPriceCents: true },
+    select: { id: true, externalId: true, lowestPriceCentsUs: true, lowestPriceCents: true, lowestPriceCentsGb: true },
   });
   console.log(`Building retailer prices for ${dbCards.length} cards…`);
 
@@ -160,6 +163,27 @@ async function main() {
   const auRetailers = [
     { key: "ebay_au", name: "eBay AU", url: (c: string) => `https://www.ebay.com.au/sch/i.html?_nkw=${c}+pokemon+card`, spread: [0.95, 1.2] as [number, number] },
     { key: "pokemarket", name: "Pokémon Market AU", url: (c: string) => `https://pokemarket.com.au/search?q=${c}`, spread: [0.98, 1.15] as [number, number] },
+  ];
+
+  // UK MODE: the biggest UK TCG retailers (market scan). Prices in GBP.
+  const gbRetailers = [
+    { key: "chaoscards", name: "Chaos Cards", url: (c: string) => `https://www.chaoscards.co.uk/search?q=${c}`, spread: [0.95, 1.05] as [number, number] },
+    { key: "magicmadhouse", name: "Magic Madhouse", url: (c: string) => `https://www.magicmadhouse.co.uk/catalogsearch/result/?q=${c}`, spread: [0.96, 1.07] as [number, number] },
+    { key: "totalcards", name: "Total Cards", url: (c: string) => `https://www.totalcards.net/catalogsearch/result/?q=${c}`, spread: [0.96, 1.08] as [number, number] },
+    { key: "elementgames", name: "Element Games", url: (c: string) => `https://elementgames.co.uk/?search=${c}`, spread: [0.94, 1.04] as [number, number] },
+    { key: "goblingaming", name: "Goblin Gaming", url: (c: string) => `https://goblingaming.co.uk/search?q=${c}`, spread: [0.96, 1.08] as [number, number] },
+    { key: "bigorbitcards", name: "Big Orbit Cards", url: (c: string) => `https://www.bigorbitcards.co.uk/catalogsearch/result/?q=${c}`, spread: [0.95, 1.07] as [number, number] },
+    { key: "axionnow", name: "Axion Now", url: (c: string) => `https://www.axionnow.com/catalogsearch/result/?q=${c}`, spread: [0.97, 1.1] as [number, number] },
+    { key: "manaleak", name: "Manaleak", url: (c: string) => `https://www.manaleak.com/mtguk/catalogsearch/result/?q=${c}`, spread: [0.97, 1.11] as [number, number] },
+    { key: "patriotgames", name: "Patriot Games", url: (c: string) => `https://www.patriotgames.co.uk/search?q=${c}`, spread: [0.98, 1.12] as [number, number] },
+    { key: "athenacards", name: "Athena Cards", url: (c: string) => `https://www.athenacards.com/search?q=${c}`, spread: [0.98, 1.12] as [number, number] },
+    { key: "forbiddenplanet", name: "Forbidden Planet", url: (c: string) => `https://forbiddenplanet.com/catalog/?q=${c}`, spread: [1.0, 1.15] as [number, number] },
+    { key: "game_uk", name: "GAME", url: (c: string) => `https://www.game.co.uk/en/search/?q=${c}`, spread: [1.0, 1.18] as [number, number] },
+    { key: "smythstoys", name: "Smyths Toys", url: (c: string) => `https://www.smythstoys.com/uk/en-gb/search/?text=${c}`, spread: [1.0, 1.16] as [number, number] },
+    { key: "pokemoncenter_uk", name: "Pokémon Center UK", url: (c: string) => `https://www.pokemoncenter.com/en-gb/search/${c}`, spread: [1.0, 1.2] as [number, number] },
+    { key: "cardsuniverse", name: "Cards Universe", url: (c: string) => `https://cardsuniverse.co.uk/search?q=${c}`, spread: [0.97, 1.1] as [number, number] },
+    { key: "ebay_uk", name: "eBay UK", url: (c: string) => `https://www.ebay.co.uk/sch/i.html?_nkw=${c}+pokemon+card`, spread: [0.9, 1.22] as [number, number] },
+    { key: "amazon_uk", name: "Amazon UK", url: (c: string) => `https://www.amazon.co.uk/s?k=${c}+pokemon+card`, spread: [0.95, 1.2] as [number, number] },
   ];
 
   const priceRows: {
@@ -182,6 +206,13 @@ async function main() {
         currency: "AUD", inStock: true, country: "AU",
       });
     }
+    for (const r of gbRetailers) {
+      priceRows.push({
+        cardId: c.id, retailer: r.key, retailerName: r.name, title: r.name, url: r.url(q),
+        priceCents: cents((c.lowestPriceCentsGb ?? 40) * between(r.spread[0], r.spread[1]), 8),
+        currency: "GBP", inStock: true, country: "GB",
+      });
+    }
   }
   console.log(`Inserting ${priceRows.length} retailer prices…`);
   for (let i = 0; i < priceRows.length; i += 5000) {
@@ -196,6 +227,12 @@ async function main() {
     { key: "tcgplayer", name: "TCGplayer", country: "US", currency: "USD" },
     { key: "trollandtoad", name: "Troll and Toad", country: "US", currency: "USD" },
     { key: "ebay_au", name: "eBay AU", country: "AU", currency: "AUD" },
+    // UK MODE sealed sources
+    { key: "chaoscards", name: "Chaos Cards", country: "GB", currency: "GBP" },
+    { key: "magicmadhouse", name: "Magic Madhouse", country: "GB", currency: "GBP" },
+    { key: "totalcards", name: "Total Cards", country: "GB", currency: "GBP" },
+    { key: "elementgames", name: "Element Games", country: "GB", currency: "GBP" },
+    { key: "ebay_uk", name: "eBay UK", country: "GB", currency: "GBP" },
   ];
   const PRODUCTS = [
     { type: "Booster Box", usd: [9000, 16000] as [number, number] },
@@ -214,7 +251,7 @@ async function main() {
       const baseUsd = between(p.usd[0], p.usd[1]);
       for (const r of sealedRetailers) {
         const usd = baseUsd * between(0.95, 1.12);
-        const price = r.currency === "AUD" ? usd * USD_TO_AUD : usd;
+        const price = r.currency === "AUD" ? usd * USD_TO_AUD : r.currency === "GBP" ? usd * USD_TO_GBP : usd;
         sealedRows.push({
           groupKey: `${s.code}-${p.type.toLowerCase().replace(/\s+/g, "-")}`,
           title: `${s.name} ${p.type}`,

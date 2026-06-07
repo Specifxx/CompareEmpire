@@ -34,6 +34,7 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
       artSeed: true,
       lowestPriceCents: true,
       lowestPriceCentsNz: true,
+      lowestPriceCentsGb: true,
       lowestPriceCentsUs: true,
       retailerPrices: {
         where: priceWhere,

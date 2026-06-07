@@ -77,6 +77,7 @@ interface SearchResult {
   collectorNumber: string;
   lowestPriceCents: number | null;
   lowestPriceCentsNz?: number | null;
+  lowestPriceCentsGb?: number | null;
   lowestPriceCentsUs?: number | null;
 }
 

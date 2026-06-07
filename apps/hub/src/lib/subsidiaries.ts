@@ -14,19 +14,8 @@ export interface Subsidiary {
 }
 
 // The empire's holdings. Add a new compare site here and it appears on the hub.
+// (RiftCompare runs on its own separate instance and is archived from this repo.)
 export const SUBSIDIARIES: Subsidiary[] = [
-  {
-    key: "riftcompare",
-    name: "RiftCompare",
-    vertical: "Riftbound TCG",
-    tagline: "Compare live Riftbound (League of Legends TCG) singles & sealed prices.",
-    url: "http://localhost:3001",
-    db: "riftcompare",
-    accent: "#1ea65c",
-    status: "live",
-    region: "AU · NZ · US",
-    emoji: "⚔️",
-  },
   {
     key: "cameracompare",
     name: "CameraCompare",
@@ -43,12 +32,12 @@ export const SUBSIDIARIES: Subsidiary[] = [
     key: "dexcompare",
     name: "DexCompare",
     vertical: "Pokémon TCG",
-    tagline: "Every Pokémon card & sealed product, priced across TCGplayer, Troll and Toad & more.",
+    tagline: "Every Pokémon card & sealed product, priced across TCGplayer, Troll and Toad, UK stores & more.",
     url: "http://localhost:3003",
     db: "dexcompare",
     accent: "#ee1515",
     status: "live",
-    region: "AU · NZ · US",
+    region: "AU · NZ · US · UK",
     emoji: "🔴",
   },
 ];
