@@ -9,6 +9,7 @@ The monorepo deploys as separate Vercel projects from one repo. Current sites:
 | dexcompare | `apps/dexcompare` | `dexcompare` |
 | carcompare | `apps/carcompare` | `carcompare` |
 | phonecompare | `apps/phonecompare` | `phonecompare` |
+| laptopcompare | `apps/laptopcompare` | `laptopcompare` |
 
 > **RiftCompare** runs on its own separate instance — it's shown on the hub as an
 > external link (set `RIFTCOMPARE_URL` on the hub), not deployed from here.
@@ -20,15 +21,15 @@ tiers) is the setup. GitHub stores the code; Vercel deploys it.
 
 ## 1. Databases (Neon) — already provisioned
 
-All four databases (`cameracompare`, `dexcompare`, `carcompare`, `phonecompare`)
+All five databases (`cameracompare`, `dexcompare`, `carcompare`, `phonecompare`, `laptopcompare`)
 have been **created and seeded** in your Neon project via the
 **"Seed Neon databases"** GitHub Action (`.github/workflows/seed-neon.yml`).
 
 To re-seed or refresh later: Actions tab → *Seed Neon databases* → Run workflow,
 tick the sites you want and paste their Neon URLs. The workflow:
 - pulls **real Pokémon prices** (pokemontcg.io) for DexCompare,
-- fetches **real product photos** (Wikipedia) for Camera/Car/Phone,
-- **auto-creates** the carcompare / phonecompare databases if missing.
+- fetches **real product photos** (Wikipedia) for Camera/Car/Phone/Laptop,
+- **auto-creates** the carcompare / phonecompare / laptopcompare databases if missing.
 
 ## 2. Vercel projects
 
@@ -50,8 +51,8 @@ branch.
 
 | Key | Value |
 | --- | --- |
-| `CAMERACOMPARE_DATABASE_URL` / `DEXCOMPARE_DATABASE_URL` / `CARCOMPARE_DATABASE_URL` / `PHONECOMPARE_DATABASE_URL` | the four Neon strings |
-| `CAMERACOMPARE_URL` / `DEXCOMPARE_URL` / `CARCOMPARE_URL` / `PHONECOMPARE_URL` | each app's deployed URL (after first deploy) |
+| `CAMERACOMPARE_DATABASE_URL` / `DEXCOMPARE_DATABASE_URL` / `CARCOMPARE_DATABASE_URL` / `PHONECOMPARE_DATABASE_URL` / `LAPTOPCOMPARE_DATABASE_URL` | the five Neon strings |
+| `CAMERACOMPARE_URL` / `DEXCOMPARE_URL` / `CARCOMPARE_URL` / `PHONECOMPARE_URL` / `LAPTOPCOMPARE_URL` | each app's deployed URL (after first deploy) |
 | `RIFTCOMPARE_URL` | your existing RiftCompare site URL |
 
 ## 4. Deploy

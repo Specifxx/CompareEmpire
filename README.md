@@ -25,7 +25,7 @@ Tailwind), tuned to its vertical.
 
 - Node 20+
 - A PostgreSQL server (local is fine). The apps expect these databases in the
-  cluster: `cameracompare`, `dexcompare`, `carcompare`.
+  cluster: `cameracompare`, `dexcompare`, `carcompare`, `phonecompare`, `laptopcompare`.
 
 ```bash
 createdb cameracompare && createdb dexcompare && createdb carcompare && createdb phonecompare && createdb laptopcompare
