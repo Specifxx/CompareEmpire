@@ -80,6 +80,18 @@ export const SUBSIDIARIES: Subsidiary[] = [
     region: "AU · US · UK",
     emoji: "📱",
   },
+  {
+    key: "laptopcompare",
+    name: "LaptopCompare",
+    vertical: "Laptops",
+    tagline: "Compare laptop prices across the major retailers in seconds.",
+    url: "http://localhost:3006",
+    db: "laptopcompare",
+    accent: "#6366f1",
+    status: "live",
+    region: "AU · US · UK",
+    emoji: "💻",
+  },
 ];
 
 export interface SubsidiaryStats {

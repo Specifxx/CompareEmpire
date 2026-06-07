@@ -11,6 +11,7 @@ Tailwind), tuned to its vertical.
 | **DexCompare** | `apps/dexcompare` | 3003 | Pokémon TCG — **all 20,324 cards** across 173 sets, markets **AU · NZ · US · UK** |
 | **CarCompare** | `apps/carcompare` | 3004 | New cars (72 models, 18 makes), across **AU · US · UK** |
 | **PhoneCompare** | `apps/phonecompare` | 3005 | Smartphones (33 models, 9 brands), across **AU · US · UK** |
+| **LaptopCompare** | `apps/laptopcompare` | 3006 | Laptops (32 models, 10 brands), across **AU · US · UK** |
 
 > **RiftCompare** (Riftbound) is owned but runs on its **own separate instance**.
 > It's shown on the hub as an external subsidiary (set `RIFTCOMPARE_URL`); a
@@ -27,7 +28,7 @@ Tailwind), tuned to its vertical.
   cluster: `cameracompare`, `dexcompare`, `carcompare`.
 
 ```bash
-createdb cameracompare && createdb dexcompare && createdb carcompare && createdb phonecompare
+createdb cameracompare && createdb dexcompare && createdb carcompare && createdb phonecompare && createdb laptopcompare
 ```
 
 ## Setup

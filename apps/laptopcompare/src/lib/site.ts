@@ -1,0 +1,9 @@
+// Site-wide constants.
+
+// Public contact address — shown on the site and used to forward feedback emails.
+export const CONTACT_EMAIL = "laptopcompare@gmail.com";
+
+export const SITE_NAME = "LaptopCompare";
+
+// Canonical origin (no trailing slash). Used for metadata, sitemap and robots.
+export const SITE_URL = "https://laptopcompare.com";

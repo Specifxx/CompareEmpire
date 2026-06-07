@@ -3,10 +3,10 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-declare -A PORTS=( [hub]=3000 [cameracompare]=3002 [dexcompare]=3003 [carcompare]=3004 [phonecompare]=3005 )
+declare -A PORTS=( [hub]=3000 [cameracompare]=3002 [dexcompare]=3003 [carcompare]=3004 [phonecompare]=3005 [laptopcompare]=3006 )
 
 pids=()
-for app in hub cameracompare dexcompare carcompare phonecompare; do
+for app in hub cameracompare dexcompare carcompare phonecompare laptopcompare; do
   port="${PORTS[$app]}"
   echo "▶ starting $app on http://localhost:$port"
   ( cd "apps/$app" && npx next dev -p "$port" ) &

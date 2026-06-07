@@ -2,7 +2,7 @@
   "name": "compareempire",
   "version": "0.1.0",
   "private": true,
-  "description": "CompareEmpire \u2014 a monorepo of price-comparison sites (CameraCompare, DexCompare, CarCompare, PhoneCompare) plus the CompareEmpire hub. (RiftCompare runs on a separate instance.)",
+  "description": "CompareEmpire \u2014 a monorepo of price-comparison sites (Camera, Dex, Car, Phone, Laptop) plus the CompareEmpire hub. (RiftCompare runs on a separate instance.)",
   "scripts": {
     "dev": "bash scripts/dev-all.sh",
     "dev:hub": "cd apps/hub && npx next dev -p 3000",
@@ -14,6 +14,8 @@
     "seed:dexcompare": "cd apps/dexcompare && npx prisma db push && npx tsx prisma/seed.ts",
     "seed:carcompare": "cd apps/carcompare && npx prisma db push && npx tsx prisma/seed.ts",
     "dev:phonecompare": "cd apps/phonecompare && npx next dev -p 3005",
-    "seed:phonecompare": "cd apps/phonecompare && npx prisma db push && npx tsx prisma/seed.ts"
+    "seed:phonecompare": "cd apps/phonecompare && npx prisma db push && npx tsx prisma/seed.ts",
+    "dev:laptopcompare": "cd apps/laptopcompare && npx next dev -p 3006",
+    "seed:laptopcompare": "cd apps/laptopcompare && npx prisma db push && npx tsx prisma/seed.ts"
   }
 }
