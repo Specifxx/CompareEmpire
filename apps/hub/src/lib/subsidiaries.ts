@@ -62,26 +62,31 @@ export interface SubsidiaryStats {
 }
 
 const pools = new Map<string, Pool>();
-function poolFor(db: string): Pool {
-  let p = pools.get(db);
+function poolFor(s: Subsidiary): Pool {
+  let p = pools.get(s.key);
   if (!p) {
-    p = new Pool({
-      host: process.env.PGHOST ?? "127.0.0.1",
-      port: parseInt(process.env.PGPORT ?? "5432", 10),
-      user: process.env.PGUSER ?? "postgres",
-      database: db,
-      max: 2,
-      connectionTimeoutMillis: 2500,
-    });
+    // In production each subsidiary's Neon connection string is supplied via env,
+    // e.g. RIFTCOMPARE_DATABASE_URL. Locally we fall back to the shared cluster.
+    const envUrl = process.env[`${s.key.toUpperCase()}_DATABASE_URL`];
+    p = envUrl
+      ? new Pool({ connectionString: envUrl, max: 2, connectionTimeoutMillis: 4000 })
+      : new Pool({
+          host: process.env.PGHOST ?? "127.0.0.1",
+          port: parseInt(process.env.PGPORT ?? "5432", 10),
+          user: process.env.PGUSER ?? "postgres",
+          database: s.db,
+          max: 2,
+          connectionTimeoutMillis: 2500,
+        });
     p.on("error", () => {});
-    pools.set(db, p);
+    pools.set(s.key, p);
   }
   return p;
 }
 
-async function one(db: string, sql: string): Promise<number | null> {
+async function one(s: Subsidiary, sql: string): Promise<number | null> {
   try {
-    const r = await poolFor(db).query(sql);
+    const r = await poolFor(s).query(sql);
     return parseInt(r.rows[0].count, 10);
   } catch {
     return null;
@@ -90,12 +95,18 @@ async function one(db: string, sql: string): Promise<number | null> {
 
 export async function getStats(s: Subsidiary): Promise<SubsidiaryStats> {
   const [products, pricePoints, retailers, sealed] = await Promise.all([
-    one(s.db, 'SELECT count(*)::text AS count FROM "Card"'),
-    one(s.db, 'SELECT count(*)::text AS count FROM "RetailerPrice"'),
-    one(s.db, 'SELECT count(DISTINCT retailer)::text AS count FROM "RetailerPrice"'),
-    one(s.db, 'SELECT count(*)::text AS count FROM "SealedListing"'),
+    one(s, 'SELECT count(*)::text AS count FROM "Card"'),
+    one(s, 'SELECT count(*)::text AS count FROM "RetailerPrice"'),
+    one(s, 'SELECT count(DISTINCT retailer)::text AS count FROM "RetailerPrice"'),
+    one(s, 'SELECT count(*)::text AS count FROM "SealedListing"'),
   ]);
   return { products, pricePoints, retailers, sealed, online: products !== null };
+}
+
+// In production the deployed URL for each site is supplied via env, e.g.
+// RIFTCOMPARE_URL=https://riftcompare.vercel.app. Falls back to the local port.
+export function subsidiaryUrl(s: Subsidiary): string {
+  return process.env[`${s.key.toUpperCase()}_URL`] ?? s.url;
 }
 
 export async function getAllStats(): Promise<Record<string, SubsidiaryStats>> {

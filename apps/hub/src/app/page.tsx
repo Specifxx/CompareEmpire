@@ -1,5 +1,5 @@
 import { Logo } from "@/components/Logo";
-import { SUBSIDIARIES, getAllStats } from "@/lib/subsidiaries";
+import { SUBSIDIARIES, getAllStats, subsidiaryUrl } from "@/lib/subsidiaries";
 
 export const dynamic = "force-dynamic"; // always read live counts
 
@@ -85,7 +85,7 @@ export default async function Home() {
             return (
               <a
                 key={s.key}
-                href={s.url}
+                href={subsidiaryUrl(s)}
                 target="_blank"
                 rel="noreferrer"
                 className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] p-6 shadow-card transition hover:-translate-y-1 hover:border-white/20"
