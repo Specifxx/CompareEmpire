@@ -5,6 +5,7 @@ import { prisma } from "@/lib/db";
 import { CardImage } from "@/components/CardImage";
 import { DomainBadge, RarityBadge, VariantBadge, OvernumberedBadge, PromoBadge, SignatureBadge } from "@/components/Badge";
 import { isOvernumbered, isSignature } from "@/lib/constants";
+import { POKEMON_SETS } from "@/lib/pokemon-sets";
 import { WishlistButton } from "@/components/WishlistButton";
 import { CardViewBeacon } from "@/components/CardViewBeacon";
 import { formatMoney, timeAgo } from "@/lib/format";
@@ -137,11 +138,20 @@ export default async function CardPage({ params }: { params: { id: string } }) {
               <PromoBadge show={card.isPromo} />
             </div>
             <div className="mt-3 flex items-start justify-between gap-3">
-              <div>
-                <h1 className="text-2xl font-extrabold text-white">{card.name}</h1>
-                <p className="mt-1 font-mono text-xs text-slate-500">
-                  {card.setName} ({card.setCode}) · {card.collectorNumber}
-                </p>
+              <div className="flex items-start gap-3">
+                {(() => {
+                  const logo = POKEMON_SETS.find((s) => s.code === card.setCode)?.logo;
+                  return logo ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={logo} alt={card.setName} className="mt-1 h-9 w-auto max-w-[88px] object-contain" />
+                  ) : null;
+                })()}
+                <div>
+                  <h1 className="text-2xl font-extrabold text-white">{card.name}</h1>
+                  <p className="mt-1 text-xs text-slate-500">
+                    {card.setName} · {card.collectorNumber}
+                  </p>
+                </div>
               </div>
               <WishlistButton cardId={card.id} variant="full" />
             </div>
@@ -149,10 +159,9 @@ export default async function CardPage({ params }: { params: { id: string } }) {
             <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
               <Metric label={cheapestFoil != null ? "Standard from" : "Cheapest price"} value={(cheapestStandard ?? lowestPrice) != null ? fmt((cheapestStandard ?? lowestPrice)!) : "—"} highlight />
               {cheapestFoil != null && <Metric label="✦ Foil from" value={fmt(cheapestFoil)} highlight />}
-              <Metric label="In stock at" value={`${prices.length} ${prices.length === 1 ? "store" : "stores"}`} />
-              {card.energyCost != null && <Metric label="Energy" value={String(card.energyCost)} />}
-              {card.might != null && cheapestFoil == null && <Metric label="Might" value={String(card.might)} />}
-              {card.might == null && card.power != null && cheapestFoil == null && <Metric label="Power" value={String(card.power)} />}
+              <Metric label="Compared at" value={`${prices.length} ${prices.length === 1 ? "store" : "stores"}`} />
+              {card.might != null && <Metric label="HP" value={String(card.might)} />}
+              <Metric label="Rarity" value={card.rarity} />
             </div>
           </div>
 
