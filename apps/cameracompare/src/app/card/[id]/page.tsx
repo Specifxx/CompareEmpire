@@ -157,9 +157,16 @@ export default async function CardPage({ params }: { params: { id: string } }) {
           {/* Price comparison */}
           <div className="card-surface mt-6 overflow-hidden">
             <div className="flex items-center justify-between border-b border-ink-700 p-4">
-              <h2 className="font-bold text-white">
-                Price comparison <span className="text-slate-500">({prices.length})</span>
-              </h2>
+              <div className="flex flex-wrap items-center gap-3">
+                <h2 className="font-bold text-white">
+                  Price comparison <span className="text-slate-500">({prices.length})</span>
+                </h2>
+                {prices.length > 1 && prices[prices.length - 1].priceCents > prices[0].priceCents && (
+                  <span className="rounded-full bg-brand/15 px-2.5 py-0.5 text-xs font-semibold text-brand-400">
+                    Save {fmt(prices[prices.length - 1].priceCents - prices[0].priceCents)} vs the priciest seller
+                  </span>
+                )}
+              </div>
               {prices[0] && (
                 <span className="text-xs text-slate-500">updated {timeAgo(prices[0].lastSeen)}</span>
               )}
