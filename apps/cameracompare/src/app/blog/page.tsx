@@ -1,0 +1,27 @@
+import type { Metadata } from "next";
+import { getArticles } from "@/lib/articles";
+import { ArticleList } from "@/components/ArticleList";
+import { WipBanner } from "@/components/WipBanner";
+
+export const metadata: Metadata = {
+  title: "camera Blog — News, Meta & Set Updates",
+  description:
+    "News, metagame snapshots and updates for cameras, from CameraCompare.",
+  alternates: { canonical: "/blog" },
+};
+
+export default function BlogPage() {
+  const articles = getArticles("blog");
+  return (
+    <div>
+      <div className="mb-5">
+        <h1 className="text-2xl font-extrabold text-white">Blog</h1>
+        <p className="mt-1 text-sm text-slate-400">
+          News, meta snapshots and updates for camera in Australia.
+        </p>
+      </div>
+      <WipBanner />
+      <ArticleList articles={articles} basePath="/blog" />
+    </div>
+  );
+}

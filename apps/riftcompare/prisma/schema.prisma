@@ -1,0 +1,354 @@
+// TCGEmpire — Riftbound marketplace database schema
+// SQLite for local MVP. Enums are represented as Strings because the SQLite
+// connector does not support native enums; allowed values are validated in app code.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  // Optional — accounts created via Google/Discord sign-in have no password.
+  passwordHash String?
+  displayName  String
+  avatarUrl    String?
+  // Set when the email is confirmed (instantly for OAuth, which is pre-verified).
+  emailVerified DateTime?
+  // OAuth identities (one per provider). Lets a user link Google and/or Discord.
+  // Indexed (not DB-unique) so the push stays additive; uniqueness is enforced in
+  // the OAuth callback (we find-or-create by provider id, then by email).
+  googleId     String?
+  discordId    String?
+  // Wallet balance in AUD cents (e.g. 25000 = $250.00).
+  // Funds committed to open buy orders are moved out of balance and held as
+  // escrow on the BuyOrder (reservedCents) until the order fills or is cancelled.
+  balanceCents Int       @default(0)
+  isAdmin      Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+
+  listings     Listing[]
+  buyOrders    BuyOrder[]
+  purchases    Order[]   @relation("BuyerOrders")
+  sales        Order[]   @relation("SellerOrders")
+  wishlist     WishlistItem[]
+  authTokens   AuthToken[]
+
+  @@index([googleId])
+  @@index([discordId])
+}
+
+// One-time tokens for email verification and password reset (purpose-tagged).
+model AuthToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  purpose   String   // "verify" | "reset"
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+// Per-account wishlist (server-side). The cookie wishlist is merged in on sign-in.
+model WishlistItem {
+  id        String   @id @default(cuid())
+  userId    String
+  cardId    String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, cardId])
+  @@index([userId])
+}
+
+model Card {
+  id              String    @id @default(cuid())
+  externalId      String?   @unique // RiftScribe id, e.g. "ogn-001-298"
+  slug            String?   @unique // human-readable URL, e.g. "vayne-hunter-sfd-223s-221"
+  name            String
+  // Lowercased, punctuation-stripped name for apostrophe-tolerant search.
+  nameNormalized  String  @default("")
+  setCode         String // e.g. "OGN"
+  setName         String // e.g. "Origins"
+  collectorNumber String // e.g. "001/298"
+  // One of the Riftbound domains: Fury, Calm, Mind, Body, Chaos, Order, Colorless
+  domain          String
+  // Unit, Spell, Gear, Rune, Battlefield, Legend
+  type            String
+  // Common, Uncommon, Rare, Epic, Showcase
+  rarity          String
+  // Alt-art / variant suffix from the card number, e.g. "a" for 112a. null = base art.
+  variant         String?
+  // Promo printing (prerelease / organized-play). Shares the base card's art.
+  isPromo         Boolean @default(false)
+  orientation     String? // portrait | landscape
+  energyCost      Int?
+  might           Int?
+  power           Int?
+  tags            String? // comma-separated keyword tags
+  description     String?
+  flavorText      String?
+  // Real card images (RiftScribe CDN). Falls back to generated SVG art if null.
+  imageUrl        String? // full-resolution
+  imageThumbUrl   String? // smaller webp for grids
+  blurDataUrl     String? // tiny base64 placeholder
+  // Reference / market price in AUD cents, used as a default suggested price.
+  marketPriceCents Int      @default(0)
+  // Lowest live retailer price across all sources, set by the price importer.
+  // Used for "from $X" and catalogue sorting. null = no price found.
+  //   lowestPriceCents   = Australia (AUD cents), from AU stores + eBay AU
+  //   lowestPriceCentsNz = New Zealand (NZD cents), from NZ stores (no eBay)
+  //   lowestPriceCentsUs = United States (USD cents), from US stores + eBay US
+  lowestPriceCents Int?
+  lowestPriceCentsNz Int?
+  lowestPriceCentsUs Int?
+  artSeed         Int       @default(0)
+  // Popularity signals. searchCount (clicks from the search box) is the purer demand
+  // metric and drives eBay prioritisation; viewCount (any open, incl. featured
+  // homepage clicks) is kept for general "trending" use.
+  viewCount       Int       @default(0)
+  searchCount     Int       @default(0)
+  lastViewedAt    DateTime?
+  createdAt       DateTime  @default(now())
+
+  listings        Listing[]
+  buyOrders       BuyOrder[]
+  retailerPrices  RetailerPrice[]
+  priceHistory    PriceHistory[]
+
+  @@index([setCode, collectorNumber])
+  @@index([nameNormalized])
+  @@index([lowestPriceCents])
+  @@index([lowestPriceCentsNz])
+  @@index([lowestPriceCentsUs])
+  @@index([domain])
+  @@index([rarity])
+  @@index([type])
+}
+
+// A seller's offer to sell (the "ask" side of the book).
+model Listing {
+  id          String   @id @default(cuid())
+  cardId      String
+  sellerId    String
+  condition   String // NM, LP, MP, HP, DMG
+  isFoil      Boolean  @default(false)
+  priceCents  Int
+  quantity    Int      @default(1)
+  status      String   @default("ACTIVE") // ACTIVE, SOLD, CANCELLED
+  createdAt   DateTime @default(now())
+
+  card        Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  seller      User     @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  orders      Order[]
+
+  @@index([cardId])
+  @@index([sellerId])
+  @@index([status])
+  @@index([priceCents])
+}
+
+// A buyer's standing request to buy (the "bid" side of the book). Lets demand
+// exist even when there is zero stock — any seller can fill it.
+model BuyOrder {
+  id             String   @id @default(cuid())
+  cardId         String
+  buyerId        String
+  condition      String // desired condition: NM, LP, MP, HP, DMG, or ANY
+  isFoil         Boolean  @default(false)
+  maxPriceCents  Int // bid price the buyer will pay per copy
+  quantity       Int      @default(1)
+  quantityFilled Int      @default(0)
+  reservedCents  Int      @default(0) // escrowed funds still held for unfilled copies
+  status         String   @default("OPEN") // OPEN, FILLED, CANCELLED
+  createdAt      DateTime @default(now())
+
+  card           Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  buyer          User     @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  fills          Order[]
+
+  @@index([cardId])
+  @@index([buyerId])
+  @@index([status])
+  @@index([maxPriceCents])
+}
+
+// Legacy table from the retired password-reset feature. The feature (pages, API
+// routes, UI) was removed, but the table is kept so its data isn't dropped; nothing
+// in the app references this model anymore.
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+// Feedback / contact-form submissions. Saved here as a backup and forwarded by
+// email to the site owner.
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  subject   String?
+  message   String
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+// Daily snapshot of a card's lowest live price, for the price-over-time chart
+// (CSFloat-style). Written by the importer: at most one row per card per
+// Australia/Sydney day — a same-day re-run (e.g. a deploy) replaces that day's
+// value. Collected in the backend now; the chart ships once a week+ exists.
+model PriceHistory {
+  id               String   @id @default(cuid())
+  cardId           String
+  // Calendar day in Australia/Sydney (stored date-only), the chart's x-axis.
+  day              DateTime @db.Date
+  lowestPriceCents Int
+  recordedAt       DateTime @default(now())
+
+  card             Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  @@unique([cardId, day])
+  @@index([cardId, day])
+}
+
+// A community marketplace post: a user's "want to buy" (WTB) or "want to sell"
+// (WTS) listing for Riftbound cards. Reddit-style board at /forum.
+model ForumPost {
+  id          String   @id @default(cuid())
+  kind        String   // "WTB" | "WTS" | "DISCUSSION"
+  title       String
+  cardName    String?
+  setCode     String?
+  condition   String?  // NM, LP, MP, HP, DMG, or "Any"
+  priceCents  Int?     // seller's asking price for the whole listing (optional)
+  // Multi-card listings: [{ name, setCode?, condition?, qty, marketCents? }].
+  items       Json?
+  // Sum of the items' current market value — the "recommended" total price.
+  marketCents Int?
+  body        String
+  contact     String   @default("") // how to reach the poster (email/Discord); blank for discussions
+  // Seller/buyer location for postage estimates (WTB/WTS only).
+  country     String?
+  state       String?
+  // Market the post belongs to ("AU" | "NZ" | "US"), from the poster's selected
+  // country. Players only see posts for their own market.
+  market      String   @default("AU")
+  authorName  String
+  userId      String?  // set if posted while logged in
+  score       Int      @default(0)
+  status      String   @default("OPEN") // OPEN | CLOSED
+  createdAt   DateTime @default(now())
+
+  comments    ForumComment[]
+
+  @@index([kind])
+  @@index([createdAt])
+  @@index([status])
+  @@index([market])
+}
+
+// A comment on a forum post (Reddit-style discussion).
+model ForumComment {
+  id         String   @id @default(cuid())
+  postId     String
+  userId     String?
+  authorName String
+  body       String
+  createdAt  DateTime @default(now())
+
+  post       ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+}
+
+// A live price for a card at an external retailer, used for price comparison.
+// Populated by scripts/import-prices.ts from AU store feeds (Shopify products.json).
+model RetailerPrice {
+  id           String   @id @default(cuid())
+  cardId       String
+  retailer     String // store key, e.g. "cherry", "ozzie"
+  retailerName String // display name, e.g. "Cherry Collectables"
+  title        String // original product title at the retailer
+  url          String // outbound product link (affiliate-ready)
+  condition    String? // e.g. "Near Mint" where the retailer specifies it
+  isFoil       Boolean  @default(false)
+  priceCents   Int
+  // Actual shipping for this listing where the source provides it (e.g. eBay).
+  // null = use the per-store flat estimate instead.
+  shippingCents Int?
+  currency     String   @default("AUD")
+  inStock      Boolean  @default(true)
+  lastSeen     DateTime @default(now())
+
+  // Market: "AU" (Australian stores + eBay AU, AUD) or "NZ" (NZ stores, NZD).
+  country      String   @default("AU")
+
+  card         Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  // eBay uses a per-market retailer key ("ebay" = AU, "ebay_us" = US) so the same
+  // card can have a listing in each marketplace without colliding on this key.
+  @@unique([cardId, retailer, condition, isFoil])
+  @@index([cardId])
+  @@index([retailer])
+  @@index([priceCents])
+  @@index([cardId, country, inStock])
+}
+
+// Sealed / non-single Riftbound products (booster boxes, packs, Proving Grounds,
+// bundles, …). One row per store listing; the /sealed page groups by groupKey to
+// show the cheapest price per product across stores.
+model SealedListing {
+  id           String   @id @default(cuid())
+  groupKey     String // normalised product identity for cross-store grouping
+  title        String
+  productType  String // "Booster Box", "Booster Pack", "Bundle", "Proving Grounds", …
+  setCode      String? // OGN/SFD/UNL/OGS/VEN if detectable
+  retailer     String
+  retailerName String
+  priceCents   Int
+  url          String
+  imageUrl     String?
+  inStock      Boolean  @default(true)
+  // Market: "AU" (Australian stores, AUD) or "NZ" (NZ stores, NZD).
+  country      String   @default("AU")
+  lastSeen     DateTime @default(now())
+
+  @@index([groupKey])
+  @@index([retailer])
+  @@index([country])
+}
+
+// A completed trade. Either a buyer hit a listing (kind LISTING) or a seller
+// filled a buy order (kind BUYORDER).
+model Order {
+  id           String   @id @default(cuid())
+  kind         String   @default("LISTING") // LISTING | BUYORDER
+  listingId    String?
+  buyOrderId   String?
+  buyerId      String
+  sellerId     String
+  quantity     Int      @default(1)
+  totalCents   Int
+  createdAt    DateTime @default(now())
+
+  listing      Listing?  @relation(fields: [listingId], references: [id])
+  buyOrder     BuyOrder? @relation(fields: [buyOrderId], references: [id])
+  buyer        User      @relation("BuyerOrders", fields: [buyerId], references: [id])
+  seller       User      @relation("SellerOrders", fields: [sellerId], references: [id])
+
+  @@index([buyerId])
+  @@index([sellerId])
+}

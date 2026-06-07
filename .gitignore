@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Next.js build output
+.next/
+**/.next/
+out/
+
+# Env / secrets
+.env
+**/.env
+!**/.env.example
+
+# Local Postgres cluster data (if created under the repo)
+pgdata/
+
+# Logs
+*.log
+
+# Raw Pokémon data mirror (re-fetch with apps/dexcompare/scripts/fetch-pokemon-data.ts).
+# The built seed input (prisma/pokemon-cards.json) IS committed so seeding works offline.
+apps/dexcompare/prisma/pokemon-data/
+
+# OS
+.DS_Store

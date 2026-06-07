@@ -1,0 +1,119 @@
+import { conditionInfo, domainInfo, rarityInfo } from "@/lib/constants";
+
+function hexWithAlpha(hex: string, alpha: number): string {
+  const a = Math.round(alpha * 255)
+    .toString(16)
+    .padStart(2, "0");
+  return `${hex}${a}`;
+}
+
+export function DomainBadge({ domain }: { domain: string }) {
+  const d = domainInfo(domain);
+  return (
+    <span
+      className="chip"
+      style={{ backgroundColor: hexWithAlpha(d.color, 0.18), color: d.color }}
+    >
+      <span
+        className="h-2 w-2 rounded-full"
+        style={{ backgroundColor: d.color }}
+      />
+      {d.label}
+    </span>
+  );
+}
+
+export function RarityBadge({ rarity }: { rarity: string }) {
+  const r = rarityInfo(rarity);
+  return (
+    <span
+      className="chip"
+      style={{ backgroundColor: hexWithAlpha(r.color, 0.16), color: r.color }}
+    >
+      {r.label}
+    </span>
+  );
+}
+
+export function ConditionBadge({ condition }: { condition: string }) {
+  const c = conditionInfo(condition);
+  return (
+    <span
+      className="chip"
+      style={{ backgroundColor: hexWithAlpha(c.color, 0.16), color: c.color }}
+      title={c.full}
+    >
+      {c.label}
+    </span>
+  );
+}
+
+export function VariantBadge({ variant }: { variant?: string | null }) {
+  if (!variant) return null;
+  return (
+    <span
+      className="chip font-semibold uppercase"
+      style={{
+        background: "linear-gradient(90deg,#f5a524,#f7c948)",
+        color: "#1a1206",
+      }}
+      title={`Alternate art (${variant})`}
+    >
+      Alt {variant}
+    </span>
+  );
+}
+
+export function SignatureBadge({ show }: { show?: boolean }) {
+  if (!show) return null;
+  return (
+    <span
+      className="chip font-semibold uppercase"
+      style={{ background: "linear-gradient(90deg,#f59e0b,#b45309)", color: "#fff" }}
+      title="Signature (artist-autographed overnumbered print)"
+    >
+      ✍ Signature
+    </span>
+  );
+}
+
+export function OvernumberedBadge({ show }: { show?: boolean }) {
+  if (!show) return null;
+  return (
+    <span
+      className="chip font-semibold uppercase"
+      style={{ background: "linear-gradient(90deg,#a855f7,#7c3aed)", color: "#fff" }}
+      title="Overnumbered (secret/signature print beyond the set count)"
+    >
+      ★ Overnumbered
+    </span>
+  );
+}
+
+export function PromoBadge({ show }: { show?: boolean }) {
+  if (!show) return null;
+  return (
+    <span
+      className="chip font-semibold uppercase"
+      style={{ background: "linear-gradient(90deg,#06b6d4,#0891b2)", color: "#04222a" }}
+      title="Promo printing"
+    >
+      ✦ Promo
+    </span>
+  );
+}
+
+export function FoilBadge() {
+  return (
+    <span
+      className="chip font-semibold"
+      style={{
+        background:
+          "linear-gradient(90deg,#ff0080,#ffea00,#00ffd5,#7a5cff,#ff0080)",
+        color: "#0a0d13",
+      }}
+    >
+      ✦ Foil
+    </span>
+  );
+}
