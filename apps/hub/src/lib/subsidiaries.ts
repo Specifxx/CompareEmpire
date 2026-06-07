@@ -56,6 +56,18 @@ export const SUBSIDIARIES: Subsidiary[] = [
     region: "AU · NZ · US · UK",
     emoji: "🔴",
   },
+  {
+    key: "carcompare",
+    name: "CarCompare",
+    vertical: "New cars",
+    tagline: "Compare new-car drive-away prices across dealers & marketplaces.",
+    url: "http://localhost:3004",
+    db: "carcompare",
+    accent: "#2563eb",
+    status: "live",
+    region: "AU · US · UK",
+    emoji: "🚗",
+  },
 ];
 
 export interface SubsidiaryStats {

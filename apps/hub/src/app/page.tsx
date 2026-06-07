@@ -150,9 +150,9 @@ export default async function Home() {
         {/* Coming soon */}
         <div className="mt-6 grid gap-6 md:grid-cols-3">
           <div className="rounded-3xl border border-dashed border-white/10 bg-white/[0.01] p-6 text-white/50">
-            <div className="text-2xl">🚗</div>
-            <h3 className="mt-4 text-lg font-bold text-white/80">CarCompare</h3>
-            <p className="mt-2 text-sm">Compare new & used car prices across dealers. On the roadmap.</p>
+            <div className="text-2xl">🏠</div>
+            <h3 className="mt-4 text-lg font-bold text-white/80">More verticals</h3>
+            <p className="mt-2 text-sm">The same comparison engine, new categories. On the roadmap.</p>
             <span className="mt-4 inline-block rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-semibold">Coming soon</span>
           </div>
         </div>

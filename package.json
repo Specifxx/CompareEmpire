@@ -2,14 +2,16 @@
   "name": "compareempire",
   "version": "0.1.0",
   "private": true,
-  "description": "CompareEmpire — a monorepo of price-comparison sites (CameraCompare, DexCompare) plus the CompareEmpire hub. (RiftCompare is archived under archived/.)",
+  "description": "CompareEmpire — a monorepo of price-comparison sites (CameraCompare, DexCompare, CarCompare) plus the CompareEmpire hub. (RiftCompare is owned but runs on a separate instance; archived copy under archived/.)",
   "scripts": {
     "dev": "bash scripts/dev-all.sh",
     "dev:hub": "cd apps/hub && npx next dev -p 3000",
     "dev:cameracompare": "cd apps/cameracompare && npx next dev -p 3002",
     "dev:dexcompare": "cd apps/dexcompare && npx next dev -p 3003",
+    "dev:carcompare": "cd apps/carcompare && npx next dev -p 3004",
     "install:all": "for d in apps/*/; do (cd \"$d\" && npm install); done",
     "seed:cameracompare": "cd apps/cameracompare && npx prisma db push && npx tsx prisma/seed.ts",
-    "seed:dexcompare": "cd apps/dexcompare && npx prisma db push && npx tsx prisma/seed.ts"
+    "seed:dexcompare": "cd apps/dexcompare && npx prisma db push && npx tsx prisma/seed.ts",
+    "seed:carcompare": "cd apps/carcompare && npx prisma db push && npx tsx prisma/seed.ts"
   }
 }
