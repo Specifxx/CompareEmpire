@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { CardImage } from "./CardImage";
-import { VariantBadge, OvernumberedBadge, SignatureBadge } from "./Badge";
+import { PokeRarityFlag } from "./Badge";
 import { WishlistButton } from "./WishlistButton";
 import { useQuickView } from "./QuickView";
 import { useCountry } from "./CountryProvider";
@@ -68,9 +68,7 @@ export function CardTile({ card }: { card: CardTileData }) {
             className="h-full w-full transition-transform duration-300 group-hover:scale-[1.03]"
           />
           <div className="absolute left-2 top-2 flex flex-col items-start gap-1">
-            <VariantBadge variant={card.variant} />
-            <SignatureBadge show={isSignature(card.collectorNumber)} />
-            <OvernumberedBadge show={isOvernumbered(card.collectorNumber)} />
+            <PokeRarityFlag rarity={card.rarity} />
           </div>
         </div>
 

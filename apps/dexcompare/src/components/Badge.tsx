@@ -35,6 +35,43 @@ export function RarityBadge({ rarity }: { rarity: string }) {
   );
 }
 
+// Compact rarity/feature flag for card tiles, so non-experts can spot the
+// special printings at a glance (promos, illustration/alt-art, secret/rainbow/
+// hyper "chase" cards). Basic rarities show nothing to avoid clutter.
+const RARITY_TILE_LABEL: Record<string, string> = {
+  Promo: "✦ Promo",
+  "Illustration Rare": "✦ Illustration",
+  "Special Illustration Rare": "✦✦ Special Illust.",
+  "Rare Secret": "★ Secret",
+  "Rare Rainbow": "★ Rainbow",
+  "Hyper Rare": "★ Hyper",
+  "Ultra Rare": "Ultra Rare",
+  "Rare Ultra": "Ultra Rare",
+  "Double Rare": "Double Rare",
+  "Rare Holo VMAX": "VMAX",
+  "Rare Holo VSTAR": "VSTAR",
+  "Rare Holo V": "V",
+  "Rare Holo GX": "GX",
+  "Rare Holo EX": "EX",
+  "Rare Shiny": "Shiny",
+  "Amazing Rare": "Amazing",
+  "Radiant Rare": "Radiant",
+};
+const PLAIN_RARITIES = new Set(["Common", "Uncommon", "Rare", "Rare Holo", ""]);
+export function PokeRarityFlag({ rarity }: { rarity: string }) {
+  if (PLAIN_RARITIES.has(rarity)) return null;
+  const r = rarityInfo(rarity);
+  const label = RARITY_TILE_LABEL[rarity] ?? r.label;
+  return (
+    <span
+      className="chip text-[10px] font-bold shadow"
+      style={{ backgroundColor: hexWithAlpha(r.color, 0.92), color: "#0a0c10" }}
+    >
+      {label}
+    </span>
+  );
+}
+
 export function ConditionBadge({ condition }: { condition: string }) {
   const c = conditionInfo(condition);
   return (

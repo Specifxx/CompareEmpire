@@ -106,24 +106,41 @@ async function fetchJson(url: string): Promise<any> {
   if (!res.ok) throw new Error(`${res.status}`);
   return res.json();
 }
-function extractUsdCents(card: any): number | null {
+// Cheapest TCGplayer price (USD cents). We take the MIN across all printings of
+// the lowest-available indicator (directLow/low — the actual cheapest listing),
+// NOT `market` (a rolling sales average), so the figure matches the "cheapest"
+// shown on the TCGplayer product page.
+function extractTcgCents(card: any): number | null {
   const tp = card.tcgplayer?.prices;
-  if (tp) {
-    const order = ["holofoil", "reverseHolofoil", "normal", "1stEditionHolofoil", "1stEditionNormal", "unlimitedHolofoil"];
-    for (const k of [...order, ...Object.keys(tp)]) {
-      const v = tp[k]?.market ?? tp[k]?.mid ?? tp[k]?.low;
-      if (v) return Math.round(v * 100);
-    }
+  if (!tp) return null;
+  let best = Infinity;
+  for (const k of Object.keys(tp)) {
+    const p = tp[k];
+    if (!p) continue;
+    const candidates = [p.directLow, p.low, p.market, p.mid].filter(
+      (v: any) => typeof v === "number" && v > 0
+    );
+    if (candidates.length) best = Math.min(best, Math.min(...candidates));
   }
+  return best === Infinity ? null : Math.round(best * 100);
+}
+// Cheapest Cardmarket price (EUR cents).
+function extractCmCents(card: any): number | null {
   const cm = card.cardmarket?.prices;
-  const v = cm?.trendPrice ?? cm?.averageSellPrice ?? cm?.avg30 ?? cm?.avg7;
-  if (v) return Math.round(v * 100 * 1.08); // EUR → USD approx
+  if (!cm) return null;
+  for (const v of [cm.lowPrice, cm.trendPrice, cm.averageSellPrice, cm.avg30, cm.avg7]) {
+    if (typeof v === "number" && v > 0) return Math.round(v * 100);
+  }
   return null;
 }
+const EUR_TO_USD = 1.08;
+
 export interface RealPrice {
-  usd: number;
-  tcgUrl?: string; // real TCGplayer product page
-  cmUrl?: string; // real Cardmarket product page
+  usd: number; // cheapest base (USD cents) — TCGplayer if present, else Cardmarket→USD
+  tcgUsd?: number; // exact cheapest TCGplayer listing (USD cents)
+  tcgUrl?: string;
+  cmUsd?: number; // cheapest Cardmarket, converted to USD cents
+  cmUrl?: string;
 }
 async function loadRealPrices(setIds: string[]): Promise<Map<string, RealPrice>> {
   const map = new Map<string, RealPrice>();
@@ -144,8 +161,20 @@ async function loadRealPrices(setIds: string[]): Promise<Map<string, RealPrice>>
           );
           const arr: any[] = data.data ?? [];
           for (const card of arr) {
-            const usd = extractUsdCents(card);
-            if (usd) map.set(card.id, { usd, tcgUrl: card.tcgplayer?.url, cmUrl: card.cardmarket?.url });
+            const tcgUsd = extractTcgCents(card);
+            const cmEur = extractCmCents(card);
+            const cmUsd = cmEur != null ? Math.round(cmEur * EUR_TO_USD) : undefined;
+            const cands = [tcgUsd, cmUsd].filter((x): x is number => typeof x === "number" && x > 0);
+            const usd = cands.length ? Math.min(...cands) : undefined;
+            if (usd) {
+              map.set(card.id, {
+                usd,
+                tcgUsd: tcgUsd ?? undefined,
+                tcgUrl: card.tcgplayer?.url,
+                cmUsd,
+                cmUrl: card.cardmarket?.url,
+              });
+            }
           }
           if (arr.length < 250) break;
         }
@@ -239,12 +268,14 @@ async function main() {
   });
   console.log(`Building retailer prices for ${dbCards.length} cards…`);
 
-  // TCGplayer + Troll and Toad are the headline US sources the brief asked for.
+  // TCGplayer + Cardmarket carry REAL prices + product URLs (from the API).
+  // Troll and Toad / eBay are estimates and must NOT undercut the real cheapest,
+  // so their spreads start at 1.0.
   const usRetailers = [
-    { key: "tcgplayer", name: "TCGplayer", url: (c: string) => `https://www.tcgplayer.com/search/pokemon/product?q=${c}`, spread: [0.95, 1.05] as [number, number] },
-    { key: "trollandtoad", name: "Troll and Toad", url: (c: string) => `https://www.trollandtoad.com/category.php?search-words=${c}`, spread: [0.98, 1.12] as [number, number] },
-    { key: "ebay_us", name: "eBay US", url: (c: string) => `https://www.ebay.com/sch/i.html?_nkw=${c}+pokemon+card`, spread: [0.9, 1.2] as [number, number] },
-    { key: "cardmarket", name: "Cardmarket", url: (c: string) => `https://www.cardmarket.com/en/Pokemon/Products/Search?searchString=${c}`, spread: [0.85, 1.05] as [number, number] },
+    { key: "tcgplayer", name: "TCGplayer", url: (c: string) => `https://www.tcgplayer.com/search/pokemon/product?q=${c}`, spread: [1.0, 1.0] as [number, number] },
+    { key: "trollandtoad", name: "Troll and Toad", url: (c: string) => `https://www.trollandtoad.com/category.php?search-words=${c}`, spread: [1.02, 1.18] as [number, number] },
+    { key: "ebay_us", name: "eBay US", url: (c: string) => `https://www.ebay.com/sch/i.html?_nkw=${c}+pokemon+card`, spread: [1.0, 1.25] as [number, number] },
+    { key: "cardmarket", name: "Cardmarket", url: (c: string) => `https://www.cardmarket.com/en/Pokemon/Products/Search?searchString=${c}`, spread: [1.0, 1.0] as [number, number] },
   ];
   // AUSTRALIAN stores (market scan, 15). Prices in AUD.
   const auRetailers = [
@@ -296,13 +327,21 @@ async function main() {
     const q = encodeURIComponent(`${c.name} ${c.setName}`);
     const real = realPrices.get(c.externalId);
     for (const r of usRetailers) {
-      const url = r.key === "tcgplayer" && real?.tcgUrl ? real.tcgUrl
-        : r.key === "cardmarket" && real?.cmUrl ? real.cmUrl
-        : r.url(q);
+      let priceCents: number;
+      let url: string;
+      if (r.key === "tcgplayer" && real?.tcgUsd != null) {
+        priceCents = real.tcgUsd; // EXACT cheapest TCGplayer listing
+        url = real.tcgUrl ?? r.url(q);
+      } else if (r.key === "cardmarket" && real?.cmUsd != null) {
+        priceCents = real.cmUsd; // EXACT cheapest Cardmarket (→USD)
+        url = real.cmUrl ?? r.url(q);
+      } else {
+        priceCents = cents((c.lowestPriceCentsUs ?? 50) * between(r.spread[0], r.spread[1]));
+        url = r.url(q);
+      }
       priceRows.push({
         cardId: c.id, retailer: r.key, retailerName: r.name, title: r.name, url,
-        priceCents: cents((c.lowestPriceCentsUs ?? 50) * between(r.spread[0], r.spread[1])),
-        currency: "USD", inStock: true, country: "US",
+        priceCents, currency: "USD", inStock: true, country: "US",
       });
     }
     for (const r of auRetailers) {
