@@ -91,6 +91,9 @@ export function buildCardOrderBy(
       return [{ [field]: { sort: "desc", nulls: "last" } } as Prisma.CardOrderByWithRelationInput, { name: "asc" }];
     case "name":
       return [{ name: "asc" }];
+    case "mp":
+      // `might` stores megapixels in CameraCompare.
+      return [{ might: { sort: "desc", nulls: "last" } } as Prisma.CardOrderByWithRelationInput, { name: "asc" }];
     case "number":
     default:
       return [{ setCode: "asc" }, { collectorNumber: "asc" }];
