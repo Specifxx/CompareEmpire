@@ -71,6 +71,16 @@ jobs:
           npx prisma db push
           npx tsx prisma/seed.ts
 
+      - name: Create CarCompare database on Neon (additive, idempotent)
+        if: ${{ inputs.seed_carcompare }}
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client
+          # Connect to the existing dexcompare DB on the same Neon project and
+          # create the carcompare database if it doesn't already exist.
+          psql "${{ inputs.dexcompare_url }}" -tc "SELECT 1 FROM pg_database WHERE datname='carcompare'" | grep -q 1 \
+            || psql "${{ inputs.dexcompare_url }}" -c "CREATE DATABASE carcompare" \
+            || echo "create skipped (may already exist)"
+
       - name: Seed CarCompare
         if: ${{ inputs.seed_carcompare }}
         working-directory: apps/carcompare
