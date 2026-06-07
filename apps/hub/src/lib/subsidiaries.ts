@@ -68,6 +68,18 @@ export const SUBSIDIARIES: Subsidiary[] = [
     region: "AU · US · UK",
     emoji: "🚗",
   },
+  {
+    key: "phonecompare",
+    name: "PhoneCompare",
+    vertical: "Smartphones",
+    tagline: "Find the cheapest deal on the latest phones across major retailers.",
+    url: "http://localhost:3005",
+    db: "phonecompare",
+    accent: "#10b981",
+    status: "live",
+    region: "AU · US · UK",
+    emoji: "📱",
+  },
 ];
 
 export interface SubsidiaryStats {

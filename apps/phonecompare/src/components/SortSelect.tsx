@@ -1,0 +1,37 @@
+"use client";
+
+import { useRouter, useSearchParams } from "next/navigation";
+
+const OPTIONS = [
+  { value: "number", label: "Brand & model" },
+  { value: "name", label: "Name: A–Z" },
+  { value: "price_asc", label: "Price: Low to High" },
+  { value: "price_desc", label: "Price: High to Low" },
+  { value: "mp", label: "Most megapixels" },
+];
+
+export function SortSelect() {
+  const router = useRouter();
+  const params = useSearchParams();
+  const current = params.get("sort") ?? "number";
+
+  return (
+    <select
+      value={current}
+      onChange={(e) => {
+        const next = new URLSearchParams(Array.from(params.entries()));
+        next.set("sort", e.target.value);
+        next.delete("page");
+        router.push(`/browse?${next.toString()}`);
+      }}
+      className="input w-auto cursor-pointer"
+      aria-label="Sort listings"
+    >
+      {OPTIONS.map((o) => (
+        <option key={o.value} value={o.value}>
+          {o.label}
+        </option>
+      ))}
+    </select>
+  );
+}

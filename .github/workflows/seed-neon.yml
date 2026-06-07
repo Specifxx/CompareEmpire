@@ -19,6 +19,10 @@ on:
         description: "CarCompare Neon DATABASE_URL (pooled, sslmode=require)"
         required: false
         default: ""
+      phonecompare_url:
+        description: "PhoneCompare Neon DATABASE_URL (pooled, sslmode=require)"
+        required: false
+        default: ""
       seed_cameracompare:
         description: "Seed CameraCompare?"
         type: boolean
@@ -29,6 +33,10 @@ on:
         default: true
       seed_carcompare:
         description: "Seed CarCompare?"
+        type: boolean
+        default: false
+      seed_phonecompare:
+        description: "Seed PhoneCompare?"
         type: boolean
         default: false
 
@@ -48,6 +56,7 @@ jobs:
           echo "::add-mask::${{ inputs.cameracompare_url }}"
           echo "::add-mask::${{ inputs.dexcompare_url }}"
           echo "::add-mask::${{ inputs.carcompare_url }}"
+          echo "::add-mask::${{ inputs.phonecompare_url }}"
 
       - name: Seed CameraCompare
         if: ${{ inputs.seed_cameracompare }}
@@ -89,6 +98,25 @@ jobs:
         run: |
           npm install --no-audit --no-fund
           npx tsx scripts/fetch-car-images.ts || echo "image fetch failed; seeding with placeholders"
+          npx prisma db push
+          npx tsx prisma/seed.ts
+
+      - name: Create PhoneCompare database on Neon (additive, idempotent)
+        if: ${{ inputs.seed_phonecompare }}
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client
+          psql "${{ inputs.dexcompare_url }}" -tc "SELECT 1 FROM pg_database WHERE datname='phonecompare'" | grep -q 1 \
+            || psql "${{ inputs.dexcompare_url }}" -c "CREATE DATABASE phonecompare" \
+            || echo "create skipped (may already exist)"
+
+      - name: Seed PhoneCompare
+        if: ${{ inputs.seed_phonecompare }}
+        working-directory: apps/phonecompare
+        env:
+          DATABASE_URL: ${{ inputs.phonecompare_url }}
+        run: |
+          npm install --no-audit --no-fund
+          npx tsx scripts/fetch-phone-images.ts || echo "image fetch failed; seeding with placeholders"
           npx prisma db push
           npx tsx prisma/seed.ts
 

@@ -165,7 +165,7 @@ export default async function Home() {
           <div className="mt-6 grid gap-8 sm:grid-cols-3">
             {[
               { t: "Find the lowest price", d: "We aggregate live prices from trusted retailers and marketplaces so buyers click straight through to the cheapest in-stock option." },
-              { t: "Built for each niche", d: "Every subsidiary shares the same comparison core but speaks its vertical — sensor formats for cameras, sets & rarities for cards." },
+              { t: "Built for each niche", d: "Every subsidiary shares the same comparison core but speaks its vertical — sets & rarities for cards, sensor formats for cameras, body types & fuel for cars." },
               { t: "Multi-market", d: "Localised pricing and currency across Australia, the US, the UK and New Zealand, with more markets to come." },
             ].map((c) => (
               <div key={c.t}>
