@@ -1,0 +1,32 @@
+name: Probe AU store (read-only)
+
+# READ-ONLY: scrapes Collectible Madness and reports how many cards we can match
+# to real prices + product URLs. Does NOT write to any database. Used to validate
+# the live-scraper approach before wiring it into the seed.
+
+on:
+  workflow_dispatch:
+    inputs:
+      dexcompare_url:
+        description: "DexCompare Neon DATABASE_URL (read-only use)"
+        required: true
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Mask
+        run: echo "::add-mask::${{ inputs.dexcompare_url }}"
+      - name: Probe
+        working-directory: apps/dexcompare
+        env:
+          DATABASE_URL: ${{ inputs.dexcompare_url }}
+        run: |
+          npm install --no-audit --no-fund
+          npx prisma generate
+          npx tsx scripts/probe-store.ts
