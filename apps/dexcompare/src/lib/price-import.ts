@@ -243,18 +243,32 @@ async function verifyCheapestListings(): Promise<number> {
     const k = `${r.cardId}|${r.country}`;
     if (!cheapest.has(k)) cheapest.set(k, r);
   }
-  const targets = Array.from(cheapest.values());
+  // Confirming the WHOLE catalogue (~68k listings) took ~14h and corrected ~0.02%
+  // of prices, because the collection feed is already country-priced (country=XX) —
+  // the very drift this pass guarded against. So only re-confirm the cheapest
+  // listing for the most-wanted cards (the ones users actually open), capped by
+  // CONFIRM_CAP. The rest keep their feed price, which is already correct.
+  const CONFIRM_CAP = Number(process.env.CONFIRM_CAP) || 1500;
+  const demand = await prisma.card.findMany({
+    orderBy: [{ searchCount: "desc" }, { viewCount: "desc" }],
+    take: CONFIRM_CAP,
+    select: { id: true },
+  });
+  const wanted = new Set(demand.map((c) => c.id));
+  const targets = Array.from(cheapest.values()).filter((t) => wanted.has(t.cardId));
 
   // Fetch a product's authoritative price. Uses the CLEAN product.json URL (no
   // cache-bust query param — that returned a stale/blocked response from the runner;
-  // the plain URL returns the live price) with a browser UA, and one retry.
+  // the plain URL returns the live price) with a browser UA, and one retry. Uses a
+  // short timeout: these single-product fetches are the slow part, and a laggy store
+  // isn't worth waiting 20s for on a redundant check.
   async function fetchProductPrice(url: string, country: string): Promise<{ priceCents: number } | null> {
     for (let attempt = 0; attempt < 2; attempt++) {
       try {
         const res = await fetch(`${url}.json?country=${country}`, {
           headers: { ...UA, "Cache-Control": "no-cache", Pragma: "no-cache" },
           cache: "no-store",
-          signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+          signal: AbortSignal.timeout(8000),
         });
         if (!res.ok) continue;
         const data = (await res.json()) as { product?: { variants?: ShopifyVariant[] } };
@@ -270,8 +284,8 @@ async function verifyCheapestListings(): Promise<number> {
 
   let corrected = 0;
   let checked = 0;
-  const BATCH = 6;
-  console.log(`  Confirming ${targets.length} cheapest listings against live product pages…`);
+  const BATCH = 20;
+  console.log(`  Confirming ${targets.length} cheapest listings (top ${CONFIRM_CAP} cards by demand) against live product pages…`);
   for (let i = 0; i < targets.length; i += BATCH) {
     // Stop refining (but keep what we've corrected so far) once the budget is
     // spent, so the import can still reach the lowest-price recompute.
