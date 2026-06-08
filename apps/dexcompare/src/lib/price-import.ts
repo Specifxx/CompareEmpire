@@ -95,6 +95,17 @@ function parseNumber(title: string): { setCode: string | null; key: string; tota
 export const MULTI_CARD =
   /\b(playset|lot|lots|bundle|joblot|job lot|x\s*\d+|\d+\s*x|set of|complete set|full set|bulk)\b/i;
 
+// NOT a single card: sealed products (boxes/packs/tins/collections/decks), accessories
+// (sleeves/binders/toploaders/playmats), and merch (Funko/plush/figures). A broad
+// "pokemon" collection mixes these in with singles, and they often carry a number-like
+// token that the resolver would otherwise mis-assign to a real card (e.g. a "Darkrai V
+// Star Premium Collection" box → the Darkrai card, a "Funko POP Espeon" → the Espeon
+// card). Phrases are specific so they don't reject real card names: "Aaron's Collection"
+// survives (only "premium/figure/elite … collection" is rejected); "Tinkaton" survives
+// (\btin\b is word-bounded); "Battle VIP Pass" survives (only "battle deck" is rejected).
+export const NON_CARD =
+  /\b(funko|pop!?\s*(?:vinyl|games)|plush|action\s*figure|portfolio|binder|sleeves?|toploaders?|top\s?loader|playmat|deck\s?box|card\s?case|storage\s*(?:box|case)|booster|\betb\b|elite\s*trainer|premium\s*collection|super[\s-]*premium|figure\s*collection|special\s*collection|collection\s*box|gift\s*(?:box|set)|\btin\b|\bbox\b|display|blister|battle\s*deck|theme\s*deck|starter\s*(?:deck|set)|build[\s&-]*battle|precon|pin\s*(?:badge|collection)|keychain|key\s?ring|lanyard|poster|sticker|\bmug\b|mouse\s?pad|booster\s*pack)\b/i;
+
 // A promo printing shares the base card's collector number, so a listing is only a
 // promo when its title says so. These markers route a listing to the promo card and
 // keep it out of the base card's price.
@@ -421,6 +432,8 @@ export function buildPokemonResolver(cards: MatchCard[]): (title: string) => str
     // Never match a multi-card listing (playset/lot/bundle) to a single card — its
     // price is for the whole group, not one card.
     if (MULTI_CARD.test(t)) return null;
+    // Never match a sealed product / accessory / merch item to a single card.
+    if (NON_CARD.test(t)) return null;
     const ptoks = tokenize(t);
     if (!ptoks.length) return null;
     const ptokset = new Set(ptoks);
