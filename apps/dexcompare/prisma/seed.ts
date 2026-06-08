@@ -268,96 +268,33 @@ async function main() {
   });
   console.log(`Building retailer prices for ${dbCards.length} cards…`);
 
-  // TCGplayer + Cardmarket carry REAL prices + product URLs (from the API).
-  // Troll and Toad / eBay are estimates and must NOT undercut the real cheapest,
-  // so their spreads start at 1.0.
-  // NOTE: eBay is intentionally NOT seeded synthetically. eBay rows are written only
-  // by refreshEbayMarkets() (real Browse-API lowest, keys ebay/ebay_us/ebay_uk) so an
-  // "eBay" price is always a real in-stock listing — never a fabricated estimate that
-  // would linger and masquerade as the cheapest.
-  const usRetailers = [
-    { key: "tcgplayer", name: "TCGplayer", url: (c: string) => `https://www.tcgplayer.com/search/pokemon/product?q=${c}`, spread: [1.0, 1.0] as [number, number] },
-    { key: "trollandtoad", name: "Troll and Toad", url: (c: string) => `https://www.trollandtoad.com/category.php?search-words=${c}`, spread: [1.02, 1.18] as [number, number] },
-    { key: "cardmarket", name: "Cardmarket", url: (c: string) => `https://www.cardmarket.com/en/Pokemon/Products/Search?searchString=${c}`, spread: [1.0, 1.0] as [number, number] },
-  ];
-  // AUSTRALIAN stores (market scan). Prices in AUD.
-  const auRetailers = [
-    { key: "pokemarket", name: "Pokémon Market Australia", url: (c: string) => `https://pokemarket.com.au/search?q=${c}`, spread: [0.98, 1.15] as [number, number] },
-    { key: "cherry", name: "Cherry Collectables", url: (c: string) => `https://www.cherrycollectables.com.au/search?q=${c}`, spread: [0.97, 1.12] as [number, number] },
-    { key: "ozzie", name: "Ozzie Collectables", url: (c: string) => `https://www.ozziecollectables.com/search?q=${c}`, spread: [0.98, 1.14] as [number, number] },
-    { key: "collectiblemadness", name: "Collectible Madness", url: (c: string) => `https://collectiblemadness.com.au/search?q=${c}`, spread: [0.98, 1.13] as [number, number] },
-    { key: "gameology", name: "Gameology", url: (c: string) => `https://www.gameology.com.au/catalogsearch/result/?q=${c}`, spread: [0.99, 1.15] as [number, number] },
-    { key: "goodgames", name: "Good Games", url: (c: string) => `https://goodgames.com.au/search?q=${c}`, spread: [0.99, 1.16] as [number, number] },
-    { key: "bantertoys", name: "Banter Toys & Collectables", url: (c: string) => `https://bantertoys.com.au/search?q=${c}`, spread: [0.99, 1.16] as [number, number] },
-    { key: "ebgames", name: "EB Games", url: (c: string) => `https://www.ebgames.com.au/search?q=${c}`, spread: [1.0, 1.2] as [number, number] },
-    { key: "zing", name: "Zing Pop Culture", url: (c: string) => `https://www.zingpopculture.com.au/search?q=${c}`, spread: [1.0, 1.2] as [number, number] },
-    { key: "mightyape_au", name: "Mighty Ape", url: (c: string) => `https://www.mightyape.com.au/search?q=${c}`, spread: [0.99, 1.16] as [number, number] },
-    { key: "amazon_au", name: "Amazon AU", url: (c: string) => `https://www.amazon.com.au/s?k=${c}`, spread: [0.95, 1.2] as [number, number] },
-    { key: "gamesmen", name: "The Gamesmen", url: (c: string) => `https://www.gamesmen.com.au/catalogsearch/result/?q=${c}`, spread: [1.0, 1.18] as [number, number] },
-    { key: "hobbymaster_au", name: "Hobbymaster", url: (c: string) => `https://hobbymaster.com.au/search?q=${c}`, spread: [0.99, 1.15] as [number, number] },
-    { key: "skyfoxes", name: "Sky Foxes Cards", url: (c: string) => `https://skyfoxescards.com.au/search?q=${c}`, spread: [0.98, 1.13] as [number, number] },
-  ];
-
-  // UK MODE: the biggest UK TCG retailers (market scan). Prices in GBP.
-  const gbRetailers = [
-    { key: "chaoscards", name: "Chaos Cards", url: (c: string) => `https://www.chaoscards.co.uk/search?q=${c}`, spread: [0.95, 1.05] as [number, number] },
-    { key: "magicmadhouse", name: "Magic Madhouse", url: (c: string) => `https://www.magicmadhouse.co.uk/catalogsearch/result/?q=${c}`, spread: [0.96, 1.07] as [number, number] },
-    { key: "totalcards", name: "Total Cards", url: (c: string) => `https://www.totalcards.net/catalogsearch/result/?q=${c}`, spread: [0.96, 1.08] as [number, number] },
-    { key: "elementgames", name: "Element Games", url: (c: string) => `https://elementgames.co.uk/?search=${c}`, spread: [0.94, 1.04] as [number, number] },
-    { key: "goblingaming", name: "Goblin Gaming", url: (c: string) => `https://goblingaming.co.uk/search?q=${c}`, spread: [0.96, 1.08] as [number, number] },
-    { key: "bigorbitcards", name: "Big Orbit Cards", url: (c: string) => `https://www.bigorbitcards.co.uk/catalogsearch/result/?q=${c}`, spread: [0.95, 1.07] as [number, number] },
-    { key: "axionnow", name: "Axion Now", url: (c: string) => `https://www.axionnow.com/catalogsearch/result/?q=${c}`, spread: [0.97, 1.1] as [number, number] },
-    { key: "manaleak", name: "Manaleak", url: (c: string) => `https://www.manaleak.com/mtguk/catalogsearch/result/?q=${c}`, spread: [0.97, 1.11] as [number, number] },
-    { key: "patriotgames", name: "Patriot Games", url: (c: string) => `https://www.patriotgames.co.uk/search?q=${c}`, spread: [0.98, 1.12] as [number, number] },
-    { key: "athenacards", name: "Athena Cards", url: (c: string) => `https://www.athenacards.com/search?q=${c}`, spread: [0.98, 1.12] as [number, number] },
-    { key: "forbiddenplanet", name: "Forbidden Planet", url: (c: string) => `https://forbiddenplanet.com/catalog/?q=${c}`, spread: [1.0, 1.15] as [number, number] },
-    { key: "game_uk", name: "GAME", url: (c: string) => `https://www.game.co.uk/en/search/?q=${c}`, spread: [1.0, 1.18] as [number, number] },
-    { key: "smythstoys", name: "Smyths Toys", url: (c: string) => `https://www.smythstoys.com/uk/en-gb/search/?text=${c}`, spread: [1.0, 1.16] as [number, number] },
-    { key: "pokemoncenter_uk", name: "Pokémon Center UK", url: (c: string) => `https://www.pokemoncenter.com/en-gb/search/${c}`, spread: [1.0, 1.2] as [number, number] },
-    { key: "cardsuniverse", name: "Cards Universe", url: (c: string) => `https://cardsuniverse.co.uk/search?q=${c}`, spread: [0.97, 1.1] as [number, number] },
-    { key: "amazon_uk", name: "Amazon UK", url: (c: string) => `https://www.amazon.co.uk/s?k=${c}+pokemon+card`, spread: [0.95, 1.2] as [number, number] },
-  ];
-
   const priceRows: {
     cardId: string; retailer: string; retailerName: string; title: string; url: string;
     priceCents: number; currency: string; inStock: boolean; country: string;
   }[] = [];
+  // TCGplayer + Cardmarket carry a REAL price + REAL product URL from the API, so
+  // they only appear in the markets they actually serve: TCGplayer for US (and as an
+  // international option for NZ — NZ has no large local singles scene), Cardmarket for
+  // the EU/UK market (GB). They are DELIBERATELY NOT shown for AU: Australia has many
+  // local .com.au singles stores (scraped live by scripts/import-au-prices.ts), and
+  // TCGplayer/Cardmarket do not ship singles to AU as a sensible option. No eBay rows
+  // (eBay only exposes search URLs, never a specific product page) and no Troll and Toad.
+  const FX: Record<string, number> = { NZ: 1.68, US: 1.0, GB: 0.82 };
+  const CUR: Record<string, string> = { NZ: "NZD", US: "USD", GB: "GBP" };
   for (const c of dbCards) {
-    // Search by the card NAME + set (so links land on the right product), not the
-    // internal id. TCGplayer/Cardmarket get their REAL product URL from the API.
-    const q = encodeURIComponent(`${c.name} ${c.setName}`);
     const real = realPrices.get(c.externalId);
-    for (const r of usRetailers) {
-      let priceCents: number;
-      let url: string;
-      if (r.key === "tcgplayer" && real?.tcgUsd != null) {
-        priceCents = real.tcgUsd; // EXACT cheapest TCGplayer listing
-        url = real.tcgUrl ?? r.url(q);
-      } else if (r.key === "cardmarket" && real?.cmUsd != null) {
-        priceCents = real.cmUsd; // EXACT cheapest Cardmarket (→USD)
-        url = real.cmUrl ?? r.url(q);
-      } else {
-        priceCents = cents((c.lowestPriceCentsUs ?? 50) * between(r.spread[0], r.spread[1]));
-        url = r.url(q);
+    const q = encodeURIComponent(`${c.name} ${c.setName}`);
+    const tcgUrl = real?.tcgUrl ?? `https://www.tcgplayer.com/search/pokemon/product?q=${q}`;
+    const cmUrl = real?.cmUrl ?? `https://www.cardmarket.com/en/Pokemon/Products/Search?searchString=${q}`;
+    // TCGplayer → US + NZ (international shipping option for NZ). Real URL + price.
+    if (real?.tcgUsd != null) {
+      for (const country of ["US", "NZ"] as const) {
+        priceRows.push({ cardId: c.id, retailer: `tcgplayer_${country.toLowerCase()}`, retailerName: "TCGplayer", title: "TCGplayer", url: tcgUrl, priceCents: cents(real.tcgUsd * FX[country]), currency: CUR[country], inStock: true, country });
       }
-      priceRows.push({
-        cardId: c.id, retailer: r.key, retailerName: r.name, title: r.name, url,
-        priceCents, currency: "USD", inStock: true, country: "US",
-      });
     }
-    for (const r of auRetailers) {
-      priceRows.push({
-        cardId: c.id, retailer: r.key, retailerName: r.name, title: r.name, url: r.url(q),
-        priceCents: cents((c.lowestPriceCents ?? 80) * between(r.spread[0], r.spread[1]), 10),
-        currency: "AUD", inStock: true, country: "AU",
-      });
-    }
-    for (const r of gbRetailers) {
-      priceRows.push({
-        cardId: c.id, retailer: r.key, retailerName: r.name, title: r.name, url: r.url(q),
-        priceCents: cents((c.lowestPriceCentsGb ?? 40) * between(r.spread[0], r.spread[1]), 8),
-        currency: "GBP", inStock: true, country: "GB",
-      });
+    // Cardmarket → GB (EU/UK marketplace). Real URL + price.
+    if (real?.cmUsd != null) {
+      priceRows.push({ cardId: c.id, retailer: "cardmarket_gb", retailerName: "Cardmarket", title: "Cardmarket", url: cmUrl, priceCents: cents(real.cmUsd * FX.GB), currency: CUR.GB, inStock: true, country: "GB" });
     }
   }
   console.log(`Inserting ${priceRows.length} retailer prices…`);

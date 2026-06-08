@@ -55,6 +55,26 @@ function cleanProductName(title: string): string {
     .replace(/\[[^\]]*\]/g, " ")
     .replace(STOP, " ");
 }
+
+// Word tokens for Pokémon name/set matching. Strips only generic noise (condition,
+// grading, rarity/finish words, "pokemon/card/single", numbers) — NOT set-name words
+// (e.g. "obsidian", "flames"), since those are what disambiguate same-numbered cards.
+const TOK_STOP = new Set([
+  "pokemon", "pokémon", "card", "cards", "single", "singles", "tcg", "the", "a", "an",
+  "of", "and", "nm", "near", "mint", "lightly", "moderately", "heavily", "played",
+  "lp", "mp", "hp", "dmg", "damaged", "holo", "holofoil", "reverse", "foil", "non",
+  "rare", "common", "uncommon", "promo", "full", "alt", "alternate", "art", "secret",
+  "rainbow", "hyper", "amazing", "radiant", "english", "japanese", "jpn", "eng",
+  "graded", "psa", "bgs", "cgc", "ace", "trainer", "gallery", "pkmn", "genuine",
+]);
+function tokenize(s: string): string[] {
+  return s
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim()
+    .split(" ")
+    .filter((w) => w.length > 1 && !TOK_STOP.has(w) && !/^\d+$/.test(w));
+}
 // Parse a collector number from any store title format, e.g.:
 //   "(299*/298)", "(053/219)", "OGN-128/298", "[OGN - 213/298]", "239*/221"
 // Keys are normalised via numKey so "039" and "39" compare equal (the leading-zero
@@ -133,9 +153,9 @@ async function discoverPokémonCollections(base: string): Promise<string[]> {
     if (!xml) continue;
     for (const m of xml.matchAll(/\/collections\/([^<\/?#"]+)/g)) {
       const h = m[1];
-      // Require "riftbound" (not just "rift" — avoids Pokémon "Paradox Rift"),
-      // and skip sealed/accessory collections and image URLs.
-      if (/riftbound/i.test(h) && !NON_SINGLE.test(h) && !/\.(jpe?g|png|gif|webp|svg)$/i.test(h)) {
+      // Require a Pokémon signal in the handle, and skip sealed/accessory
+      // collections and image URLs. "singles" alone qualifies a Pokémon-named store.
+      if (/pok[eé]mon|pkmn/i.test(h) && !NON_SINGLE.test(h) && !/\.(jpe?g|png|gif|webp|svg)$/i.test(h)) {
         handles.add(h);
       }
     }
@@ -311,164 +331,104 @@ export async function refreshEbayMarkets(
   return written;
 }
 
-export async function importPrices(): Promise<ImportSummary> {
-  const allCardRows = await prisma.card.findMany({
-    select: { id: true, name: true, setCode: true, collectorNumber: true, rarity: true, variant: true, isPromo: true },
-  });
-  // Base (non-promo) pool drives the normal matching, unchanged.
-  const cards = allCardRows.filter((c) => !c.isPromo);
-  // Promo pool: a promo shares the base card's number, so it's matched ONLY when a
-  // listing title explicitly says "promo" (etc.) — see PROMO_HINT below.
-  const promoRows = allCardRows.filter((c) => c.isPromo);
-  const promoByName = new Map<string, string>();
-  const promoByNum = new Map<string, string>();
-  const promoByNumAny = new Map<string, string>();
-  for (const c of promoRows) {
-    const nk = numKey(c.collectorNumber.split("/")[0]);
-    const nameK = nameKey(c.name);
-    if (!promoByName.has(nameK)) promoByName.set(nameK, c.id);
-    if (!promoByNum.has(`${c.setCode}|${nk}`)) promoByNum.set(`${c.setCode}|${nk}`, c.id);
-    if (!promoByNumAny.has(nk)) promoByNumAny.set(nk, c.id);
-  }
+// A card as needed for title→card matching.
+export interface MatchCard { id: string; name: string; setName: string | null; collectorNumber: string }
 
-  const byNum = new Map<string, string[]>();
-  const byNumAny = new Map<string, string[]>();
-  const byName = new Map<string, typeof cards>();
-  const push = <T>(m: Map<string, T[]>, k: string, v: T) => {
+// Build a Pokémon title→cardId resolver over a set of cards. Pokémon store titles
+// reliably carry the collector number ("125/197") and the card name, and usually the
+// set name ("Obsidian Flames"); the set CODE almost never appears. So we match on
+// number + name, using the set name to disambiguate when several cards share a number
+// (rare cross-set collisions on equal set sizes). Pure + exported so it's unit-tested.
+export function buildPokemonResolver(cards: MatchCard[]): (title: string) => string | null {
+  interface IdxCard { id: string; nameToks: string[]; setToks: string[] }
+  const byKey = new Map<string, IdxCard[]>(); // "num/total"
+  const byNum = new Map<number, IdxCard[]>(); // num
+  const byName = new Map<string, IdxCard[]>(); // primary name token
+  const push = (m: Map<any, IdxCard[]>, k: any, v: IdxCard) => {
     const arr = m.get(k);
     if (arr) arr.push(v);
     else m.set(k, [v]);
   };
-  // Track which card ids are Signature ("*") or Overnumbered so number-only
-  // matches can be constrained to the right print type.
-  const starIds = new Set<string>();
-  const overIds = new Set<string>();
+  const cardNum = (cn: string): { num: number; total: number } | null => {
+    const m = cn.match(/(\d+)\s*\/\s*(\d+)/);
+    if (m) return { num: parseInt(m[1], 10), total: parseInt(m[2], 10) };
+    const m2 = cn.match(/(\d+)/);
+    return m2 ? { num: parseInt(m2[1], 10), total: 0 } : null;
+  };
   for (const c of cards) {
-    const nk = numKey(c.collectorNumber.split("/")[0]);
-    push(byNum, `${c.setCode}|${nk}`, c.id);
-    push(byNumAny, nk, c.id);
-    push(byName, nameKey(c.name), c);
-    const [d, tt] = c.collectorNumber.split("/");
-    if (c.collectorNumber.includes("*")) starIds.add(c.id);
-    else if (parseInt(d, 10) > parseInt(tt ?? "0", 10)) overIds.add(c.id);
+    const nameToks = tokenize(c.name);
+    if (!nameToks.length) continue;
+    const ic: IdxCard = { id: c.id, nameToks, setToks: tokenize(c.setName || "") };
+    const d = cardNum(c.collectorNumber);
+    if (d) {
+      if (d.total) push(byKey, `${d.num}/${d.total}`, ic);
+      push(byNum, d.num, ic);
+    }
+    push(byName, nameToks[0], ic);
   }
 
-  // The collector-number TOTAL uniquely identifies the set, so a title like
-  // "Existential Dread - 134/219" (no set code) is unambiguously UNL — never the
-  // OGN card numbered 134/298. This is authoritative and prevents cross-set bleed.
-  const setFromTotal = (total?: string): string | null => {
-    switch (parseInt(total ?? "", 10)) {
-      case 298: return "OGN";
-      case 221: return "SFD";
-      case 219: return "UNL";
-      case 24: return "OGS";
-      default: return null;
-    }
-  };
-
-  function resolveCardId(p: ShopifyProduct): string | null {
-    const t = p.title;
+  return function resolve(title: string): string | null {
+    const t = title;
     // Never match a multi-card listing (playset/lot/bundle) to a single card — its
     // price is for the whole group, not one card.
     if (MULTI_CARD.test(t)) return null;
-    const num = parseNumber(t);
-    const setCode =
-      num?.setCode ?? setFromTotal(num?.total) ?? SET_FROM_TITLE.find(([re]) => re.test(t))?.[1] ?? "OGN";
+    const ptoks = tokenize(t);
+    if (!ptoks.length) return null;
+    const ptokset = new Set(ptoks);
+    const nameOk = (c: IdxCard) => ptokset.has(c.nameToks[0]);
+    const fullNameOk = (c: IdxCard) => c.nameToks.every((x) => ptokset.has(x));
+    const setOk = (c: IdxCard) => c.setToks.some((s) => ptokset.has(s));
 
-    // Promo listing → resolve against the PROMO pool only (a promo shares the base
-    // card's number, so a promo-marked listing must never price the base card).
-    if (PROMO_HINT.test(t)) {
-      const promoName = nameKey(cleanProductName(t).replace(PROMO_WORDS, " "));
-      const byNameHit = promoByName.get(promoName);
-      if (byNameHit) return byNameHit;
-      if (num) return promoByNum.get(`${setCode}|${num.key}`) ?? promoByNumAny.get(num.key) ?? null;
-      return null;
-    }
-    // NOTE: "Foil" is NOT an alt-art signal — nearly every listing (incl. base
-    // cards) says Foil. Only these markers (or a lettered number like 039a) mean
-    // an alt-art/special printing.
-    const isAlt =
-      /showcase|signature|overnumbered|alternate\s*art|alt\s*art/i.test(t) ||
-      /\d+[a-z]/.test(num?.key ?? "");
-
-    // Special-print signals in the title. Signature ("*"/signed) and Overnumbered
-    // (number beyond the set count) are SEPARATE cards from the base/alt printings
-    // and must never be mixed with them — nor with each other.
-    const titleSig = /\bsignature\b|\bsigned\b/i.test(t) || /\d\s*\*/.test(t);
-    const titleOver = !titleSig && /\bovernumber\w*/i.test(t);
-    const isStar = (c: (typeof cards)[number]) => c.collectorNumber.includes("*");
-    const isOverCard = (c: (typeof cards)[number]) => {
-      if (isStar(c)) return false;
-      const [d, tt] = c.collectorNumber.split("/");
-      return parseInt(d, 10) > parseInt(tt ?? "0", 10);
-    };
-    const pickByNum = <T extends { collectorNumber: string }>(arr: T[]): T | undefined =>
-      num ? arr.find((c) => numKey(c.collectorNumber.split("/")[0]) === num.key) : undefined;
-
-    // 1) name match, disambiguated by special-print → number → variant.
-    const cand = byName.get(nameKey(cleanProductName(t)));
-    if (cand && cand.length) {
-      // A Signature listing belongs ONLY to a "*" card of that name. If we don't
-      // have one, leave it unmatched rather than mis-attaching to a sibling.
-      if (titleSig) {
-        const sigs = cand.filter(isStar);
-        if (!sigs.length) return null;
-        return (pickByNum(sigs) ?? sigs[0]).id;
+    const m = t.match(/(\d+)\s*\/\s*(\d+)/);
+    if (m) {
+      const num = parseInt(m[1], 10);
+      const total = parseInt(m[2], 10);
+      // 1) exact number + set size: the most precise key.
+      const exact = byKey.get(`${num}/${total}`);
+      if (exact && exact.length) {
+        if (exact.length === 1) return exact[0].id;
+        return (exact.find((c) => setOk(c) && nameOk(c)) ?? exact.find(nameOk) ?? exact[0]).id;
       }
-      // Likewise an Overnumbered listing belongs only to an overnumbered card.
-      if (titleOver) {
-        const overs = cand.filter(isOverCard);
-        if (!overs.length) return null;
-        return (pickByNum(overs) ?? overs[0]).id;
+      // 2) same number (set size differs/omitted): require the name to line up, and
+      // prefer the set-name match to avoid grabbing a same-numbered card elsewhere.
+      const same = byNum.get(num);
+      if (same && same.length) {
+        const hit =
+          same.find((c) => setOk(c) && fullNameOk(c)) ??
+          same.find((c) => setOk(c) && nameOk(c)) ??
+          same.find(fullNameOk) ??
+          (same.length === 1 ? same[0] : undefined);
+        if (hit) return hit.id;
       }
-      if (cand.length === 1) return cand[0].id;
-      const exact = pickByNum(cand);
-      if (exact) return exact.id;
-      // A plain (non-special) listing must never resolve to a "*" Signature or an
-      // overnumbered chase card — those only match explicit special-print titles.
-      const pool = cand.filter((c) => !isStar(c) && !isOverCard(c));
-      const search = pool.length ? pool : cand;
-      const v = search.find((c) => (isAlt ? c.variant || c.rarity === "Showcase" : !c.variant && c.rarity !== "Showcase"));
-      if (v) return v.id;
-      return search[0].id;
     }
 
-    // 2) number-only match (name didn't resolve — e.g. store titles like
-    // "Vayne - Hunter — Signature - 223*/221" where the number/keywords pollute the
-    // name). The number key is print-aware: numKey("223*") = "223s" maps only to the
-    // signature card, so a starred number routes correctly. For special prints we
-    // CONSTRAIN the hit to the matching print type, so a signature title whose number
-    // is written WITHOUT the star (e.g. "225/221 (Signature)") won't wrongly grab the
-    // plain overnumbered sibling — it stays unmatched instead.
-    if (num) {
-      const setHit = byNum.get(`${setCode}|${num.key}`) ?? [];
-      const anyHit = byNumAny.get(num.key) ?? [];
-      const hits = setHit.length ? setHit : anyHit;
-      if (titleSig) {
-        return hits.find((id) => starIds.has(id)) ?? null;
-      }
-      if (titleOver) {
-        return hits.find((id) => overIds.has(id)) ?? null;
-      }
-      // Plain listing: prefer a plain (non-special) card of that number.
-      const plainSet = setHit.filter((id) => !starIds.has(id) && !overIds.has(id));
-      if (plainSet.length) return plainSet[0];
-      const plainAny = anyHit.filter((id) => !starIds.has(id) && !overIds.has(id));
-      if (plainAny.length === 1) return plainAny[0];
-      if (setHit.length) return setHit[0];
+    // 3) no usable number on the listing → match by full name + set name.
+    for (const tok of ptoks) {
+      const cands = byName.get(tok);
+      if (!cands) continue;
+      const hit = cands.find((c) => fullNameOk(c) && setOk(c));
+      if (hit) return hit.id;
     }
     return null;
-  }
+  };
+}
+
+export async function importPrices(): Promise<ImportSummary> {
+  const cards = await prisma.card.findMany({
+    select: { id: true, name: true, setName: true, collectorNumber: true },
+  });
+  const resolve = buildPokemonResolver(cards);
+  const resolveCardId = (p: ShopifyProduct): string | null => resolve(p.title);
 
   const summary: ImportSummary = { stores: [], totalMatched: 0, totalUnmatched: 0, cardsPriced: 0 };
 
   for (const store of RETAILER_LIST) {
     const cc = store.country ?? "AU";
-    // Auto-discover the store's Pokémon collections; fall back to any handles
-    // configured explicitly in retailers.ts.
+    // Auto-discover the store's Pokémon collections from its sitemap (authoritative).
+    // Only fall back to handles configured in retailers.ts if discovery finds nothing,
+    // and never scrape a non-Pokémon (e.g. legacy "riftbound") handle.
     let handles = await discoverPokémonCollections(store.base);
-    if (!handles.length) handles = store.collections ?? [];
-    handles = Array.from(new Set([...handles, ...(store.collections ?? [])]));
+    if (!handles.length) handles = (store.collections ?? []).filter((h) => /pok[eé]mon|pkmn/i.test(h));
 
     const products: ShopifyProduct[] = [];
     const seen = new Set<string>();

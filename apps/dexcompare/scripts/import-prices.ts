@@ -1,5 +1,5 @@
 /**
- * Import live Riftbound single prices from Australian retailers into RetailerPrice.
+ * Import live Pokémon single prices from AU/NZ/US retailers into RetailerPrice.
  *
  * Reads public Shopify products.json feeds (catalogue data only), matches each
  * product to a card, and stores the cheapest price per store. Configure stores +
