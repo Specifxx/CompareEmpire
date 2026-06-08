@@ -10,8 +10,8 @@ import { isEbayEnabled, isEbayRateLimited, searchEbayLowest, primeEbayBudget, eb
 import { importSealed } from "./sealed-import";
 import { refreshTcgplayerPrices } from "./tcgplayer";
 
-interface ShopifyVariant { title: string; price: string; available: boolean }
-interface ShopifyProduct { title: string; handle: string; variants: ShopifyVariant[] }
+export interface ShopifyVariant { title: string; price: string; available: boolean }
+export interface ShopifyProduct { title: string; handle: string; variants: ShopifyVariant[] }
 
 // Calendar day (date-only) in Australia/Sydney, used as the price-history x-axis
 // bucket so there's exactly one snapshot per card per local day.
@@ -158,7 +158,7 @@ const NON_SINGLE = /sealed|booster|box|bundle|preorder|pre-order|accessor|playma
 // Auto-discover a store's Pokémon singles collections from its Shopify sitemap,
 // so we only need the store's domain (handles vary wildly between stores). This is
 // how an aggregator like Google captures every store without hard-coding URLs.
-async function discoverPokémonCollections(base: string): Promise<string[]> {
+export async function discoverPokémonCollections(base: string): Promise<string[]> {
   const handles = new Set<string>();
   const index = await fetchText(`${base}/sitemap.xml`);
   let sitemaps = index
@@ -181,7 +181,7 @@ async function discoverPokémonCollections(base: string): Promise<string[]> {
   return Array.from(handles);
 }
 
-async function fetchCollection(store: RetailerInfo, handle: string): Promise<ShopifyProduct[]> {
+export async function fetchCollection(store: RetailerInfo, handle: string): Promise<ShopifyProduct[]> {
   const cc = store.country ?? "AU";
   const all: ShopifyProduct[] = [];
   for (let page = 1; page <= 20; page++) {

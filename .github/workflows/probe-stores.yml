@@ -1,0 +1,38 @@
+name: Probe DexCompare stores
+
+# READ-ONLY validation: for each configured retailer, run the production discovery +
+# matcher against the live store and report how many Pokémon listings match our cards.
+# Runs on GitHub's open internet (the dev container can't reach the stores). No writes.
+# Actions tab → "Probe DexCompare stores" → Run workflow, paste the DexCompare Neon URL
+# and a filter (US, GB, AU, NZ, all, or comma-separated store keys).
+
+on:
+  workflow_dispatch:
+    inputs:
+      dexcompare_url:
+        description: "DexCompare Neon DATABASE_URL (pooled, sslmode=require)"
+        required: true
+      country:
+        description: "Filter: US | GB | AU | NZ | all | key1,key2,…"
+        required: false
+        default: "all"
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Mask connection string
+        run: echo "::add-mask::${{ inputs.dexcompare_url }}"
+      - name: Probe stores
+        working-directory: apps/dexcompare
+        env:
+          DATABASE_URL: ${{ inputs.dexcompare_url }}
+        run: |
+          npm install --no-audit --no-fund
+          npx prisma generate
+          npx tsx scripts/probe-stores.ts "${{ inputs.country }}"
