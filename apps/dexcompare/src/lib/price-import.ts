@@ -238,7 +238,7 @@ async function verifyCheapestListings(): Promise<number> {
     orderBy: { priceCents: "asc" },
   });
   // Cheapest in-stock listing per card PER MARKET (AU and NZ are verified separately).
-  const cheapest = new Map<string, { id: string; priceCents: number; url: string; country: string }>();
+  const cheapest = new Map<string, { id: string; cardId: string; priceCents: number; url: string; country: string }>();
   for (const r of rows) {
     const k = `${r.cardId}|${r.country}`;
     if (!cheapest.has(k)) cheapest.set(k, r);
@@ -541,7 +541,7 @@ export async function importPrices(): Promise<ImportSummary> {
         condition: best.title && best.title !== "Default Title" ? best.title : null,
         isFoil: /foil/i.test(p.title),
         priceCents,
-        currency: cc === "NZ" ? "NZD" : cc === "US" ? "USD" : "AUD",
+        currency: cc === "NZ" ? "NZD" : cc === "US" ? "USD" : cc === "GB" ? "GBP" : "AUD",
         country: cc,
         inStock,
       });
