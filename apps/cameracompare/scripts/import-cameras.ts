@@ -64,6 +64,39 @@ async function fetchJson(url: string): Promise<any | null> {
   }
 }
 
+async function fetchText(url: string): Promise<string | null> {
+  try {
+    const r = await fetch(url, { headers: UA });
+    return r.ok ? await r.text() : null;
+  } catch {
+    return null;
+  }
+}
+
+// Camera collection handles worth crawling vs. accessory collections to ignore.
+const COLL_CAMERA = /camera|mirrorless|dslr|compact|instant|action|vlog|cinema/i;
+const COLL_SKIP = /accessor|lens(?!.*camera)|bag|tripod|memory|sd-?card|battery|charger|strap|filter|cleaning|print|paper|ink|sale|clearance|gift|used|second-?hand|trade/i;
+
+// Auto-discover a Shopify store's camera collections from its sitemap, so we don't
+// rely on guessed handles. Returns [] for non-Shopify stores (no collections sitemap).
+async function discoverCollections(base: string): Promise<string[]> {
+  const handles = new Set<string>();
+  const index = await fetchText(`${base}/sitemap.xml`);
+  let sitemaps = index
+    ? [...index.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]).filter((u) => /sitemap_collections/i.test(u))
+    : [];
+  if (!sitemaps.length) sitemaps = [`${base}/sitemap_collections_1.xml`];
+  for (const sm of sitemaps.slice(0, 8)) {
+    const xml = await fetchText(sm);
+    if (!xml) continue;
+    for (const m of xml.matchAll(/\/collections\/([a-z0-9][a-z0-9-]*)/gi)) {
+      const h = m[1].toLowerCase();
+      if (COLL_CAMERA.test(h) && !COLL_SKIP.test(h)) handles.add(h);
+    }
+  }
+  return [...handles];
+}
+
 async function crawl(base: string, handle: string): Promise<ShopifyProduct[]> {
   const out: ShopifyProduct[] = [];
   for (let page = 1; page <= 40; page++) {
@@ -186,7 +219,9 @@ async function main() {
   const byKey = new Map<string, Listing[]>();
   for (const r of RETAILERS) {
     const seen = new Map<number, ShopifyProduct>();
-    for (const h of r.collections) for (const p of await crawl(r.base, h)) seen.set(p.id, p);
+    const discovered = await discoverCollections(r.base);
+    const handles = [...new Set([...discovered, ...r.collections])];
+    for (const h of handles) for (const p of await crawl(r.base, h)) seen.set(p.id, p);
     let kept = 0;
     for (const p of seen.values()) {
       if (ACCESSORY.test(`${p.title} ${p.product_type ?? ""}`)) continue;
