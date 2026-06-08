@@ -125,9 +125,16 @@ const UA = {
   Accept: "application/json, text/plain, */*",
 };
 
+// Per-request timeout (ms). Node's fetch has NO default total timeout, so a store
+// that accepts the connection but never responds would otherwise hang the whole
+// 52-store import indefinitely (it once stalled a CI run until the 2h job cap).
+// AbortSignal.timeout aborts the request — body read included — and the throw is
+// caught at each call site, so one dead store is skipped instead of wedging the run.
+const FETCH_TIMEOUT_MS = 20000;
+
 async function fetchText(url: string): Promise<string | null> {
   try {
-    const r = await fetch(url, { headers: UA });
+    const r = await fetch(url, { headers: UA, signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
     return r.ok ? await r.text() : null;
   } catch {
     return null;
@@ -172,14 +179,20 @@ async function fetchCollection(store: RetailerInfo, handle: string): Promise<Sho
     // real AU price is $45. Forcing the store's market gives the local shopper price
     // (AUD for AU stores, NZD for NZ stores).
     const url = `${store.base}/collections/${handle}/products.json?limit=250&page=${page}&country=${cc}&_=${Date.now()}`;
-    let res: Response;
+    let data: { products: ShopifyProduct[] };
     try {
-      res = await fetch(url, { headers: { ...UA, "Cache-Control": "no-cache", Pragma: "no-cache" }, cache: "no-store" });
+      const res = await fetch(url, {
+        headers: { ...UA, "Cache-Control": "no-cache", Pragma: "no-cache" },
+        cache: "no-store",
+        signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+      });
+      if (!res.ok) break;
+      // Keep the body read inside the try so an abort/timeout mid-stream is caught
+      // here (skip the store) rather than throwing out of the import.
+      data = (await res.json()) as { products: ShopifyProduct[] };
     } catch {
       break;
     }
-    if (!res.ok) break;
-    const data = (await res.json()) as { products: ShopifyProduct[] };
     if (!data.products?.length) break;
     all.push(...data.products);
     if (data.products.length < 250) break;
@@ -230,6 +243,7 @@ async function verifyCheapestListings(): Promise<number> {
         const res = await fetch(`${url}.json?country=${country}`, {
           headers: { ...UA, "Cache-Control": "no-cache", Pragma: "no-cache" },
           cache: "no-store",
+          signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
         });
         if (!res.ok) continue;
         const data = (await res.json()) as { product?: { variants?: ShopifyVariant[] } };
