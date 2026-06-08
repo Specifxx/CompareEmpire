@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
-import { normalizeSearch } from "@/lib/format";
-import { cardTileSelect } from "@/lib/cards";
+import { cardSearchFilter, cardTileSelect } from "@/lib/cards";
 import { getSealedGroups } from "@/lib/sealed-import";
 import { getCountry } from "@/lib/get-country";
 import { priceField } from "@/lib/country";
@@ -16,15 +15,9 @@ export async function GET(req: Request) {
   if (q.length < 2) return NextResponse.json({ results: [], sealed: [] });
 
   const country = getCountry();
-  const nq = normalizeSearch(q);
   const [cards, sealedAll] = await Promise.all([
     prisma.card.findMany({
-      where: {
-        OR: [
-          { nameNormalized: { contains: nq } },
-          { collectorNumber: { contains: q } },
-        ],
-      },
+      where: cardSearchFilter(q) ?? {},
       // Priced cards first (in the selected market), then by name.
       orderBy: [
         { [priceField(country)]: { sort: "desc", nulls: "last" } } as Prisma.CardOrderByWithRelationInput,

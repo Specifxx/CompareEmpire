@@ -271,15 +271,17 @@ async function main() {
   // TCGplayer + Cardmarket carry REAL prices + product URLs (from the API).
   // Troll and Toad / eBay are estimates and must NOT undercut the real cheapest,
   // so their spreads start at 1.0.
+  // NOTE: eBay is intentionally NOT seeded synthetically. eBay rows are written only
+  // by refreshEbayMarkets() (real Browse-API lowest, keys ebay/ebay_us/ebay_uk) so an
+  // "eBay" price is always a real in-stock listing — never a fabricated estimate that
+  // would linger and masquerade as the cheapest.
   const usRetailers = [
     { key: "tcgplayer", name: "TCGplayer", url: (c: string) => `https://www.tcgplayer.com/search/pokemon/product?q=${c}`, spread: [1.0, 1.0] as [number, number] },
     { key: "trollandtoad", name: "Troll and Toad", url: (c: string) => `https://www.trollandtoad.com/category.php?search-words=${c}`, spread: [1.02, 1.18] as [number, number] },
-    { key: "ebay_us", name: "eBay US", url: (c: string) => `https://www.ebay.com/sch/i.html?_nkw=${c}+pokemon+card`, spread: [1.0, 1.25] as [number, number] },
     { key: "cardmarket", name: "Cardmarket", url: (c: string) => `https://www.cardmarket.com/en/Pokemon/Products/Search?searchString=${c}`, spread: [1.0, 1.0] as [number, number] },
   ];
-  // AUSTRALIAN stores (market scan, 15). Prices in AUD.
+  // AUSTRALIAN stores (market scan). Prices in AUD.
   const auRetailers = [
-    { key: "ebay_au", name: "eBay AU", url: (c: string) => `https://www.ebay.com.au/sch/i.html?_nkw=${c}`, spread: [0.95, 1.2] as [number, number] },
     { key: "pokemarket", name: "Pokémon Market Australia", url: (c: string) => `https://pokemarket.com.au/search?q=${c}`, spread: [0.98, 1.15] as [number, number] },
     { key: "cherry", name: "Cherry Collectables", url: (c: string) => `https://www.cherrycollectables.com.au/search?q=${c}`, spread: [0.97, 1.12] as [number, number] },
     { key: "ozzie", name: "Ozzie Collectables", url: (c: string) => `https://www.ozziecollectables.com/search?q=${c}`, spread: [0.98, 1.14] as [number, number] },
@@ -313,7 +315,6 @@ async function main() {
     { key: "smythstoys", name: "Smyths Toys", url: (c: string) => `https://www.smythstoys.com/uk/en-gb/search/?text=${c}`, spread: [1.0, 1.16] as [number, number] },
     { key: "pokemoncenter_uk", name: "Pokémon Center UK", url: (c: string) => `https://www.pokemoncenter.com/en-gb/search/${c}`, spread: [1.0, 1.2] as [number, number] },
     { key: "cardsuniverse", name: "Cards Universe", url: (c: string) => `https://cardsuniverse.co.uk/search?q=${c}`, spread: [0.97, 1.1] as [number, number] },
-    { key: "ebay_uk", name: "eBay UK", url: (c: string) => `https://www.ebay.co.uk/sch/i.html?_nkw=${c}+pokemon+card`, spread: [0.9, 1.22] as [number, number] },
     { key: "amazon_uk", name: "Amazon UK", url: (c: string) => `https://www.amazon.co.uk/s?k=${c}+pokemon+card`, spread: [0.95, 1.2] as [number, number] },
   ];
 
@@ -368,16 +369,15 @@ async function main() {
 
   // ---- sealed products (booster boxes, ETBs, bundles, packs) -----------------
   const { POKEMON_SETS } = await import("../src/lib/pokemon-sets");
+  // eBay omitted here too — real sealed eBay rows (key "ebay") come from importSealed().
   const sealedRetailers = [
     { key: "tcgplayer", name: "TCGplayer", country: "US", currency: "USD" },
     { key: "trollandtoad", name: "Troll and Toad", country: "US", currency: "USD" },
-    { key: "ebay_au", name: "eBay AU", country: "AU", currency: "AUD" },
     // UK MODE sealed sources
     { key: "chaoscards", name: "Chaos Cards", country: "GB", currency: "GBP" },
     { key: "magicmadhouse", name: "Magic Madhouse", country: "GB", currency: "GBP" },
     { key: "totalcards", name: "Total Cards", country: "GB", currency: "GBP" },
     { key: "elementgames", name: "Element Games", country: "GB", currency: "GBP" },
-    { key: "ebay_uk", name: "eBay UK", country: "GB", currency: "GBP" },
   ];
   const PRODUCTS = [
     { type: "Booster Box", usd: [9000, 16000] as [number, number] },

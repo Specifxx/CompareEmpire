@@ -14,7 +14,7 @@ import { EBAY_CAMPAIGN_ID } from "./affiliate";
 const TOKEN_URL = "https://api.ebay.com/identity/v1/oauth2/token";
 const SEARCH_URL = "https://api.ebay.com/buy/browse/v1/item_summary/search";
 // eBay marketplace per country (results priced in that marketplace's currency).
-export const EBAY_MARKETPLACE: Record<string, string> = { AU: "EBAY_AU", US: "EBAY_US" };
+export const EBAY_MARKETPLACE: Record<string, string> = { AU: "EBAY_AU", US: "EBAY_US", GB: "EBAY_GB" };
 const DEFAULT_MARKETPLACE = "EBAY_AU";
 
 export function isEbayEnabled(): boolean {
@@ -132,7 +132,7 @@ function shippingFromItem(item: any): number | null {
 
 // Titles that mean a bundle/lot/non-English/sealed/non-card listing — never a single.
 const EXCLUDE =
-  /\b(lot|lots|bundle|joblot|job lot|playset|complete set|full set|master set|set of|bulk|pick your|choose your|your choice|all epic|all rare|all common|all uncommon|all cards|sealed|booster|pack|box|proxy|custom|chinese|japanese|korean|\d+\s*cards|x\s*\d+|keychain|key ?ring|keyring|novelty|sticker|plush|playmat|sleeves?|toploader|top ?loader|binder|lanyard|badge|poster|magnet|funko|pin badge)\b/i;
+  /\b(lot|lots|bundle|joblot|job lot|playset|complete set|full set|master set|set of|bulk|pick your|choose your|your choice|all epic|all rare|all common|all uncommon|all cards|sealed|booster|pack|box|proxy|custom|chinese|japanese|korean|\d+\s*cards|x\s*\d+|keychain|key ?ring|keyring|novelty|sticker|plush|playmat|sleeves?|toploader|top ?loader|binder|lanyard|badge|poster|magnet|funko|pin badge|psa|bgs|cgc|sgc|graded|slab(bed)?|gem\s*mint|gem\s*mt)\b/i;
 
 // A promo printing (organized-play / prerelease / "GG EZ" etc.) shares the base
 // card's collector number, so the ONLY way to tell a promo listing from the base
@@ -160,12 +160,28 @@ function setMentioned(title: string, setCode: string): boolean {
 // base "238" never matches alt "238a"/overnumbered, tolerant of leading zeros.
 // Strong: matches "238/219". Fallback: number token + the set is named in the title.
 function numberMatches(title: string, number: string, total: string, setCode: string): boolean {
+  // Promo / prefixed printings carry an ALPHA-prefixed code that is itself the
+  // identity, e.g. Pokémon promos "SWSH262", "SVP 044", or "XY66"/"BW47". eBay
+  // listings print that code (not a "n/total"), so match it directly — tolerating a
+  // space and leading zeros ("SWSH 262", "XY066"). This is highly specific, so it's
+  // a strong positive on its own.
+  const prefixed = number.match(/^([a-z]{1,5})0*(\d+)$/i);
+  if (prefixed) {
+    const code = new RegExp(`\\b${prefixed[1]}\\s*0*${parseInt(prefixed[2], 10)}\\b`, "i");
+    if (code.test(title)) return true;
+  }
+
   const digits = number.replace(/[^0-9]/g, "");
   if (!digits) return false;
   const n = parseInt(digits, 10);
-  const letter = (number.match(/[a-z]/i)?.[0] ?? "").toLowerCase();
+  // The variant letter is one that TRAILS the number ("238a"), distinguishing alt
+  // prints. A leading set prefix ("SWSH262") is NOT a variant — extracting its first
+  // letter ("s") previously made every prefixed/promo card unmatchable.
+  const letter = (number.match(/\d+([a-z])\b/i)?.[1] ?? "").toLowerCase();
 
-  const full = title.match(new RegExp(`\\b0*${n}([a-z]?)\\s*\\*?\\s*/\\s*${total}\\b`, "i"));
+  const full = total
+    ? title.match(new RegExp(`\\b0*${n}([a-z]?)\\s*\\*?\\s*/\\s*${total}\\b`, "i"))
+    : null;
   if (full) return (full[1] || "").toLowerCase() === letter;
 
   if (setMentioned(title, setCode)) {
