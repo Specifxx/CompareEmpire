@@ -104,8 +104,8 @@ export function ProxyBuilder({ initialList }: { initialList?: string }) {
     <div>
       <div className="no-print mb-5 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-extrabold text-white">Proxy printer</h1>
-          <p className="mt-1 text-sm text-slate-400">
+          <h1 className="text-2xl font-extrabold text-slate-900">Proxy printer</h1>
+          <p className="mt-1 text-sm text-slate-600">
             Search for cards, set quantities, and print test/proxy cards at real size (63×88 mm, 9 per A4 page).
           </p>
         </div>
@@ -130,18 +130,18 @@ export function ProxyBuilder({ initialList }: { initialList?: string }) {
             className="input"
           />
           {open && results.length > 0 && (
-            <ul className="absolute z-30 mt-1 max-h-72 w-full overflow-auto rounded-xl border border-ink-700 bg-ink-850 shadow-2xl">
+            <ul className="absolute z-30 mt-1 max-h-72 w-full overflow-auto rounded-xl border border-slate-200 bg-slate-50 shadow-2xl">
               {results.map((r) => (
                 <li key={r.id}>
-                  <button type="button" onClick={() => addCard(r)} className="flex w-full items-center gap-3 px-3 py-2 text-left hover:bg-ink-800">
-                    <div className="h-12 w-9 shrink-0 overflow-hidden rounded bg-ink-900">
+                  <button type="button" onClick={() => addCard(r)} className="flex w-full items-center gap-3 px-3 py-2 text-left hover:bg-slate-50">
+                    <div className="h-12 w-9 shrink-0 overflow-hidden rounded bg-white">
                       {(r.imageThumbUrl ?? r.imageUrl) && (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={r.imageThumbUrl ?? r.imageUrl ?? ""} alt="" className="h-full w-full object-cover" loading="lazy" />
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-semibold text-white">{r.name}</div>
+                      <div className="truncate text-sm font-semibold text-slate-900">{r.name}</div>
                       <div className="text-xs text-slate-500">{r.setCode} · {r.collectorNumber}</div>
                     </div>
                     <span className="shrink-0 text-xs font-semibold text-brand-400">+ Add</span>
@@ -160,19 +160,19 @@ export function ProxyBuilder({ initialList }: { initialList?: string }) {
         ) : (
           <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
             {cards.map((c) => (
-              <div key={c.id} className="flex items-center gap-2 rounded-xl border border-ink-700 bg-ink-900 p-2">
-                <div className="h-12 w-9 shrink-0 overflow-hidden rounded bg-ink-950">
+              <div key={c.id} className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white p-2">
+                <div className="h-12 w-9 shrink-0 overflow-hidden rounded bg-white">
                   {c.img && (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={c.img} alt="" className="h-full w-full object-cover" />
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="truncate text-xs font-medium text-white">{c.name}</div>
+                  <div className="truncate text-xs font-medium text-slate-900">{c.name}</div>
                   <div className="mt-1 flex items-center gap-1">
-                    <button onClick={() => setQty(c.id, c.qty - 1)} className="grid h-5 w-5 place-items-center rounded bg-ink-800 text-slate-300 hover:bg-ink-700">−</button>
-                    <span className="w-5 text-center text-xs text-white">{c.qty}</span>
-                    <button onClick={() => setQty(c.id, c.qty + 1)} className="grid h-5 w-5 place-items-center rounded bg-ink-800 text-slate-300 hover:bg-ink-700">+</button>
+                    <button onClick={() => setQty(c.id, c.qty - 1)} className="grid h-5 w-5 place-items-center rounded bg-slate-50 text-slate-700 hover:bg-slate-100">−</button>
+                    <span className="w-5 text-center text-xs text-slate-900">{c.qty}</span>
+                    <button onClick={() => setQty(c.id, c.qty + 1)} className="grid h-5 w-5 place-items-center rounded bg-slate-50 text-slate-700 hover:bg-slate-100">+</button>
                     <button onClick={() => remove(c.id)} aria-label="Remove" className="ml-1 text-slate-500 hover:text-rose-400">✕</button>
                   </div>
                 </div>
@@ -184,7 +184,7 @@ export function ProxyBuilder({ initialList }: { initialList?: string }) {
 
       {printCards.length > 0 && (
         <>
-          <div className="no-print mb-4 rounded-xl border border-ink-700 bg-ink-900/60 p-3 text-xs text-slate-400">
+          <div className="no-print mb-4 rounded-xl border border-slate-200 bg-slate-100/60 p-3 text-xs text-slate-600">
             Tip: in the print dialog set margins to <b>Default</b> and scale to <b>100%</b> (turn OFF “fit to page”) so
             cards print at the correct size. Print on cardstock for sturdier proxies. Proxies are for personal
             playtesting only.
@@ -197,7 +197,7 @@ export function ProxyBuilder({ initialList }: { initialList?: string }) {
                   <img src={c.img} alt={c.name} />
                 </div>
               ) : (
-                <div key={i} className="proxy-card grid place-items-center text-center text-[8px] text-slate-400">{c.name}</div>
+                <div key={i} className="proxy-card grid place-items-center text-center text-[8px] text-slate-600">{c.name}</div>
               )
             )}
           </div>

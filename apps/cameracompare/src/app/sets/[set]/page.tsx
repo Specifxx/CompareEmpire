@@ -79,25 +79,25 @@ export default async function SetPage({ params }: { params: { set: string } }) {
       {/* Breadcrumb + hero */}
       <div>
         <nav className="mb-3 flex items-center gap-1.5 text-xs text-slate-500" aria-label="Breadcrumb">
-          <Link href="/" className="hover:text-slate-300">Home</Link>
+          <Link href="/" className="hover:text-slate-700">Home</Link>
           <span>/</span>
-          <Link href="/browse" className="hover:text-slate-300">Cameras</Link>
+          <Link href="/browse" className="hover:text-slate-700">Cameras</Link>
           <span>/</span>
-          <span className="text-slate-300">{set.name}</span>
+          <span className="text-slate-700">{set.name}</span>
         </nav>
-        <h1 className="text-2xl font-extrabold text-white sm:text-3xl">
+        <h1 className="text-2xl font-extrabold text-slate-900 sm:text-3xl">
           {set.name} cameras — prices &amp; range
         </h1>
-        <p className="mt-2 max-w-3xl text-sm leading-relaxed text-slate-400">
-          Browse all {cards.length} <strong className="text-slate-200">{set.name}</strong> cameras and compare live prices across stores to find the cheapest. {priced.toLocaleString()} are priced right now, updated daily — switch your country at the top to see local prices.
+        <p className="mt-2 max-w-3xl text-sm leading-relaxed text-slate-600">
+          Browse all {cards.length} <strong className="text-slate-700">{set.name}</strong> cameras and compare live prices across stores to find the cheapest. {priced.toLocaleString()} are priced right now, updated daily — switch your country at the top to see local prices.
         </p>
       </div>
 
       {/* Card grid */}
       {set.comingSoon || cards.length === 0 ? (
-        <div className="card-surface grid place-items-center p-16 text-center text-slate-400">
+        <div className="card-surface grid place-items-center p-16 text-center text-slate-600">
           <div>
-            <p className="text-lg font-semibold text-white">{set.name} cards aren&apos;t available yet</p>
+            <p className="text-lg font-semibold text-slate-900">{set.name} cards aren&apos;t available yet</p>
             <p className="mt-1 text-sm">We&apos;ll have the full list with live prices as soon as the set drops.</p>
             <Link href="/browse" className="btn-primary mt-4">Browse released sets</Link>
           </div>
@@ -112,22 +112,22 @@ export default async function SetPage({ params }: { params: { set: string } }) {
 
       {/* Internal links to the other sets (crawl + UX) */}
       <section>
-        <h2 className="mb-3 text-lg font-bold text-white">Other brands</h2>
+        <h2 className="mb-3 text-lg font-bold text-slate-900">Other brands</h2>
         <div className="flex flex-wrap gap-2">
           {otherSets.map((s) => (
-            <Link key={s.slug} href={`/sets/${s.slug}`} className="chip border border-ink-700 px-3 py-1.5 text-sm hover:border-brand-500">
+            <Link key={s.slug} href={`/sets/${s.slug}`} className="chip border border-slate-200 px-3 py-1.5 text-sm hover:border-brand-500">
               {s.name}
             </Link>
           ))}
-          <Link href="/browse" className="chip border border-ink-700 px-3 py-1.5 text-sm hover:border-brand-500">All cameras →</Link>
+          <Link href="/browse" className="chip border border-slate-200 px-3 py-1.5 text-sm hover:border-brand-500">All cameras →</Link>
         </div>
       </section>
 
       {/* Keyword-relevant copy for search */}
       {!set.comingSoon && (
         <section className="card-surface p-6">
-          <h2 className="text-xl font-extrabold text-white">About camera {set.name}</h2>
-          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-slate-400">
+          <h2 className="text-xl font-extrabold text-slate-900">About camera {set.name}</h2>
+          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-slate-600">
             {set.name} is a set in cameras. CameraCompare tracks live prices
             for every {set.name} card across stores so you can find the cheapest place
             to buy {set.name} singles — whether you&apos;re chasing a specific card or completing the set.

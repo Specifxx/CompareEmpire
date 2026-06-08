@@ -15,9 +15,9 @@ function inline(text: string, kp: string): React.ReactNode[] {
   while ((m = re.exec(text)) !== null) {
     if (m.index > last) nodes.push(text.slice(last, m.index));
     if (m[1]) {
-      nodes.push(<strong key={`${kp}b${i}`} className="font-semibold text-white">{m[2]}</strong>);
+      nodes.push(<strong key={`${kp}b${i}`} className="font-semibold text-slate-900">{m[2]}</strong>);
     } else if (m[3]) {
-      nodes.push(<em key={`${kp}i${i}`} className="italic text-slate-200">{m[4]}</em>);
+      nodes.push(<em key={`${kp}i${i}`} className="italic text-slate-700">{m[4]}</em>);
     } else if (m[5]) {
       const href = m[7];
       const ext = /^https?:/i.test(href);
@@ -33,7 +33,7 @@ function inline(text: string, kp: string): React.ReactNode[] {
       );
     } else if (m[8]) {
       nodes.push(
-        <code key={`${kp}c${i}`} className="rounded bg-ink-800 px-1 py-0.5 text-[0.85em] text-slate-200">
+        <code key={`${kp}c${i}`} className="rounded bg-slate-50 px-1 py-0.5 text-[0.85em] text-slate-700">
           {m[9]}
         </code>
       );
@@ -56,15 +56,15 @@ export function Markdown({ content }: { content: string }) {
     const trimmed = lines[i].trim();
     if (!trimmed) { i++; continue; }
 
-    if (trimmed === "---") { blocks.push(<hr key={key++} className="my-6 border-ink-700" />); i++; continue; }
-    if (trimmed.startsWith("### ")) { blocks.push(<h3 key={key} className="mb-2 mt-6 text-base font-bold text-white">{inline(trimmed.slice(4), `h${key++}`)}</h3>); i++; continue; }
-    if (trimmed.startsWith("## ")) { blocks.push(<h2 key={key} className="mb-3 mt-8 text-xl font-extrabold text-white">{inline(trimmed.slice(3), `h${key++}`)}</h2>); i++; continue; }
+    if (trimmed === "---") { blocks.push(<hr key={key++} className="my-6 border-slate-200" />); i++; continue; }
+    if (trimmed.startsWith("### ")) { blocks.push(<h3 key={key} className="mb-2 mt-6 text-base font-bold text-slate-900">{inline(trimmed.slice(4), `h${key++}`)}</h3>); i++; continue; }
+    if (trimmed.startsWith("## ")) { blocks.push(<h2 key={key} className="mb-3 mt-8 text-xl font-extrabold text-slate-900">{inline(trimmed.slice(3), `h${key++}`)}</h2>); i++; continue; }
 
     if (/^[-*]\s+/.test(trimmed)) {
       const items: string[] = [];
       while (i < lines.length && /^[-*]\s+/.test(lines[i].trim())) { items.push(lines[i].trim().replace(/^[-*]\s+/, "")); i++; }
       blocks.push(
-        <ul key={key} className="my-3 list-disc space-y-1 pl-5 text-slate-300">
+        <ul key={key} className="my-3 list-disc space-y-1 pl-5 text-slate-700">
           {items.map((it, j) => <li key={j}>{inline(it, `u${key}-${j}`)}</li>)}
         </ul>
       );
@@ -76,7 +76,7 @@ export function Markdown({ content }: { content: string }) {
       const items: string[] = [];
       while (i < lines.length && /^\d+\.\s+/.test(lines[i].trim())) { items.push(lines[i].trim().replace(/^\d+\.\s+/, "")); i++; }
       blocks.push(
-        <ol key={key} className="my-3 list-decimal space-y-1 pl-5 text-slate-300">
+        <ol key={key} className="my-3 list-decimal space-y-1 pl-5 text-slate-700">
           {items.map((it, j) => <li key={j}>{inline(it, `o${key}-${j}`)}</li>)}
         </ol>
       );
@@ -86,7 +86,7 @@ export function Markdown({ content }: { content: string }) {
 
     const para: string[] = [];
     while (i < lines.length && lines[i].trim() && !isBreak(lines[i])) { para.push(lines[i].trim()); i++; }
-    blocks.push(<p key={key} className="my-3 leading-relaxed text-slate-300">{inline(para.join(" "), `p${key++}`)}</p>);
+    blocks.push(<p key={key} className="my-3 leading-relaxed text-slate-700">{inline(para.join(" "), `p${key++}`)}</p>);
   }
 
   return <div className="text-[15px]">{blocks}</div>;

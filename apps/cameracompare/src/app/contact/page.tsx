@@ -11,12 +11,12 @@ export default function ContactPage() {
   return (
     <div className="mx-auto max-w-xl">
       <div className="card-surface overflow-hidden">
-        <div className="relative bg-gradient-to-br from-brand-600/25 via-ink-850 to-gold/15 px-6 py-10 text-center">
-          <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-ink-950/60 text-2xl shadow-glow">
+        <div className="relative bg-gradient-to-br from-brand-600/25 via-slate-50 to-gold/15 px-6 py-10 text-center">
+          <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-white/60 text-2xl shadow-glow">
             ✉️
           </div>
-          <h1 className="text-2xl font-extrabold text-white">Contact &amp; Feedback</h1>
-          <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-slate-300">
+          <h1 className="text-2xl font-extrabold text-slate-900">Contact &amp; Feedback</h1>
+          <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-slate-700">
             Spotted a wrong price, a missing store, or have an idea to make CameraCompare better?
             We&apos;d genuinely love to hear from you — just send us an email.
           </p>

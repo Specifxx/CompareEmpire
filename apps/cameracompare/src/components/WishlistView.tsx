@@ -51,7 +51,7 @@ export function WishlistView() {
   if (cards === null) {
     return (
       <div className="flex justify-center py-16">
-        <span className="h-8 w-8 animate-spin rounded-full border-2 border-ink-600 border-t-brand-400" />
+        <span className="h-8 w-8 animate-spin rounded-full border-2 border-slate-300 border-t-brand-400" />
       </div>
     );
   }
@@ -59,8 +59,8 @@ export function WishlistView() {
   if (cards.length === 0) {
     return (
       <div className="card-surface grid place-items-center p-16 text-center">
-        <p className="text-lg font-semibold text-white">Your wishlist is empty</p>
-        <p className="mt-1 text-sm text-slate-400">Tap the ♥ on any card to add it here and track its price.</p>
+        <p className="text-lg font-semibold text-slate-900">Your wishlist is empty</p>
+        <p className="mt-1 text-sm text-slate-600">Tap the ♥ on any card to add it here and track its price.</p>
         <Link href="/browse" className="btn-primary mt-4">Browse cards</Link>
       </div>
     );

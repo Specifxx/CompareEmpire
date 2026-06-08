@@ -3,13 +3,13 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 html,
 body {
-  background-color: #0b0e14;
-  color: #e8eaee;
+  background-color: #f6f7f9;
+  color: #0f172a;
 }
 
 body {
@@ -18,7 +18,7 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-/* Headings use the display font (Space Grotesk) for a more dynamic, energetic feel. */
+/* Clean, professional headings — no heavy display treatment. */
 h1, h2, h3 {
   font-family: var(--font-display), var(--font-sans), sans-serif;
   letter-spacing: -0.015em;
@@ -52,20 +52,20 @@ h1, h2, h3 {
   .proxy-card { outline: 1px dashed #cbd5e1; break-inside: avoid; }
 }
 
-/* Thin custom scrollbar to match the dark marketplace aesthetic */
+/* Light, unobtrusive scrollbar to match the clean retail aesthetic. */
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: #0f131c;
+  background: #eef1f5;
 }
 ::-webkit-scrollbar-thumb {
-  background: #2c3650;
+  background: #cbd5e1;
   border-radius: 6px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #3a4564;
+  background: #94a3b8;
 }
 
 @layer components {
@@ -76,19 +76,19 @@ h1, h2, h3 {
     @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-all duration-150 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50;
   }
   .btn-primary {
-    @apply btn bg-gradient-to-br from-brand-400 to-brand-600 text-white shadow-glow hover:brightness-110;
+    @apply btn bg-brand-500 text-white shadow-sm hover:bg-brand-600;
   }
   .btn-ghost {
-    @apply btn bg-ink-800 text-slate-200 hover:bg-ink-700;
+    @apply btn border border-slate-200 bg-white text-slate-700 hover:bg-slate-50;
   }
   .btn-accent {
-    @apply btn bg-gradient-to-br from-gold to-accent text-ink-950 hover:brightness-105;
+    @apply btn bg-brand-500 text-white shadow-sm hover:bg-brand-600;
   }
   .input {
-    @apply w-full rounded-xl border border-ink-700 bg-ink-900 px-3 py-2 text-base text-slate-100 placeholder:text-slate-500 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/40 sm:text-sm;
+    @apply w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 placeholder:text-slate-400 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 sm:text-sm;
   }
   .card-surface {
-    @apply rounded-2xl border border-ink-700/70 bg-ink-850 shadow-card;
+    @apply rounded-2xl border border-slate-200 bg-white shadow-card;
   }
   .chip {
     @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium;

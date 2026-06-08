@@ -11,7 +11,7 @@ export function WipBanner({ children }: { children?: React.ReactNode }) {
           <>
             <span className="font-semibold text-amber-200">Work in progress.</span> This section is
             brand new — we&apos;re adding more content regularly. Check back soon, or suggest a topic
-            via the <a href="/contact" className="underline hover:text-white">contact form</a>.
+            via the <a href="/contact" className="underline hover:text-slate-900">contact form</a>.
           </>
         )}
       </p>

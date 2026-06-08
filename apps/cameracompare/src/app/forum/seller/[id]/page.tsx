@@ -37,37 +37,37 @@ function PostRow({ p }: { p: Post }) {
         <span className={`chip font-bold ${p.kind === "WTB" ? "bg-emerald-500/15 text-emerald-300" : "bg-gold/15 text-gold"}`}>
           {p.kind === "WTB" ? "WANT TO BUY" : "WANT TO SELL"}
         </span>
-        {p.priceCents != null && <span className="chip bg-ink-800 font-bold text-accent">{formatAUD(p.priceCents)} asking</span>}
-        {p.priceCents == null && p.marketCents != null && <span className="chip bg-ink-800 font-bold text-accent">≈ {formatAUD(p.marketCents)} market</span>}
+        {p.priceCents != null && <span className="chip bg-slate-50 font-bold text-accent">{formatAUD(p.priceCents)} asking</span>}
+        {p.priceCents == null && p.marketCents != null && <span className="chip bg-slate-50 font-bold text-accent">≈ {formatAUD(p.marketCents)} market</span>}
         {(p.state || p.country) && (
-          <span className="chip bg-ink-800 text-slate-300">{[p.state, p.country].filter(Boolean).join(", ")}</span>
+          <span className="chip bg-slate-50 text-slate-700">{[p.state, p.country].filter(Boolean).join(", ")}</span>
         )}
         <span className="ml-auto text-xs text-slate-500">{timeAgo(p.createdAt)}</span>
       </div>
-      <h3 className="mt-2 font-bold text-white">{p.title}</h3>
+      <h3 className="mt-2 font-bold text-slate-900">{p.title}</h3>
       {items && items.length > 0 && (
-        <div className="mt-2 rounded-lg border border-ink-700 bg-ink-900/40 p-2">
-          <ul className="divide-y divide-ink-800/70">
+        <div className="mt-2 rounded-lg border border-slate-200 bg-slate-100/40 p-2">
+          <ul className="divide-y divide-slate-200/70">
             {items.map((it, i) => (
               <li key={i} className="flex items-center gap-2 py-1 text-sm">
                 <span className="w-7 shrink-0 text-slate-500">{it.qty}×</span>
-                <span className="min-w-0 flex-1 truncate text-slate-200">
+                <span className="min-w-0 flex-1 truncate text-slate-700">
                   {it.name}
                   {it.condition && it.condition !== "Any" ? <span className="text-xs text-slate-500"> · {it.condition}</span> : null}
                 </span>
-                <span className="shrink-0 text-xs text-slate-400">{it.marketCents != null ? formatAUD(it.marketCents) : "—"}</span>
+                <span className="shrink-0 text-xs text-slate-600">{it.marketCents != null ? formatAUD(it.marketCents) : "—"}</span>
               </li>
             ))}
           </ul>
           {p.marketCents != null && (
-            <div className="mt-1 flex items-center justify-between border-t border-ink-800 px-1 pt-1 text-xs">
+            <div className="mt-1 flex items-center justify-between border-t border-slate-200 px-1 pt-1 text-xs">
               <span className="text-slate-500">Recommended (market) total</span>
               <span className="font-bold text-accent">{formatAUD(p.marketCents)}</span>
             </div>
           )}
         </div>
       )}
-      {p.body && <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-slate-300">{p.body}</p>}
+      {p.body && <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-slate-700">{p.body}</p>}
     </li>
   );
 }
@@ -86,18 +86,18 @@ export default async function SellerPage({ params }: { params: { id: string } })
 
   return (
     <div className="mx-auto max-w-3xl">
-      <Link href="/forum" className="mb-4 inline-flex items-center gap-1 text-sm text-slate-400 hover:text-white">
+      <Link href="/forum" className="mb-4 inline-flex items-center gap-1 text-sm text-slate-600 hover:text-slate-900">
         ← Back to forum
       </Link>
 
       <div className="card-surface p-5">
-        <h1 className="text-2xl font-extrabold text-white">{user.displayName}</h1>
-        <p className="mt-1 text-sm text-slate-400">
+        <h1 className="text-2xl font-extrabold text-slate-900">{user.displayName}</h1>
+        <p className="mt-1 text-sm text-slate-600">
           {wts.length} selling · {wtb.length} buying · member since{" "}
           {user.createdAt.toLocaleDateString("en-AU", { month: "short", year: "numeric" })}
         </p>
         {contact && (
-          <p className="mt-2 text-sm text-slate-300">
+          <p className="mt-2 text-sm text-slate-700">
             Contact: <span className="font-medium">{contact}</span>
           </p>
         )}
@@ -109,20 +109,20 @@ export default async function SellerPage({ params }: { params: { id: string } })
       </div>
 
       {posts.length === 0 ? (
-        <div className="card-surface mt-6 grid place-items-center p-12 text-center text-slate-400">
+        <div className="card-surface mt-6 grid place-items-center p-12 text-center text-slate-600">
           This seller has no open listings right now.
         </div>
       ) : (
         <>
           {wts.length > 0 && (
             <section className="mt-6">
-              <h2 className="mb-3 text-lg font-bold text-white">Selling ({wts.length})</h2>
+              <h2 className="mb-3 text-lg font-bold text-slate-900">Selling ({wts.length})</h2>
               <ul className="space-y-3">{wts.map((p) => <PostRow key={p.id} p={p} />)}</ul>
             </section>
           )}
           {wtb.length > 0 && (
             <section className="mt-6">
-              <h2 className="mb-3 text-lg font-bold text-white">Looking to buy ({wtb.length})</h2>
+              <h2 className="mb-3 text-lg font-bold text-slate-900">Looking to buy ({wtb.length})</h2>
               <ul className="space-y-3">{wtb.map((p) => <PostRow key={p.id} p={p} />)}</ul>
             </section>
           )}

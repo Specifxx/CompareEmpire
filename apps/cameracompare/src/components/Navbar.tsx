@@ -13,14 +13,14 @@ import { getCurrentUser } from "@/lib/auth";
 export async function Navbar() {
   const user = await getCurrentUser();
   return (
-    <header className="sticky top-0 z-40 border-b border-ink-800 bg-ink-950/95">
+    <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95">
       <WishlistSync loggedIn={!!user} />
       <div className="container-app">
        <div className="flex h-16 items-center gap-4">
         {/* Logo: mark + text wordmark */}
         <Link href="/" className="flex shrink-0 items-center gap-2" aria-label="CameraCompare home">
           <Logo size={36} />
-          <span className="hidden text-lg font-extrabold tracking-tight text-white sm:block">
+          <span className="hidden text-lg font-extrabold tracking-tight text-slate-900 sm:block">
             Camera<span className="text-brand-400">Compare</span>
           </span>
         </Link>
@@ -34,7 +34,7 @@ export async function Navbar() {
 
         {/* Nav */}
         <nav className="ml-auto flex items-center gap-1 lg:ml-0">
-          <Link href="/browse" className="rounded-lg px-2.5 py-2 text-sm font-medium text-slate-200 hover:bg-ink-800 hover:text-white">
+          <Link href="/browse" className="rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900">
             Browse cameras
           </Link>
           <div className="hidden lg:block">

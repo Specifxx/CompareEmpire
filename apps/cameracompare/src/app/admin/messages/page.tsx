@@ -43,34 +43,34 @@ export default async function AdminMessagesPage({
     <div className="mx-auto max-w-3xl px-4 py-10">
       <div className="mb-6 flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white">Contact inbox</h1>
-          <p className="text-sm text-slate-400">
+          <h1 className="text-2xl font-bold text-slate-900">Contact inbox</h1>
+          <p className="text-sm text-slate-600">
             {messages.length} message{messages.length === 1 ? "" : "s"} · newest first
           </p>
         </div>
       </div>
 
       {messages.length === 0 ? (
-        <div className="rounded-xl border border-ink-700 bg-ink-850 px-4 py-10 text-center text-slate-400">
+        <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-10 text-center text-slate-600">
           No messages yet.
         </div>
       ) : (
         <ul className="space-y-3">
           {messages.map((m) => (
-            <li key={m.id} className="rounded-xl border border-ink-700 bg-ink-850 p-4">
+            <li key={m.id} className="rounded-xl border border-slate-200 bg-slate-50 p-4">
               <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-                <div className="font-semibold text-white">
+                <div className="font-semibold text-slate-900">
                   {m.subject || "CameraCompare feedback"}
                 </div>
                 <div className="text-xs text-slate-500">{fmt.format(m.createdAt)}</div>
               </div>
-              <div className="mt-0.5 text-sm text-slate-400">
+              <div className="mt-0.5 text-sm text-slate-600">
                 {m.name} ·{" "}
                 <a href={`mailto:${m.email}`} className="text-accent hover:underline">
                   {m.email}
                 </a>
               </div>
-              <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-slate-200">
+              <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-slate-700">
                 {m.message}
               </p>
               <div className="mt-3">

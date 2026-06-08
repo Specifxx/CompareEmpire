@@ -108,11 +108,11 @@ function QuickViewModal({ card, onClose }: { card: CardTileData; onClose: () => 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4" role="dialog" aria-modal="true">
       <div className="absolute inset-0 bg-black/70" onClick={onClose} />
-      <div className="relative z-10 max-h-[88vh] w-full max-w-3xl overflow-hidden rounded-2xl border border-ink-700 bg-ink-900 shadow-2xl">
+      <div className="relative z-10 max-h-[88vh] w-full max-w-3xl overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
         <button
           onClick={onClose}
           aria-label="Close"
-          className="absolute right-3 top-3 z-20 grid h-8 w-8 place-items-center rounded-full bg-ink-950/80 text-slate-300 hover:text-white"
+          className="absolute right-3 top-3 z-20 grid h-8 w-8 place-items-center rounded-full bg-white/80 text-slate-700 hover:text-slate-900"
         >
           ✕
         </button>
@@ -120,7 +120,7 @@ function QuickViewModal({ card, onClose }: { card: CardTileData; onClose: () => 
         <div className="grid max-h-[88vh] gap-0 overflow-y-auto sm:grid-cols-[260px_1fr]">
           {/* Card image — shows instantly from the tile data. Capped on phones so the
               price comparison sits closer to the top (less scrolling on mobile). */}
-          <div className="bg-ink-950/40 p-4">
+          <div className="bg-white/40 p-4">
             <CardImage card={card} full className="mx-auto aspect-[5/7] w-full max-w-[190px] sm:max-w-none" />
             {/* Plain anchor = a real navigation to the full page (the URL is already
                 /card/slug via history, so this loads the full server-rendered page). */}
@@ -134,7 +134,7 @@ function QuickViewModal({ card, onClose }: { card: CardTileData; onClose: () => 
             <div className="flex flex-wrap items-center gap-1.5">
               <DomainBadge domain={card.domain} />
               <RarityBadge rarity={card.rarity} />
-              <span className="chip bg-ink-800 text-slate-300">{card.type}</span>
+              <span className="chip bg-slate-50 text-slate-700">{card.type}</span>
               <VariantBadge variant={card.variant} />
               <SignatureBadge show={isSignature(card.collectorNumber)} />
               <OvernumberedBadge show={isOvernumbered(card.collectorNumber)} />
@@ -142,13 +142,13 @@ function QuickViewModal({ card, onClose }: { card: CardTileData; onClose: () => 
             </div>
             <div className="mt-2 flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <h2 className="truncate text-xl font-extrabold text-white">{card.name}</h2>
+                <h2 className="truncate text-xl font-extrabold text-slate-900">{card.name}</h2>
                 <p className="font-mono text-xs text-slate-500">{card.setName} ({card.setCode}) · {card.collectorNumber}</p>
               </div>
               <WishlistButton cardId={card.id} variant="full" />
             </div>
 
-            <div className="mt-3 rounded-lg bg-ink-950/50 p-3">
+            <div className="mt-3 rounded-lg bg-white/50 p-3">
               <div className="text-[11px] uppercase tracking-wide text-slate-500">Cheapest price</div>
               <div className="text-2xl font-extrabold text-accent">
                 {lowest != null ? fmt(lowest) : "—"}
@@ -156,31 +156,31 @@ function QuickViewModal({ card, onClose }: { card: CardTileData; onClose: () => 
             </div>
 
             <div className="mt-4">
-              <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">Price comparison</div>
+              <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-600">Price comparison</div>
               {prices === null ? (
                 <div className="flex items-center gap-2 py-6 text-sm text-slate-500">
-                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-ink-600 border-t-brand-400" />
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-brand-400" />
                   Loading live prices…
                 </div>
               ) : inStock.length === 0 ? (
                 <p className="py-4 text-sm text-slate-500">No in-stock listings right now.</p>
               ) : (
-                <ul className="divide-y divide-ink-800">
+                <ul className="divide-y divide-slate-200">
                   {inStock.slice(0, 6).map((p, i) => (
                     <li key={p.id} className="flex items-center gap-3 py-2">
                       <div className="min-w-0 flex-1">
-                        <div className="truncate text-sm font-semibold text-white">{p.retailerName}</div>
+                        <div className="truncate text-sm font-semibold text-slate-900">{p.retailerName}</div>
                         <div className="flex items-center gap-1.5 text-[11px] text-slate-500">
                           {p.isFoil && <span className="font-semibold text-gold">✦ Foil</span>}
                           {p.condition && <span>{p.condition}</span>}
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className={`text-sm font-bold ${i === 0 ? "text-accent" : "text-white"}`}>{fmt(p.priceCents)}</div>
+                        <div className={`text-sm font-bold ${i === 0 ? "text-accent" : "text-slate-900"}`}>{fmt(p.priceCents)}</div>
                         <div className="text-[10px] text-slate-500">
                           {p.ship == null ? (
                             shippingPolicyUrl(p.retailer) ? (
-                              <a href={shippingPolicyUrl(p.retailer)!} target="_blank" rel="nofollow noopener noreferrer" className="underline decoration-dotted hover:text-slate-300">
+                              <a href={shippingPolicyUrl(p.retailer)!} target="_blank" rel="nofollow noopener noreferrer" className="underline decoration-dotted hover:text-slate-700">
                                 + postage ↗
                               </a>
                             ) : (

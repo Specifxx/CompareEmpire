@@ -85,7 +85,7 @@ export function Filters() {
       {/* Mobile toggle */}
       <button
         onClick={() => setMobileOpen((o) => !o)}
-        className="mb-3 flex w-full items-center justify-between rounded-lg border border-ink-700 bg-ink-850 px-4 py-2.5 text-sm font-semibold text-white lg:hidden"
+        className="mb-3 flex w-full items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-semibold text-slate-900 lg:hidden"
       >
         <span className="flex items-center gap-2">
           Filters
@@ -99,7 +99,7 @@ export function Filters() {
       <div className={`${mobileOpen ? "block" : "hidden"} lg:block`}>
         <div className="card-surface lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto p-4">
           <div className="mb-1 flex items-center justify-between">
-            <h2 className="text-sm font-bold uppercase tracking-wide text-slate-300">Filters</h2>
+            <h2 className="text-sm font-bold uppercase tracking-wide text-slate-700">Filters</h2>
             {activeCount > 0 && (
               <button onClick={clearAll} className="text-xs text-brand-400 hover:underline">
                 Clear ({activeCount})
@@ -183,10 +183,10 @@ function Section({
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className={last ? "" : "border-b border-ink-700"}>
+    <div className={last ? "" : "border-b border-slate-200"}>
       <button
         onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center justify-between py-3 text-xs font-semibold uppercase tracking-wide text-slate-400 hover:text-slate-200"
+        className="flex w-full items-center justify-between py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 hover:text-slate-700"
       >
         {title}
         <Chevron open={open} />
@@ -210,8 +210,8 @@ function Check({
   className?: string;
 }) {
   return (
-    <label className={`flex cursor-pointer items-center gap-2 rounded px-1 py-0.5 text-sm text-slate-300 hover:bg-ink-800 ${className ?? ""}`}>
-      <input type="checkbox" checked={checked} onChange={onChange} className="h-4 w-4 rounded border-ink-600 bg-ink-900 accent-brand-500" />
+    <label className={`flex cursor-pointer items-center gap-2 rounded px-1 py-0.5 text-sm text-slate-700 hover:bg-slate-50 ${className ?? ""}`}>
+      <input type="checkbox" checked={checked} onChange={onChange} className="h-4 w-4 rounded border-slate-300 bg-white accent-brand-500" />
       {dot && <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: dot }} />}
       <span className="truncate">{label}</span>
     </label>

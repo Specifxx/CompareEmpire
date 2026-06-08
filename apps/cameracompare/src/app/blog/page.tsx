@@ -15,8 +15,8 @@ export default function BlogPage() {
   return (
     <div>
       <div className="mb-5">
-        <h1 className="text-2xl font-extrabold text-white">Blog</h1>
-        <p className="mt-1 text-sm text-slate-400">
+        <h1 className="text-2xl font-extrabold text-slate-900">Blog</h1>
+        <p className="mt-1 text-sm text-slate-600">
           News, meta snapshots and updates for camera in Australia.
         </p>
       </div>

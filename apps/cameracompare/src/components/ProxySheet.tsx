@@ -55,9 +55,9 @@ export function ProxySheet({ initialList }: { initialList?: string }) {
 
   if (!text.trim()) {
     return (
-      <div className="card-surface grid place-items-center p-16 text-center text-slate-400">
+      <div className="card-surface grid place-items-center p-16 text-center text-slate-600">
         <div>
-          <p className="text-lg font-semibold text-white">No deck to proxy</p>
+          <p className="text-lg font-semibold text-slate-900">No deck to proxy</p>
           <p className="mt-1 text-sm">
             Open the <Link href="/deck" className="text-brand-400 hover:underline">Deck Builder</Link>,
             price a deck, then hit “Proxy sheet”.
@@ -71,8 +71,8 @@ export function ProxySheet({ initialList }: { initialList?: string }) {
     <div>
       <div className="no-print mb-5 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-extrabold text-white">Proxy sheet</h1>
-          <p className="mt-1 text-sm text-slate-400">
+          <h1 className="text-2xl font-extrabold text-slate-900">Proxy sheet</h1>
+          <p className="mt-1 text-sm text-slate-600">
             {loading ? "Building…" : `${cards.length} cards · 9 per A4 page · cards are real size (63×88 mm)`}
           </p>
         </div>
@@ -84,7 +84,7 @@ export function ProxySheet({ initialList }: { initialList?: string }) {
         </div>
       </div>
 
-      <div className="no-print mb-4 rounded-lg border border-ink-700 bg-ink-900/60 p-3 text-xs text-slate-400">
+      <div className="no-print mb-4 rounded-lg border border-slate-200 bg-slate-100/60 p-3 text-xs text-slate-600">
         Tip: in the print dialog, set margins to <b>Default</b> and scale to <b>100%</b> (turn OFF “fit to page”)
         so the cards print at the correct size. Print on cardstock for sturdier proxies.
         {missing.length > 0 && (
@@ -94,7 +94,7 @@ export function ProxySheet({ initialList }: { initialList?: string }) {
 
       {loading ? (
         <div className="flex justify-center py-16">
-          <span className="h-8 w-8 animate-spin rounded-full border-2 border-ink-600 border-t-brand-400" />
+          <span className="h-8 w-8 animate-spin rounded-full border-2 border-slate-300 border-t-brand-400" />
         </div>
       ) : (
         <div className="proxy-grid">

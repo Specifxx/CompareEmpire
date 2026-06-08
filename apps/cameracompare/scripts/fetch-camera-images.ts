@@ -4,7 +4,7 @@
 // dev container can't reach Wikipedia.
 //
 //   npx tsx scripts/fetch-camera-images.ts
-import { writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { CAMERAS } from "../prisma/cameras";
 
@@ -38,10 +38,21 @@ async function imageFor(name: string): Promise<string | null> {
 }
 
 async function main() {
-  const out: Record<string, string> = {};
-  let found = 0;
+  const outPath = join(process.cwd(), "prisma", "camera-images.json");
+  // Start from the committed, curated image map (real Wikimedia Commons photos) and
+  // only fetch for cameras that don't already have one — so this never clobbers a
+  // hand-verified URL, it just fills any gaps.
+  let out: Record<string, string> = {};
+  try {
+    out = JSON.parse(readFileSync(outPath, "utf8"));
+    console.log(`Loaded ${Object.keys(out).length} existing curated images.`);
+  } catch {
+    /* no existing file — fetch everything */
+  }
+  let found = Object.keys(out).length;
   for (const c of CAMERAS) {
     const key = `${c.brand}-${c.model}`.toLowerCase();
+    if (out[key]) continue; // already curated — keep it
     const url = await imageFor(c.name);
     if (url) {
       out[key] = url;
@@ -50,7 +61,7 @@ async function main() {
     console.log(`${found}/${CAMERAS.length} ${c.name} -> ${url ? "ok" : "—"}`);
     await sleep(300); // be polite to the Wikipedia API
   }
-  writeFileSync(join(process.cwd(), "prisma", "camera-images.json"), JSON.stringify(out, null, 2));
+  writeFileSync(outPath, JSON.stringify(out, null, 2));
   console.log(`Wrote prisma/camera-images.json (${found}/${CAMERAS.length} images).`);
 }
 

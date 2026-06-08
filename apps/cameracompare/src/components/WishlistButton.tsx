@@ -42,7 +42,7 @@ export function WishlistButton({
     return (
       <button
         onClick={click}
-        className={`btn ${on ? "bg-gold/20 text-gold" : "bg-ink-800 text-slate-200 hover:bg-ink-700"}`}
+        className={`btn ${on ? "bg-gold/20 text-gold" : "bg-slate-50 text-slate-700 hover:bg-slate-100"}`}
       >
         {heart}
         {mounted && on ? "In wishlist" : "Add to wishlist"}
@@ -58,7 +58,7 @@ export function WishlistButton({
       className={`grid h-8 w-8 place-items-center rounded-full border transition-colors ${
         on
           ? "border-gold/50 bg-gold/20 text-gold"
-          : "border-ink-600 bg-ink-950/80 text-slate-300 hover:text-gold"
+          : "border-slate-300 bg-white/80 text-slate-700 hover:text-gold"
       }`}
     >
       {heart}

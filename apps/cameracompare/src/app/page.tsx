@@ -80,14 +80,14 @@ export default async function HomePage() {
     <div className="flex flex-col gap-10">
       {/* Hero */}
       <section className="card-surface animate-fade-up overflow-hidden">
-        <div className="relative bg-gradient-to-br from-brand-600/25 via-ink-850 to-gold/15 px-6 py-12 text-center">
+        <div className="relative bg-gradient-to-br from-brand-600/25 via-slate-50 to-gold/15 px-6 py-12 text-center">
           <div className="mx-auto mb-5 flex items-center justify-center">
             <span className="animate-float"><Logo size={76} /></span>
           </div>
-          <h1 className="mx-auto max-w-3xl text-2xl font-extrabold text-white sm:text-4xl">
+          <h1 className="mx-auto max-w-3xl text-2xl font-extrabold text-slate-900 sm:text-4xl">
             Compare camera prices across {info.adjective} stores
           </h1>
-          <p className="mx-auto mt-3 max-w-2xl text-sm text-slate-400 sm:text-base">
+          <p className="mx-auto mt-3 max-w-2xl text-sm text-slate-600 sm:text-base">
             Find the cheapest place to buy your next camera in {info.place} — live prices in{" "}
             {info.currency} compared across {storeCount} {info.adjective} stores, updated daily.
           </p>
@@ -112,7 +112,7 @@ export default async function HomePage() {
       <section>
         <div className="mb-4 flex items-end justify-between gap-3">
           <div>
-            <h2 className="text-xl font-extrabold text-white">Cheapest cameras</h2>
+            <h2 className="text-xl font-extrabold text-slate-900">Cheapest cameras</h2>
             <p className="mt-0.5 text-xs text-slate-500">
               The lowest live prices right now — we check {storeCount} {info.adjective} stores for every camera so you always pay the least.
             </p>
@@ -130,13 +130,13 @@ export default async function HomePage() {
 
       {/* Browse by brand */}
       <section>
-        <h2 className="mb-4 text-xl font-extrabold text-white">Browse by brand</h2>
+        <h2 className="mb-4 text-xl font-extrabold text-slate-900">Browse by brand</h2>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {SETS.map((s) => (
             <Link
               key={s.code}
               href={`/browse?set=${s.code}`}
-              className="card-surface flex items-center justify-center p-5 text-center text-base font-bold text-white transition-colors hover:border-brand-500"
+              className="card-surface flex items-center justify-center p-5 text-center text-base font-bold text-slate-900 transition-colors hover:border-brand-500"
             >
               {s.name}
             </Link>
@@ -146,7 +146,7 @@ export default async function HomePage() {
 
       {/* Browse by sensor */}
       <section>
-        <h2 className="mb-4 text-xl font-extrabold text-white">Browse by sensor format</h2>
+        <h2 className="mb-4 text-xl font-extrabold text-slate-900">Browse by sensor format</h2>
         <div className="flex flex-wrap gap-2">
           {DOMAIN_KEYS.map((k) => {
             const d = domainInfo(k);
@@ -154,7 +154,7 @@ export default async function HomePage() {
               <Link
                 key={k}
                 href={`/browse?domain=${encodeURIComponent(k)}`}
-                className="chip border border-ink-700 px-3 py-1.5 text-sm hover:border-brand-500"
+                className="chip border border-slate-200 px-3 py-1.5 text-sm hover:border-brand-500"
                 style={{ color: d.color }}
               >
                 <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: d.color }} />
@@ -167,8 +167,8 @@ export default async function HomePage() {
 
       {/* About + FAQ — keyword-relevant content for search */}
       <section className="card-surface p-6">
-        <h2 className="text-xl font-extrabold text-white">Camera prices in {info.place}, all in one place</h2>
-        <p className="mt-2 max-w-3xl text-sm leading-relaxed text-slate-400">
+        <h2 className="text-xl font-extrabold text-slate-900">Camera prices in {info.place}, all in one place</h2>
+        <p className="mt-2 max-w-3xl text-sm leading-relaxed text-slate-600">
           CameraCompare is a free, independent price-comparison tool for cameras, built for
           {" "}{info.adjective} buyers. We track live prices for mirrorless bodies, DSLRs, compacts,
           action cameras and lenses across {info.adjective} stores{ebay ? ` and ${ebay}` : ""} so you
@@ -177,8 +177,8 @@ export default async function HomePage() {
         <div className="mt-6 grid gap-5 sm:grid-cols-2">
           {faqs.map((f) => (
             <div key={f.q}>
-              <h3 className="font-semibold text-white">{f.q}</h3>
-              <p className="mt-1 text-sm leading-relaxed text-slate-400">{f.a}</p>
+              <h3 className="font-semibold text-slate-900">{f.q}</h3>
+              <p className="mt-1 text-sm leading-relaxed text-slate-600">{f.a}</p>
             </div>
           ))}
         </div>
@@ -204,7 +204,7 @@ export default async function HomePage() {
 
 function Stat({ value, label }: { value: string; label: string }) {
   return (
-    <div className="rounded-lg bg-ink-900/70 p-3">
+    <div className="rounded-lg bg-slate-100/70 p-3">
       <div className="text-xl font-extrabold text-gold">{value}</div>
       <div className="text-xs uppercase tracking-wide text-slate-500">{label}</div>
     </div>

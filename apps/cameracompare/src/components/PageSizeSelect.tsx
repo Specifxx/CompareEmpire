@@ -19,7 +19,7 @@ export function PageSizeSelect({ size }: { size: number }) {
   }
 
   return (
-    <label className="flex items-center gap-2 text-sm text-slate-400">
+    <label className="flex items-center gap-2 text-sm text-slate-600">
       <span className="hidden sm:inline">Show</span>
       <select value={size} onChange={onChange} className="input w-auto py-1.5" aria-label="Cards per page">
         {PAGE_SIZES.map((s) => (
