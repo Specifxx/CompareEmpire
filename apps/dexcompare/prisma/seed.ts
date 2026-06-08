@@ -272,23 +272,23 @@ async function main() {
     cardId: string; retailer: string; retailerName: string; title: string; url: string;
     priceCents: number; currency: string; inStock: boolean; country: string;
   }[] = [];
-  // TCGplayer + Cardmarket carry a REAL price + REAL product URL from the API, so
-  // they only appear in the markets they actually serve: TCGplayer for US (and as an
-  // international option for NZ — NZ has no large local singles scene), Cardmarket for
-  // the EU/UK market (GB). They are DELIBERATELY NOT shown for AU: Australia has many
-  // local .com.au singles stores (scraped live by scripts/import-au-prices.ts), and
-  // TCGplayer/Cardmarket do not ship singles to AU as a sensible option. No eBay rows
-  // (eBay only exposes search URLs, never a specific product page) and no Troll and Toad.
-  const FX: Record<string, number> = { NZ: 1.68, US: 1.0, GB: 0.82 };
-  const CUR: Record<string, string> = { NZ: "NZD", US: "USD", GB: "GBP" };
+  // TCGplayer + Cardmarket carry a REAL price + REAL product URL from the API. They
+  // provide catalogue-wide baseline coverage per market so cards no local store stocks
+  // still show an indicative price (clearly labelled "TCGplayer"/"Cardmarket", linking
+  // to the real product). Live local store prices (scraped by the importer) are usually
+  // cheaper and win the per-market lowest-price recompute. AU previously had NO baseline
+  // (local stores only), which left ~half the catalogue with "no price" in AU — so AU
+  // now gets the TCGplayer baseline too (international-shipping option), like NZ.
+  const FX: Record<string, number> = { AU: 1.55, NZ: 1.68, US: 1.0, GB: 0.82 };
+  const CUR: Record<string, string> = { AU: "AUD", NZ: "NZD", US: "USD", GB: "GBP" };
   for (const c of dbCards) {
     const real = realPrices.get(c.externalId);
     const q = encodeURIComponent(`${c.name} ${c.setName}`);
     const tcgUrl = real?.tcgUrl ?? `https://www.tcgplayer.com/search/pokemon/product?q=${q}`;
     const cmUrl = real?.cmUrl ?? `https://www.cardmarket.com/en/Pokemon/Products/Search?searchString=${q}`;
-    // TCGplayer → US + NZ (international shipping option for NZ). Real URL + price.
+    // TCGplayer → US + NZ + AU (international shipping option). Real URL + price.
     if (real?.tcgUsd != null) {
-      for (const country of ["US", "NZ"] as const) {
+      for (const country of ["US", "NZ", "AU"] as const) {
         priceRows.push({ cardId: c.id, retailer: `tcgplayer_${country.toLowerCase()}`, retailerName: "TCGplayer", title: "TCGplayer", url: tcgUrl, priceCents: cents(real.tcgUsd * FX[country]), currency: CUR[country], inStock: true, country });
       }
     }

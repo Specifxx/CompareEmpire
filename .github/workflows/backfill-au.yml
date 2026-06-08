@@ -1,0 +1,32 @@
+name: Backfill DexCompare AU prices
+
+# One-off/repeatable: add the AU TCGplayer baseline (USD→AUD) derived from existing
+# tcgplayer_us rows and recompute AU lowest prices, so AU coverage matches NZ/US/GB
+# without a full re-seed. Idempotent.
+
+on:
+  workflow_dispatch:
+    inputs:
+      dexcompare_url:
+        description: "DexCompare Neon DATABASE_URL (pooled, sslmode=require)"
+        required: true
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Mask connection string
+        run: echo "::add-mask::${{ inputs.dexcompare_url }}"
+      - name: Backfill AU baseline
+        working-directory: apps/dexcompare
+        env:
+          DATABASE_URL: ${{ inputs.dexcompare_url }}
+        run: |
+          npm install --no-audit --no-fund
+          npx prisma generate
+          npx tsx scripts/backfill-au-prices.ts

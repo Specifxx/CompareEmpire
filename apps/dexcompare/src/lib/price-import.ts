@@ -445,11 +445,18 @@ export function buildPokemonResolver(cards: MatchCard[]): (title: string) => str
     if (m) {
       const num = parseInt(m[1], 10);
       const total = parseInt(m[2], 10);
-      // 1) exact number + set size: the most precise key.
+      // 1) exact number + set size: the most precise key — BUT the card name must also
+      // appear in the title. Many different cards share a number across sets (e.g.
+      // "N 96/108" vs "Salamence ex 96/108", "Tarountula 079/078" vs "Mewtwo VSTAR
+      // 79/78"), so never assign on number alone — that recorded a wrong card's price.
       const exact = byKey.get(`${num}/${total}`);
       if (exact && exact.length) {
-        if (exact.length === 1) return exact[0].id;
-        return (exact.find((c) => setOk(c) && nameOk(c)) ?? exact.find(nameOk) ?? exact[0]).id;
+        const hit =
+          exact.find((c) => setOk(c) && fullNameOk(c)) ??
+          exact.find((c) => setOk(c) && nameOk(c)) ??
+          exact.find(fullNameOk) ??
+          exact.find(nameOk);
+        if (hit) return hit.id;
       }
       // 2) same number (set size differs/omitted): require the name to line up, and
       // prefer the set-name match to avoid grabbing a same-numbered card elsewhere.
@@ -458,8 +465,7 @@ export function buildPokemonResolver(cards: MatchCard[]): (title: string) => str
         const hit =
           same.find((c) => setOk(c) && fullNameOk(c)) ??
           same.find((c) => setOk(c) && nameOk(c)) ??
-          same.find(fullNameOk) ??
-          (same.length === 1 ? same[0] : undefined);
+          same.find(fullNameOk);
         if (hit) return hit.id;
       }
     }
