@@ -73,8 +73,8 @@ export function CardTile({ card }: { card: CardTileData }) {
           </div>
         </div>
 
-        <div className="flex flex-1 flex-col gap-1.5 border-t border-ink-700 p-3">
-        <h3 className="line-clamp-1 text-sm font-semibold text-white" title={card.name}>
+        <div className="flex flex-1 flex-col gap-1.5 border-t border-slate-200 p-3">
+        <h3 className="line-clamp-1 text-sm font-semibold text-slate-900" title={card.name}>
           {card.name}
         </h3>
         <p className="text-xs text-slate-500">

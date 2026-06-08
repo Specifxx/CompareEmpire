@@ -15,8 +15,8 @@ export default function GuidesPage() {
   return (
     <div>
       <div className="mb-5">
-        <h1 className="text-2xl font-extrabold text-white">Guides</h1>
-        <p className="mt-1 text-sm text-slate-400">
+        <h1 className="text-2xl font-extrabold text-slate-900">Guides</h1>
+        <p className="mt-1 text-sm text-slate-600">
           Learn camera — deckbuilding basics, buying tips and more, for Australian players.
         </p>
       </div>

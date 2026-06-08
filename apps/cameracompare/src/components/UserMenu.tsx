@@ -35,7 +35,7 @@ export function UserMenu({ user }: { user: MenuUser | null }) {
         href="/login"
         aria-label="Sign in"
         title="Sign in"
-        className="grid h-9 w-9 place-items-center rounded-lg text-slate-200 hover:bg-ink-800 hover:text-white"
+        className="grid h-9 w-9 place-items-center rounded-lg text-slate-700 hover:bg-slate-50 hover:text-slate-900"
       >
         <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
           <circle cx="12" cy="8" r="4" />
@@ -64,7 +64,7 @@ export function UserMenu({ user }: { user: MenuUser | null }) {
         onClick={() => setOpen((o) => !o)}
         aria-label="Account menu"
         aria-expanded={open}
-        className="relative grid h-9 w-9 place-items-center overflow-hidden rounded-full border border-ink-600 bg-ink-800 text-xs font-bold text-white hover:border-brand-500"
+        className="relative grid h-9 w-9 place-items-center overflow-hidden rounded-full border border-slate-300 bg-slate-50 text-xs font-bold text-slate-900 hover:border-brand-500"
       >
         {user.avatarUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -73,28 +73,28 @@ export function UserMenu({ user }: { user: MenuUser | null }) {
           initials
         )}
         {!user.emailVerified && (
-          <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-ink-950 bg-gold" title="Email not verified" />
+          <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-slate-200 bg-gold" title="Email not verified" />
         )}
       </button>
 
       {open && (
-        <div className="absolute right-0 top-11 z-50 w-60 overflow-hidden rounded-xl border border-ink-700 bg-ink-900 shadow-2xl">
-          <div className="border-b border-ink-700 px-4 py-3">
-            <div className="truncate text-sm font-semibold text-white">{user.displayName}</div>
+        <div className="absolute right-0 top-11 z-50 w-60 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl">
+          <div className="border-b border-slate-200 px-4 py-3">
+            <div className="truncate text-sm font-semibold text-slate-900">{user.displayName}</div>
             <div className="truncate text-xs text-slate-500">{user.email}</div>
             {user.balanceCents > 0 && (
-              <div className="mt-1 text-xs text-slate-400">Balance: <span className="font-semibold text-gold">{formatMoney(user.balanceCents, "AUD")}</span></div>
+              <div className="mt-1 text-xs text-slate-600">Balance: <span className="font-semibold text-gold">{formatMoney(user.balanceCents, "AUD")}</span></div>
             )}
           </div>
 
           {!user.emailVerified && (
-            <div className="border-b border-ink-700 bg-gold/10 px-4 py-2.5 text-xs text-gold">
+            <div className="border-b border-slate-200 bg-gold/10 px-4 py-2.5 text-xs text-gold">
               {resent ? (
                 "Confirmation email sent — check your inbox."
               ) : (
                 <>
                   Email not confirmed.{" "}
-                  <button onClick={resendVerify} className="font-semibold underline hover:text-white">Resend</button>
+                  <button onClick={resendVerify} className="font-semibold underline hover:text-slate-900">Resend</button>
                 </>
               )}
             </div>
@@ -105,8 +105,8 @@ export function UserMenu({ user }: { user: MenuUser | null }) {
             <MenuLink href="/wishlist" onClick={() => setOpen(false)}>Wishlist</MenuLink>
             <MenuLink href="/forum" onClick={() => setOpen(false)}>My forum posts</MenuLink>
           </div>
-          <div className="border-t border-ink-700 py-1">
-            <button onClick={signOut} className="block w-full px-4 py-2.5 text-left text-sm text-slate-300 hover:bg-ink-800 hover:text-white">
+          <div className="border-t border-slate-200 py-1">
+            <button onClick={signOut} className="block w-full px-4 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50 hover:text-slate-900">
               Sign out
             </button>
           </div>
@@ -118,7 +118,7 @@ export function UserMenu({ user }: { user: MenuUser | null }) {
 
 function MenuLink({ href, onClick, children }: { href: string; onClick: () => void; children: React.ReactNode }) {
   return (
-    <Link href={href} onClick={onClick} className="block px-4 py-2.5 text-sm font-medium text-slate-200 hover:bg-ink-800 hover:text-white">
+    <Link href={href} onClick={onClick} className="block px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900">
       {children}
     </Link>
   );

@@ -43,7 +43,7 @@ export function ListingCard({ listing }: { listing: ListingTile }) {
     >
       {/* Art */}
       <div
-        className="relative aspect-[5/7] w-full overflow-hidden bg-ink-900 p-3"
+        className="relative aspect-[5/7] w-full overflow-hidden bg-white p-3"
         style={{
           background: `radial-gradient(120% 80% at 50% 0%, ${r.color}22, transparent 60%)`,
         }}
@@ -59,9 +59,9 @@ export function ListingCard({ listing }: { listing: ListingTile }) {
       </div>
 
       {/* Info */}
-      <div className="flex flex-1 flex-col gap-2 border-t border-ink-700 p-3">
+      <div className="flex flex-1 flex-col gap-2 border-t border-slate-200 p-3">
         <div className="min-h-[2.5rem]">
-          <h3 className="line-clamp-2 text-sm font-semibold leading-tight text-white">
+          <h3 className="line-clamp-2 text-sm font-semibold leading-tight text-slate-900">
             {card.name}
           </h3>
           <p className="mt-0.5 text-xs text-slate-500">
@@ -81,7 +81,7 @@ export function ListingCard({ listing }: { listing: ListingTile }) {
 
         <div className="mt-auto flex items-end justify-between pt-1">
           <div>
-            <div className="text-lg font-bold text-white">
+            <div className="text-lg font-bold text-slate-900">
               {formatAUD(listing.priceCents)}
             </div>
             <div
@@ -93,7 +93,7 @@ export function ListingCard({ listing }: { listing: ListingTile }) {
           </div>
           <div className="text-right">
             <div className="text-[11px] text-slate-500">seller</div>
-            <div className="max-w-[90px] truncate text-xs font-medium text-slate-300">
+            <div className="max-w-[90px] truncate text-xs font-medium text-slate-700">
               {listing.seller.displayName}
             </div>
           </div>

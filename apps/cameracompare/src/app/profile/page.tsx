@@ -43,8 +43,8 @@ export default async function ProfilePage() {
             </div>
           )}
           <div>
-            <h1 className="text-xl font-extrabold text-white">{user.displayName}</h1>
-            <p className="text-sm text-slate-400">{user.email}</p>
+            <h1 className="text-xl font-extrabold text-slate-900">{user.displayName}</h1>
+            <p className="text-sm text-slate-600">{user.email}</p>
           </div>
         </div>
         <LogoutButton />
@@ -52,9 +52,9 @@ export default async function ProfilePage() {
 
       {/* Account & security */}
       <div className="card-surface mt-5 p-5">
-        <h2 className="font-bold text-white">Account &amp; security</h2>
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-b border-ink-800 pb-3 text-sm">
-          <span className="text-slate-400">Email</span>
+        <h2 className="font-bold text-slate-900">Account &amp; security</h2>
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-3 text-sm">
+          <span className="text-slate-600">Email</span>
           {user.emailVerified ? (
             <span className="chip bg-brand-500/15 text-brand-300">✓ Verified</span>
           ) : (
@@ -65,10 +65,10 @@ export default async function ProfilePage() {
           )}
         </div>
         <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-sm">
-          <span className="text-slate-400">Sign-in methods</span>
+          <span className="text-slate-600">Sign-in methods</span>
           <span className="flex gap-1.5">
             {methods.map((m) => (
-              <span key={m.label} className={`chip ${m.on ? "bg-ink-800 text-slate-200" : "bg-ink-900 text-slate-600"}`}>
+              <span key={m.label} className={`chip ${m.on ? "bg-slate-50 text-slate-700" : "bg-white text-slate-600"}`}>
                 {m.on ? "✓ " : ""}{m.label}
               </span>
             ))}
@@ -83,8 +83,8 @@ export default async function ProfilePage() {
       <div className="card-surface mt-5 p-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h2 className="font-bold text-white">Your Forum listings</h2>
-            <p className="text-sm text-slate-400">
+            <h2 className="font-bold text-slate-900">Your Forum listings</h2>
+            <p className="text-sm text-slate-600">
               {posts.length} open · {wts} selling · {wtb} buying
             </p>
           </div>
@@ -102,13 +102,13 @@ export default async function ProfilePage() {
             discussion.
           </p>
         ) : (
-          <ul className="mt-4 divide-y divide-ink-800">
+          <ul className="mt-4 divide-y divide-slate-200">
             {posts.map((p) => {
               const price = p.priceCents ?? p.marketCents;
               return (
                 <li key={p.id} className="flex items-center gap-3 py-3">
-                  <span className={`chip font-bold ${KIND_BADGE[p.kind] ?? "bg-ink-800 text-slate-300"}`}>{p.kind}</span>
-                  <span className="min-w-0 flex-1 truncate text-sm text-white">{p.title}</span>
+                  <span className={`chip font-bold ${KIND_BADGE[p.kind] ?? "bg-slate-50 text-slate-700"}`}>{p.kind}</span>
+                  <span className="min-w-0 flex-1 truncate text-sm text-slate-900">{p.title}</span>
                   {price != null && <span className="shrink-0 text-sm font-semibold text-accent">{formatAUD(price)}</span>}
                 </li>
               );

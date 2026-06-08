@@ -46,22 +46,22 @@ export function DeckView({ deck, builderHref }: { deck: ResolvedDeck; builderHre
       <li
         onMouseEnter={() => item.card && setPreview(item.card)}
         onFocus={() => item.card && setPreview(item.card)}
-        className="flex items-center gap-3 p-3 hover:bg-ink-900/50"
+        className="flex items-center gap-3 p-3 hover:bg-slate-100/50"
       >
-        <div className="w-8 text-center font-bold text-slate-400">{item.qty}×</div>
+        <div className="w-8 text-center font-bold text-slate-600">{item.qty}×</div>
         {item.card?.imageThumbUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={item.card.imageThumbUrl} alt="" className="h-12 w-9 shrink-0 rounded object-cover ring-1 ring-ink-700" />
+          <img src={item.card.imageThumbUrl} alt="" className="h-12 w-9 shrink-0 rounded object-cover ring-1 ring-slate-300" />
         ) : (
-          <div className="h-12 w-9 shrink-0 rounded bg-ink-800" />
+          <div className="h-12 w-9 shrink-0 rounded bg-slate-50" />
         )}
         <div className="min-w-0 flex-1">
           {item.card ? (
-            <Link href={`/card/${item.card.id}`} className="font-medium text-white hover:text-brand-400">
+            <Link href={`/card/${item.card.id}`} className="font-medium text-slate-900 hover:text-brand-400">
               {cleanName(item.card.name)}
             </Link>
           ) : (
-            <span className="font-medium text-slate-400">{cleanName(item.inputName)}</span>
+            <span className="font-medium text-slate-600">{cleanName(item.inputName)}</span>
           )}
           <div className="text-xs text-slate-500">
             {item.card ? <>{item.card.setCode} · {item.card.collectorNumber} · {item.card.type}</> : "not found"}
@@ -70,7 +70,7 @@ export function DeckView({ deck, builderHref }: { deck: ResolvedDeck; builderHre
         <div className="text-right">
           {item.unitPriceCents != null ? (
             <>
-              <div className="font-bold text-white">{fmt(item.unitPriceCents * item.qty)}</div>
+              <div className="font-bold text-slate-900">{fmt(item.unitPriceCents * item.qty)}</div>
               <div className="text-[11px] text-slate-500">{fmt(item.unitPriceCents)} ea</div>
             </>
           ) : (
@@ -85,12 +85,12 @@ export function DeckView({ deck, builderHref }: { deck: ResolvedDeck; builderHre
     if (items.length === 0) return null;
     const count = items.reduce((n, i) => n + i.qty, 0);
     return (
-      <div className={muted ? "bg-ink-950/40" : ""}>
-        <div className="flex items-center justify-between border-b border-ink-700 bg-ink-900/50 px-4 py-2">
-          <h3 className="text-xs font-bold uppercase tracking-wide text-slate-300">{title}</h3>
+      <div className={muted ? "bg-white/40" : ""}>
+        <div className="flex items-center justify-between border-b border-slate-200 bg-slate-100/50 px-4 py-2">
+          <h3 className="text-xs font-bold uppercase tracking-wide text-slate-700">{title}</h3>
           <span className="text-[11px] text-slate-500">{count} {count === 1 ? "card" : "cards"}</span>
         </div>
-        <ul className="divide-y divide-ink-800">
+        <ul className="divide-y divide-slate-200">
           {items.map((it, i) => (
             <CardRow key={i} item={it} />
           ))}
@@ -104,7 +104,7 @@ export function DeckView({ deck, builderHref }: { deck: ResolvedDeck; builderHre
       {/* Preview + summary */}
       <div className="lg:sticky lg:top-20 lg:self-start">
         <div className="card-surface overflow-hidden">
-          <div className="relative aspect-[5/7] w-full overflow-hidden bg-ink-900">
+          <div className="relative aspect-[5/7] w-full overflow-hidden bg-white">
             {bigImage && (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -114,9 +114,9 @@ export function DeckView({ deck, builderHref }: { deck: ResolvedDeck; builderHre
               />
             )}
             {preview && (
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink-950 to-transparent p-3">
-                <div className="text-sm font-bold text-white">{cleanName(preview.name)}</div>
-                <div className="text-[11px] text-slate-400">
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-white to-transparent p-3">
+                <div className="text-sm font-bold text-slate-900">{cleanName(preview.name)}</div>
+                <div className="text-[11px] text-slate-600">
                   {preview.setCode} · {preview.collectorNumber}
                   {preview.lowestPriceCents != null ? ` · from ${fmt(preview.lowestPriceCents)}` : ""}
                 </div>
@@ -130,9 +130,9 @@ export function DeckView({ deck, builderHref }: { deck: ResolvedDeck; builderHre
                 <DomainBadge key={d} domain={d} />
               ))}
             </div>
-            <h1 className="text-xl font-extrabold text-white">{deck.name}</h1>
+            <h1 className="text-xl font-extrabold text-slate-900">{deck.name}</h1>
             <p className="mt-0.5 text-xs text-slate-500">{deck.archetype} · {cleanName(deck.legend)}</p>
-            <p className="mt-3 text-sm text-slate-400">{deck.description}</p>
+            <p className="mt-3 text-sm text-slate-600">{deck.description}</p>
 
             {deck.sourceUrl && (
               <a
@@ -152,7 +152,7 @@ export function DeckView({ deck, builderHref }: { deck: ResolvedDeck; builderHre
               </a>
             )}
 
-            <div className="mt-4 rounded-lg bg-ink-900 p-3">
+            <div className="mt-4 rounded-lg bg-white p-3">
               <div className="text-[11px] uppercase tracking-wide text-slate-500">Build cost (cheapest {country})</div>
               <div className="text-2xl font-extrabold text-accent">{fmt(deck.totalCents)}</div>
               <div className="text-[11px] text-slate-500">
@@ -176,8 +176,8 @@ export function DeckView({ deck, builderHref }: { deck: ResolvedDeck; builderHre
       {/* Decklist (grouped) */}
       <div className="min-w-0">
         <div className="card-surface overflow-hidden">
-          <div className="border-b border-ink-700 p-4">
-            <h2 className="font-bold text-white">
+          <div className="border-b border-slate-200 p-4">
+            <h2 className="font-bold text-slate-900">
               Decklist <span className="text-slate-500">· {deck.totalCards - 1} cards + legend</span>
             </h2>
           </div>
@@ -192,14 +192,14 @@ export function DeckView({ deck, builderHref }: { deck: ResolvedDeck; builderHre
             />
           ))}
 
-          <div className="flex items-center justify-between border-t border-ink-700 p-4">
-            <span className="text-sm text-slate-400">Main deck build cost (cheapest in-stock {country})</span>
+          <div className="flex items-center justify-between border-t border-slate-200 p-4">
+            <span className="text-sm text-slate-600">Main deck build cost (cheapest in-stock {country})</span>
             <span className="text-xl font-extrabold text-accent">{fmt(deck.totalCents)}</span>
           </div>
           {deck.sideboardCards > 0 && (
-            <div className="flex items-center justify-between border-t border-ink-800 px-4 py-2">
+            <div className="flex items-center justify-between border-t border-slate-200 px-4 py-2">
               <span className="text-xs text-slate-500">Side deck ({deck.sideboardCards} cards)</span>
-              <span className="text-sm font-semibold text-slate-400">{fmt(deck.sideboardCents)}</span>
+              <span className="text-sm font-semibold text-slate-600">{fmt(deck.sideboardCents)}</span>
             </div>
           )}
         </div>

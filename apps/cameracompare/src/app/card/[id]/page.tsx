@@ -112,7 +112,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
     <div>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <CardViewBeacon idOrSlug={card.slug ?? card.id} />
-      <Link href="/browse" className="mb-4 inline-flex items-center gap-1 text-sm text-slate-400 hover:text-white">
+      <Link href="/browse" className="mb-4 inline-flex items-center gap-1 text-sm text-slate-600 hover:text-slate-900">
         ← Back to database
       </Link>
 
@@ -130,7 +130,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
             <div className="flex flex-wrap items-center gap-2">
               <DomainBadge domain={card.domain} />
               <RarityBadge rarity={card.rarity} />
-              <span className="chip bg-ink-800 text-slate-300">{card.type}</span>
+              <span className="chip bg-slate-50 text-slate-700">{card.type}</span>
               <VariantBadge variant={card.variant} />
               <SignatureBadge show={isSignature(card.collectorNumber)} />
               <OvernumberedBadge show={isOvernumbered(card.collectorNumber)} />
@@ -138,7 +138,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
             </div>
             <div className="mt-3 flex items-start justify-between gap-3">
               <div>
-                <h1 className="text-2xl font-extrabold text-white">{card.name}</h1>
+                <h1 className="text-2xl font-extrabold text-slate-900">{card.name}</h1>
                 <p className="mt-1 text-xs text-slate-500">
                   {card.setName} · {card.collectorNumber}
                 </p>
@@ -156,9 +156,9 @@ export default async function CardPage({ params }: { params: { id: string } }) {
 
           {/* Price comparison */}
           <div className="card-surface mt-6 overflow-hidden">
-            <div className="flex items-center justify-between border-b border-ink-700 p-4">
+            <div className="flex items-center justify-between border-b border-slate-200 p-4">
               <div className="flex flex-wrap items-center gap-3">
-                <h2 className="font-bold text-white">
+                <h2 className="font-bold text-slate-900">
                   Price comparison <span className="text-slate-500">({prices.length})</span>
                 </h2>
                 {prices.length > 1 && prices[prices.length - 1].priceCents > prices[0].priceCents && (
@@ -173,31 +173,31 @@ export default async function CardPage({ params }: { params: { id: string } }) {
             </div>
 
             {prices.length === 0 && outOfStock.length === 0 ? (
-              <div className="p-8 text-center text-sm text-slate-400">
-                <p className="font-semibold text-white">No prices found yet</p>
+              <div className="p-8 text-center text-sm text-slate-600">
+                <p className="font-semibold text-slate-900">No prices found yet</p>
                 <p className="mt-1">
                   We haven&apos;t matched this card to a store listing. Check back soon —
                   our price feeds refresh regularly.
                 </p>
               </div>
             ) : prices.length === 0 ? (
-              <div className="p-6 text-center text-sm text-slate-400">
-                <p className="font-semibold text-white">Currently sold out everywhere</p>
+              <div className="p-6 text-center text-sm text-slate-600">
+                <p className="font-semibold text-slate-900">Currently sold out everywhere</p>
                 <p className="mt-1">
                   {outOfStock.length} {info.adjective} {outOfStock.length === 1 ? "store has" : "stores have"} listed
                   this card but it&apos;s out of stock right now. See them below.
                 </p>
               </div>
             ) : (
-              <ul className="divide-y divide-ink-800">
+              <ul className="divide-y divide-slate-200">
                 {prices.map((p, i) => (
-                  <li key={p.id} className="flex items-center gap-3 p-4 hover:bg-ink-900/50">
+                  <li key={p.id} className="flex items-center gap-3 p-4 hover:bg-slate-100/50">
                     <div className="w-6 text-center text-sm font-bold text-slate-500">{i + 1}</div>
                     <div className="flex-1">
-                      <div className="font-semibold text-white">{p.retailerName}</div>
+                      <div className="font-semibold text-slate-900">{p.retailerName}</div>
                       <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-slate-500">
                         {p.isFoil && <span className="chip bg-gold/15 font-semibold text-gold">✦ Foil</span>}
-                        {p.condition && <span className="chip bg-ink-800 text-slate-300">{p.condition}</span>}
+                        {p.condition && <span className="chip bg-slate-50 text-slate-700">{p.condition}</span>}
                         <span className="text-brand-400">● In stock</span>
                         <span>
                           {p.ship == null ? "postage at checkout" : p.ship === 0 ? "free postage" : `+ ${fmt(p.ship)} postage`}
@@ -207,7 +207,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
                             href={shippingPolicyUrl(p.retailer)!}
                             target="_blank"
                             rel="nofollow noopener noreferrer"
-                            className="text-slate-400 underline decoration-dotted underline-offset-2 hover:text-slate-200"
+                            className="text-slate-600 underline decoration-dotted underline-offset-2 hover:text-slate-700"
                           >
                             shipping policy ↗
                           </a>
@@ -215,11 +215,11 @@ export default async function CardPage({ params }: { params: { id: string } }) {
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className={`text-lg font-bold ${i === 0 ? "text-accent" : "text-white"}`}>
+                      <div className={`text-lg font-bold ${i === 0 ? "text-accent" : "text-slate-900"}`}>
                         {fmt(p.priceCents)}
                       </div>
                       {p.ship != null && (
-                        <div className="text-[11px] text-slate-400">≈ {fmt(p.delivered)} delivered</div>
+                        <div className="text-[11px] text-slate-600">≈ {fmt(p.delivered)} delivered</div>
                       )}
                     </div>
                     <a
@@ -236,23 +236,23 @@ export default async function CardPage({ params }: { params: { id: string } }) {
             )}
 
             {outOfStock.length > 0 && (
-              <div className="border-t border-ink-800">
-                <div className="bg-ink-900/40 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <div className="border-t border-slate-200">
+                <div className="bg-slate-100/40 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
                   Out of stock ({outOfStock.length}) · last listed price
                 </div>
-                <ul className="divide-y divide-ink-800">
+                <ul className="divide-y divide-slate-200">
                   {outOfStock.map((p) => (
                     <li key={p.id} className="flex items-center gap-3 p-4 opacity-60">
                       <div className="w-6 text-center text-slate-600">—</div>
                       <div className="flex-1">
-                        <div className="font-semibold text-slate-300">{p.retailerName}</div>
+                        <div className="font-semibold text-slate-700">{p.retailerName}</div>
                         <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-slate-500">
-                          {p.condition && <span className="chip bg-ink-800 text-slate-400">{p.condition}</span>}
+                          {p.condition && <span className="chip bg-slate-50 text-slate-600">{p.condition}</span>}
                           <span className="text-slate-500">● Out of stock</span>
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="text-lg font-bold text-slate-400 line-through">{fmt(p.priceCents)}</div>
+                        <div className="text-lg font-bold text-slate-600 line-through">{fmt(p.priceCents)}</div>
                       </div>
                       <a
                         href={affiliateUrl(p.url)}
@@ -268,7 +268,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
               </div>
             )}
 
-            <p className="border-t border-ink-800 p-3 text-center text-[11px] text-slate-600">
+            <p className="border-t border-slate-200 p-3 text-center text-[11px] text-slate-600">
               Prices are collected from public store listings and may change. CameraCompare
               may earn a commission on some outbound links.
             </p>
@@ -281,9 +281,9 @@ export default async function CardPage({ params }: { params: { id: string } }) {
 
 function Metric({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
   return (
-    <div className="rounded-lg bg-ink-900 p-3">
+    <div className="rounded-lg bg-white p-3">
       <div className="text-[11px] uppercase tracking-wide text-slate-500">{label}</div>
-      <div className={`text-lg font-bold ${highlight ? "text-accent" : "text-white"}`}>{value}</div>
+      <div className={`text-lg font-bold ${highlight ? "text-accent" : "text-slate-900"}`}>{value}</div>
     </div>
   );
 }

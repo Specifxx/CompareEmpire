@@ -31,7 +31,7 @@ export function ResendVerifyButton() {
         setSent(true);
         setLoading(false);
       }}
-      className="text-xs font-semibold text-gold underline hover:text-white disabled:no-underline disabled:opacity-70"
+      className="text-xs font-semibold text-gold underline hover:text-slate-900 disabled:no-underline disabled:opacity-70"
     >
       {sent ? "Sent — check your inbox" : loading ? "Sending…" : "Resend confirmation email"}
     </button>
@@ -73,7 +73,7 @@ export function CancelListingButton({ id }: { id: string }) {
         router.refresh();
         setLoading(false);
       }}
-      className="chip bg-ink-800 text-red-400 hover:bg-red-500/10"
+      className="chip bg-slate-50 text-red-400 hover:bg-red-500/10"
     >
       {loading ? "…" : "Cancel"}
     </button>

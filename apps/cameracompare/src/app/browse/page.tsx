@@ -43,8 +43,8 @@ export default async function BrowsePage({ searchParams }: { searchParams: CardQ
 
       <section className="min-w-0 flex-1">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <p className="text-sm text-slate-400">
-            <span className="font-semibold text-white">{total.toLocaleString()}</span>{" "}
+          <p className="text-sm text-slate-600">
+            <span className="font-semibold text-slate-900">{total.toLocaleString()}</span>{" "}
             {total === 1 ? "camera" : "cameras"}
             {searchParams.q && (
               <> for <span className="text-brand-400">“{searchParams.q}”</span></>
@@ -61,10 +61,10 @@ export default async function BrowsePage({ searchParams }: { searchParams: CardQ
 
         {cards.length === 0 ? (
           <div className="card-surface grid place-items-center p-16 text-center">
-            <p className="text-lg font-semibold text-white">
+            <p className="text-lg font-semibold text-slate-900">
               {total > 0 ? "Nothing on this page" : "No cameras found"}
             </p>
-            <p className="mt-1 text-sm text-slate-400">
+            <p className="mt-1 text-sm text-slate-600">
               {total > 0 ? "Try an earlier page." : "Try adjusting your filters or search."}
             </p>
             <Link href="/browse" className="btn-primary mt-4">Reset</Link>

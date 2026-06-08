@@ -11,8 +11,8 @@ export function CountryHeroToggle() {
 
   return (
     <div className="mt-6 flex flex-col items-center gap-2">
-      <span className="text-xs font-medium uppercase tracking-wide text-slate-400">Shopping from</span>
-      <div className="inline-flex flex-wrap items-center justify-center gap-1.5 rounded-full border border-ink-700 bg-ink-950/60 p-1.5 backdrop-blur">
+      <span className="text-xs font-medium uppercase tracking-wide text-slate-600">Shopping from</span>
+      <div className="inline-flex flex-wrap items-center justify-center gap-1.5 rounded-full border border-slate-200 bg-white/60 p-1.5 backdrop-blur">
         {COUNTRY_LIST.map((c) => {
           const active = c.code === country;
           return (
@@ -23,12 +23,12 @@ export function CountryHeroToggle() {
               className={`flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-semibold transition-all ${
                 active
                   ? "bg-gradient-to-br from-brand-400 to-brand-600 text-white shadow-glow"
-                  : "text-slate-300 hover:bg-ink-800 hover:text-white"
+                  : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
               }`}
             >
               <span className="text-base leading-none">{c.flag}</span>
               <span>{c.label}</span>
-              <span className={`text-[10px] ${active ? "text-white/80" : "text-slate-500"}`}>{c.currency}</span>
+              <span className={`text-[10px] ${active ? "text-slate-900/80" : "text-slate-500"}`}>{c.currency}</span>
             </button>
           );
         })}

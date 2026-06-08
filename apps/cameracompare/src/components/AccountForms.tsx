@@ -24,10 +24,10 @@ export function ForgotForm() {
 
   if (sent) {
     return (
-      <div className="card-surface p-6 text-sm text-slate-300">
-        <h1 className="text-lg font-bold text-white">Check your email</h1>
-        <p className="mt-2 text-slate-400">
-          If an account exists for <span className="text-white">{email}</span>, we&apos;ve sent a link to reset your
+      <div className="card-surface p-6 text-sm text-slate-700">
+        <h1 className="text-lg font-bold text-slate-900">Check your email</h1>
+        <p className="mt-2 text-slate-600">
+          If an account exists for <span className="text-slate-900">{email}</span>, we&apos;ve sent a link to reset your
           password. It expires in 1 hour.
         </p>
         <Link href="/login" className="btn-ghost mt-4 inline-flex">Back to sign in</Link>
@@ -37,16 +37,16 @@ export function ForgotForm() {
 
   return (
     <form onSubmit={submit} className="card-surface p-6">
-      <h1 className="text-lg font-bold text-white">Reset your password</h1>
-      <p className="mt-1 text-sm text-slate-400">Enter your email and we&apos;ll send you a reset link.</p>
+      <h1 className="text-lg font-bold text-slate-900">Reset your password</h1>
+      <p className="mt-1 text-sm text-slate-600">Enter your email and we&apos;ll send you a reset link.</p>
       <label className="mt-4 block">
-        <span className="mb-1 block text-xs font-medium text-slate-400">Email</span>
+        <span className="mb-1 block text-xs font-medium text-slate-600">Email</span>
         <input type="email" className="input" value={email} onChange={(e) => setEmail(e.target.value)} required autoFocus />
       </label>
       <button type="submit" className="btn-primary mt-4 w-full" disabled={loading}>
         {loading ? "Sending…" : "Send reset link"}
       </button>
-      <p className="mt-4 text-center text-sm text-slate-400">
+      <p className="mt-4 text-center text-sm text-slate-600">
         <Link href="/login" className="text-brand-400 hover:underline">Back to sign in</Link>
       </p>
     </form>
@@ -62,9 +62,9 @@ export function ResetForm({ token }: { token: string }) {
 
   if (!token) {
     return (
-      <div className="card-surface p-6 text-sm text-slate-300">
-        <h1 className="text-lg font-bold text-white">Invalid link</h1>
-        <p className="mt-2 text-slate-400">This reset link is missing or malformed. Request a new one.</p>
+      <div className="card-surface p-6 text-sm text-slate-700">
+        <h1 className="text-lg font-bold text-slate-900">Invalid link</h1>
+        <p className="mt-2 text-slate-600">This reset link is missing or malformed. Request a new one.</p>
         <Link href="/forgot" className="btn-primary mt-4 inline-flex">Request a new link</Link>
       </div>
     );
@@ -91,9 +91,9 @@ export function ResetForm({ token }: { token: string }) {
 
   return (
     <form onSubmit={submit} className="card-surface p-6">
-      <h1 className="text-lg font-bold text-white">Choose a new password</h1>
+      <h1 className="text-lg font-bold text-slate-900">Choose a new password</h1>
       <label className="mt-4 block">
-        <span className="mb-1 block text-xs font-medium text-slate-400">New password</span>
+        <span className="mb-1 block text-xs font-medium text-slate-600">New password</span>
         <input type="password" className="input" value={password} onChange={(e) => setPassword(e.target.value)} minLength={6} required autoFocus autoComplete="new-password" />
       </label>
       {error && <p className="mt-3 rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-400">{error}</p>}
@@ -121,19 +121,19 @@ export function VerifyClient({ token }: { token: string }) {
 
   return (
     <div className="card-surface p-6 text-center">
-      {state === "loading" && <p className="py-6 text-sm text-slate-400">Confirming your email…</p>}
+      {state === "loading" && <p className="py-6 text-sm text-slate-600">Confirming your email…</p>}
       {state === "ok" && (
         <>
           <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-brand-500/15 text-brand-400">✓</div>
-          <h1 className="mt-3 text-lg font-bold text-white">Email confirmed</h1>
-          <p className="mt-1 text-sm text-slate-400">Your CameraCompare email is verified.</p>
+          <h1 className="mt-3 text-lg font-bold text-slate-900">Email confirmed</h1>
+          <p className="mt-1 text-sm text-slate-600">Your CameraCompare email is verified.</p>
           <Link href="/" className="btn-primary mt-4 inline-flex">Go to CameraCompare</Link>
         </>
       )}
       {state === "error" && (
         <>
-          <h1 className="text-lg font-bold text-white">Link expired</h1>
-          <p className="mt-1 text-sm text-slate-400">This confirmation link is invalid or has expired. Sign in and resend it from your profile menu.</p>
+          <h1 className="text-lg font-bold text-slate-900">Link expired</h1>
+          <p className="mt-1 text-sm text-slate-600">This confirmation link is invalid or has expired. Sign in and resend it from your profile menu.</p>
           <Link href="/login" className="btn-primary mt-4 inline-flex">Sign in</Link>
         </>
       )}

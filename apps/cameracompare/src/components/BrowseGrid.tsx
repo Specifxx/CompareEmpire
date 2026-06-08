@@ -66,7 +66,7 @@ export function BrowseGrid({
       {hasMore && (
         <div ref={sentinel} className="flex justify-center py-8">
           <div className="flex items-center gap-2 text-sm text-slate-500">
-            <span className="h-4 w-4 animate-spin rounded-full border-2 border-ink-600 border-t-brand-400" />
+            <span className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-brand-400" />
             Loading more…
           </div>
         </div>

@@ -108,9 +108,9 @@ export function SearchBar() {
       </form>
 
       {showDropdown && (
-        <div className="absolute z-50 mt-2 w-full overflow-hidden rounded-xl border border-ink-700 bg-ink-850 shadow-2xl">
+        <div className="absolute z-50 mt-2 w-full overflow-hidden rounded-xl border border-slate-200 bg-slate-50 shadow-2xl">
           {results.length === 0 && sealed.length === 0 ? (
-            <div className="px-4 py-3 text-sm text-slate-400">
+            <div className="px-4 py-3 text-sm text-slate-600">
               {loading ? "Searching…" : "No matches — press Enter to search anyway."}
             </div>
           ) : (
@@ -131,16 +131,16 @@ export function SearchBar() {
                       setOpen(false);
                       openQuickView(r);
                     }}
-                    className="flex items-center gap-3 px-3 py-2 hover:bg-ink-800"
+                    className="flex items-center gap-3 px-3 py-2 hover:bg-slate-50"
                   >
-                    <div className="h-12 w-9 shrink-0 overflow-hidden rounded bg-ink-900">
+                    <div className="h-12 w-9 shrink-0 overflow-hidden rounded bg-white">
                       {r.imageThumbUrl && (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={r.imageThumbUrl} alt="" className="h-full w-full object-cover" loading="lazy" />
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-semibold text-white">{r.name}</div>
+                      <div className="truncate text-sm font-semibold text-slate-900">{r.name}</div>
                       <div className="text-xs text-slate-500">
                         {r.setCode} · {r.collectorNumber}
                         {r.variant ? ` · Alt ${r.variant}` : ""}
@@ -162,9 +162,9 @@ export function SearchBar() {
                       <Link
                         href={`/sealed?q=${encodeURIComponent(s.name)}`}
                         onClick={() => setOpen(false)}
-                        className="flex items-center gap-3 px-3 py-2 hover:bg-ink-800"
+                        className="flex items-center gap-3 px-3 py-2 hover:bg-slate-50"
                       >
-                        <div className="grid h-12 w-9 shrink-0 place-items-center overflow-hidden rounded bg-ink-900">
+                        <div className="grid h-12 w-9 shrink-0 place-items-center overflow-hidden rounded bg-white">
                           {s.imageUrl ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img src={s.imageUrl} alt="" className="h-full w-full object-contain" loading="lazy" />
@@ -173,7 +173,7 @@ export function SearchBar() {
                           )}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <div className="truncate text-sm font-semibold text-white">{s.name}</div>
+                          <div className="truncate text-sm font-semibold text-slate-900">{s.name}</div>
                           <div className="text-xs text-slate-500">
                             {s.productType}{s.setCode ? ` · ${s.setCode}` : ""}
                           </div>
@@ -187,14 +187,14 @@ export function SearchBar() {
                 </>
               )}
 
-              <li className="border-t border-ink-800">
+              <li className="border-t border-slate-200">
                 <button
                   type="button"
                   onMouseDown={(e) => {
                     e.preventDefault();
                     submit(e as unknown as React.FormEvent);
                   }}
-                  className="w-full px-4 py-2 text-left text-xs text-brand-400 hover:bg-ink-800"
+                  className="w-full px-4 py-2 text-left text-xs text-brand-400 hover:bg-slate-50"
                 >
                   See all results for “{value.trim()}” →
                 </button>

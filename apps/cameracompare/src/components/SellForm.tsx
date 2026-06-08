@@ -106,13 +106,13 @@ export function SellForm({ cards }: { cards: SellCard[] }) {
       <form onSubmit={submit} className="card-surface flex flex-col gap-5 p-5">
         {/* Card picker */}
         <div className="relative">
-          <label className="mb-1 block text-xs font-medium text-slate-400">
+          <label className="mb-1 block text-xs font-medium text-slate-600">
             Card
           </label>
           {selected ? (
-            <div className="flex items-center justify-between rounded-lg border border-ink-700 bg-ink-900 p-3">
+            <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-white p-3">
               <div>
-                <div className="font-semibold text-white">{selected.name}</div>
+                <div className="font-semibold text-slate-900">{selected.name}</div>
                 <div className="text-xs text-slate-500">
                   {selected.collectorNumber} · {selected.type} ·{" "}
                   <span style={{ color: rarityInfo(selected.rarity).color }}>
@@ -138,15 +138,15 @@ export function SellForm({ cards }: { cards: SellCard[] }) {
                 autoFocus
               />
               {matches.length > 0 && (
-                <ul className="absolute z-20 mt-1 max-h-72 w-full overflow-y-auto rounded-lg border border-ink-700 bg-ink-850 shadow-card">
+                <ul className="absolute z-20 mt-1 max-h-72 w-full overflow-y-auto rounded-lg border border-slate-200 bg-slate-50 shadow-card">
                   {matches.map((c) => (
                     <li key={c.id}>
                       <button
                         type="button"
                         onClick={() => choose(c)}
-                        className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left hover:bg-ink-800"
+                        className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left hover:bg-slate-50"
                       >
-                        <span className="text-sm text-white">{c.name}</span>
+                        <span className="text-sm text-slate-900">{c.name}</span>
                         <span className="text-xs text-slate-500">
                           {c.collectorNumber} ·{" "}
                           {formatAUD(c.marketPriceCents)}
@@ -162,7 +162,7 @@ export function SellForm({ cards }: { cards: SellCard[] }) {
 
         {/* Condition */}
         <div>
-          <label className="mb-1 block text-xs font-medium text-slate-400">
+          <label className="mb-1 block text-xs font-medium text-slate-600">
             Condition
           </label>
           <div className="flex flex-wrap gap-2">
@@ -190,7 +190,7 @@ export function SellForm({ cards }: { cards: SellCard[] }) {
         </div>
 
         {/* Foil */}
-        <label className="flex cursor-pointer items-center gap-2 text-sm text-slate-300">
+        <label className="flex cursor-pointer items-center gap-2 text-sm text-slate-700">
           <input
             type="checkbox"
             checked={isFoil}
@@ -203,7 +203,7 @@ export function SellForm({ cards }: { cards: SellCard[] }) {
         {/* Price + quantity */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="mb-1 block text-xs font-medium text-slate-400">
+            <label className="mb-1 block text-xs font-medium text-slate-600">
               Price (AUD)
             </label>
             <div className="relative">
@@ -232,7 +232,7 @@ export function SellForm({ cards }: { cards: SellCard[] }) {
             )}
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-slate-400">
+            <label className="mb-1 block text-xs font-medium text-slate-600">
               Quantity
             </label>
             <input
@@ -260,13 +260,13 @@ export function SellForm({ cards }: { cards: SellCard[] }) {
       {/* Live preview */}
       <div className="lg:sticky lg:top-20 lg:self-start">
         <div className="card-surface p-4">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-400">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-600">
             Preview
           </p>
           {selected ? (
             <CardImage card={selected} isFoil={isFoil} full className="aspect-[5/7] w-full" />
           ) : (
-            <div className="grid aspect-[5/7] place-items-center rounded-lg border border-dashed border-ink-700 text-center text-sm text-slate-500">
+            <div className="grid aspect-[5/7] place-items-center rounded-lg border border-dashed border-slate-200 text-center text-sm text-slate-500">
               Pick a card to preview it here
             </div>
           )}

@@ -29,7 +29,7 @@ export function CountrySwitcher({ className = "" }: { className?: string }) {
         onClick={() => setOpen((o) => !o)}
         aria-label={`Country: ${current.label}. Change market`}
         aria-expanded={open}
-        className="flex items-center gap-1.5 rounded-lg border border-ink-700 px-2.5 py-2 text-sm font-medium text-slate-200 hover:bg-ink-800 hover:text-white"
+        className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900"
       >
         <span className="text-base leading-none">{current.flag}</span>
         <span className="hidden sm:inline">{current.code}</span>
@@ -39,7 +39,7 @@ export function CountrySwitcher({ className = "" }: { className?: string }) {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-1.5 w-52 overflow-hidden rounded-xl border border-ink-700 bg-ink-850/95 p-1 shadow-2xl backdrop-blur">
+        <div className="absolute right-0 top-full z-50 mt-1.5 w-52 overflow-hidden rounded-xl border border-slate-200 bg-slate-50/95 p-1 shadow-2xl backdrop-blur">
           <div className="px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
             Shop &amp; prices for
           </div>
@@ -50,13 +50,13 @@ export function CountrySwitcher({ className = "" }: { className?: string }) {
                 setCountry(c.code);
                 setOpen(false);
               }}
-              className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left hover:bg-ink-800 ${
-                c.code === country ? "bg-ink-800" : ""
+              className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left hover:bg-slate-50 ${
+                c.code === country ? "bg-slate-50" : ""
               }`}
             >
               <span className="text-lg leading-none">{c.flag}</span>
               <div className="min-w-0 flex-1">
-                <div className="text-sm font-medium text-white">{c.label}</div>
+                <div className="text-sm font-medium text-slate-900">{c.label}</div>
                 <div className="text-xs text-slate-500">Prices in {c.currency}</div>
               </div>
               {c.code === country && (

@@ -67,7 +67,7 @@ export function ActiveFilters() {
           <span aria-hidden className="text-brand-400/70">✕</span>
         </button>
       ))}
-      <button onClick={clearAll} className="text-xs text-slate-500 hover:text-white">Clear all</button>
+      <button onClick={clearAll} className="text-xs text-slate-500 hover:text-slate-900">Clear all</button>
     </div>
   );
 }

@@ -63,8 +63,8 @@ export function AuthForm({ mode, providers }: { mode: "login" | "register"; prov
   return (
     <div className="mx-auto max-w-md py-10">
       <div className="card-surface p-6">
-        <h1 className="text-xl font-extrabold text-white">{isRegister ? "Create your account" : "Sign in"}</h1>
-        <p className="mt-1 text-sm text-slate-400">
+        <h1 className="text-xl font-extrabold text-slate-900">{isRegister ? "Create your account" : "Sign in"}</h1>
+        <p className="mt-1 text-sm text-slate-600">
           {isRegister
             ? "Create a free account to save your wishlist, post in the forum and more."
             : "Sign in to sync your wishlist, post in the forum and manage your listings."}
@@ -76,19 +76,19 @@ export function AuthForm({ mode, providers }: { mode: "login" | "register"; prov
           <>
             <div className="mt-5 flex flex-col gap-2.5">
               {providers.includes("google") && (
-                <a href="/api/auth/oauth/google" className="flex items-center justify-center gap-2.5 rounded-xl border border-ink-600 bg-white py-2.5 text-sm font-semibold text-ink-950 hover:brightness-95">
+                <a href="/api/auth/oauth/google" className="flex items-center justify-center gap-2.5 rounded-xl border border-slate-300 bg-white py-2.5 text-sm font-semibold text-slate-900 hover:brightness-95">
                   <GoogleIcon /> Continue with Google
                 </a>
               )}
               {providers.includes("discord") && (
-                <a href="/api/auth/oauth/discord" className="flex items-center justify-center gap-2.5 rounded-xl bg-[#5865F2] py-2.5 text-sm font-semibold text-white hover:brightness-110">
+                <a href="/api/auth/oauth/discord" className="flex items-center justify-center gap-2.5 rounded-xl bg-[#5865F2] py-2.5 text-sm font-semibold text-slate-900 hover:brightness-110">
                   <DiscordIcon /> Continue with Discord
                 </a>
               )}
             </div>
 
             <div className="my-5 flex items-center gap-3 text-xs text-slate-500">
-              <span className="h-px flex-1 bg-ink-700" /> or with email <span className="h-px flex-1 bg-ink-700" />
+              <span className="h-px flex-1 bg-slate-100" /> or with email <span className="h-px flex-1 bg-slate-100" />
             </div>
           </>
         )}
@@ -96,17 +96,17 @@ export function AuthForm({ mode, providers }: { mode: "login" | "register"; prov
         <form onSubmit={submit} className="flex flex-col gap-3">
           {isRegister && (
             <label className="block">
-              <span className="mb-1 block text-xs font-medium text-slate-400">Display name</span>
+              <span className="mb-1 block text-xs font-medium text-slate-600">Display name</span>
               <input className="input" value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="e.g. RiftCollector" autoComplete="nickname" required />
             </label>
           )}
           <label className="block">
-            <span className="mb-1 block text-xs font-medium text-slate-400">Email</span>
+            <span className="mb-1 block text-xs font-medium text-slate-600">Email</span>
             <input type="email" className="input" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" required />
           </label>
           <label className="block">
             <div className="mb-1 flex items-center justify-between">
-              <span className="text-xs font-medium text-slate-400">Password</span>
+              <span className="text-xs font-medium text-slate-600">Password</span>
               {!isRegister && (
                 <Link href="/forgot" className="text-xs text-brand-400 hover:underline">Forgot password?</Link>
               )}
@@ -121,7 +121,7 @@ export function AuthForm({ mode, providers }: { mode: "login" | "register"; prov
           </button>
         </form>
 
-        <p className="mt-4 text-center text-sm text-slate-400">
+        <p className="mt-4 text-center text-sm text-slate-600">
           {isRegister ? (
             <>Already have an account? <Link href={`/login${nextQ}`} className="text-brand-400 hover:underline">Sign in</Link></>
           ) : (

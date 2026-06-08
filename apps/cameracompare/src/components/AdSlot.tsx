@@ -11,7 +11,7 @@ export function AdSlot({
 }) {
   return (
     <div
-      className={`grid place-items-center rounded-xl border border-dashed border-ink-700 bg-ink-900/60 text-center ${className ?? ""}`}
+      className={`grid place-items-center rounded-xl border border-dashed border-slate-200 bg-slate-100/60 text-center ${className ?? ""}`}
       style={{ minHeight: height }}
       aria-label="advertisement"
     >

@@ -95,32 +95,32 @@ function WishlistDrawer({ open, onClose }: { open: boolean; onClose: () => void 
       />
       {/* drawer */}
       <aside
-        className={`fixed right-0 top-0 z-[71] flex h-full w-full max-w-sm flex-col border-l border-ink-700 bg-ink-900 shadow-2xl transition-transform duration-200 ${open ? "translate-x-0" : "translate-x-full"}`}
+        className={`fixed right-0 top-0 z-[71] flex h-full w-full max-w-sm flex-col border-l border-slate-200 bg-white shadow-2xl transition-transform duration-200 ${open ? "translate-x-0" : "translate-x-full"}`}
         aria-hidden={!open}
       >
-        <div className="flex items-center justify-between border-b border-ink-700 p-4">
-          <h2 className="flex items-center gap-2 text-lg font-extrabold text-white">
+        <div className="flex items-center justify-between border-b border-slate-200 p-4">
+          <h2 className="flex items-center gap-2 text-lg font-extrabold text-slate-900">
             ♥ Wishlist
             {cards && cards.length > 0 && (
               <span className="rounded-full bg-brand-500 px-2 py-0.5 text-xs text-white">{cards.length}</span>
             )}
           </h2>
-          <button onClick={onClose} aria-label="Close" className="grid h-8 w-8 place-items-center rounded-full text-slate-400 hover:text-white">✕</button>
+          <button onClick={onClose} aria-label="Close" className="grid h-8 w-8 place-items-center rounded-full text-slate-600 hover:text-slate-900">✕</button>
         </div>
 
         <div className="min-h-0 flex-1 overflow-y-auto">
           {cards === null ? (
             <div className="flex justify-center py-16">
-              <span className="h-7 w-7 animate-spin rounded-full border-2 border-ink-600 border-t-brand-400" />
+              <span className="h-7 w-7 animate-spin rounded-full border-2 border-slate-300 border-t-brand-400" />
             </div>
           ) : cards.length === 0 ? (
-            <div className="p-8 text-center text-sm text-slate-400">
-              <p className="font-semibold text-white">Your wishlist is empty</p>
+            <div className="p-8 text-center text-sm text-slate-600">
+              <p className="font-semibold text-slate-900">Your wishlist is empty</p>
               <p className="mt-1">Tap the ♥ on any card to track its price.</p>
               <Link href="/browse" onClick={onClose} className="btn-primary mt-4 inline-block">Browse cards</Link>
             </div>
           ) : (
-            <ul className="divide-y divide-ink-800">
+            <ul className="divide-y divide-slate-200">
               {cards.map((c) => (
                 <li key={c.id} className="flex items-center gap-3 p-3">
                   <Link href={cardHref(c)} onClick={onClose} className="flex min-w-0 flex-1 items-center gap-3">
@@ -128,10 +128,10 @@ function WishlistDrawer({ open, onClose }: { open: boolean; onClose: () => void 
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={c.imageThumbUrl} alt="" className="h-14 w-10 shrink-0 rounded object-cover" loading="lazy" />
                     ) : (
-                      <div className="h-14 w-10 shrink-0 rounded bg-ink-800" />
+                      <div className="h-14 w-10 shrink-0 rounded bg-slate-50" />
                     )}
                     <div className="min-w-0">
-                      <div className="truncate text-sm font-semibold text-white">{c.name}</div>
+                      <div className="truncate text-sm font-semibold text-slate-900">{c.name}</div>
                       <div className="text-[11px] text-slate-500">{c.setCode} · {c.collectorNumber}</div>
                       <div className="text-sm font-bold text-accent">
                         {price(c) != null ? fmt(price(c)!) : "No price yet"}
@@ -142,7 +142,7 @@ function WishlistDrawer({ open, onClose }: { open: boolean; onClose: () => void 
                     onClick={() => toggleWishlist(c.id)}
                     aria-label="Remove from wishlist"
                     title="Remove"
-                    className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-slate-500 hover:bg-ink-800 hover:text-red-400"
+                    className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-slate-500 hover:bg-slate-50 hover:text-red-400"
                   >
                     🗑
                   </button>
@@ -153,9 +153,9 @@ function WishlistDrawer({ open, onClose }: { open: boolean; onClose: () => void 
         </div>
 
         {cards && cards.length > 0 && (
-          <div className="border-t border-ink-700 p-4">
+          <div className="border-t border-slate-200 p-4">
             <div className="mb-3 flex items-center justify-between text-sm">
-              <span className="text-slate-400">Total (cheapest)</span>
+              <span className="text-slate-600">Total (cheapest)</span>
               <span className="text-lg font-extrabold text-accent">{fmt(total)}</span>
             </div>
             <Link href="/wishlist" onClick={onClose} className="btn-primary w-full text-center">

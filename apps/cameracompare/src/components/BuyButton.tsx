@@ -48,7 +48,7 @@ export function BuyButton({
 
   if (!canBuy) {
     return (
-      <span className="chip bg-ink-800 text-slate-500" title={reason}>
+      <span className="chip bg-slate-50 text-slate-500" title={reason}>
         {reason ?? "Unavailable"}
       </span>
     );

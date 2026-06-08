@@ -115,7 +115,7 @@ export function DeckBuilder({ initialList }: { initialList?: string }) {
       {/* Input */}
       <div className="lg:sticky lg:top-20 lg:self-start">
         <div className="card-surface p-4">
-          <label className="mb-1 block text-sm font-semibold text-white">Paste your decklist</label>
+          <label className="mb-1 block text-sm font-semibold text-slate-900">Paste your decklist</label>
           <p className="mb-2 text-xs text-slate-500">
             One card per line: <span className="font-mono">quantity name</span> — e.g.{" "}
             <span className="font-mono">3 Jinx, Loose Cannon</span>. Set codes like{" "}
@@ -161,7 +161,7 @@ export function DeckBuilder({ initialList }: { initialList?: string }) {
         {result && (
           <div className="mt-4 hidden lg:block">
             <div className="card-surface overflow-hidden">
-              <div className="relative aspect-[5/7] w-full bg-ink-900">
+              <div className="relative aspect-[5/7] w-full bg-white">
                 {preview?.imageUrl || preview?.imageThumbUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -177,7 +177,7 @@ export function DeckBuilder({ initialList }: { initialList?: string }) {
               </div>
               {preview && (
                 <div className="p-3">
-                  <div className="text-sm font-bold text-white">{preview.name}</div>
+                  <div className="text-sm font-bold text-slate-900">{preview.name}</div>
                   <div className="text-[11px] text-slate-500">
                     {preview.setCode} · {preview.collectorNumber}
                     {pickCardPrice(preview) != null ? ` · from ${fmt(pickCardPrice(preview)!)}` : ""}
@@ -192,17 +192,17 @@ export function DeckBuilder({ initialList }: { initialList?: string }) {
       {/* Results */}
       <div className="min-w-0">
         {loading ? (
-          <div className="card-surface grid place-items-center p-16 text-center text-slate-400">
+          <div className="card-surface grid place-items-center p-16 text-center text-slate-600">
             <div className="flex flex-col items-center gap-3">
-              <span className="h-8 w-8 animate-spin rounded-full border-2 border-ink-600 border-t-brand-400" />
-              <p className="text-sm font-semibold text-white">Pricing your deck…</p>
+              <span className="h-8 w-8 animate-spin rounded-full border-2 border-slate-300 border-t-brand-400" />
+              <p className="text-sm font-semibold text-slate-900">Pricing your deck…</p>
               <p className="text-xs">Matching each card to the cheapest Australian price.</p>
             </div>
           </div>
         ) : !result ? (
-          <div className="card-surface grid place-items-center p-16 text-center text-slate-400">
+          <div className="card-surface grid place-items-center p-16 text-center text-slate-600">
             <div>
-              <p className="text-lg font-semibold text-white">Price a whole deck at once</p>
+              <p className="text-lg font-semibold text-slate-900">Price a whole deck at once</p>
               <p className="mt-1 text-sm">
                 Paste a decklist and we&apos;ll match every card and total up the cheapest
                 {country === "NZ" ? " New Zealand" : " Australian"} prices.
@@ -227,27 +227,27 @@ export function DeckBuilder({ initialList }: { initialList?: string }) {
 
             {/* Items */}
             <div className="card-surface overflow-hidden">
-              <ul className="divide-y divide-ink-800">
+              <ul className="divide-y divide-slate-200">
                 {result.items.map((it, idx) => (
                   <li
                     key={idx}
                     onMouseEnter={() => it.card && setPreview(it.card)}
-                    className="flex items-center gap-3 p-3 transition-colors hover:bg-ink-900/50"
+                    className="flex items-center gap-3 p-3 transition-colors hover:bg-slate-100/50"
                   >
-                    <div className="w-8 text-center font-bold text-slate-400">{it.qty}×</div>
+                    <div className="w-8 text-center font-bold text-slate-600">{it.qty}×</div>
                     {it.card?.imageThumbUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={it.card.imageThumbUrl} alt="" className="h-12 w-9 shrink-0 rounded object-cover ring-1 ring-ink-700" />
+                      <img src={it.card.imageThumbUrl} alt="" className="h-12 w-9 shrink-0 rounded object-cover ring-1 ring-slate-300" />
                     ) : (
-                      <div className="h-12 w-9 shrink-0 rounded bg-ink-800" />
+                      <div className="h-12 w-9 shrink-0 rounded bg-slate-50" />
                     )}
                     <div className="min-w-0 flex-1">
                       {it.card ? (
-                        <Link href={`/card/${it.card.id}`} className="font-medium text-white hover:text-brand-400">
+                        <Link href={`/card/${it.card.id}`} className="font-medium text-slate-900 hover:text-brand-400">
                           {it.card.name}
                         </Link>
                       ) : (
-                        <span className="font-medium text-slate-400">{it.name || it.raw}</span>
+                        <span className="font-medium text-slate-600">{it.name || it.raw}</span>
                       )}
                       <div className="text-xs text-slate-500">
                         {it.card ? (
@@ -260,7 +260,7 @@ export function DeckBuilder({ initialList }: { initialList?: string }) {
                     <div className="text-right">
                       {it.unitPriceCents != null ? (
                         <>
-                          <div className="font-bold text-white">{fmt(it.lineCents)}</div>
+                          <div className="font-bold text-slate-900">{fmt(it.lineCents)}</div>
                           <div className="text-[11px] text-slate-500">{fmt(it.unitPriceCents)} ea</div>
                         </>
                       ) : (
@@ -270,8 +270,8 @@ export function DeckBuilder({ initialList }: { initialList?: string }) {
                   </li>
                 ))}
               </ul>
-              <div className="flex items-center justify-between border-t border-ink-700 p-4">
-                <span className="text-sm text-slate-400">
+              <div className="flex items-center justify-between border-t border-slate-200 p-4">
+                <span className="text-sm text-slate-600">
                   {result.pricedQty} of {result.totalQty} cards priced
                 </span>
                 <span className="text-xl font-extrabold text-accent">{fmt(result.totalCents)}</span>
@@ -291,7 +291,7 @@ function Sum({ label, value, highlight }: { label: string; value: string; highli
   return (
     <div>
       <div className="text-xs uppercase tracking-wide text-slate-500">{label}</div>
-      <div className={`text-xl font-extrabold ${highlight ? "text-accent" : "text-white"}`}>{value}</div>
+      <div className={`text-xl font-extrabold ${highlight ? "text-accent" : "text-slate-900"}`}>{value}</div>
     </div>
   );
 }

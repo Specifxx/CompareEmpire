@@ -5,34 +5,36 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Clean, low-saturation dark palette (CSFloat-style): near-black surfaces,
-        // cool grey borders, restrained accents — no neon.
+        // Light, professional retail palette (Kogan/JB-style): white surfaces, cool
+        // slate text + borders, a confident blue primary. The legacy `ink` scale is
+        // remapped to light neutrals so any stray class still renders on-theme.
         ink: {
-          950: "#0a0c10",
-          900: "#0e1116",
-          850: "#13171f",
-          800: "#191e28",
-          700: "#252b38",
-          600: "#333b4d",
+          950: "#ffffff",
+          900: "#ffffff",
+          850: "#f8fafc",
+          800: "#f1f5f9",
+          700: "#e2e8f0",
+          600: "#cbd5e1",
         },
-        // Photography vibe: amber "shutter" accent over cool slate surfaces.
+        // Primary brand = blue (buttons, links, active states).
         brand: {
-          DEFAULT: "#f59e0b",
-          400: "#fbbf24",
-          500: "#f59e0b",
-          600: "#d97706",
+          DEFAULT: "#2563eb",
+          300: "#3b82f6",
+          400: "#2563eb",
+          500: "#2563eb",
+          600: "#1d4ed8",
         },
-        accent: "#fbbf24", // amber — prices & highlights
-        gold: "#ffc24d",
+        accent: "#2563eb", // blue — links & highlights
+        gold: "#16a34a", // green — savings / in-stock badges
       },
       fontFamily: {
         sans: ["var(--font-sans)", "ui-sans-serif", "system-ui", "Segoe UI", "Roboto", "Helvetica", "Arial", "sans-serif"],
         display: ["var(--font-display)", "var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
       },
       boxShadow: {
-        // Soft elevation + a gentle brand glow for the bubbly look.
-        card: "0 1px 0 rgba(255,255,255,0.03), 0 8px 24px rgba(0,0,0,0.35)",
-        glow: "0 0 0 1px rgba(245,158,11,0.25), 0 10px 30px rgba(245,158,11,0.16)",
+        // Soft, neutral elevation for a clean retail card look.
+        card: "0 1px 2px rgba(16,24,40,0.06), 0 1px 3px rgba(16,24,40,0.10)",
+        glow: "0 1px 2px rgba(37,99,235,0.10), 0 6px 18px rgba(37,99,235,0.12)",
       },
       keyframes: {
         "fade-up": {

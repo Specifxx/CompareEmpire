@@ -74,19 +74,19 @@ export function PlaceBuyOrderForm({
   }
 
   return (
-    <form onSubmit={submit} className="rounded-lg border border-ink-700 bg-ink-900 p-3">
+    <form onSubmit={submit} className="rounded-lg border border-slate-200 bg-white p-3">
       <div className="mb-2 flex items-center justify-between">
-        <h4 className="text-sm font-semibold text-white">New buy order</h4>
+        <h4 className="text-sm font-semibold text-slate-900">New buy order</h4>
         <button
           type="button"
           onClick={() => setOpen(false)}
-          className="text-xs text-slate-500 hover:text-white"
+          className="text-xs text-slate-500 hover:text-slate-900"
         >
           Cancel
         </button>
       </div>
 
-      <label className="mb-1 block text-xs text-slate-400">Desired condition</label>
+      <label className="mb-1 block text-xs text-slate-600">Desired condition</label>
       <div className="mb-3 flex flex-wrap gap-1.5">
         {["ANY", ...CONDITION_KEYS].map((k) => {
           const active = condition === k;
@@ -109,7 +109,7 @@ export function PlaceBuyOrderForm({
         })}
       </div>
 
-      <label className="mb-2 flex cursor-pointer items-center gap-2 text-xs text-slate-300">
+      <label className="mb-2 flex cursor-pointer items-center gap-2 text-xs text-slate-700">
         <input
           type="checkbox"
           checked={isFoil}
@@ -121,7 +121,7 @@ export function PlaceBuyOrderForm({
 
       <div className="flex gap-2">
         <div className="flex-1">
-          <label className="mb-1 block text-xs text-slate-400">Bid each (AUD)</label>
+          <label className="mb-1 block text-xs text-slate-600">Bid each (AUD)</label>
           <div className="relative">
             <span className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-500">$</span>
             <input
@@ -136,7 +136,7 @@ export function PlaceBuyOrderForm({
           </div>
         </div>
         <div className="w-20">
-          <label className="mb-1 block text-xs text-slate-400">Qty</label>
+          <label className="mb-1 block text-xs text-slate-600">Qty</label>
           <input
             type="number"
             min="1"
@@ -179,7 +179,7 @@ export function SellToBidButton({
   if (done) return <span className="chip bg-accent/20 text-accent">✓ Sold</span>;
   if (!canSell) {
     return (
-      <span className="chip bg-ink-800 text-slate-500" title={reason}>
+      <span className="chip bg-slate-50 text-slate-500" title={reason}>
         {reason ?? "Unavailable"}
       </span>
     );
@@ -231,7 +231,7 @@ export function CancelBuyOrderButton({ id }: { id: string }) {
         router.refresh();
         setLoading(false);
       }}
-      className="chip bg-ink-800 text-red-400 hover:bg-red-500/10"
+      className="chip bg-slate-50 text-red-400 hover:bg-red-500/10"
     >
       {loading ? "…" : "Cancel & refund"}
     </button>

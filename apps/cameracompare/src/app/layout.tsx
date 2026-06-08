@@ -85,7 +85,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             the non-standard `value` attribute, so spread it past the meta typing. */}
         <meta {...({ name: "impact-site-verification", value: IMPACT_SITE_VERIFICATION } as any)} />
       </head>
-      <body className="min-h-screen bg-ink-950">
+      <body className="min-h-screen bg-white">
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }} />
         <CountryProvider initial={country}>
         <WishlistDrawerProvider>
@@ -95,10 +95,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </QuickViewProvider>
         </WishlistDrawerProvider>
         </CountryProvider>
-        <footer className="container-app border-t border-ink-800 py-8 text-center text-xs text-slate-500">
+        <footer className="container-app border-t border-slate-200 py-8 text-center text-xs text-slate-500">
           <div className="mb-2 flex items-center justify-center gap-4 text-sm">
-            <Link href="/contact" className="text-slate-300 hover:text-brand-400">Contact &amp; feedback</Link>
-            <span className="text-ink-700">·</span>
+            <Link href="/contact" className="text-slate-700 hover:text-brand-400">Contact &amp; feedback</Link>
+            <span className="text-slate-700">·</span>
             <a href={`mailto:${CONTACT_EMAIL}`} className="text-gold hover:underline">{CONTACT_EMAIL}</a>
           </div>
           <p>

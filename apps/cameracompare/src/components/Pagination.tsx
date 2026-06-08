@@ -65,9 +65,9 @@ export function Pagination({
   const items = windowed(current, totalPages);
   const PrevNext = (label: string, target: number, enabled: boolean) =>
     enabled ? (
-      <a href={href(target)} onClick={(e) => go(target, e)} className={`${cell} border border-ink-700 text-slate-300 hover:border-brand-500 hover:text-white`}>{label}</a>
+      <a href={href(target)} onClick={(e) => go(target, e)} className={`${cell} border border-slate-200 text-slate-700 hover:border-brand-500 hover:text-slate-900`}>{label}</a>
     ) : (
-      <span className={`${cell} border border-ink-800 text-slate-600`}>{label}</span>
+      <span className={`${cell} border border-slate-200 text-slate-600`}>{label}</span>
     );
 
   return (
@@ -90,7 +90,7 @@ export function Pagination({
             className={`${cell} ${
               it === current
                 ? "bg-gradient-to-br from-brand-400 to-brand-600 text-white shadow-glow"
-                : "border border-ink-700 text-slate-300 hover:border-brand-500 hover:text-white"
+                : "border border-slate-200 text-slate-700 hover:border-brand-500 hover:text-slate-900"
             }`}
           >
             {it}

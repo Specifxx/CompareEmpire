@@ -96,11 +96,11 @@ export function ForumPostModal({
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4" role="dialog" aria-modal="true">
       <div className="absolute inset-0 bg-black/70" onClick={onClose} />
-      <div className="relative z-10 flex max-h-[88vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-ink-700 bg-ink-900 shadow-2xl">
+      <div className="relative z-10 flex max-h-[88vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
         <button
           onClick={onClose}
           aria-label="Close"
-          className="absolute right-3 top-3 z-20 grid h-8 w-8 place-items-center rounded-full bg-ink-950/80 text-slate-300 hover:text-white"
+          className="absolute right-3 top-3 z-20 grid h-8 w-8 place-items-center rounded-full bg-white/80 text-slate-700 hover:text-slate-900"
         >
           ✕
         </button>
@@ -109,46 +109,46 @@ export function ForumPostModal({
           {/* Post detail */}
           <div className="flex flex-wrap items-center gap-2">
             <span className={`chip font-bold ${KIND_BADGE[post.kind]}`}>{KIND_TEXT[post.kind]}</span>
-            {post.priceCents != null && <span className="chip bg-ink-800 font-bold text-accent">{fmt(post.priceCents)} asking</span>}
-            {location && <span className="chip bg-ink-800 text-slate-300">{location}</span>}
+            {post.priceCents != null && <span className="chip bg-slate-50 font-bold text-accent">{fmt(post.priceCents)} asking</span>}
+            {location && <span className="chip bg-slate-50 text-slate-700">{location}</span>}
           </div>
-          <h2 className="mt-2 text-lg font-bold text-white">{post.title}</h2>
+          <h2 className="mt-2 text-lg font-bold text-slate-900">{post.title}</h2>
 
           {post.items && post.items.length > 0 && (
-            <ul className="mt-2 divide-y divide-ink-800 rounded-xl border border-ink-700 bg-ink-900/40 p-2">
+            <ul className="mt-2 divide-y divide-slate-200 rounded-xl border border-slate-200 bg-slate-100/40 p-2">
               {post.items.map((it, i) => (
                 <li key={i} className="flex items-center gap-2 py-1 text-sm">
                   <span className="w-7 shrink-0 text-slate-500">{it.qty}×</span>
-                  <span className="min-w-0 flex-1 truncate text-slate-200">
+                  <span className="min-w-0 flex-1 truncate text-slate-700">
                     {it.name}
                     {it.condition && it.condition !== "Any" ? <span className="text-xs text-slate-500"> · {it.condition}</span> : null}
                   </span>
-                  <span className="shrink-0 text-xs text-slate-400">{it.marketCents != null ? fmt(it.marketCents) : "—"}</span>
+                  <span className="shrink-0 text-xs text-slate-600">{it.marketCents != null ? fmt(it.marketCents) : "—"}</span>
                 </li>
               ))}
             </ul>
           )}
 
-          {post.body && <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-slate-300">{post.body}</p>}
+          {post.body && <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-slate-700">{post.body}</p>}
 
           <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500">
             {post.userId ? (
               <Link href={`/forum/seller/${post.userId}`} className="font-medium text-brand-400 hover:underline">{post.authorName}</Link>
             ) : (
-              <span className="font-medium text-slate-400">{post.authorName}</span>
+              <span className="font-medium text-slate-600">{post.authorName}</span>
             )}
             <span>·</span>
             <span title={ago(post.createdAt)}>Posted {dateTime(post.createdAt)}</span>
             {post.contact && (
               <>
                 <span>·</span>
-                <span>Contact: <span className="text-slate-300">{post.contact}</span></span>
+                <span>Contact: <span className="text-slate-700">{post.contact}</span></span>
               </>
             )}
           </div>
 
           {/* Comments */}
-          <h3 className="mt-6 border-t border-ink-800 pt-4 text-sm font-bold text-white">
+          <h3 className="mt-6 border-t border-slate-200 pt-4 text-sm font-bold text-slate-900">
             Comments {comments ? `(${comments.length})` : ""}
           </h3>
           {comments === null ? (
@@ -158,12 +158,12 @@ export function ForumPostModal({
           ) : (
             <ul className="mt-2 space-y-3">
               {comments.map((c) => (
-                <li key={c.id} className="rounded-xl bg-ink-850 p-3">
+                <li key={c.id} className="rounded-xl bg-slate-50 p-3">
                   <div className="text-xs text-slate-500">
-                    <span className="font-medium text-slate-300">{c.authorName}</span>{" "}
+                    <span className="font-medium text-slate-700">{c.authorName}</span>{" "}
                     · <span title={ago(c.createdAt)}>{dateTime(c.createdAt)}</span>
                   </div>
-                  <p className="mt-1 whitespace-pre-wrap text-sm text-slate-200">{c.body}</p>
+                  <p className="mt-1 whitespace-pre-wrap text-sm text-slate-700">{c.body}</p>
                 </li>
               ))}
             </ul>
@@ -172,7 +172,7 @@ export function ForumPostModal({
 
         {/* Add comment */}
         {currentUser ? (
-          <form onSubmit={addComment} className="flex items-center gap-2 border-t border-ink-700 p-3">
+          <form onSubmit={addComment} className="flex items-center gap-2 border-t border-slate-200 p-3">
             <input
               value={text}
               onChange={(e) => setText(e.target.value)}
@@ -185,7 +185,7 @@ export function ForumPostModal({
             </button>
           </form>
         ) : (
-          <div className="border-t border-ink-700 p-3 text-center text-sm text-slate-400">
+          <div className="border-t border-slate-200 p-3 text-center text-sm text-slate-600">
             <Link href="/login?next=/forum" className="text-brand-400 hover:underline">Log in</Link> to comment.
           </div>
         )}

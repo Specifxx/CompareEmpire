@@ -13,9 +13,9 @@ function fmtDate(iso: string): string {
 export function ArticleList({ articles, basePath }: { articles: Article[]; basePath: string }) {
   if (articles.length === 0) {
     return (
-      <div className="card-surface grid place-items-center p-16 text-center text-slate-400">
+      <div className="card-surface grid place-items-center p-16 text-center text-slate-600">
         <div>
-          <p className="text-lg font-semibold text-white">Nothing here yet</p>
+          <p className="text-lg font-semibold text-slate-900">Nothing here yet</p>
           <p className="mt-1 text-sm">New articles are on the way.</p>
         </div>
       </div>
@@ -32,11 +32,11 @@ export function ArticleList({ articles, basePath }: { articles: Article[]; baseP
         >
           <div className="flex flex-wrap gap-1.5">
             {a.tags.slice(0, 3).map((t) => (
-              <span key={t} className="chip bg-ink-800 text-slate-400">{t}</span>
+              <span key={t} className="chip bg-slate-50 text-slate-600">{t}</span>
             ))}
           </div>
-          <h2 className="mt-2 text-lg font-bold text-white">{a.title}</h2>
-          <p className="mt-1 line-clamp-3 flex-1 text-sm text-slate-400">{a.excerpt}</p>
+          <h2 className="mt-2 text-lg font-bold text-slate-900">{a.title}</h2>
+          <p className="mt-1 line-clamp-3 flex-1 text-sm text-slate-600">{a.excerpt}</p>
           <div className="mt-3 text-xs text-slate-500">
             {fmtDate(a.date)} · {a.readMins} min read
           </div>
