@@ -77,7 +77,7 @@ jobs:
           npx tsx scripts/fetch-camera-images.ts || echo "image fetch failed; seeding with placeholders"
           npx prisma db push
           npx tsx prisma/seed.ts
-          npx tsx scripts/import-jbhifi.ts || echo "JB Hi-Fi import failed; keeping fallback catalogue"
+          npx tsx scripts/import-cameras.ts || echo "camera import failed; keeping fallback catalogue"
 
       - name: Seed DexCompare
         if: ${{ inputs.seed_dexcompare }}
