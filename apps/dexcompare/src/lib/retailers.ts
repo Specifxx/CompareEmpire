@@ -13,9 +13,9 @@ export interface RetailerInfo {
   shippingFlatCents: number; // estimated postage for a single card
   freeOverCents: number; // order total at/above which shipping is free
   shippingNote: string;
-  // Market the store serves. Omitted = "AU" (the original Australian stores). NZ/US
-  // stores are scraped with ?country=NZ/US and priced in NZD/USD. eBay runs for AU+US.
-  country?: "AU" | "NZ" | "US";
+  // Market the store serves. Omitted = "AU" (the original Australian stores). NZ/US/GB
+  // stores are scraped with ?country=NZ/US/GB and priced in NZD/USD/GBP. eBay runs for AU+US.
+  country?: "AU" | "NZ" | "US" | "GB";
 }
 
 export const RETAILERS: Record<string, RetailerInfo> = {
@@ -532,12 +532,130 @@ export const RETAILERS: Record<string, RetailerInfo> = {
     shippingNote: "est. US$2.00 · free over US$50",
     country: "US",
   },
+  // Additional US Pokémon Shopify stores (collections auto-discovered from each
+  // store's sitemap; an explicit singles handle is given as a fallback).
+  pokemonplug: {
+    key: "pokemonplug",
+    name: "Pokemon Plug",
+    base: "https://pokemonplug.com",
+    collections: ["pokemon-singles-in-stock"],
+    shippingFlatCents: 150,
+    freeOverCents: 5000,
+    shippingNote: "est. US$1.50 · free over US$50",
+    country: "US",
+  },
+  pokecollect: {
+    key: "pokecollect",
+    name: "Poke-Collect",
+    base: "https://poke-collect.com",
+    collections: ["pokemon-singles-instock"],
+    shippingFlatCents: 200,
+    freeOverCents: 5000,
+    shippingNote: "est. US$2.00 · free over US$50",
+    country: "US",
+  },
+  boardwalkgreenville: {
+    key: "boardwalkgreenville",
+    name: "Boardwalk Greenville",
+    base: "https://boardwalkgreenville.myshopify.com",
+    collections: ["pokemon-singles-all"],
+    shippingFlatCents: 150,
+    freeOverCents: 5000,
+    shippingNote: "est. US$1.50 · free over US$50",
+    country: "US",
+  },
+  jrwhobby: {
+    key: "jrwhobby",
+    name: "JRW Hobby Station",
+    base: "https://jrwhobbystation.myshopify.com",
+    collections: ["pokemon-singles"],
+    shippingFlatCents: 150,
+    freeOverCents: 4000,
+    shippingNote: "est. US$1.50 · free over US$40",
+    country: "US",
+  },
+  pegasusgames: {
+    key: "pegasusgames",
+    name: "Pegasus Games WI",
+    base: "https://pegasus-games-wi.myshopify.com",
+    collections: ["pokemon-singles"],
+    shippingFlatCents: 200,
+    freeOverCents: 5000,
+    shippingNote: "est. US$2.00 · free over US$50",
+    country: "US",
+  },
+  cardcavern: {
+    key: "cardcavern",
+    name: "Card Cavern Trading Cards",
+    base: "https://www.cardcaverntradingcards.com",
+    collections: ["all-pokemon-singles-in-stock"],
+    shippingFlatCents: 150,
+    freeOverCents: 5000,
+    shippingNote: "est. US$1.50 · free over US$50",
+    country: "US",
+  },
+
+  // ---- United Kingdom stores (country: "GB"; prices in GBP; never use eBay) -----
+  // The UK market previously had no live store prices (only Cardmarket via the seed).
+  // These are Shopify storefronts; collections are auto-discovered from each store's
+  // sitemap, with an explicit Pokémon-singles handle as a fallback. Shipping figures
+  // are GBP estimates.
+  titancards: {
+    key: "titancards",
+    name: "Titan Cards",
+    base: "https://titancards.co.uk",
+    collections: ["pokemon-singles-uk", "card-singles"],
+    shippingFlatCents: 120,
+    freeOverCents: 2000,
+    shippingNote: "est. £1.20 · free over £20",
+    country: "GB",
+  },
+  totalcards: {
+    key: "totalcards",
+    name: "Total Cards",
+    base: "https://totalcards.net",
+    collections: ["pokemon-single-cards"],
+    shippingFlatCents: 150,
+    freeOverCents: 3000,
+    shippingNote: "est. £1.50 · free over £30",
+    country: "GB",
+  },
+  pokephd: {
+    key: "pokephd",
+    name: "PokePhD",
+    base: "https://pokephd.co.uk",
+    collections: ["pokemon-singles"],
+    shippingFlatCents: 120,
+    freeOverCents: 2500,
+    shippingNote: "est. £1.20 · free over £25",
+    country: "GB",
+  },
+  dicesaloon: {
+    key: "dicesaloon",
+    name: "Dice Saloon Singles",
+    base: "https://dicesaloonsingles.co.uk",
+    collections: ["pokemon-singles"],
+    shippingFlatCents: 150,
+    freeOverCents: 3000,
+    shippingNote: "est. £1.50 · free over £30",
+    country: "GB",
+  },
+  bossminis: {
+    key: "bossminis",
+    name: "Boss Minis",
+    base: "https://bossminis.co.uk",
+    collections: ["pokemon-singles-in-stock"],
+    shippingFlatCents: 150,
+    freeOverCents: 3000,
+    shippingNote: "est. £1.50 · free over £30",
+    country: "GB",
+  },
 };
 
 export const RETAILER_LIST = Object.values(RETAILERS);
 
 // The market a store serves (defaults to AU for the original stores).
-export function retailerCountry(retailerKey: string): "AU" | "NZ" | "US" {
+export function retailerCountry(retailerKey: string): "AU" | "NZ" | "US" | "GB" {
   return RETAILERS[retailerKey]?.country ?? "AU";
 }
 
@@ -578,6 +696,8 @@ const STORES_WITH_POLICY = new Set([
   "cgrealm", "danireon", "punkouter", "gglegends", "stompinggrounds", "cardboardanddie",
   "mistymountain", "theboosterbox", "npcollectibles", "capefear", "hobbiesville",
   "gamersguildaz", "kanzengames", "mysterymtg", "hauntedgamecafe", "hobbyaddicts",
+  "pokemonplug", "pokecollect", "boardwalkgreenville", "jrwhobby", "pegasusgames", "cardcavern",
+  "titancards", "totalcards", "pokephd", "dicesaloon", "bossminis",
 ]);
 
 // The store's shipping-policy page URL, or null if it doesn't have one / isn't a store.
