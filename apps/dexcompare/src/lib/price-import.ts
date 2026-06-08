@@ -331,16 +331,15 @@ export async function refreshEbayMarkets(
   return written;
 }
 
-export async function importPrices(): Promise<ImportSummary> {
-  const cards = await prisma.card.findMany({
-    select: { id: true, name: true, setName: true, collectorNumber: true },
-  });
+// A card as needed for title→card matching.
+export interface MatchCard { id: string; name: string; setName: string | null; collectorNumber: string }
 
-  // --- Pokémon matching index ------------------------------------------------
-  // Pokémon store titles reliably carry the collector number ("125/197") and the
-  // card name, and usually the set name ("Obsidian Flames"). The set CODE almost
-  // never appears, so we match on number + name, using the set name to disambiguate
-  // when several cards share a number (rare cross-set collisions on equal set sizes).
+// Build a Pokémon title→cardId resolver over a set of cards. Pokémon store titles
+// reliably carry the collector number ("125/197") and the card name, and usually the
+// set name ("Obsidian Flames"); the set CODE almost never appears. So we match on
+// number + name, using the set name to disambiguate when several cards share a number
+// (rare cross-set collisions on equal set sizes). Pure + exported so it's unit-tested.
+export function buildPokemonResolver(cards: MatchCard[]): (title: string) => string | null {
   interface IdxCard { id: string; nameToks: string[]; setToks: string[] }
   const byKey = new Map<string, IdxCard[]>(); // "num/total"
   const byNum = new Map<number, IdxCard[]>(); // num
@@ -368,8 +367,8 @@ export async function importPrices(): Promise<ImportSummary> {
     push(byName, nameToks[0], ic);
   }
 
-  function resolveCardId(p: ShopifyProduct): string | null {
-    const t = p.title;
+  return function resolve(title: string): string | null {
+    const t = title;
     // Never match a multi-card listing (playset/lot/bundle) to a single card — its
     // price is for the whole group, not one card.
     if (MULTI_CARD.test(t)) return null;
@@ -411,7 +410,15 @@ export async function importPrices(): Promise<ImportSummary> {
       if (hit) return hit.id;
     }
     return null;
-  }
+  };
+}
+
+export async function importPrices(): Promise<ImportSummary> {
+  const cards = await prisma.card.findMany({
+    select: { id: true, name: true, setName: true, collectorNumber: true },
+  });
+  const resolve = buildPokemonResolver(cards);
+  const resolveCardId = (p: ShopifyProduct): string | null => resolve(p.title);
 
   const summary: ImportSummary = { stores: [], totalMatched: 0, totalUnmatched: 0, cardsPriced: 0 };
 
