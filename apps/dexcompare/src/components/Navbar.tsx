@@ -3,18 +3,14 @@ import { Suspense } from "react";
 import { SearchBar } from "./SearchBar";
 import { NavWishlistButton } from "./NavWishlistButton";
 import { MobileNav } from "./MobileNav";
-import { NavDropdown } from "./NavDropdown";
 import { CountrySwitcher } from "./CountrySwitcher";
-import { UserMenu } from "./UserMenu";
-import { WishlistSync } from "./WishlistSync";
 import { Logo } from "./Logo";
-import { getCurrentUser } from "@/lib/auth";
 
-export async function Navbar() {
-  const user = await getCurrentUser();
+// Deliberately minimal: the database (browse/search) is the whole product. The only
+// other controls are the market/country switcher and the (cookie-based) wishlist.
+export function Navbar() {
   return (
     <header className="sticky top-0 z-40 border-b border-ink-800 bg-ink-950/95">
-      <WishlistSync loggedIn={!!user} />
       <div className="container-app">
        <div className="flex h-16 items-center gap-4">
         {/* Logo: mark + text wordmark */}
@@ -32,40 +28,13 @@ export async function Navbar() {
           </Suspense>
         </div>
 
-        {/* Nav */}
+        {/* Nav: Database + country switcher + wishlist */}
         <nav className="ml-auto flex items-center gap-1 lg:ml-0">
           <Link href="/browse" className="rounded-lg px-2.5 py-2 text-sm font-medium text-slate-200 hover:bg-ink-800 hover:text-white">
             Database
           </Link>
-          <Link href="/forum" className="rounded-lg px-2.5 py-2 text-sm font-medium text-slate-200 hover:bg-ink-800 hover:text-white">
-            Forum
-          </Link>
-          <div className="hidden lg:block">
-            <NavDropdown
-              label="More"
-              items={[
-                { href: "/sealed", label: "Sealed Products", desc: "Boxes, packs & promos" },
-                { href: "/proxy", label: "Proxy Printer", desc: "Pick & print test cards" },
-                { href: "/guides", label: "Guides", desc: "Learn Pokémon" },
-                { href: "/blog", label: "Blog", desc: "News & meta" },
-              ]}
-            />
-          </div>
           <CountrySwitcher className="ml-1" />
           <NavWishlistButton />
-          <UserMenu
-            user={
-              user
-                ? {
-                    displayName: user.displayName,
-                    email: user.email,
-                    avatarUrl: user.avatarUrl,
-                    emailVerified: user.emailVerified,
-                    balanceCents: user.balanceCents,
-                  }
-                : null
-            }
-          />
           <MobileNav />
         </nav>
        </div>

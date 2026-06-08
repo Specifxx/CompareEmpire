@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Sora, Space_Grotesk } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -26,7 +25,7 @@ export const metadata: Metadata = {
   description:
     "The Pokémon TCG card database and price comparison. Browse every card and compare live prices across stores in Australia, New Zealand and the United States to find the cheapest place to buy.",
   applicationName: SITE_NAME,
-  keywords: ["Pokémon", "Pokémon TCG", "Pokémon prices", "Pokémon singles", "Pokémon sealed", "card prices"],
+  keywords: ["Pokémon", "Pokémon TCG", "Pokémon prices", "Pokémon singles", "card prices", "Pokémon card database"],
   alternates: { canonical: "/" },
   openGraph: {
     type: "website",
@@ -100,8 +99,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </CountryProvider>
         <footer className="container-app border-t border-ink-800 py-8 text-center text-xs text-slate-500">
           <div className="mb-2 flex items-center justify-center gap-4 text-sm">
-            <Link href="/contact" className="text-slate-300 hover:text-brand-400">Contact &amp; feedback</Link>
-            <span className="text-ink-700">·</span>
             <a href={`mailto:${CONTACT_EMAIL}`} className="text-gold hover:underline">{CONTACT_EMAIL}</a>
           </div>
           <p>

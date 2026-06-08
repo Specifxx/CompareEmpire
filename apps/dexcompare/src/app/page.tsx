@@ -19,7 +19,7 @@ export const revalidate = 180;
 export const metadata: Metadata = {
   title: { absolute: "Buy & Compare Pokémon Card Prices | DexCompare" },
   description:
-    "Compare live Pokémon TCG card prices across stores in Australia, New Zealand and the United States, and find the cheapest place to buy Pokémon singles and sealed. Updated daily.",
+    "Compare live Pokémon TCG card prices across stores in Australia, New Zealand, the United States and the United Kingdom, and find the cheapest place to buy Pokémon singles. Updated daily.",
   keywords: [
     "buy Pokémon cards",
     "Pokémon prices",
@@ -51,8 +51,8 @@ function faqsFor(info: CountryInfo, ebay: string | null): { q: string; a: string
       a: `Search or browse the card database and each card shows the lowest live price across ${adjective} stores, ranked by total delivered cost (item plus shipping). It's the fastest way to find the cheapest Pokémon cards in ${place}.`,
     },
     {
-      q: "Does DexCompare cover Pokémon singles and sealed products?",
-      a: `Yes — compare prices on individual Pokémon singles as well as sealed products like booster boxes, booster packs, Proving Grounds and Nexus Night packs, all priced across ${adjective} retailers.`,
+      q: "How many Pokémon cards does DexCompare track?",
+      a: `DexCompare covers a comprehensive database of Pokémon singles, each priced live across ${adjective} retailers so you can always find the cheapest place to buy.`,
     },
     {
       q: `Are the Pokémon prices shown in ${currency}?`,
@@ -97,7 +97,6 @@ export default async function HomePage() {
 
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
             <Link href="/browse" className="btn-primary">Browse the database</Link>
-            <Link href="/sealed" className="btn-ghost">Sealed products</Link>
           </div>
 
           {/* Country / market toggle */}
@@ -207,7 +206,7 @@ export default async function HomePage() {
           DexCompare is a free, independent price-comparison tool for Pokémon: League of Legends
           TCG, built for {info.adjective} players. We track live prices for every Pokémon card across
           {" "}{info.adjective} stores{ebay ? ` and ${ebay}` : ""} so you can buy Pokémon cards in {info.place} for
-          less — whether you&apos;re chasing singles for a deck or sealed booster boxes.
+          less — find the cheapest store for any single, fast.
         </p>
         <div className="mt-6 grid gap-5 sm:grid-cols-2">
           {faqs.map((f) => (

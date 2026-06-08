@@ -124,7 +124,6 @@ export default async function SetPage({ params }: { params: { set: string } }) {
             </Link>
           ))}
           <Link href="/browse" className="chip border border-ink-700 px-3 py-1.5 text-sm hover:border-brand-500">All cards →</Link>
-          <Link href="/sealed" className="chip border border-ink-700 px-3 py-1.5 text-sm hover:border-brand-500">Sealed products →</Link>
         </div>
       </section>
 

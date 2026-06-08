@@ -5,13 +5,10 @@ import { useEffect, useState } from "react";
 import { COUNTRY_LIST, INTL_ENABLED } from "@/lib/country";
 import { useCountry } from "./CountryProvider";
 
-// Database stays in the top bar at all sizes; this menu holds everything else
-// (shown below the lg breakpoint, mirroring the desktop "Decks"/"More" dropdowns).
+// Database stays in the top bar at all sizes; this menu holds the wishlist link
+// plus the market/country selector for small screens.
 const LINKS = [
-  { href: "/sealed", label: "Sealed Products" },
-  { href: "/proxy", label: "Proxy Printer" },
-  { href: "/guides", label: "Guides" },
-  { href: "/blog", label: "Blog" },
+  { href: "/browse", label: "Database" },
   { href: "/wishlist", label: "Wishlist" },
 ];
 
