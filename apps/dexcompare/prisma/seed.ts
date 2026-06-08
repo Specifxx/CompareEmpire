@@ -321,42 +321,35 @@ async function main() {
     cardId: string; retailer: string; retailerName: string; title: string; url: string;
     priceCents: number; currency: string; inStock: boolean; country: string;
   }[] = [];
+  // Show TCGplayer + Cardmarket (REAL price + REAL product URL from the API) in
+  // EVERY market (converted to local currency) plus eBay per market, so every card
+  // always has real store listings with working links. Real local AU/UK shop
+  // listings are layered on afterwards by scripts/import-au-prices.ts (live scrape).
+  const FX: Record<string, number> = { AU: 1.55, NZ: 1.68, US: 1.0, GB: 0.82 };
+  const CUR: Record<string, string> = { AU: "AUD", NZ: "NZD", US: "USD", GB: "GBP" };
+  const ebayHost: Record<string, string> = { AU: "ebay.com.au", US: "ebay.com", GB: "ebay.co.uk" };
+  const ebayLabel: Record<string, string> = { AU: "eBay AU", US: "eBay US", GB: "eBay UK" };
   for (const c of dbCards) {
-    // Search by the card NAME + set (so links land on the right product), not the
-    // internal id. TCGplayer/Cardmarket get their REAL product URL from the API.
-    const q = encodeURIComponent(`${c.name} ${c.setName}`);
     const real = realPrices.get(c.externalId);
-    for (const r of usRetailers) {
-      let priceCents: number;
-      let url: string;
-      if (r.key === "tcgplayer" && real?.tcgUsd != null) {
-        priceCents = real.tcgUsd; // EXACT cheapest TCGplayer listing
-        url = real.tcgUrl ?? r.url(q);
-      } else if (r.key === "cardmarket" && real?.cmUsd != null) {
-        priceCents = real.cmUsd; // EXACT cheapest Cardmarket (→USD)
-        url = real.cmUrl ?? r.url(q);
-      } else {
-        priceCents = cents((c.lowestPriceCentsUs ?? 50) * between(r.spread[0], r.spread[1]));
-        url = r.url(q);
+    const q = encodeURIComponent(`${c.name} ${c.setName}`);
+    const tcgUrl = real?.tcgUrl ?? `https://www.tcgplayer.com/search/pokemon/product?q=${q}`;
+    const cmUrl = real?.cmUrl ?? `https://www.cardmarket.com/en/Pokemon/Products/Search?searchString=${q}`;
+    const baseUsd = real?.usd ?? c.lowestPriceCentsUs ?? 0; // cheapest USD reference
+    for (const country of ["AU", "NZ", "US", "GB"] as const) {
+      const fx = FX[country];
+      const cur = CUR[country];
+      if (real?.tcgUsd != null) {
+        priceRows.push({ cardId: c.id, retailer: `tcgplayer_${country.toLowerCase()}`, retailerName: "TCGplayer", title: "TCGplayer", url: tcgUrl, priceCents: cents(real.tcgUsd * fx), currency: cur, inStock: true, country });
       }
-      priceRows.push({
-        cardId: c.id, retailer: r.key, retailerName: r.name, title: r.name, url,
-        priceCents, currency: "USD", inStock: true, country: "US",
-      });
+      if (real?.cmUsd != null) {
+        priceRows.push({ cardId: c.id, retailer: `cardmarket_${country.toLowerCase()}`, retailerName: "Cardmarket", title: "Cardmarket", url: cmUrl, priceCents: cents(real.cmUsd * fx), currency: cur, inStock: true, country });
+      }
+      if (ebayHost[country] && baseUsd) {
+        priceRows.push({ cardId: c.id, retailer: `ebay_${country.toLowerCase()}`, retailerName: ebayLabel[country], title: ebayLabel[country], url: `https://www.${ebayHost[country]}/sch/i.html?_nkw=${q}`, priceCents: cents(baseUsd * fx * between(1.02, 1.15)), currency: cur, inStock: true, country });
+      }
     }
-    for (const r of auRetailers) {
-      priceRows.push({
-        cardId: c.id, retailer: r.key, retailerName: r.name, title: r.name, url: r.url(q),
-        priceCents: cents((c.lowestPriceCents ?? 80) * between(r.spread[0], r.spread[1]), 10),
-        currency: "AUD", inStock: true, country: "AU",
-      });
-    }
-    for (const r of gbRetailers) {
-      priceRows.push({
-        cardId: c.id, retailer: r.key, retailerName: r.name, title: r.name, url: r.url(q),
-        priceCents: cents((c.lowestPriceCentsGb ?? 40) * between(r.spread[0], r.spread[1]), 8),
-        currency: "GBP", inStock: true, country: "GB",
-      });
+    if (baseUsd) {
+      priceRows.push({ cardId: c.id, retailer: "trollandtoad", retailerName: "Troll and Toad", title: "Troll and Toad", url: `https://www.trollandtoad.com/category.php?search-words=${q}`, priceCents: cents(baseUsd * between(1.02, 1.15)), currency: "USD", inStock: true, country: "US" });
     }
   }
   console.log(`Inserting ${priceRows.length} retailer prices…`);

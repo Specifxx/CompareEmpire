@@ -122,10 +122,13 @@ async function main() {
     index.set(`${num}|${nk}`, c.id);
   }
 
-  // Clear ALL existing AU rows (synthetic estimates from the seed) so the AU
-  // market becomes 100% real store data.
-  const removed = await prisma.retailerPrice.deleteMany({ where: { country: "AU" } });
-  console.log(`Cleared ${removed.count} synthetic AU rows; scraping real stores…`);
+  // Only clear THIS importer's own store rows (idempotent re-runs) — never the
+  // whole AU market, so the seed's TCGplayer/Cardmarket/eBay AU rows always remain
+  // and cards are never left empty. Real local shop listings layer on top.
+  const removed = await prisma.retailerPrice.deleteMany({
+    where: { retailer: { in: STORES.map((s) => s.key) } },
+  });
+  console.log(`Cleared ${removed.count} prior rows for these stores; scraping…`);
 
   const pricedCardIds = new Set<string>();
   for (const store of STORES) {
