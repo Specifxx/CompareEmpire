@@ -29,13 +29,22 @@ interface Retailer {
   key: string; name: string; base: string;
   country: "AU" | "US" | "GB"; currency: string; collections: string[];
 }
-// Confirmed + candidate Shopify camera stores. Candidates that aren't actually
-// Shopify simply return no products and are skipped.
+// Australian camera retailers. Collections are now auto-discovered from each store's
+// sitemap (discoverCollections), so the handles here are just a fallback. Candidates
+// that aren't actually Shopify return nothing and are skipped — safe to list widely.
 const RETAILERS: Retailer[] = [
   { key: "jbhifi", name: "JB Hi-Fi", base: "https://www.jbhifi.com.au", country: "AU", currency: "AUD", collections: ["cameras"] },
   { key: "teds", name: "Ted's Cameras", base: "https://www.teds.com.au", country: "AU", currency: "AUD", collections: ["cameras", "digital-cameras", "mirrorless-cameras", "dslr-cameras", "compact-cameras"] },
   { key: "georges", name: "Georges Cameras", base: "https://www.georges.com.au", country: "AU", currency: "AUD", collections: ["cameras", "digital-cameras", "mirrorless-cameras"] },
   { key: "camerahouse", name: "Camera House", base: "https://www.camerahouse.com.au", country: "AU", currency: "AUD", collections: ["cameras", "digital-cameras"] },
+  { key: "diamonds", name: "Diamonds Camera", base: "https://www.diamonds.com.au", country: "AU", currency: "AUD", collections: ["cameras", "digital-cameras", "mirrorless"] },
+  { key: "camerawarehouse", name: "Camera Warehouse", base: "https://www.camerawarehouse.com.au", country: "AU", currency: "AUD", collections: ["cameras", "digital-cameras"] },
+  { key: "michaels", name: "Michaels Camera", base: "https://www.michaels.com.au", country: "AU", currency: "AUD", collections: ["cameras", "digital-cameras", "mirrorless-cameras"] },
+  { key: "cameraelectronic", name: "Camera Electronic", base: "https://www.cameraelectronic.com.au", country: "AU", currency: "AUD", collections: ["cameras", "mirrorless-cameras", "dslr"] },
+  { key: "camzilla", name: "Camzilla", base: "https://www.camzilla.com.au", country: "AU", currency: "AUD", collections: ["cameras", "digital-cameras"] },
+  { key: "dcw", name: "Digital Camera Warehouse", base: "https://www.dcw.com.au", country: "AU", currency: "AUD", collections: ["cameras", "digital-cameras"] },
+  { key: "digidirect", name: "digiDirect", base: "https://www.digidirect.com.au", country: "AU", currency: "AUD", collections: ["cameras", "mirrorless-cameras"] },
+  { key: "videoguys", name: "Videoguys Australia", base: "https://www.videoguys.com.au", country: "AU", currency: "AUD", collections: ["cameras", "cinema-cameras"] },
 ];
 const RETAILER_KEYS = RETAILERS.map((r) => r.key);
 

@@ -49,6 +49,12 @@ export const SETS: SetInfo[] = [
   { code: "DJI", name: "DJI", slug: "dji" },
   { code: "SIGMA", name: "Sigma", slug: "sigma" },
   { code: "RICOH", name: "Ricoh", slug: "ricoh" },
+  { code: "PENTAX", name: "Pentax", slug: "pentax" },
+  { code: "PHASE", name: "Phase One", slug: "phase-one" },
+  { code: "RED", name: "RED", slug: "red" },
+  { code: "BMD", name: "Blackmagic", slug: "blackmagic" },
+  { code: "ARRI", name: "ARRI", slug: "arri" },
+  { code: "INSTA360", name: "Insta360", slug: "insta360" },
 ];
 export const setBySlug = (slug: string): SetInfo | undefined => SETS.find((s) => s.slug === slug);
 export const setByCode = (code: string): SetInfo | undefined => SETS.find((s) => s.code === code);
