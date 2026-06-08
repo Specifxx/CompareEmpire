@@ -322,35 +322,29 @@ async function main() {
     cardId: string; retailer: string; retailerName: string; title: string; url: string;
     priceCents: number; currency: string; inStock: boolean; country: string;
   }[] = [];
-  // Show TCGplayer + Cardmarket (REAL price + REAL product URL from the API) in
-  // EVERY market (converted to local currency) plus eBay per market, so every card
-  // always has real store listings with working links. Real local AU/UK shop
-  // listings are layered on afterwards by scripts/import-au-prices.ts (live scrape).
-  const FX: Record<string, number> = { AU: 1.55, NZ: 1.68, US: 1.0, GB: 0.82 };
-  const CUR: Record<string, string> = { AU: "AUD", NZ: "NZD", US: "USD", GB: "GBP" };
-  const ebayHost: Record<string, string> = { AU: "ebay.com.au", US: "ebay.com", GB: "ebay.co.uk" };
-  const ebayLabel: Record<string, string> = { AU: "eBay AU", US: "eBay US", GB: "eBay UK" };
+  // TCGplayer + Cardmarket carry a REAL price + REAL product URL from the API, so
+  // they only appear in the markets they actually serve: TCGplayer for US (and as an
+  // international option for NZ — NZ has no large local singles scene), Cardmarket for
+  // the EU/UK market (GB). They are DELIBERATELY NOT shown for AU: Australia has many
+  // local .com.au singles stores (scraped live by scripts/import-au-prices.ts), and
+  // TCGplayer/Cardmarket do not ship singles to AU as a sensible option. No eBay rows
+  // (eBay only exposes search URLs, never a specific product page) and no Troll and Toad.
+  const FX: Record<string, number> = { NZ: 1.68, US: 1.0, GB: 0.82 };
+  const CUR: Record<string, string> = { NZ: "NZD", US: "USD", GB: "GBP" };
   for (const c of dbCards) {
     const real = realPrices.get(c.externalId);
     const q = encodeURIComponent(`${c.name} ${c.setName}`);
     const tcgUrl = real?.tcgUrl ?? `https://www.tcgplayer.com/search/pokemon/product?q=${q}`;
     const cmUrl = real?.cmUrl ?? `https://www.cardmarket.com/en/Pokemon/Products/Search?searchString=${q}`;
-    const baseUsd = real?.usd ?? c.lowestPriceCentsUs ?? 0; // cheapest USD reference
-    for (const country of ["AU", "NZ", "US", "GB"] as const) {
-      const fx = FX[country];
-      const cur = CUR[country];
-      if (real?.tcgUsd != null) {
-        priceRows.push({ cardId: c.id, retailer: `tcgplayer_${country.toLowerCase()}`, retailerName: "TCGplayer", title: "TCGplayer", url: tcgUrl, priceCents: cents(real.tcgUsd * fx), currency: cur, inStock: true, country });
-      }
-      if (real?.cmUsd != null) {
-        priceRows.push({ cardId: c.id, retailer: `cardmarket_${country.toLowerCase()}`, retailerName: "Cardmarket", title: "Cardmarket", url: cmUrl, priceCents: cents(real.cmUsd * fx), currency: cur, inStock: true, country });
-      }
-      if (ebayHost[country] && baseUsd) {
-        priceRows.push({ cardId: c.id, retailer: `ebay_${country.toLowerCase()}`, retailerName: ebayLabel[country], title: ebayLabel[country], url: `https://www.${ebayHost[country]}/sch/i.html?_nkw=${q}`, priceCents: cents(baseUsd * fx * between(1.02, 1.15)), currency: cur, inStock: true, country });
+    // TCGplayer → US + NZ (international shipping option for NZ). Real URL + price.
+    if (real?.tcgUsd != null) {
+      for (const country of ["US", "NZ"] as const) {
+        priceRows.push({ cardId: c.id, retailer: `tcgplayer_${country.toLowerCase()}`, retailerName: "TCGplayer", title: "TCGplayer", url: tcgUrl, priceCents: cents(real.tcgUsd * FX[country]), currency: CUR[country], inStock: true, country });
       }
     }
-    if (baseUsd) {
-      priceRows.push({ cardId: c.id, retailer: "trollandtoad", retailerName: "Troll and Toad", title: "Troll and Toad", url: `https://www.trollandtoad.com/category.php?search-words=${q}`, priceCents: cents(baseUsd * between(1.02, 1.15)), currency: "USD", inStock: true, country: "US" });
+    // Cardmarket → GB (EU/UK marketplace). Real URL + price.
+    if (real?.cmUsd != null) {
+      priceRows.push({ cardId: c.id, retailer: "cardmarket_gb", retailerName: "Cardmarket", title: "Cardmarket", url: cmUrl, priceCents: cents(real.cmUsd * FX.GB), currency: CUR.GB, inStock: true, country: "GB" });
     }
   }
   console.log(`Inserting ${priceRows.length} retailer prices…`);

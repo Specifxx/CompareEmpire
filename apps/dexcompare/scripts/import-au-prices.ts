@@ -1,12 +1,11 @@
-// Live AU price importer (proven by scripts/probe-store.ts — ~94% match).
-// Scrapes Australian Pokémon Shopify stores, matches products to our cards by
-// collector number + name, and writes REAL prices + REAL product URLs into
-// RetailerPrice (country=AU). Then recomputes lowestPriceCents (AU) for the cards
-// it priced. Leaves US/NZ/UK untouched. AU-only by design = safe + accurate.
+// Live AU price importer. Scrapes Australian Pokémon Shopify stores, matches
+// products to our cards by collector number + name (with a set-name fallback for
+// stores whose titles omit the number), and writes REAL prices + REAL product URLs
+// into RetailerPrice (country=AU). Then recomputes lowestPriceCents (AU) for the
+// cards it priced. Leaves US/NZ/UK untouched. AU-only by design = safe + accurate.
 //
 //   DATABASE_URL=... npx tsx scripts/import-au-prices.ts
 import { PrismaClient } from "@prisma/client";
-import { normalizeSearch } from "../src/lib/format";
 
 const prisma = new PrismaClient();
 
@@ -22,21 +21,45 @@ const STORES: { key: string; name: string; base: string }[] = [
   { key: "spindown", name: "Spindown", base: "https://spindown.com.au" },
   { key: "cardbot", name: "Cardbot", base: "https://cardbot.com.au" },
   { key: "cardhub", name: "The Card Hub Australia", base: "https://thecardhubaustralia.com.au" },
+  // Added stores (auto-skipped if not Shopify).
+  { key: "chimera", name: "Chimera Gaming", base: "https://chimeragaming.com.au" },
+  { key: "gamescapital", name: "The Games Capital", base: "https://www.thegamescapital.com.au" },
+  { key: "gameology", name: "Gameology", base: "https://www.gameology.com.au" },
+  { key: "bantertoys", name: "Banter Toys", base: "https://bantertoys.com.au" },
+  { key: "goodgames", name: "Good Games", base: "https://goodgames.com.au" },
+  { key: "kingofcards", name: "King of Cards", base: "https://kingofcards.com.au" },
+  { key: "tcgmarketplace", name: "TCG Marketplace", base: "https://tcgmarketplace.com.au" },
 ];
 
 interface ShopVariant { price: string; available: boolean }
 interface ShopProduct { title: string; handle: string; variants: ShopVariant[] }
+
+// --- text helpers (word-based; do NOT collapse spaces) ----------------------
+const STOP = new Set([
+  "pokemon", "pokémon", "card", "cards", "single", "singles", "tcg", "the", "a", "an",
+  "nm", "near", "mint", "lightly", "played", "lp", "mp", "hp", "dmg", "damaged",
+  "holo", "reverse", "foil", "non", "rare", "common", "uncommon", "promo", "full",
+  "alt", "alternate", "art", "secret", "rainbow", "hyper", "ultra", "english",
+  "japanese", "jpn", "eng", "graded", "psa", "bgs", "cgc", "set", "edition", "1st",
+  "first", "unlimited", "trainer", "energy", "scarlet", "violet", "sword", "shield",
+]);
+function words(s: string): string[] {
+  return s.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim().split(" ").filter(Boolean);
+}
+function nameTokens(s: string): string[] {
+  return words(s).filter((w) => !STOP.has(w) && w.length > 1);
+}
 
 function parseNum(title: string): { num: number; total: number } | null {
   const m = title.match(/(\d+)\s*\/\s*(\d+)/);
   if (!m) return null;
   return { num: parseInt(m[1], 10), total: parseInt(m[2], 10) };
 }
-function nameKey(title: string): string {
-  let t = title.replace(/\d+\s*\/\s*\d+/, " ");
-  t = t.replace(/\b(rare|holo|reverse|common|uncommon|promo|full art|alt art|secret|rainbow|hyper|ultra|ex|gx|v|vmax|vstar|near mint|nm|lightly played|lp|pokemon|pokémon|card|single|tcg)\b/gi, " ");
-  t = t.replace(/[()\[\]{}\-–—:.,'"!]/g, " ");
-  return normalizeSearch(t).split(/\s+/).filter(Boolean).slice(0, 2).join(" ");
+function cardDigits(cn: string): { num: number; total: number } | null {
+  const m = cn.match(/(\d+)\s*\/\s*(\d+)/);
+  if (m) return { num: parseInt(m[1], 10), total: parseInt(m[2], 10) };
+  const m2 = cn.match(/(\d+)/);
+  return m2 ? { num: parseInt(m2[1], 10), total: 0 } : null;
 }
 function cheapestVariant(vs: ShopVariant[]): number | null {
   let best = Infinity;
@@ -108,23 +131,41 @@ async function fetchProducts(base: string): Promise<ShopProduct[]> {
   return fetchFrom(`${base}/products.json`);
 }
 
+interface IdxCard { id: string; nameToks: string[]; setToks: string[]; num: number; total: number }
+
 async function main() {
-  // Index our cards by number+name.
-  const cards = await prisma.card.findMany({ select: { id: true, name: true, collectorNumber: true } });
-  const index = new Map<string, string>();
+  const cards = await prisma.card.findMany({
+    select: { id: true, name: true, setName: true, collectorNumber: true },
+  });
+
+  // Build indexes:
+  //   byKey  "num/total" -> cards   (most precise)
+  //   byNum  num         -> cards   (titles with just a number)
+  //   byName primaryTok  -> cards   (no-number titles; disambiguated by set name)
+  const byKey = new Map<string, IdxCard[]>();
+  const byNum = new Map<number, IdxCard[]>();
+  const byName = new Map<string, IdxCard[]>();
+  const push = (m: Map<any, IdxCard[]>, k: any, c: IdxCard) => {
+    const arr = m.get(k);
+    if (arr) arr.push(c); else m.set(k, [c]);
+  };
   for (const c of cards) {
-    const m = c.collectorNumber.match(/(\d+)\D*\/?(\d+)?/);
-    if (!m) continue;
-    const num = parseInt(m[1], 10);
-    const total = m[2] ? parseInt(m[2], 10) : 0;
-    const nk = normalizeSearch(c.name).split(/\s+/).slice(0, 2).join(" ");
-    index.set(`${num}/${total}|${nk}`, c.id);
-    index.set(`${num}|${nk}`, c.id);
+    const d = cardDigits(c.collectorNumber);
+    const nameToks = nameTokens(c.name);
+    if (!nameToks.length) continue;
+    const ic: IdxCard = {
+      id: c.id, nameToks, setToks: nameTokens(c.setName || ""),
+      num: d?.num ?? -1, total: d?.total ?? 0,
+    };
+    if (d) {
+      if (d.total) push(byKey, `${d.num}/${d.total}`, ic);
+      push(byNum, d.num, ic);
+    }
+    push(byName, nameToks[0], ic);
   }
 
   // Only clear THIS importer's own store rows (idempotent re-runs) — never the
-  // whole AU market, so the seed's TCGplayer/Cardmarket/eBay AU rows always remain
-  // and cards are never left empty. Real local shop listings layer on top.
+  // whole AU market, so cards are never left empty if a store goes offline.
   const removed = await prisma.retailerPrice.deleteMany({
     where: { retailer: { in: STORES.map((s) => s.key) } },
   });
@@ -137,21 +178,47 @@ async function main() {
       console.log(`  ${store.name}: 0 products (skipped — not Shopify or blocked)`);
       continue;
     }
-    // cardId -> cheapest row for this store
-    const rows = new Map<string, any>();
-    let matched = 0;
+    const rows = new Map<string, any>(); // cardId -> cheapest row for this store
+    let byKeyHits = 0, byNameHits = 0;
     for (const p of products) {
+      const ptoks = nameTokens(p.title);
+      if (!ptoks.length) continue;
+      const ptokset = new Set(ptoks);
+      const nameOk = (c: IdxCard) => ptokset.has(c.nameToks[0]);
+      const fullNameOk = (c: IdxCard) => c.nameToks.every((t) => ptokset.has(t));
+
+      let match: IdxCard | undefined;
       const pn = parseNum(p.title);
-      if (!pn) continue;
-      const nk = nameKey(p.title);
-      const cardId = index.get(`${pn.num}/${pn.total}|${nk}`) ?? index.get(`${pn.num}|${nk}`);
-      if (!cardId) continue;
+      if (pn) {
+        // 1) exact num/total + name present
+        const k = byKey.get(`${pn.num}/${pn.total}`);
+        if (k) match = k.find(nameOk) ?? (k.length === 1 ? k[0] : undefined);
+        // 2) same number, name present
+        if (!match) {
+          const n = byNum.get(pn.num);
+          if (n) match = n.find(fullNameOk) ?? n.find(nameOk);
+        }
+        if (match) byKeyHits++;
+      }
+      if (!match) {
+        // 3) no usable number on the listing: match by name + full set name.
+        for (const tok of ptoks) {
+          const cands = byName.get(tok);
+          if (!cands) continue;
+          const m = cands.find(
+            (c) => c.setToks.length > 0 && c.setToks.every((s) => ptokset.has(s)) && fullNameOk(c),
+          );
+          if (m) { match = m; byNameHits++; break; }
+        }
+      }
+      if (!match) continue;
+
       const price = cheapestVariant(p.variants);
       if (price == null) continue;
-      const prev = rows.get(cardId);
+      const prev = rows.get(match.id);
       if (!prev || price < prev.priceCents) {
-        rows.set(cardId, {
-          cardId,
+        rows.set(match.id, {
+          cardId: match.id,
           retailer: store.key,
           retailerName: store.name,
           title: p.title.slice(0, 180),
@@ -161,16 +228,18 @@ async function main() {
           inStock: true,
           country: "AU",
         });
-        matched++;
       }
     }
     if (rows.size) await prisma.retailerPrice.createMany({ data: Array.from(rows.values()) });
     for (const id of rows.keys()) pricedCardIds.add(id);
-    console.log(`  ${store.name}: ${products.length} products → ${rows.size} cards priced (real $ + URLs)`);
+    console.log(
+      `  ${store.name}: ${products.length} products → ${rows.size} cards priced ` +
+      `(num:${byKeyHits} set:${byNameHits})`,
+    );
   }
 
-  // Recompute AU lowest in ONE SQL pass (fast) for every card that now has a
-  // real in-stock AU listing. Cards without real AU data keep their estimate.
+  // Recompute AU lowest in ONE SQL pass for every card that now has a real
+  // in-stock AU listing. Cards without real AU data keep their prior value.
   console.log(`Recomputing AU lowest for ${pricedCardIds.size} priced cards…`);
   const updated = await prisma.$executeRawUnsafe(`
     UPDATE "Card" c
