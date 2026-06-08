@@ -132,6 +132,17 @@ const UA = {
 // caught at each call site, so one dead store is skipped instead of wedging the run.
 const FETCH_TIMEOUT_MS = 20000;
 
+// Wall-clock budget for the whole import. The store walk writes prices
+// incrementally (per store), so if a later refinement phase (the per-card price
+// confirmation, in particular) runs long, we stop refining once the budget is
+// spent and still proceed to the lowest-price recompute + clean disconnect —
+// rather than letting the script run until the workflow's 120-min job cap kills
+// it mid-flight (which left no per-card "lowest price" computed). Override with
+// IMPORT_BUDGET_MIN.
+const BUDGET_MS = (Number(process.env.IMPORT_BUDGET_MIN) || 70) * 60 * 1000;
+const importStart = Date.now();
+const budgetSpent = () => Date.now() - importStart > BUDGET_MS;
+
 async function fetchText(url: string): Promise<string | null> {
   try {
     const r = await fetch(url, { headers: UA, signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
@@ -258,8 +269,16 @@ async function verifyCheapestListings(): Promise<number> {
   }
 
   let corrected = 0;
+  let checked = 0;
   const BATCH = 6;
+  console.log(`  Confirming ${targets.length} cheapest listings against live product pages…`);
   for (let i = 0; i < targets.length; i += BATCH) {
+    // Stop refining (but keep what we've corrected so far) once the budget is
+    // spent, so the import can still reach the lowest-price recompute.
+    if (budgetSpent()) {
+      console.log(`  Budget reached during confirmation — stopped after ${checked}/${targets.length} (corrected ${corrected}).`);
+      break;
+    }
     await Promise.all(
       targets.slice(i, i + BATCH).map(async (t) => {
         try {
@@ -279,6 +298,8 @@ async function verifyCheapestListings(): Promise<number> {
         }
       })
     );
+    checked += BATCH;
+    if (checked % 1500 < BATCH) console.log(`    confirmed ${Math.min(checked, targets.length)}/${targets.length}…`);
   }
   return corrected;
 }
@@ -437,6 +458,12 @@ export async function importPrices(): Promise<ImportSummary> {
   const summary: ImportSummary = { stores: [], totalMatched: 0, totalUnmatched: 0, cardsPriced: 0 };
 
   for (const store of RETAILER_LIST) {
+    // If the walk itself overruns the budget, stop opening new stores and move on
+    // to the recompute so the markets scraped so far still get lowest-prices set.
+    if (budgetSpent()) {
+      console.log(`Budget reached during store walk — stopped after ${summary.stores.length}/${RETAILER_LIST.length} stores.`);
+      break;
+    }
     const cc = store.country ?? "AU";
     // Auto-discover the store's Pokémon collections from its sitemap (authoritative).
     // Only fall back to handles configured in retailers.ts if discovery finds nothing,
@@ -509,7 +536,9 @@ export async function importPrices(): Promise<ImportSummary> {
     summary.stores.push({ name: store.name, products: products.length, priced: rows.size, matched, unmatched });
     summary.totalMatched += matched;
     summary.totalUnmatched += unmatched;
+    console.log(`  [${summary.stores.length}/${RETAILER_LIST.length}] ${store.name} (${cc}): ${products.length} products → ${rows.size} priced, ${matched} matched`);
   }
+  console.log(`Store walk complete: ${summary.totalMatched} matched across ${RETAILER_LIST.length} stores (${Math.round((Date.now() - importStart) / 1000)}s).`);
 
   // Confirm each card's displayed (cheapest) price against the live product page,
   // since the collection feed can lag it.
@@ -547,11 +576,16 @@ export async function importPrices(): Promise<ImportSummary> {
   // TCGplayer is the dominant US marketplace. We add its MARKET price (not the
   // lowest listing, which is often a different-language card) as a US source.
   // Isolated so a TCGplayer hiccup never fails the rest of the import.
-  try {
-    const n = await refreshTcgplayerPrices();
-    if (n > 0) summary.stores.push({ name: "TCGplayer (US)", products: n, priced: n, matched: n, unmatched: 0 });
-  } catch (e) {
-    console.warn("TCGplayer import failed:", e);
+  if (budgetSpent()) {
+    console.log("Budget spent — skipping TCGplayer refresh, going straight to lowest-price recompute.");
+  } else {
+    try {
+      console.log("Refreshing TCGplayer (US) market prices…");
+      const n = await refreshTcgplayerPrices();
+      if (n > 0) summary.stores.push({ name: "TCGplayer (US)", products: n, priced: n, matched: n, unmatched: 0 });
+    } catch (e) {
+      console.warn("TCGplayer import failed:", e);
+    }
   }
 
   // Recompute each card's lowest live price PER MARKET from IN-STOCK listings only,
@@ -561,6 +595,7 @@ export async function importPrices(): Promise<ImportSummary> {
   //   lowestPriceCentsNz = cheapest in-stock NZ listing (NZD)
   //   lowestPriceCentsUs = cheapest in-stock US listing (USD)
   //   lowestPriceCentsGb = cheapest in-stock UK listing (GBP)
+  console.log("Recomputing per-market lowest prices…");
   const [pricedAu, pricedNz, pricedUs, pricedGb] = await Promise.all([
     prisma.retailerPrice.groupBy({ by: ["cardId"], where: { inStock: true, country: "AU" }, _min: { priceCents: true } }),
     prisma.retailerPrice.groupBy({ by: ["cardId"], where: { inStock: true, country: "NZ" }, _min: { priceCents: true } }),
@@ -579,19 +614,33 @@ export async function importPrices(): Promise<ImportSummary> {
   const existing = await prisma.card.findMany({
     select: { id: true, lowestPriceCents: true, lowestPriceCentsNz: true, lowestPriceCentsUs: true, lowestPriceCentsGb: true },
   });
+  // Only the rows whose lowest actually moved. On the FIRST import this can be the
+  // whole catalogue (AU goes null → price for tens of thousands of cards), so run
+  // the updates with bounded concurrency instead of one-at-a-time — ~20k sequential
+  // round-trips to Neon was a multi-minute (sometimes stalling) phase.
+  const toUpdate = existing
+    .map((c) => ({
+      id: c.id,
+      nAu: lowAu.get(c.id) ?? null,
+      nNz: lowNz.get(c.id) ?? null,
+      nUs: lowUs.get(c.id) ?? null,
+      nGb: lowGb.get(c.id) ?? null,
+      cur: c,
+    }))
+    .filter((r) => r.nAu !== r.cur.lowestPriceCents || r.nNz !== r.cur.lowestPriceCentsNz || r.nUs !== r.cur.lowestPriceCentsUs || r.nGb !== r.cur.lowestPriceCentsGb);
   let changed = 0;
-  for (const c of existing) {
-    const nAu = lowAu.get(c.id) ?? null;
-    const nNz = lowNz.get(c.id) ?? null;
-    const nUs = lowUs.get(c.id) ?? null;
-    const nGb = lowGb.get(c.id) ?? null;
-    if (nAu !== c.lowestPriceCents || nNz !== c.lowestPriceCentsNz || nUs !== c.lowestPriceCentsUs || nGb !== c.lowestPriceCentsGb) {
-      await prisma.card.update({
-        where: { id: c.id },
-        data: { lowestPriceCents: nAu, lowestPriceCentsNz: nNz, lowestPriceCentsUs: nUs, lowestPriceCentsGb: nGb },
-      });
-      changed++;
-    }
+  const UPD = 8;
+  for (let i = 0; i < toUpdate.length; i += UPD) {
+    await Promise.all(
+      toUpdate.slice(i, i + UPD).map((r) =>
+        prisma.card.update({
+          where: { id: r.id },
+          data: { lowestPriceCents: r.nAu, lowestPriceCentsNz: r.nNz, lowestPriceCentsUs: r.nUs, lowestPriceCentsGb: r.nGb },
+        })
+      )
+    );
+    changed += Math.min(UPD, toUpdate.length - i);
+    if (changed % 5000 < UPD) console.log(`    updated ${changed}/${toUpdate.length} card lowest-prices…`);
   }
   console.log(`Lowest recompute: ${changed} cards changed (no null-reset window).`);
   summary.cardsPriced = lowAu.size;
