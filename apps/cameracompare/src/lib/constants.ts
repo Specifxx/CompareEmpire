@@ -96,7 +96,7 @@ export const CONDITION_MULTIPLIER: Record<string, number> = {
 };
 
 export function domainInfo(key: string): DomainInfo {
-  return DOMAINS[(key as DomainKey)] ?? DOMAINS["Full Frame"];
+  return DOMAINS[(key as DomainKey)] ?? { key, label: key || "Other", color: "#64748b", color2: "#2b333f", text: "#eef1f5" };
 }
 
 export function titleCase(s: string): string {
