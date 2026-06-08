@@ -1,0 +1,35 @@
+name: Diagnose DexCompare card prices
+
+# READ-ONLY: report price coverage and the exact listings held for given cards,
+# to investigate why some cards show no price. Runs on CI (needs DATABASE_URL).
+
+on:
+  workflow_dispatch:
+    inputs:
+      dexcompare_url:
+        description: "DexCompare Neon DATABASE_URL (pooled, sslmode=require)"
+        required: true
+      terms:
+        description: "Space-separated card search terms (quote multi-word)"
+        required: false
+        default: ""
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Mask connection string
+        run: echo "::add-mask::${{ inputs.dexcompare_url }}"
+      - name: Diagnose
+        working-directory: apps/dexcompare
+        env:
+          DATABASE_URL: ${{ inputs.dexcompare_url }}
+        run: |
+          npm install --no-audit --no-fund
+          npx prisma generate
+          npx tsx scripts/diagnose-cards.ts ${{ inputs.terms }}
