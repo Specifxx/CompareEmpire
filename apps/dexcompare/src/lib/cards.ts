@@ -38,6 +38,34 @@ function csv(v?: string): string[] | undefined {
   return arr.length ? arr : undefined;
 }
 
+// Tokenised, multi-field card search. Each whitespace-separated term must match
+// (AND) somewhere across the card's name, set, collector number, rarity or subtype
+// — so "rayquaza ex deoxys" and "charizard vstar promo" both resolve to the right
+// card even though those words live in different columns. The old behaviour did a
+// single substring match on the whole normalised query, so any "name + qualifier"
+// search (set name, "promo", a number) collapsed to one unmatchable string.
+export function cardSearchFilter(q: string): Prisma.CardWhereInput | undefined {
+  const terms = q.trim().split(/\s+/).filter(Boolean).slice(0, 8);
+  if (!terms.length) return undefined;
+  const ci = { mode: "insensitive" as const };
+  return {
+    AND: terms.map((t): Prisma.CardWhereInput => {
+      const norm = normalizeSearch(t);
+      const or: Prisma.CardWhereInput[] = [
+        { setName: { contains: t, ...ci } },
+        { setCode: { contains: t, ...ci } },
+        { collectorNumber: { contains: t, ...ci } },
+        { rarity: { contains: t, ...ci } },
+        { tags: { contains: t, ...ci } },
+      ];
+      // nameNormalized is stored lowercased/stripped, so match it with the
+      // normalised term ("vstar" → "Charizard VSTAR", "kaisa" → "Kai'Sa").
+      if (norm) or.unshift({ nameNormalized: { contains: norm } });
+      return { OR: or };
+    }),
+  };
+}
+
 export function buildCardWhere(query: CardQuery, country: Country = "AU"): Prisma.CardWhereInput {
   const where: Prisma.CardWhereInput = {};
   const field = priceField(country);
@@ -58,11 +86,8 @@ export function buildCardWhere(query: CardQuery, country: Country = "AU"): Prism
   if (query.promo === "1") where.isPromo = true;
 
   if (query.q) {
-    // Search the normalised name so "kaisa" matches "Kai'Sa". Also match number.
-    where.OR = [
-      { nameNormalized: { contains: normalizeSearch(query.q) } },
-      { collectorNumber: { contains: query.q } },
-    ];
+    const f = cardSearchFilter(query.q);
+    if (f) where.AND = f.AND;
   }
 
   const price: Prisma.IntNullableFilter = {};

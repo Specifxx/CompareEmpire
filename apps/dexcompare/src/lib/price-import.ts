@@ -261,6 +261,7 @@ export async function refreshEbayMarkets(
   const MARKETS = [
     { country: "AU", marketplace: "EBAY_AU", currency: "AUD", retailer: "ebay" },
     { country: "US", marketplace: "EBAY_US", currency: "USD", retailer: "ebay_us" },
+    { country: "GB", marketplace: "EBAY_GB", currency: "GBP", retailer: "ebay_uk" },
   ];
   // Check the live quota and set a spend budget (leaves a reserve) so this can never
   // exhaust eBay's 5,000/day limit, however many times the importer runs.
