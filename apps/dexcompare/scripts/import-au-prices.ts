@@ -46,23 +46,66 @@ function cheapestVariant(vs: ShopVariant[]): number | null {
   }
   return best === Infinity ? null : Math.round(best * 100);
 }
-async function fetchProducts(base: string): Promise<ShopProduct[]> {
-  const out: ShopProduct[] = [];
-  for (let page = 1; page <= 40; page++) {
-    try {
-      const res = await fetch(`${base}/products.json?limit=250&page=${page}`, {
-        headers: { "User-Agent": "CompareEmpire/1.0 (price comparison)" },
-      });
-      if (!res.ok) break;
-      const data = (await res.json()) as { products?: ShopProduct[] };
-      if (!data.products?.length) break;
-      out.push(...data.products);
-      if (data.products.length < 250) break;
-    } catch {
-      break;
+const UA = { "User-Agent": "CompareEmpire/1.0 (price comparison)" };
+
+async function getJson(url: string): Promise<any | null> {
+  try {
+    const res = await fetch(url, { headers: UA });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
+// Find a store's Pokémon SINGLES collections (so we target singles directly
+// instead of the flat product feed, which caps out before reaching them).
+const COLL_OK = /pok[eé]mon|pkmn/i;
+const COLL_SKIP = /sealed|booster|box|bundle|elite|etb|tin|case|blister|collection-box|accessor|sleeve|binder|playmat|deck-box|plush|figure|funko|gift|merch|preorder|pre-order/i;
+async function pokemonCollectionHandles(base: string): Promise<string[]> {
+  const handles: string[] = [];
+  for (let page = 1; page <= 6; page++) {
+    const data = await getJson(`${base}/collections.json?limit=250&page=${page}`);
+    const cols: any[] = data?.collections ?? [];
+    if (!cols.length) break;
+    for (const c of cols) {
+      const hay = `${c.handle} ${c.title}`;
+      if (COLL_OK.test(hay) && !COLL_SKIP.test(hay)) handles.push(c.handle);
     }
+    if (cols.length < 250) break;
+  }
+  return handles;
+}
+
+async function fetchFrom(path: string): Promise<ShopProduct[]> {
+  const out: ShopProduct[] = [];
+  for (let page = 1; page <= 25; page++) {
+    const data = await getJson(`${path}?limit=250&page=${page}`);
+    const ps: ShopProduct[] = data?.products ?? [];
+    if (!ps.length) break;
+    out.push(...ps);
+    if (ps.length < 250) break;
   }
   return out;
+}
+
+// Prefer Pokémon collections; fall back to the flat product feed.
+async function fetchProducts(base: string): Promise<ShopProduct[]> {
+  const handles = await pokemonCollectionHandles(base);
+  if (handles.length) {
+    const seen = new Set<string>();
+    const out: ShopProduct[] = [];
+    for (const h of handles.slice(0, 40)) {
+      for (const p of await fetchFrom(`${base}/collections/${h}/products.json`)) {
+        if (!seen.has(p.handle)) {
+          seen.add(p.handle);
+          out.push(p);
+        }
+      }
+    }
+    if (out.length) return out;
+  }
+  return fetchFrom(`${base}/products.json`);
 }
 
 async function main() {
@@ -123,20 +166,20 @@ async function main() {
     console.log(`  ${store.name}: ${products.length} products → ${rows.size} cards priced (real $ + URLs)`);
   }
 
-  // Recompute AU lowest for cards we actually priced (leave others on their estimate).
+  // Recompute AU lowest in ONE SQL pass (fast) for every card that now has a
+  // real in-stock AU listing. Cards without real AU data keep their estimate.
   console.log(`Recomputing AU lowest for ${pricedCardIds.size} priced cards…`);
-  const grouped = await prisma.retailerPrice.groupBy({
-    by: ["cardId"],
-    where: { country: "AU", inStock: true, cardId: { in: Array.from(pricedCardIds) } },
-    _min: { priceCents: true },
-  });
-  let updated = 0;
-  for (const g of grouped) {
-    if (g._min.priceCents != null) {
-      await prisma.card.update({ where: { id: g.cardId }, data: { lowestPriceCents: g._min.priceCents } });
-      updated++;
-    }
-  }
+  const updated = await prisma.$executeRawUnsafe(`
+    UPDATE "Card" c
+    SET "lowestPriceCents" = sub.minp
+    FROM (
+      SELECT "cardId", MIN("priceCents") AS minp
+      FROM "RetailerPrice"
+      WHERE country = 'AU' AND "inStock" = true
+      GROUP BY "cardId"
+    ) sub
+    WHERE c.id = sub."cardId"
+  `);
   console.log(`Done. ${pricedCardIds.size} cards now have REAL AU store prices + product links; ${updated} AU lowest prices updated.`);
 }
 
