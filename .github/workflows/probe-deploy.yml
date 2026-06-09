@@ -1,0 +1,45 @@
+name: Probe DexCompare deploy state
+
+# Read-only debugging aid: shows the repo's recent GitHub deployments (Vercel
+# records one per deploy when the Git integration is connected) and fingerprints
+# the live homepage so we can tell WHICH commit production is serving.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  deployments: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: List recent GitHub deployments
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          curl -fsSL -H "Authorization: Bearer $GH_TOKEN" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/deployments?per_page=15" \
+            | python3 -c '
+          import json,sys
+          for d in json.load(sys.stdin):
+              print(d["created_at"], d["environment"], d["ref"][:12], d["sha"][:10], d.get("payload",{}) if isinstance(d.get("payload"),str) else "")
+          ' || echo "no deployments visible (integration may not record them)"
+
+      - name: Fingerprint live homepage
+        run: |
+          BODY=$(curl -fsSL --retry 3 https://dexcompare.com/ || true)
+          for MARK in "Browse by energy type" "Browse by domain" "League of Legends" "Recently viewed" "Biggest price movers" "Market estimate" "Most valuable cards"; do
+            if echo "$BODY" | grep -q "$MARK"; then echo "PRESENT: $MARK"; else echo "absent : $MARK"; fi
+          done
+          echo "--- title ---"
+          echo "$BODY" | grep -o "<title>[^<]*</title>" | head -1
+          echo "--- headers ---"
+          curl -fsSI https://dexcompare.com/ | grep -i "x-vercel\|age\|cache" || true
+
+      - name: Fingerprint /collection and /marketplace
+        run: |
+          echo "/collection -> $(curl -s -o /dev/null -w '%{http_code}' https://dexcompare.com/collection)"
+          echo "/marketplace -> $(curl -s -o /dev/null -w '%{http_code}' https://dexcompare.com/marketplace)"
