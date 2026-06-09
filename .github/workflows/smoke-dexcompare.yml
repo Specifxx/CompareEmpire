@@ -1,0 +1,42 @@
+name: Smoke test DexCompare (live site)
+
+# Read-only smoke test against the production site. Verifies the latest deploy is
+# serving and that key pages/copy are present. Runs on GitHub's runners because
+# the dev container has no egress to the production domain.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check homepage
+        run: |
+          set -e
+          BODY=$(curl -fsSL --retry 3 https://dexcompare.com/)
+          echo "$BODY" | grep -q "Browse by energy type" && echo "OK: energy-type section" || { echo "FAIL: 'Browse by energy type' missing (old deploy?)"; exit 1; }
+          echo "$BODY" | grep -qi "League of Legends" && { echo "FAIL: Riftbound leftover copy still present"; exit 1; } || echo "OK: no Riftbound leftovers"
+          echo "$BODY" | grep -q "Recently viewed\|Cheapest Pok" && echo "OK: sections render" || true
+
+      - name: Check collection page
+        run: |
+          set -e
+          BODY=$(curl -fsSL --retry 3 https://dexcompare.com/collection)
+          echo "$BODY" | grep -qi "My collection" && echo "OK: /collection renders" || { echo "FAIL: /collection missing heading"; exit 1; }
+
+      - name: Check a card page renders
+        run: |
+          set -e
+          # Pull the first card link off the browse page, then load it.
+          HREF=$(curl -fsSL --retry 3 "https://dexcompare.com/browse" | grep -o '/card/[a-z0-9-]*' | head -1)
+          echo "card: $HREF"
+          test -n "$HREF"
+          BODY=$(curl -fsSL --retry 3 "https://dexcompare.com$HREF")
+          echo "$BODY" | grep -q "Price comparison" && echo "OK: card page renders" || { echo "FAIL: card page broken"; exit 1; }
+          echo "$BODY" | grep -q "Add to collection\|owned" && echo "OK: collection button present" || { echo "FAIL: collection button missing"; exit 1; }
+
+      - name: Check sets page
+        run: |
+          curl -fsSL --retry 3 https://dexcompare.com/sets >/dev/null && echo "OK: /sets serves"
