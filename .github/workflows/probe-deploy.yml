@@ -38,11 +38,13 @@ jobs:
           ')
           echo "deploy URL: $ENV_URL"
           # Deployment-hash URLs sit behind Vercel deployment protection (401);
-          # find the public production alias instead.
-          for CAND in "https://dexcompare.vercel.app" "https://dexcompare-specifix-s-projects.vercel.app" "$ENV_URL"; do
+          # find a PUBLIC alias that actually serves OUR app (dexcompare.vercel.app
+          # is an unrelated third-party project, so verify content, not just a 200).
+          for CAND in "https://dexcompare-specifix-s-projects.vercel.app" "https://dexcompare-git-main-specifix-s-projects.vercel.app" "$ENV_URL"; do
             CODE=$(curl -s -o /dev/null -w '%{http_code}' -m 20 "$CAND/")
-            echo "candidate $CAND -> $CODE"
-            if [ "$CODE" = "200" ]; then echo "SITE=$CAND" >> "$GITHUB_ENV"; break; fi
+            TITLE=$(curl -sSL -m 20 "$CAND/" | grep -o "<title>[^<]*</title>" | head -1)
+            echo "candidate $CAND -> $CODE $TITLE"
+            if [ "$CODE" = "200" ] && echo "$TITLE" | grep -q "DexCompare"; then echo "SITE=$CAND" >> "$GITHUB_ENV"; break; fi
           done
 
       - name: Fingerprint live homepage
