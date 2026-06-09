@@ -10,9 +10,11 @@ export const currencyOfCountry = (c: string): string =>
 // Recompute one card's per-market lowest in-stock price (mirrors the importer's
 // global recompute, scoped to a single card so a new listing shows immediately).
 export async function recomputeCardLowest(cardId: string): Promise<void> {
+  // Headline = Lightly-Played-and-above (NM/LP) + null-condition baselines, matching
+  // the importer's recompute (the full spectrum still shows on the card page).
   const rows = await prisma.retailerPrice.groupBy({
     by: ["country"],
-    where: { cardId, inStock: true },
+    where: { cardId, inStock: true, OR: [{ condition: { in: ["NM", "LP"] } }, { condition: null }] },
     _min: { priceCents: true },
   });
   const m = new Map(rows.map((r) => [r.country, r._min.priceCents ?? null]));

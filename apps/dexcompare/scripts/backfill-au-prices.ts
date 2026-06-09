@@ -20,17 +20,17 @@ async function main() {
 
   const auRows = usRows.map((r) => ({
     cardId: r.cardId,
-    retailer: "tcgplayer_au",
-    retailerName: "TCGplayer",
-    title: "TCGplayer",
-    url: r.url,
+    retailer: "marketguide_au",
+    retailerName: "Market Price (guide)",
+    title: "Market Price (guide)",
+    url: "", // a guide/estimate, not a purchasable store (TCGplayer doesn't ship to AU)
     priceCents: Math.round(r.priceCents * USD_TO_AUD),
     currency: "AUD",
     inStock: true,
     country: "AU",
   }));
 
-  await prisma.retailerPrice.deleteMany({ where: { retailer: "tcgplayer_au" } });
+  await prisma.retailerPrice.deleteMany({ where: { retailer: { in: ["tcgplayer_au", "marketguide_au"] } } });
   for (let i = 0; i < auRows.length; i += 5000) {
     await prisma.retailerPrice.createMany({ data: auRows.slice(i, i + 5000), skipDuplicates: true });
     process.stdout.write(`\r  inserted ${Math.min(i + 5000, auRows.length)}/${auRows.length}`);
@@ -39,7 +39,7 @@ async function main() {
 
   // Recompute each card's AU lowest from IN-STOCK AU listings (baseline + live stores).
   console.log("Recomputing AU lowest prices…");
-  const pricedAu = await prisma.retailerPrice.groupBy({ by: ["cardId"], where: { inStock: true, country: "AU" }, _min: { priceCents: true } });
+  const pricedAu = await prisma.retailerPrice.groupBy({ by: ["cardId"], where: { inStock: true, country: "AU", OR: [{ condition: { in: ["NM", "LP"] } }, { condition: null }] }, _min: { priceCents: true } });
   const lowAu = new Map(pricedAu.map((r) => [r.cardId, r._min.priceCents ?? null]));
   const existing = await prisma.card.findMany({ select: { id: true, lowestPriceCents: true } });
   const toUpdate = existing.filter((c) => (lowAu.get(c.id) ?? null) !== c.lowestPriceCents);

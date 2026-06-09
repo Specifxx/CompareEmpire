@@ -64,28 +64,42 @@ export default async function CardPage({ params }: { params: { id: string } }) {
 
   const lowestPrice = pickPrice(card, country);
 
-  // Rank by DELIVERED cost (item + shipping) so a listing isn't shown as cheapest
-  // just because its postage reads as $0 — the common eBay case. Shipping is the
-  // postage is only shown when we genuinely know it (eBay's real per-listing figure);
-  // otherwise it's "at checkout" and excluded from the delivered total. Rank by the
-  // known delivered cost (item + known postage), treating unknown postage as item
-  // price only. In-stock first, then sold-out.
-  const all = card.retailerPrices
-    .map((p) => {
-      const ship = effectiveShippingCents(p.shippingCents); // number | null (null = unknown)
-      return { ...p, ship, delivered: p.priceCents + (ship ?? 0) };
-    })
-    .sort((a, b) => a.delivered - b.delivered);
-  const prices = all.filter((p) => p.inStock);
-  const outOfStock = all.filter((p) => !p.inStock);
+  // Split the catalogue MARKET GUIDE (an estimate, e.g. AU where TCGplayer doesn't
+  // ship) from real, buyable store listings. The guide is shown as a labelled
+  // reference with no buy link; real stores are what we rank and link to.
+  const all = card.retailerPrices.map((p) => {
+    const ship = effectiveShippingCents(p.shippingCents); // number | null (null = unknown)
+    return { ...p, ship, delivered: p.priceCents + (ship ?? 0), isGuide: p.retailer.startsWith("marketguide") };
+  });
+  const guide = all.filter((p) => p.isGuide).sort((a, b) => a.priceCents - b.priceCents)[0] ?? null;
+  const storeRows = all.filter((p) => !p.isGuide).sort((a, b) => a.delivered - b.delivered);
+  const prices = storeRows.filter((p) => p.inStock);
+  const outOfStock = storeRows.filter((p) => !p.inStock);
 
-  // Pokémon cards come in both standard and FOIL finishes (same collector number,
-  // different price). Surface the cheapest of each so foil buyers/collectors can
-  // compare — they were previously indistinguishable in the list.
+  // Pokémon cards span a big condition range (NM → damaged). Build the cheapest
+  // in-stock price PER GRADE from the store listings, so buyers see the whole spectrum.
+  const GRADES: { code: string; label: string }[] = [
+    { code: "NM", label: "Near Mint" },
+    { code: "LP", label: "Lightly Pl." },
+    { code: "MP", label: "Mod. Pl." },
+    { code: "HP", label: "Heavily Pl." },
+    { code: "DMG", label: "Damaged" },
+  ];
+  const byGrade = new Map<string, number>();
+  for (const p of prices) {
+    if (!p.condition) continue;
+    const cur = byGrade.get(p.condition);
+    if (cur == null || p.priceCents < cur) byGrade.set(p.condition, p.priceCents);
+  }
+  const hasSpectrum = byGrade.size > 0;
+
   const minPrice = (rows: typeof prices) =>
     rows.reduce<number | null>((m, p) => (m == null || p.priceCents < m ? p.priceCents : m), null);
   const cheapestStandard = minPrice(prices.filter((p) => !p.isFoil));
   const cheapestFoil = minPrice(prices.filter((p) => p.isFoil));
+  // Headline = cheapest real store (NM/LP preferred) → else the market-guide estimate.
+  const headlineCents = cheapestStandard ?? lowestPrice ?? guide?.priceCents ?? null;
+  const headlineIsEstimate = cheapestStandard == null && (lowestPrice == null || prices.length === 0);
 
   // Structured data so Google can show a rich price snippet ("$X, N stores").
   const jsonLd = {
@@ -157,12 +171,38 @@ export default async function CardPage({ params }: { params: { id: string } }) {
             </div>
 
             <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <Metric label={cheapestFoil != null ? "Standard from" : "Cheapest price"} value={(cheapestStandard ?? lowestPrice) != null ? fmt((cheapestStandard ?? lowestPrice)!) : "—"} highlight />
+              <Metric label={headlineIsEstimate ? "Market estimate" : cheapestFoil != null ? "Standard from" : "Cheapest price"} value={headlineCents != null ? fmt(headlineCents) : "—"} highlight />
               {cheapestFoil != null && <Metric label="✦ Foil from" value={fmt(cheapestFoil)} highlight />}
               <Metric label="Compared at" value={`${prices.length} ${prices.length === 1 ? "store" : "stores"}`} />
               {card.might != null && <Metric label="HP" value={String(card.might)} />}
               <Metric label="Rarity" value={card.rarity} />
             </div>
+
+            {/* Cheapest price by condition — the full NM → damaged spectrum. */}
+            {hasSpectrum && (
+              <div className="mt-4">
+                <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-500">Cheapest by condition</div>
+                <div className="grid grid-cols-5 gap-2">
+                  {GRADES.map((g) => {
+                    const v = byGrade.get(g.code);
+                    return (
+                      <div key={g.code} className={`rounded-lg p-2 text-center ${v != null ? "bg-ink-900" : "bg-ink-900/40"}`}>
+                        <div className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">{g.label}</div>
+                        <div className={`text-sm font-bold ${v != null ? "text-white" : "text-slate-600"}`}>{v != null ? fmt(v) : "—"}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* AU (and other markets with no local store) show a labelled market guide. */}
+            {guide && prices.length === 0 && (
+              <div className="mt-4 rounded-lg border border-dashed border-ink-600 bg-ink-900/50 p-3 text-sm">
+                <span className="font-semibold text-slate-200">Market price (estimate): {fmt(guide.priceCents)}</span>
+                <span className="ml-2 text-xs text-slate-500">guide only — no {info.adjective} store stocks this card yet, so it isn’t buyable here.</span>
+              </div>
+            )}
           </div>
 
           {/* Price comparison */}
@@ -185,10 +225,11 @@ export default async function CardPage({ params }: { params: { id: string } }) {
 
             {prices.length === 0 && outOfStock.length === 0 ? (
               <div className="p-8 text-center text-sm text-slate-400">
-                <p className="font-semibold text-white">No prices found yet</p>
+                <p className="font-semibold text-white">{guide ? "No store listings yet" : "No prices found yet"}</p>
                 <p className="mt-1">
-                  We haven&apos;t matched this card to a store listing. Check back soon —
-                  our price feeds refresh regularly.
+                  {guide
+                    ? `The market estimate above is a guide. We'll show buyable ${info.adjective} stores here as they list this card.`
+                    : "We haven't matched this card to a store listing. Check back soon — our price feeds refresh regularly."}
                 </p>
               </div>
             ) : prices.length === 0 ? (

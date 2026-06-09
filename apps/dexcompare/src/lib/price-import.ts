@@ -127,6 +127,19 @@ function conditionRank(variantTitle: string): number {
   return 0; // no condition in the title (e.g. "Default Title") → treat as standard/NM
 }
 
+// Normalised condition bucket for the per-condition price spectrum shown on the card
+// page. Unstated condition ≈ Near Mint (most stores' default). Stored on the row's
+// `condition` field so the card page can show the cheapest price for each grade.
+export type ConditionBucket = "NM" | "LP" | "MP" | "HP" | "DMG";
+export function conditionBucket(variantTitle: string): ConditionBucket {
+  const t = (variantTitle || "").toLowerCase();
+  if (/damaged|\bdmg\b|\bdamage\b|\bpoor\b/.test(t)) return "DMG";
+  if (/heav(ily)?\s*play|\bhp\b/.test(t)) return "HP";
+  if (/moderate(ly)?\s*play|\bmp\b|\bgood\b/.test(t)) return "MP";
+  if (/light(ly)?\s*play|\blp\b|\bplayed\b|\bexcellent\b|\bvery\s*good\b/.test(t)) return "LP";
+  return "NM";
+}
+
 // Use a realistic browser User-Agent. Some stores (e.g. Mint Collectables) serve a
 // stale/cached price to obvious bot UAs but the fresh price to browsers, which was a
 // source of wrong prices.
@@ -540,51 +553,49 @@ export async function importPrices(): Promise<ImportSummary> {
 
     await prisma.retailerPrice.deleteMany({ where: { retailer: store.key } });
 
+    // One row per (card, condition bucket, finish) so the card page can show the
+    // cheapest price for each grade (NM/LP/MP/HP/DMG). Keyed to keep the cheapest
+    // in-stock copy of each grade per store.
     const rows = new Map<string, any>();
-    let matched = 0;
+    const matchedCards = new Set<string>();
     let unmatched = 0;
+    const currency = cc === "NZ" ? "NZD" : cc === "US" ? "USD" : cc === "GB" ? "GBP" : "AUD";
     for (const p of products) {
       const cardId = resolveCardId(p);
       if (!cardId) { unmatched++; continue; }
-      matched++;
-      // Prefer in-stock variants. If none are available but the store still LISTS
-      // the card with a price, record it as out-of-stock so the card page can show
-      // "Store had it — currently sold out" (useful demand/availability signal).
-      const priced = p.variants.filter((v) => parseFloat(v.price) > 0);
-      if (!priced.length) continue;
-      const avail = priced.filter((v) => v.available);
-      const inStock = avail.length > 0;
-      const pool = inStock ? avail : priced;
-      // Best available CONDITION first (NM over LP over …), then cheapest within that
-      // condition — so the price matches the listing's headline, not a played copy.
-      const best = pool.reduce((a, b) => {
-        const ra = conditionRank(a.title);
-        const rb = conditionRank(b.title);
-        if (ra !== rb) return ra < rb ? a : b;
-        return parseFloat(a.price) <= parseFloat(b.price) ? a : b;
-      });
-      const priceCents = Math.round(parseFloat(best.price) * 100);
-      const prev = rows.get(cardId);
-      // Keep the best listing per store+card: in-stock beats out-of-stock, then
-      // cheaper beats dearer.
-      if (prev) {
-        if (prev.inStock && !inStock) continue;
-        if (prev.inStock === inStock && prev.priceCents <= priceCents) continue;
+      matchedCards.add(cardId);
+      const isFoil = /foil/i.test(p.title);
+      // Each variant is (typically) a condition of this card. Record the cheapest
+      // in-stock copy per grade; if a grade is only out of stock, keep it as OOS so
+      // the card page can show "store had it, sold out".
+      for (const v of p.variants) {
+        const price = parseFloat(v.price);
+        if (!(price > 0)) continue;
+        const bucket = conditionBucket(v.title);
+        const priceCents = Math.round(price * 100);
+        const inStock = !!v.available;
+        const key = `${cardId}|${bucket}|${isFoil ? 1 : 0}`;
+        const prev = rows.get(key);
+        if (prev) {
+          if (prev.inStock && !inStock) continue;
+          if (prev.inStock === inStock && prev.priceCents <= priceCents) continue;
+        }
+        rows.set(key, {
+          cardId,
+          retailer: store.key,
+          retailerName: store.name,
+          title: p.title,
+          url: `${store.base}/products/${p.handle}`,
+          condition: bucket,
+          isFoil,
+          priceCents,
+          currency,
+          country: cc,
+          inStock,
+        });
       }
-      rows.set(cardId, {
-        cardId,
-        retailer: store.key,
-        retailerName: store.name,
-        title: p.title,
-        url: `${store.base}/products/${p.handle}`,
-        condition: best.title && best.title !== "Default Title" ? best.title : null,
-        isFoil: /foil/i.test(p.title),
-        priceCents,
-        currency: cc === "NZ" ? "NZD" : cc === "US" ? "USD" : cc === "GB" ? "GBP" : "AUD",
-        country: cc,
-        inStock,
-      });
     }
+    const matched = matchedCards.size;
     await prisma.retailerPrice.createMany({ data: Array.from(rows.values()) });
     summary.stores.push({ name: store.name, products: products.length, priced: rows.size, matched, unmatched });
     summary.totalMatched += matched;
@@ -648,12 +659,20 @@ export async function importPrices(): Promise<ImportSummary> {
   //   lowestPriceCentsNz = cheapest in-stock NZ listing (NZD)
   //   lowestPriceCentsUs = cheapest in-stock US listing (USD)
   //   lowestPriceCentsGb = cheapest in-stock UK listing (GBP)
+  // The headline "from" price defaults to Lightly-Played-and-above (NM/LP) plus the
+  // null-condition baselines (market guide / TCGplayer / Cardmarket) — NOT a damaged
+  // copy. The full per-condition spectrum is still shown on the card page.
   console.log("Recomputing per-market lowest prices…");
+  const headlineWhere = (country: string) => ({
+    inStock: true,
+    country,
+    OR: [{ condition: { in: ["NM", "LP"] } }, { condition: null }],
+  });
   const [pricedAu, pricedNz, pricedUs, pricedGb] = await Promise.all([
-    prisma.retailerPrice.groupBy({ by: ["cardId"], where: { inStock: true, country: "AU" }, _min: { priceCents: true } }),
-    prisma.retailerPrice.groupBy({ by: ["cardId"], where: { inStock: true, country: "NZ" }, _min: { priceCents: true } }),
-    prisma.retailerPrice.groupBy({ by: ["cardId"], where: { inStock: true, country: "US" }, _min: { priceCents: true } }),
-    prisma.retailerPrice.groupBy({ by: ["cardId"], where: { inStock: true, country: "GB" }, _min: { priceCents: true } }),
+    prisma.retailerPrice.groupBy({ by: ["cardId"], where: headlineWhere("AU"), _min: { priceCents: true } }),
+    prisma.retailerPrice.groupBy({ by: ["cardId"], where: headlineWhere("NZ"), _min: { priceCents: true } }),
+    prisma.retailerPrice.groupBy({ by: ["cardId"], where: headlineWhere("US"), _min: { priceCents: true } }),
+    prisma.retailerPrice.groupBy({ by: ["cardId"], where: headlineWhere("GB"), _min: { priceCents: true } }),
   ]);
   const lowAu = new Map(pricedAu.map((r) => [r.cardId, r._min.priceCents ?? null]));
   const lowNz = new Map(pricedNz.map((r) => [r.cardId, r._min.priceCents ?? null]));

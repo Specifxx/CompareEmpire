@@ -110,25 +110,31 @@ async function fetchJson(url: string): Promise<any> {
 // the lowest-available indicator (directLow/low — the actual cheapest listing),
 // NOT `market` (a rolling sales average), so the figure matches the "cheapest"
 // shown on the TCGplayer product page.
+// Representative market value (USD cents) from TCGplayer. We use `market` (the
+// rolling sales average ≈ a Near-Mint going rate), NOT directLow/low (the cheapest,
+// often damaged, listing) — using the floor made vintage holos read absurdly low
+// (a Base Set Charizard showed its cheapest played copy, not its real value). Across
+// finishes we take the MOST VALUABLE printing's market (holofoil / 1st-edition),
+// since that's the price collectors mean for a chase card.
 function extractTcgCents(card: any): number | null {
   const tp = card.tcgplayer?.prices;
   if (!tp) return null;
-  let best = Infinity;
+  let best = 0;
   for (const k of Object.keys(tp)) {
     const p = tp[k];
     if (!p) continue;
-    const candidates = [p.directLow, p.low, p.market, p.mid].filter(
-      (v: any) => typeof v === "number" && v > 0
+    const v = [p.market, p.mid, p.high, p.low, p.directLow].find(
+      (x: any) => typeof x === "number" && x > 0
     );
-    if (candidates.length) best = Math.min(best, Math.min(...candidates));
+    if (typeof v === "number" && v > best) best = v;
   }
-  return best === Infinity ? null : Math.round(best * 100);
+  return best > 0 ? Math.round(best * 100) : null;
 }
-// Cheapest Cardmarket price (EUR cents).
+// Representative Cardmarket price (EUR cents): trend/average over the cheapest floor.
 function extractCmCents(card: any): number | null {
   const cm = card.cardmarket?.prices;
   if (!cm) return null;
-  for (const v of [cm.lowPrice, cm.trendPrice, cm.averageSellPrice, cm.avg30, cm.avg7]) {
+  for (const v of [cm.trendPrice, cm.averageSellPrice, cm.avg7, cm.avg30, cm.lowPrice]) {
     if (typeof v === "number" && v > 0) return Math.round(v * 100);
   }
   return null;
@@ -281,15 +287,25 @@ async function main() {
   // now gets the TCGplayer baseline too (international-shipping option), like NZ.
   const FX: Record<string, number> = { AU: 1.55, NZ: 1.68, US: 1.0, GB: 0.82 };
   const CUR: Record<string, string> = { AU: "AUD", NZ: "NZD", US: "USD", GB: "GBP" };
+  // Baseline source identity per market. US/NZ use TCGplayer (it ships there as an
+  // international option). AU does NOT — TCGplayer doesn't sensibly ship singles to
+  // Australia — so AU shows a clearly-labelled MARKET GUIDE (an estimate, not a
+  // purchasable store): no outbound buy link, and real local AU stores are the
+  // actual buyable prices that rank above it.
+  const BASE: Record<string, { retailer: string; name: string; store: boolean }> = {
+    US: { retailer: "tcgplayer_us", name: "TCGplayer", store: true },
+    NZ: { retailer: "tcgplayer_nz", name: "TCGplayer", store: true },
+    AU: { retailer: "marketguide_au", name: "Market Price (guide)", store: false },
+  };
   for (const c of dbCards) {
     const real = realPrices.get(c.externalId);
     const q = encodeURIComponent(`${c.name} ${c.setName}`);
     const tcgUrl = real?.tcgUrl ?? `https://www.tcgplayer.com/search/pokemon/product?q=${q}`;
     const cmUrl = real?.cmUrl ?? `https://www.cardmarket.com/en/Pokemon/Products/Search?searchString=${q}`;
-    // TCGplayer → US + NZ + AU (international shipping option). Real URL + price.
     if (real?.tcgUsd != null) {
       for (const country of ["US", "NZ", "AU"] as const) {
-        priceRows.push({ cardId: c.id, retailer: `tcgplayer_${country.toLowerCase()}`, retailerName: "TCGplayer", title: "TCGplayer", url: tcgUrl, priceCents: cents(real.tcgUsd * FX[country]), currency: CUR[country], inStock: true, country });
+        const b = BASE[country];
+        priceRows.push({ cardId: c.id, retailer: b.retailer, retailerName: b.name, title: b.name, url: b.store ? tcgUrl : "", priceCents: cents(real.tcgUsd * FX[country]), currency: CUR[country], inStock: true, country });
       }
     }
     // Cardmarket → GB (EU/UK marketplace). Real URL + price.
@@ -297,6 +313,9 @@ async function main() {
       priceRows.push({ cardId: c.id, retailer: "cardmarket_gb", retailerName: "Cardmarket", title: "Cardmarket", url: cmUrl, priceCents: cents(real.cmUsd * FX.GB), currency: CUR.GB, inStock: true, country: "GB" });
     }
   }
+  // Reset the catalogue-baseline rows we manage so re-seeds stay clean (and the old
+  // AU "TCGplayer" rows are removed in favour of the new market guide).
+  await prisma.retailerPrice.deleteMany({ where: { retailer: { in: ["tcgplayer_us", "tcgplayer_nz", "tcgplayer_au", "marketguide_au", "cardmarket_gb"] } } });
   console.log(`Inserting ${priceRows.length} retailer prices…`);
   for (let i = 0; i < priceRows.length; i += 5000) {
     await prisma.retailerPrice.createMany({ data: priceRows.slice(i, i + 5000), skipDuplicates: true });
