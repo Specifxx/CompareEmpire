@@ -205,7 +205,9 @@ async function main() {
   await prisma.order.deleteMany();
   await prisma.buyOrder.deleteMany();
   await prisma.listing.deleteMany();
-  await prisma.retailerPrice.deleteMany();
+  // TRUNCATE (not DELETE) frees space immediately — important if a prior run bloated
+  // the table near the storage cap.
+  await prisma.$executeRawUnsafe('TRUNCATE TABLE "RetailerPrice"');
   await prisma.priceHistory.deleteMany();
   await prisma.sealedListing.deleteMany();
   await prisma.card.deleteMany();
@@ -222,6 +224,17 @@ async function main() {
     },
   });
   console.log("Created demo account: demo@dexcompare.com / password123");
+
+  // Marketplace admin / verified seller — re-created on every seed so the user wipe
+  // above never drops it. Password stored as a bcrypt hash only (override via
+  // ADMIN_PASSWORD_HASH); plaintext is never committed.
+  const ADMIN_HASH = process.env.ADMIN_PASSWORD_HASH || "$2a$10$O5fONAak2jY/zGCVkbhp/.sIxGuqmGfYU0DxNgOpf8sTC64qQFxum";
+  await prisma.user.upsert({
+    where: { email: "compareempire" },
+    update: { passwordHash: ADMIN_HASH, isAdmin: true, verifiedSeller: true, displayName: "CompareEmpire", sellerName: "CompareEmpire Marketplace", emailVerified: new Date() },
+    create: { email: "compareempire", passwordHash: ADMIN_HASH, displayName: "CompareEmpire", sellerName: "CompareEmpire Marketplace", isAdmin: true, verifiedSeller: true, emailVerified: new Date() },
+  });
+  console.log("Ensured compareempire admin / verified seller.");
 
   // Real prices (TCGplayer/Cardmarket) from the API where reachable; heuristic otherwise.
   const realPrices = await loadRealPrices([...new Set(cards.map((c) => c.setCode))]);

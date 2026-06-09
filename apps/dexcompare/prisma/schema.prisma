@@ -300,7 +300,12 @@ model RetailerPrice {
   retailerName String // display name, e.g. "Cherry Collectables"
   title        String // original product title at the retailer
   url          String // outbound product link (affiliate-ready)
-  condition    String? // e.g. "Near Mint" where the retailer specifies it
+  condition    String? // headline grade of this row, e.g. "NM"
+  // Compact cheapest-in-stock price per grade for this store+card, e.g.
+  // {"NM":4500,"LP":3800,"MP":3200}. Lets the card page show the whole condition
+  // spectrum from ONE row per store (rather than a row per grade, which blew past
+  // the DB size limit). null = store didn't break out conditions.
+  conditionPrices Json?
   isFoil       Boolean  @default(false)
   priceCents   Int
   // Actual shipping for this listing where the source provides it (e.g. eBay).

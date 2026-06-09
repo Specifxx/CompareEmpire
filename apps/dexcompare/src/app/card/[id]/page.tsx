@@ -87,9 +87,15 @@ export default async function CardPage({ params }: { params: { id: string } }) {
   ];
   const byGrade = new Map<string, number>();
   for (const p of prices) {
-    if (!p.condition) continue;
-    const cur = byGrade.get(p.condition);
-    if (cur == null || p.priceCents < cur) byGrade.set(p.condition, p.priceCents);
+    const cp = p.conditionPrices as Record<string, number> | null;
+    if (cp && typeof cp === "object") {
+      for (const [g, c] of Object.entries(cp)) {
+        if (typeof c === "number" && c > 0 && (byGrade.get(g) == null || c < byGrade.get(g)!)) byGrade.set(g, c);
+      }
+    } else if (p.condition) {
+      const cur = byGrade.get(p.condition);
+      if (cur == null || p.priceCents < cur) byGrade.set(p.condition, p.priceCents);
+    }
   }
   const hasSpectrum = byGrade.size > 0;
 

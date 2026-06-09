@@ -553,9 +553,12 @@ export async function importPrices(): Promise<ImportSummary> {
 
     await prisma.retailerPrice.deleteMany({ where: { retailer: store.key } });
 
-    // One row per (card, condition bucket, finish) so the card page can show the
-    // cheapest price for each grade (NM/LP/MP/HP/DMG). Keyed to keep the cheapest
-    // in-stock copy of each grade per store.
+    // ONE row per (card, finish) per store — with the per-grade prices captured in a
+    // compact JSON map (conditionPrices) so the card page can show the whole
+    // NM→DMG spectrum without exploding the row count (a row-per-grade approach blew
+    // past the DB size limit). The row's headline price/condition = best available
+    // grade, cheapest within it.
+    const GRADE_ORDER = ["NM", "LP", "MP", "HP", "DMG"] as const;
     const rows = new Map<string, any>();
     const matchedCards = new Set<string>();
     let unmatched = 0;
@@ -565,35 +568,42 @@ export async function importPrices(): Promise<ImportSummary> {
       if (!cardId) { unmatched++; continue; }
       matchedCards.add(cardId);
       const isFoil = /foil/i.test(p.title);
-      // Each variant is (typically) a condition of this card. Record the cheapest
-      // in-stock copy per grade; if a grade is only out of stock, keep it as OOS so
-      // the card page can show "store had it, sold out".
-      for (const v of p.variants) {
-        const price = parseFloat(v.price);
-        if (!(price > 0)) continue;
-        const bucket = conditionBucket(v.title);
-        const priceCents = Math.round(price * 100);
-        const inStock = !!v.available;
-        const key = `${cardId}|${bucket}|${isFoil ? 1 : 0}`;
-        const prev = rows.get(key);
-        if (prev) {
-          if (prev.inStock && !inStock) continue;
-          if (prev.inStock === inStock && prev.priceCents <= priceCents) continue;
-        }
-        rows.set(key, {
-          cardId,
-          retailer: store.key,
-          retailerName: store.name,
-          title: p.title,
-          url: `${store.base}/products/${p.handle}`,
-          condition: bucket,
-          isFoil,
-          priceCents,
-          currency,
-          country: cc,
-          inStock,
-        });
+      const priced = p.variants.filter((v) => parseFloat(v.price) > 0);
+      if (!priced.length) continue;
+      // Cheapest price per grade, split by availability.
+      const inStockGrades: Record<string, number> = {};
+      const oosGrades: Record<string, number> = {};
+      for (const v of priced) {
+        const g = conditionBucket(v.title);
+        const c = Math.round(parseFloat(v.price) * 100);
+        const tgt = v.available ? inStockGrades : oosGrades;
+        if (tgt[g] == null || c < tgt[g]) tgt[g] = c;
       }
+      const inStock = Object.keys(inStockGrades).length > 0;
+      const spectrum = inStock ? inStockGrades : oosGrades;
+      const headlineGrade = GRADE_ORDER.find((g) => spectrum[g] != null) ?? null;
+      const priceCents = headlineGrade ? spectrum[headlineGrade] : Math.min(...Object.values(spectrum));
+      const key = `${cardId}|${isFoil ? 1 : 0}`;
+      const prev = rows.get(key);
+      // Keep the best listing per store+card+finish: in-stock beats OOS, then cheaper.
+      if (prev) {
+        if (prev.inStock && !inStock) continue;
+        if (prev.inStock === inStock && prev.priceCents <= priceCents) continue;
+      }
+      rows.set(key, {
+        cardId,
+        retailer: store.key,
+        retailerName: store.name,
+        title: p.title,
+        url: `${store.base}/products/${p.handle}`,
+        condition: headlineGrade,
+        conditionPrices: spectrum,
+        isFoil,
+        priceCents,
+        currency,
+        country: cc,
+        inStock,
+      });
     }
     const matched = matchedCards.size;
     await prisma.retailerPrice.createMany({ data: Array.from(rows.values()) });
