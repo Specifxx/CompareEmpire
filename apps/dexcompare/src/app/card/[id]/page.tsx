@@ -7,7 +7,11 @@ import { DomainBadge, RarityBadge, VariantBadge, OvernumberedBadge, PromoBadge, 
 import { isOvernumbered, isSignature } from "@/lib/constants";
 import { POKEMON_SETS } from "@/lib/pokemon-sets";
 import { WishlistButton } from "@/components/WishlistButton";
+import { CollectionButton } from "@/components/CollectionButton";
 import { CardViewBeacon } from "@/components/CardViewBeacon";
+import { CardTile, type CardTileData } from "@/components/CardTile";
+import { PriceChart, changeOver, type PricePoint } from "@/components/PriceChart";
+import { cardTileSelect } from "@/lib/cards";
 import { formatMoney, timeAgo } from "@/lib/format";
 import { effectiveShippingCents, shippingPolicyUrl } from "@/lib/retailers";
 import { affiliateUrl } from "@/lib/affiliate";
@@ -61,6 +65,28 @@ export default async function CardPage({ params }: { params: { id: string } }) {
   });
 
   if (!card) notFound();
+
+  // Daily cheapest-price snapshots (AU market) for the trend chart, plus every
+  // other printing of this card (same name, different set/number) so collectors
+  // can compare reprints — e.g. Base Set vs Classic Collection.
+  const [historyRows, otherPrints] = await Promise.all([
+    prisma.priceHistory.findMany({
+      where: { cardId: card.id },
+      orderBy: { day: "asc" },
+      select: { day: true, lowestPriceCents: true },
+      take: 365,
+    }),
+    card.nameNormalized
+      ? prisma.card.findMany({
+          where: { nameNormalized: card.nameNormalized, id: { not: card.id } },
+          orderBy: [{ lowestPriceCents: { sort: "asc", nulls: "last" } }],
+          select: cardTileSelect(country),
+          take: 12,
+        })
+      : Promise.resolve([]),
+  ]);
+  const history: PricePoint[] = historyRows.map((h) => ({ day: h.day, cents: h.lowestPriceCents }));
+  const weekChange = country === "AU" ? changeOver(history, 7) : null;
 
   const lowestPrice = pickPrice(card, country);
 
@@ -132,7 +158,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
   return (
     <div>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <CardViewBeacon idOrSlug={card.slug ?? card.id} />
+      <CardViewBeacon idOrSlug={card.slug ?? card.id} cardId={card.id} />
       <Link href="/browse" className="mb-4 inline-flex items-center gap-1 text-sm text-slate-400 hover:text-white">
         ← Back to database
       </Link>
@@ -173,14 +199,21 @@ export default async function CardPage({ params }: { params: { id: string } }) {
                   </p>
                 </div>
               </div>
-              <WishlistButton cardId={card.id} variant="full" />
+              <div className="flex shrink-0 flex-col items-end gap-2">
+                <WishlistButton cardId={card.id} variant="full" />
+                <CollectionButton cardId={card.id} />
+              </div>
             </div>
 
             <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
               <Metric label={headlineIsEstimate ? "Market estimate" : cheapestFoil != null ? "Standard from" : "Cheapest price"} value={headlineCents != null ? fmt(headlineCents) : "—"} highlight />
               {cheapestFoil != null && <Metric label="✦ Foil from" value={fmt(cheapestFoil)} highlight />}
               <Metric label="Compared at" value={`${prices.length} ${prices.length === 1 ? "store" : "stores"}`} />
-              {card.might != null && <Metric label="HP" value={String(card.might)} />}
+              {weekChange != null && Math.abs(weekChange) >= 0.05 ? (
+                <Metric label="7-day trend" value={`${weekChange > 0 ? "▲" : "▼"} ${Math.abs(weekChange).toFixed(1)}%`} />
+              ) : (
+                card.might != null && <Metric label="HP" value={String(card.might)} />
+              )}
               <Metric label="Rarity" value={card.rarity} />
             </div>
 
@@ -210,6 +243,15 @@ export default async function CardPage({ params }: { params: { id: string } }) {
               </div>
             )}
           </div>
+
+          {/* Price-over-time chart from the daily snapshots (AU market data). */}
+          {history.length > 0 && (
+            <PriceChart
+              points={history}
+              title="Price trend"
+              note={`Cheapest Australian price, snapshotted daily${country !== "AU" ? " (AU market, AUD)" : ""}`}
+            />
+          )}
 
           {/* Price comparison */}
           <div className="card-surface mt-6 overflow-hidden">
@@ -333,6 +375,26 @@ export default async function CardPage({ params }: { params: { id: string } }) {
           </div>
         </div>
       </div>
+
+      {/* Other printings — the same card in other sets (reprints, promos, alt
+          numbers), so collectors can compare which printing is cheapest. */}
+      {otherPrints.length > 0 && (
+        <section className="mt-8">
+          <div className="mb-4">
+            <h2 className="text-xl font-extrabold text-white">Other printings of {card.name}</h2>
+            <p className="mt-0.5 text-xs text-slate-500">
+              The same card from other sets and promos — sometimes a different printing is far cheaper.
+            </p>
+          </div>
+          <div className="-mx-1 flex gap-4 overflow-x-auto px-1 pb-2">
+            {(otherPrints as CardTileData[]).map((c) => (
+              <div key={c.id} className="w-36 shrink-0 sm:w-44">
+                <CardTile card={c} />
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

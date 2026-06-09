@@ -34,6 +34,9 @@ export function Navbar() {
           <Link href="/browse" className="rounded-lg px-2.5 py-2 text-sm font-medium text-slate-200 hover:bg-ink-800 hover:text-white">
             Database
           </Link>
+          <Link href="/collection" className="hidden rounded-lg px-2.5 py-2 text-sm font-medium text-slate-200 hover:bg-ink-800 hover:text-white sm:block">
+            Collection
+          </Link>
           <div className="hidden lg:block">
             <NavDropdown
               label="More"

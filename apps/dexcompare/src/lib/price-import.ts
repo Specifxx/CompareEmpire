@@ -733,11 +733,11 @@ export async function importPrices(): Promise<ImportSummary> {
   summary.cardsPriced = lowAu.size;
 
   // Snapshot today's lowest price per card for the price-over-time chart. Backend
-  // only for now (no UI) — we want a week+ of history before releasing it. One
+  // feeds the card-page trend chart and the homepage "Biggest price movers". One
   // point per card per Sydney day; a same-day re-run (e.g. a deploy) replaces it.
   try {
     const day = sydneyDay();
-    // AU-only for now (the chart is unreleased; AU is the primary market).
+    // AU-only (AU is the primary market; the UI labels the chart accordingly).
     const points = pricedAu
       .filter((r) => r._min.priceCents != null)
       .map((r) => ({ cardId: r.cardId, day, lowestPriceCents: r._min.priceCents as number }));
@@ -745,7 +745,11 @@ export async function importPrices(): Promise<ImportSummary> {
     if (points.length > 0) {
       await prisma.priceHistory.createMany({ data: points });
     }
-    console.log(`Price history: recorded ${points.length} points for ${day.toISOString().slice(0, 10)}.`);
+    // Retention: keep ~6 months of snapshots so the table can't grow unbounded
+    // on the size-capped database (~20k rows/day).
+    const cutoff = new Date(day.getTime() - 180 * 86400_000);
+    const purged = await prisma.priceHistory.deleteMany({ where: { day: { lt: cutoff } } });
+    console.log(`Price history: recorded ${points.length} points for ${day.toISOString().slice(0, 10)} (purged ${purged.count} old).`);
   } catch (e) {
     console.warn("Price-history snapshot failed:", e);
   }

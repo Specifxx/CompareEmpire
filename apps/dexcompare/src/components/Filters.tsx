@@ -158,7 +158,7 @@ export function Filters() {
             </div>
           </Section>
 
-          <Section title="Domain">
+          <Section title="Energy type">
             <div className="flex flex-col gap-1">
               {DOMAIN_KEYS.map((k) => {
                 const d = domainInfo(k);

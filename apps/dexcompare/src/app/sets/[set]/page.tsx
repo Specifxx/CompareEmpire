@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { CardTile } from "@/components/CardTile";
+import { SetCompletion } from "@/components/SetCompletion";
 import { cardTileSelect } from "@/lib/cards";
 import { pickPrice, DEFAULT_COUNTRY } from "@/lib/country";
 import { SETS, setBySlug } from "@/lib/constants";
@@ -96,6 +97,9 @@ export default async function SetPage({ params }: { params: { set: string } }) {
           )}
         </p>
       </div>
+
+      {/* Collection progress for this set (renders only once the visitor owns a card) */}
+      {cards.length > 0 && <SetCompletion cardIds={cards.map((c) => c.id)} setName={set.name} />}
 
       {/* Card grid */}
       {set.comingSoon || cards.length === 0 ? (

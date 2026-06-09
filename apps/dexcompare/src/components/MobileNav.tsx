@@ -9,6 +9,7 @@ import { useCountry } from "./CountryProvider";
 // plus the market/country selector for small screens.
 const LINKS = [
   { href: "/browse", label: "Database" },
+  { href: "/collection", label: "My collection" },
   { href: "/marketplace", label: "Marketplace" },
   { href: "/wishlist", label: "Wishlist" },
 ];

@@ -1,0 +1,62 @@
+name: Refresh DexCompare prices (daily)
+
+# Daily live-price refresh for DexCompare: re-scrapes every store feed, updates
+# RetailerPrice + each card's lowest price per market, and records the daily
+# price-history snapshot that powers the card-page trend chart and the homepage
+# "Biggest price movers". The Vercel cron can't do this (the import takes ~an
+# hour; serverless functions cap out at minutes), so it runs here on a schedule.
+#
+# Set the repo secret DEXCOMPARE_DATABASE_URL (the Neon pooled URL) to enable the
+# schedule. Until then, scheduled runs skip with a notice; manual runs can paste
+# the URL as an input instead.
+
+on:
+  schedule:
+    - cron: "30 18 * * *" # 04:30 Sydney (AEST) daily, before the AU morning
+  workflow_dispatch:
+    inputs:
+      dexcompare_url:
+        description: "DexCompare Neon DATABASE_URL (optional if the DEXCOMPARE_DATABASE_URL secret is set)"
+        required: false
+        default: ""
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Resolve database URL
+        id: db
+        env:
+          SECRET_URL: ${{ secrets.DEXCOMPARE_DATABASE_URL }}
+          INPUT_URL: ${{ inputs.dexcompare_url }}
+        run: |
+          URL="${INPUT_URL:-$SECRET_URL}"
+          if [ -z "$URL" ]; then
+            echo "No DEXCOMPARE_DATABASE_URL secret and no URL input — skipping the refresh." >> "$GITHUB_STEP_SUMMARY"
+            echo "Add the secret in Settings → Secrets and variables → Actions to enable the daily schedule." >> "$GITHUB_STEP_SUMMARY"
+            echo "found=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "::add-mask::$URL"
+            # Secrets can't travel via step outputs; hand it to later steps as an env var.
+            echo "DATABASE_URL=$URL" >> "$GITHUB_ENV"
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.db.outputs.found == 'true'
+
+      - uses: actions/setup-node@v4
+        if: steps.db.outputs.found == 'true'
+        with:
+          node-version: 20
+
+      # eBay credentials are deliberately NOT passed: eBay sourcing is paused for
+      # DexCompare (the shared API quota is reserved for RiftCompare).
+      - name: Import live prices
+        if: steps.db.outputs.found == 'true'
+        working-directory: apps/dexcompare
+        run: |
+          npm install --no-audit --no-fund
+          npx prisma generate
+          npx tsx scripts/import-prices.ts

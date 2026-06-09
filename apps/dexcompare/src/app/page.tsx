@@ -4,6 +4,8 @@ import { prisma } from "@/lib/db";
 import { CardTile } from "@/components/CardTile";
 import { CountryHeroToggle } from "@/components/CountryHeroToggle";
 import { getCheapestCards, getValuableCards } from "@/lib/cheapest-cards";
+import { getTopMovers, getPopularCards } from "@/lib/trending";
+import { RecentlyViewed } from "@/components/RecentlyViewed";
 import { getCountry } from "@/lib/get-country";
 import { COUNTRIES, priceField, type CountryInfo } from "@/lib/country";
 import { SETS, domainInfo, DOMAIN_KEYS } from "@/lib/constants";
@@ -67,7 +69,7 @@ export default async function HomePage() {
   const ebay = ebayLabel(country);
   const faqs = faqsFor(info, ebay);
   const field = priceField(country);
-  const [totalCards, pricedCards, cheapestCards, valuableCards, storeGroups] = await Promise.all([
+  const [totalCards, pricedCards, cheapestCards, valuableCards, storeGroups, movers, popularCards] = await Promise.all([
     prisma.card.count(),
     prisma.card.count({ where: { [field]: { not: null } } }),
     // Lowest-priced singles, leading with the best-stocked bargains (price, then coverage).
@@ -76,6 +78,10 @@ export default async function HomePage() {
     getValuableCards(12, country),
     // Stores serving the selected market (eBay excluded from the count).
     prisma.retailerPrice.groupBy({ by: ["retailer"], where: { country, NOT: { retailer: { startsWith: "ebay" } } } }),
+    // Biggest 7-day movers from the daily snapshots (AU market data → AU only).
+    country === "AU" ? getTopMovers(12) : Promise.resolve([]),
+    // Most-viewed priced cards in this market.
+    getPopularCards(12, country),
   ]);
   const storeCount = storeGroups.length;
 
@@ -110,6 +116,39 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Recently viewed — local to this visitor; renders nothing on a first visit */}
+      <RecentlyViewed />
+
+      {/* Biggest price movers — 7-day change from the daily price snapshots.
+          Hidden until at least two days of history exist (and on non-AU markets,
+          since the snapshots track the AU price). */}
+      {movers.length > 0 && (
+        <section>
+          <div className="mb-4 flex items-end justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-extrabold text-white">Biggest price movers</h2>
+              <p className="mt-0.5 text-xs text-slate-500">
+                The sharpest rises and falls in the cheapest Australian price over the last week.
+              </p>
+            </div>
+          </div>
+          <div className="-mx-1 flex gap-4 overflow-x-auto px-1 pb-2">
+            {movers.map((m) => (
+              <div key={m.card.id} className="w-36 shrink-0 sm:w-44">
+                <div
+                  className={`mb-1.5 text-center text-xs font-bold ${
+                    m.pct > 0 ? "text-emerald-400" : "text-red-400"
+                  }`}
+                >
+                  {m.pct > 0 ? "▲" : "▼"} {Math.abs(m.pct).toFixed(1)}% this week
+                </div>
+                <CardTile card={m.card} />
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Cheapest cards — lowest live prices, showing how many stores we compare per card */}
       <section>
@@ -151,6 +190,27 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* Most popular — what other collectors are looking at right now */}
+      {popularCards.length >= 4 && (
+        <section>
+          <div className="mb-4 flex items-end justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-extrabold text-white">Most popular right now</h2>
+              <p className="mt-0.5 text-xs text-slate-500">
+                The cards collectors are checking most on DexCompare.
+              </p>
+            </div>
+          </div>
+          <div className="-mx-1 flex gap-4 overflow-x-auto px-1 pb-2">
+            {popularCards.map((c) => (
+              <div key={c.id} className="w-36 shrink-0 sm:w-44">
+                <CardTile card={c} />
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* Browse by set — newest first, horizontal sliding window. Full list on /sets. */}
       <section>
         <div className="mb-4 flex items-center justify-between gap-3">
@@ -178,9 +238,9 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Browse by domain */}
+      {/* Browse by energy type */}
       <section>
-        <h2 className="mb-4 text-xl font-extrabold text-white">Browse by domain</h2>
+        <h2 className="mb-4 text-xl font-extrabold text-white">Browse by energy type</h2>
         <div className="flex flex-wrap gap-2">
           {DOMAIN_KEYS.map((k) => {
             const d = domainInfo(k);
@@ -203,8 +263,8 @@ export default async function HomePage() {
       <section className="card-surface p-6">
         <h2 className="text-xl font-extrabold text-white">Pokémon prices in {info.place}, all in one place</h2>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-slate-400">
-          DexCompare is a free, independent price-comparison tool for Pokémon: League of Legends
-          TCG, built for {info.adjective} players. We track live prices for every Pokémon card across
+          DexCompare is a free, independent price-comparison tool for the Pokémon Trading Card
+          Game, built for {info.adjective} collectors and players. We track live prices for every Pokémon card across
           {" "}{info.adjective} stores{ebay ? ` and ${ebay}` : ""} so you can buy Pokémon cards in {info.place} for
           less — find the cheapest store for any single, fast.
         </p>
