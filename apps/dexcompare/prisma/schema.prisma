@@ -30,6 +30,14 @@ model User {
   // escrow on the BuyOrder (reservedCents) until the order fills or is cancelled.
   balanceCents Int       @default(0)
   isAdmin      Boolean   @default(false)
+  // Marketplace: only verified sellers may create listings. Their listings surface
+  // in the price comparison as the "CompareEmpire Marketplace" source.
+  verifiedSeller Boolean @default(false)
+  sellerName   String?   // public storefront name shown on the marketplace
+  // Default shipping a seller charges per order (AUD/major-unit cents) and the order
+  // total at/above which they ship free. Overridable per listing (Listing.shipCents).
+  shipFlatCents    Int?
+  shipFreeOverCents Int?
   createdAt    DateTime  @default(now())
 
   listings     Listing[]
@@ -146,6 +154,12 @@ model Listing {
   priceCents  Int
   quantity    Int      @default(1)
   status      String   @default("ACTIVE") // ACTIVE, SOLD, CANCELLED
+  // Market + currency the listing is priced in ("AU"/AUD, "NZ"/NZD, "US"/USD, "GB"/GBP)
+  // so marketplace listings slot into the right region's price comparison.
+  country     String   @default("AU")
+  currency    String   @default("AUD")
+  // Per-listing shipping override (major-unit cents); null = use the seller default.
+  shipCents   Int?
   createdAt   DateTime @default(now())
 
   card        Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)

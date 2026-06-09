@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { SearchBar } from "./SearchBar";
 import { NavWishlistButton } from "./NavWishlistButton";
 import { MobileNav } from "./MobileNav";
+import { NavDropdown } from "./NavDropdown";
 import { CountrySwitcher } from "./CountrySwitcher";
 import { Logo } from "./Logo";
 
@@ -33,6 +34,14 @@ export function Navbar() {
           <Link href="/browse" className="rounded-lg px-2.5 py-2 text-sm font-medium text-slate-200 hover:bg-ink-800 hover:text-white">
             Database
           </Link>
+          <div className="hidden lg:block">
+            <NavDropdown
+              label="More"
+              items={[
+                { href: "/marketplace", label: "Marketplace", desc: "Buy direct from verified sellers", badge: "Soon" },
+              ]}
+            />
+          </div>
           <CountrySwitcher className="ml-1" />
           <NavWishlistButton />
           <MobileNav />

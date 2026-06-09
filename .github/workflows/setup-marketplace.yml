@@ -1,0 +1,32 @@
+name: Setup DexCompare marketplace
+
+# Applies the additive marketplace schema (verifiedSeller, listing shipping/market
+# columns) to Neon and provisions the compareempire admin / verified-seller account.
+# Run once after deploying the marketplace code. Idempotent.
+
+on:
+  workflow_dispatch:
+    inputs:
+      dexcompare_url:
+        description: "DexCompare Neon DATABASE_URL (pooled, sslmode=require)"
+        required: true
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Mask connection string
+        run: echo "::add-mask::${{ inputs.dexcompare_url }}"
+      - name: Apply schema + create admin
+        working-directory: apps/dexcompare
+        env:
+          DATABASE_URL: ${{ inputs.dexcompare_url }}
+        run: |
+          npm install --no-audit --no-fund
+          npx prisma db push
+          npx tsx scripts/setup-admin.ts
