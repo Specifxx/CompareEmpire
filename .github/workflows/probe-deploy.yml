@@ -30,7 +30,12 @@ jobs:
 
       - name: Fingerprint live homepage
         run: |
-          BODY=$(curl -fsSL --retry 3 https://dexcompare.com/ || true)
+          echo "/ status -> $(curl -s -o /dev/null -w '%{http_code}' https://dexcompare.com/)"
+          BODY=$(curl -sSL --retry 3 https://dexcompare.com/ || true)
+          echo "--- body head ---"
+          echo "$BODY" | head -c 800; echo
+          echo "--- error marker ---"
+          echo "$BODY" | grep -o "Application error[^<]*" | head -1 || echo "(no app-error marker)"
           for MARK in "Browse by energy type" "Browse by domain" "League of Legends" "Recently viewed" "Biggest price movers" "Market estimate" "Most valuable cards"; do
             if echo "$BODY" | grep -q "$MARK"; then echo "PRESENT: $MARK"; else echo "absent : $MARK"; fi
           done

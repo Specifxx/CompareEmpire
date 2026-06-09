@@ -1,0 +1,31 @@
+name: Test DexCompare trending queries
+
+# READ-ONLY: runs scripts/test-trending.ts against the live DB to reproduce (or
+# rule out) a homepage failure in the trending/movers queries.
+
+on:
+  workflow_dispatch:
+    inputs:
+      dexcompare_url:
+        description: "DexCompare Neon DATABASE_URL"
+        required: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Mask URL
+        run: echo "::add-mask::${{ inputs.dexcompare_url }}"
+      - name: Run trending queries
+        working-directory: apps/dexcompare
+        env:
+          DATABASE_URL: ${{ inputs.dexcompare_url }}
+        run: |
+          npm install --no-audit --no-fund
+          npx prisma generate
+          npx tsx scripts/test-trending.ts
