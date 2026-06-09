@@ -415,10 +415,15 @@ export function buildPokemonResolver(cards: MatchCard[]): (title: string) => str
     const m2 = cn.match(/(\d+)/);
     return m2 ? { num: parseInt(m2[1], 10), total: 0 } : null;
   };
+  // Generic set-name words shared across many sets ("Legendary Collection",
+  // "Radiant Collection", "Classic Collection", "EX Deoxys"…). Excluded from set
+  // matching so a single common word like "collection" or "ex" can't link a listing
+  // to the wrong set (a Radiant Collection listing was matching Legendary Collection).
+  const SET_GENERIC = new Set(["collection", "set", "ex", "gx", "series", "edition", "tcg"]);
   for (const c of cards) {
     const nameToks = tokenize(c.name);
     if (!nameToks.length) continue;
-    const ic: IdxCard = { id: c.id, nameToks, setToks: tokenize(c.setName || "") };
+    const ic: IdxCard = { id: c.id, nameToks, setToks: tokenize(c.setName || "").filter((s) => !SET_GENERIC.has(s)) };
     const d = cardNum(c.collectorNumber);
     if (d) {
       if (d.total) push(byKey, `${d.num}/${d.total}`, ic);
@@ -440,6 +445,21 @@ export function buildPokemonResolver(cards: MatchCard[]): (title: string) => str
     const nameOk = (c: IdxCard) => ptokset.has(c.nameToks[0]);
     const fullNameOk = (c: IdxCard) => c.nameToks.every((x) => ptokset.has(x));
     const setOk = (c: IdxCard) => c.setToks.some((s) => ptokset.has(s));
+
+    // Celebrations / Classic Collection reprints reuse the ORIGINAL card's number in
+    // store titles (e.g. "Charizard 4/102 [Celebrations: Classic Collection]"), which
+    // would otherwise match — and mis-price — the genuine vintage Base Set card. Route
+    // such listings strictly to the reprint card by name + reprint set; if we don't
+    // hold that reprint, don't match at all (never pollute the original).
+    if (/classic collection|celebration/i.test(t)) {
+      for (const tok of ptoks) {
+        const cands = byName.get(tok);
+        if (!cands) continue;
+        const hit = cands.find((c) => fullNameOk(c) && /celebration|classic/.test(c.setToks.join(" ")));
+        if (hit) return hit.id;
+      }
+      return null;
+    }
 
     const m = t.match(/(\d+)\s*\/\s*(\d+)/);
     if (m) {
