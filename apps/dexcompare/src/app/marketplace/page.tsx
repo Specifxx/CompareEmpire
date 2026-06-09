@@ -36,6 +36,13 @@ export default async function MarketplacePage() {
             <Stat value={String(sellers)} label="verified sellers" />
             <Stat value={liveListings.toLocaleString()} label="cards listed" />
           </div>
+
+          <div className="mt-7">
+            <Link href="/marketplace/browse" className="btn-primary inline-block">
+              Test out current marketplace →
+            </Link>
+            <p className="mt-2 text-xs text-gold">Test mode — browse live listings, add to cart &amp; checkout (no real payment)</p>
+          </div>
         </div>
       </section>
 

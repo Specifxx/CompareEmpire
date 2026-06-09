@@ -348,6 +348,26 @@ model SealedListing {
   @@index([country])
 }
 
+// A test-mode marketplace order placed through the CSFloat-style storefront
+// (cart → checkout → simulated payment). No real payment gateway yet; buyer
+// details + item snapshot are stored so the flow can be exercised end to end.
+model MarketplaceOrder {
+  id              String   @id @default(cuid())
+  buyerName       String
+  buyerEmail      String
+  shippingAddress String
+  // [{ listingId, cardName, collectorNumber, condition, isFoil, qty, priceCents, currency, sellerName }]
+  items           Json
+  subtotalCents   Int
+  shippingCents   Int
+  totalCents      Int
+  currency        String   @default("AUD")
+  status          String   @default("TEST_PAID") // test mode: PENDING | TEST_PAID
+  createdAt       DateTime @default(now())
+
+  @@index([createdAt])
+}
+
 // A completed trade. Either a buyer hit a listing (kind LISTING) or a seller
 // filled a buy order (kind BUYORDER).
 model Order {
