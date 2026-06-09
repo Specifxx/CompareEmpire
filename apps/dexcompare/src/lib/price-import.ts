@@ -413,7 +413,7 @@ export interface MatchCard { id: string; name: string; setName: string | null; c
 // number + name, using the set name to disambiguate when several cards share a number
 // (rare cross-set collisions on equal set sizes). Pure + exported so it's unit-tested.
 export function buildPokemonResolver(cards: MatchCard[]): (title: string) => string | null {
-  interface IdxCard { id: string; nameToks: string[]; setToks: string[] }
+  interface IdxCard { id: string; nameToks: string[]; setToks: string[]; total: number }
   const byKey = new Map<string, IdxCard[]>(); // "num/total"
   const byNum = new Map<number, IdxCard[]>(); // num
   const byName = new Map<string, IdxCard[]>(); // primary name token
@@ -436,8 +436,8 @@ export function buildPokemonResolver(cards: MatchCard[]): (title: string) => str
   for (const c of cards) {
     const nameToks = tokenize(c.name);
     if (!nameToks.length) continue;
-    const ic: IdxCard = { id: c.id, nameToks, setToks: tokenize(c.setName || "").filter((s) => !SET_GENERIC.has(s)) };
     const d = cardNum(c.collectorNumber);
+    const ic: IdxCard = { id: c.id, nameToks, setToks: tokenize(c.setName || "").filter((s) => !SET_GENERIC.has(s)), total: d?.total ?? 0 };
     if (d) {
       if (d.total) push(byKey, `${d.num}/${d.total}`, ic);
       push(byNum, d.num, ic);
@@ -491,14 +491,19 @@ export function buildPokemonResolver(cards: MatchCard[]): (title: string) => str
           exact.find(nameOk);
         if (hit) return hit.id;
       }
-      // 2) same number (set size differs/omitted): require the name to line up, and
-      // prefer the set-name match to avoid grabbing a same-numbered card elsewhere.
+      // 2) same number (set size differs/omitted): require the name to line up. The
+      // set-name match is trusted across totals; the name-only fallback additionally
+      // requires the printed TOTAL to be compatible, so a wrong-set listing whose title
+      // happens to contain a same-numbered card's name can't grab it (e.g. a
+      // "Rocket's Admin (CLB) (031/032) … Blastoise" listing was matching Blastoise
+      // 31/149 — total 32 vs 149 are different sets).
+      const totalOk = (c: IdxCard) => c.total <= 0 || total <= 0 || c.total === total || Math.abs(c.total - total) <= 5;
       const same = byNum.get(num);
       if (same && same.length) {
         const hit =
           same.find((c) => setOk(c) && fullNameOk(c)) ??
           same.find((c) => setOk(c) && nameOk(c)) ??
-          same.find(fullNameOk);
+          same.find((c) => fullNameOk(c) && totalOk(c));
         if (hit) return hit.id;
       }
     }
