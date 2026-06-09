@@ -42,7 +42,7 @@ export const metadata: Metadata = {
   verification: {
     google:
       process.env.GOOGLE_SITE_VERIFICATION ??
-      "fPFxAkXOBeYdNPNbNGo-ZItApU0457uWVkbPkfzzzXs",
+      "heHNoTc0ARYYTB9P5stVlv83hJevrY_OJhQdkoTgSqo",
   },
 };
 
