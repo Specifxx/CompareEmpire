@@ -29,6 +29,11 @@ jobs:
               print(d["created_at"], d["environment"], d["sha"][:10], d["statuses_url"])
           '
           STATUSES_URL=$(echo "$DEPLOYS" | python3 -c 'import json,sys; print(json.load(sys.stdin)[0]["statuses_url"])')
+          curl -fsSL -H "Authorization: Bearer $GH_TOKEN" "$STATUSES_URL" | python3 -c '
+          import json,sys
+          for s in json.load(sys.stdin):
+              print("status:", s["state"], s["created_at"], s.get("description",""))
+          '
           ENV_URL=$(curl -fsSL -H "Authorization: Bearer $GH_TOKEN" "$STATUSES_URL" | python3 -c '
           import json,sys
           for s in json.load(sys.stdin):
