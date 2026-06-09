@@ -39,11 +39,14 @@ async function main() {
       take: 10,
     });
     for (const c of cards) {
-      const rows = await prisma.retailerPrice.findMany({ where: { cardId: c.id }, select: { retailer: true, country: true, priceCents: true, inStock: true, title: true }, take: 10 });
+      const rows = await prisma.retailerPrice.findMany({ where: { cardId: c.id }, select: { retailer: true, retailerName: true, country: true, priceCents: true, condition: true, conditionPrices: true, inStock: true, title: true }, take: 12 });
       const inAu = rows.filter((r) => r.country === "AU").length;
       console.log(`\n  ${c.name} [${c.collectorNumber}] — ${c.setName ?? c.setCode ?? "?"}`);
       console.log(`    lowest: AU=${c.lowestPriceCents} NZ=${c.lowestPriceCentsNz} US=${c.lowestPriceCentsUs} GB=${c.lowestPriceCentsGb}  | ${rows.length} listings (${inAu} AU)`);
-      for (const r of rows) console.log(`      ${r.country} ${r.inStock ? "IN " : "OOS"} ${r.retailer} ${r.priceCents}  "${r.title.slice(0, 52)}"`);
+      for (const r of rows) {
+        const cp = r.conditionPrices ? ` grades=${JSON.stringify(r.conditionPrices)}` : "";
+        console.log(`      ${r.country} ${r.inStock ? "IN " : "OOS"} ${r.retailerName}[${r.condition ?? "-"}] ${r.priceCents}${cp}  "${r.title.slice(0, 40)}"`);
+      }
     }
   }
 }
