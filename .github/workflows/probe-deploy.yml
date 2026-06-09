@@ -16,35 +16,50 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: List recent GitHub deployments
+      - name: Resolve latest dexcompare production URL
+        id: url
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          curl -fsSL -H "Authorization: Bearer $GH_TOKEN" \
-            "https://api.github.com/repos/${GITHUB_REPOSITORY}/deployments?per_page=15" \
-            | python3 -c '
+          DEPLOYS=$(curl -fsSL -H "Authorization: Bearer $GH_TOKEN" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/deployments?environment=Production%20%E2%80%93%20dexcompare&per_page=5")
+          echo "$DEPLOYS" | python3 -c '
           import json,sys
           for d in json.load(sys.stdin):
-              print(d["created_at"], d["environment"], d["ref"][:12], d["sha"][:10], d.get("payload",{}) if isinstance(d.get("payload"),str) else "")
-          ' || echo "no deployments visible (integration may not record them)"
+              print(d["created_at"], d["environment"], d["sha"][:10], d["statuses_url"])
+          '
+          STATUSES_URL=$(echo "$DEPLOYS" | python3 -c 'import json,sys; print(json.load(sys.stdin)[0]["statuses_url"])')
+          ENV_URL=$(curl -fsSL -H "Authorization: Bearer $GH_TOKEN" "$STATUSES_URL" | python3 -c '
+          import json,sys
+          for s in json.load(sys.stdin):
+              u = s.get("environment_url") or s.get("target_url")
+              if u and "vercel" in u:
+                  print(u); break
+          ')
+          echo "deploy URL: $ENV_URL"
+          echo "SITE=$ENV_URL" >> "$GITHUB_ENV"
 
       - name: Fingerprint live homepage
         run: |
-          echo "/ status -> $(curl -s -o /dev/null -w '%{http_code}' https://dexcompare.com/)"
-          BODY=$(curl -sSL --retry 3 https://dexcompare.com/ || true)
-          echo "--- body head ---"
-          echo "$BODY" | head -c 800; echo
+          echo "probing $SITE"
+          echo "/ status -> $(curl -s -o /dev/null -w '%{http_code}' "$SITE/")"
+          BODY=$(curl -sSL --retry 3 "$SITE/" || true)
           echo "--- error marker ---"
           echo "$BODY" | grep -o "Application error[^<]*" | head -1 || echo "(no app-error marker)"
-          for MARK in "Browse by energy type" "Browse by domain" "League of Legends" "Recently viewed" "Biggest price movers" "Market estimate" "Most valuable cards"; do
+          for MARK in "Browse by energy type" "Browse by domain" "League of Legends" "Recently viewed" "Biggest price movers" "Most popular right now" "Most valuable cards"; do
             if echo "$BODY" | grep -q "$MARK"; then echo "PRESENT: $MARK"; else echo "absent : $MARK"; fi
           done
           echo "--- title ---"
           echo "$BODY" | grep -o "<title>[^<]*</title>" | head -1
-          echo "--- headers ---"
-          curl -fsSI https://dexcompare.com/ | grep -i "x-vercel\|age\|cache" || true
 
-      - name: Fingerprint /collection and /marketplace
+      - name: Fingerprint key pages
         run: |
-          echo "/collection -> $(curl -s -o /dev/null -w '%{http_code}' https://dexcompare.com/collection)"
-          echo "/marketplace -> $(curl -s -o /dev/null -w '%{http_code}' https://dexcompare.com/marketplace)"
+          echo "/collection -> $(curl -s -o /dev/null -w '%{http_code}' "$SITE/collection")"
+          curl -sSL "$SITE/collection" | grep -q "My collection" && echo "OK: /collection heading" || echo "FAIL: /collection heading"
+          HREF=$(curl -sSL "$SITE/browse" | grep -o '/card/[a-z0-9-]*' | head -1)
+          echo "card: $HREF"
+          CARD=$(curl -sSL "$SITE$HREF" || true)
+          echo "$CARD" | grep -q "Price comparison" && echo "OK: card page renders" || echo "FAIL: card page"
+          echo "$CARD" | grep -q "Add to collection" && echo "OK: collection button" || echo "miss: collection button"
+          echo "$CARD" | grep -q "Price trend\|Price tracking started" && echo "OK: price trend block" || echo "miss: price trend block (no history yet?)"
+          echo "$CARD" | grep -q "Other printings" && echo "OK: other printings" || echo "miss: other printings (card may be unique)"
