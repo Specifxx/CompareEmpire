@@ -46,7 +46,7 @@ export const metadata: Metadata = {
   verification: {
     google:
       process.env.GOOGLE_SITE_VERIFICATION ??
-      "heHNoTc0ARYYTB9P5stVlv83hJevrY_OJhQdkoTgSqo",
+      "NAFWq3cLo4QA0hk4Xs8qkVkKItZsYDqTJnkY3UCXk8E",
   },
 };
 
@@ -57,7 +57,7 @@ const orgJsonLd = {
       "@type": "Organization",
       "@id": `${SITE_URL}/#org`,
       name: SITE_NAME,
-      alternateName: ["Dex Compare", "DexCompare.com"],
+      alternateName: ["Dex Compare", "DexCompare.app"],
       url: SITE_URL,
       logo: `${SITE_URL}/icon-512.png`,
       description:
@@ -68,7 +68,7 @@ const orgJsonLd = {
       "@id": `${SITE_URL}/#website`,
       url: SITE_URL,
       name: SITE_NAME,
-      alternateName: ["Dex Compare", "DexCompare.com"],
+      alternateName: ["Dex Compare", "DexCompare.app"],
       publisher: { "@id": `${SITE_URL}/#org` },
       potentialAction: {
         "@type": "SearchAction",
@@ -84,7 +84,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en-AU" className={`${sora.variable} ${spaceGrotesk.variable}`}>
       <head>
-        {/* AdSense account/site verification — lets Google connect dexcompare.com
+        {/* AdSense account/site verification — lets Google connect dexcompare.app
             to the AdSense account instantly. */}
         <meta name="google-adsense-account" content="ca-pub-6842128782879909" />
         {/* AdSense loader — Google's verbatim snippet, in the initial HTML head so

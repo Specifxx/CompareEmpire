@@ -10,7 +10,7 @@
 // AdSlot component renders a harmless styled placeholder instead of an ad unit.
 
 // AdSense publisher id. One AdSense ACCOUNT covers multiple sites, so the same
-// publisher id used on RiftCompare is the code default here — add dexcompare.com
+// publisher id used on RiftCompare is the code default here — add dexcompare.app
 // as a site in that AdSense account (Sites → Add site) and it serves. Override
 // per-environment via NEXT_PUBLIC_ADSENSE_CLIENT if it ever rotates.
 export const ADSENSE_CLIENT = process.env.NEXT_PUBLIC_ADSENSE_CLIENT ?? "ca-pub-6842128782879909";

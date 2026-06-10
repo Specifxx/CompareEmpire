@@ -4,7 +4,7 @@
 (the same AdSense ACCOUNT as RiftCompare — one account covers multiple sites) is
 baked into the code (`src/lib/ads.ts`), so the AdSense loader and `/ads.txt` are
 active in production. The remaining steps are on Google's side (adding
-dexcompare.com as a site + approval) and in the AdSense dashboard (turn on Auto
+dexcompare.app as a site + approval) and in the AdSense dashboard (turn on Auto
 ads). This doc is the checklist.
 
 > Why AdSense: free, no minimum traffic to apply, pays per impression/click, and
@@ -28,9 +28,9 @@ ads). This doc is the checklist.
 ## What you still need to do (Google's side — can't be automated)
 
 1. **Add the site in AdSense.** Go to <https://adsense.google.com> → **Sites →
-   Add site** → `dexcompare.com` → click **Verify** (the loader script + ads.txt
+   Add site** → `dexcompare.app` → click **Verify** (the loader script + ads.txt
    are already live, so verification is instant).
-2. **Turn on Auto ads** — AdSense → **Ads → By site → dexcompare.com → Auto ads
+2. **Turn on Auto ads** — AdSense → **Ads → By site → dexcompare.app → Auto ads
    ON**. This is what actually starts earning across the whole site using the
    loader that's already installed. No slot ids required.
 3. *(Optional, for more control/revenue)* Create Display ad units and set their

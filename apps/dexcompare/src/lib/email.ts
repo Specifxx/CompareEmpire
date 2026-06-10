@@ -17,8 +17,8 @@ export async function sendEmail(to: string, subject: string, html: string): Prom
     return false;
   }
   // The sender domain must be verified in Resend or delivery is restricted to the
-  // account owner. Override with EMAIL_FROM once dexcompare.com is verified.
-  const from = process.env.EMAIL_FROM ?? `${SITE_NAME} <noreply@dexcompare.com>`;
+  // account owner. Override with EMAIL_FROM once dexcompare.app is verified.
+  const from = process.env.EMAIL_FROM ?? `${SITE_NAME} <noreply@dexcompare.app>`;
   try {
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",

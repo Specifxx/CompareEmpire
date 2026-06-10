@@ -78,7 +78,7 @@ const AFFILIATE_NETWORK_ID = process.env.AFFILIATE_NETWORK_ID ?? "";
 
 // Hosts that must NEVER be wrapped by the network: our own sites, and the partners
 // we already monetise directly (their direct programs always pay more).
-const NEVER_WRAP = /(?:^|\.)(dexcompare\.com|riftcompare\.com|ebay\.|amazon\.|tcgplayer\.com)$/i;
+const NEVER_WRAP = /(?:^|\.)(dexcompare\.app|riftcompare\.com|ebay\.|amazon\.|tcgplayer\.com)$/i;
 
 // Wrap a destination URL in the configured network's redirect. `subId` is passed
 // through as the network's custom-tracking field so earnings are segmentable by
