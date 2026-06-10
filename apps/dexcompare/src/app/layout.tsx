@@ -9,8 +9,8 @@ import { QuickViewProvider } from "@/components/QuickView";
 import { WishlistDrawerProvider } from "@/components/WishlistDrawer";
 import { CountryProvider } from "@/components/CountryProvider";
 import { PriceAlertModal } from "@/components/PriceAlertModal";
-import { WebAdsLoader } from "@/components/WebAdsLoader";
 import { getCountry } from "@/lib/get-country";
+import { ADSENSE_CLIENT, ADSENSE_ENABLED } from "@/lib/ads";
 import { CONTACT_EMAIL, SITE_NAME, SITE_URL } from "@/lib/site";
 import { IMPACT_SITE_VERIFICATION } from "@/lib/affiliate";
 
@@ -86,6 +86,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* AdSense account/site verification — lets Google connect dexcompare.com
             to the AdSense account instantly. */}
         <meta name="google-adsense-account" content="ca-pub-6842128782879909" />
+        {/* AdSense loader — Google's verbatim snippet, in the initial HTML head so
+            site verification sees it without executing JS. Powers Auto ads + the
+            manual <AdSlot /> units. Disabled when no publisher id is configured. */}
+        {ADSENSE_ENABLED && (
+          <script
+            async
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
+            crossOrigin="anonymous"
+          />
+        )}
         {/* Impact / TCGplayer affiliate site-ownership verification. Impact looks for
             the non-standard `value` attribute, so spread it past the meta typing. */}
         <meta {...({ name: "impact-site-verification", value: IMPACT_SITE_VERIFICATION } as any)} />
@@ -139,7 +149,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </footer>
         <Analytics />
         <SpeedInsights />
-        <WebAdsLoader />
       </body>
     </html>
   );
