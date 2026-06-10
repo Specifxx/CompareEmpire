@@ -11,9 +11,10 @@
 
 // AdSense publisher id. One AdSense ACCOUNT covers multiple sites, so the same
 // publisher id used on RiftCompare is the code default here — add dexcompare.app
-// as a site in that AdSense account (Sites → Add site) and it serves. Override
-// per-environment via NEXT_PUBLIC_ADSENSE_CLIENT if it ever rotates.
-export const ADSENSE_CLIENT = process.env.NEXT_PUBLIC_ADSENSE_CLIENT ?? "ca-pub-6842128782879909";
+// as a site in that AdSense account (Sites → Add site) and it serves. NOTE: `||`
+// (not `??`) so an env var accidentally set to an EMPTY string still falls back
+// to this id — an empty value was silently disabling the loader/meta tag.
+export const ADSENSE_CLIENT = process.env.NEXT_PUBLIC_ADSENSE_CLIENT || "ca-pub-6842128782879909";
 
 // True only when a syntactically valid publisher id is configured. Guards every
 // place that emits real ad markup so we never ship a broken/empty <ins>.
