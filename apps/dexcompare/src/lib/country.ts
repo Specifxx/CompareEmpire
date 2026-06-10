@@ -71,3 +71,17 @@ export function pickPrice(
 export function currencyOf(country: Country): string {
   return COUNTRIES[country].currency;
 }
+
+// Indicative USD → local-currency conversion for the MARKET-PRICE GUIDE only
+// (Card.marketPriceCents is stored in USD cents). Mirrors the rates the seeder
+// uses for its baselines. Never used for real store prices — those are always
+// quoted in their own market's currency by the source.
+export const USD_FX: Record<Country, number> = { AU: 1.55, NZ: 1.68, US: 1.0, GB: 0.82 };
+
+// The market-price guide (USD cents) converted for display in a market. Returns
+// null when there's no guide. This is a labelled reference, NOT a buyable price —
+// callers must present it as "Market guide", never as the cheapest/"from" price.
+export function marketGuideCents(usdCents: number | null | undefined, country: Country): number | null {
+  if (usdCents == null || usdCents <= 0) return null;
+  return Math.round(usdCents * USD_FX[country]);
+}

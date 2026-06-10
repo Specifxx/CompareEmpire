@@ -150,9 +150,20 @@ export function cardTileSelect(country: Country = "AU") {
     lowestPriceCentsNz: true,
     lowestPriceCentsGb: true,
     lowestPriceCentsUs: true,
-    // Count only in-stock listings for this market for the "N stores" tile label
-    // (out-of-stock listings are shown on the card page but shouldn't inflate it).
-    _count: { select: { retailerPrices: { where: { inStock: true, country } } } },
+    // Market-price guide (USD cents) + its source, shown as a labelled fallback on
+    // tiles when a market has no buyable store price (never as the "from" price).
+    marketPriceCents: true,
+    marketPriceSource: true,
+    // Count only in-stock listings for this market for the "N stores" tile label.
+    // Out-of-stock listings and the non-buyable market-guide row are excluded
+    // (the guide is a reference, not a store).
+    _count: {
+      select: {
+        retailerPrices: {
+          where: { inStock: true, country, NOT: { retailer: { startsWith: "marketguide" } } },
+        },
+      },
+    },
   } satisfies Prisma.CardSelect;
 }
 

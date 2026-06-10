@@ -51,12 +51,24 @@ jobs:
         with:
           node-version: 20
 
-      # eBay credentials are deliberately NOT passed: eBay sourcing is paused for
-      # DexCompare (the shared API quota is reserved for RiftCompare).
+      # eBay sourcing is ON for DexCompare (set the EBAY_CLIENT_ID/SECRET secrets).
+      # The eBay app quota is SHARED with RiftCompare; both importers read the live
+      # remaining-call count from eBay's Analytics API before spending and always
+      # stop EBAY_QUOTA_RESERVE calls short, so the two sites self-coordinate and
+      # can never exhaust the daily quota between them. DexCompare splits its run
+      # budget across AU/US/GB (weights via EBAY_MARKET_WEIGHTS) and rotates
+      # through the stalest cards — see src/lib/price-import.ts.
       - name: Import live prices
         if: steps.db.outputs.found == 'true'
         working-directory: apps/dexcompare
+        env:
+          EBAY_CLIENT_ID: ${{ secrets.EBAY_CLIENT_ID }}
+          EBAY_CLIENT_SECRET: ${{ secrets.EBAY_CLIENT_SECRET }}
+          EBAY_AFFILIATE_CAMPAIGN: ${{ secrets.EBAY_AFFILIATE_CAMPAIGN }}
         run: |
           npm install --no-audit --no-fund
           npx prisma generate
+          # Additive schema sync (new columns/tables, e.g. PriceAlert, ClickEvent,
+          # Card.marketPriceSource) so the import can write them.
+          npx prisma db push --skip-generate
           npx tsx scripts/import-prices.ts

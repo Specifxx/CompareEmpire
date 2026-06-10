@@ -10,8 +10,11 @@ import { useCountry } from "./CountryProvider";
 const LINKS = [
   { href: "/browse", label: "Database" },
   { href: "/collection", label: "My collection" },
+  { href: "/guides", label: "Collecting guides" },
+  { href: "/trade", label: "Trade calculator" },
   { href: "/marketplace", label: "Marketplace" },
   { href: "/wishlist", label: "Wishlist" },
+  { href: "/contact", label: "Contact" },
 ];
 
 // Hamburger menu so phone users can reach every section (the desktop links are

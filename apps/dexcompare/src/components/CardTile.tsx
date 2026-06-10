@@ -8,6 +8,7 @@ import { useQuickView } from "./QuickView";
 import { useCountry } from "./CountryProvider";
 import { cardHref } from "@/lib/card-url";
 import { rarityInfo, isOvernumbered, isSignature } from "@/lib/constants";
+import { marketGuideCents, type Country } from "@/lib/country";
 
 export interface CardTileData {
   id: string;
@@ -31,6 +32,10 @@ export interface CardTileData {
   lowestPriceCentsNz?: number | null;
   lowestPriceCentsGb?: number | null;
   lowestPriceCentsUs?: number | null;
+  // Market-price guide (USD cents) + source — the labelled fallback shown when a
+  // market has no buyable store price. Never displayed as the "from" price.
+  marketPriceCents?: number | null;
+  marketPriceSource?: string | null;
   _count: { retailerPrices: number };
 }
 
@@ -38,8 +43,11 @@ export function CardTile({ card }: { card: CardTileData }) {
   const r = rarityInfo(card.rarity);
   const stores = card._count.retailerPrices;
   const { open } = useQuickView();
-  const { fmt, price } = useCountry();
+  const { fmt, price, country } = useCountry();
   const lowest = price(card);
+  // No buyable store price in this market → show the market guide, clearly
+  // labelled (it's a sales-based reference, not a "from" price).
+  const guide = lowest == null ? marketGuideCents(card.marketPriceCents, country as Country) : null;
 
   // Left-click opens an instant in-page quick view (no navigation = no lag). The
   // real href is kept for SEO, sharing and middle/ctrl-click (open in new tab),
@@ -88,6 +96,13 @@ export function CardTile({ card }: { card: CardTileData }) {
                 <div className="text-lg font-bold text-accent">
                   {fmt(lowest)}
                 </div>
+              </>
+            ) : guide != null ? (
+              <>
+                <div className="text-[11px] text-slate-500" title={`Market-price guide${card.marketPriceSource ? ` (source: ${card.marketPriceSource})` : ""} — not a store price`}>
+                  market guide
+                </div>
+                <div className="text-lg font-bold text-slate-300">≈ {fmt(guide)}</div>
               </>
             ) : (
               <div className="text-sm font-medium text-slate-500">No price yet</div>

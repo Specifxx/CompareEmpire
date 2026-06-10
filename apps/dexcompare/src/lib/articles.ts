@@ -1,0 +1,345 @@
+// File-based content for the Guides section. Authored by us (not user input),
+// rendered with the lightweight <Markdown> component. To publish a new article,
+// add an entry here.
+//
+// Editorial line: DexCompare guides are about COLLECTING Pokémon cards — buying
+// smart, conditions/grading, spotting fakes, storage, rarities — not about how to
+// play the game (plenty of sites cover that; collectors are our audience).
+
+export type ArticleCategory = "guide";
+
+export interface Article {
+  slug: string;
+  category: ArticleCategory;
+  title: string;
+  excerpt: string;
+  author: string;
+  date: string; // ISO (YYYY-MM-DD)
+  readMins: number;
+  tags: string[];
+  body: string; // markdown
+}
+
+export const ARTICLES: Article[] = [
+  {
+    slug: "where-to-buy-pokemon-cards",
+    category: "guide",
+    title: "Where to Buy Pokémon Cards (Australia, NZ, US & UK)",
+    excerpt:
+      "The complete guide to buying Pokémon TCG cards — singles and sealed — in Australia, New Zealand, the United States and the United Kingdom, and how to always find the cheapest price.",
+    author: "DexCompare",
+    date: "2026-06-10",
+    readMins: 6,
+    tags: ["buying", "stores", "singles", "sealed"],
+    body: `Want to buy **Pokémon TCG** cards but not sure where to start? Whether you're chasing a single grail card, filling out a binder set, or grabbing a sealed booster box, this guide covers exactly **where to buy Pokémon cards** in **Australia, New Zealand, the United States and the United Kingdom** — and how to make sure you never overpay.
+
+The short version: prices for the same card vary a lot between shops and change daily, so the smartest move is to **[compare every store at once on DexCompare](/browse)** and buy from whichever is cheapest in your country.
+
+## How to find the cheapest Pokémon card price
+
+1. **[Search the card database](/browse)** and open the card you want.
+2. Each card shows the **lowest live price across every store we track**, sorted cheapest-first, with a one-click link straight to the shop.
+3. Use the **country switcher** (top of the page) to set your region — prices then show in your local currency (AUD, NZD, USD or GBP), sourced from local stores, so what you see is what you'll actually pay.
+
+Every card also shows a **market price guide** with its source (TCGplayer's market price). That guide is what the card *trades* for — the live store prices are what you can *actually buy it* for, and the two can differ in either direction.
+
+## 🇦🇺 Buying Pokémon cards in Australia
+
+Australia has a deep spread of Pokémon retailers — dedicated TCG shops, collectables stores and local game stores — plus eBay Australia for harder-to-find singles. Because postage and stock differ wildly between shops, the cheapest *delivered* price is rarely the first shop you check.
+
+- **Singles:** [browse the card database](/browse) with the country set to **Australia** to see the lowest AUD price across 50+ Australian stores and eBay AU.
+- **Tip:** many AU stores offer free shipping over a threshold — buying a few cards from one shop can beat splitting an order across three.
+
+## 🇳🇿 Buying Pokémon cards in New Zealand
+
+Several Kiwi TCG stores stock Pokémon singles in NZD. Buying locally avoids international shipping and currency surprises.
+
+- Set the country switcher to **New Zealand** and **[browse singles](/browse)** to compare live NZD prices across NZ stores.
+- **Tip:** NZ stock can be thinner than AU/US for chase cards — [wishlist](/wishlist) the ones you want and turn on price-drop alerts so you're ready when they're listed.
+
+## 🇺🇸 Buying Pokémon cards in the United States
+
+The US is the deepest Pokémon market in the world — TCGplayer alone lists millions of singles, plus eBay US and countless stores. That depth means the best deals are out there, but only if you compare.
+
+- Switch the country to the **United States** and **[search the database](/browse)** for live USD prices across US sources including TCGplayer and eBay US.
+- **Tip:** for high-value chase cards, condition matters enormously — we surface Near-Mint English prices so you're comparing like for like, not a cheaper played or Japanese copy.
+
+## 🇬🇧 Buying Pokémon cards in the United Kingdom
+
+UK collectors can buy singles in GBP from British TCG retailers, with eBay UK and Cardmarket (the big EU marketplace) filling the gaps. Buying from UK/EU sources avoids customs and import fees.
+
+- Set the country to the **United Kingdom** and **[browse singles](/browse)** for live GBP prices.
+
+## Singles vs sealed: which should you buy?
+
+- **Chasing specific cards** (to finish a set or grab a grail)? Buy **singles** — it's almost always far cheaper than ripping packs hoping to pull the card. Start on the **[card database](/browse)**.
+- **Want the opening experience, or to hold long-term?** Buy **sealed** — booster boxes and Elite Trainer Boxes. Sealed product from popular sets has historically held value better than most singles, but nothing is guaranteed.
+
+## Tips for buying Pokémon cards safely
+
+- **Check the condition grade** before you buy — NM (Near Mint) is the default collectors pay full price for; LP/MP/HP copies should be meaningfully cheaper. See our [condition & grading guide](/guides/pokemon-card-conditions-and-grading).
+- **Beware prices that look too good** — a $20 "deal" on a $100 card is usually a Japanese print, a proxy, or a fake. Our [fake-spotting guide](/guides/how-to-spot-fake-pokemon-cards) covers the checks.
+- **Compare delivered prices, not sticker prices** — we show postage where the seller publishes it, so you can compare what actually leaves your wallet.
+- **Track instead of impulse-buying** — add cards to your [wishlist](/wishlist) and we'll email you when they get cheaper.`,
+  },
+  {
+    slug: "how-to-start-collecting-pokemon-cards",
+    category: "guide",
+    title: "How to Start a Pokémon Card Collection (Beginner's Guide)",
+    excerpt:
+      "Starting a Pokémon card collection in the 2020s — what to collect, what to buy first, how much to spend, and the beginner traps that waste money.",
+    author: "DexCompare",
+    date: "2026-06-10",
+    readMins: 7,
+    tags: ["collecting", "beginners", "budget"],
+    body: `Pokémon cards are the most collected trading cards on the planet, and starting a collection today is easier — and easier to get wrong — than ever. This guide is the advice we'd give a friend starting from zero.
+
+## First: decide WHAT you're collecting
+
+"All of it" is not a collection strategy — there are more than 20,000 English cards. The happiest collectors pick a lane:
+
+- **A Pokémon you love** — every printing of Charizard, Umbreon, Gengar, whatever you grew up with. Open-ended, very personal, easy to budget.
+- **A set** — completing one set (say, a modern set's 200-odd cards) binder page by binder page. Clear finish line, very satisfying.
+- **An era** — vintage WOTC (1999–2003), the EX era, or modern Scarlet & Violet. Era collecting is where serious money lives, so start modern and work backwards.
+- **An art style** — Illustration Rares and alt-arts are the modern hotness; many people collect *only* full-art cards they think are beautiful.
+
+There's no wrong answer, but having an answer stops you spraying money at random packs.
+
+## Buy singles, not packs (mostly)
+
+The single most important beginner lesson: **if you want a specific card, buy the card.** Opening packs to chase one card is strictly worse odds than a casino. A chase card that's a 1-in-200-packs pull costs 200 × pack price to "earn" — or one [database search](/browse) and a fraction of that to just buy.
+
+Packs and boxes are for the *opening experience* (which is genuinely fun — budget for it like entertainment, not investment).
+
+## A sensible starter budget
+
+- **$0** — build your [wishlist](/wishlist) on DexCompare, learn prices, turn on price-drop alerts. Watching prices for two weeks before buying teaches you more than any guide.
+- **Under $50** — a binder, sleeves, and your first few singles bought at the right price. See [storage & protection](/guides/how-to-store-and-protect-pokemon-cards).
+- **$50–$200** — a serious start on a set or a Pokémon-specific collection, all in singles, all bought from the cheapest store via [price comparison](/browse).
+- **More than that** — slow down. Expensive cards punish impatience; read the [grading guide](/guides/pokemon-card-conditions-and-grading) before you spend three figures on one card.
+
+## Beginner traps that waste money
+
+1. **Ripping retail packs for "value"** — sealed product on shelves is priced so that the average box returns less than it costs. Fun, yes. Profitable, no.
+2. **Buying ungraded "mint" cards at graded prices** — anyone can say mint. Without a grade, pay raw-card prices.
+3. **Ignoring the printing** — the same Pikachu can exist as a base print, holo, reverse holo and promo with wildly different values. Check the set code and collector number (e.g. \`058/091\`) before buying; our card pages show every printing separately.
+4. **Paying market price for damaged cards** — a played copy should cost well under the NM price. The condition spectrum on each card page shows what each grade should cost.
+5. **FOMO on brand-new sets** — new-set singles almost always fall in price over the first few months as supply floods in. Patience is literally money.
+
+## Where DexCompare fits
+
+We track every English card across AU, NZ, US and UK stores, refresh prices daily, and show the **market price guide with its source** next to the **real cheapest store**. Add your targets to the [wishlist](/wishlist), let the price-drop emails come to you, and build the collection you actually want — at prices you chose, not prices that happened to you.`,
+  },
+  {
+    slug: "pokemon-card-conditions-and-grading",
+    category: "guide",
+    title: "Pokémon Card Conditions & Grading Explained (NM, LP, PSA, CGC)",
+    excerpt:
+      "What NM / LP / MP / HP / DMG actually mean, how condition changes a card's price, and when professional grading (PSA, BGS, CGC) is worth the fee.",
+    author: "DexCompare",
+    date: "2026-06-10",
+    readMins: 8,
+    tags: ["condition", "grading", "PSA", "value"],
+    body: `Two copies of the same Pokémon card can differ in price by 10× — sometimes 100× — purely on condition. Understanding the grading ladder is the difference between paying the right price and donating money to a seller.
+
+## The raw-card condition scale
+
+Stores and marketplaces describe ungraded ("raw") cards on a five-step scale. DexCompare shows the cheapest price per grade on every card page so you can see the whole spectrum at a glance.
+
+- **NM — Near Mint.** Looks unplayed. Clean edges, sharp corners, no scratches visible without tilting under light. This is the default grade prices are quoted in.
+- **LP — Lightly Played.** Minor wear you have to look for: light edgewear, tiny scuffs. Usually 70–85% of NM price.
+- **MP — Moderately Played.** Obvious wear at a glance — whitening on edges, surface scratches, maybe a small crease. Roughly half of NM.
+- **HP — Heavily Played.** Significant damage: creases, heavy whitening, dinged corners. 25–40% of NM.
+- **DMG — Damaged.** Bends, water damage, writing, tears. Worth a fraction; fine for a binder placeholder, terrible as a purchase at any other price.
+
+**Rule of thumb:** if a listing doesn't state a condition, assume the worst grade the photos allow — and pay accordingly.
+
+## What professional grading is
+
+Grading companies — **PSA**, **CGC** and **Beckett (BGS)** are the big three — authenticate a card, grade it 1–10, and seal it in a tamper-evident plastic slab. A **PSA 10** ("Gem Mint") commands an enormous premium: it's common for a PSA 10 to sell for 3–10× the raw NM price, while a PSA 8 often sells *below* raw NM (because the 8 proves the card isn't mint).
+
+- **PSA** — the biggest brand, the most liquid slabs, generally the highest resale.
+- **CGC** — strong on modern cards, faster/cheaper tiers, sub-grades available.
+- **BGS** — the "Black Label 10" is the rarest flex in the hobby; tougher grading.
+
+## When grading is worth it
+
+Grading costs real money (typically US$15–$25+ per card at the slow tiers, much more for fast turnaround). It's worth it when:
+
+1. **The card is genuinely valuable** — a sensible floor is: only grade cards worth several times the grading fee in NM.
+2. **Your copy is truly mint** — centring, edges, corners and surface all matter. An honest self-check under a bright light saves a lot of wasted fees on cards that will come back a 7.
+3. **You're selling or holding long-term** — slabs sell faster, for more, with fewer disputes. For a binder collection you never plan to sell, raw cards in sleeves are fine and far cheaper.
+
+It is **not** worth grading bulk, played cards, or modern commons — the fee exceeds the card's ceiling.
+
+## Buying graded vs raw
+
+- Buying a **slab** costs more upfront but removes condition risk and fake risk in one go — you're paying for certainty.
+- Buying **raw** is cheaper and fine for NM/LP collection copies — but apply the [fake checks](/guides/how-to-spot-fake-pokemon-cards) and assume optimistic seller grading.
+- A note on our prices: graded slabs trade in their own market, so DexCompare's store comparison deliberately tracks **raw singles** — the slab keywords (PSA/BGS/CGC) are filtered out so a $2,000 slab never pollutes a $40 card's price.
+
+## The takeaway
+
+Condition isn't a detail — it **is** the price. Learn the five raw grades, check the per-condition prices on the [card page](/browse) before buying, and only pay grading fees on cards where the math works.`,
+  },
+  {
+    slug: "how-to-spot-fake-pokemon-cards",
+    category: "guide",
+    title: "How to Spot Fake Pokémon Cards (Collector's Checklist)",
+    excerpt:
+      "Fakes are everywhere — marketplaces, car-boot sales, even 'gifts'. A practical checklist of texture, print, light and weight tests that catch almost every counterfeit.",
+    author: "DexCompare",
+    date: "2026-06-10",
+    readMins: 6,
+    tags: ["fakes", "safety", "buying"],
+    body: `Counterfeit Pokémon cards have become genuinely good — good enough to fool a quick glance, which is all a marketplace photo gives you. Here's the checklist collectors actually use, roughly in the order of how often each test catches a fake.
+
+## Before you buy (online)
+
+1. **Price sanity check.** The number one tell. If a card sells for $100 everywhere and one listing is $25 "Brand new! Mint!", it's a fake, a Japanese print being passed off as English, or a scam. Check the real market on [DexCompare](/browse) first — we show the market price guide *and* every legitimate store's price, so a too-good-to-be-true number is obvious in seconds.
+2. **Seller signals.** New account, stock photos, dozens of identical chase cards "in hand", ships from overseas when the listing says local — each is a flag; together they're a verdict.
+3. **Ask for photos of the back.** Fakes most often fail on the card BACK: washed-out blue, wrong shade swirls, blurry Poké Ball. Real backs are crisp with a vivid, slightly dark blue.
+
+## In your hands
+
+4. **The texture test.** Modern holos and full-arts have an embossed texture you can feel and see under angled light. Most fakes are smooth and glossy.
+5. **The light test.** Real cards have a thin black/dark layer in the middle of the cardboard sandwich. Hold the card in front of a bright phone torch: a real card glows dimly and evenly; most fakes glow bright because the middle layer is missing.
+6. **The bend ("flick") test — gently.** Real cards are springy and snap back silently; fakes feel either flimsy-papery or stiff-plasticky. (Don't crease someone else's card, obviously.)
+7. **Font and print quality.** Compare against a real card from the same era: fakes get the energy symbols slightly wrong, the font weight too bold, the HP number misaligned, accents missing in "Pokémon".
+8. **Weight and size.** Real cards are remarkably consistent. A kitchen scale (≈1.7–1.9 g) and a known-real card for comparison catch lazy fakes.
+
+## Era-specific tells
+
+- **Vintage (WOTC, 1999–2003):** fakes often copy the *unlimited* print but with shadowless layouts or wrong copyright lines. Check the copyright text against a verified image — our card pages link real product images for reference.
+- **Modern ultra-rares:** real alt-arts have layered, directional texture; fakes print a flat photo of that texture. Angle it under light and the difference is immediate.
+- **Jumbo/promo cards:** widely faked as "rare collector items" — a jumbo card is rarely worth much; nobody fakes cheap things except to sell in bulk.
+
+## If you've already bought one
+
+- Marketplace purchases: open a "not as described" case immediately — photograph the tells (back colour, light test) as evidence. eBay's authenticity programs side with buyers on confirmed fakes.
+- Never resell a known fake "as real" — in most countries that's straightforward fraud.
+
+## The honest summary
+
+Almost every fake is caught by just two habits: **know the real price** before you buy (that's literally what [DexCompare](/browse) is for), and **check the back and the texture** when the card is in hand. Fakers rely on buyers doing neither.`,
+  },
+  {
+    slug: "how-to-store-and-protect-pokemon-cards",
+    category: "guide",
+    title: "How to Store & Protect Your Pokémon Cards",
+    excerpt:
+      "Sleeves, toploaders, binders, slabs and climate — what each layer of protection costs, what it's for, and a sensible setup for every collection size.",
+    author: "DexCompare",
+    date: "2026-06-10",
+    readMins: 6,
+    tags: ["storage", "protection", "collecting"],
+    body: `A card's condition is its value, and condition only ever goes one way without protection. The good news: protecting a collection properly is cheap compared to what damage costs.
+
+## The protection ladder
+
+Each layer protects against something specific. Match the layer to the card's value.
+
+### 1. Penny sleeves (~$2 per 100)
+
+Thin, soft sleeves — the absolute minimum for anything you wouldn't bin. They stop surface scratches and finger oils. **Every card worth more than bulk belongs in at least a penny sleeve.**
+
+### 2. Toploaders & semi-rigids (~$15–25 per 25)
+
+Rigid plastic holders that stop bending. The standard for **storing and shipping** anything from a few dollars up. Put the card in a penny sleeve FIRST, then the toploader — a bare card rattling in a toploader scratches.
+
+### 3. Binders with side-loading pages (~$20–50)
+
+The home of a *collection* — sets you're completing, your favourite Pokémon, cards you actually look at. Two non-negotiables:
+
+- **Side-loading pages** — top-loading pages let cards slide out when the binder is carried upright. Side-loaders don't.
+- **Zip or strap closure, stored upright** — stacked-flat binders imprint page texture into holos over months.
+
+Skip the old O-ring binders entirely; the rings dent the inner column of cards. Modern zip binders with padded covers are the hobby standard.
+
+### 4. Magnetic one-touches (~$2–4 each)
+
+Crystal-clear magnetic cases for display-worthy cards — the $50–$500 tier that deserves better than a toploader but isn't graded.
+
+### 5. Graded slabs
+
+Grading (covered in our [grading guide](/guides/pokemon-card-conditions-and-grading)) is the terminal layer: authentication + condition + a sealed case in one. For cards in the hundreds and up, the slab premium usually pays for itself at resale.
+
+## Climate: the silent killer
+
+Plastic stops scratches; it doesn't stop physics.
+
+- **Humidity** warps cards and clouds holos. Aim for 40–60% RH; in humid climates a sealed tub with silica gel packets is a $10 fix.
+- **Heat** accelerates fading and warping — never store cards in attics, garages or cars.
+- **Sunlight** fades cards shockingly fast. UV does it through windows too. Display copies belong in UV-protected cases or away from direct light, and your grails belong in the dark.
+
+## A sensible setup by collection size
+
+- **Starter (binder collector):** penny sleeves for everything, one good zip binder, a shoebox-sized storage box for bulk. Under $40 total.
+- **Enthusiast:** the above, plus toploaders for the trade/sale pile and one-touches for the top 10 cards. Silica packets in the storage tubs.
+- **High value:** graded slabs for the grails, a fire-safe or safety deposit box for the irreplaceable, and an insurance conversation once the collection passes a few thousand dollars.
+
+Protection is the cheapest "investment return" in the hobby: a $0.02 sleeve preserving a card's NM status protects the 20–30% price gap to LP forever. Before you buy your next card on [DexCompare](/browse), make sure the ones you own aren't quietly downgrading themselves in a drawer.`,
+  },
+  {
+    slug: "pokemon-card-rarities-explained",
+    category: "guide",
+    title: "Pokémon Card Rarities & Variants Explained",
+    excerpt:
+      "Circles, diamonds, stars, reverse holos, full arts, Illustration Rares, secret rares and promos — how to read a card's rarity and what it means for value.",
+    author: "DexCompare",
+    date: "2026-06-10",
+    readMins: 7,
+    tags: ["rarities", "variants", "value", "collecting"],
+    body: `"What's this card worth?" almost always starts with "what rarity is it?" — and Pokémon's rarity system has grown baroque enough over 25+ years that even returning collectors get lost. Here's the working map.
+
+## The basic symbols
+
+Printed in the card's bottom corner:
+
+- **● Circle — Common.** The bulk of every set. Almost always near-worthless individually (and that's fine — sets need them).
+- **◆ Diamond — Uncommon.** Slightly less printed; still bulk in practice.
+- **★ Star — Rare.** The baseline "good pull". Non-holo rares from modern sets are worth little; vintage ones can matter.
+- **★ Holo Rare.** A star rarity with a holographic picture. The classic "shiny card". Modern holos are cheap; vintage holos (Base Set Charizard!) are the icons of the hobby.
+
+## Reverse holos — the variant trap
+
+Since 2002, nearly every common/uncommon/rare also exists as a **reverse holo**: the *frame* shines instead of the artwork. Reverses are a separate printing with a separate price — usually a small premium over the plain card, occasionally (for certain sets and Pokémon) a large one. When you look a card up on [DexCompare](/browse), check whether the listing you're buying is the plain or reverse version; sellers blur this constantly.
+
+## Modern ultra-rares (the cards people chase)
+
+Modern sets stack several tiers above holo rare. Names shift between eras, but the current landscape:
+
+- **ex / V / GX cards** — mechanically special Pokémon with their own card frames. The *baseline* chase tier; most are inexpensive.
+- **Full Art** — the artwork covers the whole card, usually textured. A real premium begins here.
+- **Illustration Rare (IR)** — alternate scenic artwork of regular Pokémon; the most beloved modern tier, where art drives price more than playability.
+- **Special Illustration Rare (SIR) / Alt Arts** — the headline chase cards of modern sets. Five of the ten most valuable cards in a typical modern set are SIRs.
+- **Secret Rares** — cards numbered ABOVE the set total (e.g. \`201/197\`) — gold cards, rainbow cards, special prints. The "overnumbered" badge on our card pages marks these.
+
+**The pattern:** within a modern set, value concentrates brutally in the top art tiers. A set's regular ex might be $2 while its SIR version is $200 — same Pokémon, same set.
+
+## Promos
+
+Black-star promo cards come from events, product boxes and tins, and carry their own numbering (e.g. \`SWSH262\`, \`SVP 044\`). Some are giveaways worth pennies; some (event-exclusive stamps, early McDonald's prints) are genuinely scarce. Promos share artwork with set cards constantly, so **check the collector number, not the picture** — our database tracks promos as their own printings with their own prices.
+
+## Why the same card has many prices
+
+Put together, one Pokémon in one set can exist as: plain, reverse holo, holo, promo-stamped, and a different-number secret/alt version — five-plus printings with five-plus prices. This is why every DexCompare card page shows **"Other printings"**: sometimes the artwork you love is dramatically cheaper one printing over.
+
+## Reading a card in five seconds
+
+1. **Bottom-corner symbol** → base rarity.
+2. **Collector number vs set total** → overnumbered = secret rare.
+3. **Letter-prefixed number** (SVP, SWSH…) → promo.
+4. **Shiny frame vs shiny art** → reverse vs holo.
+5. **Then [look the exact printing up](/browse)** — the market settles the rest.`,
+  },
+];
+
+export function getArticles(category?: ArticleCategory): Article[] {
+  const list = category ? ARTICLES.filter((a) => a.category === category) : ARTICLES.slice();
+  return list.sort((a, b) => (a.date < b.date ? 1 : -1));
+}
+
+export function getArticle(slug: string): Article | undefined {
+  return ARTICLES.find((a) => a.slug === slug);
+}

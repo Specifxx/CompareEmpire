@@ -10,6 +10,7 @@ import { cardHref } from "@/lib/card-url";
 import { effectiveShippingCents, shippingPolicyUrl } from "@/lib/retailers";
 import { affiliateUrl } from "@/lib/affiliate";
 import { useCountry } from "./CountryProvider";
+import { marketGuideCents, type Country } from "@/lib/country";
 
 interface RetailerPrice {
   id: string;
@@ -97,8 +98,9 @@ function QuickViewModal({ card, onClose }: { card: CardTileData; onClose: () => 
 
   // Rank by delivered cost where postage is known (eBay), else by item price.
   // We never fabricate a postage estimate — unknown postage shows "at checkout".
+  // The market-guide row is a reference, not a store — it never ranks here.
   const inStock = (prices ?? [])
-    .filter((p) => p.inStock && p.country === country)
+    .filter((p) => p.inStock && p.country === country && !p.retailer.startsWith("marketguide"))
     .map((p) => {
       const ship = effectiveShippingCents(p.shippingCents); // number | null (null = unknown)
       return { ...p, ship, delivered: p.priceCents + (ship ?? 0) };
@@ -153,6 +155,16 @@ function QuickViewModal({ card, onClose }: { card: CardTileData; onClose: () => 
               <div className="text-2xl font-extrabold text-accent">
                 {lowest != null ? fmt(lowest) : "—"}
               </div>
+              {/* No buyable price → show the market guide, labelled with its source. */}
+              {lowest == null && (() => {
+                const guide = marketGuideCents(card.marketPriceCents, country as Country);
+                return guide != null ? (
+                  <div className="mt-1 text-xs text-slate-400">
+                    Market guide ≈ <span className="font-semibold text-slate-200">{fmt(guide)}</span>
+                    {card.marketPriceSource ? <span className="text-slate-500"> · source: {card.marketPriceSource}</span> : null}
+                  </div>
+                ) : null;
+              })()}
             </div>
 
             <div className="mt-4">

@@ -16,6 +16,10 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   try {
+    // No eBay pass from here: this serverless route is capped at minutes while a
+    // full eBay pass takes ~an hour. A cut-off pass would mark cards "fresh" and
+    // block the real one. eBay runs in the GitHub Actions import (120-min cap).
+    process.env.EBAY_REFRESH = "false";
     const summary = await importPrices();
     return NextResponse.json({ ok: true, ...summary });
   } catch (e) {

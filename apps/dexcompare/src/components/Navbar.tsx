@@ -41,6 +41,9 @@ export function Navbar() {
             <NavDropdown
               label="More"
               items={[
+                { href: "/guides", label: "Collecting guides", desc: "Buying, grading, fakes & storage" },
+                { href: "/trade", label: "Trade calculator", desc: "Check a trade is fair before you shake" },
+                { href: "/contact", label: "Contact", desc: "Report a price, suggest a store" },
                 { href: "/marketplace", label: "Marketplace", desc: "Buy direct from verified sellers", badge: "Soon" },
               ]}
             />

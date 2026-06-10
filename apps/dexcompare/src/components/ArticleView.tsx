@@ -1,0 +1,49 @@
+import Link from "next/link";
+import type { Article } from "@/lib/articles";
+import { Markdown } from "./Markdown";
+import { fmtDate } from "./ArticleList";
+import { AdSlot } from "./AdSlot";
+import { SITE_NAME, SITE_URL } from "@/lib/site";
+import { ADSENSE_SLOTS } from "@/lib/ads";
+
+export function ArticleView({ article }: { article: Article }) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    headline: article.title,
+    description: article.excerpt,
+    datePublished: article.date,
+    author: { "@type": "Organization", name: article.author },
+    publisher: { "@type": "Organization", name: SITE_NAME },
+    mainEntityOfPage: `${SITE_URL}/guides/${article.slug}`,
+  };
+
+  return (
+    <article className="mx-auto max-w-3xl">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+
+      <Link href="/guides" className="mb-4 inline-flex items-center gap-1 text-sm text-slate-400 hover:text-white">
+        ← All guides
+      </Link>
+
+      <div className="mb-2 flex flex-wrap gap-1.5">
+        {article.tags.map((t) => (
+          <span key={t} className="chip bg-ink-800 text-slate-400">{t}</span>
+        ))}
+      </div>
+
+      <h1 className="text-3xl font-extrabold leading-tight text-white">{article.title}</h1>
+      <div className="mt-2 text-sm text-slate-500">
+        {article.author} · {fmtDate(article.date)} · {article.readMins} min read
+      </div>
+
+      <AdSlot slot={ADSENSE_SLOTS.article} className="mt-6" height={120} />
+
+      <div className="mt-6 border-t border-ink-800 pt-4">
+        <Markdown content={article.body} />
+      </div>
+
+      <AdSlot slot={ADSENSE_SLOTS.article} className="mt-8" height={120} />
+    </article>
+  );
+}

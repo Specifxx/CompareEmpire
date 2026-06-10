@@ -2,11 +2,14 @@ import type { Metadata } from "next";
 import { Sora, Space_Grotesk } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import Link from "next/link";
 import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { QuickViewProvider } from "@/components/QuickView";
 import { WishlistDrawerProvider } from "@/components/WishlistDrawer";
 import { CountryProvider } from "@/components/CountryProvider";
+import { PriceAlertModal } from "@/components/PriceAlertModal";
+import { WebAdsLoader } from "@/components/WebAdsLoader";
 import { getCountry } from "@/lib/get-country";
 import { CONTACT_EMAIL, SITE_NAME, SITE_URL } from "@/lib/site";
 import { IMPACT_SITE_VERIFICATION } from "@/lib/affiliate";
@@ -96,20 +99,43 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <main className="container-app py-6">{children}</main>
           </QuickViewProvider>
         </WishlistDrawerProvider>
+        <PriceAlertModal />
         </CountryProvider>
         <footer className="container-app border-t border-ink-800 py-8 text-center text-xs text-slate-500">
-          <div className="mb-2 flex items-center justify-center gap-4 text-sm">
+          <nav className="mb-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-sm">
+            <Link href="/browse" className="hover:text-slate-300">Database</Link>
+            <Link href="/guides" className="hover:text-slate-300">Collecting guides</Link>
+            <Link href="/trade" className="hover:text-slate-300">Trade calculator</Link>
+            <Link href="/wishlist" className="hover:text-slate-300">Wishlist</Link>
+            <Link href="/contact" className="hover:text-slate-300">Contact</Link>
+            <Link href="/privacy" className="hover:text-slate-300">Privacy</Link>
             <a href={`mailto:${CONTACT_EMAIL}`} className="text-gold hover:underline">{CONTACT_EMAIL}</a>
-          </div>
+          </nav>
+          {/* Cross-promotion: our sister site for the Riftbound TCG. */}
+          <p className="mb-2">
+            Also collect <strong className="font-semibold text-slate-400">Riftbound</strong> (the League of
+            Legends TCG)? Compare card prices on our sister site{" "}
+            <a
+              href="https://riftcompare.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-brand-400 hover:underline"
+            >
+              RiftCompare.com
+            </a>
+            .
+          </p>
           <p>
-            DexCompare · Pokémon card database &amp; price comparison for
-            Australia. Prices are sourced from public store listings and may be out
-            of date — always confirm on the retailer&apos;s site. Not affiliated with
-            or endorsed by Riot Games.
+            DexCompare · Pokémon card database &amp; price comparison for Australia,
+            New Zealand, the US and the UK. Prices are sourced from public store
+            listings and may be out of date — always confirm on the retailer&apos;s
+            site. Not affiliated with or endorsed by Nintendo, The Pokémon Company
+            or Game Freak.
           </p>
         </footer>
         <Analytics />
         <SpeedInsights />
+        <WebAdsLoader />
       </body>
     </html>
   );

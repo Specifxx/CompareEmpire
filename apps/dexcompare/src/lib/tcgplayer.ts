@@ -18,23 +18,33 @@ const PRODUCT_LINE = "pokemon";
 const PAGE_SIZE = 50;
 
 // Mirror of price-import.ts numKey: strip leading zeros, lowercase any letter
-// suffix, and mark a Signature print ("*") with a trailing "s" so 223*/221 and
-// 223/221 stay distinct.
+// prefix/suffix (Pokémon promos like "SWSH262"/"SVP 044" keep their alpha prefix
+// as part of the identity), and mark a "*" print with a trailing "s".
 function numKey(seg: string): string {
-  const m = seg.match(/^0*(\d+)([a-z]*)/i);
-  const base = m ? m[1] + m[2].toLowerCase() : seg.toLowerCase();
+  const cleaned = seg.trim().toLowerCase().replace(/\s+/g, "");
+  const m = cleaned.match(/^([a-z]*)0*(\d+)([a-z]*)/);
+  const base = m ? m[1] + m[2] + m[3] : cleaned;
   return seg.includes("*") ? `${base}s` : base;
 }
 
-// Set code from the "/NNN" denominator (authoritative, prevents cross-set bleed).
-function setFromTotal(total?: string): string | null {
-  switch (parseInt(total ?? "", 10)) {
-    case 298: return "OGN";
-    case 221: return "SFD";
-    case 219: return "UNL";
-    case 24: return "OGS";
-    default: return null;
-  }
+// Normalised set name for cross-catalogue matching. TCGplayer prefixes set names
+// with the series code ("SV03: Obsidian Flames"); our names come from
+// pokemontcg.io ("Obsidian Flames"). Lowercase, fold "&"→"and", strip everything
+// but letters/digits/spaces, collapse whitespace — then one side containing the
+// other counts as the same set (the collector number must ALSO match, so a name
+// overlap alone can never mis-match a card).
+function normSetName(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/&/g, " and ")
+    .replace(/[^a-z0-9]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function setNamesOverlap(a: string, b: string): boolean {
+  if (!a || !b) return false;
+  return a === b || a.includes(b) || b.includes(a);
 }
 
 export type TcgProduct = {
@@ -145,22 +155,35 @@ export type TcgMatchResult = {
   matched: number;
   rows: Prisma.RetailerPriceCreateManyInput[];
   unmatchedSamples: string[];
+  // cardId → TCGplayer market price (USD cents) for the base/non-foil printing.
+  marketByCard: Map<string, number>;
 };
 
 // Match products to cards and build RetailerPrice rows (no DB writes — caller
 // decides). Exported separately so a dry-run can inspect the match quality.
+//
+// Matching: collector number is the primary identity (numKey, letter-aware), with
+// the SET confirmed by name overlap and — when both sides print one — an equal
+// "/total" denominator. Ambiguous products (number matching multiple cards whose
+// set names all overlap) are skipped rather than guessed.
 export async function buildTcgplayerRows(products?: TcgProduct[]): Promise<TcgMatchResult> {
   const items = products ?? (await fetchTcgplayerProducts());
-  const cards = await prisma.card.findMany({ select: { id: true, collectorNumber: true } });
-  const byKey = new Map<string, string>();
+  const cards = await prisma.card.findMany({ select: { id: true, collectorNumber: true, setName: true } });
+  // numKey → candidate cards (the same number recurs across sets; the set-name
+  // overlap picks the right one).
+  const byNum = new Map<string, { id: string; setNorm: string; total: string | null }[]>();
   for (const c of cards) {
     const [num, total] = c.collectorNumber.split("/");
-    const sc = setFromTotal(total);
-    if (!sc) continue;
-    byKey.set(`${sc}|${numKey(num)}`, c.id);
+    const k = numKey(num);
+    const list = byNum.get(k) ?? [];
+    list.push({ id: c.id, setNorm: normSetName(c.setName), total: total?.trim() || null });
+    byNum.set(k, list);
   }
 
   const rows: Prisma.RetailerPriceCreateManyInput[] = [];
+  // Per card+printing, the market price for the Card.marketPriceCents guide refresh
+  // (base/non-foil preferred — that's the price the guide represents).
+  const marketByCard = new Map<string, number>();
   const seen = new Set<string>();
   const unmatchedSamples: string[] = [];
   let matched = 0;
@@ -170,16 +193,22 @@ export async function buildTcgplayerRows(products?: TcgProduct[]): Promise<TcgMa
     const market = p.marketPrice;
     if (!numStr || market == null || market <= 0) continue;
     const [num, total] = numStr.split("/");
-    const sc = setFromTotal(total);
-    if (!sc) continue;
-    const cardId = byKey.get(`${sc}|${numKey(num)}`);
-    if (!cardId) {
-      if (unmatchedSamples.length < 25) unmatchedSamples.push(`${p.productName} ${numStr} $${market}`);
+    const prodSetNorm = normSetName(p.setName ?? "");
+    const prodTotal = total?.trim() || null;
+    const candidates = (byNum.get(numKey(num)) ?? []).filter(
+      (c) => setNamesOverlap(c.setNorm, prodSetNorm) && (!c.total || !prodTotal || c.total === prodTotal)
+    );
+    if (candidates.length !== 1) {
+      if (!candidates.length && unmatchedSamples.length < 25) {
+        unmatchedSamples.push(`${p.productName} [${p.setName}] ${numStr} $${market}`);
+      }
       continue;
     }
+    const cardId = candidates[0].id;
     matched++;
     // foilOnly products are foil prints; everything else is the base/normal market.
     const isFoil = !!p.foilOnly;
+    if (!isFoil && !marketByCard.has(cardId)) marketByCard.set(cardId, Math.round(market * 100));
     const dedupe = `${cardId}|${isFoil}`;
     if (seen.has(dedupe)) continue; // one row per card+printing (unique key)
     seen.add(dedupe);
@@ -197,12 +226,44 @@ export async function buildTcgplayerRows(products?: TcgProduct[]): Promise<TcgMa
       inStock: true,
     });
   }
-  return { total: items.length, matched, rows, unmatchedSamples };
+  return { total: items.length, matched, rows, unmatchedSamples, marketByCard };
+}
+
+// Refresh each matched card's MARKET-PRICE GUIDE (Card.marketPriceCents, USD)
+// from TCGplayer's live market price, recording the source + timestamp so the UI
+// can always say where the guide came from. Diff-based: only cards whose guide
+// actually moved are written.
+async function refreshMarketGuides(marketByCard: Map<string, number>): Promise<number> {
+  if (marketByCard.size === 0) return 0;
+  const current = await prisma.card.findMany({
+    where: { id: { in: Array.from(marketByCard.keys()) } },
+    select: { id: true, marketPriceCents: true, marketPriceSource: true },
+  });
+  const toUpdate = current.filter((c) => {
+    const next = marketByCard.get(c.id)!;
+    return c.marketPriceCents !== next || c.marketPriceSource !== "TCGplayer";
+  });
+  const CONC = 8;
+  for (let i = 0; i < toUpdate.length; i += CONC) {
+    await Promise.all(
+      toUpdate.slice(i, i + CONC).map((c) =>
+        prisma.card.update({
+          where: { id: c.id },
+          data: {
+            marketPriceCents: marketByCard.get(c.id)!,
+            marketPriceSource: "TCGplayer",
+            marketPriceUpdatedAt: new Date(),
+          },
+        })
+      )
+    );
+  }
+  return toUpdate.length;
 }
 
 // Replace all TCGplayer rows with a fresh pull. Returns the number written.
 export async function refreshTcgplayerPrices(): Promise<number> {
-  const { total, matched, rows, unmatchedSamples } = await buildTcgplayerRows();
+  const { total, matched, rows, unmatchedSamples, marketByCard } = await buildTcgplayerRows();
   console.log(`TCGplayer: ${total} products, ${matched} matched, ${rows.length} rows.`);
   if (unmatchedSamples.length) console.log(`TCGplayer unmatched (sample): ${unmatchedSamples.slice(0, 8).join(" | ")}`);
   if (rows.length === 0) {
@@ -211,5 +272,7 @@ export async function refreshTcgplayerPrices(): Promise<number> {
   }
   await prisma.retailerPrice.deleteMany({ where: { retailer: "tcgplayer" } });
   await prisma.retailerPrice.createMany({ data: rows });
+  const guides = await refreshMarketGuides(marketByCard);
+  if (guides) console.log(`TCGplayer: refreshed the market-price guide on ${guides} cards.`);
   return rows.length;
 }

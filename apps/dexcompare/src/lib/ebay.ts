@@ -39,27 +39,33 @@ const FALLBACK_BUDGET = Number(process.env.EBAY_MAX_CALLS ?? 2200); // used only
 let spendable = Infinity; // Browse calls we may still make this run
 let spentThisRun = 0;
 
-// Live remaining Browse-API calls for today (null if it can't be read). Uses the
-// Developer Analytics API, which has its own separate limit (doesn't cost Browse quota).
-async function fetchRemaining(): Promise<number | null> {
+// Live Browse-API quota for today (nulls if it can't be read). Uses the Developer
+// Analytics API, which has its own separate limit (doesn't cost Browse quota).
+// `limit` is read too (not assumed to be 5,000): if eBay raises the app's quota
+// (e.g. after the Application Growth Check), the bigger allowance is picked up
+// automatically on the next run — no code or env change needed.
+async function fetchQuota(): Promise<{ remaining: number | null; limit: number | null }> {
   const token = await getToken();
-  if (!token) return null;
+  if (!token) return { remaining: null, limit: null };
   try {
     const res = await fetch(
       "https://api.ebay.com/developer/analytics/v1_beta/rate_limit/?api_context=buy&api_name=Browse",
       { headers: { Authorization: `Bearer ${token}` } }
     );
-    if (!res.ok) return null;
+    if (!res.ok) return { remaining: null, limit: null };
     const data: any = await res.json();
     for (const grp of data.rateLimits ?? []) {
       for (const r of grp.resources ?? []) {
-        if (r.name === "buy.browse") return r.rates?.[0]?.remaining ?? null;
+        if (r.name === "buy.browse") {
+          const rate = r.rates?.[0];
+          return { remaining: rate?.remaining ?? null, limit: rate?.limit ?? null };
+        }
       }
     }
   } catch {
     /* ignore — fall back to the fixed budget */
   }
-  return null;
+  return { remaining: null, limit: null };
 }
 
 // Call once at the start of an eBay pass. Sets how many calls we may spend so we
@@ -67,13 +73,19 @@ async function fetchRemaining(): Promise<number | null> {
 export async function primeEbayBudget(): Promise<{ remaining: number | null; budget: number }> {
   rateLimited = false;
   spentThisRun = 0;
-  const remaining = await fetchRemaining();
+  const { remaining, limit } = await fetchQuota();
   spendable = remaining == null ? FALLBACK_BUDGET : Math.max(0, remaining - QUOTA_RESERVE);
   if (spendable <= 0) rateLimited = true;
   console.log(
-    `eBay quota: ${remaining ?? "unknown"}/5000 remaining today → budget ${spendable} calls this run (reserve ${QUOTA_RESERVE}).`
+    `eBay quota: ${remaining ?? "unknown"}/${limit ?? "unknown"} remaining today → budget ${spendable} calls this run (reserve ${QUOTA_RESERVE}).`
   );
   return { remaining, budget: spendable };
+}
+
+// Remaining spendable calls this run (after the reserve). Used by the importer to
+// split the run's budget across markets.
+export function ebaySpendable(): number {
+  return spendable === Infinity ? FALLBACK_BUDGET : Math.max(0, spendable);
 }
 
 export function ebaySpentThisRun(): number {
@@ -133,6 +145,47 @@ function shippingFromItem(item: any): number | null {
 // Titles that mean a bundle/lot/non-English/sealed/non-card listing — never a single.
 const EXCLUDE =
   /\b(lot|lots|bundle|joblot|job lot|playset|complete set|full set|master set|set of|bulk|pick your|choose your|your choice|all epic|all rare|all common|all uncommon|all cards|sealed|booster|pack|box|proxy|custom|chinese|japanese|korean|\d+\s*cards|x\s*\d+|keychain|key ?ring|keyring|novelty|sticker|plush|playmat|sleeves?|toploader|top ?loader|binder|lanyard|badge|poster|magnet|funko|pin badge|psa|bgs|cgc|sgc|graded|slab(bed)?|gem\s*mint|gem\s*mt)\b/i;
+
+// Foreign-language / non-English printings that EXCLUDE's English word-list misses.
+// Japanese (and Chinese/Korean) Pokémon printings share card names — and often the
+// search window — with English cards but trade far cheaper, so they kept surfacing
+// as the "cheapest". We catch them by: any CJK character in the title (a Japanese/
+// Chinese/Korean card name or 日本語/中文 marker), OR short region/language codes the
+// word-list can't (jp/jpn/kr/cn/chs/asia/…).
+const FOREIGN_LANG =
+  /[\u3400-\u9fff\u3040-\u30ff\uac00-\ud7af]|\b(cn|chs|cht|jp|jpn|kr|kor|asia|asian|simplified|traditional|mandarin|cantonese)\b/i;
+
+// A listing that is (or is very likely) a non-English printing — by title language
+// or by shipping from Japan/mainland China (overwhelmingly the local-language print
+// when an English-market search returns it). Other origins are kept (more mixed).
+function isForeignListing(it: any): boolean {
+  if (FOREIGN_LANG.test(it?.title ?? "")) return true;
+  const origin = it?.itemLocation?.country ?? "";
+  if (origin === "CN" || origin === "JP") return true;
+  return false;
+}
+
+function median(nums: number[]): number {
+  const s = [...nums].sort((a, b) => a - b);
+  const m = Math.floor(s.length / 2);
+  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+}
+
+// Return the cheapest listing AFTER discarding gross low-price outliers — the
+// signature of a foreign printing (or a damaged/mislabelled copy) that escaped the
+// title/location filters. We drop the cheapest while it's < 40% of the median price
+// (computed in dollars), requiring >= 4 listings and a median >= $5 so it never
+// mis-fires on cheap cards or thin data. `items` must already be sorted cheapest-first.
+function pruneCheapOutliers(items: any[]): any | undefined {
+  let arr = items;
+  while (arr.length >= 4) {
+    const prices = arr.map((it) => parseFloat(it.price.value));
+    const med = median(prices);
+    if (med >= 5 && prices[0] / med < 0.4) arr = arr.slice(1);
+    else break;
+  }
+  return arr[0];
+}
 
 // A promo printing (organized-play / prerelease / "GG EZ" etc.) shares the base
 // card's collector number, so the ONLY way to tell a promo listing from the base
@@ -255,6 +308,10 @@ export async function searchEbayLowest(card: {
   const valid = items
     .filter((it) => it?.price?.value)
     .filter((it) => !EXCLUDE.test(it.title ?? ""))
+    // Drop non-English (Japanese/Chinese/Korean) printings — they share names and
+    // numbers with our English cards but trade much cheaper, so they leak in as
+    // the "cheapest" if only the English word-list is checked.
+    .filter((it) => !isForeignListing(it))
     .filter((it) => numberMatches(it.title ?? "", card.number, card.total, card.setCode))
     // Signature ("*") and plain overnumbered share a number — keep them apart.
     .filter((it) => titleIsSignature(it.title ?? "", n) === card.isSignature)
@@ -264,7 +321,11 @@ export async function searchEbayLowest(card: {
     .filter((it) => PROMO_HINT.test(it.title ?? "") === !!card.isPromo)
     .sort((a, b) => delivered(a) - delivered(b));
 
-  const best = valid[0];
+  // Final safety net for a foreign printing (or junk copy) that slipped past the
+  // title/location filters — such listings are priced FAR below the genuine
+  // English market, so drop the cheapest while it's a gross outlier (< 40% of the
+  // median) with enough listings for the median to be trustworthy.
+  const best = pruneCheapOutliers(valid);
   if (!best) return null;
 
   return {
@@ -334,6 +395,7 @@ export async function searchEbaySealed(name: string, productType: string, setCod
     .filter((it) => !kw || kw.test(it.title ?? ""))
     .filter((it) => !setName || new RegExp(setName.replace(/\s+/g, "\\s*"), "i").test(it.title ?? "") || !setCode)
     .filter((it) => !SEALED_EXCLUDE_EBAY.test(it.title ?? ""))
+    .filter((it) => !isForeignListing(it))
     .sort((a, b) => delivered(a) - delivered(b));
 
   const best = valid[0];

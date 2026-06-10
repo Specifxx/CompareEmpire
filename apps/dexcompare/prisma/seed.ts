@@ -266,6 +266,10 @@ async function main() {
       imageUrl: c.imageUrl,
       imageThumbUrl: c.imageThumbUrl,
       marketPriceCents: usLow,
+      // Surface WHERE the guide number came from. Real API price = TCGplayer's
+      // market price (via pokemontcg.io); otherwise our rarity/age heuristic.
+      marketPriceSource: real ? "TCGplayer" : "Estimate",
+      marketPriceUpdatedAt: new Date(),
       lowestPriceCents: auLow,
       lowestPriceCentsNz: nzLow,
       lowestPriceCentsUs: usLow,
@@ -311,7 +315,7 @@ async function main() {
     AU: { retailer: "marketguide_au", name: "Market Price (guide)", store: false },
   };
   for (const c of dbCards) {
-    const real = realPrices.get(c.externalId);
+    const real = c.externalId ? realPrices.get(c.externalId) : undefined;
     const q = encodeURIComponent(`${c.name} ${c.setName}`);
     const tcgUrl = real?.tcgUrl ?? `https://www.tcgplayer.com/search/pokemon/product?q=${q}`;
     const cmUrl = real?.cmUrl ?? `https://www.cardmarket.com/en/Pokemon/Products/Search?searchString=${q}`;

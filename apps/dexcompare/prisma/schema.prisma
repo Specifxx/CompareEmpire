@@ -1,6 +1,6 @@
-// TCGEmpire — Riftbound marketplace database schema
-// SQLite for local MVP. Enums are represented as Strings because the SQLite
-// connector does not support native enums; allowed values are validated in app code.
+// DexCompare — Pokémon TCG price-comparison database schema.
+// Enums are represented as Strings because the original SQLite MVP connector did
+// not support native enums; allowed values are validated in app code.
 
 generator client {
   provider = "prisma-client-js"
@@ -107,8 +107,15 @@ model Card {
   imageUrl        String? // full-resolution
   imageThumbUrl   String? // smaller webp for grids
   blurDataUrl     String? // tiny base64 placeholder
-  // Reference / market price in AUD cents, used as a default suggested price.
+  // Market-price GUIDE in USD cents — a sales-based reference (TCGplayer market
+  // price via pokemontcg.io at seed time, refreshed from TCGplayer's live feed by
+  // the importer). Shown clearly labelled with its source; NEVER used as the
+  // "cheapest"/"from" price (that always comes from a real, buyable store listing).
   marketPriceCents Int      @default(0)
+  // Where the market guide came from ("TCGplayer" | "Estimate"), and when it was
+  // last refreshed — surfaced next to the guide so the source is always visible.
+  marketPriceSource    String?
+  marketPriceUpdatedAt DateTime?
   // Lowest live retailer price across all sources, set by the price importer.
   // Used for "from $X" and catalogue sorting. null = no price found.
   //   lowestPriceCents   = Australia (AUD cents), from AU stores + eBay AU
@@ -132,6 +139,7 @@ model Card {
   buyOrders       BuyOrder[]
   retailerPrices  RetailerPrice[]
   priceHistory    PriceHistory[]
+  priceAlerts     PriceAlert[]
 
   @@index([setCode, collectorNumber])
   @@index([nameNormalized])
@@ -239,6 +247,47 @@ model PriceHistory {
 
   @@unique([cardId, day])
   @@index([cardId, day])
+}
+
+// A wishlist price-drop subscription. No account needed — keyed by email, created
+// from the wishlist pop-up. The daily cron (/api/cron/price-alerts) compares each
+// card's current lowest price in the subscriber's market against lastPriceCents
+// and emails a digest of genuine drops.
+model PriceAlert {
+  id             String    @id @default(cuid())
+  email          String // lowercased + trimmed on write
+  cardId         String
+  market         String    @default("AU") // AU | NZ | US | GB
+  // Baseline for drop detection — advanced to the current price on every run
+  // (up or down) so a later dip is measured against the most recent price.
+  lastPriceCents Int?
+  // Per-email secret shared by all of that email's alerts, so one link in the
+  // email footer unsubscribes everything for the address.
+  unsubToken     String
+  createdAt      DateTime  @default(now())
+  lastNotifiedAt DateTime?
+
+  card           Card      @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  @@unique([email, cardId, market])
+  @@index([email])
+  @@index([unsubToken])
+  @@index([cardId])
+}
+
+// One outbound affiliate-link click (store / eBay / TCGplayer), recorded by the
+// /api/click beacon. Lets us verify in our own DB that outbound links are used —
+// e.g. cross-checking eBay Partner Network earnings — without trusting only the
+// partner's dashboard. No user identifiers are stored.
+model ClickEvent {
+  id        String   @id @default(cuid())
+  retailer  String // store key, e.g. "cherry", "ebay", "tcgplayer"
+  country   String   @default("AU") // market the click came from
+  kind      String   @default("single") // "single" | "sealed"
+  createdAt DateTime @default(now())
+
+  @@index([retailer, createdAt])
+  @@index([createdAt])
 }
 
 // A community marketplace post: a user's "want to buy" (WTB) or "want to sell"

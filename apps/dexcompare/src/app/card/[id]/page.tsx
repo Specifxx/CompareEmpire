@@ -16,7 +16,8 @@ import { formatMoney, timeAgo } from "@/lib/format";
 import { effectiveShippingCents, shippingPolicyUrl } from "@/lib/retailers";
 import { affiliateUrl } from "@/lib/affiliate";
 import { getCountry } from "@/lib/get-country";
-import { COUNTRIES, pickPrice } from "@/lib/country";
+import { COUNTRIES, pickPrice, marketGuideCents } from "@/lib/country";
+import { OutboundLink } from "@/components/OutboundLink";
 
 // ISR while AU-only; dynamic per-request once NZ mode is enabled (cookie-driven).
 export const revalidate = 180;
@@ -129,9 +130,14 @@ export default async function CardPage({ params }: { params: { id: string } }) {
     rows.reduce<number | null>((m, p) => (m == null || p.priceCents < m ? p.priceCents : m), null);
   const cheapestStandard = minPrice(prices.filter((p) => !p.isFoil));
   const cheapestFoil = minPrice(prices.filter((p) => p.isFoil));
-  // Headline = cheapest real store (NM/LP preferred) → else the market-guide estimate.
-  const headlineCents = cheapestStandard ?? lowestPrice ?? guide?.priceCents ?? null;
-  const headlineIsEstimate = cheapestStandard == null && (lowestPrice == null || prices.length === 0);
+  // Headline = cheapest REAL store price only. The market guide is never the
+  // headline/cheapest price — it's an estimate, shown separately with its source.
+  const headlineCents = cheapestStandard ?? lowestPrice ?? null;
+
+  // The market-price guide for this market: the imported guide row where one
+  // exists (AU), else the card's USD guide converted at an indicative rate.
+  const guideCents = guide?.priceCents ?? marketGuideCents(card.marketPriceCents, country);
+  const guideSource = card.marketPriceSource ?? "TCGplayer";
 
   // Structured data so Google can show a rich price snippet ("$X, N stores").
   const jsonLd = {
@@ -206,7 +212,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
             </div>
 
             <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <Metric label={headlineIsEstimate ? "Market estimate" : cheapestFoil != null ? "Standard from" : "Cheapest price"} value={headlineCents != null ? fmt(headlineCents) : "—"} highlight />
+              <Metric label={cheapestFoil != null ? "Standard from" : "Cheapest price"} value={headlineCents != null ? fmt(headlineCents) : "—"} highlight />
               {cheapestFoil != null && <Metric label="✦ Foil from" value={fmt(cheapestFoil)} highlight />}
               <Metric label="Compared at" value={`${prices.length} ${prices.length === 1 ? "store" : "stores"}`} />
               {weekChange != null && Math.abs(weekChange) >= 0.05 ? (
@@ -235,11 +241,23 @@ export default async function CardPage({ params }: { params: { id: string } }) {
               </div>
             )}
 
-            {/* AU (and other markets with no local store) show a labelled market guide. */}
-            {guide && prices.length === 0 && (
+            {/* Market-price GUIDE — always shown with its source. A sales-based
+                reference, never the headline/cheapest price (that's store-only). */}
+            {guideCents != null && (
               <div className="mt-4 rounded-lg border border-dashed border-ink-600 bg-ink-900/50 p-3 text-sm">
-                <span className="font-semibold text-slate-200">Market price (estimate): {fmt(guide.priceCents)}</span>
-                <span className="ml-2 text-xs text-slate-500">guide only — no {info.adjective} store stocks this card yet, so it isn’t buyable here.</span>
+                <div className="flex flex-wrap items-baseline gap-x-2">
+                  <span className="font-semibold text-slate-200">Market price guide: {fmt(guideCents)}</span>
+                  <span className="text-xs text-slate-500">
+                    source: {guideSource}
+                    {country !== "US" ? " (USD market price, converted)" : ""}
+                    {card.marketPriceUpdatedAt ? ` · updated ${timeAgo(card.marketPriceUpdatedAt)}` : ""}
+                  </span>
+                </div>
+                <p className="mt-1 text-xs leading-relaxed text-slate-500">
+                  {prices.length === 0
+                    ? `A guide from recent sales, not a buyable listing — no ${info.adjective} store stocks this card yet.`
+                    : `A guide from recent sales, not a buyable listing. The ${info.adjective} store prices below are what you can actually pay — note the market guide can sometimes be cheaper than any store here (and vice versa).`}
+                </p>
               </div>
             )}
           </div>
@@ -273,10 +291,10 @@ export default async function CardPage({ params }: { params: { id: string } }) {
 
             {prices.length === 0 && outOfStock.length === 0 ? (
               <div className="p-8 text-center text-sm text-slate-400">
-                <p className="font-semibold text-white">{guide ? "No store listings yet" : "No prices found yet"}</p>
+                <p className="font-semibold text-white">{guideCents != null ? "No store listings yet" : "No prices found yet"}</p>
                 <p className="mt-1">
-                  {guide
-                    ? `The market estimate above is a guide. We'll show buyable ${info.adjective} stores here as they list this card.`
+                  {guideCents != null
+                    ? `The market price above is a guide only. We'll show buyable ${info.adjective} stores here as they list this card.`
                     : "We haven't matched this card to a store listing. Check back soon — our price feeds refresh regularly."}
                 </p>
               </div>
@@ -322,14 +340,9 @@ export default async function CardPage({ params }: { params: { id: string } }) {
                         <div className="text-[11px] text-slate-400">≈ {fmt(p.delivered)} delivered</div>
                       )}
                     </div>
-                    <a
-                      href={affiliateUrl(p.url)}
-                      target="_blank"
-                      rel="nofollow sponsored noopener noreferrer"
-                      className="btn-primary"
-                    >
+                    <OutboundLink href={affiliateUrl(p.url)} retailer={p.retailer} country={country} className="btn-primary">
                       View →
-                    </a>
+                    </OutboundLink>
                   </li>
                 ))}
               </ul>
@@ -354,14 +367,9 @@ export default async function CardPage({ params }: { params: { id: string } }) {
                       <div className="text-right">
                         <div className="text-lg font-bold text-slate-400 line-through">{fmt(p.priceCents)}</div>
                       </div>
-                      <a
-                        href={affiliateUrl(p.url)}
-                        target="_blank"
-                        rel="nofollow sponsored noopener noreferrer"
-                        className="btn-ghost"
-                      >
+                      <OutboundLink href={affiliateUrl(p.url)} retailer={p.retailer} country={country} className="btn-ghost">
                         Check →
-                      </a>
+                      </OutboundLink>
                     </li>
                   ))}
                 </ul>
