@@ -59,6 +59,22 @@ export function ebayAffiliateUrl(url: string): string {
   }
 }
 
+// eBay marketplace domain per site market. NZ has no eBay site of its own — eBay
+// Australia is the closest marketplace and ships to NZ.
+const EBAY_DOMAIN: Record<string, string> = {
+  AU: "www.ebay.com.au",
+  NZ: "www.ebay.com.au",
+  US: "www.ebay.com",
+  GB: "www.ebay.co.uk",
+};
+
+// Affiliate-tagged eBay SEARCH link for the visitor's market — the fallback we
+// offer when no local store stocks a card (eBay almost always has it).
+export function ebaySearchUrl(query: string, country: string): string {
+  const host = EBAY_DOMAIN[country] ?? EBAY_DOMAIN.AU;
+  return ebayAffiliateUrl(`https://${host}/sch/i.html?_nkw=${encodeURIComponent(query)}`);
+}
+
 // ---- Auto-affiliate network (the long tail of Shopify stores) -----------------
 // eBay, Amazon and TCGplayer pay us DIRECTLY (best rate — no middleman cut), so
 // they're handled above and never touched here. Every OTHER outbound store click

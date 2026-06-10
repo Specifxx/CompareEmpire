@@ -14,7 +14,7 @@ import { PriceChart, changeOver, type PricePoint } from "@/components/PriceChart
 import { cardTileSelect } from "@/lib/cards";
 import { formatMoney, timeAgo } from "@/lib/format";
 import { effectiveShippingCents, shippingPolicyUrl } from "@/lib/retailers";
-import { affiliateUrl } from "@/lib/affiliate";
+import { affiliateUrl, ebaySearchUrl } from "@/lib/affiliate";
 import { getCountry } from "@/lib/get-country";
 import { COUNTRIES, pickPrice, marketGuideCents } from "@/lib/country";
 import { OutboundLink } from "@/components/OutboundLink";
@@ -294,8 +294,21 @@ export default async function CardPage({ params }: { params: { id: string } }) {
                 <p className="font-semibold text-white">{guideCents != null ? "No store listings yet" : "No prices found yet"}</p>
                 <p className="mt-1">
                   {guideCents != null
-                    ? `The market price above is a guide only. We'll show buyable ${info.adjective} stores here as they list this card.`
+                    ? `The market price above is a guide only. No ${info.adjective} store we track stocks this card right now.`
                     : "We haven't matched this card to a store listing. Check back soon — our price feeds refresh regularly."}
+                </p>
+                {/* No local stockist → point buyers at the deepest market that will
+                    have it. Affiliate-tagged search for the visitor's marketplace. */}
+                <OutboundLink
+                  href={ebaySearchUrl(`pokemon ${card.name} ${card.collectorNumber.split("/")[0]}`, country)}
+                  retailer="ebay_search"
+                  country={country}
+                  className="btn-primary mt-4 inline-flex"
+                >
+                  Search this card on eBay{country === "NZ" ? " AU (ships to NZ)" : ""} →
+                </OutboundLink>
+                <p className="mt-2 text-[11px] text-slate-600">
+                  Check the listing is the English print and the condition you want before buying.
                 </p>
               </div>
             ) : prices.length === 0 ? (
@@ -305,6 +318,14 @@ export default async function CardPage({ params }: { params: { id: string } }) {
                   {outOfStock.length} {info.adjective} {outOfStock.length === 1 ? "store has" : "stores have"} listed
                   this card but it&apos;s out of stock right now. See them below.
                 </p>
+                <OutboundLink
+                  href={ebaySearchUrl(`pokemon ${card.name} ${card.collectorNumber.split("/")[0]}`, country)}
+                  retailer="ebay_search"
+                  country={country}
+                  className="btn-ghost mt-3 inline-flex"
+                >
+                  Search this card on eBay{country === "NZ" ? " AU (ships to NZ)" : ""} →
+                </OutboundLink>
               </div>
             ) : (
               <ul className="divide-y divide-ink-800">
