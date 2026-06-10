@@ -44,8 +44,10 @@ export const metadata: Metadata = {
   //   <meta name="google-site-verification" content="…" />
   // on every page. Override per-deploy via env if needed.
   verification: {
+    // `||` (not `??`) so an env var accidentally set to an EMPTY string still
+    // falls back to the real token — same trap as ADSENSE_CLIENT.
     google:
-      process.env.GOOGLE_SITE_VERIFICATION ??
+      process.env.GOOGLE_SITE_VERIFICATION ||
       "NAFWq3cLo4QA0hk4Xs8qkVkKItZsYDqTJnkY3UCXk8E",
   },
 };
