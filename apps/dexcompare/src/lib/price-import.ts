@@ -630,13 +630,15 @@ export async function importPrices(): Promise<ImportSummary> {
 
   const summary: ImportSummary = { stores: [], totalMatched: 0, totalUnmatched: 0, cardsPriced: 0 };
 
-  for (const store of RETAILER_LIST) {
-    // If the walk itself overruns the budget, stop opening new stores and move on
-    // to the recompute so the markets scraped so far still get lowest-prices set.
-    if (budgetSpent()) {
-      console.log(`Budget reached during store walk — stopped after ${summary.stores.length}/${RETAILER_LIST.length} stores.`);
-      break;
-    }
+  // Stores are independent (different domains, different retailer keys), so walk
+  // them with bounded concurrency instead of one at a time — the sequential walk
+  // was the bulk of the ~80-minute run. Each store's own collection pages are
+  // still fetched sequentially, so no single shop sees more load than before.
+  const STORE_CONCURRENCY = Math.max(1, Number(process.env.STORE_CONCURRENCY) || 4);
+  let storesDone = 0;
+  let stoppedForBudget = false;
+
+  async function processStore(store: RetailerInfo): Promise<void> {
     const cc = store.country ?? "AU";
     // Auto-discover the store's Pokémon collections from its sitemap (authoritative).
     // Only fall back to handles configured in retailers.ts if discovery finds nothing,
@@ -655,7 +657,7 @@ export async function importPrices(): Promise<ImportSummary> {
     }
     if (!products.length) {
       summary.stores.push({ name: store.name, products: 0, priced: 0, matched: 0, unmatched: 0 });
-      continue;
+      return;
     }
 
     await prisma.retailerPrice.deleteMany({ where: { retailer: store.key } });
@@ -717,7 +719,34 @@ export async function importPrices(): Promise<ImportSummary> {
     summary.stores.push({ name: store.name, products: products.length, priced: rows.size, matched, unmatched });
     summary.totalMatched += matched;
     summary.totalUnmatched += unmatched;
-    console.log(`  [${summary.stores.length}/${RETAILER_LIST.length}] ${store.name} (${cc}): ${products.length} products → ${rows.size} priced, ${matched} matched`);
+    console.log(`  [${++storesDone}/${RETAILER_LIST.length}] ${store.name} (${cc}): ${products.length} products → ${rows.size} priced, ${matched} matched`);
+  }
+
+  // Worker pool: STORE_CONCURRENCY stores in flight at once. Stops launching new
+  // stores when the wall-clock budget is spent (in-flight ones finish) so the run
+  // always reaches the lowest-price recompute. One store failing never kills the walk.
+  {
+    const queue = [...RETAILER_LIST];
+    const workers = Array.from({ length: Math.min(STORE_CONCURRENCY, queue.length) }, async () => {
+      for (;;) {
+        if (budgetSpent()) {
+          stoppedForBudget = true;
+          return;
+        }
+        const store = queue.shift();
+        if (!store) return;
+        try {
+          await processStore(store);
+        } catch (e) {
+          console.warn(`  ${store.name}: store walk failed — ${(e as Error).message}`);
+          summary.stores.push({ name: store.name, products: 0, priced: 0, matched: 0, unmatched: 0 });
+        }
+      }
+    });
+    await Promise.all(workers);
+  }
+  if (stoppedForBudget) {
+    console.log(`Budget reached during store walk — stopped after ${storesDone}/${RETAILER_LIST.length} stores.`);
   }
   console.log(`Store walk complete: ${summary.totalMatched} matched across ${RETAILER_LIST.length} stores (${Math.round((Date.now() - importStart) / 1000)}s).`);
 

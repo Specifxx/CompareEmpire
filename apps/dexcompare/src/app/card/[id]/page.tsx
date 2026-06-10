@@ -139,6 +139,13 @@ export default async function CardPage({ params }: { params: { id: string } }) {
   const guideCents = guide?.priceCents ?? marketGuideCents(card.marketPriceCents, country);
   const guideSource = card.marketPriceSource ?? "TCGplayer";
 
+  // Whether this market's comparison includes an eBay listing. The daily eBay
+  // quota rotates through the catalogue, so plenty of cards haven't been checked
+  // recently — for those we offer an affiliate-tagged eBay search instead of
+  // silently looking like eBay has nothing.
+  const hasEbay = storeRows.some((p) => p.retailer.startsWith("ebay"));
+  const ebaySearchHref = ebaySearchUrl(`pokemon ${card.name} ${card.collectorNumber.split("/")[0]}`, country);
+
   // Structured data so Google can show a rich price snippet ("$X, N stores").
   const jsonLd = {
     "@context": "https://schema.org",
@@ -300,7 +307,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
                 {/* No local stockist → point buyers at the deepest market that will
                     have it. Affiliate-tagged search for the visitor's marketplace. */}
                 <OutboundLink
-                  href={ebaySearchUrl(`pokemon ${card.name} ${card.collectorNumber.split("/")[0]}`, country)}
+                  href={ebaySearchHref}
                   retailer="ebay_search"
                   country={country}
                   className="btn-primary mt-4 inline-flex"
@@ -319,7 +326,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
                   this card but it&apos;s out of stock right now. See them below.
                 </p>
                 <OutboundLink
-                  href={ebaySearchUrl(`pokemon ${card.name} ${card.collectorNumber.split("/")[0]}`, country)}
+                  href={ebaySearchHref}
                   retailer="ebay_search"
                   country={country}
                   className="btn-ghost mt-3 inline-flex"
@@ -367,6 +374,26 @@ export default async function CardPage({ params }: { params: { id: string } }) {
                   </li>
                 ))}
               </ul>
+            )}
+
+            {/* Stores listed but eBay not compared for this card yet (the daily
+                eBay quota rotates through the catalogue) — be upfront about it and
+                hand the visitor an affiliate-tagged search instead. */}
+            {prices.length > 0 && !hasEbay && (
+              <div className="flex flex-wrap items-center justify-between gap-2 border-t border-ink-800 bg-ink-900/40 px-4 py-3 text-xs text-slate-400">
+                <span>
+                  eBay isn&apos;t in this comparison yet — we rotate our daily eBay checks across the
+                  catalogue and haven&apos;t reached this card recently.
+                </span>
+                <OutboundLink
+                  href={ebaySearchHref}
+                  retailer="ebay_search"
+                  country={country}
+                  className="shrink-0 font-semibold text-brand-400 hover:underline"
+                >
+                  Search eBay{country === "NZ" ? " AU" : ""} for a cheaper price →
+                </OutboundLink>
+              </div>
             )}
 
             {outOfStock.length > 0 && (
