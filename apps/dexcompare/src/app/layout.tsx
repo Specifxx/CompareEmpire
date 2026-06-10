@@ -39,13 +39,14 @@ export const metadata: Metadata = {
       "Compare live Pokémon TCG card prices across stores in Australia, New Zealand and the US to find the cheapest place to buy.",
   },
   twitter: { card: "summary_large_image" },
-  // Search engine site verification. Google's "HTML tag" method verifies a
-  // URL-prefix property INSTANTLY (no DNS propagation wait) — the token below is
-  // served in <head> on every page. Override per-deploy via env if needed.
+  // Search engine site verification. Google's "HTML tag" method (URL-prefix
+  // property) verifies instantly — this renders
+  //   <meta name="google-site-verification" content="…" />
+  // on every page. Override per-deploy via env if needed.
   verification: {
     google:
       process.env.GOOGLE_SITE_VERIFICATION ??
-      "NAFWq3cLo4QA0hk4Xs8qkVkKItZsYDqTJnkY3UCXk8E",
+      "heHNoTc0ARYYTB9P5stVlv83hJevrY_OJhQdkoTgSqo",
   },
 };
 
