@@ -1,12 +1,13 @@
-// File-based content for the Guides section. Authored by us (not user input),
-// rendered with the lightweight <Markdown> component. To publish a new article,
-// add an entry here.
+// File-based content for the Guides and Blog sections. Authored by us (not user
+// input), rendered with the lightweight <Markdown> component. To publish a new
+// article, add an entry here.
 //
-// Editorial line: DexCompare guides are about COLLECTING Pokémon cards — buying
-// smart, conditions/grading, spotting fakes, storage, rarities — not about how to
-// play the game (plenty of sites cover that; collectors are our audience).
+// Editorial line: DexCompare content is for people who BUY Pokémon cards —
+// buying smart, conditions/grading, spotting fakes, storage, rarities, deals —
+// not how to play the game (plenty of sites cover that; buyers are our audience).
+// "guide" = evergreen how-to; "blog" = takes, price commentary and buying angles.
 
-export type ArticleCategory = "guide";
+export type ArticleCategory = "guide" | "blog";
 
 export interface Article {
   slug: string;
@@ -332,6 +333,127 @@ Put together, one Pokémon in one set can exist as: plain, reverse holo, holo, p
 3. **Letter-prefixed number** (SVP, SWSH…) → promo.
 4. **Shiny frame vs shiny art** → reverse vs holo.
 5. **Then [look the exact printing up](/browse)** — the market settles the rest.`,
+  },
+  // ── Blog — buying-focused takes and commentary ────────────────────────────
+  {
+    slug: "cheapest-way-to-buy-pokemon-cards",
+    category: "blog",
+    title: "The Cheapest Way to Buy Pokémon Cards in 2026",
+    excerpt:
+      "Singles beat packs, comparison beats loyalty, and patience beats hype. The simple playbook for paying less for the exact cards you want.",
+    author: "DexCompare",
+    date: "2026-06-10",
+    readMins: 5,
+    tags: ["buying", "deals", "singles"],
+    body: `If you want a specific Pokémon card, there is a cheapest way to get it — and it's almost never the way most people buy. Here's the playbook, in order of how much money each step saves.
+
+## 1. Buy the single, not the pack
+
+The maths never changes: if a chase card is pulled from roughly one pack in two hundred, "earning" it from packs costs around 200× the pack price. Buying the single costs… the single's price. Packs are entertainment (great!), but they are the most expensive possible way to acquire a specific card. If your goal is *owning the card*, [search it and buy the single](/browse).
+
+## 2. Compare every store, every time
+
+The same card, same condition, routinely differs **20–50% between stores** on the same day — stores price by their own stock, not by the market. Loyalty to one shop is a voluntary tax. Every card page on DexCompare ranks the live price at every store we track, cheapest first, so the comparison takes seconds instead of ten open tabs.
+
+## 3. Check the market guide before you pay
+
+Each card shows a **market price guide** (sourced from TCGplayer's market price) next to the store prices. If every local store is well above the guide, supply is thin locally — that's when waiting, or buying from eBay, saves real money. If a store is *below* the guide, that's your green light.
+
+## 4. Let the price come to you
+
+Prices move daily. Heart the cards you want onto your [wishlist](/wishlist), add your email, and we'll send you a digest whenever one of them drops. Buying on the dip instead of on impulse is the single laziest way to save 10–20%.
+
+## 5. Mind the postage
+
+A $4 card with $12 shipping is a $16 card. We show postage where the seller publishes it and flag free-shipping thresholds — consolidating three wants into one store's order regularly beats three "cheapest" singles from three stores.
+
+## 6. Time the hype curve
+
+New-set chase cards almost always fall for 2–3 months after release as supply floods in. Vintage and out-of-print cards do the opposite. Translation: be patient with new sets, decisive with old ones.
+
+That's the whole system: singles, comparison, the market guide, alerts, postage, timing. None of it takes effort once it's habit — and it compounds on every card you ever buy.`,
+  },
+  {
+    slug: "are-booster-boxes-worth-it",
+    category: "blog",
+    title: "Are Pokémon Booster Boxes Worth It? The Honest Maths",
+    excerpt:
+      "Expected value, the fun premium, and when sealed actually makes sense — a straight answer to the hobby's most-asked buying question.",
+    author: "DexCompare",
+    date: "2026-06-10",
+    readMins: 5,
+    tags: ["sealed", "buying", "value"],
+    body: `"Should I buy a booster box?" is the most common buying question in the hobby, and most answers are either hype or finger-wagging. Here's the honest version.
+
+## The expected-value reality
+
+A booster box's "expected value" — what the singles inside are worth on average — is almost always **below the box price** shortly after release. It has to be: if ripping boxes reliably beat buying singles, dealers would rip every box themselves. For a typical modern set, the average box returns well under what you paid once you account for the bulk that's worth pennies.
+
+So as a way to acquire *specific* cards, boxes lose to [buying singles](/browse) — usually badly.
+
+## What you're actually buying
+
+A booster box is three different products. Be honest about which one you want:
+
+1. **Entertainment.** Thirty-six pack openings is genuinely fun. Priced per hour of enjoyment, a box compares fine with a night out — just budget it as fun, not investment.
+2. **A lottery ticket.** Top alt-arts make a box profitable. Most boxes don't contain one. That's what a lottery is.
+3. **A sealed asset.** UNOPENED boxes of desirable sets have historically appreciated as supply gets ripped. This is the only version with an investment case — and it only works if you never open it, store it well, and pick sets people will still want in five years.
+
+## When a box genuinely makes sense
+
+- **You'd open packs anyway** — then compare box prices like you would a single; per-pack cost varies hugely between stores.
+- **You want the bulk** — starting a collection from zero? A box yields hundreds of playables and binder fillers plus the fun.
+- **You're holding sealed long-term** — buy the most-loved set of the era at the lowest comparison price, then forget you own it.
+
+## When it doesn't
+
+- You want 3–8 specific cards. Buy them. It will cost a fraction of the box.
+- You're "investing" but plan to open it. Pick one.
+- The box is over the market guide because it's the hyped set of the month — hype premiums on sealed decay fast once reprints land.
+
+**Bottom line:** boxes are a great entertainment purchase and an occasionally-great sealed hold, but they are never the cheap way to get cards you can just point at. Point first, then [check the price](/browse).`,
+  },
+  {
+    slug: "why-pokemon-card-prices-differ-between-stores",
+    category: "blog",
+    title: "Why the Same Pokémon Card Has Five Different Prices",
+    excerpt:
+      "Market price, store price, eBay price, graded price, foreign price — what each number means and which one you should actually pay.",
+    author: "DexCompare",
+    date: "2026-06-10",
+    readMins: 6,
+    tags: ["prices", "market", "buying"],
+    body: `Look up any popular card and you'll find five different numbers for it. None of them are wrong — they're answering different questions. Knowing which is which is the difference between a good buy and an overpay.
+
+## 1. The market price (the guide)
+
+The number TCGplayer headlines: an algorithmic blend of recent actual sales for the Near-Mint English card. This is what the card *trades at* in the deepest market on Earth. On DexCompare it's shown on every card as the labelled **market price guide, with its source** — a reference, never a buy button. Local stores can sit above it (thin supply, import costs) or below it (overstock, stale pricing). Both happen daily, which is exactly why the guide is shown next to real store prices instead of pretending to be one.
+
+## 2. The local store price
+
+What a shop actually charges, driven by what they paid and what's in their drawer — not by the global market. This is the number you can actually pay today in your own currency with cheap domestic postage. It's also the number that varies 20–50% between shops, which is the entire reason [comparison](/browse) pays.
+
+## 3. The eBay price
+
+The floor-ish price for most cards — broadest supply, auction dynamics — but it comes with condition roulette and seller risk. Our eBay prices are filtered hard (no bundles, no graded slabs, no Japanese copies masquerading as English) so the eBay line you see is a genuine like-for-like single.
+
+## 4. The graded price
+
+A PSA 10 of a card is a *different product* trading in a different market — often 3–10× the raw price, while a PSA 8 can trade *below* raw NM. Never anchor a raw card's value to a slab listing, and be suspicious of any raw listing priced like one. (Full breakdown in our [grading guide](/guides/pokemon-card-conditions-and-grading).)
+
+## 5. The foreign-print price
+
+Japanese and Chinese printings often cost a fraction of English — beautiful cards, legitimately cheaper, and the #1 source of "too good to be true" listings passed off as English. We filter them out of our comparisons; when buying elsewhere, check the listing's language before celebrating a bargain.
+
+## So which do you pay?
+
+The **cheapest in-stock local store price for the condition you want**, sanity-checked against the **market guide**:
+
+- Store ≤ guide → buy with confidence.
+- Store slightly above guide → normal for your region; pay it or set a [wishlist alert](/wishlist) and wait.
+- Store far above guide → wait, or take the eBay route.
+
+Five numbers, one rule: know what each is measuring, then pay the lowest one that's measuring what you actually want.`,
   },
 ];
 

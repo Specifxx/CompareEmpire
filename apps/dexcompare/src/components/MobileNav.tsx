@@ -9,11 +9,12 @@ import { useCountry } from "./CountryProvider";
 // plus the market/country selector for small screens.
 const LINKS = [
   { href: "/browse", label: "Database" },
-  { href: "/collection", label: "My collection" },
-  { href: "/guides", label: "Collecting guides" },
   { href: "/trade", label: "Trade calculator" },
-  { href: "/marketplace", label: "Marketplace" },
   { href: "/wishlist", label: "Wishlist" },
+  { href: "/guides", label: "Buying guides" },
+  { href: "/blog", label: "Blog" },
+  { href: "/collection", label: "My collection" },
+  { href: "/marketplace", label: "Marketplace" },
   { href: "/contact", label: "Contact" },
 ];
 

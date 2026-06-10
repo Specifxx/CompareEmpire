@@ -17,17 +17,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/`, changeFrequency: "daily", priority: 1 },
     { url: `${SITE_URL}/browse`, changeFrequency: "daily", priority: 0.9 },
     { url: `${SITE_URL}/guides`, changeFrequency: "weekly", priority: 0.7 },
+    { url: `${SITE_URL}/blog`, changeFrequency: "weekly", priority: 0.7 },
     { url: `${SITE_URL}/trade`, changeFrequency: "monthly", priority: 0.6 },
     { url: `${SITE_URL}/contact`, changeFrequency: "yearly", priority: 0.3 },
     { url: `${SITE_URL}/privacy`, changeFrequency: "yearly", priority: 0.2 },
   ];
 
-  // Collecting guides — evergreen long-form content, strong organic landers.
-  const guideRoutes: MetadataRoute.Sitemap = getArticles("guide").map((a) => ({
-    url: `${SITE_URL}/guides/${a.slug}`,
-    changeFrequency: "monthly",
-    priority: 0.7,
-  }));
+  // Guides + blog — evergreen long-form content, strong organic landers.
+  const guideRoutes: MetadataRoute.Sitemap = [
+    ...getArticles("guide").map((a) => ({
+      url: `${SITE_URL}/guides/${a.slug}`,
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    })),
+    ...getArticles("blog").map((a) => ({
+      url: `${SITE_URL}/blog/${a.slug}`,
+      changeFrequency: "monthly" as const,
+      priority: 0.65,
+    })),
+  ];
 
   // Set landing pages (high-value head terms, e.g. "Pokémon Origins prices").
   const setRoutes: MetadataRoute.Sitemap = SETS.filter((s) => !s.comingSoon).map((s) => ({

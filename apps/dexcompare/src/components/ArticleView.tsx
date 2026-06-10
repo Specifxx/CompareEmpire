@@ -7,23 +7,27 @@ import { SITE_NAME, SITE_URL } from "@/lib/site";
 import { ADSENSE_SLOTS } from "@/lib/ads";
 
 export function ArticleView({ article }: { article: Article }) {
+  const isGuide = article.category === "guide";
+  const backHref = isGuide ? "/guides" : "/blog";
+  const backLabel = isGuide ? "All guides" : "All posts";
+
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "TechArticle",
+    "@type": isGuide ? "TechArticle" : "BlogPosting",
     headline: article.title,
     description: article.excerpt,
     datePublished: article.date,
     author: { "@type": "Organization", name: article.author },
     publisher: { "@type": "Organization", name: SITE_NAME },
-    mainEntityOfPage: `${SITE_URL}/guides/${article.slug}`,
+    mainEntityOfPage: `${SITE_URL}${backHref}/${article.slug}`,
   };
 
   return (
     <article className="mx-auto max-w-3xl">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      <Link href="/guides" className="mb-4 inline-flex items-center gap-1 text-sm text-slate-400 hover:text-white">
-        ← All guides
+      <Link href={backHref} className="mb-4 inline-flex items-center gap-1 text-sm text-slate-400 hover:text-white">
+        ← {backLabel}
       </Link>
 
       <div className="mb-2 flex flex-wrap gap-1.5">

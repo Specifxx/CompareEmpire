@@ -29,20 +29,21 @@ export function Navbar() {
           </Suspense>
         </div>
 
-        {/* Nav: Database + country switcher + wishlist */}
+        {/* Nav: Database + Trade (front-and-centre, like RiftCompare) + More */}
         <nav className="ml-auto flex items-center gap-1 lg:ml-0">
           <Link href="/browse" className="rounded-lg px-2.5 py-2 text-sm font-medium text-slate-200 hover:bg-ink-800 hover:text-white">
             Database
           </Link>
-          <Link href="/collection" className="hidden rounded-lg px-2.5 py-2 text-sm font-medium text-slate-200 hover:bg-ink-800 hover:text-white sm:block">
-            Collection
+          <Link href="/trade" className="rounded-lg px-2.5 py-2 text-sm font-medium text-slate-200 hover:bg-ink-800 hover:text-white">
+            Trade
           </Link>
           <div className="hidden lg:block">
             <NavDropdown
               label="More"
               items={[
-                { href: "/guides", label: "Collecting guides", desc: "Buying, grading, fakes & storage" },
-                { href: "/trade", label: "Trade calculator", desc: "Check a trade is fair before you shake" },
+                { href: "/guides", label: "Buying guides", desc: "Where to buy, grading, fakes & storage" },
+                { href: "/blog", label: "Blog", desc: "Deals, prices & buying smart" },
+                { href: "/collection", label: "My collection", desc: "Track the cards you own" },
                 { href: "/contact", label: "Contact", desc: "Report a price, suggest a store" },
                 { href: "/marketplace", label: "Marketplace", desc: "Buy direct from verified sellers", badge: "Soon" },
               ]}

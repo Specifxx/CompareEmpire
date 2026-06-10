@@ -45,7 +45,7 @@ export const metadata: Metadata = {
   verification: {
     google:
       process.env.GOOGLE_SITE_VERIFICATION ??
-      "heHNoTc0ARYYTB9P5stVlv83hJevrY_OJhQdkoTgSqo",
+      "NAFWq3cLo4QA0hk4Xs8qkVkKItZsYDqTJnkY3UCXk8E",
   },
 };
 
@@ -83,6 +83,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en-AU" className={`${sora.variable} ${spaceGrotesk.variable}`}>
       <head>
+        {/* AdSense account/site verification — lets Google connect dexcompare.com
+            to the AdSense account instantly. */}
+        <meta name="google-adsense-account" content="ca-pub-6842128782879909" />
         {/* Impact / TCGplayer affiliate site-ownership verification. Impact looks for
             the non-standard `value` attribute, so spread it past the meta typing. */}
         <meta {...({ name: "impact-site-verification", value: IMPACT_SITE_VERIFICATION } as any)} />
@@ -104,7 +107,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <footer className="container-app border-t border-ink-800 py-8 text-center text-xs text-slate-500">
           <nav className="mb-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-sm">
             <Link href="/browse" className="hover:text-slate-300">Database</Link>
-            <Link href="/guides" className="hover:text-slate-300">Collecting guides</Link>
+            <Link href="/guides" className="hover:text-slate-300">Buying guides</Link>
+            <Link href="/blog" className="hover:text-slate-300">Blog</Link>
             <Link href="/trade" className="hover:text-slate-300">Trade calculator</Link>
             <Link href="/wishlist" className="hover:text-slate-300">Wishlist</Link>
             <Link href="/contact" className="hover:text-slate-300">Contact</Link>
