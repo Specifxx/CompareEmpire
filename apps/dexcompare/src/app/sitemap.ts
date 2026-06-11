@@ -10,11 +10,16 @@ import { getSealedGroups } from "@/lib/sealed-import";
 export const revalidate = 86400;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  // Resilient to a DB blip: a sitemap build-time prerender failure was hard-
+  // failing entire Vercel deploys (P1001 during a Neon hiccup). Fall back to
+  // the static routes — the daily revalidate restores full coverage.
   const [cards, sealed] = await Promise.all([
-    prisma.card.findMany({
-      select: { id: true, slug: true, lowestPriceCents: true },
-      orderBy: { lowestPriceCents: { sort: "desc", nulls: "last" } },
-    }),
+    prisma.card
+      .findMany({
+        select: { id: true, slug: true, lowestPriceCents: true },
+        orderBy: { lowestPriceCents: { sort: "desc", nulls: "last" } },
+      })
+      .catch(() => []),
     // Sealed compare pages — slugs come from the AU catalogue baseline (the same
     // product exists across markets under one slug).
     getSealedGroups("AU").catch(() => []),
