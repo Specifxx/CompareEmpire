@@ -11,10 +11,12 @@ on:
     inputs:
       cameracompare_url:
         description: "CameraCompare Neon DATABASE_URL (pooled, sslmode=require)"
-        required: true
+        required: false
+        default: ""
       dexcompare_url:
-        description: "DexCompare Neon DATABASE_URL (pooled, sslmode=require)"
-        required: true
+        description: "DexCompare Neon DATABASE_URL (optional — falls back to the DEXCOMPARE_DATABASE_URL secret)"
+        required: false
+        default: ""
       carcompare_url:
         description: "CarCompare Neon DATABASE_URL (pooled, sslmode=require)"
         required: false
@@ -83,7 +85,7 @@ jobs:
         if: ${{ inputs.seed_dexcompare }}
         working-directory: apps/dexcompare
         env:
-          DATABASE_URL: ${{ inputs.dexcompare_url }}
+          DATABASE_URL: ${{ inputs.dexcompare_url || secrets.DEXCOMPARE_DATABASE_URL }}
           POKEMONTCG_API_KEY: ${{ secrets.POKEMONTCG_API_KEY }}
         run: |
           npm install --no-audit --no-fund
@@ -99,7 +101,7 @@ jobs:
         if: ${{ inputs.seed_dexcompare }}
         working-directory: apps/dexcompare
         env:
-          DATABASE_URL: ${{ inputs.dexcompare_url }}
+          DATABASE_URL: ${{ inputs.dexcompare_url || secrets.DEXCOMPARE_DATABASE_URL }}
           EBAY_CLIENT_ID: ${{ secrets.EBAY_CLIENT_ID }}
           EBAY_CLIENT_SECRET: ${{ secrets.EBAY_CLIENT_SECRET }}
           EBAY_AFFILIATE_CAMPAIGN: ${{ secrets.EBAY_AFFILIATE_CAMPAIGN }}
