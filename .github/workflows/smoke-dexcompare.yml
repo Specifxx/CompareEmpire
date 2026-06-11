@@ -19,7 +19,7 @@ jobs:
       - name: Check homepage
         run: |
           set -e
-          BODY=$(curl -fsSL --retry 3 https://dexcompare.com/)
+          BODY=$(curl -fsSL --retry 3 https://dexcompare.app/)
           echo "$BODY" | grep -q "Browse by energy type" && echo "OK: energy-type section" || { echo "FAIL: 'Browse by energy type' missing (old deploy?)"; exit 1; }
           echo "$BODY" | grep -q "Official partners" && echo "OK: partners strip" || { echo "FAIL: partners strip missing"; exit 1; }
           echo "$BODY" | grep -q "New sealed arrivals" && echo "OK: sealed arrivals rail" || echo "WARN: sealed arrivals rail not rendering (needs >=3 dated groups)"
@@ -28,7 +28,7 @@ jobs:
       - name: Check sealed database page
         run: |
           set -e
-          BODY=$(curl -fsSL --retry 3 https://dexcompare.com/sealed)
+          BODY=$(curl -fsSL --retry 3 https://dexcompare.app/sealed)
           echo "$BODY" | grep -qi "sealed products" && echo "OK: /sealed renders" || { echo "FAIL: /sealed heading missing"; exit 1; }
           COUNT=$(echo "$BODY" | grep -o '/sealed/[a-z0-9-]*' | sort -u | wc -l)
           echo "sealed product links: $COUNT"
@@ -37,42 +37,42 @@ jobs:
       - name: Check a sealed compare page renders
         run: |
           set -e
-          HREF=$(curl -fsSL --retry 3 "https://dexcompare.com/sealed" | grep -o '/sealed/[a-z0-9-]*' | head -1)
+          HREF=$(curl -fsSL --retry 3 "https://dexcompare.app/sealed" | grep -o '/sealed/[a-z0-9-]*' | head -1)
           echo "sealed: $HREF"
           test -n "$HREF"
-          BODY=$(curl -fsSL --retry 3 "https://dexcompare.com$HREF")
+          BODY=$(curl -fsSL --retry 3 "https://dexcompare.app$HREF")
           echo "$BODY" | grep -q "Price comparison" && echo "OK: sealed compare page renders" || { echo "FAIL: sealed compare page broken"; exit 1; }
 
       - name: Check collection page
         run: |
           set -e
-          BODY=$(curl -fsSL --retry 3 https://dexcompare.com/collection)
+          BODY=$(curl -fsSL --retry 3 https://dexcompare.app/collection)
           echo "$BODY" | grep -qi "My collection" && echo "OK: /collection renders" || { echo "FAIL: /collection missing heading"; exit 1; }
 
       - name: Check a card page renders
         run: |
           set -e
-          HREF=$(curl -fsSL --retry 3 "https://dexcompare.com/browse" | grep -o '/card/[a-z0-9-]*' | head -1)
+          HREF=$(curl -fsSL --retry 3 "https://dexcompare.app/browse" | grep -o '/card/[a-z0-9-]*' | head -1)
           echo "card: $HREF"
           test -n "$HREF"
-          BODY=$(curl -fsSL --retry 3 "https://dexcompare.com$HREF")
+          BODY=$(curl -fsSL --retry 3 "https://dexcompare.app$HREF")
           echo "$BODY" | grep -q "Price comparison" && echo "OK: card page renders" || { echo "FAIL: card page broken"; exit 1; }
           echo "$BODY" | grep -q "Add to collection\|owned" && echo "OK: collection button present" || { echo "FAIL: collection button missing"; exit 1; }
 
       - name: Check restock tracker
         run: |
           set -e
-          BODY=$(curl -fsSL --retry 3 https://dexcompare.com/restock/chaos-rising)
+          BODY=$(curl -fsSL --retry 3 https://dexcompare.app/restock/chaos-rising)
           echo "$BODY" | grep -qi "restock tracker" && echo "OK: tracker renders" || { echo "FAIL: tracker broken"; exit 1; }
           echo "$BODY" | grep -qi "Notify me\|on the list" && echo "OK: alert capture present" || { echo "FAIL: alert form missing"; exit 1; }
 
       - name: Check SEO surfaces
         run: |
           set -e
-          curl -fsSL --retry 3 https://dexcompare.com/sets >/dev/null && echo "OK: /sets serves"
-          curl -fsSL --retry 3 https://dexcompare.com/sitemap.xml | grep -q "/sealed" && echo "OK: sitemap includes sealed" || { echo "FAIL: sitemap missing sealed routes"; exit 1; }
-          curl -fsSL --retry 3 https://dexcompare.com/ads.txt | grep -q "pub-" && echo "OK: ads.txt serves" || { echo "FAIL: ads.txt broken"; exit 1; }
-          curl -fsSL --retry 3 https://dexcompare.com/robots.txt | grep -qi "sitemap" && echo "OK: robots.txt serves" || { echo "FAIL: robots broken"; exit 1; }
+          curl -fsSL --retry 3 https://dexcompare.app/sets >/dev/null && echo "OK: /sets serves"
+          curl -fsSL --retry 3 https://dexcompare.app/sitemap.xml | grep -q "/sealed" && echo "OK: sitemap includes sealed" || { echo "FAIL: sitemap missing sealed routes"; exit 1; }
+          curl -fsSL --retry 3 https://dexcompare.app/ads.txt | grep -q "pub-" && echo "OK: ads.txt serves" || { echo "FAIL: ads.txt broken"; exit 1; }
+          curl -fsSL --retry 3 https://dexcompare.app/robots.txt | grep -qi "sitemap" && echo "OK: robots.txt serves" || { echo "FAIL: robots broken"; exit 1; }
 
   # Accuracy CI against the live DB (read-only checks: guide-leak, suspicious
   # prices vs the TCGplayer guide, priced-count collapse).
