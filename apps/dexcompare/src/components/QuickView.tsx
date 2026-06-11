@@ -161,13 +161,14 @@ function QuickViewModal({ card, onClose }: { card: CardTileData; onClose: () => 
               <div className="text-2xl font-extrabold text-accent">
                 {lowest != null ? fmt(lowest) : "—"}
               </div>
-              {/* No buyable price → show the market guide, labelled with its source. */}
-              {lowest == null && (() => {
+              {/* No buyable price → show the market guide ONLY when it's a real
+                  TCGplayer figure (not a seed-time estimate), labelled with its source. */}
+              {lowest == null && card.marketPriceSource === "TCGplayer" && (() => {
                 const guide = marketGuideCents(card.marketPriceCents, country as Country);
                 return guide != null ? (
                   <div className="mt-1 text-xs text-slate-400">
                     Market guide ≈ <span className="font-semibold text-slate-200">{fmt(guide)}</span>
-                    {card.marketPriceSource ? <span className="text-slate-500"> · source: {card.marketPriceSource}</span> : null}
+                    <span className="text-slate-500"> · source: TCGplayer</span>
                   </div>
                 ) : null;
               })()}

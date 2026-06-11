@@ -139,7 +139,10 @@ export default async function CardPage({ params }: { params: { id: string } }) {
   // The market-price guide for this market: the imported guide row where one
   // exists (AU), else the card's USD guide converted at an indicative rate.
   const guideCents = guide?.priceCents ?? marketGuideCents(card.marketPriceCents, country);
-  const guideSource = card.marketPriceSource ?? "TCGplayer";
+  // A REAL guide comes from TCGplayer's market price; otherwise it's a seed-time
+  // rarity/age heuristic — be honest about which it is rather than implying data.
+  const guideIsReal = card.marketPriceSource === "TCGplayer";
+  const guideSource = guideIsReal ? "TCGplayer" : "rough estimate";
 
   // Whether this market's comparison includes an eBay listing. The daily eBay
   // quota rotates through the catalogue, so plenty of cards haven't been checked
@@ -251,19 +254,24 @@ export default async function CardPage({ params }: { params: { id: string } }) {
             )}
 
             {/* Market-price GUIDE — always shown with its source. A sales-based
-                reference, never the headline/cheapest price (that's store-only). */}
+                reference, never the headline/cheapest price (that's store-only).
+                Real guides come from TCGplayer; otherwise it's a rough estimate. */}
             {guideCents != null && (
               <div className="mt-4 rounded-lg border border-dashed border-ink-600 bg-ink-900/50 p-3 text-sm">
                 <div className="flex flex-wrap items-baseline gap-x-2">
-                  <span className="font-semibold text-slate-200">Market price guide: {fmt(guideCents)}</span>
+                  <span className="font-semibold text-slate-200">
+                    {guideIsReal ? "Market price guide" : "Rough estimate"}: {fmt(guideCents)}
+                  </span>
                   <span className="text-xs text-slate-500">
                     source: {guideSource}
-                    {country !== "US" ? " (USD market price, converted)" : ""}
-                    {card.marketPriceUpdatedAt ? ` · updated ${timeAgo(card.marketPriceUpdatedAt)}` : ""}
+                    {guideIsReal && country !== "US" ? " (USD market price, converted)" : ""}
+                    {guideIsReal && card.marketPriceUpdatedAt ? ` · updated ${timeAgo(card.marketPriceUpdatedAt)}` : ""}
                   </span>
                 </div>
                 <p className="mt-1 text-xs leading-relaxed text-slate-500">
-                  {prices.length === 0
+                  {!guideIsReal
+                    ? `We don't have live market data for this card yet, so this is a rough estimate from its rarity and age — treat it as a ballpark only.`
+                    : prices.length === 0
                     ? `A guide from recent sales, not a buyable listing — no ${info.adjective} store stocks this card yet.`
                     : `A guide from recent sales, not a buyable listing. The ${info.adjective} store prices below are what you can actually pay — note the market guide can sometimes be cheaper than any store here (and vice versa).`}
                 </p>

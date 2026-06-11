@@ -46,8 +46,13 @@ export function CardTile({ card }: { card: CardTileData }) {
   const { fmt, price, country } = useCountry();
   const lowest = price(card);
   // No buyable store price in this market → show the market guide, clearly
-  // labelled (it's a sales-based reference, not a "from" price).
-  const guide = lowest == null ? marketGuideCents(card.marketPriceCents, country as Country) : null;
+  // labelled (it's a sales-based reference, not a "from" price). Only show it when
+  // it's a REAL market figure (TCGplayer); a seed-time heuristic estimate is not
+  // trustworthy enough to surface as a number on a tile.
+  const guide =
+    lowest == null && card.marketPriceSource === "TCGplayer"
+      ? marketGuideCents(card.marketPriceCents, country as Country)
+      : null;
 
   // Left-click opens an instant in-page quick view (no navigation = no lag). The
   // real href is kept for SEO, sharing and middle/ctrl-click (open in new tab),
