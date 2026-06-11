@@ -69,6 +69,16 @@ jobs:
           npm install --no-audit --no-fund
           npx prisma generate
           # Additive schema sync (new columns/tables, e.g. PriceAlert, ClickEvent,
-          # Card.marketPriceSource) so the import can write them.
-          npx prisma db push --skip-generate
+          # Card.marketPriceSource, PriceHistory.country) so the import can write
+          # them. --accept-data-loss allows the PriceHistory unique-index swap
+          # ([cardId,day] → [cardId,country,day]); no rows are dropped.
+          npx prisma db push --skip-generate --accept-data-loss
           npx tsx scripts/import-prices.ts
+
+      # Accuracy gate: fail the run if a core data invariant regressed (market
+      # guide leaking into headline prices, a spike of cards priced absurdly below
+      # their TCGplayer guide, or the priced-card count collapsing vs yesterday).
+      - name: Verify data quality
+        if: steps.db.outputs.found == 'true'
+        working-directory: apps/dexcompare
+        run: npx tsx scripts/verify-data.ts
