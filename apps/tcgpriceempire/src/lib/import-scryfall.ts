@@ -111,10 +111,15 @@ function toCardRow(c: ScryfallCard): CardRow | null {
 }
 
 // Vendor rows need BOTH a parsed price and a vendor URL — a priced row with no
-// purchase_uri would render as a dead compare link.
+// purchase_uri would render as a dead compare link. Scryfall's bulk data only
+// carries purchase_uris on a fraction of cards (observed: ~15% on the first full
+// run), so fall back to a vendor SEARCH url — same pattern as the Yu-Gi-Oh!
+// importer — rather than dropping the comparison for ~80k priced cards.
 function pushVendorRows(out: VendorRow[], cardId: string, c: ScryfallCard): void {
-  const tcgUrl = c.purchase_uris?.tcgplayer;
-  const cmUrl = c.purchase_uris?.cardmarket;
+  // Front-face name for double-faced cards ("Fable of the Mirror-Breaker // …").
+  const q = encodeURIComponent((c.name ?? "").split(" // ")[0]);
+  const tcgUrl = c.purchase_uris?.tcgplayer ?? `https://www.tcgplayer.com/search/magic/product?q=${q}`;
+  const cmUrl = c.purchase_uris?.cardmarket ?? `https://www.cardmarket.com/en/Magic/Products/Search?searchString=${q}`;
   const add = (
     vendor: string,
     vendorName: string,
