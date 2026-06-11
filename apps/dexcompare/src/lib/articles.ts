@@ -23,6 +23,110 @@ export interface Article {
 
 export const ARTICLES: Article[] = [
   {
+    slug: "pokemon-30th-celebration-preorder-guide",
+    category: "blog",
+    title: "Pokémon 30th Celebration (Sept 16): What We Know & How to Get It at MSRP",
+    excerpt:
+      "The all-foil 30th anniversary set lands worldwide on September 16, 2026 — with a Base Set Charizard reprint and 30 Pikachu variants. Here's everything confirmed so far, and the plan for actually getting it at retail price.",
+    author: "DexCompare",
+    date: "2026-06-11",
+    readMins: 5,
+    tags: ["30th celebration", "preorders", "sealed", "new release"],
+    body: `The Pokémon TCG turns 30 this year, and **Pokémon TCG: 30th Celebration** releases **worldwide on September 16, 2026** — the first set in the game's history to launch everywhere on the same day. If the 25th Anniversary Celebrations set taught us anything, this will be the most fought-over product of the year.
+
+## What's confirmed so far (June 2026)
+
+- **Every card is foil** — including basic Energy.
+- A brand-new **"Futuristic Rare"** rarity debuts, opening with Mewtwo and Mew illustrated by YOSHIROTTEN.
+- **30 different Pikachu cards** — every booster pack is guaranteed to contain one.
+- **Classic reprints** headlined by the **Base Set Charizard**, plus beloved cards like Pikachu & Zekrom GX from Team Up.
+
+## Why it will sell out
+
+The 25th Anniversary set sold out instantly in 2021 and never really came back at MSRP. 30th Celebration has the same recipe — anniversary framing, guaranteed chase pulls, nostalgia reprints — plus five more years of collectors. Expect preorders to vanish within hours of going live at each store.
+
+## The plan: how to actually get it at MSRP
+
+1. **Don't pay scalper preorder prices.** When hype products list early at 2–3× MSRP, patience usually wins — allocations spread across dozens of stores, not just the big ones.
+2. **Watch the specialist stores, not just the giants.** The big-box sites get camped. The dozens of smaller TCG shops we track often list allocations quietly. Keep an eye on the **[sealed product database](/sealed?q=30th)** — listings will appear there the moment any store we track posts one.
+3. **Check the [Drops & restocks hub](/restock)** — every new and upcoming release shows the cheapest live preorder across every store in your country, updated daily.
+4. **Compare before you click buy.** Launch-window prices vary wildly between stores for identical product. Thirty seconds on a compare page routinely saves $20–50 on an ETB.
+
+We'll keep this updated as products and preorder dates are confirmed. Set your country (top of the page) and the prices you see will be from stores that actually ship to you.`,
+  },
+  {
+    slug: "pitch-black-preorder-guide",
+    category: "blog",
+    title: "Mega Evolution: Pitch Black (July 17) — Preorder Guide & Cheapest Prices",
+    excerpt:
+      "Pitch Black is the next Mega Evolution expansion, releasing July 17, 2026. Preorders are live now — here's how to pay the least for boxes and ETBs, and what to watch out for.",
+    author: "DexCompare",
+    date: "2026-06-11",
+    readMins: 4,
+    tags: ["pitch black", "mega evolution", "preorders", "sealed"],
+    body: `**Mega Evolution: Pitch Black** releases on **July 17, 2026** — the fifth expansion of the Mega Evolution era. After Chaos Rising sold out in minutes and Ascended Heroes ETBs vanished in hours, preorder demand for Pitch Black is already running hot.
+
+## Preorder prices are all over the place
+
+This is the single most important thing to understand about hype-set preorders: **stores price the same box very differently** during the preorder window. Some price at MSRP to reward regulars; others price to demand. In the Chaos Rising window we saw the same Booster Box listed anywhere from MSRP to roughly 25% above it — at the same time.
+
+That spread is free money if you compare first:
+
+- **[Search Pitch Black in the sealed database](/sealed?q=pitch%20black)** — every store listing we track, cheapest first, in your local currency.
+- **[Check the Drops & restocks hub](/restock)** — new and upcoming sets with the cheapest live Booster Box and ETB preorder per country.
+
+## Should you preorder or wait?
+
+Honest answer: it depends which product.
+
+- **Booster Boxes / ETBs at or near MSRP** — preordering is usually the safe play for a hyped era. Worst case, supply is fine and you paid retail.
+- **Anything well above MSRP** — be patient. Modern sets get multiple print waves; Chaos Rising-level sellouts are the exception, not the rule, and restocks do come (our [restock tracker](/restock/chaos-rising) logs them as they happen).
+- **Just want specific cards?** Skip sealed entirely — once the set is out, **[buying the singles](/browse)** you actually want is almost always cheaper than gambling on packs.
+
+## The 30-second routine before any preorder
+
+1. Open the **[sealed compare page](/sealed?q=pitch%20black)** for the product.
+2. Check the spread — if the cheapest in-stock store is near MSRP, take it.
+3. If everything is gouged, set a **[restock alert](/restock)** instead and let the email come to you.
+
+Prices update daily across every store we track in Australia, New Zealand, the US and the UK.`,
+  },
+  {
+    slug: "chaos-rising-restock-playbook",
+    category: "blog",
+    title: "Chaos Rising Sold Out? The Restock Playbook That Actually Works",
+    excerpt:
+      "Mega Evolution — Chaos Rising sold out in minutes and ETBs are trading $15–25 over MSRP. Here's the realistic playbook for getting one at retail — without camping store pages all day.",
+    author: "DexCompare",
+    date: "2026-06-11",
+    readMins: 4,
+    tags: ["chaos rising", "restocks", "sealed", "mega evolution"],
+    body: `**Mega Evolution — Chaos Rising** (released May 22) is the hottest sell-out of 2026 so far. Big-box allocations went in minutes, and secondary prices settled $15–25 over MSRP for ETBs — more for the stamped Pokémon Center version. If you missed launch, here's the playbook that actually works.
+
+## 1. Stop camping the big-box stores
+
+Everyone is refreshing the same three giant retailers. Meanwhile, the **specialist TCG shops — the ones we track across Australia, NZ, the US and the UK — receive their own allocations** and often list them with zero fanfare. That's where MSRP copies keep appearing.
+
+The **[Chaos Rising restock tracker](/restock/chaos-rising)** watches those stores continuously and shows, on one page: which stores have Booster Boxes or ETBs in stock *right now*, at what price, plus a log of every restock we've caught and how fast it sold out.
+
+## 2. Let the email do the camping
+
+On the tracker, drop your email into the **restock alert** — no account, free — and we email you the moment a Box or ETB comes back in stock anywhere we track, in your country. Restock windows have been measured in minutes; an alert beats a lucky refresh every time.
+
+## 3. Know your walk-away price
+
+The restock log on the tracker shows real restock prices, so you know what "normal" looks like. If a restock lands near MSRP — take it. If a store relists at a heavy premium, remember the singles math:
+
+- **Want the chase cards?** [Compare Chaos Rising singles](/sets/chaos-rising) — buying the exact cards you want is almost always cheaper than ripping gouged sealed product.
+- **Want sealed to hold?** Premiums usually compress when the next print wave lands. Patience has beaten FOMO in nearly every modern set.
+
+## 4. Don't forget the deals page
+
+While you wait, the **[deals page](/deals)** lists cards currently selling 15–70% below their TCGplayer market price across our stores — the same compare engine, pointed at bargains instead of hype.
+
+Good luck out there — and let the tracker do the refreshing for you.`,
+  },
+  {
     slug: "where-to-buy-pokemon-cards",
     category: "guide",
     title: "Where to Buy Pokémon Cards (Australia, NZ, US & UK)",
