@@ -1,0 +1,69 @@
+name: DexCompare restock check (every ~15 min)
+
+# Near-real-time stock check for the FEATURED restock-tracker products only (a
+# handful of products × their store listings — cheap). Re-polls each store's
+# product.json, logs restock events, and emails subscribers the moment a Booster
+# Box / ETB is back in stock. The full nightly import is far too slow for sets
+# that sell out in minutes; this keeps the tracker + alerts near-real-time.
+#
+# Secrets: DEXCOMPARE_DATABASE_URL (required). RESEND_API_KEY + EMAIL_FROM are
+# needed for the "it's back" emails to actually send (without them the stock still
+# refreshes but no email goes out). GitHub may delay scheduled runs under load, so
+# real cadence is ~15–30 min — still vastly better than the daily import.
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+    inputs:
+      dexcompare_url:
+        description: "DexCompare Neon DATABASE_URL (optional if the secret is set)"
+        required: false
+        default: ""
+
+# Don't pile up overlapping runs if one is slow.
+concurrency:
+  group: dexcompare-restock-check
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Resolve database URL
+        id: db
+        env:
+          SECRET_URL: ${{ secrets.DEXCOMPARE_DATABASE_URL }}
+          INPUT_URL: ${{ inputs.dexcompare_url }}
+        run: |
+          URL="${INPUT_URL:-$SECRET_URL}"
+          if [ -z "$URL" ]; then
+            echo "No DEXCOMPARE_DATABASE_URL secret — skipping the restock check." >> "$GITHUB_STEP_SUMMARY"
+            echo "found=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "::add-mask::$URL"
+            echo "DATABASE_URL=$URL" >> "$GITHUB_ENV"
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.db.outputs.found == 'true'
+
+      - uses: actions/setup-node@v4
+        if: steps.db.outputs.found == 'true'
+        with:
+          node-version: 20
+
+      - name: Run restock check
+        if: steps.db.outputs.found == 'true'
+        working-directory: apps/dexcompare
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+        run: |
+          npm install --no-audit --no-fund
+          npx prisma generate
+          # Additive sync so RestockAlert / RestockEvent exist before we write them.
+          npx prisma db push --skip-generate
+          npx tsx scripts/restock-check.ts

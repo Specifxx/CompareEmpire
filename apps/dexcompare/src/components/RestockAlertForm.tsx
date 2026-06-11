@@ -4,10 +4,20 @@ import { useState } from "react";
 import { useCountry } from "./CountryProvider";
 
 // Email capture for a featured product's restock alert. No account — just an email.
-export function RestockAlertForm({ productSlug, shortName }: { productSlug: string; shortName: string }) {
+export function RestockAlertForm({
+  productSlug,
+  shortName,
+  waiting = 0,
+}: {
+  productSlug: string;
+  shortName: string;
+  waiting?: number;
+}) {
   const { country } = useCountry();
   const [email, setEmail] = useState("");
   const [state, setState] = useState<"idle" | "submitting" | "done" | "error">("idle");
+  // Local optimistic bump so the count ticks up when the visitor joins.
+  const total = waiting + (state === "done" ? 1 : 0);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -39,9 +49,16 @@ export function RestockAlertForm({ productSlug, shortName }: { productSlug: stri
 
   return (
     <form onSubmit={onSubmit} className="rounded-xl border border-ink-700 bg-ink-900/60 p-4">
-      <label className="text-sm font-semibold text-white">🔔 Email me when {shortName} restocks</label>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <label className="text-sm font-semibold text-white">🔔 Email me when {shortName} restocks</label>
+        {total > 0 && (
+          <span className="chip bg-brand-500/15 text-[11px] font-semibold text-brand-300">
+            {total.toLocaleString()} {total === 1 ? "person" : "people"} waiting
+          </span>
+        )}
+      </div>
       <p className="mb-3 mt-0.5 text-xs text-slate-400">
-        Free, no account. One email the second any {country} store has it in stock. Unsubscribe anytime.
+        Free, no account. One email the second a Box or ETB hits any {country} store we track. Unsubscribe anytime.
       </p>
       <div className="flex flex-col gap-2 sm:flex-row">
         <input

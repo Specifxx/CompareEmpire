@@ -20,6 +20,30 @@ export interface FeaturedRestock {
   // eBay search query used for the always-available secondary-market link.
   ebayQuery: string;
   image: string | null;
+  // Optional: the set's code + name in our card DB, so we can offer the
+  // "just want the chase single?" link into the comparison engine. Leave unset
+  // until the set's singles are in the catalogue.
+  setCode?: string;
+  setName?: string;
+  // Optional CONFIRMED RRP (recommended retail) per product type, per market, in
+  // minor units (cents). Leave a market/type out when you don't have a verified
+  // number — the page never fabricates an RRP, it just omits the "vs RRP" line.
+  rrp?: Partial<Record<string, Partial<Record<string, number>>>>; // rrp[market][productType] = cents
+}
+
+// Product types treated as the "headline" SKUs — only these drive the page's
+// in-stock STATUS and fire restock alert emails. A single $9 sleeved booster or
+// loose pack being in stock should NOT scream "in stock now" or email everyone.
+export const HEADLINE_TYPES = new Set<string>([
+  "Booster Box",
+  "Booster Case",
+  "Elite Trainer Box",
+  "Collection Box",
+  "Bundle",
+]);
+
+export function isHeadlineType(productType: string): boolean {
+  return HEADLINE_TYPES.has(productType);
 }
 
 export const FEATURED_RESTOCKS: FeaturedRestock[] = [
@@ -30,10 +54,15 @@ export const FEATURED_RESTOCKS: FeaturedRestock[] = [
     series: "Mega Evolution",
     releaseDate: "2026-05-22",
     blurb:
-      "The Mega Evolution — Chaos Rising expansion sold out within minutes of release and is out of stock across most retailers. This free tracker shows which stores have Booster Boxes, Elite Trainer Boxes and packs in stock right now — and emails you the moment any of them restock.",
+      "Mega Evolution — Chaos Rising sold out within minutes of release and is gone from most retailers. This tracker watches dozens of specialist TCG stores (the ones the camping crowd ignores), shows which have Booster Boxes and Elite Trainer Boxes in stock right now, logs every restock as it happens, and emails you the second a box is back.",
     match: "chaos\\s*rising",
     ebayQuery: "Pokemon Mega Evolution Chaos Rising sealed",
     image: null,
+    // Fill setCode/setName once Chaos Rising singles are confirmed in the DB; the
+    // "chase single" CTA appears automatically when these are set.
+    // setCode: "me4", setName: "Chaos Rising",
+    // RRP intentionally omitted — we don't fabricate it. Add verified numbers like:
+    //   rrp: { AU: { "Booster Box": 24900, "Elite Trainer Box": 8900 } }
   },
 ];
 
@@ -48,4 +77,9 @@ export function getFeaturedRestockSlugs(): string[] {
 // Compiled matcher for a featured product's store-title matching.
 export function restockTitleRegex(r: FeaturedRestock): RegExp {
   return new RegExp(r.match, "i");
+}
+
+// Confirmed RRP (cents) for a product type in a market, or null when unknown.
+export function rrpFor(r: FeaturedRestock, market: string, productType: string): number | null {
+  return r.rrp?.[market]?.[productType] ?? null;
 }

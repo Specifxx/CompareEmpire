@@ -302,6 +302,27 @@ model RestockAlert {
   @@index([email])
 }
 
+// A historical restock event for a featured product — recorded when a store's
+// listing transitions out-of-stock → in-stock, and closed (soldOutAt + duration)
+// when it sells out again. Powers the "restock log" on the tracker page (proof
+// the tracker works + how fast stock vanishes) and is screenshot-bait for Reddit.
+model RestockEvent {
+  id           String    @id @default(cuid())
+  productSlug  String
+  market       String    @default("AU")
+  retailer     String
+  retailerName String
+  productType  String // "Booster Box", "Elite Trainer Box", …
+  priceCents   Int
+  url          String
+  inStockAt    DateTime  @default(now())
+  soldOutAt    DateTime?
+  // Minutes the stock lasted before selling out (set when soldOutAt is recorded).
+  durationMins Int?
+
+  @@index([productSlug, market, inStockAt])
+}
+
 // One outbound affiliate-link click (store / eBay / TCGplayer), recorded by the
 // /api/click beacon. Lets us verify in our own DB that outbound links are used —
 // e.g. cross-checking eBay Partner Network earnings — without trusting only the

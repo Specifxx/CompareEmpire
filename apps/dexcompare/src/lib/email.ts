@@ -142,18 +142,50 @@ export async function sendRestockConfirmationEmail(
   return sendEmail(to, `You'll be notified when ${productName} restocks`, restockShell("Restock alert is on", inner, unsubUrl));
 }
 
-// The "it's back!" email — fired when a watched product flips to in-stock.
+// One in-stock item shown in the "it's back!" email (the exact thing that
+// restocked — so the reader can click straight through in the ~20-minute window).
+export interface RestockItem {
+  productType: string;
+  retailerName: string;
+  priceCents: number;
+  url: string; // affiliate-tagged buy link
+  currency: string;
+}
+
+function restockItemRow(it: RestockItem): string {
+  return `<tr><td style="padding:10px 0;border-bottom:1px solid #233047">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
+      <td style="font-size:14px;color:#fff">
+        <strong>${it.productType}</strong> — ${it.retailerName}
+        <div style="font-size:13px;color:#34d17e;font-weight:700;margin-top:2px">${formatMoney(it.priceCents, it.currency)}</div>
+      </td>
+      <td align="right" style="white-space:nowrap">
+        <a href="${it.url}" style="display:inline-block;background:#34d17e;color:#06210f;font-weight:700;text-decoration:none;padding:9px 16px;border-radius:8px;font-size:13px">Buy →</a>
+      </td>
+    </tr></table>
+  </td></tr>`;
+}
+
+// The "it's back!" email — fired when a watched product flips to in-stock. Lists
+// exactly what restocked (type, store, price) with direct buy links, because in a
+// 20-minute window every extra click costs the reader the box.
 export async function sendRestockEmail(
   to: string,
   productName: string,
+  items: RestockItem[],
   trackerUrl: string,
   unsubUrl: string
 ): Promise<boolean> {
+  const list =
+    items.length > 0
+      ? `<tr><td style="padding:4px 32px 8px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">${items.map(restockItemRow).join("")}</table></td></tr>`
+      : "";
   const inner = `
     <tr><td style="padding:8px 32px 4px;font-size:15px;line-height:1.6;color:#b8c0cc">
       Good news — <strong style="color:#fff">${productName}</strong> is <strong style="color:#34d17e">back in stock</strong> right now.
-      Sealed stock on hyped sets goes fast, so don't wait.
+      Sealed stock on hyped sets goes fast, so don't wait:
     </td></tr>
-    <tr><td style="padding:10px 32px 24px"><a href="${trackerUrl}" style="display:inline-block;background:#34d17e;color:#06210f;font-weight:800;text-decoration:none;padding:13px 24px;border-radius:10px">Buy it now →</a></td></tr>`;
+    ${list}
+    <tr><td style="padding:10px 32px 24px"><a href="${trackerUrl}" style="display:inline-block;background:#1e2a3d;color:#fff;font-weight:700;text-decoration:none;padding:12px 22px;border-radius:10px;border:1px solid #34d17e">See all stock on the tracker →</a></td></tr>`;
   return sendEmail(to, `🔔 ${productName} is back in stock`, restockShell(`${productName} is back in stock`, inner, unsubUrl));
 }
