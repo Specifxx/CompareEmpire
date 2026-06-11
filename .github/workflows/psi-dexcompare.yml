@@ -1,0 +1,50 @@
+name: PageSpeed check DexCompare (manual)
+
+# Runs Google's PageSpeed Insights API against the live site and prints the
+# performance score + core metrics + top remaining opportunities. Keyless API
+# (set a PSI_API_KEY secret if quota ever bites). Run after perf changes.
+
+on:
+  workflow_dispatch:
+    inputs:
+      path:
+        description: "Path to test (default /)"
+        required: false
+        default: "/"
+
+jobs:
+  psi:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        strategy: [mobile, desktop]
+    steps:
+      - name: Run PageSpeed (${{ matrix.strategy }})
+        env:
+          KEY: ${{ secrets.PSI_API_KEY }}
+        run: |
+          URL="https://dexcompare.app${{ inputs.path }}"
+          API="https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=$(python3 -c "import urllib.parse,os;print(urllib.parse.quote('$URL',safe=''))")&strategy=${{ matrix.strategy }}&category=performance"
+          if [ -n "$KEY" ]; then API="$API&key=$KEY"; fi
+          curl -fsSL --retry 2 "$API" -o psi.json
+          python3 - <<'EOF'
+          import json
+          d = json.load(open("psi.json"))
+          lh = d["lighthouseResult"]
+          score = round(lh["categories"]["performance"]["score"] * 100)
+          print(f"\n===== {lh['configSettings']['formFactor'].upper()} PERFORMANCE: {score} =====")
+          for m in ["first-contentful-paint","largest-contentful-paint","total-blocking-time","cumulative-layout-shift","speed-index"]:
+              a = lh["audits"].get(m)
+              if a: print(f"  {a['title']}: {a.get('displayValue','—')}")
+          print("\n  Top remaining opportunities:")
+          opps = []
+          for k, a in lh["audits"].items():
+              det = a.get("details") or {}
+              ms = det.get("overallSavingsMs") or 0
+              by = det.get("overallSavingsBytes") or 0
+              if (ms >= 150 or by >= 50_000) and a.get("score", 1) is not None and (a.get("score") or 0) < 1:
+                  opps.append((ms, by, a["title"], a.get("displayValue","")))
+          for ms, by, t, dv in sorted(opps, reverse=True)[:6]:
+              print(f"   - {t}: {dv or f'{ms}ms / {by//1024}KB'}")
+          EOF
