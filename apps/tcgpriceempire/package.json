@@ -1,0 +1,36 @@
+{
+  "name": "tcgpriceempire",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3007",
+    "build": "prisma generate && (node -e \"process.exit(process.env.VERCEL_ENV==='production'&&process.env.DATABASE_URL?0:1)\" && prisma db push --skip-generate --accept-data-loss || true) && next build",
+    "start": "next start",
+    "lint": "next lint",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "import:catalog": "tsx scripts/import-catalog.ts",
+    "probe:sources": "tsx scripts/probe-sources.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.0.0",
+    "next": "14.2.35",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "stream-json": "^1.8.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@types/stream-json": "^1.7.7",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.39",
+    "prisma": "^5.22.0",
+    "tailwindcss": "^3.4.6",
+    "tsx": "^4.16.2",
+    "typescript": "^5.5.3"
+  }
+}

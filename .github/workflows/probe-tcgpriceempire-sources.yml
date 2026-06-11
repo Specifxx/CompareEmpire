@@ -1,0 +1,26 @@
+name: Probe TCGPriceEmpire data sources (manual)
+
+# Network-shape validation for the five-game importers — fetches one page/sample
+# from each source (TCGplayer per product line, Scryfall bulk metadata,
+# YGOPRODeck) and prints counts + JSON samples. No database, no secrets — run
+# this BEFORE the first real import to confirm the API responses match what the
+# importers expect (the dev container has no outbound network, so this workflow
+# is where source assumptions get verified).
+
+on:
+  workflow_dispatch:
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Probe sources
+        working-directory: apps/tcgpriceempire
+        run: |
+          npm install --no-audit --no-fund
+          npx tsx scripts/probe-sources.ts
