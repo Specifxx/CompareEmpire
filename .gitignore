@@ -24,3 +24,4 @@ apps/dexcompare/prisma/pokemon-data/
 
 # OS
 .DS_Store
+*.tsbuildinfo
