@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { formatMoney } from "@/lib/format";
+import { MiniCompare } from "./MiniCompare";
 
 // Pack Rip Simulator — flip through a simulated 10-card pack one card at a
 // time. The server deals the pack up front; the suspense is purely client-side
@@ -257,11 +258,10 @@ export function PackRip() {
               <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Best pull</div>
               <div className="font-bold text-white">{best.name}</div>
               <div className="text-sm font-extrabold text-gold">{formatMoney(best.priceCents, "USD")}</div>
-              <Link href={`/card/${best.slug}`} className="mt-1 inline-block text-xs text-brand-400 hover:underline">
-                See live prices →
-              </Link>
             </div>
           </div>
+          {/* Want the real one? The simulated pull, priced at real stores. */}
+          {best.slug && <MiniCompare cardIdOrSlug={best.slug} heading="Want the real one? Cheapest stores" />}
           <div className="mt-4 flex items-center justify-center gap-3">
             <button onClick={() => load(data?.set.code)} disabled={busy} className="btn-primary">
               {busy ? "Opening…" : "Rip another"}

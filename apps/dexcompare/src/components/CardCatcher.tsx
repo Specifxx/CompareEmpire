@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { formatMoney } from "@/lib/format";
+import { MiniCompare } from "./MiniCompare";
 
 // Card Catcher — a Miniclip-style canvas arcade game. Real cards rain down;
 // slide your binder to catch them. Every catch banks the card's REAL market
@@ -363,12 +364,11 @@ export function CardCatcher() {
                 <p className="text-xs text-slate-400">caught across {finalLevel} {finalLevel === 1 ? "level" : "levels"} · best: {formatMoney(best, "USD")}</p>
                 {bestCatch && (
                   <p className="text-sm text-slate-300">
-                    Best catch: <strong className="text-white">{bestCatch.name}</strong> ({formatMoney(bestCatch.priceCents, "USD")}){" "}
-                    {bestCatch.slug && (
-                      <Link href={`/card/${bestCatch.slug}`} className="text-brand-400 hover:underline">live prices →</Link>
-                    )}
+                    Best catch: <strong className="text-white">{bestCatch.name}</strong> ({formatMoney(bestCatch.priceCents, "USD")})
                   </p>
                 )}
+                {/* Caught it in the game — here's where to catch it for real. */}
+                {bestCatch?.slug && <MiniCompare cardIdOrSlug={bestCatch.slug} heading="Catch it for real — cheapest stores" />}
                 <div className="flex flex-wrap justify-center gap-3">
                   <button onClick={start} className="btn-primary">↻ Play again</button>
                   <button onClick={share} className="btn-accent">{copied ? "✓ Copied!" : "Share score"}</button>

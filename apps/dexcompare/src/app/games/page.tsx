@@ -95,6 +95,23 @@ export default function GamesPage() {
         ))}
       </div>
 
+      {/* The bridge: gamers → the actual product. Every value they just played
+          with is a real price — point that curiosity at the comparison tools. */}
+      <section className="card-surface mt-8 overflow-hidden">
+        <div className="bg-gradient-to-r from-brand-600/15 via-ink-850 to-gold/10 p-5 text-center">
+          <h2 className="text-lg font-extrabold text-white">Every number in these games is a real, live price 👀</h2>
+          <p className="mx-auto mt-1 max-w-xl text-sm text-slate-400">
+            We track {`50+`} stores across AU, NZ, the US and the UK daily — the same engine behind the games
+            can tell you what <em>your</em> cards are worth, and where anything is cheapest right now.
+          </p>
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+            <Link href="/card-value" className="btn-primary">Check what my cards are worth</Link>
+            <Link href="/deals" className="btn-accent">Today&apos;s best deals</Link>
+            <Link href="/browse" className="btn-ghost">Browse the database</Link>
+          </div>
+        </div>
+      </section>
+
       <p className="mt-6 text-center text-[11px] text-slate-600">
         Game values use TCGplayer market guides and refresh daily. Found a bug or want another game?{" "}
         <Link href="/contact" className="text-brand-400 hover:underline">Tell us</Link>.

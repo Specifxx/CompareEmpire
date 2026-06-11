@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { formatMoney } from "@/lib/format";
+import { MiniCompare } from "./MiniCompare";
 
 // Price Duel — the higher/lower game. The left card's market value is known;
 // guess whether the hidden right card is worth more or less. All state lives
@@ -234,6 +235,9 @@ export function PriceDuel() {
               </p>
             )}
           </div>
+          {/* The card that ended the run is the one they misjudged — show what
+              it actually costs at real stores, right here. */}
+          {right?.slug && <MiniCompare cardIdOrSlug={right.slug} heading="The card that got you — cheapest stores" />}
           <div className="mt-4 flex items-center justify-center gap-3">
             <button onClick={share} className="btn-primary">{copied ? "✓ Copied!" : "Share streak"}</button>
             <button onClick={newGame} className="btn-ghost">Play again</button>

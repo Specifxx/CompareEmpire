@@ -18,7 +18,7 @@ export function OutboundLink({
   href: string;
   retailer: string;
   country: string;
-  kind?: "single" | "sealed";
+  kind?: "single" | "sealed" | "game";
   className?: string;
   children: ReactNode;
 }) {

@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { DexdleCard, Feedback } from "@/lib/dexdle";
 import { formatMoney } from "@/lib/format";
+import { MiniCompare } from "./MiniCompare";
+import { WishlistButton } from "./WishlistButton";
 
 // Dexdle — guess the Pokémon card. Daily mode (one card per Sydney day, streaks,
 // share grid) + Unlimited mode (endless rounds via server-issued seeds). The
@@ -414,7 +416,10 @@ export function Dexdle() {
                 <img src={answer.imageThumbUrl} alt={answer.name} className="h-28 w-20 rounded-md object-contain" />
               )}
               <div className="text-left">
-                <div className="font-bold text-white">{answer.name}</div>
+                <div className="flex items-center gap-2 font-bold text-white">
+                  {answer.name}
+                  <WishlistButton cardId={answer.id} />
+                </div>
                 <div className="text-xs text-slate-400">
                   {answer.setName} · {answer.rarity}
                   {answer.might != null ? ` · ${answer.might} HP` : ""}
@@ -422,12 +427,12 @@ export function Dexdle() {
                 {answer.marketPriceCents != null && (
                   <div className="mt-0.5 text-sm font-bold text-gold">worth ≈ {formatMoney(answer.marketPriceCents, "USD")}</div>
                 )}
-                <Link href={answer.slug ? `/card/${answer.slug}` : `/card/${answer.id}`} className="mt-1 inline-block text-xs text-brand-400 hover:underline">
-                  See live prices →
-                </Link>
               </div>
             </div>
           )}
+          {/* The conversion moment: they just sweated over this card's identity
+              and value — show where it's actually cheapest, right here. */}
+          {answer && <MiniCompare cardIdOrSlug={answer.slug ?? answer.id} />}
           <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
             <button onClick={share} className="btn-primary">{copied ? "✓ Copied!" : "Share result"}</button>
             {mode === "unlimited" ? (

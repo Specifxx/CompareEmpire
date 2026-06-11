@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db";
 export const dynamic = "force-dynamic";
 
 const COUNTRIES = new Set(["AU", "NZ", "US", "GB"]);
-const KINDS = new Set(["single", "sealed"]);
+const KINDS = new Set(["single", "sealed", "game"]);
 
 // Click beacon: records one outbound affiliate-link click so we can verify our
 // store/eBay links are actually being used. Always returns 204 (a beacon must never

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { formatMoney } from "@/lib/format";
+import { MiniCompare } from "./MiniCompare";
 
 // Bulk Breaker — breakout/Arkanoid where the bricks are REAL cards. Smash a
 // brick to bank its live market value; chase cards (top value) are "holo"
@@ -381,12 +382,11 @@ export function BulkBreaker() {
                 <p className="text-xs text-slate-400">smashed across {finalLevel} {finalLevel === 1 ? "level" : "levels"} · best: {formatMoney(best, "USD")}</p>
                 {bestBreak && (
                   <p className="text-sm text-slate-300">
-                    Biggest break: <strong className="text-white">{bestBreak.name}</strong> ({formatMoney(bestBreak.priceCents, "USD")}){" "}
-                    {bestBreak.slug && (
-                      <Link href={`/card/${bestBreak.slug}`} className="text-brand-400 hover:underline">live prices →</Link>
-                    )}
+                    Biggest break: <strong className="text-white">{bestBreak.name}</strong> ({formatMoney(bestBreak.priceCents, "USD")})
                   </p>
                 )}
+                {/* Smashed the pixels — buy the cardboard. */}
+                {bestBreak?.slug && <MiniCompare cardIdOrSlug={bestBreak.slug} heading="Own it for real — cheapest stores" />}
                 <div className="flex flex-wrap justify-center gap-3">
                   <button onClick={start} className="btn-primary">↻ Play again</button>
                   <button onClick={share} className="btn-accent">{copied ? "✓ Copied!" : "Share score"}</button>
