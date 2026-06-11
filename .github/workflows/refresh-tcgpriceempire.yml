@@ -73,3 +73,13 @@ jobs:
         if: steps.db.outputs.found == 'true'
         working-directory: apps/tcgpriceempire
         run: npx tsx scripts/verify-data.ts
+
+      # Price-drop alert emails — runs after the fresh prices land. Without the
+      # RESEND_API_KEY secret this is a no-op (alert rows stay pending).
+      - name: Run price alerts
+        if: steps.db.outputs.found == 'true'
+        working-directory: apps/tcgpriceempire
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+        run: npx tsx scripts/run-alerts.ts

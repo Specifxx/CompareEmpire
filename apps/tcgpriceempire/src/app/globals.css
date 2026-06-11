@@ -30,6 +30,21 @@ h1, h2, h3 {
   contain-intrinsic-size: auto 340px;
 }
 
+/* Staggered entrance for homepage sections (pairs with animate-fade-up). */
+.delay-1 { animation-delay: 0.08s; }
+.delay-2 { animation-delay: 0.16s; }
+.delay-3 { animation-delay: 0.24s; }
+.delay-4 { animation-delay: 0.32s; }
+.delay-5 { animation-delay: 0.4s; }
+
+/* Ticker pauses on hover so items are clickable; honors reduced-motion. */
+.ticker-track:hover { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) {
+  .ticker-track, .animate-drift, .animate-gradient-pan, .animate-float, .animate-pulse-glow {
+    animation: none !important;
+  }
+}
+
 /* Thin custom scrollbar to match the dark aesthetic */
 ::-webkit-scrollbar {
   width: 10px;

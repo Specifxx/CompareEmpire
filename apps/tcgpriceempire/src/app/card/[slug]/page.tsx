@@ -10,8 +10,16 @@ import { affiliateUrl, amazonSearchUrl, ebaySearchUrl } from "@/lib/affiliate";
 import { cardTileSelect } from "@/lib/cards";
 import { GAMES, type GameKey } from "@/lib/games";
 import { formatMoney, timeAgo } from "@/lib/format";
+import { getCountry } from "@/lib/get-country";
+import { COUNTRIES, localApproxCents } from "@/lib/country";
+import { getPriceHistory } from "@/lib/history";
+import { PriceChart } from "@/components/PriceChart";
+import { PriceAlertForm } from "@/components/PriceAlertForm";
+import { WishlistButton } from "@/components/WishlistButton";
+import { RecordView } from "@/components/RecordView";
 
-export const revalidate = 3600; // prices refresh daily; an hour of cache is fine
+// Per-request: the region cookie localises the marketplace links + copy.
+export const dynamic = "force-dynamic";
 
 async function getCard(slug: string) {
   return prisma.card.findUnique({
@@ -43,14 +51,21 @@ export default async function CardPage({ params }: { params: { slug: string } })
   const game = GAMES[card.game as GameKey];
   if (!game) notFound();
 
+  const country = getCountry();
+  const info = COUNTRIES[country];
+  const approxLocal = localApproxCents(card.marketPriceCents, country);
+
   const prices = [...card.vendorPrices].sort(
     (a, b) => a.priceCents - b.priceCents || (VENDOR_RANK[a.vendor] ?? 9) - (VENDOR_RANK[b.vendor] ?? 9)
   );
   const normal = prices.filter((p) => p.printing === "normal");
   const foil = prices.filter((p) => p.printing !== "normal");
 
-  const ebayHref = ebaySearchUrl(`${card.name} ${card.setName} ${game.searchSuffix}`);
-  const amazonHref = amazonSearchUrl(`${card.name} ${game.searchSuffix}`);
+  // Marketplace links localise to the visitor's region (eBay AU/UK/US, …).
+  const ebayHref = ebaySearchUrl(`${card.name} ${card.setName} ${game.searchSuffix}`, country);
+  const amazonHref = amazonSearchUrl(`${card.name} ${game.searchSuffix}`, country);
+
+  const history = await getPriceHistory(card.id, 90).catch(() => []);
 
   // Related: same game + set, closest in value.
   const related = await prisma.card.findMany({
@@ -84,6 +99,14 @@ export default async function CardPage({ params }: { params: { slug: string } })
   return (
     <div className="mx-auto max-w-4xl">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      {/* Records this card into the visitor's local recently-viewed rail. */}
+      <RecordView
+        slug={card.slug}
+        name={card.name}
+        imageUrl={card.imageUrl}
+        game={card.game}
+        marketPriceCents={card.marketPriceCents}
+      />
       <Link href={`/${game.slug}`} className="mb-4 inline-flex items-center gap-1 text-sm text-slate-400 hover:text-white">
         ← {game.short} hub
       </Link>
@@ -113,7 +136,10 @@ export default async function CardPage({ params }: { params: { slug: string } })
             {card.kind === "sealed" && <span className="chip bg-gold/15 text-gold">Sealed product</span>}
             {card.rarity && <span className="chip bg-ink-800 text-slate-300">{card.rarity}</span>}
           </div>
-          <h1 className="mt-2 text-2xl font-extrabold leading-tight text-white sm:text-3xl">{card.name}</h1>
+          <div className="mt-2 flex items-start justify-between gap-3">
+            <h1 className="text-2xl font-extrabold leading-tight text-white sm:text-3xl">{card.name}</h1>
+            <WishlistButton cardId={card.id} />
+          </div>
           <p className="mt-1 text-sm text-slate-400">
             {card.setName}
             {card.collectorNumber ? ` · #${card.collectorNumber}` : ""}
@@ -126,6 +152,11 @@ export default async function CardPage({ params }: { params: { slug: string } })
                 Market price{card.marketPriceSource ? ` (${card.marketPriceSource})` : ""}
               </div>
               <div className="text-3xl font-extrabold text-accent">{formatMoney(card.marketPriceCents, "USD")}</div>
+              {approxLocal != null && (
+                <div className="mt-0.5 text-xs text-slate-500" title="Indicative conversion — vendors charge in their own currency">
+                  ≈ {formatMoney(approxLocal, info.currency)} in {info.place}
+                </div>
+              )}
             </div>
           )}
 
@@ -214,6 +245,24 @@ export default async function CardPage({ params }: { params: { slug: string } })
             </a>
           )}
         </div>
+      </div>
+
+      {/* Price history — daily market-price snapshots (fills in over time). */}
+      {history.length >= 2 && (
+        <section className="card-surface mt-6 overflow-hidden">
+          <div className="border-b border-ink-700 p-4">
+            <h2 className="font-bold text-white">Price history</h2>
+            <p className="mt-0.5 text-xs text-slate-500">Daily market price (USD), tracked since the card joined the database.</p>
+          </div>
+          <div className="p-4">
+            <PriceChart points={history} />
+          </div>
+        </section>
+      )}
+
+      {/* Price-drop alert — free email capture, no account. */}
+      <div className="mt-6">
+        <PriceAlertForm cardId={card.id} cardName={card.name} currentCents={card.marketPriceCents} />
       </div>
 
       <AdSlot slot={ADSENSE_SLOTS.card} height={120} className="mt-6" />

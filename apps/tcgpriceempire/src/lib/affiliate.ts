@@ -57,15 +57,36 @@ export function ebayAffiliateUrl(url: string): string {
   }
 }
 
-// Affiliate-tagged eBay SEARCH link (US marketplace — the site's price baseline
-// is the US market; eBay.com ships internationally).
-export function ebaySearchUrl(query: string): string {
-  return ebayAffiliateUrl(`https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(query)}`);
+// eBay marketplace domain per region (NZ has no eBay site of its own — eBay
+// Australia is the closest marketplace and ships to NZ).
+const EBAY_DOMAIN: Record<string, string> = {
+  US: "www.ebay.com",
+  AU: "www.ebay.com.au",
+  NZ: "www.ebay.com.au",
+  GB: "www.ebay.co.uk",
+};
+
+// Affiliate-tagged eBay SEARCH link for the visitor's region.
+export function ebaySearchUrl(query: string, country: string = "US"): string {
+  const host = EBAY_DOMAIN[country] ?? EBAY_DOMAIN.US;
+  return ebayAffiliateUrl(`https://${host}/sch/i.html?_nkw=${encodeURIComponent(query)}`);
 }
 
-// Affiliate-tagged Amazon SEARCH link.
-export function amazonSearchUrl(query: string): string {
-  return `https://www.amazon.com/s?k=${encodeURIComponent(query)}&tag=${AMAZON_ASSOCIATE_TAG}`;
+// Amazon marketplace per region. Associates tags are marketplace-specific —
+// non-US Amazon links stay untagged until tags for those marketplaces exist
+// (an untagged link is honest; a wrong-marketplace tag earns nothing anyway).
+const AMAZON_DOMAIN: Record<string, string> = {
+  US: "www.amazon.com",
+  AU: "www.amazon.com.au",
+  NZ: "www.amazon.com.au",
+  GB: "www.amazon.co.uk",
+};
+
+// Affiliate-tagged Amazon SEARCH link for the visitor's region.
+export function amazonSearchUrl(query: string, country: string = "US"): string {
+  const host = AMAZON_DOMAIN[country] ?? AMAZON_DOMAIN.US;
+  const tag = host === AMAZON_DOMAIN.US ? `&tag=${AMAZON_ASSOCIATE_TAG}` : "";
+  return `https://${host}/s?k=${encodeURIComponent(query)}${tag}`;
 }
 
 // ---- Auto-affiliate network (Sovrn) for the long tail -------------------------

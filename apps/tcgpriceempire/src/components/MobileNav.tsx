@@ -7,6 +7,7 @@ import { GAME_LIST } from "@/lib/games";
 const LINKS = [
   { href: "/browse", label: "Browse all cards" },
   { href: "/sealed", label: "Sealed products" },
+  { href: "/wishlist", label: "Wishlist" },
   { href: "/about", label: "About" },
   { href: "/privacy", label: "Privacy" },
 ];

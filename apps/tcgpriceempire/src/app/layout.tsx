@@ -7,7 +7,9 @@ import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { GameProvider } from "@/components/GameProvider";
 import { GamePicker } from "@/components/GamePicker";
+import { CountryProvider } from "@/components/CountryProvider";
 import { getSelectedGames, hasGamesCookie } from "@/lib/get-games";
+import { getCountry } from "@/lib/get-country";
 import { GAME_LIST } from "@/lib/games";
 import { ADSENSE_CLIENT, ADSENSE_ENABLED } from "@/lib/ads";
 import { IMPACT_SITE_VERIFICATION } from "@/lib/affiliate";
@@ -85,6 +87,7 @@ const orgJsonLd = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const games = getSelectedGames();
   const chosen = hasGamesCookie();
+  const country = getCountry();
   return (
     <html lang="en" className={`${sora.variable} ${spaceGrotesk.variable}`}>
       <head>
@@ -102,11 +105,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-screen bg-ink-950">
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }} />
-        <GameProvider initial={games} initialChosen={chosen}>
-          <Navbar />
-          <main className="container-app py-6">{children}</main>
-          <GamePicker />
-        </GameProvider>
+        <CountryProvider initial={country}>
+          <GameProvider initial={games} initialChosen={chosen}>
+            <Navbar />
+            <main className="container-app py-6">{children}</main>
+            <GamePicker />
+          </GameProvider>
+        </CountryProvider>
         <footer className="container-app border-t border-ink-800 py-8 text-center text-xs text-slate-500">
           <nav className="mb-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-sm">
             <Link href="/browse" className="hover:text-slate-300">Browse</Link>
@@ -116,6 +121,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 {g.short}
               </Link>
             ))}
+            <Link href="/wishlist" className="hover:text-slate-300">Wishlist</Link>
             <Link href="/about" className="hover:text-slate-300">About</Link>
             <Link href="/privacy" className="hover:text-slate-300">Privacy</Link>
             <a href={`mailto:${CONTACT_EMAIL}`} className="text-gold hover:underline">{CONTACT_EMAIL}</a>

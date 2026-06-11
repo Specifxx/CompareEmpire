@@ -42,10 +42,34 @@ const config: Config = {
           "0%,100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-4px)" },
         },
+        // Drifting hero cards: slow vertical bob + slight tilt, varied per card
+        // via inline animation-delay/duration.
+        drift: {
+          "0%,100%": { transform: "translateY(0) rotate(var(--tilt, -3deg))" },
+          "50%": { transform: "translateY(-10px) rotate(var(--tilt, -3deg))" },
+        },
+        // Infinite ticker: content is duplicated once, so -50% loops seamlessly.
+        marquee: {
+          "0%": { transform: "translateX(0)" },
+          "100%": { transform: "translateX(-50%)" },
+        },
+        // Slowly panning hero gradient (background-size 200% makes it visible).
+        "gradient-pan": {
+          "0%,100%": { backgroundPosition: "0% 50%" },
+          "50%": { backgroundPosition: "100% 50%" },
+        },
+        "pulse-glow": {
+          "0%,100%": { boxShadow: "0 0 0 0 rgba(139,92,246,0.0)" },
+          "50%": { boxShadow: "0 0 24px 2px rgba(139,92,246,0.35)" },
+        },
       },
       animation: {
         "fade-up": "fade-up 0.5s ease-out both",
         float: "float 4s ease-in-out infinite",
+        drift: "drift 7s ease-in-out infinite",
+        marquee: "marquee 40s linear infinite",
+        "gradient-pan": "gradient-pan 14s ease infinite",
+        "pulse-glow": "pulse-glow 3.5s ease-in-out infinite",
       },
     },
   },

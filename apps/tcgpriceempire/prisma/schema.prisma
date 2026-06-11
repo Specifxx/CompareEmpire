@@ -39,6 +39,7 @@ model Card {
 
   vendorPrices VendorPrice[]
   priceHistory PriceHistory[]
+  priceAlerts  PriceAlert[]
 
   @@index([game, kind])
   @@index([game, marketPriceCents(sort: Desc)])
@@ -87,4 +88,24 @@ model ClickEvent {
   createdAt DateTime @default(now())
 
   @@index([retailer, createdAt])
+}
+
+// "Email me when the market price drops" — no account, just an email. Notified
+// once per trigger, re-armed when the price rises back above the target (same
+// proven semantics as dexcompare's alerts).
+model PriceAlert {
+  id          String    @id @default(cuid())
+  email       String
+  cardId      String
+  card        Card      @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  // Alert when marketPriceCents <= targetCents; null = alert on any week-on-week drop.
+  targetCents Int?
+  unsubToken  String    @default(cuid())
+  createdAt   DateTime  @default(now())
+  notifiedAt  DateTime?
+
+  @@unique([email, cardId])
+  @@index([cardId])
+  @@index([unsubToken])
+  @@index([email])
 }

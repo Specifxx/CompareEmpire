@@ -2,6 +2,8 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { SearchBar } from "./SearchBar";
 import { GameSwitcher } from "./GameSwitcher";
+import { CountrySwitcher } from "./CountrySwitcher";
+import { NavWishlistButton } from "./NavWishlistButton";
 import { MobileNav } from "./MobileNav";
 import { Logo } from "./Logo";
 
@@ -34,6 +36,8 @@ export function Navbar() {
               Sealed
             </Link>
             <GameSwitcher className="ml-1" />
+            <CountrySwitcher />
+            <NavWishlistButton />
             <MobileNav />
           </nav>
         </div>
