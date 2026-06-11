@@ -873,24 +873,32 @@ export async function importPrices(): Promise<ImportSummary> {
   console.log(`Lowest recompute: ${changed} cards changed (no null-reset window).`);
   summary.cardsPriced = lowAu.size;
 
-  // Snapshot today's lowest price per card for the price-over-time chart. Backend
-  // feeds the card-page trend chart and the homepage "Biggest price movers". One
-  // point per card per Sydney day; a same-day re-run (e.g. a deploy) replaces it.
+  // Snapshot today's lowest price per card PER MARKET for the price-over-time
+  // chart. Feeds the card-page trend chart and the homepage "Biggest price movers",
+  // each in the visitor's own market/currency. One point per card per market per
+  // Sydney day; a same-day re-run (e.g. a deploy) replaces it.
   try {
     const day = sydneyDay();
-    // AU-only (AU is the primary market; the UI labels the chart accordingly).
-    const points = pricedAu
-      .filter((r) => r._min.priceCents != null)
-      .map((r) => ({ cardId: r.cardId, day, lowestPriceCents: r._min.priceCents as number }));
-    await prisma.priceHistory.deleteMany({ where: { day } });
-    if (points.length > 0) {
-      await prisma.priceHistory.createMany({ data: points });
+    const byMarket: { country: string; grouped: typeof pricedAu }[] = [
+      { country: "AU", grouped: pricedAu },
+      { country: "NZ", grouped: pricedNz },
+      { country: "US", grouped: pricedUs },
+      { country: "GB", grouped: pricedGb },
+    ];
+    let total = 0;
+    for (const { country, grouped } of byMarket) {
+      const points = grouped
+        .filter((r) => r._min.priceCents != null)
+        .map((r) => ({ cardId: r.cardId, country, day, lowestPriceCents: r._min.priceCents as number }));
+      await prisma.priceHistory.deleteMany({ where: { country, day } });
+      if (points.length > 0) await prisma.priceHistory.createMany({ data: points });
+      total += points.length;
     }
     // Retention: keep ~6 months of snapshots so the table can't grow unbounded
-    // on the size-capped database (~20k rows/day).
+    // on the size-capped database.
     const cutoff = new Date(day.getTime() - 180 * 86400_000);
     const purged = await prisma.priceHistory.deleteMany({ where: { day: { lt: cutoff } } });
-    console.log(`Price history: recorded ${points.length} points for ${day.toISOString().slice(0, 10)} (purged ${purged.count} old).`);
+    console.log(`Price history: recorded ${total} points across 4 markets for ${day.toISOString().slice(0, 10)} (purged ${purged.count} old).`);
   } catch (e) {
     console.warn("Price-history snapshot failed:", e);
   }

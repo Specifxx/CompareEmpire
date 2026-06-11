@@ -7,19 +7,20 @@ import type { CardTileData } from "@/components/CardTile";
 
 export interface MoverCard {
   card: CardTileData;
-  // Percent change of the cheapest AU price vs ~7 days ago (e.g. 12.4 or -8.1).
+  // Percent change of the cheapest price in this market vs ~7 days ago.
   pct: number;
   nowCents: number;
   beforeCents: number;
 }
 
-// Biggest 7-day price movers, from the daily PriceHistory snapshots (AU market —
-// the snapshots store the cheapest AU price). Picks the latest snapshot day and
-// the recorded day closest to 7 days before it, then ranks cards by % change.
-// Returns [] until at least two days of history exist, so the homepage section
-// simply doesn't render in a fresh database.
-async function computeTopMovers(limit: number): Promise<MoverCard[]> {
+// Biggest 7-day price movers for one market, from the daily PriceHistory snapshots
+// (scoped to that market's country, so prices are in the right currency). Picks
+// the latest snapshot day and the recorded day closest to 7 days before it, then
+// ranks cards by % change. Returns [] until at least two days of history exist for
+// that market, so the homepage section simply doesn't render in a fresh database.
+async function computeTopMovers(limit: number, country: Country): Promise<MoverCard[]> {
   const days = await prisma.priceHistory.findMany({
+    where: { country },
     distinct: ["day"],
     orderBy: { day: "desc" },
     select: { day: true },
@@ -38,8 +39,10 @@ async function computeTopMovers(limit: number): Promise<MoverCard[]> {
   const rows = await prisma.$queryRaw<{ cardId: string; now: number; before: number }[]>(Prisma.sql`
     SELECT a."cardId", a."lowestPriceCents" AS now, b."lowestPriceCents" AS before
     FROM "PriceHistory" a
-    JOIN "PriceHistory" b ON b."cardId" = a."cardId" AND b."day" = ${baseline}::date
-    WHERE a."day" = ${d0}::date
+    JOIN "PriceHistory" b
+      ON b."cardId" = a."cardId" AND b."country" = ${country} AND b."day" = ${baseline}::date
+    WHERE a."country" = ${country}
+      AND a."day" = ${d0}::date
       AND b."lowestPriceCents" >= 300
       AND a."lowestPriceCents" >= 100
       AND a."lowestPriceCents" <> b."lowestPriceCents"
@@ -58,7 +61,7 @@ async function computeTopMovers(limit: number): Promise<MoverCard[]> {
 
   const cards = (await prisma.card.findMany({
     where: { id: { in: picked.map((p) => p.cardId) } },
-    select: cardTileSelect("AU"),
+    select: cardTileSelect(country),
   })) as CardTileData[];
   const byId = new Map(cards.map((c) => [c.id, c]));
 
@@ -68,10 +71,12 @@ async function computeTopMovers(limit: number): Promise<MoverCard[]> {
 }
 
 // The movers scan joins two full snapshot days (~20k rows each) — cache it for an
-// hour; snapshots only change once a day anyway.
-export const getTopMovers = unstable_cache((limit: number = 12) => computeTopMovers(limit), ["top-movers-v1"], {
-  revalidate: 3600,
-});
+// hour per market; snapshots only change once a day anyway.
+export const getTopMovers = unstable_cache(
+  (limit: number, country: Country) => computeTopMovers(limit, country),
+  ["top-movers-v2"],
+  { revalidate: 3600 }
+);
 
 // Most-viewed priced cards in the visitor's market — "what everyone's looking at".
 export async function getPopularCards(limit: number, country: Country): Promise<CardTileData[]> {

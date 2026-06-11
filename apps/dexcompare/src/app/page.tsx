@@ -81,8 +81,8 @@ export default async function HomePage() {
     getValuableCards(12, country),
     // Stores serving the selected market (eBay excluded from the count).
     prisma.retailerPrice.groupBy({ by: ["retailer"], where: { country, NOT: { retailer: { startsWith: "ebay" } } } }),
-    // Biggest 7-day movers from the daily snapshots (AU market data → AU only).
-    country === "AU" ? getTopMovers(12) : Promise.resolve([]),
+    // Biggest 7-day movers from the daily snapshots, in the visitor's own market.
+    getTopMovers(12, country),
     // Most-viewed priced cards in this market.
     getPopularCards(12, country),
   ]);
@@ -124,16 +124,15 @@ export default async function HomePage() {
       {/* Recently viewed — local to this visitor; renders nothing on a first visit */}
       <RecentlyViewed />
 
-      {/* Biggest price movers — 7-day change from the daily price snapshots.
-          Hidden until at least two days of history exist (and on non-AU markets,
-          since the snapshots track the AU price). */}
+      {/* Biggest price movers — 7-day change from the daily price snapshots, in
+          the visitor's market. Hidden until two days of that market's history exist. */}
       {movers.length > 0 && (
         <section>
           <div className="mb-4 flex items-end justify-between gap-3">
             <div>
               <h2 className="text-xl font-extrabold text-white">Biggest price movers</h2>
               <p className="mt-0.5 text-xs text-slate-500">
-                The sharpest rises and falls in the cheapest Australian price over the last week.
+                The sharpest rises and falls in the cheapest {info.adjective} price over the last week.
               </p>
             </div>
           </div>

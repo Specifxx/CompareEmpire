@@ -73,8 +73,9 @@ export default async function CardPage({ params }: { params: { id: string } }) {
   // other printing of this card (same name, different set/number) so collectors
   // can compare reprints — e.g. Base Set vs Classic Collection.
   const [historyRows, otherPrints] = await Promise.all([
+    // Trend history for the VISITOR'S market (each market priced in its own currency).
     prisma.priceHistory.findMany({
-      where: { cardId: card.id },
+      where: { cardId: card.id, country },
       orderBy: { day: "asc" },
       select: { day: true, lowestPriceCents: true },
       take: 365,
@@ -89,7 +90,8 @@ export default async function CardPage({ params }: { params: { id: string } }) {
       : Promise.resolve([]),
   ]);
   const history: PricePoint[] = historyRows.map((h) => ({ day: h.day, cents: h.lowestPriceCents }));
-  const weekChange = country === "AU" ? changeOver(history, 7) : null;
+  // Now per-market — the 7-day trend applies to whichever market the visitor is in.
+  const weekChange = changeOver(history, 7);
 
   const lowestPrice = pickPrice(card, country);
 
@@ -292,12 +294,12 @@ export default async function CardPage({ params }: { params: { id: string } }) {
             )}
           </div>
 
-          {/* Price-over-time chart from the daily snapshots (AU market data). */}
+          {/* Price-over-time chart from the daily snapshots (the visitor's market). */}
           {history.length > 0 && (
             <PriceChart
               points={history}
               title="Price trend"
-              note={`Cheapest Australian price, snapshotted daily${country !== "AU" ? " (AU market, AUD)" : ""}`}
+              note={`Cheapest ${info.adjective} price (${info.currency}), snapshotted daily`}
             />
           )}
 
