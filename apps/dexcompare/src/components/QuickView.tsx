@@ -8,7 +8,8 @@ import { WishlistButton } from "./WishlistButton";
 import { isOvernumbered, isSignature } from "@/lib/constants";
 import { cardHref } from "@/lib/card-url";
 import { effectiveShippingCents, shippingPolicyUrl } from "@/lib/retailers";
-import { affiliateUrl } from "@/lib/affiliate";
+import { affiliateUrl, ebaySearchUrl } from "@/lib/affiliate";
+import { OutboundLink } from "./OutboundLink";
 import { useCountry } from "./CountryProvider";
 import { marketGuideCents, type Country } from "@/lib/country";
 
@@ -107,6 +108,11 @@ function QuickViewModal({ card, onClose }: { card: CardTileData; onClose: () => 
     })
     .sort((a, b) => a.delivered - b.delivered);
 
+  // Whether eBay is part of this market's comparison — the daily quota rotates
+  // through 20k+ cards, so when it isn't, we say so and offer an affiliate search.
+  const hasEbay = (prices ?? []).some((p) => p.country === country && p.retailer.startsWith("ebay"));
+  const ebaySearchHref = ebaySearchUrl(`pokemon ${card.name} ${card.collectorNumber.split("/")[0]}`, country);
+
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4" role="dialog" aria-modal="true">
       <div className="absolute inset-0 bg-black/70" onClick={onClose} />
@@ -175,7 +181,17 @@ function QuickViewModal({ card, onClose }: { card: CardTileData; onClose: () => 
                   Loading live prices…
                 </div>
               ) : inStock.length === 0 ? (
-                <p className="py-4 text-sm text-slate-500">No in-stock listings right now.</p>
+                <div className="py-4 text-sm text-slate-500">
+                  <p>No in-stock listings right now.</p>
+                  <OutboundLink
+                    href={ebaySearchHref}
+                    retailer="ebay_search"
+                    country={country}
+                    className="btn-primary mt-3 inline-flex text-xs"
+                  >
+                    Search this card on eBay{country === "NZ" ? " AU" : ""} →
+                  </OutboundLink>
+                </div>
               ) : (
                 <ul className="divide-y divide-ink-800">
                   {inStock.slice(0, 6).map((p, i) => (
@@ -216,6 +232,21 @@ function QuickViewModal({ card, onClose }: { card: CardTileData; onClose: () => 
                 <a href={href} className="mt-2 block text-center text-xs text-brand-400 hover:underline">
                   See all {inStock.length} stores →
                 </a>
+              )}
+              {/* eBay not compared for this card yet (quota rotation) — be upfront
+                  and hand over an affiliate-tagged search instead. */}
+              {prices && inStock.length > 0 && !hasEbay && (
+                <p className="mt-2 border-t border-ink-800 pt-2 text-[11px] text-slate-500">
+                  eBay isn&apos;t in this comparison yet — we rotate daily eBay checks across the catalogue.{" "}
+                  <OutboundLink
+                    href={ebaySearchHref}
+                    retailer="ebay_search"
+                    country={country}
+                    className="font-semibold text-brand-400 hover:underline"
+                  >
+                    Search eBay{country === "NZ" ? " AU" : ""} for a cheaper price →
+                  </OutboundLink>
+                </p>
               )}
             </div>
           </div>
