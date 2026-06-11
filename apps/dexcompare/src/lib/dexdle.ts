@@ -6,7 +6,6 @@
 // All facts come straight from the card database; the Value column doubles as
 // a wink at what the site does — every answer links to its live prices.
 import { prisma } from "./db";
-import { unstable_cache } from "next/cache";
 import { POKEMON_SETS } from "./pokemon-sets";
 
 export const DEXDLE_ATTEMPTS = 8;
@@ -35,7 +34,6 @@ export type DexdleCard = {
   setCode: string;
   setName: string;
   collectorNumber: string;
-  imageUrl: string | null;
   imageThumbUrl: string | null;
   domain: string;
   rarity: string;
@@ -45,7 +43,7 @@ export type DexdleCard = {
 
 const SELECT = {
   id: true, name: true, slug: true, setCode: true, setName: true, collectorNumber: true,
-  imageUrl: true, imageThumbUrl: true, domain: true, rarity: true, might: true, marketPriceCents: true,
+  imageThumbUrl: true, domain: true, rarity: true, might: true, marketPriceCents: true,
 } as const;
 
 // Sydney calendar day — the daily flips at midnight AEST like the snapshots.
@@ -65,35 +63,45 @@ const SET_META = new Map(POKEMON_SETS.map((s) => [s.code, { date: s.releaseDate,
 // Pool: real Pokémon (not Trainers/Energies), base prints with art and a REAL
 // market value (so the Value column always works), deduped by name keeping the
 // most valuable print — the one players actually picture for that name.
-const getPool = unstable_cache(
-  async (): Promise<DexdleCard[]> => {
-    const cards = await prisma.card.findMany({
-      where: {
-        type: "Pokémon",
-        variant: null,
-        isPromo: false,
-        imageThumbUrl: { not: null },
-        marketPriceSource: "TCGplayer",
-        marketPriceCents: { gt: 0 },
-      },
-      orderBy: [{ marketPriceCents: "desc" }],
-      select: SELECT,
-    });
-    const seen = new Set<string>();
-    const pool: DexdleCard[] = [];
-    for (const c of cards) {
-      const k = c.name.toLowerCase();
-      if (seen.has(k)) continue;
-      seen.add(k);
-      pool.push(c as DexdleCard);
-    }
-    // Stable order so the daily index is deterministic regardless of price moves.
-    pool.sort((a, b) => a.name.localeCompare(b.name));
-    return pool;
-  },
-  ["dexdle-pool"],
-  { revalidate: 3600 }
-);
+//
+// Cached in process memory, NOT unstable_cache: the full pool exceeds Vercel's
+// 2MB data-cache item limit, and the failed cache write was 500-ing every game
+// API. A per-instance memo (1h TTL) costs one DB query per warm lambda and has
+// no size ceiling. The pool is also capped to the most valuable names — keeps
+// the payload small and every answer a card people might actually recognise.
+const POOL_CAP = 1200;
+const POOL_TTL_MS = 60 * 60 * 1000;
+const g = globalThis as unknown as { __dexdlePool?: { at: number; pool: DexdleCard[] } };
+
+async function getPool(): Promise<DexdleCard[]> {
+  const memo = g.__dexdlePool;
+  if (memo && Date.now() - memo.at < POOL_TTL_MS) return memo.pool;
+  const cards = await prisma.card.findMany({
+    where: {
+      type: "Pokémon",
+      variant: null,
+      isPromo: false,
+      imageThumbUrl: { not: null },
+      marketPriceSource: "TCGplayer",
+      marketPriceCents: { gt: 0 },
+    },
+    orderBy: [{ marketPriceCents: "desc" }],
+    select: SELECT,
+  });
+  const seen = new Set<string>();
+  const pool: DexdleCard[] = [];
+  for (const c of cards) {
+    const k = c.name.toLowerCase();
+    if (seen.has(k)) continue;
+    seen.add(k);
+    pool.push(c as DexdleCard);
+    if (pool.length >= POOL_CAP) break; // price-desc order → cap keeps the chase names
+  }
+  // Stable order so the daily index is deterministic regardless of price moves.
+  pool.sort((a, b) => a.name.localeCompare(b.name));
+  g.__dexdlePool = { at: Date.now(), pool };
+  return pool;
+}
 
 export async function getDailyCard(day = dexdleDay()): Promise<DexdleCard | null> {
   const pool = await getPool();

@@ -1,3 +1,4 @@
+import { prisma } from "@/lib/db";
 import { getDailyCard, getSeededCard } from "@/lib/dexdle";
 
 export const dynamic = "force-dynamic";
@@ -11,7 +12,10 @@ export async function GET(req: Request) {
   const seed = url.searchParams.get("seed") ?? "";
 
   const card = mode === "unlimited" ? await getSeededCard(seed) : await getDailyCard();
-  const src = card?.imageUrl ?? card?.imageThumbUrl;
+  if (!card) return new Response("No art", { status: 404 });
+  // Full-size art isn't carried in the slim game pool — fetch it for this one card.
+  const full = await prisma.card.findUnique({ where: { id: card.id }, select: { imageUrl: true } });
+  const src = full?.imageUrl ?? card.imageThumbUrl;
   if (!src) return new Response("No art", { status: 404 });
 
   const upstream = await fetch(src, { cache: "no-store" }).catch(() => null);
