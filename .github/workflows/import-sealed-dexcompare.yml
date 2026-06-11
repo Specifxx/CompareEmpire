@@ -1,0 +1,64 @@
+name: Import DexCompare sealed products (manual)
+
+# One-off / on-demand import of SEALED Pokémon products (booster boxes, ETBs,
+# bundles, tins, …) across every store we track (AU/NZ/US/GB) plus eBay AU and
+# TCGplayer's US catalogue — without re-scraping all singles (the daily refresh
+# also runs this at the end; this workflow exists for immediate backfills after
+# matcher changes).
+#
+# Secrets: DEXCOMPARE_DATABASE_URL (required). EBAY_CLIENT_ID/SECRET optional —
+# without them the eBay pass is skipped and store/TCGplayer data still imports.
+
+on:
+  workflow_dispatch:
+    inputs:
+      dexcompare_url:
+        description: "DexCompare Neon DATABASE_URL (optional if the secret is set)"
+        required: false
+        default: ""
+
+concurrency:
+  group: dexcompare-sealed-import
+  cancel-in-progress: false
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Resolve database URL
+        id: db
+        env:
+          SECRET_URL: ${{ secrets.DEXCOMPARE_DATABASE_URL }}
+          INPUT_URL: ${{ inputs.dexcompare_url }}
+        run: |
+          URL="${INPUT_URL:-$SECRET_URL}"
+          if [ -z "$URL" ]; then
+            echo "No DEXCOMPARE_DATABASE_URL secret — skipping the sealed import." >> "$GITHUB_STEP_SUMMARY"
+            echo "found=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "::add-mask::$URL"
+            echo "DATABASE_URL=$URL" >> "$GITHUB_ENV"
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.db.outputs.found == 'true'
+
+      - uses: actions/setup-node@v4
+        if: steps.db.outputs.found == 'true'
+        with:
+          node-version: 20
+
+      - name: Import sealed products
+        if: steps.db.outputs.found == 'true'
+        working-directory: apps/dexcompare
+        env:
+          EBAY_CLIENT_ID: ${{ secrets.EBAY_CLIENT_ID }}
+          EBAY_CLIENT_SECRET: ${{ secrets.EBAY_CLIENT_SECRET }}
+          EBAY_AFFILIATE_CAMPAIGN: ${{ secrets.EBAY_AFFILIATE_CAMPAIGN }}
+        run: |
+          npm install --no-audit --no-fund
+          npx prisma generate
+          npx prisma db push --skip-generate
+          npx tsx scripts/import-sealed-only.ts

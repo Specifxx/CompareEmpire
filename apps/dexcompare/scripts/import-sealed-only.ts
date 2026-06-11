@@ -1,5 +1,6 @@
-// Run only the sealed-product import (booster boxes/packs/etc.) across all AU + NZ
-// stores. Useful after changing sealed matching without re-scraping all singles.
+// Run only the sealed-product import (booster boxes/ETBs/bundles/etc.) across all
+// AU/NZ/US/GB stores plus eBay AU and TCGplayer's US catalogue. Useful after
+// changing sealed matching without re-scraping all singles.
 // Run: npx tsx scripts/import-sealed-only.ts
 import { importSealed } from "../src/lib/sealed-import";
 import { prisma } from "../src/lib/db";
