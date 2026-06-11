@@ -225,18 +225,27 @@ export default async function RestockTrackerPage({ params }: { params: { slug: s
                   </div>
                   <ul className="divide-y divide-ink-800">
                     {g.rows.map((r) => (
-                      <li key={r.id} className={`flex items-center gap-3 px-2 py-2.5 ${r.inStock ? "" : "opacity-55"}`}>
+                      <li
+                        key={r.id}
+                        className={`flex flex-wrap items-center gap-x-3 gap-y-2 px-2 py-2.5 sm:flex-nowrap ${r.inStock ? "" : "opacity-55"}`}
+                      >
                         <div className="min-w-0 flex-1">
                           <div className="truncate text-sm font-semibold text-white">{r.retailerName}</div>
-                          <div className="mt-0.5 flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
+                          <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-slate-500">
                             {r.inStock ? <span className="text-brand-400">● In stock</span> : <span>● Out of stock</span>}
                             <span>· seen {timeAgo(r.lastSeen)}</span>
                           </div>
                         </div>
-                        <div className={`text-right text-sm font-bold ${r.inStock ? "text-accent" : "text-slate-400 line-through"}`}>
+                        <div className={`shrink-0 text-right text-sm font-bold ${r.inStock ? "text-accent" : "text-slate-400 line-through"}`}>
                           {formatMoney(r.priceCents, info.currency)}
                         </div>
-                        <OutboundLink href={affiliateUrl(r.url)} retailer={r.retailer} country={country} kind="sealed" className={r.inStock ? "btn-primary" : "btn-ghost"}>
+                        <OutboundLink
+                          href={affiliateUrl(r.url)}
+                          retailer={r.retailer}
+                          country={country}
+                          kind="sealed"
+                          className={`order-last w-full basis-full justify-center sm:order-none sm:w-auto sm:basis-auto ${r.inStock ? "btn-primary" : "btn-ghost"}`}
+                        >
                           {r.inStock ? "Buy →" : "Check →"}
                         </OutboundLink>
                       </li>

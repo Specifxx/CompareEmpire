@@ -170,15 +170,18 @@ export default async function SealedComparePage({ params }: { params: { slug: st
         ) : (
           <ul className="divide-y divide-ink-800">
             {listings.map((l, i) => (
-              <li key={i} className={`flex items-center gap-3 px-4 py-3 ${l.inStock ? "" : "opacity-55"}`}>
+              <li
+                key={i}
+                className={`flex flex-wrap items-center gap-x-3 gap-y-2 px-3 py-3 sm:flex-nowrap sm:px-4 ${l.inStock ? "" : "opacity-55"}`}
+              >
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-sm font-semibold text-white">{l.retailerName}</div>
-                  <div className="mt-0.5 flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
+                  <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-slate-500">
                     {l.inStock ? <span className="text-brand-400">● In stock</span> : <span>● Out of stock</span>}
                     <span>· seen {timeAgo(l.lastSeen)}</span>
                   </div>
                 </div>
-                <div className={`text-right text-sm font-bold ${l.inStock ? "text-accent" : "text-slate-400 line-through"}`}>
+                <div className={`shrink-0 text-right text-sm font-bold ${l.inStock ? "text-accent" : "text-slate-400 line-through"}`}>
                   {formatMoney(l.priceCents, info.currency)}
                 </div>
                 <OutboundLink
@@ -186,7 +189,7 @@ export default async function SealedComparePage({ params }: { params: { slug: st
                   retailer={l.retailer}
                   country={country}
                   kind="sealed"
-                  className={l.inStock ? "btn-primary" : "btn-ghost"}
+                  className={`order-last w-full basis-full justify-center sm:order-none sm:w-auto sm:basis-auto ${l.inStock ? "btn-primary" : "btn-ghost"}`}
                 >
                   {l.inStock ? "Buy →" : "Check →"}
                 </OutboundLink>
