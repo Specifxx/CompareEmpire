@@ -14,9 +14,10 @@ jobs:
     steps:
       - name: Probe routes
         run: |
-          for p in / /market "/market?scope=recent" /games /dexdle /deals /card-value /sealed /browse /restock /api/dexdle "/api/games/cards?count=8" /sitemap.xml; do
+          for p in / /market "/market?scope=recent" /games /dexdle /deals /card-value /sealed /browse /restock /api/dexdle "/api/games/cards?count=8" "/api/games/duel?new=1" /sitemap.xml; do
             CODE=$(curl -s -o /tmp/body -w "%{http_code}" --max-time 30 "https://dexcompare.app$p")
             ERR=$(grep -c "Application error\|server-side exception" /tmp/body || true)
             SIZE=$(wc -c < /tmp/body)
             echo "$CODE  err=$ERR  ${SIZE}B  $p"
+            case "$p" in /api/*) [ "$CODE" != "200" ] && head -c 400 /tmp/body && echo "";; esac
           done

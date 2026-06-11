@@ -7,6 +7,7 @@ export const dynamic = "force-dynamic";
 // name + art + live market value, shuffled server-side. Capped so a game can't
 // pull the whole pool.
 export async function GET(req: Request) {
+  try {
   const url = new URL(req.url);
   const count = Math.min(Math.max(parseInt(url.searchParams.get("count") ?? "48", 10) || 48, 8), 120);
   const pool = await getGamePool();
@@ -40,4 +41,8 @@ export async function GET(req: Request) {
     }));
 
   return NextResponse.json({ cards });
+  } catch (e) {
+    console.error("games/cards GET failed:", e);
+    return NextResponse.json({ error: String(e) }, { status: 500 });
+  }
 }

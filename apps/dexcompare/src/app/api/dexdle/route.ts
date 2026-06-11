@@ -23,6 +23,7 @@ function newSeed(): string {
 //   ?reveal=1[&mode=&seed=]    → the answer (after the player runs out — honor
 //                                system, it's a casual game, same as Riftle).
 export async function GET(req: Request) {
+  try {
   const url = new URL(req.url);
   const mode = url.searchParams.get("mode") === "unlimited" ? "unlimited" : "daily";
   const seed = url.searchParams.get("seed") ?? "";
@@ -40,6 +41,11 @@ export async function GET(req: Request) {
     { day: dexdleDay(), attempts: DEXDLE_ATTEMPTS, names },
     { headers: { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=3600" } }
   );
+  } catch (e) {
+    // Diagnostic: empty-body 500s in production hid the root cause.
+    console.error("dexdle GET failed:", e);
+    return NextResponse.json({ error: String(e) }, { status: 500 });
+  }
 }
 
 const schema = z.object({
