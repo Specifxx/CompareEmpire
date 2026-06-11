@@ -87,6 +87,10 @@ async function getPool(): Promise<DexdleCard[]> {
     },
     orderBy: [{ marketPriceCents: "desc" }],
     select: SELECT,
+    // Egress guard: price-desc + name-dedupe keeps ~1200 of these, so reading
+    // more than a few thousand rows is pure data-transfer burn (the old
+    // unbounded read was a top driver of the Neon free-tier quota blowout).
+    take: 4000,
   });
   const seen = new Set<string>();
   const pool: DexdleCard[] = [];
