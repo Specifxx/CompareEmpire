@@ -66,6 +66,14 @@ export const HOT_ITEMS: HotItem[] = [
     tone: "live",
   },
   {
+    emoji: "🕰️",
+    title: "What are my old cards worth?",
+    sub: "Base Set searches are surging on 30th-anniversary nostalgia — check any card's value free.",
+    href: "/card-value",
+    badge: "Value checker",
+    tone: "chase",
+  },
+  {
     emoji: "⚡",
     title: "Perfect Order singles",
     sub: "The current standard set — every card priced across every store we track.",

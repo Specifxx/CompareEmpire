@@ -47,6 +47,7 @@ export function Navbar() {
             <NavDropdown
               label="More"
               items={[
+                { href: "/card-value", label: "Card value checker", desc: "What are your cards worth? Free, updated daily" },
                 { href: "/restock", label: "Drops & restocks", desc: "New releases, preorders & restock alerts" },
                 { href: "/guides", label: "Buying guides", desc: "Where to buy, grading, fakes & storage" },
                 { href: "/blog", label: "Blog", desc: "Deals, prices & buying smart" },

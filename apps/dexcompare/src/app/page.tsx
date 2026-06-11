@@ -31,8 +31,11 @@ export const metadata: Metadata = {
   keywords: [
     "buy Pokémon cards",
     "Pokémon prices",
+    "Pokémon card value",
+    "Pokémon card price checker",
     "compare Pokémon card prices",
     "cheapest Pokémon cards",
+    "Pokémon booster packs",
     "Pokémon singles",
     "Pokémon TCG",
     "Pokémon card prices",
@@ -61,6 +64,10 @@ function faqsFor(info: CountryInfo, ebay: string | null): { q: string; a: string
     {
       q: "How many Pokémon cards does DexCompare track?",
       a: `DexCompare covers a comprehensive database of Pokémon singles, each priced live across ${adjective} retailers so you can always find the cheapest place to buy.`,
+    },
+    {
+      q: "How much are my Pokémon cards worth?",
+      a: `Use the free Pokémon card value checker: search any card by name and collector number to see its live market value plus real ${adjective} store prices, updated daily — from 1999 Base Set holos to the newest chase cards.`,
     },
     {
       q: `Are the Pokémon prices shown in ${currency}?`,
