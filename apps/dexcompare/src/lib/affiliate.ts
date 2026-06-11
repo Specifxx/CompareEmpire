@@ -3,11 +3,14 @@
 // via env if you ever rotate them).
 
 // eBay Partner Network campaign id. Passed to the Browse API so listing URLs come
-// back already affiliate-tagged (itemAffiliateWebUrl). See lib/ebay.ts.
-export const EBAY_CAMPAIGN_ID = process.env.EBAY_AFFILIATE_CAMPAIGN ?? "5339155912";
+// back already affiliate-tagged (itemAffiliateWebUrl). See lib/ebay.ts. `||` (not
+// `??`) so an empty-string env var still falls back to the real campaign id — an
+// empty campaign id would silently un-monetise every eBay link.
+export const EBAY_CAMPAIGN_ID = process.env.EBAY_AFFILIATE_CAMPAIGN || "5339155912";
 
-// Amazon Associates store/tracking id, appended to amazon.* product links.
-export const AMAZON_ASSOCIATE_TAG = process.env.AMAZON_ASSOCIATE_TAG ?? "dexcompare-20";
+// Amazon Associates store/tracking id, appended to amazon.* product links. `||`
+// so an empty env var falls back to the real tag (an empty tag earns nothing).
+export const AMAZON_ASSOCIATE_TAG = process.env.AMAZON_ASSOCIATE_TAG || "dexcompare-20";
 
 // Impact (TCGplayer affiliate) site-ownership verification token. Rendered as a
 // <meta> in the document <head>.
