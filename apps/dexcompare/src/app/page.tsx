@@ -1,19 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { prisma } from "@/lib/db";
 import { CardTile } from "@/components/CardTile";
 import { CountryHeroToggle } from "@/components/CountryHeroToggle";
 import { HotRightNow } from "@/components/HotRightNow";
 import { Partners } from "@/components/Partners";
-import { getCheapestCards, getValuableCards } from "@/lib/cheapest-cards";
-import { getTopMovers, getPopularCards } from "@/lib/trending";
+import { getTopMovers } from "@/lib/trending";
+import { getHomeData } from "@/lib/home-data";
 import { getTopDeals } from "@/lib/deals";
-import { getNewSealedArrivals } from "@/lib/sealed-import";
 import { formatMoney } from "@/lib/format";
 import { SealedTile } from "@/components/SealedTile";
 import { RecentlyViewed } from "@/components/RecentlyViewed";
 import { getCountry } from "@/lib/get-country";
-import { COUNTRIES, priceField, type CountryInfo } from "@/lib/country";
+import { COUNTRIES, type CountryInfo } from "@/lib/country";
 import { SETS, domainInfo, DOMAIN_KEYS } from "@/lib/constants";
 import { POKEMON_SETS } from "@/lib/pokemon-sets";
 import { Logo } from "@/components/Logo";
@@ -81,29 +79,11 @@ export default async function HomePage() {
   const info = COUNTRIES[country];
   const ebay = ebayLabel(country);
   const faqs = faqsFor(info, ebay);
-  const field = priceField(country);
-  const [totalCards, pricedCards, inStockUnits, cheapestCards, valuableCards, storeGroups, movers, popularCards, newSealed] = await Promise.all([
-    prisma.card.count(),
-    prisma.card.count({ where: { [field]: { not: null } } }),
-    // Live, in-stock store listings analysed in this market — the real units we
-    // compared (the market-guide reference rows are not a buyable unit, so excluded).
-    prisma.retailerPrice.count({ where: { country, inStock: true, NOT: { retailer: { startsWith: "marketguide" } } } }),
-    // Lowest-priced singles, leading with the best-stocked bargains (price, then coverage).
-    getCheapestCards(12, country),
-    // Most valuable singles (chase cards), highest-first.
-    getValuableCards(12, country),
-    // Stores serving the selected market (eBay excluded from the count).
-    prisma.retailerPrice.groupBy({ by: ["retailer"], where: { country, NOT: { retailer: { startsWith: "ebay" } } } }),
-    // Biggest 7-day movers from the daily snapshots, in the visitor's own market.
-    getTopMovers(12, country),
-    // Most-viewed priced cards in this market.
-    getPopularCards(12, country),
-    // Newest sealed products (booster boxes, ETBs, …) for the new-arrivals rail.
-    getNewSealedArrivals(country, 12),
-  ]);
-  // Today's deepest discounts vs the TCGplayer market guide (cached per market).
-  const deals = await getTopDeals(12, country);
-  const storeCount = storeGroups.length;
+  // One cached bundle per market (5-min revalidate) — TTFB was the biggest
+  // PageSpeed cost, and prices only move on the imports anyway. Movers and
+  // deals carry their own caches.
+  const [{ totalCards, pricedCards, inStockUnits, cheapestCards, valuableCards, storeCount, popularCards, newSealed }, movers, deals] =
+    await Promise.all([getHomeData(country), getTopMovers(12, country), getTopDeals(12, country)]);
 
   return (
     <div className="flex flex-col gap-10">

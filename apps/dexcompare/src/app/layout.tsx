@@ -16,8 +16,14 @@ import { IMPACT_SITE_VERIFICATION } from "@/lib/affiliate";
 
 // Body: Sora (modern, energetic, readable). Headings: Space Grotesk (distinctive,
 // gives the brand more life). Exposed as CSS vars wired into Tailwind.
-const sora = Sora({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
-const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-display", display: "swap" });
+// display: "optional" — the single biggest CLS fix on the site. With "swap",
+// the late font swap reflowed the ENTIRE page (Lighthouse measured a 1.0
+// whole-body layout shift attributed to these two woff2 files). "optional"
+// never swaps late: first paint uses the metric-matched fallback if the font
+// isn't ready within ~100ms, and the brand font appears from cache on every
+// visit after the first. Zero font CLS by construction.
+const sora = Sora({ subsets: ["latin"], variable: "--font-sans", display: "optional" });
+const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-display", display: "optional" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
