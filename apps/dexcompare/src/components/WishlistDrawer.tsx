@@ -4,6 +4,7 @@ import Link from "next/link";
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { getWishlist, toggleWishlist } from "@/lib/wishlist-client";
 import { cardHref } from "@/lib/card-url";
+import { priceOrGuide, type Country } from "@/lib/country";
 import { useCountry } from "./CountryProvider";
 
 interface MiniCard {
@@ -17,6 +18,8 @@ interface MiniCard {
   lowestPriceCentsNz?: number | null;
   lowestPriceCentsGb?: number | null;
   lowestPriceCentsUs?: number | null;
+  marketPriceCents?: number | null;
+  marketPriceSource?: string | null;
 }
 
 const Ctx = createContext<{ open: () => void; close: () => void }>({ open: () => {}, close: () => {} });
@@ -35,8 +38,11 @@ export function WishlistDrawerProvider({ children }: { children: React.ReactNode
 }
 
 function WishlistDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const { fmt, price } = useCountry();
+  const { fmt, country } = useCountry();
   const [cards, setCards] = useState<MiniCard[] | null>(null);
+  // Store price if we have one, else a real market guide so guide-only cards
+  // still contribute a value to the wishlist total.
+  const valueOf = (c: MiniCard) => priceOrGuide(c, country as Country);
 
   const load = useCallback(async () => {
     const ids = getWishlist();
@@ -85,7 +91,7 @@ function WishlistDrawer({ open, onClose }: { open: boolean; onClose: () => void 
     };
   }, [open, onClose]);
 
-  const total = (cards ?? []).reduce((n, c) => n + (price(c) ?? 0), 0);
+  const total = (cards ?? []).reduce((n, c) => n + (valueOf(c).cents ?? 0), 0);
 
   return (
     <>
@@ -134,9 +140,21 @@ function WishlistDrawer({ open, onClose }: { open: boolean; onClose: () => void 
                     <div className="min-w-0">
                       <div className="truncate text-sm font-semibold text-white">{c.name}</div>
                       <div className="text-[11px] text-slate-500">{c.setCode} · {c.collectorNumber}</div>
-                      <div className="text-sm font-bold text-accent">
-                        {price(c) != null ? fmt(price(c)!) : "No price yet"}
-                      </div>
+                      {(() => {
+                        const v = valueOf(c);
+                        return (
+                          <div className="text-sm font-bold text-accent">
+                            {v.cents != null ? (
+                              <>
+                                {fmt(v.cents)}
+                                {v.isGuide && <span className="ml-1 text-[10px] font-normal text-slate-500">guide</span>}
+                              </>
+                            ) : (
+                              "No price yet"
+                            )}
+                          </div>
+                        );
+                      })()}
                     </div>
                   </Link>
                   <button
@@ -156,7 +174,7 @@ function WishlistDrawer({ open, onClose }: { open: boolean; onClose: () => void 
         {cards && cards.length > 0 && (
           <div className="border-t border-ink-700 p-4">
             <div className="mb-3 flex items-center justify-between text-sm">
-              <span className="text-slate-400">Total (cheapest)</span>
+              <span className="text-slate-400">Total (cheapest / guide)</span>
               <span className="text-lg font-extrabold text-accent">{fmt(total)}</span>
             </div>
             <Link href="/wishlist" onClick={onClose} className="btn-primary w-full text-center">

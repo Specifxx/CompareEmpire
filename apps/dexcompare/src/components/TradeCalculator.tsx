@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useCountry } from "./CountryProvider";
 import { cardDisplayName } from "@/lib/card-name";
 import { tradeGremlin, type TradeTone } from "@/lib/trade-gremlin";
+import { priceOrGuide, type Country } from "@/lib/country";
 
 // A card added to one side of a trade. We store the full set of market prices so
 // the totals re-compute live when the visitor switches country/currency.
@@ -22,6 +23,9 @@ interface TradeCard {
   lowestPriceCentsNz?: number | null;
   lowestPriceCentsUs?: number | null;
   lowestPriceCentsGb?: number | null;
+  // Market guide fallback so cards with no store price still have a starting value.
+  marketPriceCents?: number | null;
+  marketPriceSource?: string | null;
   qty: number;
 }
 
@@ -119,8 +123,9 @@ export function TradeCalculator() {
     setTheirsPct(yoursPct);
   }
 
-  // Effective per-unit value: a manual/selected override if set, else the live price.
-  const effUnit = (c: TradeCard) => overrides[c.id] ?? price(c);
+  // Effective per-unit value: a manual/selected override if set, else the live
+  // store price, else a real market guide so no card is valued at zero.
+  const effUnit = (c: TradeCard) => overrides[c.id] ?? priceOrGuide(c, country as Country).cents;
   const onOverride = (id: string, cents: number) => setOverrides((o) => ({ ...o, [id]: cents }));
 
   const sideTotal = (list: TradeCard[]) => list.reduce((sum, c) => sum + (effUnit(c) ?? 0) * c.qty, 0);
@@ -340,9 +345,13 @@ function TradeColumn({
       ) : (
         <ul className="mt-3 divide-y divide-ink-800">
           {list.map((c) => {
-            const base = price(c);
+            // Store price if we have one, else a real market guide so the card has
+            // a starting value (flagged so we can mark it).
+            const valued = priceOrGuide(c, country as Country);
+            const base = valued.cents;
             const ov = overrides[c.id];
             const unit = ov ?? base; // override beats market price
+            const showGuide = ov == null && valued.isGuide;
             return (
               <li key={c.id} className="flex items-start gap-3 py-2.5">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -374,6 +383,11 @@ function TradeColumn({
                       title={ov != null ? "Custom value — edit, or pick a store price below" : "Market value — type to override"}
                     />
                     <span>ea</span>
+                    {showGuide && (
+                      <span className="chip bg-ink-800 px-1 py-0 text-[9px] text-slate-400" title="No store price — using the market-price guide as a starting value">
+                        guide
+                      </span>
+                    )}
                   </div>
                   {/* Pick a specific store's price in case the cheapest is wrong. */}
                   <StorePrices cardId={c.id} country={country} fmt={fmt} onPick={(cents) => onOverride(c.id, cents)} />

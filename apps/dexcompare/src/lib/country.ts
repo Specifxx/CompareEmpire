@@ -85,3 +85,27 @@ export function marketGuideCents(usdCents: number | null | undefined, country: C
   if (usdCents == null || usdCents <= 0) return null;
   return Math.round(usdCents * USD_FX[country]);
 }
+
+// Effective starting value for a card in a market: the real store lowest if we
+// have one, otherwise a REAL (TCGplayer-sourced) market guide so every card has a
+// usable number — used by the trade calculator and wishlist totals so guide-only
+// cards aren't valued at zero. `isGuide` lets the UI mark the estimate.
+export function priceOrGuide(
+  card: {
+    lowestPriceCents: number | null;
+    lowestPriceCentsNz?: number | null;
+    lowestPriceCentsUs?: number | null;
+    lowestPriceCentsGb?: number | null;
+    marketPriceCents?: number | null;
+    marketPriceSource?: string | null;
+  },
+  country: Country
+): { cents: number | null; isGuide: boolean } {
+  const p = pickPrice(card, country);
+  if (p != null) return { cents: p, isGuide: false };
+  if (card.marketPriceSource === "TCGplayer") {
+    const g = marketGuideCents(card.marketPriceCents, country);
+    if (g != null) return { cents: g, isGuide: true };
+  }
+  return { cents: null, isGuide: false };
+}
