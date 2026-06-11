@@ -10,7 +10,8 @@ import { useCountry } from "./CountryProvider";
 const LINKS = [
   { href: "/browse", label: "Database (singles)" },
   { href: "/sealed", label: "Sealed products" },
-  { href: "/restock", label: "Restock alerts" },
+  { href: "/deals", label: "Deals" },
+  { href: "/restock", label: "Drops & restocks" },
   { href: "/trade", label: "Trade calculator" },
   { href: "/wishlist", label: "Wishlist" },
   { href: "/guides", label: "Buying guides" },

@@ -6,7 +6,9 @@ import { CountryHeroToggle } from "@/components/CountryHeroToggle";
 import { Partners } from "@/components/Partners";
 import { getCheapestCards, getValuableCards } from "@/lib/cheapest-cards";
 import { getTopMovers, getPopularCards } from "@/lib/trending";
+import { getTopDeals } from "@/lib/deals";
 import { getNewSealedArrivals } from "@/lib/sealed-import";
+import { formatMoney } from "@/lib/format";
 import { SealedTile } from "@/components/SealedTile";
 import { RecentlyViewed } from "@/components/RecentlyViewed";
 import { getCountry } from "@/lib/get-country";
@@ -91,6 +93,8 @@ export default async function HomePage() {
     // Newest sealed products (booster boxes, ETBs, …) for the new-arrivals rail.
     getNewSealedArrivals(country, 12),
   ]);
+  // Today's deepest discounts vs the TCGplayer market guide (cached per market).
+  const deals = await getTopDeals(12, country);
   const storeCount = storeGroups.length;
 
   return (
@@ -148,6 +152,32 @@ export default async function HomePage() {
             {newSealed.map((g) => (
               <div key={g.slug} className="w-40 shrink-0 sm:w-44">
                 <SealedTile group={g} currency={info.currency} />
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Today's deals — live store prices well below the TCGplayer market guide. */}
+      {deals.length >= 4 && (
+        <section>
+          <div className="mb-4 flex items-end justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-extrabold text-white">🔥 Today&apos;s best deals</h2>
+              <p className="mt-0.5 text-xs text-slate-500">
+                {info.adjective} store prices sitting well below the TCGplayer market guide right now.
+              </p>
+            </div>
+            <Link href="/deals" className="btn-ghost text-xs shrink-0">All deals →</Link>
+          </div>
+          <div className="-mx-1 flex gap-4 overflow-x-auto px-1 pb-2">
+            {deals.map((d) => (
+              <div key={d.card.id} className="w-36 shrink-0 sm:w-44">
+                <div className="mb-1.5 flex items-center justify-between px-1 text-xs font-bold">
+                  <span className="text-emerald-400">▼ {d.pct}%</span>
+                  <span className="text-slate-500 line-through">{formatMoney(d.guideCents, info.currency)}</span>
+                </div>
+                <CardTile card={d.card} />
               </div>
             ))}
           </div>

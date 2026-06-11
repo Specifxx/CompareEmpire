@@ -25,6 +25,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/browse`, changeFrequency: "daily", priority: 0.9 },
     // Sealed-product database — high-intent ("<set> booster box price") landers.
     { url: `${SITE_URL}/sealed`, changeFrequency: "daily", priority: 0.85 },
+    // Deals — biggest discounts vs the market guide; refreshes with every import.
+    { url: `${SITE_URL}/deals`, changeFrequency: "daily", priority: 0.85 },
     // Restock trackers — high-intent ("<set> in stock") landers; refresh often.
     { url: `${SITE_URL}/restock`, changeFrequency: "daily", priority: 0.85 },
     ...FEATURED_RESTOCKS.map((p) => ({
