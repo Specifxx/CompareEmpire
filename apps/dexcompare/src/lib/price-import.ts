@@ -451,7 +451,7 @@ export async function refreshEbayMarkets(
       for (const c of chunk) {
         if (isEbayRateLimited() || ebaySpentThisRun() - spentBefore >= marketBudget) break;
         const [rawNum, total] = c.collectorNumber.split("/");
-        const r = await searchEbayLowest({
+        const outcome = await searchEbayLowest({
           name: c.name,
           setCode: c.setCode,
           number: rawNum.replace(/\*/g, ""),
@@ -460,8 +460,13 @@ export async function refreshEbayMarkets(
           isPromo: c.isPromo,
           marketplace: mkt.marketplace,
         });
+        // Only a COMPLETED search (ok) counts the card as "searched". A failed
+        // call (network/429/budget) must NOT delete the card's existing row — that
+        // would wipe a good price on a transient hiccup.
+        if (!outcome.ok) continue;
         searchedIds.push(c.id);
-        if (!r) continue;
+        const r = outcome.result;
+        if (!r) continue; // searched, genuinely no listing → its stale row is cleared
         rows.push({
           cardId: c.id,
           retailer: mkt.retailer,

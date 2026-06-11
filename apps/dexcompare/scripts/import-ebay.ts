@@ -29,13 +29,14 @@ async function main() {
     if (isEbayRateLimited()) { console.warn("eBay rate-limited (429) — aborting eBay pass."); break; }
     const [rawNum, total] = c.collectorNumber.split("/");
     try {
-      const r = await searchEbayLowest({
+      const outcome = await searchEbayLowest({
         name: c.name,
         setCode: c.setCode,
         number: rawNum.replace(/\*/g, ""),
         total: total ?? "",
         isSignature: c.collectorNumber.includes("*"),
       });
+      const r = outcome.ok ? outcome.result : null;
       if (r) {
         ebayRows.push({
           cardId: c.id,

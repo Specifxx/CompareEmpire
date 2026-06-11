@@ -134,6 +134,17 @@ export interface EbayResult {
   imageUrl?: string | null; // listing image (used for sealed product thumbnails)
 }
 
+// Outcome of an eBay single-card search, discriminated so callers can tell a
+// CALL THAT DID NOT COMPLETE (no token, budget-refused, network error, 429,
+// non-OK response) apart from a CALL THAT COMPLETED with no valid listing.
+//   { ok: false }                    → eBay was not actually queried; the caller
+//                                       must NOT treat the card as "searched"
+//                                       (deleting its existing row would lose a
+//                                       good price on a transient failure).
+//   { ok: true, result: null }       → eBay answered; no legitimate listing.
+//   { ok: true, result: EbayResult } → eBay answered with the cheapest listing.
+export type EbaySearchOutcome = { ok: false } | { ok: true; result: EbayResult | null };
+
 function shippingFromItem(item: any): number | null {
   const opt = item?.shippingOptions?.[0];
   if (!opt) return null;
@@ -263,9 +274,9 @@ export async function searchEbayLowest(card: {
   isSignature: boolean;
   isPromo?: boolean;
   marketplace?: string; // "EBAY_AU" (default) | "EBAY_US"
-}): Promise<EbayResult | null> {
+}): Promise<EbaySearchOutcome> {
   const token = await getToken();
-  if (!token) return null;
+  if (!token) return { ok: false }; // couldn't authenticate — call did not complete
 
   const params = new URLSearchParams({
     // Include the collector number so the exact card ranks into the result window —
@@ -285,19 +296,19 @@ export async function searchEbayLowest(card: {
     headers["X-EBAY-C-ENDUSERCTX"] = `affiliateCampaignId=${EBAY_CAMPAIGN_ID}`;
   }
 
-  if (!spend()) return null; // budget exhausted — don't make the call
+  if (!spend()) return { ok: false }; // budget exhausted — call did not happen
 
   let res: Response;
   try {
     res = await fetch(`${SEARCH_URL}?${params}`, { headers });
   } catch {
-    return null;
+    return { ok: false }; // network error — call did not complete
   }
   if (res.status === 429) {
     rateLimited = true; // daily quota hit — stop the pass
-    return null;
+    return { ok: false }; // not a "no listing" — eBay refused
   }
-  if (!res.ok) return null;
+  if (!res.ok) return { ok: false }; // non-OK — call did not complete
   const data = await res.json();
   const items: any[] = data.itemSummaries ?? [];
 
@@ -326,15 +337,20 @@ export async function searchEbayLowest(card: {
   // English market, so drop the cheapest while it's a gross outlier (< 40% of the
   // median) with enough listings for the median to be trustworthy.
   const best = pruneCheapOutliers(valid);
-  if (!best) return null;
+  // eBay answered — `null` here means "no legitimate listing", which IS a valid
+  // searched-with-no-result and may clear a stale row. Distinct from { ok: false }.
+  if (!best) return { ok: true, result: null };
 
   return {
-    priceCents: Math.round(parseFloat(best.price.value) * 100),
-    shippingCents: shippingFromItem(best),
-    url: best.itemAffiliateWebUrl ?? best.itemWebUrl,
-    title: best.title,
-    condition: best.condition,
-    imageUrl: best.image?.imageUrl ?? best.thumbnailImages?.[0]?.imageUrl ?? null,
+    ok: true,
+    result: {
+      priceCents: Math.round(parseFloat(best.price.value) * 100),
+      shippingCents: shippingFromItem(best),
+      url: best.itemAffiliateWebUrl ?? best.itemWebUrl,
+      title: best.title,
+      condition: best.condition,
+      imageUrl: best.image?.imageUrl ?? best.thumbnailImages?.[0]?.imageUrl ?? null,
+    },
   };
 }
 

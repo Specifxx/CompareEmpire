@@ -25,7 +25,7 @@ async function main() {
     if (isEbayRateLimited()) { console.warn("Rate limited — stopping early."); break; }
     searched++;
     const [rawNum, total] = c.collectorNumber.split("/");
-    const r = await searchEbayLowest({
+    const outcome = await searchEbayLowest({
       name: c.name,
       setCode: c.setCode,
       number: rawNum.replace(/\*/g, ""),
@@ -33,6 +33,7 @@ async function main() {
       isSignature: false,
       isPromo: true,
     });
+    const r = outcome.ok ? outcome.result : null;
     if (!r) continue;
     rows.push({
       cardId: c.id,
