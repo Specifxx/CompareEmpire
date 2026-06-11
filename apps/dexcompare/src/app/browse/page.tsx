@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { Filters } from "@/components/Filters";
@@ -6,6 +7,8 @@ import { SortSelect } from "@/components/SortSelect";
 import { CardTile } from "@/components/CardTile";
 import { Pagination } from "@/components/Pagination";
 import { PageSizeSelect } from "@/components/PageSizeSelect";
+import { AdSlot } from "@/components/AdSlot";
+import { ADSENSE_SLOTS } from "@/lib/ads";
 import {
   buildCardOrderBy,
   buildCardWhere,
@@ -17,6 +20,19 @@ import {
 import { getCountry } from "@/lib/get-country";
 
 export const dynamic = "force-dynamic";
+
+export function generateMetadata({ searchParams }: { searchParams: CardQuery }): Metadata {
+  // Search-result and filtered views are infinite query-string permutations — keep
+  // them out of the index (and never let them claim to be the canonical /browse).
+  const isFiltered = Boolean(searchParams.q || searchParams.domain || searchParams.rarity || searchParams.type || searchParams.set);
+  return {
+    title: "Browse the Pokémon card database",
+    description:
+      "Search and filter every Pokémon TCG card and compare live prices across stores in Australia, New Zealand, the US and the UK to find the cheapest place to buy.",
+    alternates: { canonical: "/browse" },
+    ...(isFiltered ? { robots: { index: false, follow: true } } : {}),
+  };
+}
 
 export default async function BrowsePage({ searchParams }: { searchParams: CardQuery }) {
   const country = getCountry();
@@ -42,6 +58,7 @@ export default async function BrowsePage({ searchParams }: { searchParams: CardQ
       <Filters />
 
       <section className="min-w-0 flex-1">
+        <AdSlot slot={ADSENSE_SLOTS.browse} format="horizontal" height={90} className="mb-4" />
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <p className="text-sm text-slate-400">
             <span className="font-semibold text-white">{total.toLocaleString()}</span>{" "}

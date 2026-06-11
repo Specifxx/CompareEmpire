@@ -6,8 +6,13 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      // Keep account/utility routes out of the index.
-      disallow: ["/api/", "/admin", "/login", "/register", "/profile", "/wishlist", "/sell", "/wanted", "/unsubscribe"],
+      // Keep account/utility + transactional routes out of the index.
+      disallow: [
+        "/api/", "/admin", "/login", "/register", "/profile", "/wishlist",
+        "/sell", "/wanted", "/unsubscribe",
+        // Marketplace transactional pages (cart/checkout/order) — never content.
+        "/marketplace/cart", "/marketplace/checkout", "/marketplace/order",
+      ],
     },
     sitemap: `${SITE_URL}/sitemap.xml`,
     host: SITE_URL,

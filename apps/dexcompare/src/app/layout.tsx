@@ -26,17 +26,18 @@ export const metadata: Metadata = {
     template: "%s — DexCompare",
   },
   description:
-    "The Pokémon TCG card database and price comparison. Browse every card and compare live prices across stores in Australia, New Zealand and the United States to find the cheapest place to buy.",
+    "The Pokémon TCG card database and price comparison. Browse every card and compare live prices across stores in Australia, New Zealand, the United States and the United Kingdom to find the cheapest place to buy.",
   applicationName: SITE_NAME,
   keywords: ["Pokémon", "Pokémon TCG", "Pokémon prices", "Pokémon singles", "card prices", "Pokémon card database"],
-  alternates: { canonical: "/" },
+  // NOTE: no site-wide canonical here — each page declares its own canonical so
+  // inner pages never inherit "/" and look like duplicates of the homepage.
   openGraph: {
     type: "website",
     siteName: SITE_NAME,
     url: SITE_URL,
     title: "DexCompare — Pokémon Card Database & Price Comparison",
     description:
-      "Compare live Pokémon TCG card prices across stores in Australia, New Zealand and the US to find the cheapest place to buy.",
+      "Compare live Pokémon TCG card prices across stores in Australia, New Zealand, the US and the UK to find the cheapest place to buy.",
   },
   twitter: { card: "summary_large_image" },
   // Search engine site verification. Google's "HTML tag" method (URL-prefix
@@ -63,7 +64,7 @@ const orgJsonLd = {
       url: SITE_URL,
       logo: `${SITE_URL}/icon-512.png`,
       description:
-        "Pokémon TCG card database and live price-comparison across Australia, New Zealand and the US.",
+        "Pokémon TCG card database and live price-comparison across Australia, New Zealand, the US and the UK.",
     },
     {
       "@type": "WebSite",

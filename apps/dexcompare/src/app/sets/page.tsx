@@ -5,6 +5,7 @@ import { POKEMON_SETS } from "@/lib/pokemon-sets";
 export const metadata: Metadata = {
   title: "All Pokémon TCG Sets",
   description: "Browse every Pokémon TCG set and compare card prices set by set.",
+  alternates: { canonical: "/sets" },
 };
 
 const PER_PAGE = 24;
