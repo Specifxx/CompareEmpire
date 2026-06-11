@@ -5,10 +5,11 @@ import { CardTile } from "@/components/CardTile";
 import { CountryHeroToggle } from "@/components/CountryHeroToggle";
 import { getCheapestCards, getValuableCards } from "@/lib/cheapest-cards";
 import { getTopMovers, getPopularCards } from "@/lib/trending";
+import { getNewSealedArrivals } from "@/lib/sealed-import";
+import { SealedTile } from "@/components/SealedTile";
 import { RecentlyViewed } from "@/components/RecentlyViewed";
 import { getCountry } from "@/lib/get-country";
 import { COUNTRIES, priceField, type CountryInfo } from "@/lib/country";
-import { FEATURED_RESTOCKS } from "@/lib/restocks";
 import { SETS, domainInfo, DOMAIN_KEYS } from "@/lib/constants";
 import { POKEMON_SETS } from "@/lib/pokemon-sets";
 import { Logo } from "@/components/Logo";
@@ -70,7 +71,7 @@ export default async function HomePage() {
   const ebay = ebayLabel(country);
   const faqs = faqsFor(info, ebay);
   const field = priceField(country);
-  const [totalCards, pricedCards, inStockUnits, cheapestCards, valuableCards, storeGroups, movers, popularCards] = await Promise.all([
+  const [totalCards, pricedCards, inStockUnits, cheapestCards, valuableCards, storeGroups, movers, popularCards, newSealed] = await Promise.all([
     prisma.card.count(),
     prisma.card.count({ where: { [field]: { not: null } } }),
     // Live, in-stock store listings analysed in this market — the real units we
@@ -86,10 +87,10 @@ export default async function HomePage() {
     getTopMovers(12, country),
     // Most-viewed priced cards in this market.
     getPopularCards(12, country),
+    // Newest sealed products (booster boxes, ETBs, …) for the new-arrivals rail.
+    getNewSealedArrivals(country, 12),
   ]);
   const storeCount = storeGroups.length;
-  // The hottest featured drop for the homepage restock banner (most recent release).
-  const featuredRestock = [...FEATURED_RESTOCKS].sort((a, b) => (a.releaseDate < b.releaseDate ? 1 : -1))[0] ?? null;
 
   return (
     <div className="flex flex-col gap-10">
@@ -124,22 +125,29 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Restock-tracker banner — rides demand for the hottest sold-out set. */}
-      {featuredRestock && (
-        <Link
-          href={`/restock/${featuredRestock.slug}`}
-          className="card-surface flex flex-wrap items-center justify-between gap-3 border-gold/30 bg-gradient-to-r from-rose-600/15 via-ink-850 to-gold/10 px-5 py-4 transition-all hover:-translate-y-0.5 hover:shadow-glow"
-        >
-          <div className="min-w-0">
-            <div className="text-sm font-extrabold text-white">
-              🔥 {featuredRestock.shortName} sold out? Get a free restock alert.
+      {/* New sealed arrivals — rides demand for the hottest just-released sealed
+          product. Click any item to compare its price across stores (and find the
+          cheapest resell). Replaces a single restock banner with a whole shelf. */}
+      {newSealed.length >= 3 && (
+        <section>
+          <div className="mb-4 flex items-end justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-extrabold text-white">🔥 New sealed arrivals</h2>
+              <p className="mt-0.5 text-xs text-slate-500">
+                The newest booster boxes, ETBs &amp; bundles — compare every {info.adjective} store to find
+                the cheapest place to buy (or the best resale value).
+              </p>
             </div>
-            <p className="mt-0.5 text-xs text-slate-400">
-              Live {info.adjective} stock + an email the moment it&apos;s back in stock — no account needed.
-            </p>
+            <Link href="/sealed" className="btn-ghost text-xs shrink-0">View all →</Link>
           </div>
-          <span className="btn-primary shrink-0">Track restocks →</span>
-        </Link>
+          <div className="-mx-1 flex gap-4 overflow-x-auto px-1 pb-2">
+            {newSealed.map((g) => (
+              <div key={g.slug} className="w-40 shrink-0 sm:w-44">
+                <SealedTile group={g} currency={info.currency} />
+              </div>
+            ))}
+          </div>
+        </section>
       )}
 
       {/* Recently viewed — local to this visitor; renders nothing on a first visit */}

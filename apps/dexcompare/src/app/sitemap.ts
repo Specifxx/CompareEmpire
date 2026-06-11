@@ -4,19 +4,27 @@ import { SITE_URL } from "@/lib/site";
 import { SETS } from "@/lib/constants";
 import { getArticles } from "@/lib/articles";
 import { FEATURED_RESTOCKS } from "@/lib/restocks";
+import { getSealedGroups } from "@/lib/sealed-import";
 
 // Regenerate at most once per day — the card set is stable.
 export const revalidate = 86400;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const cards = await prisma.card.findMany({
-    select: { id: true, slug: true, lowestPriceCents: true },
-    orderBy: { lowestPriceCents: { sort: "desc", nulls: "last" } },
-  });
+  const [cards, sealed] = await Promise.all([
+    prisma.card.findMany({
+      select: { id: true, slug: true, lowestPriceCents: true },
+      orderBy: { lowestPriceCents: { sort: "desc", nulls: "last" } },
+    }),
+    // Sealed compare pages — slugs come from the AU catalogue baseline (the same
+    // product exists across markets under one slug).
+    getSealedGroups("AU").catch(() => []),
+  ]);
 
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: `${SITE_URL}/`, changeFrequency: "daily", priority: 1 },
     { url: `${SITE_URL}/browse`, changeFrequency: "daily", priority: 0.9 },
+    // Sealed-product database — high-intent ("<set> booster box price") landers.
+    { url: `${SITE_URL}/sealed`, changeFrequency: "daily", priority: 0.85 },
     // Restock trackers — high-intent ("<set> in stock") landers; refresh often.
     { url: `${SITE_URL}/restock`, changeFrequency: "daily", priority: 0.85 },
     ...FEATURED_RESTOCKS.map((p) => ({
@@ -59,5 +67,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: c.lowestPriceCents != null ? 0.8 : 0.5,
   }));
 
-  return [...staticRoutes, ...guideRoutes, ...setRoutes, ...cardRoutes];
+  // Sealed compare pages (dedupe by slug — same product can recur across markets).
+  const seenSlugs = new Set<string>();
+  const sealedRoutes: MetadataRoute.Sitemap = [];
+  for (const g of sealed) {
+    if (seenSlugs.has(g.slug)) continue;
+    seenSlugs.add(g.slug);
+    sealedRoutes.push({
+      url: `${SITE_URL}/sealed/${g.slug}`,
+      changeFrequency: "daily",
+      priority: g.lowestPriceCents != null ? 0.75 : 0.55,
+    });
+  }
+
+  return [...staticRoutes, ...guideRoutes, ...setRoutes, ...sealedRoutes, ...cardRoutes];
 }

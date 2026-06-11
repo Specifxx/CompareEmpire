@@ -8,14 +8,14 @@ import { useCountry } from "./CountryProvider";
 // Database stays in the top bar at all sizes; this menu holds the wishlist link
 // plus the market/country selector for small screens.
 const LINKS = [
-  { href: "/browse", label: "Database" },
+  { href: "/browse", label: "Database (singles)" },
+  { href: "/sealed", label: "Sealed products" },
   { href: "/restock", label: "Restock alerts" },
   { href: "/trade", label: "Trade calculator" },
   { href: "/wishlist", label: "Wishlist" },
   { href: "/guides", label: "Buying guides" },
   { href: "/blog", label: "Blog" },
   { href: "/collection", label: "My collection" },
-  { href: "/marketplace", label: "Marketplace" },
   { href: "/contact", label: "Contact" },
 ];
 

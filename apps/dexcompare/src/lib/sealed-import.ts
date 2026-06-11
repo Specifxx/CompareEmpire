@@ -1,10 +1,12 @@
-// Imports SEALED / non-single Pokémon products (booster boxes, packs, Proving
-// Grounds, bundles, …) from the same AU Shopify stores, into SealedListing. The
+// Imports SEALED / non-single Pokémon products (booster boxes, elite trainer
+// boxes, collection boxes, bundles, tins, packs, …) from the AU/NZ Shopify stores
+// plus eBay (AU) and the TCGplayer catalogue (US/GB), into SealedListing. The
 // singles importer (price-import.ts) deliberately skips these; this complements it.
 import { prisma } from "./db";
 import { RETAILER_LIST } from "./retailers";
 import { isEbayEnabled, isEbayRateLimited, searchEbaySealed, primeEbayBudget } from "./ebay";
 import { fetchTcgplayerSealed, tcgProductUrl, tcgImageUrl } from "./tcgplayer";
+import { POKEMON_SETS } from "./pokemon-sets";
 
 const UA = {
   "User-Agent":
@@ -16,39 +18,22 @@ interface ShopifyImg { src?: string }
 interface ShopifyVar { price: string; available: boolean }
 interface ShopifyProd { title: string; handle: string; variants: ShopifyVar[]; images?: ShopifyImg[] }
 
-const SET_FROM_TITLE: [RegExp, string][] = [
-  [/proving\s*grounds|\bOGS\b/i, "OGS"],
-  [/spirit\s*forged|\bSFD\b/i, "SFD"],
-  [/unleashed|\bUNL\b/i, "UNL"],
-  [/origins|\bOGN\b/i, "OGN"],
-];
-const SET_NAMES: Record<string, string> = {
-  OGN: "Origins", OGS: "Proving Grounds", SFD: "Spiritforged", UNL: "Unleashed",
-};
-
-// A sealed product must be identifiably RIFTBOUND. Other games slip in when a store
-// files them under a shared/mismatched collection — e.g. Gundam "… [Starter Deck 06:
-// Clan Unity]" matches "starter deck" — so we require an explicit Pokémon/League
-// marker (set name, "Pokémon", "League of Legends", Proving Grounds, Nexus Night).
-const RIFTBOUND_HINT =
-  /riftbound|league\s*of\s*legends|proving\s*grounds|nexus\s*night|spirit\s*forged|spiritforged|\borigins\b|\bunleashed\b|\b(?:OGN|OGS|SFD|UNL)\b/i;
-
-// Sets that aren't released yet — never list their (pre-order) sealed products.
-const UNRELEASED_SET = /\bvendetta\b|\bradiance\b|\b(?:VEN|RAD)\b/i;
+// A sealed product must be identifiably POKÉMON. Other games slip in when a store
+// files them under a shared/mismatched collection, so we require an explicit
+// Pokémon marker: the word "Pokémon", or a detected Pokémon set name in the title.
+const POKEMON_HINT = /pok[eé]mon|\bpkmn\b/i;
 
 function isPokémonSealed(title: string): boolean {
-  return RIFTBOUND_HINT.test(title) && !UNRELEASED_SET.test(title);
+  return POKEMON_HINT.test(title) || detectSetMeta(title) != null;
 }
 
-// A sealed product title looks like one of these. "nexus night" (not bare "nexus",
-// which also matches the single card "Power Nexus").
+// A sealed product title looks like one of these (Pokémon sealed lines).
 const SEALED_TITLE =
-  /booster\s*box|booster\s*pack|booster\s*display|display\s*box|display\s*case|booster\s*bundle|\bbundle\b|box\s*set|champion\s*deck|pre-?rift|event\s*kit|elite|collector|gift\s*box|blister|proving\s*grounds|nexus\s*night|promo\s*pack|two[-\s]?player|starter\s*(deck|set)|precon|\bcase\b|mega\s*box|\btin\b|sealed/i;
-// …but never these. Singles / accessories / bulk / break slots / non-English slip
-// through otherwise. Condition codes (NM/LP/…) and a set name in parentheses
-// (e.g. "(Origins: Proving Grounds)") are tell-tale signs of a single card.
+  /booster\s*box|booster\s*display|display\s*box|display\s*case|booster\s*bundle|booster\s*pack|\bpack\b|elite\s*trainer\s*box|\betb\b|premium\s*collection|collection\s*box|\bcollection\b|build\s*&?\s*and?\s*battle|\bbundle\b|gift\s*box|sleeved\s*booster|blister|\bcase\b|\btin\b|\bsealed\b/i;
+// …but never these. Singles / accessories / graded slabs / bulk / non-English slip
+// through otherwise. A collector number ("/198") is a tell-tale single-card sign.
 const SEALED_EXCLUDE =
-  /\bsingle\b|playmat|deck\s*box|binder|toploader|top\s*loader|dice|counter|\btoken\b|card\s*\d|\/\d{2,3}\b|chinese|japanese|korean|simplified|traditional|\bbulk\s+(?:lot|cards|commons?|singles?)\b|\bopened\b|live\s*break|\bticket\b|\b(?:nm|lp|mp|hp|dmg)\b|near\s*mint|lightly\s*played|moderately\s*played|heavily\s*played|\([^)]*\b(?:origins|spirit\s*forged|spiritforged|unleashed|vendetta|proving\s*grounds)\b[^)]*\)/i;
+  /\bsingle\b|playmat|deck\s*box|sleeves?\b|binder|toploader|top\s*loader|dice|counter|\btoken\b|coin\b|\/\d{2,3}\b|\bpsa\b|\bcgc\b|\bbgs\b|graded|chinese|japanese|korean|simplified|traditional|\bbulk\s+(?:lot|cards|commons?|singles?)\b|\bopened\b|live\s*break|\bticket\b|\b(?:nm|lp|mp|hp|dmg)\b|near\s*mint|lightly\s*played/i;
 
 async function fetchJson(url: string): Promise<any | null> {
   try {
@@ -67,8 +52,13 @@ async function fetchText(url: string): Promise<string | null> {
   }
 }
 
-// Discover ALL riftbound collections (including sealed-only ones, which the singles
-// importer skips) so we can find boxes/packs wherever the store files them.
+// Discover Pokémon collections (including sealed-only ones, which the singles
+// importer skips) so we can find boxes/packs/ETBs wherever the store files them.
+// We match on Pokémon-ish handles plus the generic sealed buckets (booster-boxes,
+// elite-trainer-box, sealed, …) so a store that files sealed under a game-agnostic
+// collection is still covered — the per-product Pokémon check happens downstream.
+const COLLECTION_HINT =
+  /pok[eé]mon|pkmn|booster|elite[-\s]?trainer|\betb\b|sealed|trainer[-\s]?box|collection[-\s]?box|booster[-\s]?bundle|tcg/i;
 async function discoverCollections(base: string): Promise<string[]> {
   const handles = new Set<string>();
   const index = await fetchText(`${base}/sitemap.xml`);
@@ -81,7 +71,7 @@ async function discoverCollections(base: string): Promise<string[]> {
     if (!xml) continue;
     for (const m of xml.matchAll(/\/collections\/([^<\/?#"]+)/g)) {
       const h = m[1];
-      if (/riftbound/i.test(h) && !/\.(jpe?g|png|gif|webp|svg)$/i.test(h)) handles.add(h);
+      if (COLLECTION_HINT.test(h) && !/\.(jpe?g|png|gif|webp|svg)$/i.test(h)) handles.add(h);
     }
   }
   return Array.from(handles);
@@ -101,49 +91,30 @@ async function fetchProducts(base: string, handle: string, country: string): Pro
   return all;
 }
 
-function detectSet(title: string): string | null {
-  return SET_FROM_TITLE.find(([re]) => re.test(title))?.[1] ?? null;
-}
-
-// Classify a sealed product into a specific type. Shared by store scraping and the
-// TCGplayer catalogue so the same product groups together. Champion Decks keep the
-// champion name so each is distinct (e.g. "Champion Deck (Viktor)").
-// Champions that have Champion Decks (parens form on TCGplayer; free-form in store
-// titles like "… Champion Deck - Vex" or "Jinx Champion Deck"). Longest names first
-// so "Viktor"/"Vex" win before the short "Vi".
-const CHAMPIONS = /\b(Lee\s*Sin|Viktor|Rumble|Fiora|Garen|Annie|Lux|Master\s*Yi|Jinx|Vex|Vi)\b/i;
-
+// Classify a sealed product into a specific Pokémon product type. Shared by store
+// scraping, eBay and the TCGplayer catalogue so the same product groups together
+// across markets. Order matters: the most specific / highest-value SKUs win first.
 export function classifySealed(title: string): string {
   const t = title.toLowerCase();
-  const rawChamp = title.match(/champion\s*deck\s*\(([^)]+)\)/i)?.[1]?.trim() || title.match(CHAMPIONS)?.[1];
-  const champ = rawChamp ? rawChamp.toLowerCase().replace(/\s+/g, " ").replace(/\b\w/g, (m) => m.toUpperCase()) : null;
-  if (/proving\s*grounds/.test(t)) return /\bcase\b/.test(t) ? "Proving Grounds Case" : "Proving Grounds";
-  if (/nexus\s*night/.test(t)) return "Nexus Night Pack";
-  if (/champion\s*deck/.test(t)) { const n = champ ? ` (${champ})` : ""; return /\bdisplay\b/.test(t) ? `Champion Deck${n} Display` : `Champion Deck${n}`; }
-  if (/sleeved\s*booster/.test(t)) return /\[set of|art\s*bundle/.test(t) ? "Sleeved Booster (Art Set)" : "Sleeved Booster";
-  if (/(?:display|booster\s*box|sealed)\s*case|booster\s*display\s*case/.test(t)) return "Booster Case";
-  if (/booster\s*box|booster\s*display|display\s*box|\bdisplay\b/.test(t)) return "Booster Box";
-  if (/pre-?rift\s*event\s*kit/.test(t)) return "Pre-Rift Event Kit";
-  if (/pre-?rift|event\s*kit|pre-?release\s*kit/.test(t)) return "Pre-Rift Kit";
-  if (/bulk\s*runes/.test(t)) return /\bcase\b/.test(t) ? "Bulk Runes Case" : "Bulk Runes";
-  if (/arcane\s*box\s*set|box\s*set/.test(t)) return "Box Set";
-  if (/vault\s*bundle|worlds\s*bundle|booster\s*bundle|\bbundle\b|gift\s*box/.test(t)) return "Bundle";
-  if (/two[-\s]?player|starter|precon/.test(t)) return "Starter Set";
+  // Cases first (a "booster box case" is a case of boxes, not a single box).
+  if (/(?:booster\s*box|display|elite\s*trainer\s*box|etb)\s*case|\bcase\s*of\b|sealed\s*case/.test(t)) return "Booster Case";
+  if (/elite\s*trainer\s*box|\betb\b/.test(t)) return "Elite Trainer Box";
+  if (/booster\s*box|booster\s*display|display\s*box/.test(t)) return "Booster Box";
+  if (/booster\s*bundle/.test(t)) return "Booster Bundle";
+  if (/build\s*&?\s*(?:and\s*)?battle\s*(?:box|stadium)|prerelease|pre-?release/.test(t)) return "Build & Battle";
+  if (/premium\s*collection|ultra[-\s]?premium|special\s*collection|collection\s*box|\bcollection\b|\bbox\b\s*set|box\s*set/.test(t)) return "Collection Box";
+  if (/gift\s*box|holiday\s*calendar|advent/.test(t)) return "Gift Box";
   if (/\btin\b/.test(t)) return "Tin";
-  if (/promo\s*pack/.test(t)) return "Promo Pack";
-  if (/booster\s*pack|\bblister\b|\bpack\b/.test(t)) return "Booster Pack";
+  if (/sleeved\s*booster|checklane|hanger/.test(t)) return "Sleeved Booster";
+  if (/\bbundle\b/.test(t)) return "Bundle";
+  if (/blister|booster\s*pack|\bpack\b/.test(t)) return "Booster Pack";
   return "Sealed";
 }
 
-// Map a TCGplayer setName to our set code (null for cross-set promo products).
+// Map a TCGplayer setName to our Pokémon set code via the catalogue (null for
+// cross-set products we can't place). detectSetMeta handles the fuzzy matching.
 function setCodeFromSetName(setName: string): string | null {
-  const s = (setName ?? "").toLowerCase();
-  if (/proving\s*grounds/.test(s)) return "OGS";
-  if (/spiritforged|spirit\s*forged/.test(s)) return "SFD";
-  if (/unleashed/.test(s)) return "UNL";
-  if (/vendetta/.test(s)) return "VEN";
-  if (/origins/.test(s)) return "OGN";
-  return null;
+  return detectSetMeta(setName ?? "")?.code ?? null;
 }
 
 export async function importSealed(): Promise<number> {
@@ -175,7 +146,7 @@ export async function importSealed(): Promise<number> {
         const inStock = avail.length > 0;
         const pool = inStock ? avail : priced;
         const priceCents = Math.round(Math.min(...pool.map((v) => parseFloat(v.price))) * 100);
-        const setCode = detectSet(title);
+        const setCode = detectSetMeta(title)?.code ?? null;
         const type = classifySealed(title);
         const groupKey = setCode ? `${setCode}|${type}` : title.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 40);
         const key = `${groupKey}|${store.key}`;
@@ -213,19 +184,12 @@ export async function importSealed(): Promise<number> {
   if (isEbayEnabled() && process.env.EBAY_REFRESH !== "false") {
     await primeEbayBudget(); // respect the live daily quota for sealed searches too
     const groups = await getSealedGroups("AU");
-    // Always attempt eBay for the per-set promo (Nexus Night) packs — even ones no
-    // AU store currently lists (e.g. the Unleashed pack) — so they appear once
-    // available, with an image pulled from the eBay listing.
-    const NEXUS_SEEDS = [
-      { groupKey: "OGN|Nexus Night Pack", setCode: "OGN", name: "Origins Nexus Night Promo Pack", productType: "Nexus Night Pack", imageUrl: null as string | null },
-      { groupKey: "SFD|Nexus Night Pack", setCode: "SFD", name: "Spiritforged Nexus Night Promo Pack", productType: "Nexus Night Pack", imageUrl: null as string | null },
-      { groupKey: "UNL|Nexus Night Pack", setCode: "UNL", name: "Unleashed Nexus Night Promo Pack", productType: "Nexus Night Pack", imageUrl: null as string | null },
-    ];
-    const haveKeys = new Set(groups.map((g) => g.groupKey));
-    const searchList = [
-      ...groups.map((g) => ({ groupKey: g.groupKey, setCode: g.setCode, name: g.name, productType: g.productType, imageUrl: g.imageUrl })),
-      ...NEXUS_SEEDS.filter((s) => !haveKeys.has(s.groupKey)),
-    ];
+    // Search eBay AU for every sealed group we track so each compare page has a
+    // resale price point. Limit to the higher-value SKUs (boxes/ETBs/cases/etc.)
+    // so we don't burn quota on single packs that barely differ from RRP.
+    const searchList = groups
+      .filter((g) => g.productType !== "Booster Pack" && g.productType !== "Sealed")
+      .map((g) => ({ groupKey: g.groupKey, setCode: g.setCode, name: g.name, productType: g.productType, imageUrl: g.imageUrl }));
     const ebayRows: any[] = [];
     for (const g of searchList) {
       if (isEbayRateLimited()) break;
@@ -253,8 +217,8 @@ export async function importSealed(): Promise<number> {
   }
 
   // TCGplayer's official sealed catalogue (US market prices) — adds products the
-  // store scrape misses (Champion Decks, cases, sleeved boosters, Pre-Rift kits,
-  // Nexus Night packs). Isolated so a hiccup never fails the rest.
+  // store scrape misses (booster cases, elite trainer boxes, collection boxes,
+  // tins, bundles). Isolated so a hiccup never fails the rest.
   try {
     count += await refreshTcgplayerSealed();
   } catch (e) {
@@ -271,8 +235,8 @@ export async function importSealed(): Promise<number> {
 
 // Pull TCGplayer's official sealed catalogue (US market prices) into SealedListing.
 // TCGplayer is the dominant US marketplace and lists the full sealed line-up
-// (booster displays/cases, Champion Decks, Nexus Night packs, Pre-Rift kits,
-// sleeved boosters), so this fills the gaps the store scrape misses for the US.
+// (booster boxes/displays/cases, elite trainer boxes, collection boxes, bundles,
+// tins, booster packs), so this fills the gaps the store scrape misses for the US.
 export async function refreshTcgplayerSealed(): Promise<number> {
   let products;
   try {
@@ -286,9 +250,8 @@ export async function refreshTcgplayerSealed(): Promise<number> {
     const title = (p.productName ?? "").trim();
     const market = p.marketPrice;
     if (!title || market == null || market <= 0) continue;
-    if (UNRELEASED_SET.test(title)) continue; // Vendetta / Radiance not released yet
-    const setCode = setCodeFromSetName(p.setName ?? "");
-    if (setCode && UNRELEASED_SET.test(setCode)) continue;
+    if (SEALED_EXCLUDE.test(title)) continue; // graded slabs / non-English / bulk
+    const setCode = setCodeFromSetName(p.setName ?? "") ?? detectSetMeta(title)?.code ?? null;
     const type = classifySealed(title);
     const groupKey = setCode ? `${setCode}|${type}` : title.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 40);
     rows.push({
@@ -323,75 +286,122 @@ export async function cleanupStaleSealed(): Promise<number> {
   return ids.length;
 }
 
+export interface SealedListingRow {
+  retailer: string;
+  retailerName: string;
+  priceCents: number;
+  url: string;
+  inStock: boolean;
+  lastSeen: Date;
+}
+
 export interface SealedGroup {
   groupKey: string;
+  slug: string; // URL-safe identity for /sealed/<slug>
   name: string;
   productType: string;
   setCode: string | null;
+  setName: string | null;
+  releaseDate: string | null; // detected set's release date (ISO) for "new arrivals"
   imageUrl: string | null;
   lowestPriceCents: number | null;
-  storeCount: number;
-  listings: {
-    retailerName: string;
-    priceCents: number;
-    url: string;
-    inStock: boolean;
-  }[];
+  storeCount: number; // in-stock stores
+  totalCount: number; // all stores listing it (incl. out of stock)
+  listings: SealedListingRow[];
 }
 
-// Group sealed listings by product for the /sealed page, for one market (AU/NZ/US).
-export async function getSealedGroups(country: "AU" | "NZ" | "US" = "AU"): Promise<SealedGroup[]> {
-  const rows = await prisma.sealedListing.findMany({ where: { country }, orderBy: { priceCents: "asc" } });
+const SEALED_MARKETS = new Set(["AU", "NZ", "US", "GB"]);
+
+// URL-safe identity for a sealed group (groupKey can contain "|", spaces, …).
+export function sealedSlug(groupKey: string): string {
+  return groupKey.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 80) || "product";
+}
+
+// Pokémon sealed set detection: longest set name that appears in the product
+// title wins (so "Base Set 2" beats "Base"). Cached, derived from the catalogue.
+let SETS_BY_LEN: { code: string; name: string; releaseDate: string; rx: RegExp }[] | null = null;
+function setsByLen() {
+  if (!SETS_BY_LEN) {
+    SETS_BY_LEN = POKEMON_SETS.filter((s) => s.name && s.name.length >= 4)
+      .map((s) => ({ code: s.code, name: s.name, releaseDate: s.releaseDate, rx: new RegExp(`\\b${s.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s*")}\\b`, "i") }))
+      .sort((a, b) => b.name.length - a.name.length);
+  }
+  return SETS_BY_LEN;
+}
+function detectSetMeta(title: string): { code: string; name: string; releaseDate: string } | null {
+  for (const s of setsByLen()) if (s.rx.test(title)) return { code: s.code, name: s.name, releaseDate: s.releaseDate };
+  return null;
+}
+
+// Pokémon product-type display order (chase SKUs first).
+const TYPE_ORDER = ["Booster Box", "Booster Case", "Elite Trainer Box", "Collection Box", "Bundle", "Tin", "Sleeved Booster", "Booster Pack", "Sealed"];
+const typeRank = (t: string) => {
+  const i = TYPE_ORDER.indexOf(t);
+  return i < 0 ? 99 : i;
+};
+
+// Group sealed listings by product for the /sealed pages, for one market.
+export async function getSealedGroups(country: string = "AU"): Promise<SealedGroup[]> {
+  const market = SEALED_MARKETS.has(country) ? country : "AU";
+  const rows = await prisma.sealedListing.findMany({ where: { country: market }, orderBy: { priceCents: "asc" } });
   const groups = new Map<string, SealedGroup>();
   for (const r of rows) {
     let g = groups.get(r.groupKey);
     if (!g) {
-      const setName = r.setCode ? SET_NAMES[r.setCode] ?? r.setCode : null;
-      const name = !setName
-        ? r.title
-        : setName === r.productType
-        ? setName
-        : `${setName} ${r.productType}`;
+      const det = detectSetMeta(r.title);
       g = {
         groupKey: r.groupKey,
-        name,
+        slug: sealedSlug(r.groupKey),
+        name: r.title,
         productType: r.productType,
-        setCode: r.setCode,
+        setCode: det?.code ?? r.setCode ?? null,
+        setName: det?.name ?? null,
+        releaseDate: det?.releaseDate ?? null,
         imageUrl: r.imageUrl,
         lowestPriceCents: null,
         storeCount: 0,
+        totalCount: 0,
         listings: [],
       };
       groups.set(r.groupKey, g);
     }
     if (!g.imageUrl && r.imageUrl) g.imageUrl = r.imageUrl;
-    g.listings.push({ retailerName: r.retailerName, priceCents: r.priceCents, url: r.url, inStock: r.inStock });
+    g.listings.push({ retailer: r.retailer, retailerName: r.retailerName, priceCents: r.priceCents, url: r.url, inStock: r.inStock, lastSeen: r.lastSeen });
   }
   const out = Array.from(groups.values()).map((g) => {
-    g.listings.sort((a, b) => a.priceCents - b.priceCents);
+    g.listings.sort((a, b) => Number(b.inStock) - Number(a.inStock) || a.priceCents - b.priceCents);
     const inStock = g.listings.filter((l) => l.inStock);
-    // Headline price comes from IN-STOCK listings only (null = sold out everywhere).
-    g.lowestPriceCents = inStock[0]?.priceCents ?? null;
+    g.lowestPriceCents = inStock[0]?.priceCents ?? null; // null = sold out everywhere
     g.storeCount = new Set(inStock.map((l) => l.retailerName)).size;
+    g.totalCount = new Set(g.listings.map((l) => l.retailerName)).size;
     return g;
   });
-  // Boxes/cases first, then by price.
-  const order = [
-    "Booster Box", "Booster Case", "Proving Grounds", "Proving Grounds Case", "Box Set",
-    "Pre-Rift Event Kit", "Pre-Rift Kit", "Bundle", "Starter Set",
-    "Nexus Night Pack", "Promo Pack", "Sleeved Booster (Art Set)", "Sleeved Booster",
-    "Booster Pack", "Bulk Runes Case", "Bulk Runes", "Tin", "Sealed",
-  ];
-  // Champion Decks slot between bundles and packs (display boxes before singles).
-  const rank = (t: string) => {
-    if (/champion deck/i.test(t)) return /display/i.test(t) ? 8.4 : 8.6;
-    const i = order.indexOf(t);
-    return i < 0 ? 99 : i;
-  };
   out.sort((a, b) => {
-    const ra = rank(a.productType), rb = rank(b.productType);
+    const ra = typeRank(a.productType), rb = typeRank(b.productType);
     if (ra !== rb) return ra - rb;
     return (a.lowestPriceCents ?? 9e9) - (b.lowestPriceCents ?? 9e9);
   });
   return out;
+}
+
+// A single sealed product for its compare page.
+export async function getSealedGroup(slug: string, country: string = "AU"): Promise<SealedGroup | null> {
+  const all = await getSealedGroups(country);
+  return all.find((g) => g.slug === slug) ?? null;
+}
+
+// "New sealed arrivals" for the homepage — sealed product for the most recently
+// released sets first (detected from the set catalogue), preferring in-stock.
+export async function getNewSealedArrivals(country: string, limit = 12): Promise<SealedGroup[]> {
+  const all = await getSealedGroups(country);
+  return all
+    .filter((g) => g.releaseDate) // only products we could tie to a real set
+    .sort((a, b) => {
+      if (a.releaseDate !== b.releaseDate) return (b.releaseDate ?? "").localeCompare(a.releaseDate ?? "");
+      // Same set → boxes/ETBs first, then in-stock, then price.
+      const ra = typeRank(a.productType), rb = typeRank(b.productType);
+      if (ra !== rb) return ra - rb;
+      return Number(!!b.lowestPriceCents) - Number(!!a.lowestPriceCents);
+    })
+    .slice(0, limit);
 }

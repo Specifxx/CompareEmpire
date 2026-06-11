@@ -124,6 +124,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <footer className="container-app border-t border-ink-800 py-8 text-center text-xs text-slate-500">
           <nav className="mb-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-sm">
             <Link href="/browse" className="hover:text-slate-300">Database</Link>
+            <Link href="/sealed" className="hover:text-slate-300">Sealed products</Link>
             <Link href="/restock" className="hover:text-slate-300">Restock alerts</Link>
             <Link href="/guides" className="hover:text-slate-300">Buying guides</Link>
             <Link href="/blog" className="hover:text-slate-300">Blog</Link>

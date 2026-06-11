@@ -34,11 +34,11 @@ export function Navbar() {
           <Link href="/browse" className="rounded-lg px-2.5 py-2 text-sm font-medium text-slate-200 hover:bg-ink-800 hover:text-white">
             Database
           </Link>
-          <Link href="/trade" className="rounded-lg px-2.5 py-2 text-sm font-medium text-slate-200 hover:bg-ink-800 hover:text-white">
-            Trade
+          <Link href="/sealed" className="rounded-lg px-2.5 py-2 text-sm font-medium text-slate-200 hover:bg-ink-800 hover:text-white">
+            Sealed
           </Link>
-          <Link href="/restock" className="hidden rounded-lg px-2.5 py-2 text-sm font-medium text-slate-200 hover:bg-ink-800 hover:text-white sm:block">
-            Restocks
+          <Link href="/trade" className="hidden rounded-lg px-2.5 py-2 text-sm font-medium text-slate-200 hover:bg-ink-800 hover:text-white sm:block">
+            Trade
           </Link>
           <div className="hidden lg:block">
             <NavDropdown
@@ -49,7 +49,6 @@ export function Navbar() {
                 { href: "/blog", label: "Blog", desc: "Deals, prices & buying smart" },
                 { href: "/collection", label: "My collection", desc: "Track the cards you own" },
                 { href: "/contact", label: "Contact", desc: "Report a price, suggest a store" },
-                { href: "/marketplace", label: "Marketplace", desc: "Buy direct from verified sellers", badge: "Soon" },
               ]}
             />
           </div>
