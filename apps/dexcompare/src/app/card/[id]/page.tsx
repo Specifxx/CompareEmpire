@@ -132,9 +132,18 @@ export default async function CardPage({ params }: { params: { id: string } }) {
     rows.reduce<number | null>((m, p) => (m == null || p.priceCents < m ? p.priceCents : m), null);
   const cheapestStandard = minPrice(prices.filter((p) => !p.isFoil));
   const cheapestFoil = minPrice(prices.filter((p) => p.isFoil));
-  // Headline = cheapest REAL store price only. The market guide is never the
-  // headline/cheapest price — it's an estimate, shown separately with its source.
-  const headlineCents = cheapestStandard ?? lowestPrice ?? null;
+  // Headline = cheapest REAL store price. Prefer the STANDARD (non-foil) printing;
+  // fall back to foil, then the recompute. We never want to show a foil price under
+  // a "Standard from" label, so the label below is derived from which one we used.
+  // (NB: many Pokémon chase cards exist ONLY as foil — TCGplayer marks them
+  // foilOnly — so we must NOT null those out; we just label them correctly.)
+  const headlineCents = cheapestStandard ?? cheapestFoil ?? lowestPrice ?? null;
+  const headlineIsFoil = cheapestStandard == null && cheapestFoil != null;
+  const headlineLabel = headlineIsFoil
+    ? "✦ Foil from"
+    : cheapestFoil != null
+    ? "Standard from"
+    : "Cheapest price";
 
   // The market-price guide for this market: the imported guide row where one
   // exists (AU), else the card's USD guide converted at an indicative rate.
@@ -159,13 +168,15 @@ export default async function CardPage({ params }: { params: { id: string } }) {
     category: "Trading Card",
     description: `${card.name} — Pokémon ${card.setName} (${card.setCode}) ${card.collectorNumber}. Compare ${info.adjective} prices.`,
     ...(card.imageUrl ? { image: card.imageUrl } : {}),
-    ...(prices.length && lowestPrice != null
+    ...(prices.length
       ? {
           offers: {
             "@type": "AggregateOffer",
             priceCurrency: info.currency,
-            lowPrice: (lowestPrice / 100).toFixed(2),
-            highPrice: (prices[prices.length - 1].priceCents / 100).toFixed(2),
+            // Min/max of ACTUAL item prices (prices is sorted by delivered cost,
+            // so its last element isn't necessarily the highest item price).
+            lowPrice: (Math.min(...prices.map((p) => p.priceCents)) / 100).toFixed(2),
+            highPrice: (Math.max(...prices.map((p) => p.priceCents)) / 100).toFixed(2),
             offerCount: prices.length,
             availability: "https://schema.org/InStock",
           },
@@ -224,8 +235,10 @@ export default async function CardPage({ params }: { params: { id: string } }) {
             </div>
 
             <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <Metric label={cheapestFoil != null ? "Standard from" : "Cheapest price"} value={headlineCents != null ? fmt(headlineCents) : "—"} highlight />
-              {cheapestFoil != null && <Metric label="✦ Foil from" value={fmt(cheapestFoil)} highlight />}
+              <Metric label={headlineLabel} value={headlineCents != null ? fmt(headlineCents) : "—"} highlight />
+              {/* Separate foil metric only when the headline is the STANDARD price
+                  (otherwise the headline already IS the foil price — no duplicate). */}
+              {!headlineIsFoil && cheapestFoil != null && <Metric label="✦ Foil from" value={fmt(cheapestFoil)} highlight />}
               <Metric label="Compared at" value={`${prices.length} ${prices.length === 1 ? "store" : "stores"}`} />
               {weekChange != null && Math.abs(weekChange) >= 0.05 ? (
                 <Metric label="7-day trend" value={`${weekChange > 0 ? "▲" : "▼"} ${Math.abs(weekChange).toFixed(1)}%`} />
