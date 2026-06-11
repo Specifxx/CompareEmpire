@@ -3,6 +3,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { CardTile } from "@/components/CardTile";
 import { CountryHeroToggle } from "@/components/CountryHeroToggle";
+import { HotRightNow } from "@/components/HotRightNow";
 import { Partners } from "@/components/Partners";
 import { getCheapestCards, getValuableCards } from "@/lib/cheapest-cards";
 import { getTopMovers, getPopularCards } from "@/lib/trending";
@@ -129,6 +130,10 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* The demand magnet — what collectors are hunting right now, before
+          anything else. Curated in lib/hot.ts from live community demand. */}
+      <HotRightNow />
 
       {/* Official partner programs — credibility strip (approved affiliates). */}
       <Partners country={country} />
