@@ -12,6 +12,7 @@ const LINKS = [
   { href: "/sealed", label: "Sealed products" },
   { href: "/deals", label: "Deals" },
   { href: "/card-value", label: "Card value checker" },
+  { href: "/games", label: "Minigames 🕹️" },
   { href: "/restock", label: "Drops & restocks" },
   { href: "/trade", label: "Trade calculator" },
   { href: "/wishlist", label: "Wishlist" },

@@ -66,6 +66,14 @@ export const HOT_ITEMS: HotItem[] = [
     tone: "live",
   },
   {
+    emoji: "⚡",
+    title: "Play Dexdle",
+    sub: "Guess the Pokémon card of the day in 8 tries — blurred art sharpens every guess. Free, daily + unlimited.",
+    href: "/dexdle",
+    badge: "New game",
+    tone: "live",
+  },
+  {
     emoji: "🕰️",
     title: "What are my old cards worth?",
     sub: "Base Set searches are surging on 30th-anniversary nostalgia — check any card's value free.",

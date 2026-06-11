@@ -52,6 +52,47 @@ h1, h2, h3 {
   .proxy-card { outline: 1px dashed #cbd5e1; break-inside: avoid; }
 }
 
+/* ── Minigame animations ── */
+/* Confetti burst on wins (squares fall + spin; honors reduced motion). */
+@keyframes confetti-fall {
+  0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(105vh) rotate(720deg); opacity: 0; }
+}
+.confetti-piece {
+  position: fixed;
+  top: 0;
+  width: 10px;
+  height: 14px;
+  z-index: 60;
+  pointer-events: none;
+  animation: confetti-fall 2.8s ease-in forwards;
+}
+/* 3D card flip for the Pack Rip reveal. */
+.flip-scene { perspective: 900px; }
+.flip-inner {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.55s cubic-bezier(0.2, 0.7, 0.3, 1.1);
+}
+.flip-inner.flipped { transform: rotateY(180deg); }
+.flip-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+}
+.flip-back { transform: rotateY(180deg); }
+/* Pop-in for revealed verdicts. */
+@keyframes pop-in {
+  0% { transform: scale(0.6); opacity: 0; }
+  70% { transform: scale(1.08); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.animate-pop { animation: pop-in 0.35s ease-out both; }
+@media (prefers-reduced-motion: reduce) {
+  .confetti-piece, .animate-pop { animation: none !important; }
+  .flip-inner { transition: none !important; }
+}
+
 /* Thin custom scrollbar to match the dark marketplace aesthetic */
 ::-webkit-scrollbar {
   width: 10px;

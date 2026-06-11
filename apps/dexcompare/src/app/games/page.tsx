@@ -1,0 +1,86 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Minigames — free Pokémon card games",
+  description:
+    "Free Pokémon TCG minigames powered by real card data: Dexdle (the daily card guessing game), Price Duel (higher or lower) and the Pack Rip simulator. No signup, play instantly.",
+  alternates: { canonical: "/games" },
+};
+
+// The arcade hub. Every game runs on the site's real card + price data, so
+// playing doubles as discovering cards — each result links to live prices.
+const GAMES = [
+  {
+    emoji: "⚡",
+    title: "Dexdle",
+    badge: "Daily + Unlimited",
+    desc: "Guess the Pokémon card in 8 tries. The blurred art sharpens with every guess — Wordle-style hints on set, energy, rarity, HP and market value. New card every midnight AEST, or play unlimited.",
+    href: "/dexdle",
+    cta: "Play today's Dexdle",
+    tone: "#ee1515",
+  },
+  {
+    emoji: "⚖️",
+    title: "Price Duel",
+    badge: "Streak game",
+    desc: "Higher or lower? Two real cards, one revealed market value — guess which is worth more and ride the streak. Brutally addictive, and you'll learn the market without trying.",
+    href: "/games/duel",
+    cta: "Start a duel",
+    tone: "#ffcb05",
+  },
+  {
+    emoji: "🎴",
+    title: "Pack Rip Simulator",
+    badge: "Just for fun",
+    desc: "Rip a simulated 10-card pack from any modern set — flip each card, watch the value add up, and see if your pack beat the price of a real one. All values are live market guides.",
+    href: "/games/rip",
+    cta: "Rip a pack",
+    tone: "#3fa129",
+  },
+];
+
+export default function GamesPage() {
+  return (
+    <div className="mx-auto max-w-4xl">
+      <header className="mb-6 text-center">
+        <h1 className="font-display text-3xl font-extrabold text-white">🕹️ DexCompare Arcade</h1>
+        <p className="mx-auto mt-2 max-w-2xl text-slate-400">
+          Free minigames built on the same live card database as the price comparison — every answer links
+          straight to real prices. No signup, no paywall.
+        </p>
+      </header>
+
+      <div className="grid gap-4 sm:grid-cols-3">
+        {GAMES.map((g) => (
+          <Link
+            key={g.href}
+            href={g.href}
+            className="card-surface group relative flex flex-col overflow-hidden p-5 transition-all hover:-translate-y-1 hover:shadow-glow"
+          >
+            <div
+              className="absolute inset-0 opacity-15 transition-opacity group-hover:opacity-30"
+              style={{ background: `linear-gradient(135deg, ${g.tone}66, transparent 65%)` }}
+            />
+            <div className="relative flex flex-1 flex-col">
+              <div className="text-4xl transition-transform duration-300 group-hover:scale-125">{g.emoji}</div>
+              <div className="mt-3 flex items-center gap-2">
+                <h2 className="text-lg font-extrabold text-white">{g.title}</h2>
+                <span className="chip bg-ink-950/70 text-[10px] font-semibold text-slate-300">{g.badge}</span>
+              </div>
+              <p className="mt-2 flex-1 text-xs leading-relaxed text-slate-400">{g.desc}</p>
+              <span className="mt-4 text-sm font-bold" style={{ color: g.tone }}>
+                {g.cta} →
+              </span>
+            </div>
+          </Link>
+        ))}
+      </div>
+
+      <p className="mt-6 text-center text-[11px] text-slate-600">
+        Game values use TCGplayer market guides and refresh daily. Found a bug or want another game?{" "}
+        <Link href="/contact" className="text-brand-400 hover:underline">Tell us</Link>.
+      </p>
+    </div>
+  );
+}

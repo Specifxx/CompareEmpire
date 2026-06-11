@@ -43,6 +43,9 @@ export function Navbar() {
           <Link href="/trade" className="hidden rounded-lg px-2.5 py-2 text-sm font-medium text-slate-200 hover:bg-ink-800 hover:text-white sm:block">
             Trade
           </Link>
+          <Link href="/games" className="rounded-lg px-2.5 py-2 text-sm font-medium text-slate-200 hover:bg-ink-800 hover:text-white">
+            🕹️ Games
+          </Link>
           <div className="hidden lg:block">
             <NavDropdown
               label="More"
