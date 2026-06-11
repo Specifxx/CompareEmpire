@@ -30,8 +30,35 @@ export async function POST(req: Request) {
   }
   const { email, cardIds, market } = parsed.data;
 
+  // ── Per-email DB caps (the IP rate-limit above is per serverless instance, so
+  // it isn't a hard global limit). These bound abuse of an arbitrary address. ──
+  const ALERT_CAP_PER_EMAIL = 500; // most a single address may ever watch
+  const CONFIRM_THROTTLE_MS = 24 * 60 * 60 * 1000; // ≤ 1 confirmation email / 24h
+
+  // Existing footprint for this email: total rows (for the cap), the newest row's
+  // time (to throttle confirmations), and the shared unsubscribe token.
+  const [existingTotal, newest] = await Promise.all([
+    prisma.priceAlert.count({ where: { email } }),
+    prisma.priceAlert.findFirst({
+      where: { email },
+      orderBy: { createdAt: "desc" },
+      select: { unsubToken: true, createdAt: true },
+    }),
+  ]);
+
+  if (existingTotal >= ALERT_CAP_PER_EMAIL) {
+    // Already at the cap — re-subscribing existing cards is fine (no growth), but
+    // reject net-new to stop unbounded growth on one address.
+    return NextResponse.json(
+      { error: "This email is already watching the maximum number of cards." },
+      { status: 429 }
+    );
+  }
+
   // Only watch cards that actually exist; capture today's lowest price as the
   // baseline so we alert on FUTURE drops, not on the price they're already at.
+  // Bound how many NEW rows this email can gain so it never exceeds the cap.
+  const room = ALERT_CAP_PER_EMAIL - existingTotal;
   const cards = await prisma.card.findMany({
     where: { id: { in: Array.from(new Set(cardIds)) } },
     select: {
@@ -41,18 +68,14 @@ export async function POST(req: Request) {
       lowestPriceCentsUs: true,
       lowestPriceCentsGb: true,
     },
+    take: room,
   });
   if (cards.length === 0) {
     return NextResponse.json({ error: "No matching cards" }, { status: 400 });
   }
 
-  // Reuse this email's existing unsubscribe token if it already has alerts, so a
-  // single link can unsubscribe every card for the address.
-  const existing = await prisma.priceAlert.findFirst({
-    where: { email },
-    select: { unsubToken: true },
-  });
-  const unsubToken = existing?.unsubToken ?? randomUUID();
+  // Reuse this email's existing unsubscribe token so one link covers every card.
+  const unsubToken = newest?.unsubToken ?? randomUUID();
 
   // createMany + skipDuplicates means re-subscribing an already-watched card is a
   // harmless no-op and never clobbers its tracked baseline.
@@ -70,10 +93,12 @@ export async function POST(req: Request) {
   // Total cards this email now watches in this market (for the confirmation copy).
   const total = await prisma.priceAlert.count({ where: { email, market } });
 
-  // Confirmation email (no-ops gracefully if email isn't configured). Only send
-  // when this request actually added a new watch, to avoid re-confirming on every
-  // repeat heart-click.
-  if (result.count > 0) {
+  // Confirmation email — only when this request added a new watch AND this address
+  // hasn't been sent a confirmation within the throttle window. This stops the
+  // endpoint from being used to repeatedly email an arbitrary address.
+  const recentlyConfirmed =
+    newest != null && Date.now() - newest.createdAt.getTime() < CONFIRM_THROTTLE_MS;
+  if (result.count > 0 && !recentlyConfirmed) {
     const unsubUrl = `${SITE_URL}/unsubscribe?token=${encodeURIComponent(unsubToken)}`;
     // Don't block the response on the network round-trip.
     void sendAlertConfirmationEmail(email, total, unsubUrl);
