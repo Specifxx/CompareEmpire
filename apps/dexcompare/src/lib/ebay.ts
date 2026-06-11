@@ -10,6 +10,7 @@
 // treat results as a secondary signal (lowest Buy-It-Now, AU marketplace).
 
 import { EBAY_CAMPAIGN_ID } from "./affiliate";
+import { POKEMON_SETS } from "./pokemon-sets";
 
 const TOKEN_URL = "https://api.ebay.com/identity/v1/oauth2/token";
 const SEARCH_URL = "https://api.ebay.com/buy/browse/v1/item_summary/search";
@@ -202,13 +203,21 @@ function pruneCheapOutliers(items: any[]): any | undefined {
 // card's collector number, so the ONLY way to tell a promo listing from the base
 // listing is wording like this. Used to route promo listings to the promo card and
 // keep them OUT of the base card's price.
-const PROMO_HINT = /\bpromo\b|promotional|pre-?release|gg\s*ez|organi[sz]ed\s*play|nexus\s*night|judge\s*promo/i;
+const PROMO_HINT = /\bpromo\b|promotional|pre-?release|gg\s*ez|organi[sz]ed\s*play|prize\s*pack|judge\s*promo|staff\s*promo/i;
 
-// Set-name keywords used to confirm the set when a title gives the number without
-// the full "/total" (e.g. "SFD (141)").
-const SET_NAMES: Record<string, string> = {
-  OGN: "origins", OGS: "proving\\s*grounds", SFD: "spirit\\s*forged", UNL: "unleashed", VEN: "vendetta",
-};
+// Set-name regex per set CODE, used to confirm the set when a title gives the
+// number without the full "/total" (e.g. "Charizard 4 [Base Set]"). Built from the
+// real Pokémon set catalogue: each set name → a whitespace-tolerant, regex-escaped
+// pattern. Falls back to bare lookup if a code is missing.
+const SET_NAMES: Record<string, string> = Object.fromEntries(
+  POKEMON_SETS.filter((s) => s.code && s.name).map((s) => [
+    s.code,
+    s.name
+      .trim()
+      .replace(/[.*+?^${}()|[\]\\]/g, "\\$&") // escape regex metacharacters in the name
+      .replace(/\s+/g, "\\s*"), // tolerate any whitespace between words
+  ])
+);
 
 function delivered(it: any): number {
   return parseFloat(it.price.value) + (parseFloat(it.shippingOptions?.[0]?.shippingCost?.value ?? "0") || 0);
@@ -354,15 +363,16 @@ export async function searchEbayLowest(card: {
   };
 }
 
-// Keyword each sealed product type must appear as in an eBay title.
+// Keyword each sealed product type must appear as in an eBay title (Pokémon
+// sealed lines). A productType not listed here gets no keyword guard.
 const SEALED_TYPE_KW: Record<string, RegExp> = {
   "Booster Box": /booster\s*box|booster\s*display|display\s*box/i,
   "Booster Case": /\bcase\b/i,
-  "Booster Pack": /booster\s*pack/i,
-  Bundle: /bundle|gift/i,
-  "Proving Grounds": /proving\s*grounds/i,
-  "Promo Pack": /nexus\s*night|promo\s*pack/i,
-  "Starter Set": /starter|two[-\s]?player/i,
+  "Booster Pack": /booster\s*pack|blister|\bpack\b/i,
+  "Sleeved Booster": /sleeved\s*booster/i,
+  "Elite Trainer Box": /elite\s*trainer\s*box|\betb\b/i,
+  "Collection Box": /collection\s*box|premium\s*collection|\bcollection\b/i,
+  Bundle: /bundle|gift\s*box|booster\s*bundle/i,
   Tin: /\btin\b/i,
 };
 const SEALED_EXCLUDE_EBAY =
