@@ -29,6 +29,9 @@ export const metadata: Metadata = {
     "The Pokémon TCG card database and price comparison. Browse every card and compare live prices across stores in Australia, New Zealand, the United States and the United Kingdom to find the cheapest place to buy.",
   applicationName: SITE_NAME,
   keywords: ["Pokémon", "Pokémon TCG", "Pokémon prices", "Pokémon singles", "card prices", "Pokémon card database"],
+  // Apple devices don't read the generated icon.tsx — point them at the big PNG.
+  // (The rel=icon link itself comes from src/app/icon.tsx, 96×96 for Google Search.)
+  icons: { apple: "/icon-512.png" },
   // NOTE: no site-wide canonical here — each page declares its own canonical so
   // inner pages never inherit "/" and look like duplicates of the homepage.
   openGraph: {
