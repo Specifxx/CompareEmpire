@@ -280,6 +280,28 @@ model PriceAlert {
   @@index([cardId])
 }
 
+// A "tell me when it restocks" subscription for a featured sealed product (see
+// src/lib/restocks.ts). No account needed — keyed by email + product + market.
+// The restock cron emails subscribers when the product flips to in-stock in their
+// market, then re-arms (notifiedAt back to null) once it sells out again.
+model RestockAlert {
+  id          String    @id @default(cuid())
+  email       String // lowercased + trimmed on write
+  productSlug String // FeaturedRestock.slug, e.g. "chaos-rising"
+  market      String    @default("AU") // AU | NZ | US | GB
+  // Per-email secret shared across this email's alerts → one-click unsubscribe.
+  unsubToken  String
+  createdAt   DateTime  @default(now())
+  // Set when we've emailed this subscriber about the CURRENT in-stock window;
+  // cleared when the product goes out of stock again so they get the next restock.
+  notifiedAt  DateTime?
+
+  @@unique([email, productSlug, market])
+  @@index([productSlug, market])
+  @@index([unsubToken])
+  @@index([email])
+}
+
 // One outbound affiliate-link click (store / eBay / TCGplayer), recorded by the
 // /api/click beacon. Lets us verify in our own DB that outbound links are used —
 // e.g. cross-checking eBay Partner Network earnings — without trusting only the

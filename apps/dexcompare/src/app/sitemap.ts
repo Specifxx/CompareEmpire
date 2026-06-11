@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { SITE_URL } from "@/lib/site";
 import { SETS } from "@/lib/constants";
 import { getArticles } from "@/lib/articles";
+import { FEATURED_RESTOCKS } from "@/lib/restocks";
 
 // Regenerate at most once per day — the card set is stable.
 export const revalidate = 86400;
@@ -16,6 +17,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: `${SITE_URL}/`, changeFrequency: "daily", priority: 1 },
     { url: `${SITE_URL}/browse`, changeFrequency: "daily", priority: 0.9 },
+    // Restock trackers — high-intent ("<set> in stock") landers; refresh often.
+    { url: `${SITE_URL}/restock`, changeFrequency: "daily", priority: 0.85 },
+    ...FEATURED_RESTOCKS.map((p) => ({
+      url: `${SITE_URL}/restock/${p.slug}`,
+      changeFrequency: "hourly" as const,
+      priority: 0.85,
+    })),
     { url: `${SITE_URL}/guides`, changeFrequency: "weekly", priority: 0.7 },
     { url: `${SITE_URL}/blog`, changeFrequency: "weekly", priority: 0.7 },
     { url: `${SITE_URL}/trade`, changeFrequency: "monthly", priority: 0.6 },

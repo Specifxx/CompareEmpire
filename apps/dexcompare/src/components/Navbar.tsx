@@ -37,10 +37,14 @@ export function Navbar() {
           <Link href="/trade" className="rounded-lg px-2.5 py-2 text-sm font-medium text-slate-200 hover:bg-ink-800 hover:text-white">
             Trade
           </Link>
+          <Link href="/restock" className="hidden rounded-lg px-2.5 py-2 text-sm font-medium text-slate-200 hover:bg-ink-800 hover:text-white sm:block">
+            Restocks
+          </Link>
           <div className="hidden lg:block">
             <NavDropdown
               label="More"
               items={[
+                { href: "/restock", label: "Restock alerts", desc: "Sold-out sets — get notified when they're back" },
                 { href: "/guides", label: "Buying guides", desc: "Where to buy, grading, fakes & storage" },
                 { href: "/blog", label: "Blog", desc: "Deals, prices & buying smart" },
                 { href: "/collection", label: "My collection", desc: "Track the cards you own" },

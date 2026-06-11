@@ -8,6 +8,7 @@ import { getTopMovers, getPopularCards } from "@/lib/trending";
 import { RecentlyViewed } from "@/components/RecentlyViewed";
 import { getCountry } from "@/lib/get-country";
 import { COUNTRIES, priceField, type CountryInfo } from "@/lib/country";
+import { FEATURED_RESTOCKS } from "@/lib/restocks";
 import { SETS, domainInfo, DOMAIN_KEYS } from "@/lib/constants";
 import { POKEMON_SETS } from "@/lib/pokemon-sets";
 import { Logo } from "@/components/Logo";
@@ -87,6 +88,8 @@ export default async function HomePage() {
     getPopularCards(12, country),
   ]);
   const storeCount = storeGroups.length;
+  // The hottest featured drop for the homepage restock banner (most recent release).
+  const featuredRestock = [...FEATURED_RESTOCKS].sort((a, b) => (a.releaseDate < b.releaseDate ? 1 : -1))[0] ?? null;
 
   return (
     <div className="flex flex-col gap-10">
@@ -120,6 +123,24 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Restock-tracker banner — rides demand for the hottest sold-out set. */}
+      {featuredRestock && (
+        <Link
+          href={`/restock/${featuredRestock.slug}`}
+          className="card-surface flex flex-wrap items-center justify-between gap-3 border-gold/30 bg-gradient-to-r from-rose-600/15 via-ink-850 to-gold/10 px-5 py-4 transition-all hover:-translate-y-0.5 hover:shadow-glow"
+        >
+          <div className="min-w-0">
+            <div className="text-sm font-extrabold text-white">
+              🔥 {featuredRestock.shortName} sold out? Get a free restock alert.
+            </div>
+            <p className="mt-0.5 text-xs text-slate-400">
+              Live {info.adjective} stock + an email the moment it&apos;s back in stock — no account needed.
+            </p>
+          </div>
+          <span className="btn-primary shrink-0">Track restocks →</span>
+        </Link>
+      )}
 
       {/* Recently viewed — local to this visitor; renders nothing on a first visit */}
       <RecentlyViewed />

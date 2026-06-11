@@ -107,3 +107,53 @@ export async function sendAlertConfirmationEmail(to: string, cardCount: number, 
     <tr><td style="padding:4px 32px 24px"><a href="${SITE_URL}/wishlist" style="display:inline-block;background:#34d17e;color:#06210f;font-weight:700;text-decoration:none;padding:12px 22px;border-radius:10px">View your wishlist</a></td></tr>`;
   return sendEmail(to, `You're watching your ${SITE_NAME} wishlist for price drops`, emailShell("Price-drop alerts are on", inner, unsubUrl));
 }
+
+// ─── Restock alerts (featured sealed product) ────────────────────────────────
+
+// Generic shell with a restock-specific footer (the wishlist footer copy doesn't fit).
+function restockShell(heading: string, inner: string, unsubUrl: string): string {
+  const footer = `<tr><td style="padding:16px 32px 26px;border-top:1px solid #233047;font-size:12px;color:#6b7585">
+    You asked ${SITE_NAME} to tell you when this product restocks.<br/>
+    <a href="${unsubUrl}" style="color:#9aa4b2;text-decoration:underline">Unsubscribe from restock alerts</a> · ${SITE_NAME} · Pokémon card &amp; sealed price comparison.
+  </td></tr>`;
+  return `<!doctype html><html><body style="margin:0;background:#0b0e14;font-family:Arial,Helvetica,sans-serif">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#0b0e14;padding:32px 0"><tr><td align="center">
+    <table role="presentation" width="520" cellpadding="0" cellspacing="0" style="background:#131a26;border:1px solid #233047;border-radius:16px">
+      <tr><td style="padding:28px 32px 6px"><div style="font-size:22px;font-weight:800;color:#fff">Dex<span style="color:#34d17e">Compare</span></div></td></tr>
+      <tr><td style="padding:6px 32px 4px"><h1 style="margin:0;font-size:20px;color:#fff">${heading}</h1></td></tr>
+      ${inner}
+      ${footer}
+    </table></td></tr></table></body></html>`;
+}
+
+// Sent once when someone subscribes to a product's restock alert.
+export async function sendRestockConfirmationEmail(
+  to: string,
+  productName: string,
+  trackerUrl: string,
+  unsubUrl: string
+): Promise<boolean> {
+  const inner = `
+    <tr><td style="padding:8px 32px 16px;font-size:14px;line-height:1.6;color:#b8c0cc">
+      You're on the list — we'll email you the moment <strong style="color:#fff">${productName}</strong> is back in stock in your market.
+      We check stock regularly; you'll be among the first to know.
+    </td></tr>
+    <tr><td style="padding:4px 32px 24px"><a href="${trackerUrl}" style="display:inline-block;background:#34d17e;color:#06210f;font-weight:700;text-decoration:none;padding:12px 22px;border-radius:10px">View the live tracker</a></td></tr>`;
+  return sendEmail(to, `You'll be notified when ${productName} restocks`, restockShell("Restock alert is on", inner, unsubUrl));
+}
+
+// The "it's back!" email — fired when a watched product flips to in-stock.
+export async function sendRestockEmail(
+  to: string,
+  productName: string,
+  trackerUrl: string,
+  unsubUrl: string
+): Promise<boolean> {
+  const inner = `
+    <tr><td style="padding:8px 32px 4px;font-size:15px;line-height:1.6;color:#b8c0cc">
+      Good news — <strong style="color:#fff">${productName}</strong> is <strong style="color:#34d17e">back in stock</strong> right now.
+      Sealed stock on hyped sets goes fast, so don't wait.
+    </td></tr>
+    <tr><td style="padding:10px 32px 24px"><a href="${trackerUrl}" style="display:inline-block;background:#34d17e;color:#06210f;font-weight:800;text-decoration:none;padding:13px 24px;border-radius:10px">Buy it now →</a></td></tr>`;
+  return sendEmail(to, `🔔 ${productName} is back in stock`, restockShell(`${productName} is back in stock`, inner, unsubUrl));
+}
