@@ -30,14 +30,14 @@ jobs:
           set -e
           BODY=$(curl -fsSL --retry 3 https://dexcompare.app/sealed)
           echo "$BODY" | grep -qi "sealed products" && echo "OK: /sealed renders" || { echo "FAIL: /sealed heading missing"; exit 1; }
-          COUNT=$(echo "$BODY" | grep -o '/sealed/[a-z0-9-]*' | sort -u | wc -l)
+          COUNT=$(echo "$BODY" | grep -o 'href="/sealed/[a-z0-9-]*"' | sort -u | wc -l)
           echo "sealed product links: $COUNT"
           test "$COUNT" -ge 10 || { echo "FAIL: fewer than 10 sealed products listed — import data missing?"; exit 1; }
 
       - name: Check a sealed compare page renders
         run: |
           set -e
-          HREF=$(curl -fsSL --retry 3 "https://dexcompare.app/sealed" | grep -o '/sealed/[a-z0-9-]*' | head -1)
+          HREF=$(curl -fsSL --retry 3 "https://dexcompare.app/sealed" | grep -o 'href="/sealed/[a-z0-9-]*"' | head -1 | sed 's/^href="//;s/"$//')
           echo "sealed: $HREF"
           test -n "$HREF"
           BODY=$(curl -fsSL --retry 3 "https://dexcompare.app$HREF")
@@ -52,7 +52,7 @@ jobs:
       - name: Check a card page renders
         run: |
           set -e
-          HREF=$(curl -fsSL --retry 3 "https://dexcompare.app/browse" | grep -o '/card/[a-z0-9-]*' | head -1)
+          HREF=$(curl -fsSL --retry 3 "https://dexcompare.app/browse" | grep -o 'href="/card/[a-z0-9-]*"' | head -1 | sed 's/^href="//;s/"$//')
           echo "card: $HREF"
           test -n "$HREF"
           BODY=$(curl -fsSL --retry 3 "https://dexcompare.app$HREF")
