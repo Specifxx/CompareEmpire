@@ -3,6 +3,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { CardTile } from "@/components/CardTile";
 import { CountryHeroToggle } from "@/components/CountryHeroToggle";
+import { Partners } from "@/components/Partners";
 import { getCheapestCards, getValuableCards } from "@/lib/cheapest-cards";
 import { getTopMovers, getPopularCards } from "@/lib/trending";
 import { getNewSealedArrivals } from "@/lib/sealed-import";
@@ -124,6 +125,9 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Official partner programs — credibility strip (approved affiliates). */}
+      <Partners country={country} />
 
       {/* New sealed arrivals — rides demand for the hottest just-released sealed
           product. Click any item to compare its price across stores (and find the
