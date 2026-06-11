@@ -38,6 +38,24 @@ const GAMES = [
     cta: "Rip a pack",
     tone: "#3fa129",
   },
+  {
+    emoji: "📂",
+    title: "Card Catcher",
+    badge: "Arcade",
+    desc: "Cards rain from the sky — slide your binder to catch them and bank their real market value. Dodge fakes, chain combos, grab gold ×2 and slow-mo. How much can you hold?",
+    href: "/games/catcher",
+    cta: "Start catching",
+    tone: "#2980ef",
+  },
+  {
+    emoji: "🧱",
+    title: "Bulk Breaker",
+    badge: "Arcade",
+    desc: "Breakout, but every brick is a real card — smash them to bank their value. Holo chase cards take two hits; multi-ball, wide paddle and slow-mo keep the rally alive.",
+    href: "/games/breaker",
+    cta: "Start breaking",
+    tone: "#ef4179",
+  },
 ];
 
 export default function GamesPage() {
