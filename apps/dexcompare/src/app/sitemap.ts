@@ -29,6 +29,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/deals`, changeFrequency: "daily", priority: 0.85 },
     // Card value checker — targets the "pokemon card value/worth" query family.
     { url: `${SITE_URL}/card-value`, changeFrequency: "daily", priority: 0.85 },
+    // The market index — stock-style view of the whole singles market.
+    { url: `${SITE_URL}/market`, changeFrequency: "daily", priority: 0.8 },
     // Minigames — retention surfaces (daily Dexdle especially).
     { url: `${SITE_URL}/games`, changeFrequency: "weekly", priority: 0.7 },
     { url: `${SITE_URL}/dexdle`, changeFrequency: "daily", priority: 0.8 },

@@ -9,8 +9,8 @@ import { QuickViewProvider } from "@/components/QuickView";
 import { WishlistDrawerProvider } from "@/components/WishlistDrawer";
 import { CountryProvider } from "@/components/CountryProvider";
 import { PriceAlertModal } from "@/components/PriceAlertModal";
+import { AdSenseLoader } from "@/components/AdSenseLoader";
 import { getCountry } from "@/lib/get-country";
-import { ADSENSE_CLIENT, ADSENSE_ENABLED } from "@/lib/ads";
 import { CONTACT_EMAIL, SITE_NAME, SITE_URL } from "@/lib/site";
 import { IMPACT_SITE_VERIFICATION } from "@/lib/affiliate";
 
@@ -99,16 +99,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* AdSense account/site verification — lets Google connect dexcompare.app
             to the AdSense account instantly. */}
         <meta name="google-adsense-account" content="ca-pub-6842128782879909" />
-        {/* AdSense loader — Google's verbatim snippet, in the initial HTML head so
-            site verification sees it without executing JS. Powers Auto ads + the
-            manual <AdSlot /> units. Disabled when no publisher id is configured. */}
-        {ADSENSE_ENABLED && (
-          <script
-            async
-            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
-            crossOrigin="anonymous"
-          />
-        )}
+        {/* The adsbygoogle.js loader itself is injected AFTER first interaction
+            (see <AdSenseLoader/>) — it was the heaviest third-party script on the
+            mobile critical path. Verification only needs the meta above. */}
         {/* Impact / TCGplayer affiliate site-ownership verification. Impact looks for
             the non-standard `value` attribute, so spread it past the meta typing. */}
         <meta {...({ name: "impact-site-verification", value: IMPACT_SITE_VERIFICATION } as any)} />
@@ -127,11 +120,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </WishlistDrawerProvider>
         <PriceAlertModal />
         </CountryProvider>
+        <AdSenseLoader />
         <footer className="container-app border-t border-ink-800 py-8 text-center text-xs text-slate-500">
           <nav className="mb-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-sm">
             <Link href="/browse" className="hover:text-slate-300">Database</Link>
             <Link href="/sealed" className="hover:text-slate-300">Sealed products</Link>
             <Link href="/deals" className="hover:text-slate-300">Deals</Link>
+            <Link href="/market" className="hover:text-slate-300">Market index</Link>
             <Link href="/card-value" className="hover:text-slate-300">Card value checker</Link>
             <Link href="/games" className="hover:text-slate-300">Minigames</Link>
             <Link href="/restock" className="hover:text-slate-300">Drops &amp; restocks</Link>

@@ -41,10 +41,20 @@ function ChangeChip({ label, pct }: { label: string; pct: number | null }) {
 // Static SVG price-trend chart (server-rendered, no client JS). Plots the daily
 // cheapest-price snapshots; the snapshots are AU-market, so callers label the
 // section accordingly for other markets.
-export function PriceChart({ points, title, note }: { points: PricePoint[]; title: string; note?: string }) {
+export function PriceChart({
+  points,
+  title,
+  note,
+  currency = "AUD",
+}: {
+  points: PricePoint[];
+  title: string;
+  note?: string;
+  currency?: string;
+}) {
   if (points.length === 0) return null;
 
-  const fmt = (c: number) => formatMoney(c, "AUD");
+  const fmt = (c: number) => formatMoney(c, currency);
 
   if (points.length === 1) {
     return (

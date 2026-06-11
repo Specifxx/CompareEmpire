@@ -3,16 +3,19 @@
 import { COUNTRY_LIST, INTL_ENABLED } from "@/lib/country";
 import { useCountry } from "./CountryProvider";
 
-// Prominent market chooser for the homepage hero — pill toggle of 🇦🇺/🇳🇿/🇺🇸 that
-// switches all prices + store lists. Mirrors the compact navbar switcher.
+// Prominent market chooser for the homepage hero. Compact on phones (flag +
+// code only, tighter padding — the full-name pills were eating half the hero);
+// full labels + currency from the sm breakpoint up.
 export function CountryHeroToggle() {
   const { country, setCountry } = useCountry();
   if (!INTL_ENABLED) return null;
 
   return (
-    <div className="mt-6 flex flex-col items-center gap-2">
-      <span className="text-xs font-medium uppercase tracking-wide text-slate-400">Shopping from</span>
-      <div className="inline-flex flex-wrap items-center justify-center gap-1.5 rounded-full border border-ink-700 bg-ink-950/60 p-1.5 backdrop-blur">
+    <div className="mt-4 flex flex-col items-center gap-1.5 sm:mt-6 sm:gap-2">
+      <span className="text-[10px] font-medium uppercase tracking-wide text-slate-500 sm:text-xs sm:text-slate-400">
+        Shopping from
+      </span>
+      <div className="inline-flex flex-wrap items-center justify-center gap-1 rounded-full border border-ink-700 bg-ink-950/60 p-1 backdrop-blur sm:gap-1.5 sm:p-1.5">
         {COUNTRY_LIST.map((c) => {
           const active = c.code === country;
           return (
@@ -20,15 +23,17 @@ export function CountryHeroToggle() {
               key={c.code}
               onClick={() => setCountry(c.code)}
               aria-pressed={active}
-              className={`flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-semibold transition-all ${
+              aria-label={c.label}
+              className={`flex items-center gap-1 rounded-full px-2.5 py-1.5 text-xs font-semibold transition-all sm:gap-1.5 sm:px-3.5 sm:py-2 sm:text-sm ${
                 active
                   ? "bg-gradient-to-br from-brand-400 to-brand-600 text-white shadow-glow"
                   : "text-slate-300 hover:bg-ink-800 hover:text-white"
               }`}
             >
-              <span className="text-base leading-none">{c.flag}</span>
-              <span>{c.label}</span>
-              <span className={`text-[10px] ${active ? "text-white/80" : "text-slate-500"}`}>{c.currency}</span>
+              <span className="text-sm leading-none sm:text-base">{c.flag}</span>
+              <span className="sm:hidden">{c.code}</span>
+              <span className="hidden sm:inline">{c.label}</span>
+              <span className={`hidden text-[10px] sm:inline ${active ? "text-white/80" : "text-slate-500"}`}>{c.currency}</span>
             </button>
           );
         })}

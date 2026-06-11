@@ -29,27 +29,30 @@ export function Navbar() {
           </Suspense>
         </div>
 
-        {/* Nav: Database + Trade (front-and-centre, like RiftCompare) + More */}
-        <nav className="ml-auto flex items-center gap-1 lg:ml-0">
-          <Link href="/browse" className="rounded-lg px-2.5 py-2 text-sm font-medium text-slate-200 hover:bg-ink-800 hover:text-white">
+        {/* Nav: Database always visible; Sealed from sm; Deals/Games/Trade from md
+            (everything lives in the burger below those breakpoints — the full row
+            overflowed 360–400px screens). */}
+        <nav className="ml-auto flex items-center gap-0.5 sm:gap-1 lg:ml-0">
+          <Link href="/browse" className="rounded-lg px-2 py-2 text-sm font-medium text-slate-200 hover:bg-ink-800 hover:text-white sm:px-2.5">
             Database
           </Link>
-          <Link href="/sealed" className="rounded-lg px-2.5 py-2 text-sm font-medium text-slate-200 hover:bg-ink-800 hover:text-white">
+          <Link href="/sealed" className="hidden rounded-lg px-2.5 py-2 text-sm font-medium text-slate-200 hover:bg-ink-800 hover:text-white sm:block">
             Sealed
           </Link>
-          <Link href="/deals" className="rounded-lg px-2.5 py-2 text-sm font-medium text-gold hover:bg-ink-800">
+          <Link href="/deals" className="hidden rounded-lg px-2.5 py-2 text-sm font-medium text-gold hover:bg-ink-800 md:block">
             Deals
           </Link>
-          <Link href="/trade" className="hidden rounded-lg px-2.5 py-2 text-sm font-medium text-slate-200 hover:bg-ink-800 hover:text-white sm:block">
+          <Link href="/trade" className="hidden rounded-lg px-2.5 py-2 text-sm font-medium text-slate-200 hover:bg-ink-800 hover:text-white md:block">
             Trade
           </Link>
-          <Link href="/games" className="rounded-lg px-2.5 py-2 text-sm font-medium text-slate-200 hover:bg-ink-800 hover:text-white">
+          <Link href="/games" className="hidden rounded-lg px-2.5 py-2 text-sm font-medium text-slate-200 hover:bg-ink-800 hover:text-white md:block">
             🕹️ Games
           </Link>
           <div className="hidden lg:block">
             <NavDropdown
               label="More"
               items={[
+                { href: "/market", label: "DexCompare Index", desc: "How the whole Pokémon market is moving" },
                 { href: "/card-value", label: "Card value checker", desc: "What are your cards worth? Free, updated daily" },
                 { href: "/restock", label: "Drops & restocks", desc: "New releases, preorders & restock alerts" },
                 { href: "/guides", label: "Buying guides", desc: "Where to buy, grading, fakes & storage" },

@@ -13,6 +13,7 @@ const LINKS = [
   { href: "/deals", label: "Deals" },
   { href: "/card-value", label: "Card value checker" },
   { href: "/games", label: "Minigames 🕹️" },
+  { href: "/market", label: "DexCompare Index" },
   { href: "/restock", label: "Drops & restocks" },
   { href: "/trade", label: "Trade calculator" },
   { href: "/wishlist", label: "Wishlist" },
