@@ -24,7 +24,9 @@ concurrency:
 jobs:
   import:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    # Pokémon collection discovery sweeps far more Shopify collections per store
+    # than the old Riftbound importer did — a full 84-store sweep takes ~1h.
+    timeout-minutes: 100
     steps:
       - name: Resolve database URL
         id: db
