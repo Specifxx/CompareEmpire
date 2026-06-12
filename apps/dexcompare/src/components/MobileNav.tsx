@@ -5,26 +5,46 @@ import { useEffect, useState } from "react";
 import { COUNTRY_LIST, INTL_ENABLED } from "@/lib/country";
 import { useCountry } from "./CountryProvider";
 
-// Database stays in the top bar at all sizes; this menu holds the wishlist link
-// plus the market/country selector for small screens.
-const LINKS = [
-  { href: "/browse", label: "Database (singles)" },
-  { href: "/sealed", label: "Sealed products" },
-  { href: "/deals", label: "Deals" },
-  { href: "/card-value", label: "Card value checker" },
-  { href: "/games", label: "Minigames 🕹️" },
-  { href: "/market", label: "DexCompare Index" },
-  { href: "/restock", label: "Drops & restocks" },
-  { href: "/trade", label: "Trade calculator" },
-  { href: "/wishlist", label: "Wishlist" },
-  { href: "/guides", label: "Buying guides" },
-  { href: "/blog", label: "Blog" },
-  { href: "/collection", label: "My collection" },
-  { href: "/contact", label: "Contact" },
+// Grouped, app-style mobile menu. The old version was a 14-row wall with four
+// full-width country rows on top — taller than a phone screen and unscannable.
+// Now: one compact flag row, then labelled sections rendered as 2-column tiles
+// with icons, scrollable inside a viewport-capped sheet.
+const SECTIONS: { label: string; links: { href: string; icon: string; label: string }[] }[] = [
+  {
+    label: "Shop prices",
+    links: [
+      { href: "/browse", icon: "🃏", label: "Card database" },
+      { href: "/sealed", icon: "📦", label: "Sealed" },
+      { href: "/deals", icon: "🔥", label: "Deals" },
+      { href: "/card-value", icon: "💰", label: "Value checker" },
+    ],
+  },
+  {
+    label: "Market",
+    links: [
+      { href: "/market", icon: "📈", label: "DexCompare Index" },
+      { href: "/restock", icon: "📅", label: "Drops & restocks" },
+    ],
+  },
+  {
+    label: "My stuff",
+    links: [
+      { href: "/wishlist", icon: "❤️", label: "Wishlist" },
+      { href: "/collection", icon: "📚", label: "Collection" },
+      { href: "/trade", icon: "⚖️", label: "Trade calc" },
+      { href: "/games", icon: "🕹️", label: "Minigames" },
+    ],
+  },
+  {
+    label: "Learn & help",
+    links: [
+      { href: "/guides", icon: "📖", label: "Buying guides" },
+      { href: "/blog", icon: "✍️", label: "Blog" },
+      { href: "/contact", icon: "✉️", label: "Contact" },
+    ],
+  },
 ];
 
-// Hamburger menu so phone users can reach every section (the desktop links are
-// hidden below the sm breakpoint).
 export function MobileNav() {
   const [open, setOpen] = useState(false);
   const { country, setCountry } = useCountry();
@@ -51,47 +71,58 @@ export function MobileNav() {
       {open && (
         <>
           <div className="fixed inset-0 z-40 bg-black/50" onClick={() => setOpen(false)} />
-          <div className="absolute right-2 top-14 z-50 w-56 overflow-hidden rounded-xl border border-ink-700 bg-ink-900 shadow-2xl">
+          <div className="absolute right-2 top-14 z-50 max-h-[80vh] w-[300px] overflow-y-auto rounded-xl border border-ink-700 bg-ink-900 shadow-2xl">
+            {/* Country: one compact row of flag pills instead of four full rows. */}
             {INTL_ENABLED && (
-              <div className="border-b border-ink-700 p-2">
-                <div className="px-2 pb-1.5 pt-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+              <div className="border-b border-ink-700 p-2.5">
+                <div className="px-1 pb-1.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500">
                   Shop &amp; prices for
                 </div>
-                <div className="flex flex-col gap-1">
-                  {COUNTRY_LIST.map((c) => (
-                    <button
-                      key={c.code}
-                      onClick={() => setCountry(c.code)}
-                      className={`flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-left ${
-                        c.code === country ? "bg-ink-800" : "hover:bg-ink-800"
-                      }`}
-                    >
-                      <span className="text-lg leading-none">{c.flag}</span>
-                      <span className="flex-1 text-sm font-medium text-white">{c.label}</span>
-                      <span className="text-xs text-slate-500">{c.currency}</span>
-                      {c.code === country && (
-                        <svg className="h-4 w-4 text-brand-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                          <path d="M20 6 9 17l-5-5" />
-                        </svg>
-                      )}
-                    </button>
-                  ))}
+                <div className="grid grid-cols-4 gap-1.5">
+                  {COUNTRY_LIST.map((c) => {
+                    const active = c.code === country;
+                    return (
+                      <button
+                        key={c.code}
+                        onClick={() => setCountry(c.code)}
+                        aria-pressed={active}
+                        aria-label={c.label}
+                        className={`flex flex-col items-center gap-0.5 rounded-lg py-1.5 text-[11px] font-semibold ${
+                          active ? "bg-brand-500/20 text-brand-300 ring-1 ring-brand-500/50" : "bg-ink-800 text-slate-300"
+                        }`}
+                      >
+                        <span className="text-base leading-none">{c.flag}</span>
+                        {c.code}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
-            <ul className="py-1">
-              {LINKS.map((l) => (
-                <li key={l.href}>
-                  <Link
-                    href={l.href}
-                    onClick={() => setOpen(false)}
-                    className="block px-4 py-3 text-sm font-medium text-slate-200 hover:bg-ink-800 hover:text-white"
-                  >
-                    {l.label}
-                  </Link>
-                </li>
+
+            {/* Grouped 2-column tiles — scannable, app-like, half the height. */}
+            <div className="p-2.5">
+              {SECTIONS.map((s) => (
+                <div key={s.label} className="mb-2.5 last:mb-0">
+                  <div className="px-1 pb-1.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500">
+                    {s.label}
+                  </div>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {s.links.map((l) => (
+                      <Link
+                        key={l.href}
+                        href={l.href}
+                        onClick={() => setOpen(false)}
+                        className="flex items-center gap-2 rounded-lg bg-ink-800/70 px-2.5 py-2.5 text-[13px] font-medium text-slate-200 hover:bg-ink-800 hover:text-white"
+                      >
+                        <span className="text-base leading-none" aria-hidden>{l.icon}</span>
+                        <span className="truncate">{l.label}</span>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
         </>
       )}
