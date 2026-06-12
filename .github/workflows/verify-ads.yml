@@ -69,16 +69,29 @@ jobs:
           # Install snippet must appear in the RAW HTML exactly ONCE and inside
           # <body> — Sovrn's verifier rejects "not found", "multiple instances"
           # AND head placement ("place code directly before </body>").
-          # Click-through test: take a real Sovrn-wrapped href off the live site,
-          # follow it like a user click, and confirm Sovrn logs+redirects to the
-          # merchant (this is exactly the activity Sovrn's application needs).
-          link=$(curl -sL --max-time 30 https://riftcompare.com/sealed | grep -o 'https://redirect.viglink.com/[^"]*' | head -1 | sed 's/&amp;/\&/g')
-          echo "sample sovrn click link: ${link:0:140}..."
-          final=$(curl -s -o /dev/null -w "%{http_code} %{url_effective}" -L --max-time 30 "$link")
-          echo "click-through result: $final"
-          case "$final" in
+          # Click-through test: follow a Sovrn redirect exactly like a user click
+          # and confirm Sovrn logs+redirects to the merchant (this is the
+          # activity Sovrn's dashboard counts). Test both sites' keys with the
+          # same wrapped-URL shape affiliateUrl() produces, plus a real href
+          # extracted from the live DOM (attribute copy, &amp; decoded — the RSC
+          # flight copy escapes & as & and must NOT be used here).
+          for key in 1a16f011fe9fa529aa7722b8b7127476 c0e2dfd8f16826f988a87c85bd33bcf9; do
+            url="https://redirect.viglink.com/?format=go&key=${key}&u=https%3A%2F%2Fhobbiesville.com%2F&cuid=clicktest"
+            res=$(curl -s -o /dev/null -w "%{http_code} %{url_effective}" -L --max-time 30 "$url")
+            echo "key ${key:0:8}…  click-through: $res"
+            case "$res" in
+              2*viglink*) echo "  ^ ended ON viglink (no merchant redirect)"; fail=1 ;;
+              2*) echo "  ^ click logged by Sovrn and redirected to merchant OK" ;;
+              *) echo "  ^ unexpected result"; fail=1 ;;
+            esac
+          done
+          link=$(curl -sL --max-time 30 https://riftcompare.com/sealed | grep -o 'href="https://redirect.viglink.com/[^"]*"' | head -1 | sed 's/^href="//;s/"$//;s/&amp;/\&/g')
+          echo "live DOM href: ${link:0:120}..."
+          res=$(curl -s -o /dev/null -w "%{http_code} %{url_effective}" -L --max-time 30 "$link")
+          echo "live-href click-through: ${res:0:140}"
+          case "$res" in
             2*viglink*) echo "  ^ ended ON viglink (no merchant redirect)"; fail=1 ;;
-            2*) echo "  ^ click logged by Sovrn and redirected to merchant OK" ;;
+            2*) echo "  ^ live link click logged by Sovrn and redirected OK" ;;
             *) echo "  ^ unexpected result"; fail=1 ;;
           esac
           python3 - <<'PY' || fail=1
