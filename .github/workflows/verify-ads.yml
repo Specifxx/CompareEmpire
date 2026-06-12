@@ -66,13 +66,23 @@ jobs:
           card=$(curl -sL --max-time 30 https://dexcompare.app/ | grep -o 'href="/card/[^"]*"' | head -1 | sed 's/href="//;s/"//')
           echo "dex sample card: $card"
           sovrn "dexcompare.app$card" "$(curl -sL --max-time 30 "https://dexcompare.app$card")"
-          # Install snippet must appear in the RAW HTML exactly ONCE — Sovrn's
-          # verifier rejects both "not found" and "multiple instances".
-          for site in https://dexcompare.app/ https://riftcompare.com/; do
-            html=$(curl -sL --max-time 30 "$site")
-            url_n=$(grep -o "viglink.com/api/vglnk.js" <<<"$html" | wc -l)
-            var_n=$(grep -o "var vglnk" <<<"$html" | wc -l)
-            echo "$site  vglnk-url-occurrences=$url_n var-vglnk-occurrences=$var_n"
-            if [ "$url_n" -ne 1 ]; then echo "  ^ expected exactly 1 occurrence"; fail=1; fi
-          done
+          # Install snippet must appear in the RAW HTML exactly ONCE and inside
+          # <body> — Sovrn's verifier rejects "not found", "multiple instances"
+          # AND head placement ("place code directly before </body>").
+          python3 - <<'PY' || fail=1
+          import urllib.request
+          import sys
+          bad = 0
+          for site in ["https://dexcompare.app/", "https://riftcompare.com/"]:
+              html = urllib.request.urlopen(site, timeout=30).read().decode("utf-8", "replace")
+              n = html.count("viglink.com/api/vglnk.js")
+              body = html.find("<body")
+              pos = html.find("var vglnk")
+              in_body = body != -1 and pos > body
+              print(f"{site}  occurrences={n} in-body={in_body}")
+              if n != 1 or not in_body:
+                  print("  ^ expected exactly 1 occurrence inside <body>")
+                  bad = 1
+          sys.exit(bad)
+          PY
           exit $fail
