@@ -3,6 +3,7 @@ import Link from "next/link";
 import { CardTile } from "@/components/CardTile";
 import { AdSlot } from "@/components/AdSlot";
 import { ADSENSE_SLOTS } from "@/lib/ads";
+import { TcgplayerAd } from "@/components/TcgplayerAd";
 import { getTopDeals } from "@/lib/deals";
 import { getCountry } from "@/lib/get-country";
 import { COUNTRIES } from "@/lib/country";
@@ -64,6 +65,8 @@ export default async function DealsPage() {
           ))}
         </div>
       )}
+
+      <TcgplayerAd size="leaderboard" country={country} />
 
       <p className="text-center text-[11px] text-slate-600">
         Market guide is TCGplayer&apos;s market price converted to {info.currency} at an indicative rate.
