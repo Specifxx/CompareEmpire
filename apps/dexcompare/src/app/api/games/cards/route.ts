@@ -43,6 +43,6 @@ export async function GET(req: Request) {
   return NextResponse.json({ cards });
   } catch (e) {
     console.error("games/cards GET failed:", e);
-    return NextResponse.json({ error: String(e) }, { status: 500 });
+    return NextResponse.json({ error: "Temporarily unavailable — try again shortly." }, { status: 500 });
   }
 }

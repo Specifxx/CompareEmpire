@@ -42,9 +42,8 @@ export async function GET(req: Request) {
     { headers: { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=3600" } }
   );
   } catch (e) {
-    // Diagnostic: empty-body 500s in production hid the root cause.
     console.error("dexdle GET failed:", e);
-    return NextResponse.json({ error: String(e) }, { status: 500 });
+    return NextResponse.json({ error: "Temporarily unavailable — try again shortly." }, { status: 500 });
   }
 }
 
