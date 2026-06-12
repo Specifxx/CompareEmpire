@@ -169,6 +169,11 @@ export default async function CardPage({ params }: { params: { id: string } }) {
     name: card.name,
     category: "Trading Card",
     description: `${card.name} — Pokémon ${card.setName} (${card.setCode}) ${card.collectorNumber}. Compare ${info.adjective} prices.`,
+    // Legitimate enrichment only — never fabricated ratings/reviews (Google
+    // penalises self-serving review markup; the GSC "missing aggregateRating/
+    // review" notes are optional-field suggestions, safe to leave).
+    brand: { "@type": "Brand", name: "Pokémon TCG" },
+    sku: `${card.setCode}-${card.collectorNumber}`,
     ...(card.imageUrl ? { image: card.imageUrl } : {}),
     ...(prices.length
       ? {
@@ -181,6 +186,8 @@ export default async function CardPage({ params }: { params: { id: string } }) {
             highPrice: (Math.max(...prices.map((p) => p.priceCents)) / 100).toFixed(2),
             offerCount: prices.length,
             availability: "https://schema.org/InStock",
+            // Honest expiry: prices refresh with the daily import.
+            priceValidUntil: new Date(Date.now() + 86400e3).toISOString().slice(0, 10),
           },
         }
       : {}),
