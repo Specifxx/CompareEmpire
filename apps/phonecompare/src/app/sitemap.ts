@@ -8,10 +8,17 @@ import { SETS } from "@/lib/constants";
 export const revalidate = 86400;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const cards = await prisma.card.findMany({
-    select: { id: true, slug: true, lowestPriceCents: true },
-    orderBy: { lowestPriceCents: { sort: "desc", nulls: "last" } },
-  });
+  // Whole-function fence: a sitemap prerender failure hard-fails the entire
+  // Vercel build, so the DB query degrades to static routes on any error.
+  let cards: { id: string; slug: string | null; lowestPriceCents: number | null }[] = [];
+  try {
+    cards = await prisma.card.findMany({
+      select: { id: true, slug: true, lowestPriceCents: true },
+      orderBy: { lowestPriceCents: { sort: "desc", nulls: "last" } },
+    });
+  } catch (e) {
+    console.error("sitemap: card query failed, serving static routes:", e);
+  }
 
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: `${SITE_URL}/`, changeFrequency: "daily", priority: 1 },
