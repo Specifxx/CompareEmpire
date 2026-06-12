@@ -21,8 +21,10 @@ jobs:
             creatives=$(grep -c "a.impactradius-go.com/display-ad" <<<"$html" || true)
             pixels=$(grep -c "partner.tcgplayer.com/i/7385758" <<<"$html" || true)
             echo "$url  click-links=$clicks creatives=$creatives impression-pixels=$pixels"
-            if [ "$clicks" -lt 1 ] || [ "$creatives" -lt 1 ] || [ "$pixels" -lt 1 ]; then
-              echo "  ^ MISSING banner markup"
+            # The Impact CLICK link is what pays; rift now renders house
+            # creatives (no hosted image/pixel) by design, so only clicks gate.
+            if [ "$clicks" -lt 1 ]; then
+              echo "  ^ MISSING banner click link"
               fail=1
             fi
           }
