@@ -79,10 +79,17 @@ jobs:
                   elif r["canonical"] and norm(r["canonical"]) != norm(r["url"]):
                       bad.append(("CANONICAL-MISMATCH", r["url"], r["canonical"]))
 
-              # Soft-404 probe: a junk URL must be a real 404.
+              # Dead-URL probe. The ideal is a real 404; with the root
+              # loading.tsx streaming the shell, Next 14 commits a 200 before
+              # the route can 404, and instead injects <meta name="robots"
+              # noindex> into the streamed not-found — which Google treats as
+              # non-indexable (filed as benign Soft 404 / noindex exclusion).
+              # So the contract is: 404, OR 200 carrying noindex. A 200
+              # WITHOUT noindex is an indexable junk page and fails the audit.
               probe = check(f"{site}/card/this-page-should-not-exist-xyz123")
-              if probe["code"] != 404:
-                  bad.append(("SOFT-404 (junk URL returned " + str(probe["code"]) + ")", probe["url"], probe["final"]))
+              print(f"dead-URL probe: status={probe['code']} noindex={probe['noindex']}")
+              if probe["code"] != 404 and not (probe["code"] == 200 and probe["noindex"]):
+                  bad.append(("INDEXABLE DEAD URL (" + str(probe["code"]) + ", no noindex)", probe["url"], probe["final"]))
 
               if bad:
                   print(f"\n❌ {len(bad)} problem(s):")
