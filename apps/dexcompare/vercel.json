@@ -9,6 +9,10 @@
     {
       "path": "/api/cron/price-alerts",
       "schedule": "30 19 * * *"
+    },
+    {
+      "path": "/api/cron/newsletter",
+      "schedule": "0 21 * * 5"
     }
   ]
 }
