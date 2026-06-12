@@ -4,46 +4,13 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { COUNTRY_LIST, INTL_ENABLED } from "@/lib/country";
 import { useCountry } from "./CountryProvider";
+import { NAV_SECTIONS } from "./nav-sections";
 
 // Grouped, app-style mobile menu. The old version was a 14-row wall with four
 // full-width country rows on top — taller than a phone screen and unscannable.
 // Now: one compact flag row, then labelled sections rendered as 2-column tiles
-// with icons, scrollable inside a viewport-capped sheet.
-const SECTIONS: { label: string; links: { href: string; icon: string; label: string }[] }[] = [
-  {
-    label: "Shop prices",
-    links: [
-      { href: "/browse", icon: "🃏", label: "Card database" },
-      { href: "/sealed", icon: "📦", label: "Sealed" },
-      { href: "/deals", icon: "🔥", label: "Deals" },
-      { href: "/card-value", icon: "💰", label: "Value checker" },
-    ],
-  },
-  {
-    label: "Market",
-    links: [
-      { href: "/market", icon: "📈", label: "DexCompare Index" },
-      { href: "/restock", icon: "📅", label: "Drops & restocks" },
-    ],
-  },
-  {
-    label: "My stuff",
-    links: [
-      { href: "/wishlist", icon: "❤️", label: "Wishlist" },
-      { href: "/collection", icon: "📚", label: "Collection" },
-      { href: "/trade", icon: "⚖️", label: "Trade calc" },
-      { href: "/games", icon: "🕹️", label: "Minigames" },
-    ],
-  },
-  {
-    label: "Learn & help",
-    links: [
-      { href: "/guides", icon: "📖", label: "Buying guides" },
-      { href: "/blog", icon: "✍️", label: "Blog" },
-      { href: "/contact", icon: "✉️", label: "Contact" },
-    ],
-  },
-];
+// with icons, scrollable inside a viewport-capped sheet. The sections live in
+// nav-sections.ts, shared with the desktop NavMenu.
 
 export function MobileNav() {
   const [open, setOpen] = useState(false);
@@ -102,7 +69,7 @@ export function MobileNav() {
 
             {/* Grouped 2-column tiles — scannable, app-like, half the height. */}
             <div className="p-2.5">
-              {SECTIONS.map((s) => (
+              {NAV_SECTIONS.map((s) => (
                 <div key={s.label} className="mb-2.5 last:mb-0">
                   <div className="px-1 pb-1.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500">
                     {s.label}
