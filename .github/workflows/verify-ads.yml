@@ -69,6 +69,18 @@ jobs:
           # Install snippet must appear in the RAW HTML exactly ONCE and inside
           # <body> — Sovrn's verifier rejects "not found", "multiple instances"
           # AND head placement ("place code directly before </body>").
+          # Click-through test: take a real Sovrn-wrapped href off the live site,
+          # follow it like a user click, and confirm Sovrn logs+redirects to the
+          # merchant (this is exactly the activity Sovrn's application needs).
+          link=$(curl -sL --max-time 30 https://riftcompare.com/sealed | grep -o 'https://redirect.viglink.com/[^"]*' | head -1 | sed 's/&amp;/\&/g')
+          echo "sample sovrn click link: ${link:0:140}..."
+          final=$(curl -s -o /dev/null -w "%{http_code} %{url_effective}" -L --max-time 30 "$link")
+          echo "click-through result: $final"
+          case "$final" in
+            2*viglink*) echo "  ^ ended ON viglink (no merchant redirect)"; fail=1 ;;
+            2*) echo "  ^ click logged by Sovrn and redirected to merchant OK" ;;
+            *) echo "  ^ unexpected result"; fail=1 ;;
+          esac
           python3 - <<'PY' || fail=1
           import urllib.request
           import sys

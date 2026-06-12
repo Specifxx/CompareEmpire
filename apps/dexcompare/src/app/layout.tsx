@@ -9,7 +9,7 @@ import { QuickViewProvider } from "@/components/QuickView";
 import { WishlistDrawerProvider } from "@/components/WishlistDrawer";
 import { CountryProvider } from "@/components/CountryProvider";
 import { PriceAlertModal } from "@/components/PriceAlertModal";
-import { AdSenseLoader } from "@/components/AdSenseLoader";
+import { ADSENSE_CLIENT, ADSENSE_ENABLED } from "@/lib/ads";
 import { SovrnSnippet } from "@/components/SovrnSnippet";
 import { TcgplayerAd } from "@/components/TcgplayerAd";
 import { getCountry } from "@/lib/get-country";
@@ -101,9 +101,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* AdSense account/site verification — lets Google connect dexcompare.app
             to the AdSense account instantly. */}
         <meta name="google-adsense-account" content="ca-pub-6842128782879909" />
-        {/* The adsbygoogle.js loader itself is injected AFTER first interaction
-            (see <AdSenseLoader/>) — it was the heaviest third-party script on the
-            mobile critical path. Verification only needs the meta above. */}
+        {/* Official AdSense snippet, server-rendered in <head> so Google's
+            application review reliably finds the code on every page (their
+            checker reads the raw HTML — a deferred client-side injection is
+            invisible to it). Async, so it doesn't block rendering. Once the
+            application is APPROVED this can be swapped back to the deferred
+            <AdSenseLoader/> if the PageSpeed points matter more. */}
+        {ADSENSE_ENABLED && (
+          // eslint-disable-next-line @next/next/no-sync-scripts
+          <script
+            async
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
+            crossOrigin="anonymous"
+          />
+        )}
         {/* Impact / TCGplayer affiliate site-ownership verification. Impact looks for
             the non-standard `value` attribute, so spread it past the meta typing. */}
         <meta {...({ name: "impact-site-verification", value: IMPACT_SITE_VERIFICATION } as any)} />
@@ -122,7 +133,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </WishlistDrawerProvider>
         <PriceAlertModal />
         </CountryProvider>
-        <AdSenseLoader />
         <SovrnSnippet />
         {/* Site-wide TCGplayer banner above the footer — guarantees every page
             (games included) carries at least one monetised placement. */}
