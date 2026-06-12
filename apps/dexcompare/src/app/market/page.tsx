@@ -4,7 +4,6 @@ import { CardTile } from "@/components/CardTile";
 import { PriceChart, changeOver } from "@/components/PriceChart";
 import { AdSlot } from "@/components/AdSlot";
 import { ADSENSE_SLOTS } from "@/lib/ads";
-import { TcgplayerAd } from "@/components/TcgplayerAd";
 import { getMarketIndex, scopeChips, scopeFromParam } from "@/lib/market-index";
 import { getCountry } from "@/lib/get-country";
 import { COUNTRIES } from "@/lib/country";
@@ -168,8 +167,6 @@ export default async function MarketPage({ searchParams }: { searchParams: { sco
           </ul>
         </section>
       )}
-
-      <TcgplayerAd size="leaderboard" country={country} className="mt-6" />
 
       <p className="mt-6 text-center text-[11px] text-slate-600">
         Methodology: the index sums the cheapest live {info.adjective} price of the {data.basketSize || "top"}{" "}

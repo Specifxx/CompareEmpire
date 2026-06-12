@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Dexdle } from "@/components/Dexdle";
+import { TcgplayerAd } from "@/components/TcgplayerAd";
+import { getCountry } from "@/lib/get-country";
 
 export const metadata: Metadata = {
   title: "Dexdle — the daily Pokémon card guessing game",
@@ -14,5 +16,13 @@ export const metadata: Metadata = {
 };
 
 export default function DexdlePage() {
-  return <Dexdle />;
+  const country = getCountry();
+  return (
+    <div>
+      <Dexdle />
+      {/* TCGplayer banner under the puzzle — the game's daily repeat visitors
+          are exactly the audience these creatives convert. */}
+      <TcgplayerAd size="leaderboard" country={country} className="mt-8" />
+    </div>
+  );
 }

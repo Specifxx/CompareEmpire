@@ -4,7 +4,6 @@ import { getSealedGroups } from "@/lib/sealed-import";
 import { SealedTile } from "@/components/SealedTile";
 import { AdSlot } from "@/components/AdSlot";
 import { ADSENSE_SLOTS } from "@/lib/ads";
-import { TcgplayerAd } from "@/components/TcgplayerAd";
 import { getCountry } from "@/lib/get-country";
 import { COUNTRIES } from "@/lib/country";
 
@@ -130,8 +129,6 @@ export default async function SealedPage({ searchParams }: { searchParams: { q?:
           ))}
         </div>
       )}
-
-      <TcgplayerAd size="leaderboard" country={country} />
 
       <p className="text-center text-[11px] text-slate-600">
         Prices are collected from public store listings and refreshed daily — always confirm on the

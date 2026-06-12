@@ -10,6 +10,7 @@ import { WishlistDrawerProvider } from "@/components/WishlistDrawer";
 import { CountryProvider } from "@/components/CountryProvider";
 import { PriceAlertModal } from "@/components/PriceAlertModal";
 import { AdSenseLoader } from "@/components/AdSenseLoader";
+import { TcgplayerAd } from "@/components/TcgplayerAd";
 import { getCountry } from "@/lib/get-country";
 import { CONTACT_EMAIL, SITE_NAME, SITE_URL } from "@/lib/site";
 import { IMPACT_SITE_VERIFICATION } from "@/lib/affiliate";
@@ -121,6 +122,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <PriceAlertModal />
         </CountryProvider>
         <AdSenseLoader />
+        {/* Site-wide TCGplayer banner above the footer — guarantees every page
+            (games included) carries at least one monetised placement. */}
+        <TcgplayerAd size="leaderboard" country={country} className="container-app pb-8" />
         <footer className="container-app border-t border-ink-800 py-8 text-center text-xs text-slate-500">
           <nav className="mb-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-sm">
             <Link href="/browse" className="hover:text-slate-300">Database</Link>
