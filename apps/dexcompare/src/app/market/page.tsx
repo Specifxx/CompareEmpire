@@ -5,19 +5,41 @@ import { PriceChart, changeOver } from "@/components/PriceChart";
 import { AdSlot } from "@/components/AdSlot";
 import { ADSENSE_SLOTS } from "@/lib/ads";
 import { getMarketIndex, scopeChips, scopeFromParam } from "@/lib/market-index";
+import { getMarketWrap, latestWrapDay } from "@/lib/market-wrap";
 import { getCountry } from "@/lib/get-country";
 import { COUNTRIES } from "@/lib/country";
 import { formatMoney } from "@/lib/format";
+import { SITE_URL } from "@/lib/site";
 
 // Per-request: the index is computed for the visitor's market (cookie).
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "The DexCompare Index — how the Pokémon card market is moving",
+  title: { absolute: "The DexCompare Index — Pokémon Card Market Tracker | DexCompare" },
   description:
-    "A stock-style index of the Pokémon TCG singles market: daily price trend of the most valuable cards, risers vs fallers, biggest movers, market cap and sealed supply tightness — filterable by recent releases or any set.",
+    "One number for the health of the Pokémon TCG singles market. The DexCompare Index tracks the most valuable cards as a daily base-100 index per market, with a global composite, breadth, movers and sealed supply. Updated daily, free to cite.",
   alternates: { canonical: "/market" },
 };
+
+function Delta({ label, pct }: { label: string; pct: number | null }) {
+  if (pct == null)
+    return (
+      <div className="rounded-lg bg-ink-900 px-3 py-2 text-center">
+        <div className="text-[10px] uppercase tracking-wide text-slate-500">{label}</div>
+        <div className="text-sm font-extrabold text-slate-500">—</div>
+      </div>
+    );
+  const up = pct > 0.005;
+  const down = pct < -0.005;
+  return (
+    <div className="rounded-lg bg-ink-900 px-3 py-2 text-center">
+      <div className="text-[10px] uppercase tracking-wide text-slate-500">{label}</div>
+      <div className={`text-sm font-extrabold ${up ? "text-emerald-400" : down ? "text-red-400" : "text-slate-300"}`}>
+        {up || down ? `${up ? "▲ +" : "▼ "}${pct.toFixed(2)}%` : "flat"}
+      </div>
+    </div>
+  );
+}
 
 export default async function MarketPage({ searchParams }: { searchParams: { scope?: string } }) {
   const country = getCountry();
@@ -25,20 +47,67 @@ export default async function MarketPage({ searchParams }: { searchParams: { sco
   const scope = scopeFromParam(searchParams.scope);
   const data = await getMarketIndex(country, scope);
 
+  // THE INDEX NUMBER: the basket cost series rebased so the first recorded day
+  // = 100 (a real index level, like any market index — "103.2" means the
+  // watched basket is 3.2% dearer to buy than at the series start). The raw
+  // cost chart below keeps the honest dollars.
+  const base = data.points[0]?.cents ?? null;
+  const latestCents = data.points[data.points.length - 1]?.cents ?? null;
+  const indexLevel = base && latestCents ? (latestCents / base) * 100 : null;
   const d1 = changeOver(data.points, 1);
   const d7 = changeOver(data.points, 7);
   const d30 = changeOver(data.points, 30);
+  const sinceStart = base && latestCents ? ((latestCents - base) / base) * 100 : null;
+  const startDay = data.points[0] ? new Date(data.points[0].day).toISOString().slice(0, 10) : null;
+
+  // GLOBAL composite (all four markets, equal-weighted matched-pair move) from
+  // the Daily Market Wrap engine — one cached call, currency-neutral.
+  const wrapDay = await latestWrapDay();
+  const wrap = wrapDay ? await getMarketWrap(wrapDay) : null;
+
   const breadthTotal = data.risers + data.fallers + data.flat;
   const activeChip = searchParams.scope ?? "all";
 
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: "DexCompare Index", item: `${SITE_URL}/market` },
+    ],
+  };
+  const datasetLd = startDay
+    ? {
+        "@context": "https://schema.org",
+        "@type": "Dataset",
+        name: "The DexCompare Index",
+        description: `Daily base-100 price index of the ${data.basketSize} most valuable Pokémon TCG cards per market, from live store prices. Base 100 on ${startDay}.`,
+        url: `${SITE_URL}/market`,
+        creator: { "@type": "Organization", name: "DexCompare", url: SITE_URL },
+        license: `${SITE_URL}/market#cite`,
+        temporalCoverage: `${startDay}/..`,
+      }
+    : null;
+
   return (
     <div className="mx-auto max-w-4xl">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(datasetLd ? [breadcrumbLd, datasetLd] : [breadcrumbLd]) }}
+      />
+
+      <nav className="mb-3 flex items-center gap-1.5 text-xs text-slate-500" aria-label="Breadcrumb">
+        <Link href="/" className="hover:text-slate-300">Home</Link>
+        <span>/</span>
+        <span className="text-slate-300">DexCompare Index</span>
+      </nav>
+
       <header className="mb-5">
         <h1 className="font-display text-3xl font-extrabold text-white">📈 The DexCompare Index</h1>
         <p className="mt-1 max-w-2xl text-slate-400">
-          How the Pokémon card market is moving in {info.place} — built from our daily snapshots of the
-          cheapest live {info.adjective} price for the {data.basketSize || "top"} most valuable cards
-          {data.scopeLabel !== "All cards" ? ` in ${data.scopeLabel}` : ""}.
+          The Pokémon singles market in one number: a base-100 index of the {data.basketSize || "top"} most
+          valuable {data.scopeLabel !== "All cards" ? `${data.scopeLabel} ` : ""}cards, priced daily from the
+          cheapest live {info.adjective} store listing. Switch country at the top for your market.
         </p>
       </header>
 
@@ -59,8 +128,56 @@ export default async function MarketPage({ searchParams }: { searchParams: { sco
         ))}
       </div>
 
-      {/* Headline stats */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      {/* Headline index level + deltas */}
+      <section className="card-surface p-5">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <div className="text-[11px] font-bold uppercase tracking-wide text-slate-500">
+              {country} market{startDay ? ` · base 100 on ${startDay}` : ""}
+            </div>
+            <div className="font-display text-5xl font-extrabold text-white">
+              {indexLevel != null ? indexLevel.toFixed(1) : "100.0"}
+            </div>
+            {wrap?.globalD1 != null && (
+              <div className="mt-1 text-xs text-slate-400">
+                Global composite (all 4 markets, {wrap.day}):{" "}
+                <span className={wrap.globalD1 > 0.05 ? "font-bold text-emerald-400" : wrap.globalD1 < -0.05 ? "font-bold text-red-400" : "font-bold text-slate-300"}>
+                  {wrap.globalD1 > 0 ? "+" : ""}{wrap.globalD1.toFixed(2)}%
+                </span>{" "}
+                · <Link href={`/blog/market-wrap/${wrap.day}`} className="text-brand-400 hover:underline">today&apos;s wrap →</Link>
+              </div>
+            )}
+          </div>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            <Delta label="1 day" pct={d1} />
+            <Delta label="7 days" pct={d7} />
+            <Delta label="30 days" pct={d30} />
+            <Delta label="All time" pct={sinceStart} />
+          </div>
+        </div>
+
+        {data.points.length >= 2 ? (
+          <div className="mt-4">
+            <PriceChart
+              points={data.points}
+              currency={info.currency}
+              title={`Basket cost — what the ${data.scopeLabel.toLowerCase()} basket costs to buy (${info.currency})`}
+              note={`The ${data.basketSize} most valuable ${data.scopeLabel === "All cards" ? "" : `${data.scopeLabel} `}cards with history, cheapest live ${info.adjective} price, carried forward on quiet days. The index level above is this line rebased to 100.`}
+            />
+          </div>
+        ) : (
+          <div className="mt-4 rounded-lg bg-ink-900/60 p-5 text-center text-sm text-slate-400">
+            <p className="font-semibold text-white">The trend line is warming up</p>
+            <p className="mt-1">
+              We snapshot prices daily — the {data.scopeLabel.toLowerCase()} line appears once two days of
+              history exist for this scope. The level starts at 100.0 by definition.
+            </p>
+          </div>
+        )}
+      </section>
+
+      {/* Secondary stats */}
+      <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
         <Metric label="Market cap (tracked)" value={`≈ ${formatMoney(data.marketCapCents, "USD")}`} sub="sum of TCGplayer guides" />
         <Metric label={`Priced cards (${country})`} value={data.trackedCards.toLocaleString()} sub="with a live store price" />
         <Metric
@@ -69,31 +186,7 @@ export default async function MarketPage({ searchParams }: { searchParams: { sco
           sub={breadthTotal ? `${data.flat} flat of ${breadthTotal} in basket` : "history building up"}
           tone={data.risers > data.fallers ? "up" : data.fallers > data.risers ? "down" : undefined}
         />
-        <Metric
-          label="Index (24h)"
-          value={d1 == null ? "—" : `${d1 > 0 ? "+" : ""}${d1.toFixed(2)}%`}
-          sub={d7 == null ? "more history soon" : `7d ${d7 > 0 ? "+" : ""}${d7.toFixed(1)}% · 30d ${d30 == null ? "—" : `${d30 > 0 ? "+" : ""}${d30.toFixed(1)}%`}`}
-          tone={d1 == null ? undefined : d1 >= 0 ? "up" : "down"}
-        />
       </div>
-
-      {/* The index chart */}
-      {data.points.length >= 2 ? (
-        <PriceChart
-          points={data.points}
-          currency={info.currency}
-          title={`${data.scopeLabel} index — combined basket value (${info.currency})`}
-          note={`The ${data.basketSize} most valuable ${data.scopeLabel === "All cards" ? "" : `${data.scopeLabel} `}cards with history, cheapest live ${info.adjective} price, carried forward on quiet days.`}
-        />
-      ) : (
-        <div className="card-surface mt-6 p-6 text-center text-sm text-slate-400">
-          <p className="font-semibold text-white">The index is warming up</p>
-          <p className="mt-1">
-            We snapshot prices daily — the {data.scopeLabel.toLowerCase()} trend line appears once a few
-            days of history exist for this scope. Check back tomorrow.
-          </p>
-        </div>
-      )}
 
       <AdSlot slot={ADSENSE_SLOTS.browse} format="horizontal" height={90} className="mt-6" />
 
@@ -168,12 +261,26 @@ export default async function MarketPage({ searchParams }: { searchParams: { sco
         </section>
       )}
 
-      <p className="mt-6 text-center text-[11px] text-slate-600">
-        Methodology: the index sums the cheapest live {info.adjective} price of the {data.basketSize || "top"}{" "}
-        most valuable in-scope cards each day (last price carried forward on days without a snapshot). It
-        reflects what the basket would cost to BUY today — not graded-sale or auction prices. Market cap is
-        the sum of TCGplayer market guides across every tracked card.
-      </p>
+      {/* Methodology + citing — press-ready, like any index publisher. */}
+      <section id="cite" className="card-surface mt-8 space-y-3 p-5 text-sm leading-relaxed text-slate-400">
+        <h2 className="text-lg font-extrabold text-white">Methodology &amp; citing the Index</h2>
+        <p>
+          The DexCompare Index tracks what the {data.basketSize || "top"} most valuable in-scope Pokémon
+          cards would cost to BUY today: each day we record the cheapest live in-stock price per card in
+          each market (NM/LP conditions; market-guide estimates excluded), sum the basket, and rebase the
+          series to 100 at its start — an index of 103 means the basket is 3% dearer than at the start.
+          Days without a snapshot carry the last price forward, so the line only moves when prices move.
+          It reflects retail ask prices, not graded sales or auctions. Market cap is the sum of TCGplayer
+          market guides across every tracked card. The global composite is the equal-weighted average of
+          the four markets&apos; matched-pair daily moves — currency-neutral by construction.
+        </p>
+        <p className="text-slate-300">
+          <strong>Citing the Index:</strong> journalists and creators are welcome to quote it freely as
+          &ldquo;the DexCompare Index&rdquo; with a link to this page. The{" "}
+          <Link href="/blog/market-wrap" className="text-brand-400 hover:underline">Daily Market Wrap</Link>{" "}
+          publishes the full daily breakdown.
+        </p>
+      </section>
     </div>
   );
 }
