@@ -91,9 +91,12 @@ jobs:
               body = html.find("<body")
               pos = html.find("var vglnk")
               in_body = body != -1 and pos > body
-              print(f"{site}  occurrences={n} in-body={in_body}")
-              if n != 1 or not in_body:
-                  print("  ^ expected exactly 1 occurrence inside <body>")
+              # AdSense review reads raw HTML: the official snippet must be in <head>.
+              ads = html.find("pagead2.googlesyndication.com/pagead/js/adsbygoogle.js")
+              ads_in_head = ads != -1 and ads < body
+              print(f"{site}  sovrn-occurrences={n} sovrn-in-body={in_body} adsbygoogle-in-head={ads_in_head}")
+              if n != 1 or not in_body or not ads_in_head:
+                  print("  ^ expected 1 Sovrn snippet in <body> and adsbygoogle in <head>")
                   bad = 1
           sys.exit(bad)
           PY
