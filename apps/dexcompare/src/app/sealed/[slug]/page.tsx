@@ -9,6 +9,8 @@ import { RestockAlertForm } from "@/components/RestockAlertForm";
 import { SealedTile } from "@/components/SealedTile";
 import { OutboundLink } from "@/components/OutboundLink";
 import { AdSlot } from "@/components/AdSlot";
+import { TcgplayerAd } from "@/components/TcgplayerAd";
+import { EbayAd } from "@/components/EbayAd";
 import { ADSENSE_SLOTS } from "@/lib/ads";
 import { affiliateUrl, ebaySearchUrl } from "@/lib/affiliate";
 import { getCountry } from "@/lib/get-country";
@@ -217,6 +219,11 @@ export default async function SealedComparePage({ params }: { params: { slug: st
           </OutboundLink>
         </div>
       </section>
+
+      {/* Affiliate banners — both live partners on this high-AOV sealed page.
+          eBay searches for THIS product (sealed boxes have a big used market). */}
+      <TcgplayerAd size="leaderboard" country={country} className="mt-6" />
+      <EbayAd size="leaderboard" country={country} query={group.name} className="mt-3" />
 
       <AdSlot slot={ADSENSE_SLOTS.card} height={120} className="mt-6" />
 

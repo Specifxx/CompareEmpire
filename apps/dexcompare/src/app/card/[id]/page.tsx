@@ -22,6 +22,7 @@ import { OutboundLink } from "@/components/OutboundLink";
 import { AdSlot } from "@/components/AdSlot";
 import { ADSENSE_SLOTS } from "@/lib/ads";
 import { TcgplayerAd } from "@/components/TcgplayerAd";
+import { EbayAd } from "@/components/EbayAd";
 
 // ISR while AU-only; dynamic per-request once NZ mode is enabled (cookie-driven).
 export const revalidate = 180;
@@ -482,6 +483,10 @@ export default async function CardPage({ params }: { params: { id: string } }) {
           {/* TCGplayer affiliate banner — pays commission on click-through
               purchases, so it gets the prime spot under the price table. */}
           <TcgplayerAd size="rect" mobile="rect" country={country} className="mt-6" />
+
+          {/* Contextual eBay banner — searches for THIS card (new, used & graded);
+              the most relevant eBay placement converts far better than a generic one. */}
+          <EbayAd size="leaderboard" country={country} query={`${card.name} ${card.collectorNumber.split("/")[0]}`} className="mt-4" />
 
           {/* In-content ad below the price comparison — the highest-traffic surface.
               Renders nothing until a slot id is configured (Auto ads fill it meanwhile). */}
