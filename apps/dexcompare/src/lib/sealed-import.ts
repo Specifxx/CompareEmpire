@@ -341,9 +341,30 @@ const typeRank = (t: string) => {
 };
 
 // Group sealed listings by product for the /sealed pages, for one market.
+//
+// CACHED IN PROCESS MEMORY: this pulls the market's entire sealed table, which
+// is multi-megabyte — fetching it from Neon on EVERY request is the
+// network-transfer bomb that burned through two free-tier allowances.
+// unstable_cache can't hold it (2 MB item limit fails silently), so it uses
+// the same globalThis memo pattern as the games pool: one DB pull per market
+// per warm lambda per TTL.
+type SealedMemo = Map<string, { at: number; data: SealedGroup[] }>;
+const sealedMemo: SealedMemo = ((globalThis as unknown as { __sealedGroups?: SealedMemo }).__sealedGroups ??= new Map());
+const SEALED_MEMO_TTL_MS = 15 * 60_000;
+
 export async function getSealedGroups(country: string = "AU"): Promise<SealedGroup[]> {
   const market = SEALED_MARKETS.has(country) ? country : "AU";
-  const rows = await prisma.sealedListing.findMany({ where: { country: market }, orderBy: { priceCents: "asc" } });
+  const hit = sealedMemo.get(market);
+  if (hit && Date.now() - hit.at < SEALED_MEMO_TTL_MS) return hit.data;
+  // Only the fields the grouping uses — no point hauling unused columns.
+  const rows = await prisma.sealedListing.findMany({
+    where: { country: market },
+    orderBy: { priceCents: "asc" },
+    select: {
+      groupKey: true, title: true, productType: true, setCode: true, imageUrl: true,
+      retailer: true, retailerName: true, priceCents: true, url: true, inStock: true, lastSeen: true,
+    },
+  });
   const groups = new Map<string, SealedGroup>();
   for (const r of rows) {
     let g = groups.get(r.groupKey);
@@ -381,6 +402,7 @@ export async function getSealedGroups(country: string = "AU"): Promise<SealedGro
     if (ra !== rb) return ra - rb;
     return (a.lowestPriceCents ?? 9e9) - (b.lowestPriceCents ?? 9e9);
   });
+  sealedMemo.set(market, { at: Date.now(), data: out });
   return out;
 }
 

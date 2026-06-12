@@ -57,12 +57,17 @@ jobs:
               print(f"\n================ {site} ================")
               xml = fetch(f"{site}/sitemap.xml").read().decode()
               urls = re.findall(r"<loc>([^<]+)</loc>", xml)
+              # Card AND sealed pages are sampled: they share one route each, and
+              # hammering hundreds of them per run costs real database egress on
+              # the free-tier DB (a full sweep burned through the allowance once).
               cards = [u for u in urls if "/card/" in u]
-              rest = [u for u in urls if "/card/" not in u]
+              sealed = [u for u in urls if "/sealed/" in u]
+              rest = [u for u in urls if "/card/" not in u and "/sealed/" not in u]
               random.seed(20260612)
               sampled = random.sample(cards, min(SAMPLE, len(cards)))
+              sampled += random.sample(sealed, min(60, len(sealed)))
               to_check = rest + sampled
-              print(f"sitemap URLs: {len(urls)} total ({len(cards)} cards) — checking {len(rest)} non-card + {len(sampled)} sampled cards")
+              print(f"sitemap URLs: {len(urls)} total ({len(cards)} cards, {len(sealed)} sealed) — checking {len(rest)} other + {len(sampled)} sampled")
 
               with ThreadPoolExecutor(max_workers=12) as ex:
                   results = list(ex.map(check, to_check))
