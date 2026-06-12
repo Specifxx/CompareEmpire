@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
     where: whereParam(params.id),
     select: { slug: true, name: true, setName: true, setCode: true, collectorNumber: true, lowestPriceCents: true, lowestPriceCentsNz: true, lowestPriceCentsUs: true, lowestPriceCentsGb: true, imageUrl: true, imageThumbUrl: true },
   });
-  if (!card) return { title: "Card not found" };
+  if (!card) notFound(); // real 404 — metadata resolves before streaming
 
   const lowest = pickPrice(card, country);
   const price = lowest != null ? ` from ${formatMoney(lowest, info.currency)}` : "";

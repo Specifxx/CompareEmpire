@@ -21,9 +21,9 @@ function longDate(day: string): string {
 }
 
 export async function generateMetadata({ params }: { params: { day: string } }): Promise<Metadata> {
-  if (!VALID_DAY.test(params.day)) return { title: "Daily Market Wrap" };
+  if (!VALID_DAY.test(params.day)) notFound(); // real 404 — metadata resolves before streaming
   const wrap = await getMarketWrap(params.day);
-  if (!wrap) return { title: "Daily Market Wrap" };
+  if (!wrap) notFound();
   return {
     title: `${wrap.headline} — Market Wrap, ${longDate(wrap.day)}`,
     description: wrap.lede,

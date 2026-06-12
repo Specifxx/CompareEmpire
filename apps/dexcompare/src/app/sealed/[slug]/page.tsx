@@ -28,7 +28,7 @@ async function findAny(slug: string, country: string): Promise<SealedGroup | nul
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const country = getCountry();
   const g = (await findAny(params.slug, country)) ?? (await findAny(params.slug, "AU"));
-  if (!g) return { title: "Sealed product not found" };
+  if (!g) notFound(); // real 404 — metadata resolves before streaming
   const title = `${g.name} — compare prices`;
   const description = `Compare live prices for ${g.name} across the stores we track in Australia, New Zealand, the US and the UK, and find the cheapest place to buy this sealed Pokémon product.`;
   return {
@@ -49,8 +49,19 @@ export default async function SealedComparePage({ params }: { params: { slug: st
   const country = getCountry();
   const info = COUNTRIES[country];
 
+  // Page EXISTENCE must not depend on the visitor's market: the sitemap lists
+  // the AU catalogue, and Googlebot crawls from US IPs — a US-market-only
+  // lookup made every AU-only product a soft-404 with noindex for the crawler
+  // (512 sitemap URLs flagged by the indexability audit). Fall back to the AU
+  // grouping so the page always renders when the product exists anywhere; the
+  // fallback's prices are then HONESTLY presented in AUD, not relabelled.
   const groups = await getSealedGroups(country);
-  const group = groups.find((g) => g.slug === params.slug);
+  let group = groups.find((g) => g.slug === params.slug);
+  let priceInfo = info;
+  if (!group && country !== "AU") {
+    group = (await getSealedGroups("AU")).find((g) => g.slug === params.slug);
+    if (group) priceInfo = COUNTRIES.AU;
+  }
   if (!group) notFound();
 
   const featured = matchFeatured(group.name);
@@ -86,14 +97,14 @@ export default async function SealedComparePage({ params }: { params: { slug: st
       ? {
           offers: {
             "@type": "AggregateOffer",
-            priceCurrency: info.currency,
+            priceCurrency: priceInfo.currency,
             lowPrice: ((lowest as number) / 100).toFixed(2),
             highPrice: (Math.max(...listings.map((l) => l.priceCents)) / 100).toFixed(2),
             availability: "https://schema.org/InStock",
             offerCount: inStock.length,
           },
         }
-      : { offers: { "@type": "AggregateOffer", priceCurrency: info.currency, availability: "https://schema.org/OutOfStock", offerCount: 0 } }),
+      : { offers: { "@type": "AggregateOffer", priceCurrency: priceInfo.currency, availability: "https://schema.org/OutOfStock", offerCount: 0 } }),
   };
 
   return (
@@ -127,13 +138,13 @@ export default async function SealedComparePage({ params }: { params: { slug: st
             <div className="mt-3 flex items-end gap-3">
               {lowest != null ? (
                 <div>
-                  <div className="text-[11px] uppercase tracking-wide text-slate-500">Cheapest in {country}</div>
-                  <div className="text-3xl font-extrabold text-accent">{formatMoney(lowest, info.currency)}</div>
+                  <div className="text-[11px] uppercase tracking-wide text-slate-500">Cheapest in {priceInfo.code}</div>
+                  <div className="text-3xl font-extrabold text-accent">{formatMoney(lowest, priceInfo.currency)}</div>
                 </div>
               ) : (
                 <div>
                   <div className="text-[11px] uppercase tracking-wide text-slate-500">Status</div>
-                  <div className="text-2xl font-extrabold text-rose-300">Sold out in {country}</div>
+                  <div className="text-2xl font-extrabold text-rose-300">Sold out in {priceInfo.code}</div>
                 </div>
               )}
             </div>
@@ -161,7 +172,7 @@ export default async function SealedComparePage({ params }: { params: { slug: st
         </div>
         {listings.length === 0 ? (
           <div className="p-6 text-center text-sm text-slate-400">
-            <p className="font-semibold text-white">No {info.adjective} store is listing this right now.</p>
+            <p className="font-semibold text-white">No {priceInfo.adjective} store is listing this right now.</p>
             <p className="mt-1">Try eBay&apos;s secondary market:</p>
             <OutboundLink href={ebayHref} retailer="ebay_search" country={country} kind="sealed" className="btn-primary mt-3 inline-flex">
               Search on eBay{country === "NZ" ? " AU" : ""} →
@@ -182,7 +193,7 @@ export default async function SealedComparePage({ params }: { params: { slug: st
                   </div>
                 </div>
                 <div className={`shrink-0 text-right text-sm font-bold ${l.inStock ? "text-accent" : "text-slate-400 line-through"}`}>
-                  {formatMoney(l.priceCents, info.currency)}
+                  {formatMoney(l.priceCents, priceInfo.currency)}
                 </div>
                 <OutboundLink
                   href={affiliateUrl(l.url, l.retailer)}
@@ -233,7 +244,7 @@ export default async function SealedComparePage({ params }: { params: { slug: st
               <li key={i} className="flex items-center gap-3 p-3 text-sm">
                 <span className="text-xs text-slate-500">{timeAgo(e.inStockAt)}</span>
                 <span className="flex-1 truncate text-slate-200">
-                  <strong className="text-white">{e.retailerName}</strong> · {e.productType} · {formatMoney(e.priceCents, info.currency)}
+                  <strong className="text-white">{e.retailerName}</strong> · {e.productType} · {formatMoney(e.priceCents, priceInfo.currency)}
                 </span>
                 <span className={`chip shrink-0 ${e.soldOutAt ? "bg-ink-800 text-slate-400" : "bg-brand-500/15 text-brand-300"}`}>
                   {e.soldOutAt ? `sold out in ${e.durationMins ?? "?"} min` : "in stock"}
@@ -253,7 +264,7 @@ export default async function SealedComparePage({ params }: { params: { slug: st
           <div className="-mx-1 flex gap-4 overflow-x-auto px-1 pb-2">
             {related.map((g) => (
               <div key={g.slug} className="w-40 shrink-0 sm:w-44">
-                <SealedTile group={g} currency={info.currency} />
+                <SealedTile group={g} currency={priceInfo.currency} />
               </div>
             ))}
           </div>

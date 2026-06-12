@@ -9,7 +9,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const a = getArticle(params.slug);
-  if (!a || a.category !== "guide") return { title: "Guide not found" };
+  if (!a || a.category !== "guide") notFound(); // real 404 — metadata resolves before streaming
   return {
     title: `${a.title} — DexCompare Guides`,
     description: a.excerpt,

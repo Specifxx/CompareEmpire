@@ -27,7 +27,7 @@ export function generateStaticParams() {
 
 export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
   const p = getFeaturedRestock(params.slug);
-  if (!p) return { title: "Restock tracker not found" };
+  if (!p) notFound(); // real 404 — metadata resolves before streaming
   const title = `${p.shortName} restock tracker — in stock now? (AU/NZ/US/UK)`;
   const description = `Is ${p.name} back in stock? Live stock across the stores we track, a restock log, and a free email alert the moment a Booster Box or ETB restocks.`;
   return {
