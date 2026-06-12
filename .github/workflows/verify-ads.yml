@@ -66,4 +66,10 @@ jobs:
           card=$(curl -sL --max-time 30 https://dexcompare.app/ | grep -o 'href="/card/[^"]*"' | head -1 | sed 's/href="//;s/"//')
           echo "dex sample card: $card"
           sovrn "dexcompare.app$card" "$(curl -sL --max-time 30 "https://dexcompare.app$card")"
+          # Install snippet must be in the RAW HTML (Sovrn's verifier greps for it).
+          for site in https://dexcompare.app/ https://riftcompare.com/; do
+            n=$(curl -sL --max-time 30 "$site" | grep -c "viglink.com/api/vglnk.js" || true)
+            echo "$site  vglnk-snippet-in-html=$n"
+            if [ "$n" -lt 1 ]; then echo "  ^ snippet MISSING from HTML"; fail=1; fi
+          done
           exit $fail

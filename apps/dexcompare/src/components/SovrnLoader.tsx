@@ -1,38 +1,31 @@
-"use client";
-
-import { useEffect } from "react";
 import { SOVRN_API_KEY } from "@/lib/affiliate";
 
-// Loads Sovrn Commerce's vglnk.js AFTER first interaction (or a short idle
-// delay) — same deferral pattern as AdSenseLoader, keeping third-party JS off
-// the mobile critical path. The script auto-affiliates outbound merchant links
-// at click time (Sovrn's install detection also needs it on the page).
+// Sovrn Commerce (VigLink) install snippet, rendered INLINE in the server HTML.
 //
-// Links we already monetise DIRECTLY (eBay EPN, TCGplayer Impact, Amazon, and
-// Sovrn server-side redirects from affiliateUrl) carry rel="norewrite", which
-// vglnk.js honours — so the script can never hijack a full-rate direct link.
+// This must be a server-rendered <script> (not a deferred/lazy injection):
+// Sovrn's install verifier fetches the raw page HTML and greps for the snippet,
+// so a client-side loader — even one that runs seconds later — reads as "code
+// not found on website". The snippet below is their standard install verbatim;
+// the heavy part (vglnk.js itself) still loads `async`, so first paint is not
+// blocked.
+//
+// What it does: rewrites outbound merchant links to monetised redirects at
+// click time. Links we already monetise directly (eBay EPN, TCGplayer Impact,
+// Amazon, our server-side Sovrn redirects) carry rel="norewrite", which
+// vglnk.js honours — the script can never hijack a full-rate direct link.
 export function SovrnLoader() {
-  useEffect(() => {
-    let loaded = false;
-    let timer: ReturnType<typeof setTimeout> | null = null;
-    const load = () => {
-      if (loaded) return;
-      loaded = true;
-      cleanup();
-      (window as unknown as { vglnk: { key: string } }).vglnk = { key: SOVRN_API_KEY };
-      const s = document.createElement("script");
-      s.src = "https://cdn.viglink.com/api/vglnk.js";
-      s.async = true;
-      document.body.appendChild(s);
-    };
-    const events: (keyof WindowEventMap)[] = ["pointerdown", "scroll", "keydown", "touchstart"];
-    const cleanup = () => {
-      events.forEach((e) => window.removeEventListener(e, load));
-      if (timer) clearTimeout(timer);
-    };
-    events.forEach((e) => window.addEventListener(e, load, { once: true, passive: true }));
-    timer = setTimeout(load, 3500);
-    return cleanup;
-  }, []);
-  return null;
+  return (
+    <script
+      type="text/javascript"
+      dangerouslySetInnerHTML={{
+        __html: `var vglnk = {key: '${SOVRN_API_KEY}'};
+(function(d, t) {var s = d.createElement(t);
+  s.type = 'text/javascript';s.async = true;
+  s.src = '//cdn.viglink.com/api/vglnk.js';
+  var r = d.getElementsByTagName(t)[0];
+  r.parentNode.insertBefore(s, r);
+}(document, 'script'));`,
+      }}
+    />
+  );
 }
