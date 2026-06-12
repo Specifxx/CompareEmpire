@@ -1,0 +1,36 @@
+name: Verify TCGplayer banners live
+
+on:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check banner markup on both production sites
+        run: |
+          set -u
+          fail=0
+          check() {
+            local url="$1"
+            local html
+            html=$(curl -sL --max-time 30 "$url")
+            local clicks creatives pixels
+            clicks=$(grep -c "partner.tcgplayer.com/c/7385758" <<<"$html" || true)
+            creatives=$(grep -c "a.impactradius-go.com/display-ad" <<<"$html" || true)
+            pixels=$(grep -c "partner.tcgplayer.com/i/7385758" <<<"$html" || true)
+            echo "$url  click-links=$clicks creatives=$creatives impression-pixels=$pixels"
+            if [ "$clicks" -lt 1 ] || [ "$creatives" -lt 1 ] || [ "$pixels" -lt 1 ]; then
+              echo "  ^ MISSING banner markup"
+              fail=1
+            fi
+          }
+          check "https://dexcompare.app/deals"
+          check "https://dexcompare.app/browse"
+          check "https://dexcompare.app/sealed"
+          check "https://dexcompare.app/market"
+          check "https://riftcompare.com/browse"
+          check "https://riftcompare.com/sealed"
+          check "https://riftcompare.com/market"
+          exit $fail
