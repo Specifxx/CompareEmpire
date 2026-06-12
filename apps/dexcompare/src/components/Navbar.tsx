@@ -41,7 +41,7 @@ export function Navbar() {
           <Link href="/deals" className="hidden rounded-lg px-2.5 py-2 text-sm font-medium text-gold hover:bg-ink-800 md:block">
             Deals
           </Link>
-          <div className="hidden lg:block">
+          <div className="hidden lg:block xl:hidden">
             <NavMenu />
           </div>
           <CountrySwitcher className="ml-1" />

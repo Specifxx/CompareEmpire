@@ -7,6 +7,7 @@ import { DomainBadge, RarityBadge, VariantBadge, OvernumberedBadge, PromoBadge, 
 import { isOvernumbered, isSignature } from "@/lib/constants";
 import { POKEMON_SETS } from "@/lib/pokemon-sets";
 import { WishlistButton } from "@/components/WishlistButton";
+import { ShareButton } from "@/components/ShareButton";
 import { CollectionButton } from "@/components/CollectionButton";
 import { CardViewBeacon } from "@/components/CardViewBeacon";
 import { CardTile, type CardTileData } from "@/components/CardTile";
@@ -240,6 +241,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
               </div>
               <div className="flex shrink-0 flex-col items-end gap-2">
                 <WishlistButton cardId={card.id} variant="full" />
+                <ShareButton />
                 <CollectionButton cardId={card.id} />
               </div>
             </div>

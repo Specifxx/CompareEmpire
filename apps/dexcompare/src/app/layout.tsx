@@ -5,6 +5,8 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import Link from "next/link";
 import "./globals.css";
 import { Navbar } from "@/components/Navbar";
+import { NewsletterSignup } from "@/components/NewsletterSignup";
+import { SideNav } from "@/components/SideNav";
 import { QuickViewProvider } from "@/components/QuickView";
 import { WishlistDrawerProvider } from "@/components/WishlistDrawer";
 import { CountryProvider } from "@/components/CountryProvider";
@@ -128,7 +130,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <WishlistDrawerProvider>
           <QuickViewProvider>
             <Navbar />
-            <main className="container-app py-6">{children}</main>
+            <div className="container-app flex gap-6 py-6">
+              <SideNav />
+              <main className="min-w-0 flex-1">{children}</main>
+            </div>
           </QuickViewProvider>
         </WishlistDrawerProvider>
         <PriceAlertModal />
@@ -138,6 +143,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             (games included) carries at least one monetised placement. */}
         <TcgplayerAd size="leaderboard" country={country} className="container-app pb-8" />
         <footer className="container-app border-t border-ink-800 py-8 text-center text-xs text-slate-500">
+          <NewsletterSignup siteName="DexCompare" />
           <nav className="mb-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-sm">
             <Link href="/browse" className="hover:text-slate-300">Database</Link>
             <Link href="/sealed" className="hover:text-slate-300">Sealed products</Link>
