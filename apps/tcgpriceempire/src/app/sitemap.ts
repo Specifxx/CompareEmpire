@@ -13,15 +13,19 @@ export const revalidate = 86400;
 const MAX_CARD_URLS = 45000;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  // Resilient to an empty/unreachable DB (build-time prerender on first deploy).
-  const cards = await prisma.card
-    .findMany({
+  // Whole-function fence: a sitemap prerender failure hard-fails the entire
+  // Vercel build, so ANY error here degrades to static routes instead.
+  let cards: { slug: string; marketPriceCents: number | null }[] = [];
+  try {
+    cards = await prisma.card.findMany({
       where: { marketPriceCents: { not: null } },
       select: { slug: true, marketPriceCents: true },
       orderBy: { marketPriceCents: "desc" },
       take: MAX_CARD_URLS,
-    })
-    .catch(() => []);
+    });
+  } catch (e) {
+    console.error("sitemap: card query failed, serving static routes:", e);
+  }
 
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: `${SITE_URL}/`, changeFrequency: "daily", priority: 1 },

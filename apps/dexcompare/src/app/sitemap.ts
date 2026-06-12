@@ -10,21 +10,6 @@ import { getSealedGroups } from "@/lib/sealed-import";
 export const revalidate = 86400;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  // Resilient to a DB blip: a sitemap build-time prerender failure was hard-
-  // failing entire Vercel deploys (P1001 during a Neon hiccup). Fall back to
-  // the static routes — the daily revalidate restores full coverage.
-  const [cards, sealed] = await Promise.all([
-    prisma.card
-      .findMany({
-        select: { id: true, slug: true, lowestPriceCents: true },
-        orderBy: { lowestPriceCents: { sort: "desc", nulls: "last" } },
-      })
-      .catch(() => []),
-    // Sealed compare pages — slugs come from the AU catalogue baseline (the same
-    // product exists across markets under one slug).
-    getSealedGroups("AU").catch(() => []),
-  ]);
-
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: `${SITE_URL}/`, changeFrequency: "daily", priority: 1 },
     { url: `${SITE_URL}/browse`, changeFrequency: "daily", priority: 0.9 },
@@ -56,6 +41,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/contact`, changeFrequency: "yearly", priority: 0.3 },
     { url: `${SITE_URL}/privacy`, changeFrequency: "yearly", priority: 0.2 },
   ];
+
+  // Everything below depends on the database. A sitemap prerender failure
+  // hard-fails the ENTIRE Vercel build, and per-query .catch guards already
+  // proved insufficient once — so the whole dynamic section is fenced. Worst
+  // case Google sees static routes until the next daily revalidate.
+  try {
+    const [cards, sealed] = await Promise.all([
+      prisma.card.findMany({
+        select: { id: true, slug: true, lowestPriceCents: true },
+        orderBy: { lowestPriceCents: { sort: "desc", nulls: "last" } },
+      }),
+      // Sealed compare pages — slugs come from the AU catalogue baseline (the
+      // same product exists across markets under one slug).
+      getSealedGroups("AU"),
+    ]);
 
   // Guides + blog — evergreen long-form content, strong organic landers.
   const guideRoutes: MetadataRoute.Sitemap = [
@@ -99,4 +99,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   return [...staticRoutes, ...guideRoutes, ...setRoutes, ...sealedRoutes, ...cardRoutes];
+  } catch (e) {
+    console.error("sitemap: dynamic section failed, serving static routes:", e);
+    return staticRoutes;
+  }
 }
