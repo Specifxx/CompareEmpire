@@ -26,6 +26,8 @@ jobs:
               fail=1
             fi
           }
+          check "https://dexcompare.app/"
+          check "https://riftcompare.com/"
           check "https://dexcompare.app/deals"
           check "https://dexcompare.app/browse"
           check "https://dexcompare.app/sealed"
