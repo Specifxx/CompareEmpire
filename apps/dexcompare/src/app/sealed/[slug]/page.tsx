@@ -102,6 +102,8 @@ export default async function SealedComparePage({ params }: { params: { slug: st
             highPrice: (Math.max(...listings.map((l) => l.priceCents)) / 100).toFixed(2),
             availability: "https://schema.org/InStock",
             offerCount: inStock.length,
+            // Prices refresh daily — valid until tomorrow keeps the markup honest.
+            priceValidUntil: new Date(Date.now() + 86400e3).toISOString().slice(0, 10),
           },
         }
       : { offers: { "@type": "AggregateOffer", priceCurrency: priceInfo.currency, availability: "https://schema.org/OutOfStock", offerCount: 0 } }),

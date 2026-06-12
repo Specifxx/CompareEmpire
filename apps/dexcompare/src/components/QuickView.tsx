@@ -222,9 +222,14 @@ function QuickViewModal({ card, onClose }: { card: CardTileData; onClose: () => 
                           )}
                         </div>
                       </div>
-                      <a href={affiliateUrl(p.url)} target="_blank" rel={outboundRel(affiliateUrl(p.url))} className="btn-primary px-3 py-1.5 text-xs">
+                      <OutboundLink
+                        href={affiliateUrl(p.url, p.retailer)}
+                        retailer={p.retailer}
+                        country={country}
+                        className="btn-primary px-3 py-1.5 text-xs"
+                      >
                         View →
-                      </a>
+                      </OutboundLink>
                     </li>
                   ))}
                 </ul>

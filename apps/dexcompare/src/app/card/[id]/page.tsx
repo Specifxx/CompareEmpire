@@ -29,18 +29,18 @@ export const revalidate = 180;
 const whereParam = (p: string) => ({ OR: [{ slug: p }, { id: p }] });
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
-  const country = getCountry();
-  const info = COUNTRIES[country];
   const card = await prisma.card.findFirst({
     where: whereParam(params.id),
     select: { slug: true, name: true, setName: true, setCode: true, collectorNumber: true, lowestPriceCents: true, lowestPriceCentsNz: true, lowestPriceCentsUs: true, lowestPriceCentsGb: true, imageUrl: true, imageThumbUrl: true },
   });
   if (!card) notFound(); // real 404 — metadata resolves before streaming
 
-  const lowest = pickPrice(card, country);
-  const price = lowest != null ? ` from ${formatMoney(lowest, info.currency)}` : "";
-  const title = `${card.name} (${card.setCode} ${card.collectorNumber}) — Pokémon price in ${info.place}`;
-  const description = `Compare live ${info.adjective} prices for ${card.name}, Pokémon ${card.setName} ${card.collectorNumber}${price}. Find the cheapest store to buy this card in ${info.place}.`;
+  // MARKET-NEUTRAL metadata: Googlebot crawls from US IPs, so cookie-derived
+  // copy ("price in the United States") would be what gets indexed for every
+  // market — fragmented snippets at 20k-page scale. Neutral title also stays
+  // under the ~60-char SERP truncation point.
+  const title = `${card.name} (${card.setCode} ${card.collectorNumber}) — Pokémon Card Price`;
+  const description = `Compare live prices for ${card.name}, Pokémon ${card.setName} ${card.collectorNumber}, across stores in Australia, New Zealand, the US and the UK — find the cheapest place to buy.`;
   const image = card.imageUrl ?? card.imageThumbUrl ?? undefined;
 
   return {
