@@ -66,10 +66,13 @@ jobs:
           card=$(curl -sL --max-time 30 https://dexcompare.app/ | grep -o 'href="/card/[^"]*"' | head -1 | sed 's/href="//;s/"//')
           echo "dex sample card: $card"
           sovrn "dexcompare.app$card" "$(curl -sL --max-time 30 "https://dexcompare.app$card")"
-          # Install snippet must be in the RAW HTML (Sovrn's verifier greps for it).
+          # Install snippet must appear in the RAW HTML exactly ONCE — Sovrn's
+          # verifier rejects both "not found" and "multiple instances".
           for site in https://dexcompare.app/ https://riftcompare.com/; do
-            n=$(curl -sL --max-time 30 "$site" | grep -c "viglink.com/api/vglnk.js" || true)
-            echo "$site  vglnk-snippet-in-html=$n"
-            if [ "$n" -lt 1 ]; then echo "  ^ snippet MISSING from HTML"; fail=1; fi
+            html=$(curl -sL --max-time 30 "$site")
+            url_n=$(grep -o "viglink.com/api/vglnk.js" <<<"$html" | wc -l)
+            var_n=$(grep -o "var vglnk" <<<"$html" | wc -l)
+            echo "$site  vglnk-url-occurrences=$url_n var-vglnk-occurrences=$var_n"
+            if [ "$url_n" -ne 1 ]; then echo "  ^ expected exactly 1 occurrence"; fail=1; fi
           done
           exit $fail
