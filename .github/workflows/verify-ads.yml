@@ -18,15 +18,12 @@ jobs:
             html=$(curl -sL --max-time 30 "$url")
             local clicks creatives pixels
             clicks=$(grep -c "partner.tcgplayer.com/c/7385758" <<<"$html" || true)
-            creatives=$(grep -c "a.impactradius-go.com/display-ad" <<<"$html" || true)
-            pixels=$(grep -c "partner.tcgplayer.com/i/7385758" <<<"$html" || true)
-            echo "$url  click-links=$clicks creatives=$creatives impression-pixels=$pixels"
-            # The Impact CLICK link is what pays; rift now renders house
-            # creatives (no hosted image/pixel) by design, so only clicks gate.
-            if [ "$clicks" -lt 1 ]; then
-              echo "  ^ MISSING banner click link"
-              fail=1
-            fi
+            ebay=$(grep -c "campid=5339155912" <<<"$html" || true)
+            echo "$url  tcgplayer-clicks=$clicks ebay-clicks=$ebay"
+            # Both partners are CPC/affiliate house banners; the CLICK link is what
+            # pays. The site-wide footer row puts BOTH on every page.
+            if [ "$clicks" -lt 1 ]; then echo "  ^ MISSING TCGplayer click link"; fail=1; fi
+            if [ "$ebay" -lt 1 ]; then echo "  ^ MISSING eBay click link"; fail=1; fi
           }
           check "https://dexcompare.app/"
           check "https://riftcompare.com/"
