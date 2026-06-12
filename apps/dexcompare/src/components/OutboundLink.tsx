@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { outboundRel } from "@/lib/affiliate";
 
 // An outbound "buy" link that fires a click beacon before navigating, so we can
 // count how many times each store/eBay link is used (verified in our own DB, no
@@ -34,7 +35,7 @@ export function OutboundLink({
     <a
       href={href}
       target="_blank"
-      rel="nofollow sponsored noopener noreferrer"
+      rel={outboundRel(href)}
       className={className}
       onClick={log}
       onAuxClick={log}

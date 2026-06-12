@@ -89,11 +89,12 @@ export function ebaySearchUrl(query: string, country: string): string {
 // merchants, with a lower acceptance bar than Skimlinks. Configure:
 //   AFFILIATE_NETWORK=sovrn                      (default)
 //   AFFILIATE_NETWORK_ID=<your Sovrn API key>    (Sovrn dashboard → "API key")
-// Leaving the id EMPTY = links pass through untouched (zero behaviour change),
-// exactly like the TCGplayer link stays inert until approved. So this is safe to
-// ship now and "turns on" the moment you paste your id into the env.
-const AFFILIATE_NETWORK = (process.env.AFFILIATE_NETWORK ?? "sovrn").toLowerCase();
-const AFFILIATE_NETWORK_ID = process.env.AFFILIATE_NETWORK_ID ?? "";
+// The key is PUBLIC (it ships in the on-page Sovrn snippet), so like the eBay /
+// Amazon ids above it's safe as a code default. `||` so an empty env var still
+// falls back to the live key.
+const AFFILIATE_NETWORK = (process.env.AFFILIATE_NETWORK || "sovrn").toLowerCase();
+export const SOVRN_API_KEY = process.env.AFFILIATE_NETWORK_ID || "c0e2dfd8f16826f988a87c85bd33bcf9";
+const AFFILIATE_NETWORK_ID = SOVRN_API_KEY;
 
 // Hosts that must NEVER be wrapped by the network: our own sites, and the partners
 // we already monetise directly (their direct programs always pay more).
@@ -165,4 +166,14 @@ export function affiliateUrl(url: string | null | undefined, subId = "dexcompare
     /* not an absolute URL — leave it untouched */
   }
   return url;
+}
+
+// rel attribute for outbound merchant anchors. Sovrn's on-page script
+// (vglnk.js) honours "norewrite": links that are already affiliated — eBay EPN
+// (campid), TCGplayer Impact, Amazon (tag), or Sovrn's own server-side
+// redirect — must keep their full-rate direct attribution, so the script is
+// told to leave them alone.
+export function outboundRel(href: string): string {
+  const affiliated = /partner\.tcgplayer\.com|redirect\.viglink\.com|[?&]campid=|[?&]tag=/.test(href);
+  return `nofollow sponsored noopener noreferrer${affiliated ? " norewrite" : ""}`;
 }

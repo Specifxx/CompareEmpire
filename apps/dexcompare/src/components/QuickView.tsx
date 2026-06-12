@@ -8,7 +8,7 @@ import { WishlistButton } from "./WishlistButton";
 import { isOvernumbered, isSignature } from "@/lib/constants";
 import { cardHref } from "@/lib/card-url";
 import { effectiveShippingCents, shippingPolicyUrl } from "@/lib/retailers";
-import { affiliateUrl, ebaySearchUrl } from "@/lib/affiliate";
+import { affiliateUrl, ebaySearchUrl, outboundRel } from "@/lib/affiliate";
 import { OutboundLink } from "./OutboundLink";
 import { useCountry } from "./CountryProvider";
 import { marketGuideCents, type Country } from "@/lib/country";
@@ -222,7 +222,7 @@ function QuickViewModal({ card, onClose }: { card: CardTileData; onClose: () => 
                           )}
                         </div>
                       </div>
-                      <a href={affiliateUrl(p.url)} target="_blank" rel="nofollow sponsored noopener noreferrer" className="btn-primary px-3 py-1.5 text-xs">
+                      <a href={affiliateUrl(p.url)} target="_blank" rel={outboundRel(affiliateUrl(p.url))} className="btn-primary px-3 py-1.5 text-xs">
                         View →
                       </a>
                     </li>

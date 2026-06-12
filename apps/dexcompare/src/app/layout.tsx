@@ -10,6 +10,7 @@ import { WishlistDrawerProvider } from "@/components/WishlistDrawer";
 import { CountryProvider } from "@/components/CountryProvider";
 import { PriceAlertModal } from "@/components/PriceAlertModal";
 import { AdSenseLoader } from "@/components/AdSenseLoader";
+import { SovrnLoader } from "@/components/SovrnLoader";
 import { TcgplayerAd } from "@/components/TcgplayerAd";
 import { getCountry } from "@/lib/get-country";
 import { CONTACT_EMAIL, SITE_NAME, SITE_URL } from "@/lib/site";
@@ -122,6 +123,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <PriceAlertModal />
         </CountryProvider>
         <AdSenseLoader />
+        <SovrnLoader />
         {/* Site-wide TCGplayer banner above the footer — guarantees every page
             (games included) carries at least one monetised placement. */}
         <TcgplayerAd size="leaderboard" country={country} className="container-app pb-8" />

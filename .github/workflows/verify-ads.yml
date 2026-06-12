@@ -48,3 +48,22 @@ jobs:
           check "https://riftcompare.com/games/price-check"
           check "https://riftcompare.com/games/zoomed"
           exit $fail
+
+      - name: Check Sovrn link wrapping on store links
+        run: |
+          set -u
+          fail=0
+          sovrn() {
+            local label="$1" html="$2"
+            local wrapped
+            wrapped=$(grep -o "redirect.viglink.com" <<<"$html" | wc -l)
+            echo "$label  sovrn-wrapped-links=$wrapped"
+            if [ "$wrapped" -lt 1 ]; then echo "  ^ NO Sovrn-wrapped links"; fail=1; fi
+          }
+          # rift /sealed renders store buy links server-side.
+          sovrn "riftcompare.com/sealed" "$(curl -sL --max-time 30 https://riftcompare.com/sealed)"
+          # dex: store links live on card pages — grab one off the homepage.
+          card=$(curl -sL --max-time 30 https://dexcompare.app/ | grep -o 'href="/card/[^"]*"' | head -1 | sed 's/href="//;s/"//')
+          echo "dex sample card: $card"
+          sovrn "dexcompare.app$card" "$(curl -sL --max-time 30 "https://dexcompare.app$card")"
+          exit $fail
