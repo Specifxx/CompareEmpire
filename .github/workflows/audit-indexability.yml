@@ -1,0 +1,96 @@
+name: Audit indexability (both sites)
+
+# Crawls both production sitemaps the way Googlebot would and reports exactly
+# the failure classes Search Console complains about:
+#   - sitemap URLs that don't return 200 (→ "Not found (404)" / server errors)
+#   - sitemap URLs that redirect            (→ "Page with redirect")
+#   - sitemap URLs carrying noindex         (→ "Excluded by noindex")
+#   - canonical pointing somewhere else     (→ "Alternate page with proper canonical")
+#   - soft-404s (bogus URL must be a REAL 404, not a 200)
+# All non-card URLs are checked; card URLs are sampled (they share one route).
+
+on:
+  workflow_dispatch:
+    inputs:
+      card_sample:
+        description: "How many card URLs to sample per site"
+        required: false
+        default: "120"
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Audit sitemaps
+        env:
+          CARD_SAMPLE: ${{ inputs.card_sample || '120' }}
+        run: |
+          python3 - <<'PY'
+          import os, random, re, sys, urllib.request
+          from concurrent.futures import ThreadPoolExecutor
+
+          SITES = ["https://riftcompare.com", "https://dexcompare.app"]
+          SAMPLE = int(os.environ.get("CARD_SAMPLE", "120"))
+          UA = {"User-Agent": "Mozilla/5.0 (compatible; IndexabilityAudit/1.0)"}
+
+          def fetch(url, timeout=25):
+              req = urllib.request.Request(url, headers=UA)
+              return urllib.request.urlopen(req, timeout=timeout)
+
+          def check(url):
+              try:
+                  r = fetch(url)
+                  final, code = r.geturl(), r.getcode()
+                  html = r.read(400_000).decode("utf-8", "replace")
+              except urllib.error.HTTPError as e:
+                  return {"url": url, "code": e.code, "final": url, "noindex": False, "canonical": None}
+              except Exception as e:
+                  return {"url": url, "code": 0, "final": str(e)[:80], "noindex": False, "canonical": None}
+              noindex = bool(re.search(r'<meta[^>]+name="robots"[^>]+noindex', html, re.I))
+              m = re.search(r'<link[^>]+rel="canonical"[^>]+href="([^"]+)"', html, re.I)
+              return {"url": url, "code": code, "final": final, "noindex": noindex,
+                      "canonical": m.group(1) if m else None}
+
+          overall_fail = 0
+          for site in SITES:
+              print(f"\n================ {site} ================")
+              xml = fetch(f"{site}/sitemap.xml").read().decode()
+              urls = re.findall(r"<loc>([^<]+)</loc>", xml)
+              cards = [u for u in urls if "/card/" in u]
+              rest = [u for u in urls if "/card/" not in u]
+              random.seed(20260612)
+              sampled = random.sample(cards, min(SAMPLE, len(cards)))
+              to_check = rest + sampled
+              print(f"sitemap URLs: {len(urls)} total ({len(cards)} cards) — checking {len(rest)} non-card + {len(sampled)} sampled cards")
+
+              with ThreadPoolExecutor(max_workers=12) as ex:
+                  results = list(ex.map(check, to_check))
+
+              bad = []
+              for r in results:
+                  norm = lambda u: u.rstrip("/") or "/"
+                  if r["code"] != 200:
+                      bad.append(("STATUS " + str(r["code"]), r["url"], r["final"]))
+                  elif norm(r["final"]) != norm(r["url"]):
+                      bad.append(("REDIRECT", r["url"], r["final"]))
+                  elif r["noindex"]:
+                      bad.append(("NOINDEX-IN-SITEMAP", r["url"], ""))
+                  elif r["canonical"] and norm(r["canonical"]) != norm(r["url"]):
+                      bad.append(("CANONICAL-MISMATCH", r["url"], r["canonical"]))
+
+              # Soft-404 probe: a junk URL must be a real 404.
+              probe = check(f"{site}/card/this-page-should-not-exist-xyz123")
+              if probe["code"] != 404:
+                  bad.append(("SOFT-404 (junk URL returned " + str(probe["code"]) + ")", probe["url"], probe["final"]))
+
+              if bad:
+                  print(f"\n❌ {len(bad)} problem(s):")
+                  for kind, u, extra in bad:
+                      print(f"  [{kind}] {u}" + (f"  →  {extra}" if extra else ""))
+                  overall_fail = 1
+              else:
+                  print("✅ every checked URL: 200, no redirect, no noindex, canonical self, real 404s")
+
+          sys.exit(overall_fail)
+          PY
