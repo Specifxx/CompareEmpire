@@ -1,0 +1,40 @@
+name: Snapshot DexCompare price history (manual)
+
+# Writes TODAY's per-market price-history snapshot (same semantics as the daily
+# refresh) and prints PriceHistory coverage before/after. Use after a reseed so
+# the market index / daily wrap has a same-day data point, or with stats_only
+# to just inspect coverage.
+
+on:
+  workflow_dispatch:
+    inputs:
+      stats_only:
+        description: "Only print coverage, don't write a snapshot"
+        required: false
+        default: "false"
+      dexcompare_url:
+        description: "Override DATABASE_URL (defaults to the repo secret)"
+        required: false
+        default: ""
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Snapshot
+        working-directory: apps/dexcompare
+        env:
+          DATABASE_URL: ${{ inputs.dexcompare_url || secrets.DEXCOMPARE_DATABASE_URL }}
+        run: |
+          npm install --no-audit --no-fund
+          npx prisma generate
+          if [ "${{ inputs.stats_only }}" = "true" ]; then
+            npx tsx scripts/snapshot-history.ts --stats-only
+          else
+            npx tsx scripts/snapshot-history.ts
+          fi

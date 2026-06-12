@@ -1,0 +1,35 @@
+name: Publish DexCompare Daily Market Wrap
+
+# The wrap is computed on-demand from the latest price snapshots, so "publishing"
+# is a freshness check: at Wall Street pre-market open (4:00 a.m. ET — 08:00 UTC
+# during US daylight time) this verifies today's edition resolves and prints its
+# headline. Fails loudly if the wrap is missing so a broken snapshot pipeline is
+# noticed the same morning.
+
+on:
+  schedule:
+    - cron: "0 8 * * *" # 4:00 a.m. ET (EDT). Winter (EST) shifts this to 3:00 a.m. ET — still pre-market.
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check today's wrap is live
+        run: |
+          set -u
+          final=$(curl -s -o /tmp/wrap.html -w "%{http_code} %{url_effective}" -L --max-time 30 "https://dexcompare.app/blog/market-wrap")
+          echo "wrap fetch: $final"
+          code=${final%% *}
+          if [ "$code" != "200" ]; then echo "wrap not reachable"; exit 1; fi
+          # Extract the dated edition + headline for the job summary.
+          url=${final#* }
+          headline=$(grep -o '<h1[^>]*>[^<]*</h1>' /tmp/wrap.html | head -1 | sed 's/<[^>]*>//g')
+          echo "edition: $url"
+          echo "headline: $headline"
+          if echo "$url" | grep -q "/blog/market-wrap/2"; then
+            echo "✅ dated edition published"
+          else
+            echo "⚠️ no dated edition yet (baseline day — first wrap publishes after the next snapshot)"
+          fi

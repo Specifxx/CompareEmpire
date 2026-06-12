@@ -98,7 +98,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     });
   }
 
-  return [...staticRoutes, ...guideRoutes, ...setRoutes, ...sealedRoutes, ...cardRoutes];
+  // Daily Market Wrap editions — one per snapshot day with a predecessor
+  // (the first snapshot day is the baseline, not a wrap). Fresh daily content.
+  const wrapDayRows = await prisma.priceHistory.findMany({
+    distinct: ["day"],
+    select: { day: true },
+    orderBy: { day: "desc" },
+    take: 31,
+  });
+  const wrapRoutes: MetadataRoute.Sitemap = [
+    { url: `${SITE_URL}/blog/market-wrap`, changeFrequency: "daily", priority: 0.8 },
+    ...wrapDayRows.slice(0, -1).map((r) => ({
+      url: `${SITE_URL}/blog/market-wrap/${r.day.toISOString().slice(0, 10)}`,
+      changeFrequency: "weekly" as const,
+      priority: 0.6,
+    })),
+  ];
+
+  return [...staticRoutes, ...guideRoutes, ...wrapRoutes, ...setRoutes, ...sealedRoutes, ...cardRoutes];
   } catch (e) {
     console.error("sitemap: dynamic section failed, serving static routes:", e);
     return staticRoutes;
