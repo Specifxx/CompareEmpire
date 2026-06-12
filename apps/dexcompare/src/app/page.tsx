@@ -4,6 +4,7 @@ import { CardTile } from "@/components/CardTile";
 import { CountryHeroToggle } from "@/components/CountryHeroToggle";
 import { HotRightNow } from "@/components/HotRightNow";
 import { Partners } from "@/components/Partners";
+import { TcgplayerAd } from "@/components/TcgplayerAd";
 import { getTopMovers } from "@/lib/trending";
 import { getHomeData } from "@/lib/home-data";
 import { getTopDeals } from "@/lib/deals";
@@ -176,6 +177,10 @@ export default async function HomePage() {
         </section>
       )}
 
+      {/* TCGplayer affiliate banner — billboard on desktop, 300x250 rectangle on
+          phones (the strongest mobile in-content unit). */}
+      <TcgplayerAd size="billboard" mobile="rect" country={country} />
+
       {/* Recently viewed — local to this visitor; renders nothing on a first visit */}
       <RecentlyViewed />
 
@@ -268,6 +273,10 @@ export default async function HomePage() {
           </div>
         </section>
       )}
+
+      {/* Second TCGplayer banner — far enough from the first that it never
+          shares a viewport with it. */}
+      <TcgplayerAd size="leaderboard" country={country} />
 
       {/* Browse by set — newest first, horizontal sliding window. Full list on /sets. */}
       <section>

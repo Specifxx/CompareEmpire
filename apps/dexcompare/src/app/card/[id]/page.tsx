@@ -479,7 +479,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
 
           {/* TCGplayer affiliate banner — pays commission on click-through
               purchases, so it gets the prime spot under the price table. */}
-          <TcgplayerAd size="rect" country={country} className="mt-6" />
+          <TcgplayerAd size="rect" mobile="rect" country={country} className="mt-6" />
 
           {/* In-content ad below the price comparison — the highest-traffic surface.
               Renders nothing until a slot id is configured (Auto ads fill it meanwhile). */}
