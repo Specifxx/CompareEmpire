@@ -1,0 +1,86 @@
+name: Neon usage watchdog
+
+# Early warning for the failure mode that has now killed TWO databases: the
+# free tier's 5 GB/month network-transfer allowance running out silently.
+# Checks Neon's consumption API daily and FAILS the run (= email from GitHub)
+# when transfer crosses the warning thresholds, while there is still time to
+# find the leak — instead of discovering it when the database stops answering.
+#
+# Setup (one-time): Neon console → Account settings → API keys → create key →
+# add it as the NEON_API_KEY repository secret. Until then the run just
+# explains what's missing (and fails so it can't be forgotten).
+
+on:
+  schedule:
+    - cron: "30 19 * * *" # daily, ~1h after the price refresh (the biggest consumer)
+  workflow_dispatch:
+
+jobs:
+  watchdog:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check Neon network-transfer consumption
+        env:
+          NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+        run: |
+          python3 - <<'PY'
+          import datetime as dt
+          import json, os, sys, urllib.request
+
+          key = os.environ.get("NEON_API_KEY", "")
+          if not key:
+              print("NEON_API_KEY secret is not set.")
+              print("Create one in Neon console → Account settings → API keys,")
+              print("then add it as a repository secret named NEON_API_KEY.")
+              sys.exit(1)
+
+          LIMIT_GB = 5.0
+          WARN_PCT, CRIT_PCT = 50, 75
+
+          def get(url):
+              req = urllib.request.Request(url, headers={
+                  "Authorization": f"Bearer {key}", "Accept": "application/json"})
+              return json.load(urllib.request.urlopen(req, timeout=30))
+
+          # Billing period ≈ calendar month on the free plan.
+          now = dt.datetime.now(dt.timezone.utc)
+          frm = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+          url = ("https://console.neon.tech/api/v2/consumption_history/projects"
+                 f"?from={frm.strftime('%Y-%m-%dT%H:%M:%SZ')}"
+                 f"&to={now.strftime('%Y-%m-%dT%H:%M:%SZ')}"
+                 "&granularity=daily&limit=100")
+          try:
+              data = get(url)
+          except Exception as e:
+              print(f"consumption_history call failed ({e}); raw projects list follows for debugging:")
+              try:
+                  print(json.dumps(get("https://console.neon.tech/api/v2/projects"), indent=2)[:3000])
+              except Exception as e2:
+                  print(f"projects call also failed: {e2}")
+              sys.exit(1)
+
+          worst = 0.0
+          for proj in data.get("projects", []):
+              total = 0
+              daily = []
+              for period in proj.get("periods", []):
+                  for c in period.get("consumption", []):
+                      b = c.get("data_transfer_bytes", 0) or 0
+                      total += b
+                      daily.append((c.get("timeframe_start", "?")[:10], b))
+              gb = total / 1e9
+              pct = 100 * gb / LIMIT_GB
+              worst = max(worst, pct)
+              print(f"\nproject {proj.get('project_id', '?')}: {gb:.2f} GB transfer this month ({pct:.0f}% of {LIMIT_GB} GB)")
+              for day, b in daily[-7:]:
+                  print(f"  {day}: {b/1e6:,.0f} MB")
+
+          if worst >= CRIT_PCT:
+              print(f"\n🚨 {worst:.0f}% of the monthly transfer allowance used — find the leak NOW (check Vercel logs for [egress-guard] warnings).")
+              sys.exit(1)
+          if worst >= WARN_PCT:
+              print(f"\n⚠️ {worst:.0f}% of the monthly transfer allowance used — ahead of pace, keep an eye on it.")
+              sys.exit(1)
+          print(f"\n✅ {worst:.0f}% of the monthly transfer allowance used — healthy.")
+          PY
