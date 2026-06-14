@@ -25,7 +25,6 @@ export function buildStores(tcg) {
       { key: "amazon_us", name: "Amazon", search: (q) => `https://www.amazon.com/s?k=${q}` },
       { key: "cardtrader_us", name: "CardTrader", search: (q) => `https://www.cardtrader.com/en/cards?q=${q}` },
       { key: "novamastertcg", name: "Nova Master TCG", search: (q) => `https://novamastertcg.com/search?q=${q}` },
-      { key: "ebay_us", name: "eBay", search: (q) => `https://www.ebay.com/sch/i.html?_nkw=${q}` },
     ],
     AU: [
       { key: "goodgames", name: "Good Games", search: (q) => `https://goodgames.com.au/catalogsearch/result/?q=${q}` },
@@ -47,7 +46,6 @@ export function buildStores(tcg) {
       { key: "goodgrieftcg", name: "Good Grief TCG", search: (q) => `https://goodgrieftcg.com.au/search?q=${q}` },
       { key: "shieldsupgames", name: "Shields Up Games", search: (q) => `https://shieldsupgames.com.au/search?q=${q}` },
       { key: "mightyape_au", name: "Mighty Ape", search: (q) => `https://www.mightyape.com.au/search?q=${q}` },
-      { key: "ebay", name: "eBay", search: (q) => `https://www.ebay.com.au/sch/i.html?_nkw=${q}` },
     ],
     GB: [
       { key: "magicmadhouse", name: "Magic Madhouse", search: (q) => `https://www.magicmadhouse.co.uk/catalogsearch/result/?q=${q}` },
@@ -69,7 +67,6 @@ export function buildStores(tcg) {
       { key: "tabletoptycoon", name: "Tabletop Tycoon", search: (q) => `https://tabletoptycoon.co.uk/search?q=${q}` },
       { key: "hareruya_uk", name: "Hareruya", search: (q) => `https://www.hareruyamtg.com/en/products/search?word=${q}` },
       { key: "amazon_uk", name: "Amazon", search: (q) => `https://www.amazon.co.uk/s?k=${q}` },
-      { key: "ebay_uk", name: "eBay", search: (q) => `https://www.ebay.co.uk/sch/i.html?_nkw=${q}` },
     ],
     NZ: [
       { key: "cardmerchant", name: "Card Merchant NZ", search: (q) => `https://www.cardmerchant.co.nz/search?q=${q}` },
@@ -91,7 +88,6 @@ export function buildStores(tcg) {
       { key: "kapiticards", name: "Kapiti Cards", search: (q) => `https://kapiticards.co.nz/search?q=${q}` },
       { key: "duelmasters_nz", name: "Duel Masters NZ", search: (q) => `https://duelmasters.co.nz/search?q=${q}` },
       { key: "amazon_nz", name: "Amazon", search: (q) => `https://www.amazon.com.au/s?k=${q}` },
-      { key: "ebay_nz", name: "eBay", search: (q) => `https://www.ebay.com.au/sch/i.html?_nkw=${q}` },
     ],
   };
 }
@@ -99,10 +95,10 @@ export function buildStores(tcg) {
 // The "main" stores per market (biggest shops + eBay/Amazon), used when a market
 // needs a trimmed set to fit a hosting storage cap. Order = priority.
 const MAIN = {
-  US: ["tcgplayer_us","ebay_us","amazon_us","cardkingdom","starcitygames","channelfireball","coolstuffinc","trollandtoad","abugames","dacardworld"],
-  AU: ["ebay","goodgames","guf","cardmania","gauntletgames","cherrycollectables","kingdomofgeek","gameforce","nextlevelgames","mightyape_au"],
-  GB: ["ebay_uk","amazon_uk","magicmadhouse","chaoscards","totalcards","manaleak","elementgames","bigorbitcards","goblingaming","hareruya_uk"],
-  NZ: ["ebay_nz","amazon_nz","cardmerchant","mightyape_nz","vault_nz","cerberusgames","comicscompulsion","geekzone_nz","thegamesshop_nz","markone"],
+  US: ["tcgplayer_us","amazon_us","cardkingdom","starcitygames","channelfireball","coolstuffinc","trollandtoad","abugames","dacardworld","miniaturemarket"],
+  AU: ["goodgames","guf","cardmania","gauntletgames","cherrycollectables","kingdomofgeek","gameforce","nextlevelgames","mightyape_au","thegamescapital"],
+  GB: ["amazon_uk","magicmadhouse","chaoscards","totalcards","manaleak","elementgames","bigorbitcards","goblingaming","hareruya_uk","patriotgames"],
+  NZ: ["amazon_nz","cardmerchant","mightyape_nz","vault_nz","cerberusgames","comicscompulsion","geekzone_nz","thegamesshop_nz","markone","conqueringgames"],
 };
 // Return the top-N main stores per market (default 10), guaranteeing eBay/Amazon.
 export function topStores(tcg, n = 10) {
