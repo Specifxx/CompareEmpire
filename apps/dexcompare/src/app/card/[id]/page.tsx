@@ -94,12 +94,17 @@ export default async function CardPage({ params }: { params: { id: string } }) {
       : Promise.resolve([]),
     // Genuine user reviews (per-card scoped + capped — egress-safe). These are the
     // sole source of the page's rating/review markup; never market-specific.
-    prisma.cardReview.findMany({
-      where: { cardId: card.id, status: "PUBLISHED" },
-      orderBy: { createdAt: "desc" },
-      select: { id: true, rating: true, title: true, body: true, author: true, createdAt: true },
-      take: 20,
-    }),
+    // Reviews are an OPTIONAL enhancement: if this query fails (e.g. the table
+    // hasn't been migrated onto this environment yet) degrade to "no reviews"
+    // rather than 500-ing the whole price-comparison page.
+    prisma.cardReview
+      .findMany({
+        where: { cardId: card.id, status: "PUBLISHED" },
+        orderBy: { createdAt: "desc" },
+        select: { id: true, rating: true, title: true, body: true, author: true, createdAt: true },
+        take: 20,
+      })
+      .catch(() => [] as Array<{ id: string; rating: number; title: string | null; body: string | null; author: string | null; createdAt: Date }>),
   ]);
   const history: PricePoint[] = historyRows.map((h) => ({ day: h.day, cents: h.lowestPriceCents }));
   const reviews: ReviewView[] = reviewRows.map((r) => ({ ...r, createdAt: r.createdAt.toISOString() }));
