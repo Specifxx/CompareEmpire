@@ -195,9 +195,22 @@ export async function buildTcgplayerRows(products?: TcgProduct[]): Promise<TcgMa
     const [num, total] = numStr.split("/");
     const prodSetNorm = normSetName(p.setName ?? "");
     const prodTotal = total?.trim() || null;
-    const candidates = (byNum.get(numKey(num)) ?? []).filter(
+    let candidates = (byNum.get(numKey(num)) ?? []).filter(
       (c) => setNamesOverlap(c.setNorm, prodSetNorm) && (!c.total || !prodTotal || c.total === prodTotal)
     );
+    // Disambiguate when a low number overlaps several old sets (e.g. "13" in many
+    // sets whose normalised names loosely contain one another). Narrow — never
+    // guess — by preferring (a) an EXACT normalised set-name match, then (b) a
+    // shared "/total" denominator. Only adopt a narrowing that resolves to exactly
+    // one; otherwise fall through and skip, so we still never mis-assign a price.
+    if (candidates.length > 1) {
+      const exact = candidates.filter((c) => c.setNorm === prodSetNorm);
+      if (exact.length === 1) candidates = exact;
+      else if (prodTotal) {
+        const byTotal = candidates.filter((c) => c.total === prodTotal);
+        if (byTotal.length === 1) candidates = byTotal;
+      }
+    }
     if (candidates.length !== 1) {
       if (!candidates.length && unmatchedSamples.length < 25) {
         unmatchedSamples.push(`${p.productName} [${p.setName}] ${numStr} $${market}`);
