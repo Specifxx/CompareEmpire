@@ -12,6 +12,26 @@ Tailwind), tuned to its vertical.
 | **CarCompare** | `apps/carcompare` | 3004 | New cars (72 models, 18 makes), across **AU · US · UK** |
 | **PhoneCompare** | `apps/phonecompare` | 3005 | Smartphones (33 models, 9 brands), across **AU · US · UK** |
 | **LaptopCompare** | `apps/laptopcompare` | 3006 | Laptops (32 models, 10 brands), across **AU · US · UK** |
+| **MTGCompare** | `apps/mtgcompare` | 3007 | Magic: The Gathering singles & sealed, markets **AU · NZ · US · UK** |
+| **OPCompare** | `apps/opcompare` | 3008 | One Piece Card Game singles & sealed, markets **AU · NZ · US · UK** |
+| **YGOCompare** | `apps/ygocompare` | 3009 | Yu-Gi-Oh! TCG singles & sealed, markets **AU · NZ · US · UK** |
+
+### TCG sites (MTG / One Piece / Yu-Gi-Oh!)
+
+The three card-game sites share DexCompare's comparison engine and the full
+affiliate stack (eBay Partner Network, TCGplayer via Impact, Sovrn/VigLink
+auto-affiliate, Amazon Associates). Each ships a curated catalogue of **real**
+cards across real sets (`apps/<app>/prisma/<game>-cards.json`, regenerated with
+`node prisma/gen-cards.mjs`) and self-contained SVG card art, so they seed and
+run with **no external API access**. Retailer prices are synthesised per market
+across real stores for the preview; swap in the live importer
+(`scripts/import-prices.ts`) once the card-game APIs/stores are allow-listed.
+
+```bash
+npm run dev:mtgcompare   # 3007    npm run seed:mtgcompare   (db: mtg)
+npm run dev:opcompare    # 3008    npm run seed:opcompare    (db: op)
+npm run dev:ygocompare   # 3009    npm run seed:ygocompare   (db: ygo)
+```
 
 > **RiftCompare** (Riftbound) is owned but runs on its **own separate instance**.
 > It's shown on the hub as an external subsidiary (set `RIFTCOMPARE_URL`); a
@@ -29,6 +49,7 @@ Tailwind), tuned to its vertical.
 
 ```bash
 createdb cameracompare && createdb dexcompare && createdb carcompare && createdb phonecompare && createdb laptopcompare
+createdb mtg && createdb op && createdb ygo   # the three TCG sites
 ```
 
 ## Setup

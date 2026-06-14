@@ -1,0 +1,199 @@
+import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { normalizeSearch } from "../src/lib/format";
+import { POKEMON_SETS } from "../src/lib/pokemon-sets";
+import { buildStores, topStores } from "./stores.mjs";
+
+const prisma = new PrismaClient();
+
+function mulberry32(seed: number) {
+  return function () {
+    seed |= 0; seed = (seed + 0x6d2b79f5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+const rng = mulberry32(20260613);
+const between = (min: number, max: number) => min + rng() * (max - min);
+
+interface BuiltCard {
+  externalId: string; name: string; setCode: string; setName: string; releaseDate: string;
+  collectorNumber: string; number: string; domain: string; type: string; subtype: string | null;
+  rarity: string; hp: number | null; artist: string | null; flavorText: string | null;
+  imageUrl: string | null; imageThumbUrl: string | null;
+}
+
+// Reference NM price in USD cents by rarity (Yu-Gi-Oh! singles).
+const RARITY_PRICE_USD: Record<string, [number, number]> = {
+  Common: [10, 50],
+  Rare: [15, 90],
+  "Super Rare": [40, 250],
+  "Ultra Rare": [120, 800],
+  "Secret Rare": [300, 2000],
+  "Ultimate Rare": [400, 2500],
+  "Ghost Rare": [800, 5000],
+  "Starlight Rare": [3000, 18000],
+  "Quarter Century Secret Rare": [600, 4000],
+  "Prismatic Secret Rare": [500, 3000],
+  Promo: [80, 1200],
+};
+function refUsd(rarity: string): number {
+  const [lo, hi] = RARITY_PRICE_USD[rarity] ?? [20, 200];
+  return between(lo, hi);
+}
+// Vintage premium: 2002–2004 first-print staples trade well above modern reprints.
+function ageMult(releaseDate: string): number {
+  const year = parseInt(releaseDate.slice(0, 4), 10) || 2020;
+  if (year <= 2002) return between(2.4, 5.5);
+  if (year <= 2005) return between(1.5, 3.0);
+  return 1;
+}
+const CHASE: { re: RegExp; mult: number }[] = [
+  { re: /blue-eyes white dragon|dark magician|exodia/i, mult: 2.4 },
+  { re: /ash blossom|maxx|accesscode|snake-eye|kashtira|tearlaments|fiendsmith|infinite impermanence/i, mult: 1.8 },
+];
+function chaseMult(name: string, rarity: string): number {
+  let m = 1;
+  for (const c of CHASE) if (c.re.test(name)) m = Math.max(m, c.mult);
+  if (/Ghost Rare|Starlight Rare/.test(rarity)) m *= between(1.3, 2.0);
+  return m;
+}
+
+const FX: Record<string, number> = { US: 1.0, AU: 1.55, NZ: 1.68, GB: 0.82 };
+const CUR: Record<string, string> = { US: "USD", AU: "AUD", NZ: "NZD", GB: "GBP" };
+const cents = (n: number, floor = 8) => Math.max(floor, Math.round(n));
+
+const STORES: Record<string, { key: string; name: string; search: (q: string) => string }[]> = topStores("yugioh", parseInt(process.env.STORES_PER_REGION || "10", 10));
+
+async function main() {
+  const cards = JSON.parse(readFileSync(join(process.cwd(), "prisma", "ygo-cards.json"), "utf8")) as BuiltCard[];
+  console.log(`Loaded ${cards.length} Yu-Gi-Oh! cards from the offline data mirror.`);
+
+  console.log("Resetting data…");
+  await prisma.order.deleteMany();
+  await prisma.buyOrder.deleteMany();
+  await prisma.listing.deleteMany();
+  await prisma.$executeRawUnsafe('TRUNCATE TABLE "RetailerPrice"');
+  await prisma.priceHistory.deleteMany();
+  await prisma.sealedListing.deleteMany();
+  await prisma.card.deleteMany();
+  await prisma.user.deleteMany();
+
+  const passwordHash = await bcrypt.hash("password123", 10);
+  await prisma.user.create({ data: { email: "demo@ygocompare.app", passwordHash, displayName: "YGOCollector", balanceCents: 50000, isAdmin: true } });
+  const ADMIN_HASH = process.env.ADMIN_PASSWORD_HASH || "$2a$10$O5fONAak2jY/zGCVkbhp/.sIxGuqmGfYU0DxNgOpf8sTC64qQFxum";
+  await prisma.user.upsert({
+    where: { email: "compareempire" },
+    update: { passwordHash: ADMIN_HASH, isAdmin: true, verifiedSeller: true, displayName: "CompareEmpire", sellerName: "CompareEmpire Marketplace", emailVerified: new Date() },
+    create: { email: "compareempire", passwordHash: ADMIN_HASH, displayName: "CompareEmpire", sellerName: "CompareEmpire Marketplace", isAdmin: true, verifiedSeller: true, emailVerified: new Date() },
+  });
+
+  type Built = BuiltCard & { usdRef: number };
+  const built: Built[] = cards.map((c) => ({
+    ...c,
+    usdRef: cents(refUsd(c.rarity) * ageMult(c.releaseDate) * chaseMult(c.name, c.rarity)),
+  }));
+
+  const cardRows = built.map((c) => ({
+    externalId: c.externalId,
+    slug: `${c.externalId}-${normalizeSearch(c.name).replace(/\s+/g, "-")}`.toLowerCase().slice(0, 80),
+    name: c.name,
+    nameNormalized: normalizeSearch(c.name),
+    setCode: c.setCode,
+    setName: c.setName,
+    collectorNumber: c.collectorNumber,
+    domain: c.domain,
+    type: c.type,
+    rarity: c.rarity,
+    tags: c.subtype,
+    flavorText: c.flavorText,
+    description: c.subtype ? `${c.subtype}` : null,
+    imageUrl: c.imageUrl,
+    imageThumbUrl: c.imageThumbUrl,
+    marketPriceCents: c.usdRef,
+    marketPriceSource: "Estimate",
+    marketPriceUpdatedAt: new Date(),
+    artSeed: Math.floor(rng() * 1_000_000),
+  }));
+
+  console.log("Inserting cards…");
+  for (let i = 0; i < cardRows.length; i += 2000) await prisma.card.createMany({ data: cardRows.slice(i, i + 2000), skipDuplicates: true });
+
+  const dbCards = await prisma.card.findMany({ select: { id: true, externalId: true, name: true, setName: true, marketPriceCents: true } });
+  console.log(`Building retailer prices for ${dbCards.length} cards…`);
+  const priceRows: any[] = [];
+  const lows: Record<string, Record<string, number>> = {};
+  for (const c of dbCards) {
+    const usd = c.marketPriceCents;
+    const q = encodeURIComponent(`${c.name} ${c.setName}`);
+    lows[c.externalId!] = {};
+    for (const market of ["US", "AU", "GB", "NZ"] as const) {
+      const fx = FX[market]; const cur = CUR[market];
+      const marketStores = STORES[market];
+      let marketMin = Infinity;
+      for (const s of marketStores) {
+        const nm = cents(usd * fx * between(0.9, 1.25));
+        priceRows.push({
+          cardId: c.id, retailer: s.key, retailerName: s.name, title: `${c.name} (${c.setName})`,
+          url: s.search(q), condition: "NM",
+          conditionPrices: { NM: nm, LP: cents(nm * 0.85), MP: cents(nm * 0.7), HP: cents(nm * 0.55) },
+          priceCents: nm, shippingCents: market === "US" ? cents(between(0, 199)) : cents(between(0, 350)),
+          currency: cur, inStock: rng() > 0.08, country: market,
+        });
+        marketMin = Math.min(marketMin, nm);
+      }
+      lows[c.externalId!][market] = marketMin === Infinity ? 0 : marketMin;
+    }
+  }
+  console.log(`Inserting ${priceRows.length} retailer prices…`);
+  for (let i = 0; i < priceRows.length; i += 5000) await prisma.retailerPrice.createMany({ data: priceRows.slice(i, i + 5000), skipDuplicates: true });
+
+  console.log("Updating card lowest-price columns…");
+  for (let i = 0; i < dbCards.length; i += 500) {
+    await Promise.all(dbCards.slice(i, i + 500).map((c) => {
+      const l = lows[c.externalId!] ?? {};
+      return prisma.card.update({ where: { id: c.id }, data: {
+        lowestPriceCentsUs: l.US ?? null, lowestPriceCents: l.AU ?? null, lowestPriceCentsGb: l.GB ?? null, lowestPriceCentsNz: l.NZ ?? null,
+      } });
+    }));
+  }
+
+  // ---- sealed products (booster boxes, packs, tins) --------------------------
+  const sealedRetailers = [
+    { key: "tcgplayer", name: "TCGplayer", country: "US" },
+    { key: "trollandtoad", name: "Troll and Toad", country: "US" },
+    { key: "goodgames", name: "Good Games", country: "AU" },
+    { key: "chaoscards", name: "Chaos Cards", country: "GB" },
+    { key: "totalcards", name: "Total Cards", country: "GB" },
+  ];
+  const PRODUCTS = [
+    { type: "Booster Box", usd: [6000, 11000] as [number, number] },
+    { type: "Booster Pack", usd: [350, 600] as [number, number] },
+    { type: "Structure Deck", usd: [900, 1500] as [number, number] },
+  ];
+  const sealedRows: any[] = [];
+  const sealedSets = POKEMON_SETS.filter((s) => (parseInt(s.releaseDate.slice(0, 4), 10) || 0) >= 2021).slice(0, 30);
+  for (const s of sealedSets) {
+    for (const p of PRODUCTS) {
+      const baseUsd = between(p.usd[0], p.usd[1]);
+      for (const r of sealedRetailers) {
+        const usd = baseUsd * between(0.95, 1.12);
+        sealedRows.push({
+          groupKey: `${s.code}-${p.type.toLowerCase().replace(/\s+/g, "-")}`,
+          title: `${s.name} ${p.type}`, productType: p.type, setCode: s.code,
+          retailer: r.key, retailerName: r.name, priceCents: Math.round(usd * (FX[r.country] ?? 1)),
+          url: `https://www.tcgplayer.com/search/yugioh/${s.slug}`, imageUrl: s.logo,
+          inStock: rng() > 0.2, country: r.country,
+        });
+      }
+    }
+  }
+  await prisma.sealedListing.createMany({ data: sealedRows, skipDuplicates: true });
+  console.log(`Created ${sealedRows.length} sealed product listings across ${sealedSets.length} sets.`);
+  console.log("Seed complete ✔");
+}
+
+main().catch((e) => { console.error(e); process.exit(1); }).finally(async () => { await prisma.$disconnect(); });
