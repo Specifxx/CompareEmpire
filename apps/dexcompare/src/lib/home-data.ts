@@ -1,4 +1,3 @@
-import { unstable_cache } from "next/cache";
 import { prisma } from "./db";
 import { getCheapestCards, getValuableCards } from "./cheapest-cards";
 import { getPopularCards } from "./trending";
@@ -49,6 +48,19 @@ async function computeHomeData(country: Country): Promise<HomeData> {
   };
 }
 
+// In-process TTL memo keyed by market. unstable_cache silently no-ops above its
+// 2 MB item limit — and this payload (4×12 card tiles + sealed) can exceed that —
+// which would send EVERY homepage hit back to the DB (~10 queries each). The
+// globalThis memo is the egress-safe pattern the codebase mandates (see db.ts):
+// at most one homepage query burst per market per warm instance per TTL.
+type HomeMemo = Map<string, { at: number; data: HomeData }>;
+const homeMemo: HomeMemo = ((globalThis as unknown as { __homeData?: HomeMemo }).__homeData ??= new Map());
+const HOME_TTL_MS = 5 * 60_000;
+
 export async function getHomeData(country: Country): Promise<HomeData> {
-  return unstable_cache(() => computeHomeData(country), ["home-data", country], { revalidate: 300 })();
+  const hit = homeMemo.get(country);
+  if (hit && Date.now() - hit.at < HOME_TTL_MS) return hit.data;
+  const data = await computeHomeData(country);
+  homeMemo.set(country, { at: Date.now(), data });
+  return data;
 }

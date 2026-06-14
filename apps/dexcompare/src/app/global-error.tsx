@@ -15,6 +15,14 @@ export default function GlobalError({
 }) {
   useEffect(() => {
     console.error("DexCompare global error", { digest: error?.digest, message: error?.message });
+    try {
+      navigator.sendBeacon?.(
+        "/api/log",
+        JSON.stringify({ digest: error?.digest, message: error?.message, path: location.pathname })
+      );
+    } catch {
+      /* best-effort */
+    }
   }, [error]);
 
   return (

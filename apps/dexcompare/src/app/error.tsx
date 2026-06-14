@@ -15,8 +15,17 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Surface to the browser console + any attached error reporting.
+    // Surface to the browser console + report to the server so the digest lands
+    // in the Vercel logs (the boundary itself runs in the browser).
     console.error("DexCompare route error", { digest: error?.digest, message: error?.message });
+    try {
+      navigator.sendBeacon?.(
+        "/api/log",
+        JSON.stringify({ digest: error?.digest, message: error?.message, path: location.pathname })
+      );
+    } catch {
+      /* best-effort */
+    }
   }, [error]);
 
   return (
