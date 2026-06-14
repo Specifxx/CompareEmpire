@@ -36,13 +36,12 @@ if (KEY) {
 } else {
   console.log("(no APITCG_API_KEY input — skipping apitcg sample)");
 }
-console.log("Candidate OP image hosts for OP01-001:");
-for (const u of [
-  "https://en.onepiece-cardgame.com/images/cardlist/card/OP01-001.png",
-  "https://en.onepiece-cardgame.com/images/cardlist/card/OP01-001.png?241008",
-  "https://limitlesstcg.nyc3.cdn.digitaloceanspaces.com/one-piece/OP01/OP01-001_EN.webp",
-  "https://www.apitcg.com/images/one-piece/OP01-001.png",
-]) console.log(`  ${u} -> HTTP ${await status(u)}`);
+console.log("Candidate OP image hosts (Limitless CDN, multiple sets):");
+for (const id of ["OP01-001", "OP05-001", "OP09-001", "OP11-001", "ST01-001", "EB01-001", "PRB01-001"]) {
+  const set = id.split("-")[0];
+  const u = `https://limitlesstcg.nyc3.cdn.digitaloceanspaces.com/one-piece/${set}/${id}_EN.webp`;
+  console.log(`  ${u} -> HTTP ${await status(u)}`);
+}
 
 console.log("\n================ STORE LINK AUDIT (domains shared across all 3 games) ================");
 const stores = buildStores("magic");

@@ -45,7 +45,8 @@ async function main() {
       const setName = card.set?.name || setCode;
       if (!setMap.has(setCode)) setMap.set(setCode, { name: setName, count: 0 });
       setMap.get(setCode).count++;
-      const img = card.images?.large || card.images?.small || card.image || null;
+      const setPfx = String(id).split("-")[0];
+      const img = `https://limitlesstcg.nyc3.cdn.digitaloceanspaces.com/one-piece/${setPfx}/${id}_EN.webp`;
       out.push({
         externalId: id,
         name: card.name,
