@@ -286,8 +286,10 @@ for (const [code, list] of Object.entries(CARDS)) {
   const meta = SET_META[code];
   if (!meta) throw new Error(`missing meta for ${code}`);
   for (const [name, num, domain, type, rarity, subtype] of list) {
+    const imgName = name.includes(" — ") ? name.split(" — ").pop() : name;
     out.push({
       externalId: `${code}-${num}`,
+      imageUrl: `https://api.scryfall.com/cards/named?fuzzy=${encodeURIComponent(imgName)}&format=image&version=normal`,
       name,
       setCode: code,
       setName: meta.name,
@@ -301,8 +303,7 @@ for (const [code, list] of Object.entries(CARDS)) {
       hp: null,
       artist: null,
       flavorText: null,
-      imageUrl: null,
-      imageThumbUrl: null,
+      imageThumbUrl: `https://api.scryfall.com/cards/named?fuzzy=${encodeURIComponent(imgName)}&format=image&version=normal`,
     });
   }
 }

@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { CardArt } from "./CardArt";
 
 export interface CardImageData {
@@ -23,8 +26,6 @@ interface Props {
   className?: string;
 }
 
-// Small "PROMO" stamp centred at the bottom of the card art (where the real card's
-// rarity symbol sits) — promo printings reuse the base art, so this marks them.
 function PromoStamp() {
   return (
     <div className="pointer-events-none absolute inset-x-0 bottom-1.5 z-20 flex justify-center">
@@ -35,15 +36,16 @@ function PromoStamp() {
   );
 }
 
-// Renders the real Yu-Gi-Oh! card image (the Yu-Gi-Oh! database CDN) over a blurred backdrop
-// so both portrait and landscape cards look good. Falls back to generated SVG art
-// when no image is available.
+// Renders the real card image over a blurred backdrop. Falls back to the
+// self-contained generated SVG art when no image is available OR when the image
+// fails to load (so unverified/410'd CDN URLs never show a broken-image icon).
 export function CardImage({ card, isFoil = false, full = false, className }: Props) {
+  const [failed, setFailed] = useState(false);
   const src = full
     ? card.imageUrl ?? card.imageThumbUrl
     : card.imageThumbUrl ?? card.imageUrl;
 
-  if (!src) {
+  if (!src || failed) {
     return (
       <div className={`relative ${className ?? ""}`}>
         <CardArt
@@ -70,18 +72,10 @@ export function CardImage({ card, isFoil = false, full = false, className }: Pro
       className={`relative overflow-hidden rounded-lg ${className ?? ""}`}
       style={
         card.blurDataUrl
-          ? {
-              backgroundImage: `url(${card.blurDataUrl})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }
+          ? { backgroundImage: `url(${card.blurDataUrl})`, backgroundSize: "cover", backgroundPosition: "center" }
           : { backgroundColor: "#080b11" }
       }
     >
-      {/* darken the (already-blurred) backdrop. No backdrop-filter here: it's a
-          GPU-expensive effect and with infinite scroll there can be hundreds of
-          tiles on screen, which made scrolling janky. The blurDataUrl background is
-          pre-blurred, so a plain dark overlay gives the same look far cheaper. */}
       <div className="absolute inset-0 bg-ink-950/40" />
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
@@ -89,17 +83,13 @@ export function CardImage({ card, isFoil = false, full = false, className }: Pro
         alt={card.name}
         loading="lazy"
         decoding="async"
-        className={`relative z-10 h-full w-full ${
-          isLandscape ? "object-contain" : "object-cover"
-        }`}
+        onError={() => setFailed(true)}
+        className={`relative z-10 h-full w-full ${isLandscape ? "object-contain" : "object-cover"}`}
       />
       {isFoil && (
         <div
           className="pointer-events-none absolute inset-0 z-20 opacity-50 mix-blend-screen"
-          style={{
-            background:
-              "linear-gradient(115deg, #ff0080 0%, #ffea00 25%, #00ffd5 50%, #7a5cff 75%, #ff0080 100%)",
-          }}
+          style={{ background: "linear-gradient(115deg, #ff0080 0%, #ffea00 25%, #00ffd5 50%, #7a5cff 75%, #ff0080 100%)" }}
         />
       )}
       {card.isPromo && <PromoStamp />}

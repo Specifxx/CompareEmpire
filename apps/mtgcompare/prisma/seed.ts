@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { normalizeSearch } from "../src/lib/format";
 import { POKEMON_SETS } from "../src/lib/pokemon-sets";
+import { buildStores } from "./stores.mjs";
 
 const prisma = new PrismaClient();
 
@@ -101,37 +102,7 @@ const cents = (n: number, floor = 8) => Math.max(floor, Math.round(n));
 // Real Magic retailers per market. Outbound links go to each store's search so
 // the affiliate layer (eBay EPN, TCGplayer Impact, Sovrn for the rest) monetises
 // every click. eBay rows are added separately per market.
-const STORES: Record<string, { key: string; name: string; search: (q: string) => string }[]> = {
-  US: [
-    { key: "tcgplayer_us", name: "TCGplayer", search: (q) => `https://www.tcgplayer.com/search/magic/product?q=${q}` },
-    { key: "cardkingdom", name: "Card Kingdom", search: (q) => `https://www.cardkingdom.com/catalog/search?search=header&filter%5Bname%5D=${q}` },
-    { key: "starcitygames", name: "Star City Games", search: (q) => `https://starcitygames.com/search/?search_query=${q}` },
-    { key: "channelfireball", name: "ChannelFireball", search: (q) => `https://store.channelfireball.com/search?q=${q}` },
-    { key: "coolstuffinc", name: "CoolStuffInc", search: (q) => `https://www.coolstuffinc.com/main_search.php?q=${q}` },
-  ],
-  AU: [
-    { key: "goodgames", name: "Good Games", search: (q) => `https://goodgames.com.au/catalogsearch/result/?q=${q}` },
-    { key: "guf", name: "Guf", search: (q) => `https://guf.com.au/search?q=${q}` },
-    { key: "cardmania", name: "Card Mania", search: (q) => `https://cardmania.com.au/search?q=${q}` },
-    { key: "gauntletgames", name: "Gauntlet Games", search: (q) => `https://www.gauntletgamesaustralia.com.au/search?q=${q}` },
-  ],
-  GB: [
-    { key: "magicmadhouse", name: "Magic Madhouse", search: (q) => `https://www.magicmadhouse.co.uk/catalogsearch/result/?q=${q}` },
-    { key: "chaoscards", name: "Chaos Cards", search: (q) => `https://www.chaoscards.co.uk/catalogsearch/result/?q=${q}` },
-    { key: "totalcards", name: "Total Cards", search: (q) => `https://www.totalcards.net/catalogsearch/result/?q=${q}` },
-    { key: "manaleak", name: "Manaleak", search: (q) => `https://www.manaleak.com/mtg-singles?q=${q}` },
-  ],
-  NZ: [
-    { key: "cardmerchant", name: "Card Merchant NZ", search: (q) => `https://www.cardmerchant.co.nz/search?q=${q}` },
-    { key: "mightyape_nz", name: "Mighty Ape", search: (q) => `https://www.mightyape.co.nz/search?q=${q}` },
-  ],
-};
-const EBAY: Record<string, { key: string; host: string }> = {
-  US: { key: "ebay_us", host: "www.ebay.com" },
-  AU: { key: "ebay", host: "www.ebay.com.au" },
-  GB: { key: "ebay_uk", host: "www.ebay.co.uk" },
-  NZ: { key: "ebay_nz", host: "www.ebay.com.au" },
-};
+const STORES: Record<string, { key: string; name: string; search: (q: string) => string }[]> = buildStores("magic");
 
 async function main() {
   const cards = JSON.parse(
@@ -213,11 +184,8 @@ async function main() {
       const fx = FX[market];
       const cur = CUR[market];
       const marketStores = STORES[market];
-      // A subset of stores stock each card (more for expensive/iconic cards).
-      const stockCount = Math.max(2, Math.min(marketStores.length, 2 + Math.floor(rng() * marketStores.length)));
-      const chosen = [...marketStores].sort(() => rng() - 0.5).slice(0, stockCount);
       let marketMin = Infinity;
-      for (const s of chosen) {
+      for (const s of marketStores) {
         const nm = cents(usd * fx * between(0.9, 1.25));
         const conditionPrices = {
           NM: nm,
@@ -236,27 +204,11 @@ async function main() {
           priceCents: nm,
           shippingCents: market === "US" ? cents(between(0, 199)) : cents(between(0, 350)),
           currency: cur,
-          inStock: rng() > 0.12,
+          inStock: rng() > 0.08,
           country: market,
         });
         marketMin = Math.min(marketMin, nm);
       }
-      // eBay row for the market (affiliate-wrapped at render time).
-      const eb = EBAY[market];
-      const ebayPrice = cents(usd * fx * between(0.85, 1.15));
-      priceRows.push({
-        cardId: c.id,
-        retailer: eb.key,
-        retailerName: "eBay",
-        title: `${c.name} ${c.setName}`,
-        url: `https://${eb.host}/sch/i.html?_nkw=${encodeURIComponent(`mtg ${c.name} ${c.setName}`)}`,
-        condition: "NM",
-        priceCents: ebayPrice,
-        currency: cur,
-        inStock: true,
-        country: market,
-      });
-      marketMin = Math.min(marketMin, ebayPrice);
       lows[c.externalId!][market] = marketMin === Infinity ? 0 : marketMin;
     }
   }

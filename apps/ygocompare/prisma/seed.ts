@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { normalizeSearch } from "../src/lib/format";
 import { POKEMON_SETS } from "../src/lib/pokemon-sets";
+import { buildStores } from "./stores.mjs";
 
 const prisma = new PrismaClient();
 
@@ -65,35 +66,7 @@ const FX: Record<string, number> = { US: 1.0, AU: 1.55, NZ: 1.68, GB: 0.82 };
 const CUR: Record<string, string> = { US: "USD", AU: "AUD", NZ: "NZD", GB: "GBP" };
 const cents = (n: number, floor = 8) => Math.max(floor, Math.round(n));
 
-const STORES: Record<string, { key: string; name: string; search: (q: string) => string }[]> = {
-  US: [
-    { key: "tcgplayer_us", name: "TCGplayer", search: (q) => `https://www.tcgplayer.com/search/yugioh/product?q=${q}` },
-    { key: "trollandtoad", name: "Troll and Toad", search: (q) => `https://www.trollandtoad.com/category.php?search-words=${q}` },
-    { key: "coolstuffinc", name: "CoolStuffInc", search: (q) => `https://www.coolstuffinc.com/main_search.php?q=${q}` },
-    { key: "dacardworld", name: "Da Card World", search: (q) => `https://www.dacardworld.com/search?q=${q}` },
-  ],
-  AU: [
-    { key: "goodgames", name: "Good Games", search: (q) => `https://goodgames.com.au/catalogsearch/result/?q=${q}` },
-    { key: "guf", name: "Guf", search: (q) => `https://guf.com.au/search?q=${q}` },
-    { key: "cardmania", name: "Card Mania", search: (q) => `https://cardmania.com.au/search?q=${q}` },
-    { key: "gauntletgames", name: "Gauntlet Games", search: (q) => `https://www.gauntletgamesaustralia.com.au/search?q=${q}` },
-  ],
-  GB: [
-    { key: "chaoscards", name: "Chaos Cards", search: (q) => `https://www.chaoscards.co.uk/catalogsearch/result/?q=${q}` },
-    { key: "totalcards", name: "Total Cards", search: (q) => `https://www.totalcards.net/catalogsearch/result/?q=${q}` },
-    { key: "magicmadhouse", name: "Magic Madhouse", search: (q) => `https://www.magicmadhouse.co.uk/catalogsearch/result/?q=${q}` },
-  ],
-  NZ: [
-    { key: "cardmerchant", name: "Card Merchant NZ", search: (q) => `https://www.cardmerchant.co.nz/search?q=${q}` },
-    { key: "mightyape_nz", name: "Mighty Ape", search: (q) => `https://www.mightyape.co.nz/search?q=${q}` },
-  ],
-};
-const EBAY: Record<string, { key: string; host: string }> = {
-  US: { key: "ebay_us", host: "www.ebay.com" },
-  AU: { key: "ebay", host: "www.ebay.com.au" },
-  GB: { key: "ebay_uk", host: "www.ebay.co.uk" },
-  NZ: { key: "ebay_nz", host: "www.ebay.com.au" },
-};
+const STORES: Record<string, { key: string; name: string; search: (q: string) => string }[]> = buildStores("yugioh");
 
 async function main() {
   const cards = JSON.parse(readFileSync(join(process.cwd(), "prisma", "ygo-cards.json"), "utf8")) as BuiltCard[];
@@ -159,29 +132,19 @@ async function main() {
     lows[c.externalId!] = {};
     for (const market of ["US", "AU", "GB", "NZ"] as const) {
       const fx = FX[market]; const cur = CUR[market];
-      const ms = STORES[market];
-      const stockCount = Math.max(2, Math.min(ms.length, 2 + Math.floor(rng() * ms.length)));
-      const chosen = [...ms].sort(() => rng() - 0.5).slice(0, stockCount);
+      const marketStores = STORES[market];
       let marketMin = Infinity;
-      for (const s of chosen) {
+      for (const s of marketStores) {
         const nm = cents(usd * fx * between(0.9, 1.25));
         priceRows.push({
           cardId: c.id, retailer: s.key, retailerName: s.name, title: `${c.name} (${c.setName})`,
           url: s.search(q), condition: "NM",
           conditionPrices: { NM: nm, LP: cents(nm * 0.85), MP: cents(nm * 0.7), HP: cents(nm * 0.55) },
           priceCents: nm, shippingCents: market === "US" ? cents(between(0, 199)) : cents(between(0, 350)),
-          currency: cur, inStock: rng() > 0.12, country: market,
+          currency: cur, inStock: rng() > 0.08, country: market,
         });
         marketMin = Math.min(marketMin, nm);
       }
-      const eb = EBAY[market];
-      const ebayPrice = cents(usd * fx * between(0.85, 1.15));
-      priceRows.push({
-        cardId: c.id, retailer: eb.key, retailerName: "eBay", title: `${c.name} ${c.setName}`,
-        url: `https://${eb.host}/sch/i.html?_nkw=${encodeURIComponent(`yugioh ${c.name} ${c.setName}`)}`,
-        condition: "NM", priceCents: ebayPrice, currency: cur, inStock: true, country: market,
-      });
-      marketMin = Math.min(marketMin, ebayPrice);
       lows[c.externalId!][market] = marketMin === Infinity ? 0 : marketMin;
     }
   }
@@ -189,11 +152,13 @@ async function main() {
   for (let i = 0; i < priceRows.length; i += 5000) await prisma.retailerPrice.createMany({ data: priceRows.slice(i, i + 5000), skipDuplicates: true });
 
   console.log("Updating card lowest-price columns…");
-  for (const c of dbCards) {
-    const l = lows[c.externalId!] ?? {};
-    await prisma.card.update({ where: { id: c.id }, data: {
-      lowestPriceCentsUs: l.US ?? null, lowestPriceCents: l.AU ?? null, lowestPriceCentsGb: l.GB ?? null, lowestPriceCentsNz: l.NZ ?? null,
-    } });
+  for (let i = 0; i < dbCards.length; i += 500) {
+    await Promise.all(dbCards.slice(i, i + 500).map((c) => {
+      const l = lows[c.externalId!] ?? {};
+      return prisma.card.update({ where: { id: c.id }, data: {
+        lowestPriceCentsUs: l.US ?? null, lowestPriceCents: l.AU ?? null, lowestPriceCentsGb: l.GB ?? null, lowestPriceCentsNz: l.NZ ?? null,
+      } });
+    }));
   }
 
   // ---- sealed products (booster boxes, packs, tins) --------------------------
