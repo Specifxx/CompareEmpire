@@ -1,0 +1,172 @@
+import { Prisma } from "@prisma/client";
+import { dollarsToCents, normalizeSearch } from "./format";
+import { priceField, type Country } from "./country";
+
+export interface CardQuery {
+  q?: string;
+  domain?: string;
+  rarity?: string;
+  type?: string;
+  set?: string;
+  variant?: string; // "alt" = alt-art only, "base" = base art only
+  sig?: string; // "1" = signature ("*") cards only
+  promo?: string; // "1" = promo printings only
+  priced?: string; // "1" = only cards with a live price
+  min?: string;
+  max?: string;
+  sort?: string;
+  page?: string;
+  size?: string;
+}
+
+export const CARD_PAGE_SIZE = 36; // legacy (infinite-scroll API)
+
+// Paginated browse: user-selectable page size, default 10.
+export const PAGE_SIZES = [10, 20, 50, 100] as const;
+export function parsePageSize(v?: string): number {
+  const n = parseInt(v ?? "", 10);
+  // Default 100 (user feedback: 10 felt like a static list, not a database).
+  return (PAGE_SIZES as readonly number[]).includes(n) ? n : 100;
+}
+export function parsePageNum(v?: string): number {
+  const n = parseInt(v ?? "", 10);
+  return Number.isFinite(n) && n > 0 ? n : 1;
+}
+
+function csv(v?: string): string[] | undefined {
+  if (!v) return undefined;
+  const arr = v.split(",").filter(Boolean);
+  return arr.length ? arr : undefined;
+}
+
+// Tokenised, multi-field card search. Each whitespace-separated term must match
+// (AND) somewhere across the card's name, set, collector number, rarity or subtype
+// — so "rayquaza ex deoxys" and "charizard vstar promo" both resolve to the right
+// card even though those words live in different columns. The old behaviour did a
+// single substring match on the whole normalised query, so any "name + qualifier"
+// search (set name, "promo", a number) collapsed to one unmatchable string.
+export function cardSearchFilter(q: string): Prisma.CardWhereInput | undefined {
+  const terms = q.trim().split(/\s+/).filter(Boolean).slice(0, 8);
+  if (!terms.length) return undefined;
+  const ci = { mode: "insensitive" as const };
+  return {
+    AND: terms.map((t): Prisma.CardWhereInput => {
+      const norm = normalizeSearch(t);
+      const or: Prisma.CardWhereInput[] = [
+        { setName: { contains: t, ...ci } },
+        { setCode: { contains: t, ...ci } },
+        { collectorNumber: { contains: t, ...ci } },
+        { rarity: { contains: t, ...ci } },
+        { tags: { contains: t, ...ci } },
+      ];
+      // nameNormalized is stored lowercased/stripped, so match it with the
+      // normalised term ("vstar" → "Charizard VSTAR", "kaisa" → "Kai'Sa").
+      if (norm) or.unshift({ nameNormalized: { contains: norm } });
+      return { OR: or };
+    }),
+  };
+}
+
+export function buildCardWhere(query: CardQuery, country: Country = "AU"): Prisma.CardWhereInput {
+  const where: Prisma.CardWhereInput = {};
+  const field = priceField(country);
+
+  const domains = csv(query.domain);
+  if (domains) where.domain = { in: domains };
+  const rarities = csv(query.rarity);
+  if (rarities) where.rarity = { in: rarities };
+  const types = csv(query.type);
+  if (types) where.type = { in: types };
+  const sets = csv(query.set);
+  if (sets) where.setCode = { in: sets };
+
+  if (query.variant === "alt") where.variant = { not: null };
+  else if (query.variant === "base") where.variant = null;
+
+  if (query.sig === "1") where.collectorNumber = { contains: "*" };
+  if (query.promo === "1") where.isPromo = true;
+
+  if (query.q) {
+    const f = cardSearchFilter(query.q);
+    if (f) where.AND = f.AND;
+  }
+
+  const price: Prisma.IntNullableFilter = {};
+  if (query.min) price.gte = dollarsToCents(query.min);
+  if (query.max) price.lte = dollarsToCents(query.max);
+  if (query.priced === "1" || price.gte != null || price.lte != null) {
+    price.not = null;
+    // Filter on the selected market's price column (AU vs NZ).
+    where[field] = price;
+  }
+
+  return where;
+}
+
+export function buildCardOrderBy(
+  sort?: string,
+  country: Country = "AU"
+): Prisma.CardOrderByWithRelationInput[] {
+  const field = priceField(country);
+  switch (sort) {
+    case "price_asc":
+      // Nulls last so unpriced cards don't dominate the top. Sort on the selected
+      // market's price column (AU vs NZ).
+      return [{ [field]: { sort: "asc", nulls: "last" } } as Prisma.CardOrderByWithRelationInput, { name: "asc" }];
+    case "price_desc":
+      return [{ [field]: { sort: "desc", nulls: "last" } } as Prisma.CardOrderByWithRelationInput, { name: "asc" }];
+    case "name":
+      return [{ name: "asc" }];
+    case "number":
+    default:
+      return [{ setCode: "asc" }, { collectorNumber: "asc" }];
+  }
+}
+
+export { cardSlug, cardHref } from "./card-url";
+
+// Tile select for a given market. Both price columns are always selected (so client
+// components can switch instantly), but the "N stores" count is filtered to the
+// selected country's in-stock listings.
+export function cardTileSelect(country: Country = "AU") {
+  return {
+    id: true,
+    slug: true,
+    name: true,
+    domain: true,
+    type: true,
+    rarity: true,
+    variant: true,
+    isPromo: true,
+    setCode: true,
+    setName: true,
+    collectorNumber: true,
+    energyCost: true,
+    might: true,
+    artSeed: true,
+    orientation: true,
+    imageUrl: true,
+    imageThumbUrl: true,
+    lowestPriceCents: true,
+    lowestPriceCentsNz: true,
+    lowestPriceCentsGb: true,
+    lowestPriceCentsUs: true,
+    // Market-price guide (USD cents) + its source, shown as a labelled fallback on
+    // tiles when a market has no buyable store price (never as the "from" price).
+    marketPriceCents: true,
+    marketPriceSource: true,
+    // Count only in-stock listings for this market for the "N stores" tile label.
+    // Out-of-stock listings and the non-buyable market-guide row are excluded
+    // (the guide is a reference, not a store).
+    _count: {
+      select: {
+        retailerPrices: {
+          where: { inStock: true, country, NOT: { retailer: { startsWith: "marketguide" } } },
+        },
+      },
+    },
+  } satisfies Prisma.CardSelect;
+}
+
+// Default (Australia) tile select, kept for callers that don't vary by market.
+export const CARD_TILE_SELECT = cardTileSelect("AU");

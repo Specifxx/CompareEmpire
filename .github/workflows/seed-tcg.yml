@@ -1,0 +1,104 @@
+name: Seed TCG sites (MTG / OP / YGO)
+
+# Seeds MTGCompare, OPCompare and YGOCompare into their Neon Postgres databases.
+# Runs on GitHub's runners (open internet), so it reaches BOTH Neon and the card
+# data/image hosts — nothing needs to run on your machine.
+#
+# ONE-TIME SETUP (Settings → Secrets and variables → Actions):
+#   MTGCOMPARE_DATABASE_URL, OPCOMPARE_DATABASE_URL, YGOCOMPARE_DATABASE_URL
+#   (each = the site's Neon pooled connection string, ...?sslmode=require)
+#   Optional: APITCG_API_KEY (free at apitcg.com) to pull the FULL One Piece set.
+# Then: Actions tab → "Seed TCG sites" → Run workflow.
+
+on:
+  workflow_dispatch:
+    inputs:
+      seed_mtg: { description: "Seed MTGCompare?", type: boolean, default: true }
+      seed_op: { description: "Seed OPCompare?", type: boolean, default: true }
+      seed_ygo: { description: "Seed YGOCompare?", type: boolean, default: true }
+      mtg_full:
+        description: "MTG: pull the FULL Scryfall catalogue (~28k cards). Needs more Neon storage."
+        type: boolean
+        default: false
+      op_full:
+        description: "OP: pull the FULL apitcg catalogue (needs APITCG_API_KEY secret)."
+        type: boolean
+        default: false
+      stores_per_region:
+        description: "Stores per region (blank = MTG/OP 20, YGO 10). Use 10 for full runs."
+        required: false
+        default: ""
+      mtg_url: { description: "MTG Neon URL (else MTGCOMPARE_DATABASE_URL secret)", required: false, default: "" }
+      op_url: { description: "OP Neon URL (else OPCOMPARE_DATABASE_URL secret)", required: false, default: "" }
+      ygo_url: { description: "YGO Neon URL (else YGOCOMPARE_DATABASE_URL secret)", required: false, default: "" }
+      apitcg_key: { description: "apitcg.com key for OP full (else APITCG_API_KEY secret)", required: false, default: "" }
+
+concurrency:
+  group: seed-tcg
+  cancel-in-progress: false
+
+jobs:
+  seed:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Mask secrets
+        run: |
+          echo "::add-mask::${{ inputs.mtg_url }}"
+          echo "::add-mask::${{ inputs.op_url }}"
+          echo "::add-mask::${{ inputs.ygo_url }}"
+          echo "::add-mask::${{ inputs.apitcg_key }}"
+          echo "::add-mask::${{ secrets.MTGCOMPARE_DATABASE_URL }}"
+          echo "::add-mask::${{ secrets.OPCOMPARE_DATABASE_URL }}"
+          echo "::add-mask::${{ secrets.YGOCOMPARE_DATABASE_URL }}"
+
+      - name: Seed MTGCompare
+        continue-on-error: true
+        if: ${{ inputs.seed_mtg }}
+        working-directory: apps/mtgcompare
+        env:
+          DATABASE_URL: ${{ inputs.mtg_url || secrets.MTGCOMPARE_DATABASE_URL }}
+          STORES_PER_REGION: ${{ inputs.stores_per_region }}
+        run: |
+          if [ -z "$DATABASE_URL" ]; then echo "::error::Set the MTGCOMPARE_DATABASE_URL secret."; exit 1; fi
+          npm install --no-audit --no-fund
+          if [ "${{ inputs.mtg_full }}" = "true" ]; then npm run data || echo "Scryfall pull failed; using committed catalogue"; fi
+          npx prisma db push
+          npx tsx prisma/seed.ts
+
+      - name: Seed OPCompare
+        continue-on-error: true
+        if: ${{ inputs.seed_op }}
+        working-directory: apps/opcompare
+        env:
+          DATABASE_URL: ${{ inputs.op_url || secrets.OPCOMPARE_DATABASE_URL }}
+          APITCG_API_KEY: ${{ inputs.apitcg_key || secrets.APITCG_API_KEY }}
+          STORES_PER_REGION: ${{ inputs.stores_per_region }}
+        run: |
+          if [ -z "$DATABASE_URL" ]; then echo "::error::Set the OPCOMPARE_DATABASE_URL secret."; exit 1; fi
+          npm install --no-audit --no-fund
+          if [ "${{ inputs.op_full }}" = "true" ] && [ -n "$APITCG_API_KEY" ]; then npm run data || echo "apitcg pull failed; using committed catalogue"; fi
+          npx prisma db push
+          npx tsx prisma/seed.ts
+
+      - name: Seed YGOCompare
+        continue-on-error: true
+        if: ${{ inputs.seed_ygo }}
+        working-directory: apps/ygocompare
+        env:
+          DATABASE_URL: ${{ inputs.ygo_url || secrets.YGOCOMPARE_DATABASE_URL }}
+          STORES_PER_REGION: ${{ inputs.stores_per_region }}
+        run: |
+          if [ -z "$DATABASE_URL" ]; then echo "::error::Set the YGOCOMPARE_DATABASE_URL secret."; exit 1; fi
+          npm install --no-audit --no-fund
+          # YGO ships the full 12,768-card catalogue (committed); npm run data only refreshes it.
+          npx prisma db push
+          npx tsx prisma/seed.ts
+
+      - name: Done
+        run: echo "Seeding complete — your Neon databases are populated. Redeploy isn't needed; refresh the sites." >> "$GITHUB_STEP_SUMMARY"
