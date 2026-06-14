@@ -421,22 +421,23 @@ export default async function CardPage({ params }: { params: { id: string } }) {
               </ul>
             )}
 
-            {/* Stores listed but eBay not compared for this card yet (the daily
-                eBay quota rotates through the catalogue) — be upfront about it and
-                hand the visitor an affiliate-tagged search instead. */}
+            {/* eBay is monetised via affiliate SEARCH only on these sites: we do NOT call
+                eBay's Browse API here (that daily quota is reserved for our sister sites
+                RiftCompare & DexCompare), so we never show a stale eBay price — we send
+                the click straight to an affiliate-tagged eBay search instead. */}
             {prices.length > 0 && !hasEbay && (
-              <div className="flex flex-wrap items-center justify-between gap-2 border-t border-ink-800 bg-ink-900/40 px-4 py-3 text-xs text-slate-400">
-                <span>
-                  eBay isn&apos;t in this comparison yet — we rotate our daily eBay checks across the
-                  catalogue and haven&apos;t reached this card recently.
-                </span>
+              <div className="flex flex-wrap items-center justify-between gap-3 border-t border-ink-800 bg-ink-900/40 px-4 py-3">
+                <div className="min-w-0 text-xs text-slate-400">
+                  <div className="font-semibold text-slate-200">Also check eBay</div>
+                  <span>We don&apos;t track live eBay prices here, but eBay is the largest marketplace for singles — new, used & graded. Search it directly:</span>
+                </div>
                 <OutboundLink
                   href={ebaySearchHref}
                   retailer="ebay_search"
                   country={country}
-                  className="shrink-0 font-semibold text-brand-400 hover:underline"
+                  className="btn-primary shrink-0"
                 >
-                  Search eBay{country === "NZ" ? " AU" : ""} for a cheaper price →
+                  Search this card on eBay{country === "NZ" ? " AU" : ""} →
                 </OutboundLink>
               </div>
             )}

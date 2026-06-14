@@ -7,6 +7,7 @@ import { FEATURED_RESTOCKS, restockTitleRegex, type FeaturedRestock } from "@/li
 import { recentRestockEvents } from "@/lib/restock-recheck";
 import { RestockAlertForm } from "@/components/RestockAlertForm";
 import { SealedTile } from "@/components/SealedTile";
+import { SealedArt } from "@/components/SealedArt";
 import { OutboundLink } from "@/components/OutboundLink";
 import { AdSlot } from "@/components/AdSlot";
 import { TcgplayerAd } from "@/components/TcgplayerAd";
@@ -126,7 +127,7 @@ export default async function SealedComparePage({ params }: { params: { slug: st
               // eslint-disable-next-line @next/next/no-img-element
               <img src={group.imageUrl} alt={group.name} className="max-h-full max-w-full object-contain" />
             ) : (
-              <span className="text-sm font-bold text-slate-600">{group.productType}</span>
+              <SealedArt setCode={group.setCode} productType={group.productType} className="h-full w-full" />
             )}
           </div>
           <div className="min-w-0 flex-1">
