@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { normalizeSearch } from "../src/lib/format";
 import { POKEMON_SETS } from "../src/lib/pokemon-sets";
-import { buildStores } from "./stores.mjs";
+import { buildStores, topStores } from "./stores.mjs";
 
 const prisma = new PrismaClient();
 
@@ -102,7 +102,8 @@ const cents = (n: number, floor = 8) => Math.max(floor, Math.round(n));
 // Real Magic retailers per market. Outbound links go to each store's search so
 // the affiliate layer (eBay EPN, TCGplayer Impact, Sovrn for the rest) monetises
 // every click. eBay rows are added separately per market.
-const STORES: Record<string, { key: string; name: string; search: (q: string) => string }[]> = buildStores("magic");
+const SPR = parseInt(process.env.STORES_PER_REGION || "0", 10);
+const STORES: Record<string, { key: string; name: string; search: (q: string) => string }[]> = SPR > 0 ? topStores("magic", SPR) : buildStores("magic");
 
 async function main() {
   const cards = JSON.parse(

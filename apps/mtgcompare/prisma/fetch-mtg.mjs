@@ -10,15 +10,15 @@ import { writeFileSync, existsSync, statSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { execSync } from "node:child_process";
 
-const TMP = "/tmp/scryfall-default-cards.json";
+const TMP = "/tmp/scryfall-oracle-cards.json";
 
 async function main() {
   if (!existsSync(TMP) || statSync(TMP).size < 1_000_000) {
     console.log("Resolving Scryfall bulk-data download URI…");
     const meta = JSON.parse(execSync(`curl -s -L -m 60 "https://api.scryfall.com/bulk-data"`).toString());
-    const entry = meta.data.find((d) => d.type === "default_cards");
-    if (!entry) throw new Error("default_cards bulk entry not found");
-    console.log(`Downloading ${entry.download_uri} (~500MB)…`);
+    const entry = meta.data.find((d) => d.type === "oracle_cards");
+    if (!entry) throw new Error("oracle_cards bulk entry not found");
+    console.log(`Downloading ${entry.download_uri} (~150MB)…`);
     execSync(`curl -s -L -m 900 -o ${TMP} "${entry.download_uri}"`, { stdio: "inherit" });
   }
   console.log("Parsing bulk file…");

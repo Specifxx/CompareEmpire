@@ -66,7 +66,7 @@ const FX: Record<string, number> = { US: 1.0, AU: 1.55, NZ: 1.68, GB: 0.82 };
 const CUR: Record<string, string> = { US: "USD", AU: "AUD", NZ: "NZD", GB: "GBP" };
 const cents = (n: number, floor = 8) => Math.max(floor, Math.round(n));
 
-const STORES: Record<string, { key: string; name: string; search: (q: string) => string }[]> = topStores("yugioh", 10);
+const STORES: Record<string, { key: string; name: string; search: (q: string) => string }[]> = topStores("yugioh", parseInt(process.env.STORES_PER_REGION || "10", 10));
 
 async function main() {
   const cards = JSON.parse(readFileSync(join(process.cwd(), "prisma", "ygo-cards.json"), "utf8")) as BuiltCard[];
