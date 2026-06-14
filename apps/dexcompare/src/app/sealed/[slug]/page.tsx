@@ -108,7 +108,10 @@ export default async function SealedComparePage({ params }: { params: { slug: st
             priceValidUntil: new Date(Date.now() + 86400e3).toISOString().slice(0, 10),
           },
         }
-      : { offers: { "@type": "AggregateOffer", priceCurrency: priceInfo.currency, availability: "https://schema.org/OutOfStock", offerCount: 0 } }),
+      // No in-stock listing → omit offers entirely. An AggregateOffer with
+      // offerCount:0 fails Google's "offerCount must be positive" check, so a
+      // sold-out product is better left with no offers block than an invalid one.
+      : {}),
   };
 
   return (

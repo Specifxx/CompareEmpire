@@ -103,9 +103,23 @@ export default async function RestockTrackerPage({ params }: { params: { slug: s
     name: product.name,
     category: "Trading Card Game Sealed Product",
     description: product.blurb,
+    // AggregateOffer is only valid with a positive offerCount, so we emit it
+    // ONLY when something is actually in stock (matching the card page). An
+    // out-of-stock product gets no offers block — offerCount:0 fails Google's
+    // "offerCount must be positive" check, and highPrice is required alongside
+    // lowPrice, so both are always present together here.
     ...(headlineInStock.length
-      ? { offers: { "@type": "AggregateOffer", priceCurrency: info.currency, lowPrice: ((cheapestStoreCents as number) / 100).toFixed(2), availability: "https://schema.org/InStock", offerCount: headlineInStock.length } }
-      : { offers: { "@type": "AggregateOffer", priceCurrency: info.currency, availability: "https://schema.org/OutOfStock", offerCount: 0 } }),
+      ? {
+          offers: {
+            "@type": "AggregateOffer",
+            priceCurrency: info.currency,
+            lowPrice: ((cheapestStoreCents as number) / 100).toFixed(2),
+            highPrice: (Math.max(...headlineInStock.map((r) => r.priceCents)) / 100).toFixed(2),
+            availability: "https://schema.org/InStock",
+            offerCount: headlineInStock.length,
+          },
+        }
+      : {}),
   };
 
   return (
