@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { formatMoney } from "@/lib/format";
+import { SealedArt } from "./SealedArt";
 import type { SealedGroup } from "@/lib/sealed-import";
 
 // A single sealed product tile for the /sealed grid, homepage new-arrivals and
@@ -24,7 +25,7 @@ export function SealedTile({ group, currency }: { group: SealedGroup; currency: 
             className="max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-[1.04]"
           />
         ) : (
-          <span className="px-2 text-center text-sm font-bold text-slate-600">{g.productType}</span>
+          <SealedArt setCode={g.setCode} productType={g.productType} className="h-full w-full" />
         )}
         <span className="absolute left-2 top-2 chip bg-ink-950/70 text-[10px] font-semibold text-slate-300">
           {g.productType}
