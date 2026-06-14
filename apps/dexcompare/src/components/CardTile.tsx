@@ -53,6 +53,12 @@ export function CardTile({ card }: { card: CardTileData }) {
     lowest == null && card.marketPriceSource === "TCGplayer"
       ? marketGuideCents(card.marketPriceCents, country as Country)
       : null;
+  // No store price and no REAL (TCGplayer) guide → fall back to the rarity/age
+  // estimate so the tile gives a ballpark instead of a bare "No price yet" (user
+  // feedback: too many cards looked priceless). Clearly labelled "est." and
+  // visually subordinate — it's never presented as a market or store price.
+  const est =
+    lowest == null && guide == null ? marketGuideCents(card.marketPriceCents, country as Country) : null;
 
   // Left-click opens an instant in-page quick view (no navigation = no lag). The
   // real href is kept for SEO, sharing and middle/ctrl-click (open in new tab),
@@ -108,6 +114,16 @@ export function CardTile({ card }: { card: CardTileData }) {
                   market guide
                 </div>
                 <div className="text-lg font-bold text-slate-300">≈ {fmt(guide)}</div>
+              </>
+            ) : est != null ? (
+              <>
+                <div
+                  className="text-[11px] text-slate-600"
+                  title="Rough estimate from the card's rarity and age — not a market or store price."
+                >
+                  est.
+                </div>
+                <div className="text-lg font-semibold text-slate-400">≈ {fmt(est)}</div>
               </>
             ) : (
               <div className="text-sm font-medium text-slate-500">No price yet</div>

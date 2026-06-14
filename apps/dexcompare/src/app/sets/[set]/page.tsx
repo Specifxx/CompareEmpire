@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
-import { CardTile } from "@/components/CardTile";
+import { SetCardGrid } from "@/components/SetCardGrid";
 import { SetCompletion } from "@/components/SetCompletion";
 import { cardTileSelect } from "@/lib/cards";
 import { pickPrice, DEFAULT_COUNTRY } from "@/lib/country";
@@ -111,11 +111,7 @@ export default async function SetPage({ params }: { params: { set: string } }) {
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5">
-          {cards.map((c) => (
-            <CardTile key={c.id} card={c} />
-          ))}
-        </div>
+        <SetCardGrid cards={cards} />
       )}
 
       {/* Internal links to the other sets (crawl + UX) */}
