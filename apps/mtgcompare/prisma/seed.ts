@@ -4,7 +4,8 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { normalizeSearch } from "../src/lib/format";
 import { POKEMON_SETS } from "../src/lib/pokemon-sets";
-import { buildStores, topStores } from "./stores.mjs";
+import { buildStores, topStores, storeQuery } from "./stores.mjs";
+import { enrichFromTcgplayer } from "./tcgplayer-enrich.mjs";
 
 const prisma = new PrismaClient();
 
@@ -111,6 +112,14 @@ async function main() {
   ) as BuiltCard[];
   console.log(`Loaded ${cards.length} Magic cards from the offline data mirror.`);
 
+  // Real TCGplayer products → clean images + real product URLs (accurate US
+  // "View deal" → exact card, like dexcompare) + real US market price. Reachable
+  // from CI; falls back cleanly to the heuristic + store search when unreachable.
+  const TCG = await enrichFromTcgplayer("magic", cards).catch((e) => {
+    console.warn("TCGplayer enrichment failed:", e.message);
+    return new Map<string, { productId: number; productUrl: string; imageUrl: string; marketCents: number | null }>();
+  });
+
   console.log("Resetting data…");
   await prisma.order.deleteMany();
   await prisma.buyOrder.deleteMany();
@@ -139,28 +148,32 @@ async function main() {
     usdRef: cents(refUsd(c.rarity) * ageMult(c.releaseDate) * chaseMult(c.name, c.domain, c.type, c.subtype)),
   }));
 
-  const cardRows = built.map((c) => ({
-    externalId: c.externalId,
-    slug: `${c.externalId}-${normalizeSearch(c.name).replace(/\s+/g, "-")}`.toLowerCase().slice(0, 80),
-    name: c.name,
-    nameNormalized: normalizeSearch(c.name),
-    setCode: c.setCode,
-    setName: c.setName,
-    collectorNumber: c.collectorNumber,
-    domain: c.domain,
-    type: c.type,
-    rarity: c.rarity,
-    tags: c.subtype,
-    flavorText: c.flavorText,
-    description: c.artist ? `Illustrated by ${c.artist}` : null,
-    imageUrl: c.imageUrl,
-    imageThumbUrl: c.imageThumbUrl,
-    marketPriceCents: c.usdRef,
-    marketPriceSource: "Estimate",
-    marketPriceUpdatedAt: new Date(),
-    // lowest-price columns are filled below from the generated store rows.
-    artSeed: Math.floor(rng() * 1_000_000),
-  }));
+  const cardRows = built.map((c) => {
+    const enr = TCG.get(c.externalId);
+    return {
+      externalId: c.externalId,
+      slug: `${c.externalId}-${normalizeSearch(c.name).replace(/\s+/g, "-")}`.toLowerCase().slice(0, 80),
+      name: c.name,
+      nameNormalized: normalizeSearch(c.name),
+      setCode: c.setCode,
+      setName: c.setName,
+      collectorNumber: c.collectorNumber,
+      domain: c.domain,
+      type: c.type,
+      rarity: c.rarity,
+      tags: c.subtype,
+      flavorText: c.flavorText,
+      description: c.artist ? `Illustrated by ${c.artist}` : null,
+      // Prefer the clean TCGplayer image; fall back to the Scryfall image.
+      imageUrl: enr?.imageUrl ?? c.imageUrl,
+      imageThumbUrl: enr?.imageUrl ?? c.imageThumbUrl,
+      marketPriceCents: enr?.marketCents ?? c.usdRef,
+      marketPriceSource: enr?.marketCents != null ? "TCGplayer" : "Estimate",
+      marketPriceUpdatedAt: new Date(),
+      // lowest-price columns are filled below from the generated store rows.
+      artSeed: Math.floor(rng() * 1_000_000),
+    };
+  });
 
   console.log("Inserting cards…");
   const CHUNK = 2000;
@@ -179,7 +192,8 @@ async function main() {
 
   for (const c of dbCards) {
     const usd = c.marketPriceCents; // USD cents reference
-    const q = encodeURIComponent(`${c.name} ${c.setName}`);
+    const enr = TCG.get(c.externalId!);
+    const q = encodeURIComponent(storeQuery(c));
     lows[c.externalId!] = {};
     for (const market of ["US", "AU", "GB", "NZ"] as const) {
       const fx = FX[market];
@@ -187,7 +201,10 @@ async function main() {
       const marketStores = STORES[market];
       let marketMin = Infinity;
       for (const s of marketStores) {
-        const nm = cents(usd * fx * between(0.9, 1.25));
+        // US TCGplayer: when matched, link to the REAL product page at the REAL
+        // market price (accurate "View deal" → exact card), like dexcompare.
+        const isRealTcg = s.key === "tcgplayer_us" && enr != null;
+        const nm = isRealTcg && enr!.marketCents != null ? enr!.marketCents : cents(usd * fx * between(0.9, 1.25));
         const conditionPrices = {
           NM: nm,
           LP: cents(nm * 0.85),
@@ -199,13 +216,13 @@ async function main() {
           retailer: s.key,
           retailerName: s.name,
           title: `${c.name} (${c.setName})`,
-          url: s.search(q),
+          url: isRealTcg ? enr!.productUrl : s.search(q),
           condition: "NM",
           conditionPrices,
           priceCents: nm,
           shippingCents: market === "US" ? cents(between(0, 199)) : cents(between(0, 350)),
           currency: cur,
-          inStock: rng() > 0.08,
+          inStock: isRealTcg ? true : rng() > 0.08,
           country: market,
         });
         marketMin = Math.min(marketMin, nm);
