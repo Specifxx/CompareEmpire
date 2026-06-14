@@ -27,9 +27,6 @@ export function buildStores(tcg) {
       { key: "hareruya_us", name: "Hareruya", search: (q) => `https://www.hareruyamtg.com/en/products/search?word=${q}` },
       { key: "cardcavern", name: "Card Cavern", search: (q) => `https://cardcavern.com/search?q=${q}` },
       { key: "fourohone", name: "401 Games", search: (q) => `https://store.401games.ca/search?q=${q}` },
-      // candidates (re-verified by the audit)
-      { key: "gamegoblin", name: "Game Goblin", search: (q) => `https://www.thegamegoblin.com/search?q=${q}` },
-      { key: "frontlinegames", name: "Frontline Games", search: (q) => `https://www.flgcards.com/search?q=${q}` },
       { key: "amazon_us", name: "Amazon", search: (q) => `https://www.amazon.com/s?k=${q}+trading+card` },
     ],
     AU: [
@@ -46,8 +43,8 @@ export function buildStores(tcg) {
       { key: "houseofcards_au", name: "House of Cards", search: (q) => `https://houseofcards.com.au/search?q=${q}` },
       { key: "birdkeeper_au", name: "Bird Keeper", search: (q) => `https://birdkeeper.com.au/search?q=${q}` },
       // candidates (re-verified by the audit)
-      { key: "kapow_au", name: "Kapow Comics", search: (q) => `https://www.kapowcomics.com.au/search?q=${q}` },
-      { key: "vaultapod_au", name: "Vault Apocalypse", search: (q) => `https://vaultapocalypse.com/search?q=${q}` },
+      { key: "ozgameshop_au", name: "ozgameshop", search: (q) => `https://www.ozgameshop.com/search?q=${q}` },
+      { key: "thanetgames_au", name: "Good Games Online", search: (q) => `https://goodgamesonline.com.au/search?q=${q}` },
       { key: "mightyape_au", name: "Mighty Ape", search: (q) => `https://www.mightyape.com.au/search?q=${q}` },
     ],
     GB: [
@@ -65,9 +62,11 @@ export function buildStores(tcg) {
       { key: "patriotgames_uk", name: "Patriot Games", search: (q) => `https://www.patriotgames.co.uk/search?q=${q}` },
       // candidates (re-verified by the audit)
       { key: "manaleak", name: "Manaleak", search: (q) => `https://www.manaleak.com/search?q=${q}` },
-      // candidates (re-verified by the audit)
+      { key: "bigorbitcards", name: "Big Orbit Cards", search: (q) => `https://bigorbitcards.co.uk/search?q=${q}` },
       { key: "waylandgames", name: "Wayland Games", search: (q) => `https://www.waylandgames.co.uk/search?q=${q}` },
       { key: "magicstronghold", name: "Magic Stronghold", search: (q) => `https://www.magicstronghold.com/search?q=${q}` },
+      // candidates (re-verified by the audit)
+      { key: "spellboundgames", name: "Spellbound Games", search: (q) => `https://www.spellboundgames.co.uk/search?q=${q}` },
       { key: "amazon_uk", name: "Amazon", search: (q) => `https://www.amazon.co.uk/s?k=${q}+trading+card` },
     ],
     NZ: [
@@ -77,7 +76,7 @@ export function buildStores(tcg) {
       { key: "vault_nz", name: "The Vault", search: (q) => `https://thevault.co.nz/search?q=${q}` },
       { key: "mightyape_nz", name: "Mighty Ape", search: (q) => `https://www.mightyape.co.nz/search?q=${q}` },
       // candidates (re-verified by the audit)
-      { key: "tcghub_nz", name: "TCG Hub", search: (q) => `https://tcghub.co.nz/search?q=${q}` },
+      { key: "goblingames_nz", name: "Goblin Games NZ", search: (q) => `https://goblingames.co.nz/search?q=${q}` },
       { key: "amazon_nz", name: "Amazon", search: (q) => `https://www.amazon.com.au/s?k=${q}+trading+card` },
     ],
   };

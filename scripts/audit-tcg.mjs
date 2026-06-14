@@ -51,6 +51,10 @@ const GAMES = [
   { key: "yugioh", file: "apps/ygocompare/prisma/ygo-cards.json" },
 ];
 
+// Enrichment sections are slow (TCGplayer throttles); gate them behind FULL_AUDIT
+// so a store-only run is fast. Matching was already validated (OP 96%, YGO 98%).
+const FULL = process.env.FULL_AUDIT === "1";
+if (FULL) {
 console.log("================ 0) RAW TCGPLAYER PRODUCT SHAPE ================");
 for (const g of GAMES) {
   try {
@@ -79,6 +83,7 @@ for (const g of GAMES) {
     console.log(`     img -> HTTP ${await imgOk(v.imageUrl)}  market=${v.marketCents != null ? "$" + (v.marketCents / 100).toFixed(2) : "—"}`);
   }
 }
+} // end FULL
 
 const op = JSON.parse(readFileSync("apps/opcompare/prisma/op-cards.json", "utf8"));
 const mtg = JSON.parse(readFileSync("apps/mtgcompare/prisma/mtg-cards.json", "utf8"));
