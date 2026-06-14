@@ -150,6 +150,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Link href="/browse" className="hover:text-slate-300">Database</Link>
             <Link href="/sealed" className="hover:text-slate-300">Sealed products</Link>
             <Link href="/deals" className="hover:text-slate-300">Deals</Link>
+            <Link href="/market" className="hover:text-slate-300">Market index</Link>
+            <Link href="/games" className="hover:text-slate-300">Minigames</Link>
+            <Link href="/trade" className="hover:text-slate-300">Trade calculator</Link>
             <Link href="/card-value" className="hover:text-slate-300">Card value checker</Link>
             <Link href="/restock" className="hover:text-slate-300">Drops &amp; restocks</Link>
             <Link href="/guides" className="hover:text-slate-300">Buying guides</Link>
