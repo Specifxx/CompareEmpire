@@ -140,6 +140,7 @@ model Card {
   retailerPrices  RetailerPrice[]
   priceHistory    PriceHistory[]
   priceAlerts     PriceAlert[]
+  reviews         CardReview[]
 
   @@index([setCode, collectorNumber])
   @@index([nameNormalized])
@@ -150,6 +151,28 @@ model Card {
   @@index([domain])
   @@index([rarity])
   @@index([type])
+}
+
+// A genuine, user-submitted rating + review of a card. No account needed (matches
+// the restock-alert pattern). These are the ONLY source of the Product page's
+// aggregateRating/review structured data — we never fabricate ratings, so the
+// markup is emitted only once real reviews exist. PUBLISHED reviews are the ones
+// rendered, counted in the aggregate, and exposed in JSON-LD; HIDDEN is the
+// moderation lever for spam/abuse. ipHash (never the raw IP) caps self-rating.
+model CardReview {
+  id        String   @id @default(cuid())
+  cardId    String
+  rating    Int // 1–5 stars (required)
+  title     String? // optional short headline
+  body      String? // optional written review
+  author    String? // free-text display name; falls back to "Anonymous"
+  status    String   @default("PUBLISHED") // PUBLISHED | HIDDEN
+  ipHash    String? // sha-256 of client IP — anti-abuse only, not an identifier
+  createdAt DateTime @default(now())
+
+  card      Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  @@index([cardId, status, createdAt])
 }
 
 // A seller's offer to sell (the "ask" side of the book).

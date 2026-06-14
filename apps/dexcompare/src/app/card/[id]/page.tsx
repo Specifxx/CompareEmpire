@@ -10,6 +10,7 @@ import { WishlistButton } from "@/components/WishlistButton";
 import { ShareButton } from "@/components/ShareButton";
 import { CollectionButton } from "@/components/CollectionButton";
 import { CardViewBeacon } from "@/components/CardViewBeacon";
+import { CardReviews, type ReviewView } from "@/components/CardReviews";
 import { CardTile, type CardTileData } from "@/components/CardTile";
 import { PriceChart, changeOver, type PricePoint } from "@/components/PriceChart";
 import { cardTileSelect } from "@/lib/cards";
@@ -75,7 +76,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
   // Daily cheapest-price snapshots (AU market) for the trend chart, plus every
   // other printing of this card (same name, different set/number) so collectors
   // can compare reprints — e.g. Base Set vs Classic Collection.
-  const [historyRows, otherPrints] = await Promise.all([
+  const [historyRows, otherPrints, reviewRows] = await Promise.all([
     // Trend history for the VISITOR'S market (each market priced in its own currency).
     prisma.priceHistory.findMany({
       where: { cardId: card.id, country },
@@ -91,8 +92,19 @@ export default async function CardPage({ params }: { params: { id: string } }) {
           take: 12,
         })
       : Promise.resolve([]),
+    // Genuine user reviews (per-card scoped + capped — egress-safe). These are the
+    // sole source of the page's rating/review markup; never market-specific.
+    prisma.cardReview.findMany({
+      where: { cardId: card.id, status: "PUBLISHED" },
+      orderBy: { createdAt: "desc" },
+      select: { id: true, rating: true, title: true, body: true, author: true, createdAt: true },
+      take: 20,
+    }),
   ]);
   const history: PricePoint[] = historyRows.map((h) => ({ day: h.day, cents: h.lowestPriceCents }));
+  const reviews: ReviewView[] = reviewRows.map((r) => ({ ...r, createdAt: r.createdAt.toISOString() }));
+  const reviewCount = reviews.length;
+  const ratingAvg = reviewCount ? reviews.reduce((s, r) => s + r.rating, 0) / reviewCount : 0;
   // Now per-market — the 7-day trend applies to whichever market the visitor is in.
   const weekChange = changeOver(history, 7);
 
@@ -172,12 +184,31 @@ export default async function CardPage({ params }: { params: { id: string } }) {
     name: card.name,
     category: "Trading Card",
     description: `${card.name} — Pokémon ${card.setName} (${card.setCode}) ${card.collectorNumber}. Compare ${info.adjective} prices.`,
-    // Legitimate enrichment only — never fabricated ratings/reviews (Google
-    // penalises self-serving review markup; the GSC "missing aggregateRating/
-    // review" notes are optional-field suggestions, safe to leave).
     brand: { "@type": "Brand", name: "Pokémon TCG" },
     sku: `${card.setCode}-${card.collectorNumber}`,
     ...(card.imageUrl ? { image: card.imageUrl } : {}),
+    // aggregateRating/review come ONLY from real, user-submitted reviews (see the
+    // <CardReviews> section) — emitted just when at least one exists, so the markup
+    // mirrors what's visible on the page and we never fabricate self-serving ratings.
+    ...(reviewCount
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: ratingAvg.toFixed(1),
+            reviewCount,
+            bestRating: 5,
+            worstRating: 1,
+          },
+          review: reviews.slice(0, 10).map((r) => ({
+            "@type": "Review",
+            reviewRating: { "@type": "Rating", ratingValue: r.rating, bestRating: 5, worstRating: 1 },
+            author: { "@type": "Person", name: r.author?.trim() || "Anonymous" },
+            datePublished: r.createdAt.slice(0, 10),
+            ...(r.title ? { name: r.title } : {}),
+            ...(r.body ? { reviewBody: r.body } : {}),
+          })),
+        }
+      : {}),
     ...(prices.length
       ? {
           offers: {
@@ -493,6 +524,9 @@ export default async function CardPage({ params }: { params: { id: string } }) {
           <AdSlot slot={ADSENSE_SLOTS.card} className="mt-6" height={120} />
         </div>
       </div>
+
+      {/* Genuine user reviews — the only source of this page's rating/review markup. */}
+      <CardReviews cardId={card.slug ?? card.id} cardName={card.name} initialReviews={reviews} />
 
       {/* Other printings — the same card in other sets (reprints, promos, alt
           numbers), so collectors can compare which printing is cheapest. */}
