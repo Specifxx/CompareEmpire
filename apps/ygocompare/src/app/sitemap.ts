@@ -32,6 +32,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/deals`, changeFrequency: "daily", priority: 0.85, lastModified: priceDay },
     // Card value checker — targets the "MTG card value/worth" query family.
     { url: `${SITE_URL}/card-value`, changeFrequency: "daily", priority: 0.85, lastModified: priceDay },
+    { url: `${SITE_URL}/market`, changeFrequency: "daily", priority: 0.8, lastModified: priceDay },
+    { url: `${SITE_URL}/blog/market-wrap`, changeFrequency: "daily", priority: 0.8, lastModified: priceDay },
+    { url: `${SITE_URL}/games`, changeFrequency: "weekly", priority: 0.6 },
+    { url: `${SITE_URL}/games/duel`, changeFrequency: "weekly", priority: 0.5 },
+    { url: `${SITE_URL}/games/rip`, changeFrequency: "weekly", priority: 0.5 },
+    { url: `${SITE_URL}/games/catcher`, changeFrequency: "weekly", priority: 0.5 },
+    { url: `${SITE_URL}/games/breaker`, changeFrequency: "weekly", priority: 0.5 },
+    { url: `${SITE_URL}/trade`, changeFrequency: "monthly", priority: 0.5 },
     // Restock trackers — high-intent ("<set> in stock") landers; refresh often.
     { url: `${SITE_URL}/restock`, changeFrequency: "daily", priority: 0.85 },
     ...FEATURED_RESTOCKS.map((p) => ({
