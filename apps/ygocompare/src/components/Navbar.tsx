@@ -18,7 +18,7 @@ export function Navbar() {
         <Link href="/" className="flex shrink-0 items-center gap-2" aria-label="YGOCompare home">
           <Logo size={36} />
           <span className="hidden text-lg font-extrabold tracking-tight text-white sm:block">
-            Dex<span className="text-brand-400">Compare</span>
+            YGO<span className="text-brand-400">Compare</span>
           </span>
         </Link>
 

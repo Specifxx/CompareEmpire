@@ -60,7 +60,7 @@ function emailShell(heading: string, inner: string, unsubUrl: string): string {
   return `<!doctype html><html><body style="margin:0;background:#0b0e14;font-family:Arial,Helvetica,sans-serif">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#0b0e14;padding:32px 0"><tr><td align="center">
     <table role="presentation" width="520" cellpadding="0" cellspacing="0" style="background:#131a26;border:1px solid #233047;border-radius:16px">
-      <tr><td style="padding:28px 32px 6px"><div style="font-size:22px;font-weight:800;color:#fff">Dex<span style="color:#34d17e">Compare</span></div></td></tr>
+      <tr><td style="padding:28px 32px 6px"><div style="font-size:22px;font-weight:800;color:#fff">OP<span style="color:#34d17e">Compare</span></div></td></tr>
       <tr><td style="padding:6px 32px 4px"><h1 style="margin:0;font-size:20px;color:#fff">${heading}</h1></td></tr>
       ${inner}
       ${alertFooter(unsubUrl)}
@@ -119,7 +119,7 @@ function restockShell(heading: string, inner: string, unsubUrl: string): string 
   return `<!doctype html><html><body style="margin:0;background:#0b0e14;font-family:Arial,Helvetica,sans-serif">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#0b0e14;padding:32px 0"><tr><td align="center">
     <table role="presentation" width="520" cellpadding="0" cellspacing="0" style="background:#131a26;border:1px solid #233047;border-radius:16px">
-      <tr><td style="padding:28px 32px 6px"><div style="font-size:22px;font-weight:800;color:#fff">Dex<span style="color:#34d17e">Compare</span></div></td></tr>
+      <tr><td style="padding:28px 32px 6px"><div style="font-size:22px;font-weight:800;color:#fff">OP<span style="color:#34d17e">Compare</span></div></td></tr>
       <tr><td style="padding:6px 32px 4px"><h1 style="margin:0;font-size:20px;color:#fff">${heading}</h1></td></tr>
       ${inner}
       ${footer}
