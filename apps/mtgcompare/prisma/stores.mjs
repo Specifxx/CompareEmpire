@@ -42,9 +42,6 @@ export function buildStores(tcg) {
       { key: "gapgames_au", name: "GAP Games", search: (q) => `https://www.gapgames.com.au/search?q=${q}` },
       { key: "houseofcards_au", name: "House of Cards", search: (q) => `https://houseofcards.com.au/search?q=${q}` },
       { key: "birdkeeper_au", name: "Bird Keeper", search: (q) => `https://birdkeeper.com.au/search?q=${q}` },
-      // candidates (re-verified by the audit)
-      { key: "ozgameshop_au", name: "ozgameshop", search: (q) => `https://www.ozgameshop.com/search?q=${q}` },
-      { key: "thanetgames_au", name: "Good Games Online", search: (q) => `https://goodgamesonline.com.au/search?q=${q}` },
       { key: "mightyape_au", name: "Mighty Ape", search: (q) => `https://www.mightyape.com.au/search?q=${q}` },
     ],
     GB: [
