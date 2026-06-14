@@ -58,6 +58,7 @@ jobs:
           echo "::add-mask::${{ secrets.YGOCOMPARE_DATABASE_URL }}"
 
       - name: Seed MTGCompare
+        continue-on-error: true
         if: ${{ inputs.seed_mtg }}
         working-directory: apps/mtgcompare
         env:
@@ -71,6 +72,7 @@ jobs:
           npx tsx prisma/seed.ts
 
       - name: Seed OPCompare
+        continue-on-error: true
         if: ${{ inputs.seed_op }}
         working-directory: apps/opcompare
         env:
@@ -85,6 +87,7 @@ jobs:
           npx tsx prisma/seed.ts
 
       - name: Seed YGOCompare
+        continue-on-error: true
         if: ${{ inputs.seed_ygo }}
         working-directory: apps/ygocompare
         env:
