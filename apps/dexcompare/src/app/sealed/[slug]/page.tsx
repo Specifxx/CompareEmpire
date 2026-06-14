@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
-import { getSealedGroups, type SealedGroup } from "@/lib/sealed-import";
+import { getSealedGroups, synthesizeSealedGroup, type SealedGroup } from "@/lib/sealed-import";
 import { FEATURED_RESTOCKS, restockTitleRegex, type FeaturedRestock } from "@/lib/restocks";
 import { recentRestockEvents } from "@/lib/restock-recheck";
 import { RestockAlertForm } from "@/components/RestockAlertForm";
@@ -30,7 +30,10 @@ async function findAny(slug: string, country: string): Promise<SealedGroup | nul
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const country = getCountry();
-  const g = (await findAny(params.slug, country)) ?? (await findAny(params.slug, "AU"));
+  const g =
+    (await findAny(params.slug, country)) ??
+    (await findAny(params.slug, "AU")) ??
+    synthesizeSealedGroup(params.slug);
   if (!g) notFound(); // real 404 — metadata resolves before streaming
   const title = `${g.name} — compare prices`;
   const description = `Compare live prices for ${g.name} across the stores we track in Australia, New Zealand, the US and the UK, and find the cheapest place to buy this sealed Pokémon product.`;
@@ -38,6 +41,10 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     title,
     description,
     alternates: { canonical: `/sealed/${g.slug}` },
+    // A synthesized product (no live listing anywhere) is a real page, not a 404,
+    // but it has no offers — noindex it so we don't feed Google a thin/soft-404
+    // page. It flips back to indexable automatically once a store lists it again.
+    ...(g.listings.length === 0 ? { robots: { index: false, follow: true } } : {}),
     openGraph: { type: "website", title, description, ...(g.imageUrl ? { images: [g.imageUrl] } : {}) },
   };
 }
@@ -63,6 +70,13 @@ export default async function SealedComparePage({ params }: { params: { slug: st
   let priceInfo = info;
   if (!group && country !== "AU") {
     group = (await getSealedGroups("AU")).find((g) => g.slug === params.slug);
+    if (group) priceInfo = COUNTRIES.AU;
+  }
+  // Known product that no store currently lists → rebuild it from its slug so the
+  // page renders (200) with the "no stores listing / set an alert" state instead
+  // of 404-ing a URL Google has already indexed. Unknown slugs still 404.
+  if (!group) {
+    group = synthesizeSealedGroup(params.slug) ?? undefined;
     if (group) priceInfo = COUNTRIES.AU;
   }
   if (!group) notFound();
