@@ -22,6 +22,6 @@
     "dev:opcompare": "cd apps/opcompare && npx next dev -p 3008",
     "seed:opcompare": "cd apps/opcompare && node prisma/gen-cards.mjs && npx prisma db push && npx tsx prisma/seed.ts",
     "dev:ygocompare": "cd apps/ygocompare && npx next dev -p 3009",
-    "seed:ygocompare": "cd apps/ygocompare && node prisma/gen-cards.mjs && npx prisma db push && npx tsx prisma/seed.ts"
+    "seed:ygocompare": "cd apps/ygocompare && npx prisma db push && npx tsx prisma/seed.ts"
   }
 }
