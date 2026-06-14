@@ -28,6 +28,10 @@ on:
         description: "Stores per region (blank = MTG/OP 20, YGO 10). Use 10 for full runs."
         required: false
         default: ""
+      mtg_url: { description: "MTG Neon URL (else MTGCOMPARE_DATABASE_URL secret)", required: false, default: "" }
+      op_url: { description: "OP Neon URL (else OPCOMPARE_DATABASE_URL secret)", required: false, default: "" }
+      ygo_url: { description: "YGO Neon URL (else YGOCOMPARE_DATABASE_URL secret)", required: false, default: "" }
+      apitcg_key: { description: "apitcg.com key for OP full (else APITCG_API_KEY secret)", required: false, default: "" }
 
 concurrency:
   group: seed-tcg
@@ -45,6 +49,10 @@ jobs:
 
       - name: Mask secrets
         run: |
+          echo "::add-mask::${{ inputs.mtg_url }}"
+          echo "::add-mask::${{ inputs.op_url }}"
+          echo "::add-mask::${{ inputs.ygo_url }}"
+          echo "::add-mask::${{ inputs.apitcg_key }}"
           echo "::add-mask::${{ secrets.MTGCOMPARE_DATABASE_URL }}"
           echo "::add-mask::${{ secrets.OPCOMPARE_DATABASE_URL }}"
           echo "::add-mask::${{ secrets.YGOCOMPARE_DATABASE_URL }}"
@@ -53,7 +61,7 @@ jobs:
         if: ${{ inputs.seed_mtg }}
         working-directory: apps/mtgcompare
         env:
-          DATABASE_URL: ${{ secrets.MTGCOMPARE_DATABASE_URL }}
+          DATABASE_URL: ${{ inputs.mtg_url || secrets.MTGCOMPARE_DATABASE_URL }}
           STORES_PER_REGION: ${{ inputs.stores_per_region }}
         run: |
           if [ -z "$DATABASE_URL" ]; then echo "::error::Set the MTGCOMPARE_DATABASE_URL secret."; exit 1; fi
@@ -66,8 +74,8 @@ jobs:
         if: ${{ inputs.seed_op }}
         working-directory: apps/opcompare
         env:
-          DATABASE_URL: ${{ secrets.OPCOMPARE_DATABASE_URL }}
-          APITCG_API_KEY: ${{ secrets.APITCG_API_KEY }}
+          DATABASE_URL: ${{ inputs.op_url || secrets.OPCOMPARE_DATABASE_URL }}
+          APITCG_API_KEY: ${{ inputs.apitcg_key || secrets.APITCG_API_KEY }}
           STORES_PER_REGION: ${{ inputs.stores_per_region }}
         run: |
           if [ -z "$DATABASE_URL" ]; then echo "::error::Set the OPCOMPARE_DATABASE_URL secret."; exit 1; fi
@@ -80,7 +88,7 @@ jobs:
         if: ${{ inputs.seed_ygo }}
         working-directory: apps/ygocompare
         env:
-          DATABASE_URL: ${{ secrets.YGOCOMPARE_DATABASE_URL }}
+          DATABASE_URL: ${{ inputs.ygo_url || secrets.YGOCOMPARE_DATABASE_URL }}
           STORES_PER_REGION: ${{ inputs.stores_per_region }}
         run: |
           if [ -z "$DATABASE_URL" ]; then echo "::error::Set the YGOCOMPARE_DATABASE_URL secret."; exit 1; fi
