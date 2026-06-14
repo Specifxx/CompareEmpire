@@ -42,7 +42,6 @@ export const metadata: Metadata = {
   keywords: ["One Piece the Gathering", "One Piece", "One Piece prices", "One Piece singles", "card prices", "One Piece card database", "One Piece card prices"],
   // Apple devices don't read the generated icon.tsx — point them at the big PNG.
   // (The rel=icon link itself comes from src/app/icon.tsx, 96×96 for Google Search.)
-  icons: { apple: "/icon-512.png" },
   // NOTE: no site-wide canonical here — each page declares its own canonical so
   // inner pages never inherit "/" and look like duplicates of the homepage.
   openGraph: {
@@ -76,7 +75,7 @@ const orgJsonLd = {
       name: SITE_NAME,
       alternateName: ["One Piece Compare", "OPCompare.app"],
       url: SITE_URL,
-      logo: `${SITE_URL}/icon-512.png`,
+      logo: `${SITE_URL}/apple-icon`,
       description:
         "One Piece Card Game card database and live price-comparison across Australia, New Zealand, the US and the UK.",
     },

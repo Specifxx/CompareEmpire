@@ -1,11 +1,11 @@
 import { ImageResponse } from "next/og";
 
-// 96×96 — Google Search shows favicons sized in multiples of 48px.
-export const size = { width: 96, height: 96 };
+// 512×512 — Apple touch icon + the Organization logo used in Google's
+// knowledge panel / rich results (referenced from the JSON-LD in layout).
+export const size = { width: 512, height: 512 };
 export const contentType = "image/png";
 
-// YGOCompare favicon — white "Y" on the brand gradient.
-export default function Icon() {
+export default function AppleIcon() {
   return new ImageResponse(
     (
       <div
@@ -13,7 +13,7 @@ export default function Icon() {
           width: "100%", height: "100%", display: "flex",
           alignItems: "center", justifyContent: "center",
           background: "linear-gradient(135deg,#c084fc,#7e22ce)",
-          color: "#fff", fontSize: 66, fontWeight: 800, borderRadius: 21,
+          color: "#fff", fontSize: 340, fontWeight: 800, borderRadius: 96,
         }}
       >
         Y
