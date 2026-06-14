@@ -7,11 +7,11 @@
 // Impact, Amazon, Sovrn) monetises the click. (eBay is handled separately as an
 // affiliate-search CTA — no Browse API.)
 //
-// SEARCH QUERY: we deliberately pass the card NAME ONLY (see storeQuery below).
-// Over-qualifying with the set name ("Monkey D. Luffy Romance Dawn") returns
-// "no results" on most store search engines; the bare name reliably lands the
-// shopper on the card. The US TCGplayer row is upgraded at seed time to the
-// card's REAL product-page URL where we can match it (exact card, like dexcompare).
+// SEARCH QUERY: we pass the card NAME ONLY (see storeQuery below). Over-qualifying
+// with the set name ("Monkey D. Luffy Romance Dawn") returns "no results" on most
+// store search engines; the bare name reliably lands the shopper on the card. The
+// US TCGplayer row is upgraded at seed time to the card's REAL product-page URL
+// where we can match it (exact card, like dexcompare).
 export function buildStores(tcg) {
   return {
     US: [
@@ -25,11 +25,11 @@ export function buildStores(tcg) {
       { key: "mtgseattle", name: "MTG Seattle", search: (q) => `https://www.mtgseattle.com/products/search?q=${q}` },
       { key: "gamenerdz", name: "GameNerdz", search: (q) => `https://www.gamenerdz.com/search.php?search_query=${q}` },
       { key: "hareruya_us", name: "Hareruya", search: (q) => `https://www.hareruyamtg.com/en/products/search?word=${q}` },
-      { key: "trollandtoad", name: "Troll and Toad", search: (q) => `https://www.trollandtoad.com/catalogsearch/result/?q=${q}` },
-      { key: "miniaturemarket", name: "Miniature Market", search: (q) => `https://www.miniaturemarket.com/catalogsearch/result/?q=${q}` },
       { key: "cardcavern", name: "Card Cavern", search: (q) => `https://cardcavern.com/search?q=${q}` },
-      { key: "capefeargames", name: "Cape Fear Games", search: (q) => `https://www.capefeargames.com/search?q=${q}` },
-      { key: "cardhaus", name: "Cardhaus", search: (q) => `https://www.cardhaus.com/catalogsearch/result/?q=${q}` },
+      // candidates (re-verified by the audit)
+      { key: "trollandtoad", name: "Troll and Toad", search: (q) => `https://www.trollandtoad.com/products/search?keywords=${q}` },
+      { key: "coretcg", name: "Core TCG", search: (q) => `https://coretcg.com/search?q=${q}` },
+      { key: "gamenerdz2", name: "401 Games", search: (q) => `https://store.401games.ca/search?q=${q}` },
       { key: "amazon_us", name: "Amazon", search: (q) => `https://www.amazon.com/s?k=${q}+trading+card` },
     ],
     AU: [
@@ -41,10 +41,11 @@ export function buildStores(tcg) {
       { key: "gameology", name: "Gameology", search: (q) => `https://www.gameology.com.au/search?q=${q}` },
       { key: "gamesempire", name: "Games Empire", search: (q) => `https://gamesempire.com.au/search?q=${q}` },
       { key: "goodgames", name: "Good Games", search: (q) => `https://goodgames.com.au/search?q=${q}` },
-      { key: "sanctuarygaming", name: "Sanctuary Gaming", search: (q) => `https://sanctuarygaming.com.au/search?q=${q}` },
-      { key: "eternalgames_au", name: "Eternal Games", search: (q) => `https://eternalgames.com.au/search?q=${q}` },
-      { key: "titancards_au", name: "Titan Cards", search: (q) => `https://titancards.com.au/search?q=${q}` },
-      { key: "bantertoys_au", name: "Banter Toys", search: (q) => `https://bantertoys.com.au/search?q=${q}` },
+      // candidates (re-verified by the audit)
+      { key: "gapgames_au", name: "GAP Games", search: (q) => `https://www.gapgames.com.au/search?q=${q}` },
+      { key: "houseofcards_au", name: "House of Cards", search: (q) => `https://houseofcards.com.au/search?q=${q}` },
+      { key: "birdkeeper_au", name: "Bird Keeper", search: (q) => `https://birdkeeper.com.au/search?q=${q}` },
+      { key: "mindgames_au", name: "Mind Games", search: (q) => `https://www.mindgames.com.au/search?q=${q}` },
       { key: "mightyape_au", name: "Mighty Ape", search: (q) => `https://www.mightyape.com.au/search?q=${q}` },
     ],
     GB: [
@@ -57,19 +58,22 @@ export function buildStores(tcg) {
       { key: "cardempire", name: "Card Empire", search: (q) => `https://www.cardempire.co.uk/search?q=${q}` },
       { key: "travellingman", name: "Travelling Man", search: (q) => `https://travellingman.com/search?q=${q}` },
       { key: "hareruya_uk", name: "Hareruya", search: (q) => `https://www.hareruyamtg.com/en/products/search?word=${q}` },
-      { key: "bigorbitcards", name: "Big Orbit Cards", search: (q) => `https://bigorbitcards.co.uk/search?q=${q}` },
       { key: "chaoscards", name: "Chaos Cards", search: (q) => `https://www.chaoscards.co.uk/search?q=${q}` },
       { key: "magicmadhouse", name: "Magic Madhouse", search: (q) => `https://www.magicmadhouse.co.uk/search?q=${q}` },
       { key: "patriotgames_uk", name: "Patriot Games", search: (q) => `https://www.patriotgames.co.uk/search?q=${q}` },
+      // candidates (re-verified by the audit)
+      { key: "fanboythree", name: "Fan Boy Three", search: (q) => `https://www.fanboythree.co.uk/search?q=${q}` },
+      { key: "manaleak", name: "Manaleak", search: (q) => `https://www.manaleak.com/search?q=${q}` },
       { key: "amazon_uk", name: "Amazon", search: (q) => `https://www.amazon.co.uk/s?k=${q}+trading+card` },
     ],
     NZ: [
       { key: "cardmerchant", name: "Card Merchant NZ", search: (q) => `https://www.cardmerchant.co.nz/search?q=${q}` },
       { key: "boardgamesnz", name: "Board Games NZ", search: (q) => `https://www.boardgames.co.nz/search?q=${q}` },
-      { key: "cerberusgames", name: "Cerberus Games", search: (q) => `https://cerberusgames.co.nz/search?q=${q}` },
       { key: "gamekings_nz", name: "Game Kings", search: (q) => `https://www.gamekings.co.nz/search?q=${q}` },
       { key: "vault_nz", name: "The Vault", search: (q) => `https://thevault.co.nz/search?q=${q}` },
       { key: "mightyape_nz", name: "Mighty Ape", search: (q) => `https://www.mightyape.co.nz/search?q=${q}` },
+      // candidates (re-verified by the audit)
+      { key: "addisongames_nz", name: "Addison Games", search: (q) => `https://addisongames.co.nz/search?q=${q}` },
       { key: "amazon_nz", name: "Amazon", search: (q) => `https://www.amazon.com.au/s?k=${q}+trading+card` },
     ],
   };
@@ -77,7 +81,7 @@ export function buildStores(tcg) {
 
 // Store search query for a card. NAME ONLY — see the header note: the bare card
 // name reliably returns the card on store search engines, whereas name+set
-// usually returns nothing. (Promos/alt-arts still resolve to the card's results.)
+// usually returns nothing.
 export function storeQuery(card) {
   return String(card.name || "").trim();
 }
@@ -85,10 +89,10 @@ export function storeQuery(card) {
 // "Main" stores per market (subset, used when a market needs fewer rows — e.g.
 // YGO, to fit the Neon free tier). Order = priority. Keys must exist above.
 const MAIN = {
-  US: ["tcgplayer_us", "amazon_us", "cardkingdom", "starcitygames", "channelfireball", "coolstuffinc", "trollandtoad", "abugames", "dacardworld", "gamenerdz"],
-  AU: ["mightyape_au", "guf", "cherrycollectables", "gameforce", "goodgames", "thegamescapital", "kingscomics", "gameology", "gamesempire", "sanctuarygaming"],
+  US: ["tcgplayer_us", "amazon_us", "cardkingdom", "starcitygames", "channelfireball", "coolstuffinc", "cardcavern", "abugames", "dacardworld", "gamenerdz"],
+  AU: ["mightyape_au", "guf", "cherrycollectables", "gameforce", "goodgames", "thegamescapital", "kingscomics", "gameology", "gamesempire", "gapgames_au"],
   GB: ["amazon_uk", "totalcards", "elementgames", "chaoscards", "goblingaming", "magicmadhouse", "darksphere", "axionnow", "hairyt", "cardempire"],
-  NZ: ["cardmerchant", "boardgamesnz", "cerberusgames", "mightyape_nz", "amazon_nz"],
+  NZ: ["cardmerchant", "boardgamesnz", "gamekings_nz", "vault_nz", "mightyape_nz"],
 };
 export function topStores(tcg, n = 10) {
   const full = buildStores(tcg);

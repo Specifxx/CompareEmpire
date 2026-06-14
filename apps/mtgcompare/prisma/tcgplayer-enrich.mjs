@@ -92,11 +92,27 @@ export function tcgProductUrl(p) {
   return `https://www.tcgplayer.com/product/${p.productId}/${slug}`;
 }
 
+// Card names must agree too — collector codes are NOT unique across promo sets
+// (TCGplayer has a Zoro promo numbered "OP01-001" as well as base Luffy
+// "OP01-001"), so a code-only match can land on the wrong card. Require the
+// card's name to appear in the product name, or strong token overlap.
+function nameMatch(cardName, prodName) {
+  const norm = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/\s+/g, " ").trim();
+  const a = norm(cardName), b = norm(prodName);
+  if (!a || !b) return false;
+  if (b.includes(a) || a.includes(b)) return true;
+  const at = a.split(" ").filter((t) => t.length > 2);
+  if (!at.length) return a.split(" ").every((t) => b.includes(t)); // very short names (e.g. "Nami")
+  const bt = new Set(b.split(" "));
+  return at.filter((t) => bt.has(t)).length / at.length >= 0.6;
+}
+
 function pickMatch(card, items, mode) {
   let best = null;
   for (const p of items) {
     const numStr = p.customAttributes?.number;
     if (!numStr) continue;
+    if (!nameMatch(card.name, p.productName)) continue; // guard against wrong card
     let ok = false;
     if (mode === "code") {
       ok = codeKey(numStr) === codeKey(card.collectorNumber);
