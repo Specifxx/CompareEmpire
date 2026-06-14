@@ -95,3 +95,21 @@ export function buildStores(tcg) {
     ],
   };
 }
+
+// The "main" stores per market (biggest shops + eBay/Amazon), used when a market
+// needs a trimmed set to fit a hosting storage cap. Order = priority.
+const MAIN = {
+  US: ["tcgplayer_us","ebay_us","amazon_us","cardkingdom","starcitygames","channelfireball","coolstuffinc","trollandtoad","abugames","dacardworld"],
+  AU: ["ebay","goodgames","guf","cardmania","gauntletgames","cherrycollectables","kingdomofgeek","gameforce","nextlevelgames","mightyape_au"],
+  GB: ["ebay_uk","amazon_uk","magicmadhouse","chaoscards","totalcards","manaleak","elementgames","bigorbitcards","goblingaming","hareruya_uk"],
+  NZ: ["ebay_nz","amazon_nz","cardmerchant","mightyape_nz","vault_nz","cerberusgames","comicscompulsion","geekzone_nz","thegamesshop_nz","markone"],
+};
+// Return the top-N main stores per market (default 10), guaranteeing eBay/Amazon.
+export function topStores(tcg, n = 10) {
+  const full = buildStores(tcg);
+  const out = {};
+  for (const r of Object.keys(full)) {
+    out[r] = MAIN[r].map((k) => full[r].find((s) => s.key === k)).filter(Boolean).slice(0, n);
+  }
+  return out;
+}

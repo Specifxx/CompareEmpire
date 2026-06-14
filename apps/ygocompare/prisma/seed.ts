@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { normalizeSearch } from "../src/lib/format";
 import { POKEMON_SETS } from "../src/lib/pokemon-sets";
-import { buildStores } from "./stores.mjs";
+import { buildStores, topStores } from "./stores.mjs";
 
 const prisma = new PrismaClient();
 
@@ -66,7 +66,7 @@ const FX: Record<string, number> = { US: 1.0, AU: 1.55, NZ: 1.68, GB: 0.82 };
 const CUR: Record<string, string> = { US: "USD", AU: "AUD", NZ: "NZD", GB: "GBP" };
 const cents = (n: number, floor = 8) => Math.max(floor, Math.round(n));
 
-const STORES: Record<string, { key: string; name: string; search: (q: string) => string }[]> = buildStores("yugioh");
+const STORES: Record<string, { key: string; name: string; search: (q: string) => string }[]> = topStores("yugioh", 10);
 
 async function main() {
   const cards = JSON.parse(readFileSync(join(process.cwd(), "prisma", "ygo-cards.json"), "utf8")) as BuiltCard[];
