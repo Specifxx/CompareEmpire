@@ -94,6 +94,103 @@ export async function fetchSampleProducts(productLine, n = 8) {
   return items.slice(0, n);
 }
 
+const PAGE = 50;
+// One page of the full catalogue (offset-paginated), with the same retry/backoff.
+async function fetchPage(productLine, from) {
+  let lastErr;
+  for (let attempt = 0; attempt < 4; attempt++) {
+    if (attempt) await sleep(400 * 2 ** attempt + Math.random() * 300);
+    let res;
+    try {
+      res = await fetch("https://mp-search-api.tcgplayer.com/v1/search/request?q=&isList=false", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json", Accept: "application/json",
+          Origin: "https://www.tcgplayer.com", Referer: "https://www.tcgplayer.com/",
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36",
+        },
+        body: JSON.stringify({ ...body(productLine, "", PAGE), from }),
+      });
+    } catch (e) { lastErr = e; continue; }
+    if (res.status === 429 || res.status >= 500) { lastErr = new Error(`TCGplayer ${res.status}`); continue; }
+    if (!res.ok) throw new Error(`TCGplayer ${res.status}`);
+    const data = await res.json();
+    const r = data?.results?.[0];
+    return { items: (r?.results ?? []).filter((p) => !p.sealed), total: r?.totalResults ?? 0 };
+  }
+  throw lastErr ?? new Error("page failed");
+}
+
+const attr = (p, k) => {
+  const v = p.customAttributes?.[k];
+  return v == null ? null : Array.isArray(v) ? v.join("/") : String(v);
+};
+// Tidy a TCGplayer product name into a card name: drop trailing "(NNN)",
+// "- OP01-001", and par/alt-art parentheticals.
+function cleanCardName(name) {
+  return String(name || "")
+    .replace(/\s*-\s*[A-Z0-9]{2,6}-[A-Z]*\d+.*$/i, "")
+    .replace(/\s*\((?:alternate art|parallel|special|manga|box topper|full art|\d{1,4})\).*$/i, "")
+    .replace(/\s+/g, " ").trim();
+}
+const isAltPrint = (n) => /alternate art|parallel|special|manga|box topper|full art|reprint/i.test(n || "");
+
+// Build a card catalogue straight from TCGplayer — authoritative names, codes,
+// sets, CLEAN images and real US market prices. Returns BuiltCard-shaped rows.
+// One row per card code (base/non-alt printing preferred). Used by the One Piece
+// seed because the hand-curated list had inaccurate name↔code pairings.
+export async function buildCatalog(productLine, opts = {}) {
+  const maxFrom = opts.maxFrom ?? Infinity;
+  let first;
+  try { first = await fetchPage(productLine, 0); }
+  catch (e) { console.warn(`buildCatalog: TCGplayer unreachable (${e.message})`); return []; }
+  const items = [...first.items];
+  const limit = Math.min(first.total, maxFrom);
+  for (let from = PAGE; from < limit; from += PAGE) {
+    await sleep(120);
+    try { const pg = await fetchPage(productLine, from); if (!pg.items.length) break; items.push(...pg.items); }
+    catch (e) { console.warn(`buildCatalog page ${from}: ${e.message}`); break; }
+  }
+  console.log(`buildCatalog ${productLine}: pulled ${items.length} products`);
+  const byCode = new Map();
+  for (const p of items) {
+    const num = p.customAttributes?.number;
+    if (!num) continue;
+    const key = codeKey(num);
+    if (!key) continue;
+    const prev = byCode.get(key);
+    // prefer a base (non-foil, non-alt) printing for the catalogue entry
+    const score = (p.foilOnly ? 0 : 2) + (isAltPrint(p.productName) ? 0 : 1);
+    if (prev && prev.score >= score) continue;
+    byCode.set(key, { p, num, score });
+  }
+  const cards = [];
+  for (const { p, num } of byCode.values()) {
+    const setCode = String(num).split("-")[0].toUpperCase();
+    const market = typeof p.marketPrice === "number" && p.marketPrice > 0 ? Math.round(p.marketPrice * 100) : null;
+    cards.push({
+      externalId: num,
+      name: cleanCardName(p.productName),
+      setCode,
+      setName: p.setName || setCode,
+      releaseDate: "2022/12/02",
+      collectorNumber: num,
+      number: String(num).split("-").pop() || num,
+      domain: attr(p, "Color") || attr(p, "color") || "Red",
+      type: attr(p, "CardType") || attr(p, "cardType") || "Character",
+      subtype: attr(p, "SubTypes") || attr(p, "subTypeName") || null,
+      rarity: attr(p, "Rarity") || attr(p, "rarity") || "Common",
+      hp: null, artist: null, flavorText: null,
+      imageUrl: tcgImageUrl(p.productId),
+      imageThumbUrl: tcgImageUrl(p.productId),
+      productUrl: tcgProductUrl(p),
+      marketCents: market,
+    });
+  }
+  console.log(`buildCatalog ${productLine}: built ${cards.length} unique cards`);
+  return cards;
+}
+
 export function tcgImageUrl(productId) {
   return `https://tcgplayer-cdn.tcgplayer.com/product/${productId}_in_1000x1000.jpg`;
 }

@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { normalizeSearch } from "../src/lib/format";
 import { POKEMON_SETS } from "../src/lib/pokemon-sets";
 import { buildStores, topStores, storeQuery } from "./stores.mjs";
-import { enrichFromTcgplayer } from "./tcgplayer-enrich.mjs";
+import { enrichFromTcgplayer, buildCatalog } from "./tcgplayer-enrich.mjs";
 
 const prisma = new PrismaClient();
 
@@ -67,17 +67,37 @@ const cents = (n: number, floor = 8) => Math.max(floor, Math.round(n));
 const SPR = parseInt(process.env.STORES_PER_REGION || "0", 10);
 const STORES: Record<string, { key: string; name: string; search: (q: string) => string }[]> = SPR > 0 ? topStores("one-piece-card-game", SPR) : buildStores("one-piece-card-game");
 
-async function main() {
-  const cards = JSON.parse(readFileSync(join(process.cwd(), "prisma", "op-cards.json"), "utf8")) as BuiltCard[];
-  console.log(`Loaded ${cards.length} One Piece cards from the offline data mirror.`);
+type CardX = BuiltCard & { productUrl?: string | null; marketCents?: number | null };
 
-  // Real TCGplayer products: clean images (no Bandai "SAMPLE" watermark) + real
-  // product URLs (so the US "View deal" link lands on the EXACT card, like
-  // dexcompare) + the real US market price. Reachable from CI; falls back cleanly.
-  const TCG = await enrichFromTcgplayer("one-piece-card-game", cards).catch((e) => {
-    console.warn("TCGplayer enrichment failed:", e.message);
-    return new Map<string, { productId: number; productUrl: string; imageUrl: string; marketCents: number | null }>();
-  });
+async function main() {
+  // Build the One Piece catalogue straight from TCGplayer — authoritative names,
+  // codes, sets, CLEAN images (no Bandai "SAMPLE" watermark) and real US prices.
+  // The old hand-curated list had inaccurate name↔code pairings, so we prefer the
+  // TCGplayer catalogue and only fall back to the committed file if it's unreachable.
+  let cards: CardX[] = [];
+  let usingTcg = false;
+  try {
+    const tcg = (await buildCatalog("one-piece-card-game")) as CardX[];
+    if (tcg.length >= 100) { cards = tcg; usingTcg = true; console.log(`Using TCGplayer One Piece catalogue: ${tcg.length} cards (clean images + real prices).`); }
+  } catch (e) { console.warn("buildCatalog failed:", (e as Error).message); }
+  if (!usingTcg) {
+    cards = JSON.parse(readFileSync(join(process.cwd(), "prisma", "op-cards.json"), "utf8")) as CardX[];
+    console.log(`Fell back to the committed One Piece catalogue: ${cards.length} cards.`);
+  }
+
+  // When using the committed fallback, enrich by name for clean images + real links.
+  const TCG = usingTcg
+    ? new Map<string, { productId: number; productUrl: string; imageUrl: string; marketCents: number | null }>()
+    : await enrichFromTcgplayer("one-piece-card-game", cards).catch((e) => {
+        console.warn("TCGplayer enrichment failed:", e.message);
+        return new Map<string, { productId: number; productUrl: string; imageUrl: string; marketCents: number | null }>();
+      });
+  // Per-card image / product URL / market price (from the catalogue or enrichment).
+  const infoOf = (c: CardX) => {
+    if (usingTcg) return { imageUrl: c.imageUrl ?? null, productUrl: c.productUrl ?? null, marketCents: c.marketCents ?? null };
+    const e = TCG.get(c.externalId);
+    return { imageUrl: e?.imageUrl ?? null, productUrl: e?.productUrl ?? null, marketCents: e?.marketCents ?? null };
+  };
 
   console.log("Resetting data…");
   await prisma.order.deleteMany();
@@ -98,14 +118,14 @@ async function main() {
     create: { email: "compareempire", passwordHash: ADMIN_HASH, displayName: "CompareEmpire", sellerName: "CompareEmpire Marketplace", isAdmin: true, verifiedSeller: true, emailVerified: new Date() },
   });
 
-  type Built = BuiltCard & { usdRef: number };
+  type Built = CardX & { usdRef: number };
   const built: Built[] = cards.map((c) => ({
     ...c,
     usdRef: cents(refUsd(c.rarity) * ageMult(c.setCode) * chaseMult(c.name, c.rarity)),
   }));
 
   const cardRows = built.map((c) => {
-    const enr = TCG.get(c.externalId);
+    const info = infoOf(c);
     return {
       externalId: c.externalId,
       slug: `${c.externalId}-${normalizeSearch(c.name).replace(/\s+/g, "-")}`.toLowerCase().slice(0, 80),
@@ -120,12 +140,12 @@ async function main() {
       tags: c.subtype,
       flavorText: c.flavorText,
       description: c.subtype ? `${c.subtype}` : null,
-      // CLEAN TCGplayer image when matched; otherwise null → the self-contained
-      // SVG card art renders. We NEVER store the watermarked Limitless URL.
-      imageUrl: enr?.imageUrl ?? null,
-      imageThumbUrl: enr?.imageUrl ?? null,
-      marketPriceCents: enr?.marketCents ?? c.usdRef,
-      marketPriceSource: enr?.marketCents != null ? "TCGplayer" : "Estimate",
+      // CLEAN TCGplayer image; otherwise null → the self-contained SVG card art
+      // renders. We NEVER store the watermarked Limitless URL.
+      imageUrl: info.imageUrl,
+      imageThumbUrl: info.imageUrl,
+      marketPriceCents: info.marketCents ?? c.usdRef,
+      marketPriceSource: info.marketCents != null ? "TCGplayer" : "Estimate",
       marketPriceUpdatedAt: new Date(),
       artSeed: Math.floor(rng() * 1_000_000),
     };
@@ -138,9 +158,10 @@ async function main() {
   console.log(`Building retailer prices for ${dbCards.length} cards…`);
   const priceRows: any[] = [];
   const lows: Record<string, Record<string, number>> = {};
+  const productUrlByExt = new Map(built.map((c) => [c.externalId, infoOf(c).productUrl]));
   for (const c of dbCards) {
     const usd = c.marketPriceCents;
-    const enr = TCG.get(c.externalId!);
+    const tcgUrl = productUrlByExt.get(c.externalId!) ?? null;
     const q = encodeURIComponent(storeQuery(c));
     lows[c.externalId!] = {};
     for (const market of ["US", "AU", "GB", "NZ"] as const) {
@@ -148,13 +169,13 @@ async function main() {
       const marketStores = STORES[market];
       let marketMin = Infinity;
       for (const s of marketStores) {
-        // US TCGplayer: when matched, link to the REAL product page at the REAL
-        // market price (accurate "View deal" → exact card), like dexcompare.
-        const isRealTcg = s.key === "tcgplayer_us" && enr != null;
-        const nm = isRealTcg && enr!.marketCents != null ? enr!.marketCents : cents(usd * fx * between(0.9, 1.25));
+        // US TCGplayer: when we have it, link to the REAL product page (accurate
+        // "View deal" → exact card), like dexcompare; else fall back to search.
+        const isRealTcg = s.key === "tcgplayer_us" && !!tcgUrl;
+        const nm = cents(usd * fx * between(0.9, 1.25));
         priceRows.push({
           cardId: c.id, retailer: s.key, retailerName: s.name, title: `${c.name} (${c.setName})`,
-          url: isRealTcg ? enr!.productUrl : s.search(q), condition: "NM",
+          url: isRealTcg ? tcgUrl! : s.search(q), condition: "NM",
           conditionPrices: { NM: nm, LP: cents(nm * 0.85), MP: cents(nm * 0.7), HP: cents(nm * 0.55) },
           priceCents: nm, shippingCents: market === "US" ? cents(between(0, 199)) : cents(between(0, 350)),
           currency: cur, inStock: isRealTcg ? true : rng() > 0.08, country: market,
