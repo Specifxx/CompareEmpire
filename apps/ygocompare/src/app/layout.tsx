@@ -73,7 +73,7 @@ const orgJsonLd = {
       "@type": "Organization",
       "@id": `${SITE_URL}/#org`,
       name: SITE_NAME,
-      alternateName: ["Yu-Gi-Oh! Compare", "YGOCompare.app"],
+      alternateName: ["YGOCompare", "YGOCompare.app"],
       url: SITE_URL,
       logo: `${SITE_URL}/apple-icon`,
       description:
@@ -84,7 +84,7 @@ const orgJsonLd = {
       "@id": `${SITE_URL}/#website`,
       url: SITE_URL,
       name: SITE_NAME,
-      alternateName: ["Yu-Gi-Oh! Compare", "YGOCompare.app"],
+      alternateName: ["YGOCompare", "YGOCompare.app"],
       publisher: { "@id": `${SITE_URL}/#org` },
       potentialAction: {
         "@type": "SearchAction",
@@ -150,6 +150,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Link href="/browse" className="hover:text-slate-300">Database</Link>
             <Link href="/sealed" className="hover:text-slate-300">Sealed products</Link>
             <Link href="/deals" className="hover:text-slate-300">Deals</Link>
+            <Link href="/market" className="hover:text-slate-300">Market index</Link>
+            <Link href="/games" className="hover:text-slate-300">Minigames</Link>
+            <Link href="/trade" className="hover:text-slate-300">Trade calculator</Link>
             <Link href="/card-value" className="hover:text-slate-300">Card value checker</Link>
             <Link href="/restock" className="hover:text-slate-300">Drops &amp; restocks</Link>
             <Link href="/guides" className="hover:text-slate-300">Buying guides</Link>
