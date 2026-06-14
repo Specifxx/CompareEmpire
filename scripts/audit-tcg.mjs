@@ -1,58 +1,96 @@
-// Audit script run on a GitHub Actions runner (open internet).
-//   APITCG_API_KEY=xxx node scripts/audit-tcg.mjs
-// 1) Diagnoses the One Piece image source (apitcg sample + candidate image URLs).
-// 2) HTTP-tests every store search URL in the shared directory to find dead/fake
-//    domains to cull.
+// Persona-click audit — runs on a GitHub Actions runner (open internet).
+//   APITCG_API_KEY=optional node scripts/audit-tcg.mjs
+//
+// Simulates what a real user experiences after clicking a "View deal" link:
+//  1) TCGplayer enrichment — can we match each game's cards to a real TCGplayer
+//     product (→ accurate product URL) and does the CLEAN image load (HTTP 200,
+//     no Bandai "SAMPLE")? This is what makes dexcompare's links land on the
+//     exact card instead of a 404.
+//  2) Store search links — for sample real cards, build each store's search URL
+//     with several query strategies and FOLLOW it (redirects included), then flag
+//     pages that 404 or return "no results". Picks the query that actually finds
+//     the card.
 import { buildStores } from "../apps/mtgcompare/prisma/stores.mjs";
+import { enrichFromTcgplayer } from "../apps/opcompare/prisma/tcgplayer-enrich.mjs";
+import { readFileSync } from "node:fs";
 
 const UA = { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36" };
+const NOT_FOUND_RE = /(no results|0 results|did not match|couldn'?t find|nothing found|page not found|404 not found|no products|sorry, no)/i;
 
-async function status(url, headers = {}) {
+async function probe(url) {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), 18000);
+  try {
+    const r = await fetch(url, { redirect: "follow", headers: UA, signal: ctrl.signal });
+    let empty = false;
+    if (r.ok) {
+      const body = (await r.text()).slice(0, 250000);
+      empty = NOT_FOUND_RE.test(body);
+    }
+    return { status: r.status, empty };
+  } catch (e) {
+    return { status: `ERR:${e.cause?.code || e.name || "fail"}`, empty: false };
+  } finally { clearTimeout(t); }
+}
+async function imgOk(url) {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), 15000);
   try {
-    let r = await fetch(url, { method: "GET", redirect: "follow", headers: { ...UA, ...headers }, signal: ctrl.signal });
-    return `${r.status}`;
-  } catch (e) {
-    return `ERR:${(e.cause?.code || e.name || "fail")}`;
-  } finally { clearTimeout(t); }
+    const r = await fetch(url, { redirect: "follow", headers: UA, signal: ctrl.signal });
+    const len = Number(r.headers.get("content-length") || 0);
+    return `${r.status}${len ? ` ${(len / 1024).toFixed(0)}KB` : ""}`;
+  } catch (e) { return `ERR:${e.cause?.code || e.name || "fail"}`; }
+  finally { clearTimeout(t); }
 }
 
-console.log("================ ONE PIECE IMAGE DIAGNOSIS ================");
-const KEY = process.env.APITCG_API_KEY;
-if (KEY) {
+const GAMES = [
+  { key: "magic", file: "apps/mtgcompare/prisma/mtg-cards.json", maxFrom: 8000 },
+  { key: "one-piece-card-game", file: "apps/opcompare/prisma/op-cards.json", maxFrom: Infinity },
+  { key: "yugioh", file: "apps/ygocompare/prisma/ygo-cards.json", maxFrom: 8000 },
+];
+
+console.log("================ 1) TCGPLAYER MATCH + CLEAN IMAGES ================");
+for (const g of GAMES) {
+  const cards = JSON.parse(readFileSync(g.file, "utf8"));
+  const sample = cards.length > 600 ? cards.filter((_, i) => i % Math.ceil(cards.length / 600) === 0) : cards;
+  console.log(`\n-- ${g.key} (${cards.length} cards, matching ${sample.length}) --`);
+  let map = new Map();
   try {
-    const r = await fetch("https://apitcg.com/api/one-piece/cards?limit=3", { headers: { ...UA, "x-api-key": KEY } });
-    console.log("apitcg HTTP", r.status);
-    const body = await r.json();
-    const cards = body.data ?? body.cards ?? [];
-    for (const c of cards.slice(0, 3)) {
-      console.log(`  ${c.id || c.code} ${c.name}: images=${JSON.stringify(c.images)} image=${c.image ?? ""}`);
-    }
-    // test the first card's image url actually loads
-    const img = cards[0]?.images?.large || cards[0]?.images?.small || cards[0]?.image;
-    if (img) console.log(`  apitcg image ${img} -> HTTP ${await status(img)}`);
-  } catch (e) { console.log("apitcg error:", e.message); }
-} else {
-  console.log("(no APITCG_API_KEY input — skipping apitcg sample)");
-}
-console.log("Candidate OP image hosts (Limitless CDN, multiple sets):");
-for (const id of ["OP01-001", "OP05-001", "OP09-001", "OP11-001", "ST01-001", "EB01-001", "PRB01-001"]) {
-  const set = id.split("-")[0];
-  const u = `https://limitlesstcg.nyc3.cdn.digitaloceanspaces.com/one-piece/${set}/${id}_EN.webp`;
-  console.log(`  ${u} -> HTTP ${await status(u)}`);
+    map = await enrichFromTcgplayer(g.key, sample, { maxFrom: g.maxFrom });
+  } catch (e) { console.log("  enrich error:", e.message); }
+  const matched = [...map.entries()];
+  console.log(`  matched ${matched.length}/${sample.length} (${((matched.length / sample.length) * 100).toFixed(0)}%)`);
+  for (const [ext, v] of matched.slice(0, 4)) {
+    console.log(`  ${ext} -> ${v.productUrl}`);
+    console.log(`     img ${v.imageUrl} -> HTTP ${await imgOk(v.imageUrl)}  market=${v.marketCents != null ? "$" + (v.marketCents / 100).toFixed(2) : "—"}`);
+  }
 }
 
-console.log("\n================ STORE LINK AUDIT (domains shared across all 3 games) ================");
+console.log("\n================ 2) STORE SEARCH CLICK TEST (query strategies) ================");
+// Use real cards so the search is realistic.
+const op = JSON.parse(readFileSync("apps/opcompare/prisma/op-cards.json", "utf8"));
+const probes = [
+  { game: "one-piece-card-game", card: op[0] }, // Monkey D. Luffy OP01-001
+  { game: "magic", card: JSON.parse(readFileSync("apps/mtgcompare/prisma/mtg-cards.json", "utf8"))[0] }, // Black Lotus
+];
+const QUERY = {
+  nameSet: (c) => `${c.name} ${c.setName}`,
+  nameOnly: (c) => c.name,
+  nameNum: (c) => `${c.name} ${String(c.collectorNumber).split("/")[0]}`,
+};
 const stores = buildStores("magic");
-const q = encodeURIComponent("Black Lotus");
-for (const region of ["US", "AU", "GB", "NZ"]) {
-  console.log(`-- ${region} --`);
-  for (const s of stores[region]) {
-    const url = s.search(q);
-    const code = await status(url);
-    const verdict = /^(2|3)/.test(code) ? "OK" : code === "403" || code === "503" || code === "429" ? "REAL(blocked)" : "DEAD?";
-    console.log(`  [${code}] ${verdict.padEnd(13)} ${s.name.padEnd(22)} ${url.split("/").slice(0,3).join("/")}`);
+for (const { card } of probes) {
+  console.log(`\n#### card: ${card.name} [${card.setName}] ${card.collectorNumber} ####`);
+  for (const region of ["US", "AU", "GB", "NZ"]) {
+    console.log(`-- ${region} --`);
+    for (const s of stores[region]) {
+      const line = [];
+      for (const [qn, qf] of Object.entries(QUERY)) {
+        const r = await probe(s.search(encodeURIComponent(qf(card))));
+        line.push(`${qn}:${r.status}${r.empty ? "/empty" : ""}`);
+      }
+      console.log(`  ${s.name.padEnd(20)} ${line.join("  ")}`);
+    }
   }
 }
 console.log("\nDONE");
