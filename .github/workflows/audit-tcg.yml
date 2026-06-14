@@ -1,0 +1,21 @@
+name: Audit TCG sites (links + OP images)
+
+# Runs on a GitHub runner (open internet) to (1) diagnose the One Piece image
+# source and (2) HTTP-test every store link so we can cull dead/fake domains.
+on:
+  workflow_dispatch:
+    inputs:
+      apitcg_key: { description: "apitcg.com key (for the OP image diagnosis)", required: false, default: "" }
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Run audit
+        env:
+          APITCG_API_KEY: ${{ inputs.apitcg_key }}
+        run: node scripts/audit-tcg.mjs
