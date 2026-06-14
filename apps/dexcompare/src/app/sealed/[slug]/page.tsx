@@ -13,6 +13,7 @@ import { TcgplayerAd } from "@/components/TcgplayerAd";
 import { EbayAd } from "@/components/EbayAd";
 import { ADSENSE_SLOTS } from "@/lib/ads";
 import { affiliateUrl, ebaySearchUrl } from "@/lib/affiliate";
+import { aggregateOffer } from "@/lib/structured-data";
 import { getCountry } from "@/lib/get-country";
 import { COUNTRIES } from "@/lib/country";
 import { POKEMON_SETS } from "@/lib/pokemon-sets";
@@ -89,29 +90,21 @@ export default async function SealedComparePage({ params }: { params: { slug: st
   const ebayHref = ebaySearchUrl(group.name, country);
   const lastSeen = listings.reduce<Date | null>((latest, l) => (!latest || l.lastSeen > latest ? l.lastSeen : latest), null);
 
+  // One valid AggregateOffer from every known listing price (in stock or last
+  // seen). Omitted entirely when we hold no price, rather than emitting an
+  // invalid offerCount:0 node — see lib/structured-data.
+  const offers = aggregateOffer({
+    priceCentsList: listings.map((l) => l.priceCents),
+    inStock: inStock.length > 0,
+    currency: priceInfo.currency,
+  });
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
     name: group.name,
     category: "Trading Card Game Sealed Product",
     ...(group.imageUrl ? { image: group.imageUrl } : {}),
-    ...(inStock.length
-      ? {
-          offers: {
-            "@type": "AggregateOffer",
-            priceCurrency: priceInfo.currency,
-            lowPrice: ((lowest as number) / 100).toFixed(2),
-            highPrice: (Math.max(...listings.map((l) => l.priceCents)) / 100).toFixed(2),
-            availability: "https://schema.org/InStock",
-            offerCount: inStock.length,
-            // Prices refresh daily — valid until tomorrow keeps the markup honest.
-            priceValidUntil: new Date(Date.now() + 86400e3).toISOString().slice(0, 10),
-          },
-        }
-      // No in-stock listing → omit offers entirely. An AggregateOffer with
-      // offerCount:0 fails Google's "offerCount must be positive" check, so a
-      // sold-out product is better left with no offers block than an invalid one.
-      : {}),
+    ...(offers ? { offers } : {}),
   };
 
   return (

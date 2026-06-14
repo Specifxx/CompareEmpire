@@ -17,6 +17,7 @@ import { cardTileSelect } from "@/lib/cards";
 import { formatMoney, timeAgo } from "@/lib/format";
 import { effectiveShippingCents, shippingPolicyUrl } from "@/lib/retailers";
 import { affiliateUrl, ebaySearchUrl } from "@/lib/affiliate";
+import { aggregateOffer } from "@/lib/structured-data";
 import { getCountry } from "@/lib/get-country";
 import { COUNTRIES, pickPrice, marketGuideCents } from "@/lib/country";
 import { OutboundLink } from "@/components/OutboundLink";
@@ -183,6 +184,14 @@ export default async function CardPage({ params }: { params: { id: string } }) {
   const ebaySearchHref = ebaySearchUrl(`pokemon ${card.name} ${card.collectorNumber.split("/")[0]}`, country);
 
   // Structured data so Google can show a rich price snippet ("$X, N stores").
+  // Legitimate enrichment only: offers derive from real store prices, and
+  // aggregateRating/review (below) come solely from genuine user reviews — never
+  // fabricated self-serving ratings.
+  const offers = aggregateOffer({
+    priceCentsList: prices.map((p) => p.priceCents),
+    inStock: true, // the comparison rows are live in-stock listings
+    currency: info.currency,
+  });
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -214,22 +223,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
           })),
         }
       : {}),
-    ...(prices.length
-      ? {
-          offers: {
-            "@type": "AggregateOffer",
-            priceCurrency: info.currency,
-            // Min/max of ACTUAL item prices (prices is sorted by delivered cost,
-            // so its last element isn't necessarily the highest item price).
-            lowPrice: (Math.min(...prices.map((p) => p.priceCents)) / 100).toFixed(2),
-            highPrice: (Math.max(...prices.map((p) => p.priceCents)) / 100).toFixed(2),
-            offerCount: prices.length,
-            availability: "https://schema.org/InStock",
-            // Honest expiry: prices refresh with the daily import.
-            priceValidUntil: new Date(Date.now() + 86400e3).toISOString().slice(0, 10),
-          },
-        }
-      : {}),
+    ...(offers ? { offers } : {}),
   };
 
   return (
