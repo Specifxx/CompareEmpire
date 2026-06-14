@@ -73,10 +73,16 @@ async function main() {
   const cards = JSON.parse(readFileSync(join(process.cwd(), "prisma", "ygo-cards.json"), "utf8")) as BuiltCard[];
   console.log(`Loaded ${cards.length} Yu-Gi-Oh! cards from the offline data mirror.`);
 
-  // Real TCGplayer products → real product URLs (accurate US "View deal" → exact
-  // card, like dexcompare) + real US market price. ygoprodeck images are already
-  // clean, so they stay as the image fallback. Reachable from CI; degrades cleanly.
-  const TCG = await enrichFromTcgplayer("yugioh", cards).catch((e) => {
+  // The full Yu-Gi-Oh! catalogue is 12,768 cards — far too many for per-card
+  // TCGplayer lookups (rate-limit risk). ygoprodeck images are already clean and
+  // the name-only store search links resolve to the card, so we enrich only the
+  // highest-value cards (where an exact product link + real price matter most).
+  const topForEnrich = [...cards]
+    .map((c) => ({ c, ref: refUsd(c.rarity) * ageMult(c.releaseDate) * chaseMult(c.name, c.rarity) }))
+    .sort((a, b) => b.ref - a.ref)
+    .slice(0, 1500)
+    .map((x) => x.c);
+  const TCG = await enrichFromTcgplayer("yugioh", topForEnrich, { concurrency: 6 }).catch((e) => {
     console.warn("TCGplayer enrichment failed:", e.message);
     return new Map<string, { productId: number; productUrl: string; imageUrl: string; marketCents: number | null }>();
   });

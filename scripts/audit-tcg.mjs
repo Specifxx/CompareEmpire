@@ -19,12 +19,12 @@ const NOT_FOUND_RE = /(no results|0 results|did not match|couldn'?t find|nothing
 
 async function probe(url) {
   const ctrl = new AbortController();
-  const t = setTimeout(() => ctrl.abort(), 12000);
+  const t = setTimeout(() => ctrl.abort(), 10000);
   try {
     const r = await fetch(url, { redirect: "follow", headers: UA, signal: ctrl.signal });
     let empty = false;
     if (r.ok) {
-      const body = (await r.text()).slice(0, 250000);
+      const body = (await r.text()).slice(0, 60000);
       empty = NOT_FOUND_RE.test(body);
     }
     return { status: r.status, empty };
@@ -46,9 +46,9 @@ async function imgOk(url) {
 // OP first (small + the critical fix), then capped MTG/YGO so the audit is fast.
 // The real seed does an uncapped pull for full coverage.
 const GAMES = [
-  { key: "one-piece-card-game", file: "apps/opcompare/prisma/op-cards.json", maxFrom: Infinity },
-  { key: "magic", file: "apps/mtgcompare/prisma/mtg-cards.json", maxFrom: 4000 },
-  { key: "yugioh", file: "apps/ygocompare/prisma/ygo-cards.json", maxFrom: 4000 },
+  { key: "one-piece-card-game", file: "apps/opcompare/prisma/op-cards.json" },
+  { key: "magic", file: "apps/mtgcompare/prisma/mtg-cards.json" },
+  { key: "yugioh", file: "apps/ygocompare/prisma/ygo-cards.json" },
 ];
 
 console.log("================ 0) RAW TCGPLAYER PRODUCT SHAPE ================");
@@ -65,12 +65,12 @@ for (const g of GAMES) {
 console.log("\n================ 1) TCGPLAYER MATCH + CLEAN IMAGES ================");
 for (const g of GAMES) {
   const cards = JSON.parse(readFileSync(g.file, "utf8"));
-  // For OP/MTG use the whole (small) catalogue; YGO is huge → representative sample.
-  const sample = cards.length > 800 ? cards.filter((_, i) => i % Math.ceil(cards.length / 800) === 0) : cards;
+  // OP/MTG: whole (small) catalogue. YGO: representative ~250-card sample.
+  const sample = cards.length > 300 ? cards.filter((_, i) => i % Math.ceil(cards.length / 250) === 0) : cards;
   console.log(`\n-- ${g.key} (${cards.length} cards, matching ${sample.length}) --`);
   let map = new Map();
   try {
-    map = await enrichFromTcgplayer(g.key, sample, { maxFrom: g.maxFrom });
+    map = await enrichFromTcgplayer(g.key, sample, { concurrency: 6 });
   } catch (e) { console.log("  enrich error:", e.message); }
   const matched = [...map.entries()];
   console.log(`  matched ${matched.length}/${sample.length} (${((matched.length / sample.length) * 100).toFixed(0)}%)`);

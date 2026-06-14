@@ -1,21 +1,23 @@
-// TCGplayer enrichment (ported from apps/dexcompare/src/lib/tcgplayer.ts).
+// TCGplayer enrichment (built on apps/dexcompare/src/lib/tcgplayer.ts).
 //
 // dexcompare's outbound links work because every store row carries a REAL
-// product-page URL (from an API), so a click lands on the EXACT card — not a
-// guessed search page that 404s. This module reproduces that for the TCG sites:
-// it pulls TCGplayer's public search API (the same endpoint the website uses,
-// no API key) and, per card, returns
-//   { productId, productUrl, imageUrl, marketCents }
-// — a real TCGplayer product URL (accurate link), a CLEAN product image
-// (tcgplayer-cdn, no Bandai "SAMPLE" watermark) and the real US market price.
+// product-page URL, so a click lands on the EXACT card — not a guessed search
+// page that 404s. This module reproduces that for the TCG sites using
+// TCGplayer's public search API (the same endpoint the website uses, no key).
 //
-// Matching mirrors dexcompare exactly: collector number is the primary identity
-// (numKey, letter-aware) and the SET is confirmed by name overlap, so an
-// alt-art/printing is never collapsed onto its base card. Runs on the CI runner
-// (open internet); callers fall back gracefully when it's unreachable.
+// We do a TARGETED per-card search (a couple of requests per card) rather than
+// pulling the entire catalogue — the bulk pull is tens of thousands of products
+// and TCGplayer throttles it. Per card we return
+//   { productId, productUrl, imageUrl, marketCents }
+// — a real product URL (accurate link), a CLEAN image (tcgplayer-cdn, no Bandai
+// "SAMPLE" watermark) and the real US market price.
+//
+// Matching: for code games (One Piece, Yu-Gi-Oh!) the collector number is a
+// globally-unique card code, matched whole; for Magic the number recurs across
+// sets and is disambiguated by set-name overlap. Runs on the CI runner (open
+// internet); callers fall back cleanly when it's unreachable.
 
-const SEARCH_URL = "https://mp-search-api.tcgplayer.com/v1/search/request?q=&isList=false";
-const PAGE_SIZE = 50;
+const REQ_URL = (term) => `https://mp-search-api.tcgplayer.com/v1/search/request?q=${encodeURIComponent(term)}&isList=false`;
 
 function numKey(seg) {
   const cleaned = String(seg).trim().toLowerCase().replace(/\s+/g, "");
@@ -24,49 +26,39 @@ function numKey(seg) {
   return String(seg).includes("*") ? `${base}s` : base;
 }
 
-// Full card-code key for games whose collector number IS a globally-unique code
-// (One Piece "OP01-001", Yu-Gi-Oh! "ROTD-EN036"). We extract the first
-// set-code+number token and normalise to alphanumerics, so "OP01-001",
-// "OP01-001 (Parallel)" and "ROTD-EN036" all key cleanly and uniquely. (The
-// Pokémon-style numKey above truncates "OP01-001"→"op1", which is why OP matched
-// nothing — codes are matched whole here instead.)
+// Full card-code key for games whose collector number IS a unique code
+// ("OP01-001", "ROTD-EN036"). Extract the first set-code+number token and
+// normalise to alphanumerics, so "OP01-001", "OP01-001 (Parallel)" and
+// "ROTD-EN036" all key cleanly and uniquely.
 function codeKey(seg) {
   const s = String(seg || "").toLowerCase();
-  const m = s.match(/[a-z0-9]{2,6}-[a-z]{0,3}\d{1,4}/); // e.g. op01-001, rotd-en036, st01-001
+  const m = s.match(/[a-z0-9]{2,6}-[a-z]{0,3}\d{1,4}/);
   const token = m ? m[0] : s;
   return token.replace(/[^a-z0-9]/g, "");
 }
 function normSetName(name) {
-  return String(name || "")
-    .toLowerCase()
-    .replace(/&/g, " and ")
-    .replace(/[^a-z0-9]+/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+  return String(name || "").toLowerCase().replace(/&/g, " and ").replace(/[^a-z0-9]+/g, " ").replace(/\s+/g, " ").trim();
 }
 function setNamesOverlap(a, b) {
   if (!a || !b) return false;
   return a === b || a.includes(b) || b.includes(a);
 }
 
-function searchBody(productLine, from) {
+function body(productLine, term, size) {
   return {
     algorithm: "sales_synonym_v2",
-    from,
-    size: PAGE_SIZE,
+    from: 0,
+    size,
     filters: { term: { productLineName: [productLine] }, range: {}, match: {} },
-    listingSearch: {
-      context: { cart: {} },
-      filters: { term: { sellerStatus: "Live", channelId: 0 }, range: { quantity: { gte: 1 } }, exclude: { channelExclusion: 0 } },
-    },
+    listingSearch: { context: { cart: {} }, filters: { term: { sellerStatus: "Live", channelId: 0 }, range: { quantity: { gte: 1 } }, exclude: { channelExclusion: 0 } } },
     context: { cart: {}, shippingCountry: "US", userProfile: {} },
     settings: { useFuzzySearch: true, didYouMean: {} },
     sort: {},
   };
 }
 
-async function fetchPage(productLine, from) {
-  const res = await fetch(SEARCH_URL, {
+async function search(productLine, term, size = 30) {
+  const res = await fetch(REQ_URL(term), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -75,114 +67,102 @@ async function fetchPage(productLine, from) {
       Referer: "https://www.tcgplayer.com/",
       "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36",
     },
-    body: JSON.stringify(searchBody(productLine, from)),
+    body: JSON.stringify(body(productLine, term, size)),
   });
-  if (!res.ok) throw new Error(`TCGplayer search ${res.status}: ${(await res.text()).slice(0, 160)}`);
+  if (!res.ok) throw new Error(`TCGplayer ${res.status}: ${(await res.text()).slice(0, 140)}`);
   const data = await res.json();
   const r = data?.results?.[0];
-  return { items: r?.results ?? [], total: r?.totalResults ?? 0 };
+  return (r?.results ?? []).filter((p) => !p.sealed);
 }
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-// Raw first-page products — used by the audit to inspect the real number/set
-// shape so matching can be verified rather than guessed.
+// Raw products for a term — used by the audit to inspect the real number/set shape.
 export async function fetchSampleProducts(productLine, n = 8) {
-  const { items } = await fetchPage(productLine, 0);
+  const items = await search(productLine, "", n);
   return items.slice(0, n);
 }
 
 export function tcgImageUrl(productId) {
   return `https://tcgplayer-cdn.tcgplayer.com/product/${productId}_in_1000x1000.jpg`;
 }
-
 export function tcgProductUrl(p) {
   const slug = `${p.productLineUrlName ?? ""}-${p.setUrlName ?? ""}-${p.productUrlName ?? ""}`
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
+    .toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
   return `https://www.tcgplayer.com/product/${p.productId}/${slug}`;
 }
 
-// Pull every card product for the product line and match to our cards.
+function pickMatch(card, items, mode) {
+  let best = null;
+  for (const p of items) {
+    const numStr = p.customAttributes?.number;
+    if (!numStr) continue;
+    let ok = false;
+    if (mode === "code") {
+      ok = codeKey(numStr) === codeKey(card.collectorNumber);
+    } else {
+      const [cnum, ctotal] = String(card.collectorNumber).split("/");
+      const [pnum, ptotal] = String(numStr).split("/");
+      ok = numKey(pnum) === numKey(cnum) &&
+        setNamesOverlap(normSetName(card.setName), normSetName(p.setName)) &&
+        (!ctotal?.trim() || !ptotal?.trim() || ctotal.trim() === ptotal.trim());
+    }
+    if (!ok) continue;
+    // prefer the base (non-foil) printing.
+    if (!best || (best.foilOnly && !p.foilOnly)) best = p;
+    if (best && !best.foilOnly) break;
+  }
+  return best;
+}
+
+// Targeted enrichment for a card list.
 //   productLine: "magic" | "one-piece-card-game" | "yugioh"
-//   cards: [{ externalId, collectorNumber, setName }]
+//   cards: [{ externalId, name, collectorNumber, setName }]
+//   opts: { mode?, concurrency?, limit? }
 // Returns Map<externalId, { productId, productUrl, imageUrl, marketCents }>.
 export async function enrichFromTcgplayer(productLine, cards, opts = {}) {
-  const maxFrom = opts.maxFrom ?? Infinity; // cap pagination (audits run faster)
-  // "code"  : collector number IS a unique card code (One Piece, Yu-Gi-Oh!).
-  // "numset": number recurs across sets, disambiguated by set name (Magic).
   const mode = opts.mode ?? (productLine === "magic" ? "numset" : "code");
+  const concurrency = opts.concurrency ?? 6;
+  const list = opts.limit ? cards.slice(0, opts.limit) : cards;
   const out = new Map();
-  let first;
+
+  // Probe once so an unreachable API degrades cleanly instead of N failures.
   try {
-    first = await fetchPage(productLine, 0);
+    await search(productLine, list[0]?.name || "Luffy", 1);
   } catch (e) {
-    console.warn(`TCGplayer unreachable (${e.message}) — skipping enrichment.`);
+    console.warn(`TCGplayer unreachable (${e.message}) — skipping ${productLine} enrichment.`);
     return out;
   }
-  const items = [...first.items];
-  const limit = Math.min(first.total, maxFrom);
-  for (let from = PAGE_SIZE; from < limit; from += PAGE_SIZE) {
-    await sleep(200);
-    try {
-      const pg = await fetchPage(productLine, from);
-      if (!pg.items.length) break;
-      items.push(...pg.items);
-    } catch (e) {
-      console.warn(`TCGplayer page from=${from} failed: ${e.message}`);
-      break;
+
+  let i = 0, done = 0;
+  async function worker() {
+    while (i < list.length) {
+      const card = list[i++];
+      try {
+        let items = await search(productLine, card.name, 30);
+        let pick = pickMatch(card, items, mode);
+        // code games: retry by the exact code if the name search missed.
+        if (!pick && mode === "code") {
+          items = await search(productLine, card.collectorNumber, 20);
+          pick = pickMatch(card, items, mode);
+        }
+        if (pick) {
+          const market = typeof pick.marketPrice === "number" && pick.marketPrice > 0 ? pick.marketPrice : null;
+          out.set(card.externalId, {
+            productId: pick.productId,
+            productUrl: tcgProductUrl(pick),
+            imageUrl: tcgImageUrl(pick.productId),
+            marketCents: market != null ? Math.round(market * 100) : null,
+          });
+        }
+      } catch {
+        /* skip this card */
+      }
+      if (++done % 50 === 0) console.log(`TCGplayer ${productLine}: ${done}/${list.length} searched, ${out.size} matched`);
+      await sleep(40);
     }
   }
-  const products = items.filter((p) => !p.sealed);
-  console.log(`TCGplayer ${productLine}: pulled ${products.length} card products.`);
-
-  const setMatch = (ext, p) => {
-    const market = typeof p.marketPrice === "number" && p.marketPrice > 0 ? p.marketPrice : null;
-    // prefer the base (non-foil) printing; once a non-foil is set, keep it.
-    if (out.has(ext) && !p.foilOnly) return;
-    out.set(ext, {
-      productId: p.productId,
-      productUrl: tcgProductUrl(p),
-      imageUrl: tcgImageUrl(p.productId),
-      marketCents: market != null ? Math.round(market * 100) : null,
-    });
-  };
-
-  if (mode === "code") {
-    // collector number is the unique card code (OP01-001, ROTD-EN036).
-    const byCode = new Map(); // codeKey -> externalId
-    for (const c of cards) {
-      const k = codeKey(c.collectorNumber);
-      if (k) byCode.set(k, c.externalId);
-    }
-    for (const p of products) {
-      const k = codeKey(p.customAttributes?.number || "");
-      const ext = k && byCode.get(k);
-      if (ext) setMatch(ext, p);
-    }
-  } else {
-    // numset: number recurs across sets — disambiguate by set-name overlap.
-    const byNum = new Map(); // numKey(number) -> [{ externalId, setNorm, total }]
-    for (const c of cards) {
-      const [num, total] = String(c.collectorNumber).split("/");
-      const k = numKey(num);
-      const list = byNum.get(k) ?? [];
-      list.push({ externalId: c.externalId, setNorm: normSetName(c.setName), total: total?.trim() || null });
-      byNum.set(k, list);
-    }
-    for (const p of products) {
-      const numStr = p.customAttributes?.number;
-      if (!numStr) continue;
-      const [num, total] = String(numStr).split("/");
-      const prodSetNorm = normSetName(p.setName ?? "");
-      const prodTotal = total?.trim() || null;
-      const cands = (byNum.get(numKey(num)) ?? []).filter(
-        (c) => setNamesOverlap(c.setNorm, prodSetNorm) && (!c.total || !prodTotal || c.total === prodTotal)
-      );
-      if (cands.length === 1) setMatch(cands[0].externalId, p);
-    }
-  }
-  console.log(`TCGplayer ${productLine} [${mode}]: matched ${out.size} of ${cards.length} cards.`);
+  await Promise.all(Array.from({ length: concurrency }, worker));
+  console.log(`TCGplayer ${productLine} [${mode}]: matched ${out.size} of ${list.length} cards (targeted search).`);
   return out;
 }
