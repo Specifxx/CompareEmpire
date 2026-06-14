@@ -57,25 +57,36 @@ function body(productLine, term, size) {
   };
 }
 
-async function search(productLine, term, size = 30) {
-  const res = await fetch(REQ_URL(term), {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-      Origin: "https://www.tcgplayer.com",
-      Referer: "https://www.tcgplayer.com/",
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36",
-    },
-    body: JSON.stringify(body(productLine, term, size)),
-  });
-  if (!res.ok) throw new Error(`TCGplayer ${res.status}: ${(await res.text()).slice(0, 140)}`);
-  const data = await res.json();
-  const r = data?.results?.[0];
-  return (r?.results ?? []).filter((p) => !p.sealed);
-}
-
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+async function search(productLine, term, size = 30) {
+  // Retry with backoff — TCGplayer rate-limits bursts (429/503); without retry a
+  // throttled batch silently drops matches (an OP seed once matched only 14/73).
+  let lastErr;
+  for (let attempt = 0; attempt < 4; attempt++) {
+    if (attempt) await sleep(400 * 2 ** attempt + Math.random() * 300);
+    let res;
+    try {
+      res = await fetch(REQ_URL(term), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Origin: "https://www.tcgplayer.com",
+          Referer: "https://www.tcgplayer.com/",
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36",
+        },
+        body: JSON.stringify(body(productLine, term, size)),
+      });
+    } catch (e) { lastErr = e; continue; }
+    if (res.status === 429 || res.status >= 500) { lastErr = new Error(`TCGplayer ${res.status}`); continue; }
+    if (!res.ok) throw new Error(`TCGplayer ${res.status}: ${(await res.text()).slice(0, 140)}`);
+    const data = await res.json();
+    const r = data?.results?.[0];
+    return (r?.results ?? []).filter((p) => !p.sealed);
+  }
+  throw lastErr ?? new Error("TCGplayer search failed");
+}
 
 // Raw products for a term — used by the audit to inspect the real number/set shape.
 export async function fetchSampleProducts(productLine, n = 8) {
