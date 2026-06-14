@@ -43,10 +43,12 @@ async function imgOk(url) {
   finally { clearTimeout(t); }
 }
 
+// OP first (small + the critical fix), then capped MTG/YGO so the audit is fast.
+// The real seed does an uncapped pull for full coverage.
 const GAMES = [
-  { key: "magic", file: "apps/mtgcompare/prisma/mtg-cards.json", maxFrom: Infinity },
   { key: "one-piece-card-game", file: "apps/opcompare/prisma/op-cards.json", maxFrom: Infinity },
-  { key: "yugioh", file: "apps/ygocompare/prisma/ygo-cards.json", maxFrom: 12000 },
+  { key: "magic", file: "apps/mtgcompare/prisma/mtg-cards.json", maxFrom: 4000 },
+  { key: "yugioh", file: "apps/ygocompare/prisma/ygo-cards.json", maxFrom: 4000 },
 ];
 
 console.log("================ 0) RAW TCGPLAYER PRODUCT SHAPE ================");
