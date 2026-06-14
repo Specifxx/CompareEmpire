@@ -1,16 +1,7 @@
 // The grouped site navigation, shared by the phone sheet (MobileNav) and the
-// desktop "Menu" mega-dropdown (NavMenu) so the two menus are always the same
-// organisation — edit links here once.
-export interface NavLink {
-  href: string;
-  icon: string;
-  label: string;
-}
-
-export interface NavSection {
-  label: string;
-  links: NavLink[];
-}
+// desktop "Menu" mega-dropdown (NavMenu).
+export interface NavLink { href: string; icon: string; label: string; }
+export interface NavSection { label: string; links: NavLink[]; }
 
 export const NAV_SECTIONS: NavSection[] = [
   {
@@ -23,15 +14,18 @@ export const NAV_SECTIONS: NavSection[] = [
     ],
   },
   {
-    label: "Track",
+    label: "Market",
     links: [
-      { href: "/deals", icon: "📈", label: "Deals" },
+      { href: "/market", icon: "📈", label: "Market Index" },
+      { href: "/blog/market-wrap", icon: "📰", label: "Daily Market Wrap" },
       { href: "/restock", icon: "📅", label: "Drops & restocks" },
     ],
   },
   {
-    label: "My stuff",
+    label: "Play & tools",
     links: [
+      { href: "/games", icon: "🕹️", label: "Minigames" },
+      { href: "/trade", icon: "⚖️", label: "Trade calculator" },
       { href: "/wishlist", icon: "❤️", label: "Wishlist" },
       { href: "/collection", icon: "📚", label: "Collection" },
     ],
