@@ -144,7 +144,7 @@ for (const [code, list] of Object.entries(CARDS)) {
   for (const [name, num, domain, type, rarity, subtype] of list) {
     out.push({
       externalId: `${code}-${pad3(num)}`,
-      imageUrl: `https://en.onepiece-cardgame.com/images/cardlist/card/${code}-${pad3(num)}.png`,
+      imageUrl: `https://limitlesstcg.nyc3.cdn.digitaloceanspaces.com/one-piece/${code}/${code}-${pad3(num)}_EN.webp`,
       name,
       setCode: code,
       setName: meta.name,
@@ -158,7 +158,7 @@ for (const [code, list] of Object.entries(CARDS)) {
       hp: null,
       artist: null,
       flavorText: null,
-      imageThumbUrl: `https://en.onepiece-cardgame.com/images/cardlist/card/${code}-${pad3(num)}.png`,
+      imageThumbUrl: `https://limitlesstcg.nyc3.cdn.digitaloceanspaces.com/one-piece/${code}/${code}-${pad3(num)}_EN.webp`,
     });
   }
 }

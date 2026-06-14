@@ -161,6 +161,29 @@ async function main() {
     }));
   }
 
+  // ---- price-history snapshots (powers the Market Index, biggest movers & card charts) ----
+  console.log("Recording price-history snapshots…");
+  const topCards = await prisma.card.findMany({
+    orderBy: { marketPriceCents: "desc" }, take: 300,
+    select: { id: true, lowestPriceCentsUs: true, lowestPriceCents: true, lowestPriceCentsGb: true, lowestPriceCentsNz: true },
+  });
+  const OFFSETS = [0, 1, 3, 5, 7, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60];
+  const today0 = new Date(); today0.setUTCHours(0, 0, 0, 0);
+  const histRows: { cardId: string; country: string; day: Date; lowestPriceCents: number }[] = [];
+  for (const c of topCards) {
+    const cur: Record<string, number | null> = { US: c.lowestPriceCentsUs, AU: c.lowestPriceCents, GB: c.lowestPriceCentsGb, NZ: c.lowestPriceCentsNz };
+    for (const market of ["US", "AU", "GB", "NZ"] as const) {
+      const base = cur[market]; if (!base) continue;
+      let v = base;
+      for (const off of OFFSETS) {
+        histRows.push({ cardId: c.id, country: market, day: new Date(today0.getTime() - off * 86400e3), lowestPriceCents: Math.max(8, Math.round(v)) });
+        v = v * (1 + between(-0.035, 0.035)); // gentle random walk into the past
+      }
+    }
+  }
+  for (let i = 0; i < histRows.length; i += 5000) await prisma.priceHistory.createMany({ data: histRows.slice(i, i + 5000), skipDuplicates: true });
+  console.log(`Recorded ${histRows.length} price-history points across ${topCards.length} cards.`);
+
   // ---- sealed products (booster boxes, packs, tins) --------------------------
   const sealedRetailers = [
     { key: "tcgplayer", name: "TCGplayer", country: "US" },
