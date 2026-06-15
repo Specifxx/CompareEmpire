@@ -4,7 +4,8 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { normalizeSearch } from "../src/lib/format";
 import { POKEMON_SETS } from "../src/lib/pokemon-sets";
-import { enrichFromTcgplayer, buildCatalog } from "./tcgplayer-enrich.mjs";
+import { shopifyStores } from "./stores.mjs";
+import { enrichFromTcgplayer, buildCatalog, fetchShopifyCatalog, matchShopifyByName } from "./tcgplayer-enrich.mjs";
 
 const prisma = new PrismaClient();
 
@@ -99,6 +100,9 @@ const FX: Record<string, number> = { US: 1.0, AU: USD_TO_AUD, NZ: USD_TO_NZD, GB
 const CUR: Record<string, string> = { US: "USD", AU: "AUD", NZ: "NZD", GB: "GBP" };
 const cents = (n: number, floor = 8) => Math.max(floor, Math.round(n));
 const MARKETS = ["US", "AU", "GB", "NZ"] as const;
+// TCGplayer ships these markets but NOT Australia — so it's never offered for AU.
+const TCG_MARKETS = ["US", "GB", "NZ"] as const;
+type ShopRow = { retailer: string; retailerName: string; country: string; currency: string; url: string; priceCents: number | null; inStock: boolean };
 
 // ACCURACY-FIRST: Magic links use TCGplayer's exact product page ONLY. Magic
 // product titles on Shopify stores don't carry a reliable per-card code (they
@@ -201,32 +205,46 @@ async function main() {
   });
   const productUrlByExt = new Map(built.map((b) => [b.externalId, infoOf(b).productUrl]));
 
-  console.log(`Building TCGplayer deep-link prices for ${dbCards.length} cards…`);
+  // Shopify card stores → real product deep-links matched by NAME + set/number
+  // (accessories excluded). This is how Magic gets non-TCGplayer stores — essential
+  // now that TCGplayer is not offered for AU.
+  console.log("Fetching Shopify store catalogues for name-matched Magic deep-links…");
+  const shopMatches: { map: Map<string, ShopRow> }[] = [];
+  for (const s of shopifyStores()) {
+    try {
+      const cat = await fetchShopifyCatalog(s.host);
+      if (!cat.ok || !cat.products.length) { console.log(`  ${s.name} (${s.country}): no /products.json — skipped`); continue; }
+      const map = matchShopifyByName(cat.products, built, { retailer: s.key, retailerName: s.name, country: s.country, currency: s.currency, host: s.host }) as Map<string, ShopRow>;
+      console.log(`  ${s.name} (${s.country}): ${cat.products.length} products → ${map.size} card deep-links`);
+      if (map.size) shopMatches.push({ map });
+    } catch (e) { console.warn(`  ${s.name} failed: ${(e as Error).message}`); }
+  }
+
+  console.log(`Building deep-link prices for ${dbCards.length} cards…`);
   const priceRows: any[] = [];
   const lows: Record<string, Record<string, number | null>> = {}; // externalId -> {market -> minCents}
 
   for (const c of dbCards) {
+    const ext = c.externalId!;
     const usd = c.marketPriceCents; // USD cents reference
-    const tcgUrl = productUrlByExt.get(c.externalId!) ?? null;
-    lows[c.externalId!] = { US: null, AU: null, GB: null, NZ: null };
-    if (!tcgUrl) continue; // no exact deep-link → no store row (honest)
-    for (const market of MARKETS) {
-      const price = cents(usd * FX[market]);
-      priceRows.push({
-        cardId: c.id,
-        retailer: `tcgplayer_${market.toLowerCase()}`,
-        retailerName: "TCGplayer",
-        title: `${c.name} (${c.setName})`,
-        url: tcgUrl, // exact product page (it ships worldwide)
-        condition: "NM",
-        conditionPrices: { NM: price },
-        priceCents: price,
-        currency: CUR[market],
-        inStock: true,
-        country: market,
-      });
-      lows[c.externalId!][market] = price;
+    const tcgUrl = productUrlByExt.get(ext) ?? null;
+    const min: Record<string, number> = { US: Infinity, AU: Infinity, GB: Infinity, NZ: Infinity };
+    // (1) TCGplayer exact product page — US/GB/NZ only (not AU).
+    if (tcgUrl) {
+      for (const market of TCG_MARKETS) {
+        const price = cents(usd * FX[market]);
+        priceRows.push({ cardId: c.id, retailer: `tcgplayer_${market.toLowerCase()}`, retailerName: "TCGplayer", title: `${c.name} (${c.setName})`, url: tcgUrl, condition: "NM", conditionPrices: { NM: price }, priceCents: price, currency: CUR[market], inStock: true, country: market });
+        min[market] = Math.min(min[market], price);
+      }
     }
+    // (2) Shopify real product pages (real price + stock) where name-matched.
+    for (const { map } of shopMatches) {
+      const row = map.get(ext); if (!row) continue;
+      const price = row.priceCents ?? cents(usd * FX[row.country]);
+      priceRows.push({ cardId: c.id, retailer: row.retailer, retailerName: row.retailerName, title: `${c.name} (${c.setName})`, url: row.url, condition: "NM", conditionPrices: { NM: price }, priceCents: price, currency: row.currency, inStock: row.inStock, country: row.country });
+      if (row.inStock) min[row.country] = Math.min(min[row.country], price);
+    }
+    lows[ext] = Object.fromEntries(MARKETS.map((m) => [m, min[m] === Infinity ? null : min[m]]));
   }
 
   console.log(`Inserting ${priceRows.length} retailer prices…`);
