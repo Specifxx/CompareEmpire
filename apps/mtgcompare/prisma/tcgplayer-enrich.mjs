@@ -152,16 +152,18 @@ const isAltPrint = (n) => /alternate art|parallel|special|manga|box topper|full 
 // (accessories like sleeves/playmats never carry a card code, so they're excluded).
 const ACCESSORY_RE = /sleeve|playmat|deck ?box|binder|booster|\bbox\b|\bcase\b|bundle|\btin\b|blister|\bpack\b|toploader|\bdice\b|portfolio|divider|elite trainer|play ?mat|storage|album|page/i;
 
-export async function fetchShopifyCatalog(host, maxPages = 120) {
+export async function fetchShopifyCatalog(host, maxPages = 60) {
   const out = [];
   for (let page = 1; page <= maxPages; page++) {
     let res;
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 12000); // never hang on a slow store
     try {
       res = await fetch(`https://${host}/products.json?limit=250&page=${page}`, {
         headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36", Accept: "application/json" },
-        redirect: "follow",
+        redirect: "follow", signal: ctrl.signal,
       });
-    } catch { break; }
+    } catch { break; } finally { clearTimeout(t); }
     if (!res.ok) { if (page === 1) return { ok: false, products: [] }; break; }
     if (!/json/.test(res.headers.get("content-type") || "")) return { ok: false, products: [] };
     let data;
