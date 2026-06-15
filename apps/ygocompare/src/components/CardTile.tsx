@@ -45,14 +45,12 @@ export function CardTile({ card }: { card: CardTileData }) {
   const { open } = useQuickView();
   const { fmt, price, country } = useCountry();
   const lowest = price(card);
-  // No buyable store price in this market → show the market guide, clearly
-  // labelled (it's a sales-based reference, not a "from" price). Only show it when
-  // it's a REAL market figure (TCGplayer); a seed-time heuristic estimate is not
-  // trustworthy enough to surface as a number on a tile.
-  const guide =
-    lowest == null && card.marketPriceSource === "TCGplayer"
-      ? marketGuideCents(card.marketPriceCents, country as Country)
-      : null;
+  // No buyable store price in this market → show the market-price guide so the
+  // tile is never blank in any region (TCGplayer doesn't ship AU, so most AU
+  // cards rely on this). A REAL figure (TCGplayer/market) is labelled "market
+  // guide"; a seed-time heuristic is labelled "est." — never shown as a "from".
+  const guide = lowest == null ? marketGuideCents(card.marketPriceCents, country as Country) : null;
+  const guideReal = !!card.marketPriceSource && card.marketPriceSource !== "Estimate";
 
   // Left-click opens an instant in-page quick view (no navigation = no lag). The
   // real href is kept for SEO, sharing and middle/ctrl-click (open in new tab),
@@ -105,9 +103,9 @@ export function CardTile({ card }: { card: CardTileData }) {
             ) : guide != null ? (
               <>
                 <div className="text-[11px] text-slate-500" title={`Market-price guide${card.marketPriceSource ? ` (source: ${card.marketPriceSource})` : ""} — not a store price`}>
-                  market guide
+                  {guideReal ? "market guide" : "est."}
                 </div>
-                <div className="text-lg font-bold text-slate-300">≈ {fmt(guide)}</div>
+                <div className={`text-lg font-bold ${guideReal ? "text-slate-300" : "text-slate-500"}`}>≈ {fmt(guide)}</div>
               </>
             ) : (
               <div className="text-sm font-medium text-slate-500">No price yet</div>

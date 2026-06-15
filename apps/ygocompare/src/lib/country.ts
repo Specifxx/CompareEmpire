@@ -103,7 +103,8 @@ export function priceOrGuide(
 ): { cents: number | null; isGuide: boolean } {
   const p = pickPrice(card, country);
   if (p != null) return { cents: p, isGuide: false };
-  if (card.marketPriceSource === "TCGplayer") {
+  // Any real market source (TCGplayer / Cardmarket etc.) yields a usable guide.
+  if (card.marketPriceSource && card.marketPriceSource !== "Estimate") {
     const g = marketGuideCents(card.marketPriceCents, country);
     if (g != null) return { cents: g, isGuide: true };
   }
