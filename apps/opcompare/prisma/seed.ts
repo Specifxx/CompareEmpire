@@ -4,8 +4,8 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { normalizeSearch } from "../src/lib/format";
 import { POKEMON_SETS } from "../src/lib/pokemon-sets";
-import { buildStores, topStores, storeQuery } from "./stores.mjs";
-import { enrichFromTcgplayer, buildCatalog } from "./tcgplayer-enrich.mjs";
+import { shopifyStores } from "./stores.mjs";
+import { enrichFromTcgplayer, buildCatalog, fetchShopifyCatalog, indexShopifyByCode, matchShopify } from "./tcgplayer-enrich.mjs";
 
 const prisma = new PrismaClient();
 
@@ -63,11 +63,12 @@ function chaseMult(name: string, rarity: string): number {
 const FX: Record<string, number> = { US: 1.0, AU: 1.55, NZ: 1.68, GB: 0.82 };
 const CUR: Record<string, string> = { US: "USD", AU: "AUD", NZ: "NZD", GB: "GBP" };
 const cents = (n: number, floor = 8) => Math.max(floor, Math.round(n));
-
-const SPR = parseInt(process.env.STORES_PER_REGION || "0", 10);
-const STORES: Record<string, { key: string; name: string; search: (q: string) => string }[]> = SPR > 0 ? topStores("one-piece-card-game", SPR) : buildStores("one-piece-card-game");
+const MARKETS = ["US", "AU", "GB", "NZ"] as const;
+// TCGplayer ships these markets but NOT Australia — so it's never offered for AU.
+const TCG_MARKETS = ["US", "GB", "NZ"] as const;
 
 type CardX = BuiltCard & { productUrl?: string | null; marketCents?: number | null };
+type ShopRow = { retailer: string; retailerName: string; country: string; currency: string; url: string; priceCents: number | null; inStock: boolean };
 
 async function main() {
   // Build the One Piece catalogue straight from TCGplayer — authoritative names,
@@ -154,46 +155,63 @@ async function main() {
   console.log("Inserting cards…");
   for (let i = 0; i < cardRows.length; i += 2000) await prisma.card.createMany({ data: cardRows.slice(i, i + 2000), skipDuplicates: true });
 
-  const dbCards = await prisma.card.findMany({ select: { id: true, externalId: true, name: true, setName: true, marketPriceCents: true } });
-  console.log(`Building retailer prices for ${dbCards.length} cards…`);
-  const priceRows: any[] = [];
-  const lows: Record<string, Record<string, number>> = {};
+  const dbCards = await prisma.card.findMany({ select: { id: true, externalId: true, name: true, setName: true, collectorNumber: true, marketPriceCents: true } });
   const productUrlByExt = new Map(built.map((c) => [c.externalId, infoOf(c).productUrl]));
-  for (const c of dbCards) {
-    const usd = c.marketPriceCents;
-    const tcgUrl = productUrlByExt.get(c.externalId!) ?? null;
-    const q = encodeURIComponent(storeQuery(c));
-    lows[c.externalId!] = {};
-    for (const market of ["US", "AU", "GB", "NZ"] as const) {
-      const fx = FX[market]; const cur = CUR[market];
-      const marketStores = STORES[market];
-      let marketMin = Infinity;
-      for (const s of marketStores) {
-        // US TCGplayer: when we have it, link to the REAL product page (accurate
-        // "View deal" → exact card), like dexcompare; else fall back to search.
-        const isRealTcg = s.key === "tcgplayer_us" && !!tcgUrl;
-        const nm = cents(usd * fx * between(0.9, 1.25));
-        priceRows.push({
-          cardId: c.id, retailer: s.key, retailerName: s.name, title: `${c.name} (${c.setName})`,
-          url: isRealTcg ? tcgUrl! : s.search(q), condition: "NM",
-          conditionPrices: { NM: nm, LP: cents(nm * 0.85), MP: cents(nm * 0.7), HP: cents(nm * 0.55) },
-          priceCents: nm, shippingCents: market === "US" ? cents(between(0, 199)) : cents(between(0, 350)),
-          currency: cur, inStock: isRealTcg ? true : rng() > 0.08, country: market,
-        });
-        marketMin = Math.min(marketMin, nm);
-      }
-      lows[c.externalId!][market] = marketMin === Infinity ? 0 : marketMin;
-    }
+
+  // ---- DEEP-LINK store rows. Two accurate sources only:
+  //   (1) TCGplayer — every card's exact product page (real productUrl), per market.
+  //   (2) Shopify card stores — matched by UNIQUE collector code to the store's REAL
+  //       product page, with the store's REAL price + stock. A row exists only when
+  //       the store actually stocks that card, so there are never dead links.
+  console.log("Fetching Shopify store catalogues for code-matched deep-links…");
+  const shopMatches: { map: Map<string, ShopRow> }[] = [];
+  for (const s of shopifyStores()) {
+    try {
+      const cat = await fetchShopifyCatalog(s.host);
+      if (!cat.ok || !cat.products.length) { console.log(`  ${s.name} (${s.country}): no /products.json — skipped`); continue; }
+      const idx = indexShopifyByCode(cat.products);
+      const map = matchShopify(idx, built, { retailer: s.key, retailerName: s.name, country: s.country, currency: s.currency, host: s.host }) as Map<string, ShopRow>;
+      console.log(`  ${s.name} (${s.country}): ${cat.products.length} products → ${map.size} card deep-links`);
+      if (map.size) shopMatches.push({ map });
+    } catch (e) { console.warn(`  ${s.name} failed: ${(e as Error).message}`); }
   }
-  console.log(`Inserting ${priceRows.length} retailer prices…`);
+
+  console.log(`Building deep-link retailer prices for ${dbCards.length} cards…`);
+  const priceRows: any[] = [];
+  const lows: Record<string, Record<string, number | null>> = {};
+  for (const c of dbCards) {
+    const ext = c.externalId!;
+    const usd = c.marketPriceCents;
+    const tcgUrl = productUrlByExt.get(ext) ?? null;
+    const min: Record<string, number> = { US: Infinity, AU: Infinity, GB: Infinity, NZ: Infinity };
+    // (1) TCGplayer exact product page, per market — US/GB/NZ only (not AU).
+    if (tcgUrl) {
+      for (const market of TCG_MARKETS) {
+        const price = cents(usd * FX[market]);
+        priceRows.push({ cardId: c.id, retailer: `tcgplayer_${market.toLowerCase()}`, retailerName: "TCGplayer", title: `${c.name} (${c.setName})`, url: tcgUrl, condition: "NM", conditionPrices: { NM: price }, priceCents: price, currency: CUR[market], inStock: true, country: market });
+        min[market] = Math.min(min[market], price);
+      }
+    }
+    // (2) Shopify real product pages (real price + stock) where code-matched.
+    for (const { map } of shopMatches) {
+      const row = map.get(ext); if (!row) continue;
+      const price = row.priceCents ?? cents(usd * FX[row.country]);
+      priceRows.push({ cardId: c.id, retailer: row.retailer, retailerName: row.retailerName, title: `${c.name} (${c.setName})`, url: row.url, condition: "NM", conditionPrices: { NM: price }, priceCents: price, currency: row.currency, inStock: row.inStock, country: row.country });
+      if (row.inStock) min[row.country] = Math.min(min[row.country], price);
+    }
+    lows[ext] = Object.fromEntries(MARKETS.map((m) => [m, min[m] === Infinity ? null : min[m]]));
+  }
+  console.log(`Inserting ${priceRows.length} deep-link retailer prices…`);
   for (let i = 0; i < priceRows.length; i += 5000) await prisma.retailerPrice.createMany({ data: priceRows.slice(i, i + 5000), skipDuplicates: true });
 
   console.log("Updating card lowest-price columns…");
-  for (const c of dbCards) {
-    const l = lows[c.externalId!] ?? {};
-    await prisma.card.update({ where: { id: c.id }, data: {
-      lowestPriceCentsUs: l.US ?? null, lowestPriceCents: l.AU ?? null, lowestPriceCentsGb: l.GB ?? null, lowestPriceCentsNz: l.NZ ?? null,
-    } });
+  for (let i = 0; i < dbCards.length; i += 500) {
+    await Promise.all(dbCards.slice(i, i + 500).map((c) => {
+      const l = lows[c.externalId!] ?? {};
+      return prisma.card.update({ where: { id: c.id }, data: {
+        lowestPriceCentsUs: l.US ?? null, lowestPriceCents: l.AU ?? null, lowestPriceCentsGb: l.GB ?? null, lowestPriceCentsNz: l.NZ ?? null,
+      } });
+    }));
   }
 
   // ---- price-history snapshots (powers the Market Index, biggest movers & card charts) ----

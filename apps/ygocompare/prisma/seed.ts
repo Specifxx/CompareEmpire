@@ -4,8 +4,8 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { normalizeSearch } from "../src/lib/format";
 import { POKEMON_SETS } from "../src/lib/pokemon-sets";
-import { buildStores, topStores, storeQuery } from "./stores.mjs";
-import { enrichFromTcgplayer } from "./tcgplayer-enrich.mjs";
+import { shopifyStores } from "./stores.mjs";
+import { enrichFromTcgplayer, fetchShopifyCatalog, indexShopifyByCode, matchShopify } from "./tcgplayer-enrich.mjs";
 
 const prisma = new PrismaClient();
 
@@ -66,8 +66,14 @@ function chaseMult(name: string, rarity: string): number {
 const FX: Record<string, number> = { US: 1.0, AU: 1.55, NZ: 1.68, GB: 0.82 };
 const CUR: Record<string, string> = { US: "USD", AU: "AUD", NZ: "NZD", GB: "GBP" };
 const cents = (n: number, floor = 8) => Math.max(floor, Math.round(n));
-
-const STORES: Record<string, { key: string; name: string; search: (q: string) => string }[]> = topStores("yugioh", parseInt(process.env.STORES_PER_REGION || "10", 10));
+const MARKETS = ["US", "AU", "GB", "NZ"] as const;
+// TCGplayer ships these markets but NOT Australia — so it's never offered for AU.
+const TCG_MARKETS = ["US", "GB", "NZ"] as const;
+type ShopRow = { retailer: string; retailerName: string; country: string; currency: string; url: string; priceCents: number | null; inStock: boolean };
+// Yu-Gi-Oh! codes (e.g. ROTD-EN036) are globally unique, so a TCGplayer search by
+// the code lands directly on that one card — used for cards outside the top-value
+// set we fetch exact product ids for.
+const tcgCodeSearch = (code: string) => `https://www.tcgplayer.com/search/yugioh/product?q=${encodeURIComponent(code)}`;
 
 async function main() {
   const cards = JSON.parse(readFileSync(join(process.cwd(), "prisma", "ygo-cards.json"), "utf8")) as BuiltCard[];
@@ -141,35 +147,47 @@ async function main() {
   console.log("Inserting cards…");
   for (let i = 0; i < cardRows.length; i += 2000) await prisma.card.createMany({ data: cardRows.slice(i, i + 2000), skipDuplicates: true });
 
-  const dbCards = await prisma.card.findMany({ select: { id: true, externalId: true, name: true, setName: true, marketPriceCents: true } });
-  console.log(`Building retailer prices for ${dbCards.length} cards…`);
+  const dbCards = await prisma.card.findMany({ select: { id: true, externalId: true, name: true, setName: true, collectorNumber: true, marketPriceCents: true } });
+
+  // Shopify card stores → real product deep-links matched by the UNIQUE YGO code.
+  console.log("Fetching Shopify store catalogues for code-matched deep-links…");
+  const shopMatches: { map: Map<string, ShopRow> }[] = [];
+  for (const s of shopifyStores()) {
+    try {
+      const cat = await fetchShopifyCatalog(s.host);
+      if (!cat.ok || !cat.products.length) { console.log(`  ${s.name} (${s.country}): no /products.json — skipped`); continue; }
+      const idx = indexShopifyByCode(cat.products);
+      const map = matchShopify(idx, built, { retailer: s.key, retailerName: s.name, country: s.country, currency: s.currency, host: s.host }) as Map<string, ShopRow>;
+      console.log(`  ${s.name} (${s.country}): ${cat.products.length} products → ${map.size} card deep-links`);
+      if (map.size) shopMatches.push({ map });
+    } catch (e) { console.warn(`  ${s.name} failed: ${(e as Error).message}`); }
+  }
+
+  console.log(`Building deep-link retailer prices for ${dbCards.length} cards…`);
   const priceRows: any[] = [];
-  const lows: Record<string, Record<string, number>> = {};
+  const lows: Record<string, Record<string, number | null>> = {};
   for (const c of dbCards) {
+    const ext = c.externalId!;
     const usd = c.marketPriceCents;
-    const enr = TCG.get(c.externalId!);
-    const q = encodeURIComponent(storeQuery(c));
-    lows[c.externalId!] = {};
-    for (const market of ["US", "AU", "GB", "NZ"] as const) {
-      const fx = FX[market]; const cur = CUR[market];
-      const marketStores = STORES[market];
-      let marketMin = Infinity;
-      for (const s of marketStores) {
-        // US TCGplayer: when matched, link to the REAL product page at the REAL
-        // market price (accurate "View deal" → exact card), like dexcompare.
-        const isRealTcg = s.key === "tcgplayer_us" && enr != null;
-        const nm = isRealTcg && enr!.marketCents != null ? enr!.marketCents : cents(usd * fx * between(0.9, 1.25));
-        priceRows.push({
-          cardId: c.id, retailer: s.key, retailerName: s.name, title: `${c.name} (${c.setName})`,
-          url: isRealTcg ? enr!.productUrl : s.search(q), condition: "NM",
-          conditionPrices: { NM: nm, LP: cents(nm * 0.85), MP: cents(nm * 0.7), HP: cents(nm * 0.55) },
-          priceCents: nm, shippingCents: market === "US" ? cents(between(0, 199)) : cents(between(0, 350)),
-          currency: cur, inStock: isRealTcg ? true : rng() > 0.08, country: market,
-        });
-        marketMin = Math.min(marketMin, nm);
-      }
-      lows[c.externalId!][market] = marketMin === Infinity ? 0 : marketMin;
+    const enr = TCG.get(ext);
+    // exact product page for top-value cards we fetched ids for; else a code search
+    // that lands on the one card (YGO codes are unique).
+    const tcgUrl = enr?.productUrl ?? tcgCodeSearch(c.collectorNumber);
+    const min: Record<string, number> = { US: Infinity, AU: Infinity, GB: Infinity, NZ: Infinity };
+    // (1) TCGplayer deep-link, per market — US/GB/NZ only (not AU).
+    for (const market of TCG_MARKETS) {
+      const price = cents(usd * FX[market]);
+      priceRows.push({ cardId: c.id, retailer: `tcgplayer_${market.toLowerCase()}`, retailerName: "TCGplayer", title: `${c.name} (${c.setName})`, url: tcgUrl, condition: "NM", conditionPrices: { NM: price }, priceCents: price, currency: CUR[market], inStock: true, country: market });
+      min[market] = Math.min(min[market], price);
     }
+    // (2) Shopify real product pages (real price + stock) where code-matched.
+    for (const { map } of shopMatches) {
+      const row = map.get(ext); if (!row) continue;
+      const price = row.priceCents ?? cents(usd * FX[row.country]);
+      priceRows.push({ cardId: c.id, retailer: row.retailer, retailerName: row.retailerName, title: `${c.name} (${c.setName})`, url: row.url, condition: "NM", conditionPrices: { NM: price }, priceCents: price, currency: row.currency, inStock: row.inStock, country: row.country });
+      if (row.inStock) min[row.country] = Math.min(min[row.country], price);
+    }
+    lows[ext] = Object.fromEntries(MARKETS.map((mk) => [mk, min[mk] === Infinity ? null : min[mk]]));
   }
   console.log(`Inserting ${priceRows.length} retailer prices…`);
   for (let i = 0; i < priceRows.length; i += 5000) await prisma.retailerPrice.createMany({ data: priceRows.slice(i, i + 5000), skipDuplicates: true });

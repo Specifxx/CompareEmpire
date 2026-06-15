@@ -1,104 +1,63 @@
-// Shared retailer directory — CURATED to REAL, reachable stores that sell across
-// Magic / One Piece / Yu-Gi-Oh! (one directory serves all three sites). Every
-// domain + search path is HTTP-verified via the persona-click audit workflow
-// (scripts/audit-tcg.mjs); dead/fake domains and broken search paths are culled.
-// `tcg` is the TCGplayer category slug (magic | one-piece-card-game | yugioh).
-// Outbound links go to each store's search so the affiliate layer (TCGplayer
-// Impact, Amazon, Sovrn) monetises the click. (eBay is handled separately as an
-// affiliate-search CTA — no Browse API.)
+// Deep-linkable store directory. ACCURACY-FIRST: a store only ever produces a row
+// when its OWN catalogue (Shopify /products.json) actually contains the card —
+// matched by the unique collector code (One Piece / Yu-Gi-Oh!) or by name + set/
+// number (Magic, accessories excluded). So every link lands on that exact card,
+// and a store that isn't Shopify / doesn't stock the card simply produces no rows
+// (it never appears — no dead links). See tcgplayer-enrich.mjs (fetchShopifyCatalog
+// / indexShopifyByCode / matchShopify / matchShopifyByName). The post-seed verifier
+// (scripts/verify-links.mjs) re-checks a live sample and fails on any wrong link.
 //
-// SEARCH QUERY: we pass the card NAME ONLY (see storeQuery below). Over-qualifying
-// with the set name ("Monkey D. Luffy Romance Dawn") returns "no results" on most
-// store search engines; the bare name reliably lands the shopper on the card. The
-// US TCGplayer row is upgraded at seed time to the card's REAL product-page URL
-// where we can match it (exact card, like dexcompare).
-export function buildStores(tcg) {
-  return {
-    US: [
-      { key: "tcgplayer_us", name: "TCGplayer", search: (q) => `https://www.tcgplayer.com/search/${tcg}/product?q=${q}` },
-      { key: "cardkingdom", name: "Card Kingdom", search: (q) => `https://www.cardkingdom.com/catalog/search?search=header&filter%5Bname%5D=${q}` },
-      { key: "starcitygames", name: "Star City Games", search: (q) => `https://starcitygames.com/search/?search_query=${q}` },
-      { key: "channelfireball", name: "ChannelFireball", search: (q) => `https://store.channelfireball.com/search?q=${q}` },
-      { key: "coolstuffinc", name: "CoolStuffInc", search: (q) => `https://www.coolstuffinc.com/main_search.php?q=${q}` },
-      { key: "abugames", name: "ABU Games", search: (q) => `https://abugames.com/search?q=${q}` },
-      { key: "dacardworld", name: "Da Card World", search: (q) => `https://www.dacardworld.com/search?q=${q}` },
-      { key: "mtgseattle", name: "MTG Seattle", search: (q) => `https://www.mtgseattle.com/products/search?q=${q}` },
-      { key: "gamenerdz", name: "GameNerdz", search: (q) => `https://www.gamenerdz.com/search.php?search_query=${q}` },
-      { key: "hareruya_us", name: "Hareruya", search: (q) => `https://www.hareruyamtg.com/en/products/search?word=${q}` },
-      { key: "cardcavern", name: "Card Cavern", search: (q) => `https://cardcavern.com/search?q=${q}` },
-      { key: "fourohone", name: "401 Games", search: (q) => `https://store.401games.ca/search?q=${q}` },
-      { key: "amazon_us", name: "Amazon", search: (q) => `https://www.amazon.com/s?k=${q}+trading+card` },
-    ],
-    AU: [
-      { key: "guf", name: "Guf", search: (q) => `https://guf.com.au/search?q=${q}` },
-      { key: "cherrycollectables", name: "Cherry Collectables", search: (q) => `https://cherrycollectables.com.au/search?q=${q}` },
-      { key: "gameforce", name: "GameForce", search: (q) => `https://gameforce.com.au/search?q=${q}` },
-      { key: "thegamescapital", name: "The Games Capital", search: (q) => `https://www.thegamescapital.com.au/search?q=${q}` },
-      { key: "kingscomics", name: "Kings Comics", search: (q) => `https://www.kingscomics.com/search?q=${q}` },
-      { key: "gameology", name: "Gameology", search: (q) => `https://www.gameology.com.au/search?q=${q}` },
-      { key: "gamesempire", name: "Games Empire", search: (q) => `https://gamesempire.com.au/search?q=${q}` },
-      { key: "goodgames", name: "Good Games", search: (q) => `https://goodgames.com.au/search?q=${q}` },
-      // candidates (re-verified by the audit)
-      { key: "gapgames_au", name: "GAP Games", search: (q) => `https://www.gapgames.com.au/search?q=${q}` },
-      { key: "houseofcards_au", name: "House of Cards", search: (q) => `https://houseofcards.com.au/search?q=${q}` },
-      { key: "birdkeeper_au", name: "Bird Keeper", search: (q) => `https://birdkeeper.com.au/search?q=${q}` },
-      { key: "mightyape_au", name: "Mighty Ape", search: (q) => `https://www.mightyape.com.au/search?q=${q}` },
-    ],
-    GB: [
-      { key: "totalcards", name: "Total Cards", search: (q) => `https://www.totalcards.net/catalogsearch/result/?q=${q}` },
-      { key: "elementgames", name: "Element Games", search: (q) => `https://elementgames.co.uk/search?q=${q}` },
-      { key: "darksphere", name: "Dark Sphere", search: (q) => `https://www.darksphere.co.uk/index.php?main_page=advanced_search_result&keyword=${q}` },
-      { key: "goblingaming", name: "Goblin Gaming", search: (q) => `https://www.goblingaming.co.uk/search?q=${q}` },
-      { key: "axionnow", name: "Axion Now", search: (q) => `https://www.axionnow.com/search?q=${q}` },
-      { key: "hairyt", name: "Hairy T", search: (q) => `https://www.hairyt.com/search?q=${q}` },
-      { key: "cardempire", name: "Card Empire", search: (q) => `https://www.cardempire.co.uk/search?q=${q}` },
-      { key: "travellingman", name: "Travelling Man", search: (q) => `https://travellingman.com/search?q=${q}` },
-      { key: "hareruya_uk", name: "Hareruya", search: (q) => `https://www.hareruyamtg.com/en/products/search?word=${q}` },
-      { key: "chaoscards", name: "Chaos Cards", search: (q) => `https://www.chaoscards.co.uk/search?q=${q}` },
-      { key: "magicmadhouse", name: "Magic Madhouse", search: (q) => `https://www.magicmadhouse.co.uk/search?q=${q}` },
-      { key: "patriotgames_uk", name: "Patriot Games", search: (q) => `https://www.patriotgames.co.uk/search?q=${q}` },
-      // candidates (re-verified by the audit)
-      { key: "manaleak", name: "Manaleak", search: (q) => `https://www.manaleak.com/search?q=${q}` },
-      { key: "bigorbitcards", name: "Big Orbit Cards", search: (q) => `https://bigorbitcards.co.uk/search?q=${q}` },
-      { key: "waylandgames", name: "Wayland Games", search: (q) => `https://www.waylandgames.co.uk/search?q=${q}` },
-      { key: "magicstronghold", name: "Magic Stronghold", search: (q) => `https://www.magicstronghold.com/search?q=${q}` },
-      // candidates (re-verified by the audit)
-      { key: "spellboundgames", name: "Spellbound Games", search: (q) => `https://www.spellboundgames.co.uk/search?q=${q}` },
-      { key: "amazon_uk", name: "Amazon", search: (q) => `https://www.amazon.co.uk/s?k=${q}+trading+card` },
-    ],
-    NZ: [
-      { key: "cardmerchant", name: "Card Merchant NZ", search: (q) => `https://www.cardmerchant.co.nz/search?q=${q}` },
-      { key: "boardgamesnz", name: "Board Games NZ", search: (q) => `https://www.boardgames.co.nz/search?q=${q}` },
-      { key: "gamekings_nz", name: "Game Kings", search: (q) => `https://www.gamekings.co.nz/search?q=${q}` },
-      { key: "vault_nz", name: "The Vault", search: (q) => `https://thevault.co.nz/search?q=${q}` },
-      { key: "mightyape_nz", name: "Mighty Ape", search: (q) => `https://www.mightyape.co.nz/search?q=${q}` },
-      // candidates (re-verified by the audit)
-      { key: "goblingames_nz", name: "Goblin Games NZ", search: (q) => `https://goblingames.co.nz/search?q=${q}` },
-      { key: "amazon_nz", name: "Amazon", search: (q) => `https://www.amazon.com.au/s?k=${q}+trading+card` },
-    ],
-  };
-}
-
-// Store search query for a card. NAME ONLY — see the header note: the bare card
-// name reliably returns the card on store search engines, whereas name+set
-// usually returns nothing.
-export function storeQuery(card) {
-  return String(card.name || "").trim();
-}
-
-// "Main" stores per market (subset, used when a market needs fewer rows — e.g.
-// YGO, to fit the Neon free tier). Order = priority. Keys must exist above.
-const MAIN = {
-  US: ["tcgplayer_us", "amazon_us", "cardkingdom", "starcitygames", "channelfireball", "coolstuffinc", "cardcavern", "abugames", "dacardworld", "gamenerdz"],
-  AU: ["mightyape_au", "guf", "cherrycollectables", "gameforce", "goodgames", "thegamescapital", "kingscomics", "gameology", "gamesempire", "gapgames_au"],
-  GB: ["amazon_uk", "totalcards", "elementgames", "chaoscards", "goblingaming", "magicmadhouse", "darksphere", "axionnow", "hairyt", "cardempire"],
-  NZ: ["cardmerchant", "boardgamesnz", "gamekings_nz", "vault_nz", "mightyape_nz"],
-};
-export function topStores(tcg, n = 10) {
-  const full = buildStores(tcg);
-  const out = {};
-  for (const r of Object.keys(full)) {
-    out[r] = MAIN[r].map((k) => full[r].find((s) => s.key === k)).filter(Boolean).slice(0, n);
-  }
-  return out;
+// This is a generous CANDIDATE list across all regions; the seed keeps only the
+// ones that genuinely deep-link (logged per store as "<store>: N card deep-links").
+// TCGplayer is added separately in the seed for US/GB/NZ (exact product page) — it
+// is NOT offered for AU (TCGplayer doesn't serve the Australian market).
+export function shopifyStores() {
+  return [
+    // ---- Australia (AUD) ----
+    { key: "guf", name: "Guf", host: "guf.com.au", country: "AU", currency: "AUD" },
+    { key: "cherrycollectables", name: "Cherry Collectables", host: "cherrycollectables.com.au", country: "AU", currency: "AUD" },
+    { key: "gameology", name: "Gameology", host: "www.gameology.com.au", country: "AU", currency: "AUD" },
+    { key: "gapgames", name: "GAP Games", host: "www.gapgames.com.au", country: "AU", currency: "AUD" },
+    { key: "goodgames", name: "Good Games", host: "goodgames.com.au", country: "AU", currency: "AUD" },
+    { key: "gamesempire", name: "Games Empire", host: "gamesempire.com.au", country: "AU", currency: "AUD" },
+    { key: "thegamescapital", name: "The Games Capital", host: "www.thegamescapital.com.au", country: "AU", currency: "AUD" },
+    { key: "kingscomics", name: "Kings Comics", host: "www.kingscomics.com", country: "AU", currency: "AUD" },
+    { key: "bantertoys", name: "Banter Toys", host: "bantertoys.com.au", country: "AU", currency: "AUD" },
+    { key: "sanctuarygaming", name: "Sanctuary Gaming", host: "sanctuarygamingstore.com.au", country: "AU", currency: "AUD" },
+    { key: "eternalgames", name: "Eternal Games", host: "eternalgames.com.au", country: "AU", currency: "AUD" },
+    { key: "nextlevelgames", name: "Next Level Games", host: "nextlevelgames.com.au", country: "AU", currency: "AUD" },
+    { key: "hobbymaster", name: "Hobbymaster", host: "hobbymaster.com.au", country: "AU", currency: "AUD" },
+    { key: "kapowcomics", name: "Kapow Comics", host: "kapowcomics.com.au", country: "AU", currency: "AUD" },
+    { key: "gameskeeper", name: "The Gamekeeper", host: "gameskeeper.com.au", country: "AU", currency: "AUD" },
+    { key: "goblinsden_au", name: "Goblins Den", host: "goblinsden.com.au", country: "AU", currency: "AUD" },
+    { key: "mindgames_au", name: "Mind Games", host: "www.mindgames.com.au", country: "AU", currency: "AUD" },
+    // ---- United Kingdom (GBP) ----
+    { key: "totalcards", name: "Total Cards", host: "www.totalcards.net", country: "GB", currency: "GBP" },
+    { key: "goblingaming", name: "Goblin Gaming", host: "www.goblingaming.co.uk", country: "GB", currency: "GBP" },
+    { key: "axionnow", name: "Axion Now", host: "www.axionnow.com", country: "GB", currency: "GBP" },
+    { key: "hairyt", name: "Hairy T", host: "www.hairyt.com", country: "GB", currency: "GBP" },
+    { key: "cardempire", name: "Card Empire", host: "www.cardempire.co.uk", country: "GB", currency: "GBP" },
+    { key: "travellingman", name: "Travelling Man", host: "travellingman.com", country: "GB", currency: "GBP" },
+    { key: "spellboundgames", name: "Spellbound Games", host: "www.spellboundgames.co.uk", country: "GB", currency: "GBP" },
+    { key: "fanboythree", name: "Fan Boy Three", host: "fanboythree.co.uk", country: "GB", currency: "GBP" },
+    { key: "hiddenhoard", name: "The Hidden Hoard", host: "www.thehiddenhoard.co.uk", country: "GB", currency: "GBP" },
+    { key: "geekvillage", name: "Geek Village", host: "www.geekvillage.co.uk", country: "GB", currency: "GBP" },
+    { key: "mtgmate_uk", name: "MTG Mate", host: "www.mtgmate.co.uk", country: "GB", currency: "GBP" },
+    { key: "gamesden_uk", name: "Games Den", host: "www.gamesden.co.uk", country: "GB", currency: "GBP" },
+    { key: "battlequest_uk", name: "Battle Quest", host: "battlequestcards.com", country: "GB", currency: "GBP" },
+    // ---- New Zealand (NZD) ----
+    { key: "cardmerchant", name: "Card Merchant NZ", host: "www.cardmerchant.co.nz", country: "NZ", currency: "NZD" },
+    { key: "goblingames_nz", name: "Goblin Games NZ", host: "goblingames.co.nz", country: "NZ", currency: "NZD" },
+    { key: "gamekings_nz", name: "Game Kings", host: "www.gamekings.co.nz", country: "NZ", currency: "NZD" },
+    { key: "vault_nz", name: "The Vault", host: "thevault.co.nz", country: "NZ", currency: "NZD" },
+    { key: "boardgames_nz", name: "Board Games NZ", host: "www.boardgames.co.nz", country: "NZ", currency: "NZD" },
+    { key: "cerberusgames_nz", name: "Cerberus Games", host: "cerberusgames.co.nz", country: "NZ", currency: "NZD" },
+    { key: "shieldgames_nz", name: "Shield Games", host: "shieldgames.co.nz", country: "NZ", currency: "NZD" },
+    // ---- United States (USD) ----
+    { key: "cardcavern_us", name: "Card Cavern", host: "cardcavern.com", country: "US", currency: "USD" },
+    { key: "capefeargames", name: "Cape Fear Games", host: "www.capefeargames.com", country: "US", currency: "USD" },
+    { key: "channelfireball", name: "ChannelFireball", host: "store.channelfireball.com", country: "US", currency: "USD" },
+    { key: "frontlinegaming", name: "Frontline Gaming", host: "frontlinegaming.org", country: "US", currency: "USD" },
+    { key: "gamegoblin_us", name: "The Game Goblin", host: "www.thegamegoblin.com", country: "US", currency: "USD" },
+  ];
 }

@@ -144,6 +144,125 @@ function cleanCardName(name) {
 }
 const isAltPrint = (n) => /alternate art|parallel|special|manga|box topper|full art|reprint/i.test(n || "");
 
+// ---- Shopify store deep-links --------------------------------------------------
+// Real card stores on Shopify expose /products.json — their actual catalogue with
+// real product URLs, prices and stock. We download it once, index by the UNIQUE
+// collector code (One Piece / Yu-Gi-Oh!), and link each card to the store's REAL
+// product page. Code matching is exact, so a click always lands on that one card
+// (accessories like sleeves/playmats never carry a card code, so they're excluded).
+const ACCESSORY_RE = /sleeve|playmat|deck ?box|binder|booster|\bbox\b|\bcase\b|bundle|\btin\b|blister|\bpack\b|toploader|\bdice\b|portfolio|divider|elite trainer|play ?mat|storage|album|page/i;
+
+export async function fetchShopifyCatalog(host, maxPages = 60) {
+  const out = [];
+  for (let page = 1; page <= maxPages; page++) {
+    let res;
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 12000); // never hang on a slow store
+    try {
+      res = await fetch(`https://${host}/products.json?limit=250&page=${page}`, {
+        headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36", Accept: "application/json" },
+        redirect: "follow", signal: ctrl.signal,
+      });
+    } catch { break; } finally { clearTimeout(t); }
+    if (!res.ok) { if (page === 1) return { ok: false, products: [] }; break; }
+    if (!/json/.test(res.headers.get("content-type") || "")) return { ok: false, products: [] };
+    let data;
+    try { data = await res.json(); } catch { break; }
+    const arr = data?.products;
+    if (!Array.isArray(arr) || !arr.length) break;
+    for (const p of arr) {
+      const variants = Array.isArray(p.variants) ? p.variants : [];
+      const avail = variants.filter((v) => v.available);
+      const pick = (avail.length ? avail : variants).map((v) => Number(v.price)).filter((n) => n > 0);
+      out.push({
+        title: p.title || "",
+        handle: p.handle || "",
+        type: p.product_type || "",
+        priceCents: pick.length ? Math.round(Math.min(...pick) * 100) : null,
+        available: avail.length > 0,
+      });
+    }
+    if (arr.length < 250) break;
+    await sleep(80);
+  }
+  return { ok: true, products: out };
+}
+
+// Index a Shopify catalogue by collector code → best product (prefer in-stock,
+// non-accessory). Only products whose title carries a card code are indexed.
+export function indexShopifyByCode(products) {
+  const idx = new Map();
+  for (const p of products) {
+    if (ACCESSORY_RE.test(p.title) || ACCESSORY_RE.test(p.type)) continue;
+    const ck = codeKey(p.title) || codeKey(p.handle);
+    if (!ck) continue;
+    const prev = idx.get(ck);
+    if (!prev || (!prev.available && p.available)) idx.set(ck, p);
+  }
+  return idx;
+}
+
+// For a list of cards, build deep-link rows from a store's code index. A row is
+// only created when the code matches AND the card's name appears in the product
+// title (guards against a stray code collision). Returns Map<externalId, row>.
+export function matchShopify(idx, cards, { retailer, retailerName, country, currency, host }) {
+  const rows = new Map();
+  for (const c of cards) {
+    const ck = codeKey(c.collectorNumber);
+    if (!ck) continue;
+    const p = idx.get(ck);
+    if (!p) continue;
+    const tn = norm(p.title);
+    const toks = norm(c.name).split(" ").filter((t) => t.length > 2);
+    const nameOk = toks.length ? toks.filter((t) => tn.includes(t)).length / toks.length >= 0.5 : tn.includes(norm(c.name));
+    if (!nameOk) continue;
+    rows.set(c.externalId, {
+      retailer, retailerName, country, currency,
+      url: `https://${host}/products/${p.handle}`,
+      priceCents: p.priceCents, inStock: p.available,
+    });
+  }
+  return rows;
+}
+const norm = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/\s+/g, " ").trim();
+
+const BASIC_LAND = /^(plains|island|swamp|mountain|forest|wastes)$/;
+// Magic deep-link matcher. Magic has no unique per-card code on Shopify, so we
+// match by NAME + (set name OR collector number), with accessories excluded and
+// basic lands requiring the number (their name+set is ambiguous across arts). An
+// inverted token index keeps it fast across big catalogues. A row is only created
+// on a confident match, so a Magic link always lands on that card (or no row).
+export function matchShopifyByName(products, cards, store) {
+  const prods = products.filter((p) => !ACCESSORY_RE.test(p.title) && !ACCESSORY_RE.test(p.type));
+  const tokSets = prods.map((p) => new Set(norm(p.title).split(" ").filter((t) => t.length > 2)));
+  const inv = new Map(); // token -> [productIndex]
+  tokSets.forEach((set, i) => { for (const t of set) { let l = inv.get(t); if (!l) { l = []; inv.set(t, l); } l.push(i); } });
+  const rows = new Map();
+  for (const c of cards) {
+    const nameToks = norm(c.name).split(" ").filter((t) => t.length > 2);
+    if (!nameToks.length) continue;
+    let cand = null;
+    for (const t of nameToks) { const l = inv.get(t); if (!l) { cand = null; break; } if (!cand || l.length < cand.length) cand = l; }
+    if (!cand) continue;
+    const setToks = norm(c.setName).split(" ").filter((t) => t.length > 2);
+    const num = String(c.collectorNumber).replace(/\D/g, "");
+    const isBasic = BASIC_LAND.test(norm(c.name));
+    let best = null;
+    for (const i of cand) {
+      const set = tokSets[i];
+      if (!nameToks.every((t) => set.has(t))) continue; // every name word present
+      const title = norm(prods[i].title) + " " + norm(prods[i].handle);
+      const hasNum = !!num && new RegExp(`(^|\\D)${num}(\\D|$)`).test(title);
+      const hasSet = setToks.length > 0 && setToks.filter((t) => set.has(t)).length / setToks.length >= 0.6;
+      if (isBasic ? !hasNum : !(hasNum || hasSet)) continue; // confident signal required
+      if (!best || (!best.available && prods[i].available)) best = prods[i];
+      if (best && best.available) break;
+    }
+    if (best) rows.set(c.externalId, { retailer: store.retailer, retailerName: store.retailerName, country: store.country, currency: store.currency, url: `https://${store.host}/products/${best.handle}`, priceCents: best.priceCents, inStock: best.available });
+  }
+  return rows;
+}
+
 // Build a card catalogue straight from TCGplayer — authoritative names, codes,
 // sets, CLEAN images and real US market prices. Returns BuiltCard-shaped rows.
 // One row per card code (base/non-alt printing preferred). Used by the One Piece
