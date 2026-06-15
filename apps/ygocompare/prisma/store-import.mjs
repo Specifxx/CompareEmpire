@@ -109,6 +109,27 @@ export const RETAILERS = [
   ["collectbydesign", "Collect by Design", "https://www.collectbydesign.co.uk", "GB"],
   ["jarvvos", "Jarvvos", "https://www.jarvvos.co.uk", "GB"],
   ["magicstronghold_gb", "Magic Stronghold", "https://magicstrongholdgames.co.uk", "GB"],
+  // ---- Additional candidates (self-filtering: appear only where they stock the card) ----
+  // North America (queried with ?country=US → USD via Shopify Markets)
+  ["fourohone", "401 Games", "https://store.401games.ca", "US"],
+  ["atomicempire", "Atomic Empire", "https://www.atomicempire.com", "US"],
+  ["coretcg", "Core TCG", "https://coretcg.com", "US"],
+  ["fusiongaming", "Fusion Gaming", "https://www.fusiongamingonline.com", "US"],
+  ["nerdzcollectibles", "Nerdz Collectibles", "https://nerdzcollectibles.com", "US"],
+  // Australia
+  ["sanctuarygaming", "Sanctuary Gaming", "https://sanctuarygamingstore.com.au", "AU"],
+  ["eternalgames", "Eternal Games", "https://eternalgames.com.au", "AU"],
+  ["houseofcards", "House of Cards", "https://houseofcards.com.au", "AU"],
+  ["kapow", "Kapow Comics", "https://kapowcomics.com.au", "AU"],
+  ["lonewolfgames", "Lone Wolf Games", "https://lonewolfgames.com.au", "AU"],
+  // United Kingdom
+  ["pristineygo", "Pristine TCG", "https://pristinepokemon.co.uk", "GB"],
+  ["mtgmate", "MTG Mate", "https://www.mtgmate.co.uk", "GB"],
+  ["thehiddenhoard", "The Hidden Hoard", "https://www.thehiddenhoard.co.uk", "GB"],
+  ["gamescrusade", "Games Crusade", "https://gamescrusade.com", "GB"],
+  // New Zealand
+  ["mtgnz", "Mortal Games", "https://mortalgames.co.nz", "NZ"],
+  ["shieldgames", "Shield Games", "https://shieldgames.co.nz", "NZ"],
 ];
 
 const CUR = { AU: "AUD", NZ: "NZD", US: "USD", GB: "GBP" };
@@ -170,7 +191,14 @@ const TOK_STOP = new Set(["magic","the","gathering","mtg","yugioh","yu","gi","oh
 function tokenize(s) { return String(s||"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim().split(" ").filter((w)=>w.length>1 && !TOK_STOP.has(w) && !/^\d+$/.test(w)); }
 const SET_GENERIC = new Set(["edition","set","series","the","of","and"]);
 const BASIC = /^(plains|island|swamp|mountain|forest|wastes)$/;
-function codeKey(s) { const m = String(s||"").toLowerCase().match(/[a-z0-9]{2,6}-[a-z]{0,3}\d{1,4}/); return m ? m[0].replace(/[^a-z0-9]/g, "") : ""; }
+// Region-agnostic card code: set-code + number, dropping a language infix so a UK
+// store's "ROTD-036" / "ROTD-EN036" and our "ROTD-EN036" all key to "rotd036"
+// (set-code + number uniquely identifies the card across languages). One Piece
+// codes have no infix ("OP01-001" → "op01001"), so they're unaffected.
+function codeKey(s) {
+  const m = String(s || "").toLowerCase().match(/([a-z0-9]{2,6})-([a-z]{0,3})(\d{1,4})/);
+  return m ? m[1] + m[3] : "";
+}
 
 const MULTI_CARD = /\b(playset|lot|lots|bundle|joblot|job lot|x\s*\d+|\d+\s*x|set of|complete set|full set|bulk)\b/i;
 const NON_CARD = /\b(funko|pop!?\s*(?:vinyl|games)|plush|action\s*figure|portfolio|binder|sleeves?|toploaders?|top\s?loader|playmat|deck\s?box|card\s?case|storage\s*(?:box|case)|booster|elite\s*trainer|premium\s*collection|collection\s*box|gift\s*(?:box|set)|\btin\b|\bbox\b|display|blister|theme\s*deck|starter\s*(?:deck|set)|precon|commander\s*deck|structure\s*deck|dice|\bmat\b|sticker|poster|\bpin\b)\b/i;
