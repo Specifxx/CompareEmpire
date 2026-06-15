@@ -137,6 +137,14 @@ export const RETAILERS = [
   ["tabletoptactics", "Tabletop Tactics", "https://tabletoptactics.com.au", "AU"],
   ["bird", "Bird Keeper", "https://birdkeeper.com.au", "AU"],
   ["mtgaus", "Good Games Online", "https://goodgamesonline.com.au", "AU"],
+  // Australia — additional Shopify single-card shops (verified to carry YGO singles).
+  ["thatgamestore", "That Game Store", "https://thatgamestore.com.au", "AU"],
+  ["kccollectibles", "KC Collectibles", "https://kccollectibles.com.au", "AU"],
+  ["gamerholic", "Gamerholic", "https://gamerholic.com.au", "AU"],
+  ["generalgames", "General Games", "https://www.generalgames.com.au", "AU"],
+  ["goodgamesgc", "Good Games Gold Coast", "https://goodgamesgoldcoast.com.au", "AU"],
+  ["nakijo", "Nakijo", "https://www.nakijo.com.au", "AU"],
+  ["mayhem", "Mayhem Collectables", "https://www.mayhemcollectables.com.au", "AU"],
   // United Kingdom
   ["pristineygo", "Pristine TCG", "https://pristinepokemon.co.uk", "GB"],
   ["mtgmate", "MTG Mate", "https://www.mtgmate.co.uk", "GB"],
