@@ -233,23 +233,67 @@ export function buildResolver(cards, mode) {
     // OP / YGO: collector code is unique. Match the code in the title, and confirm
     // with the card name so a same-code promo of a different card can't grab it.
     const byCode = new Map();
+    // Name inverted index for the fallback path (many AU/NZ shops title YGO/OP
+    // singles by "<name> <set>" with no collector code, so the code map misses
+    // them entirely). Built alongside byCode so a name+set fallback can recover
+    // those listings — but only when the match is unambiguous (see below).
+    const byName = new Map();
+    const pushName = (k, v) => { const a = byName.get(k); if (a) a.push(v); else byName.set(k, [v]); };
     for (const c of cards) {
+      const nameToks = tokenize(c.name);
+      const nameSet = new Set(nameToks);
+      // Set tokens that also appear in the card name carry no set signal (e.g.
+      // "Dark Magician" in set "Magician Force" — "magician" would otherwise let
+      // any Dark Magician listing satisfy the set check), so drop them.
+      const setToks = tokenize(c.setName || "").filter((s) => !SET_GENERIC.has(s) && !nameSet.has(s));
       const k = codeKey(c.collectorNumber);
-      if (!k) continue;
-      const list = byCode.get(k) || [];
-      list.push({ id: c.id, nameToks: tokenize(c.name) });
-      byCode.set(k, list);
+      if (k) {
+        const list = byCode.get(k) || [];
+        list.push({ id: c.id, nameToks });
+        byCode.set(k, list);
+      }
+      if (nameToks.length) {
+        const ic = { id: c.id, nameToks, setToks };
+        for (const tok of nameToks) pushName(tok, ic);
+      }
     }
     return function (title) {
       if (MULTI_CARD.test(title) || NON_CARD.test(title)) return null;
       const k = codeKey(title);
-      if (!k) return null;
-      const cands = byCode.get(k);
-      if (!cands) return null;
-      if (cands.length === 1 && !cands[0].nameToks.length) return cands[0].id;
-      const set = new Set(tokenize(title));
-      const hit = cands.find((c) => !c.nameToks.length || c.nameToks.filter((t) => set.has(t)).length / c.nameToks.length >= 0.5);
-      return hit ? hit.id : null;
+      if (k) {
+        const cands = byCode.get(k);
+        if (cands) {
+          if (cands.length === 1 && !cands[0].nameToks.length) return cands[0].id;
+          const set = new Set(tokenize(title));
+          const hit = cands.find((c) => !c.nameToks.length || c.nameToks.filter((t) => set.has(t)).length / c.nameToks.length >= 0.5);
+          if (hit) return hit.id;
+        }
+        // Title has a code but it didn't resolve — don't fall through to the
+        // name path (a wrong-set code in the title shouldn't grab a same-name card).
+        return null;
+      }
+      // No code in the title: fall back to a strict name+set match. Only return
+      // a card when EXACTLY ONE of our cards has its full name present in the
+      // title AND a set-name token overlap — ambiguous names (parallels, same
+      // name across sets) resolve to null to stay accurate.
+      const ptoks = tokenize(title);
+      if (!ptoks.length) return null;
+      const set = new Set(ptoks);
+      const seen = new Set();
+      let match = null;
+      for (const tok of ptoks) {
+        const cands = byName.get(tok);
+        if (!cands) continue;
+        for (const c of cands) {
+          if (seen.has(c.id)) continue;
+          seen.add(c.id);
+          if (!c.nameToks.every((x) => set.has(x))) continue;
+          if (c.setToks.length && !c.setToks.some((s) => set.has(s))) continue;
+          if (match) return null; // ambiguous → bail
+          match = c.id;
+        }
+      }
+      return match;
     };
   }
   // Magic: full name + set-name overlap, collector number to disambiguate.
