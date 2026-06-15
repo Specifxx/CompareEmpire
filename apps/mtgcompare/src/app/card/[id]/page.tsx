@@ -158,6 +158,10 @@ export default async function CardPage({ params }: { params: { id: string } }) {
   const guideIsReal = card.marketPriceSource === "TCGplayer";
   const guideSource = guideIsReal ? "TCGplayer" : "rough estimate";
 
+  // Best real BUYLIST offer (what a store pays you), converted to this market. USD
+  // sourced (Card Kingdom), shown clearly labelled — never mixed with buy prices.
+  const buylistCents = card.buylistPriceCents != null ? marketGuideCents(card.buylistPriceCents, country) : null;
+
   // Whether this market's comparison includes an eBay listing. The daily eBay
   // quota rotates through the catalogue, so plenty of cards haven't been checked
   // recently — for those we offer an affiliate-tagged eBay search instead of
@@ -300,6 +304,28 @@ export default async function CardPage({ params }: { params: { id: string } }) {
                     : prices.length === 0
                     ? `A guide from recent sales, not a buyable listing — no ${info.adjective} store stocks this card yet.`
                     : `A guide from recent sales, not a buyable listing. The ${info.adjective} store prices below are what you can actually pay — note the market guide can sometimes be cheaper than any store here (and vice versa).`}
+                </p>
+              </div>
+            )}
+
+            {/* Real BUYLIST offer — what a store pays YOU. Sourced from a vendor's
+                live buylist (USD), shown converted and clearly separated from the
+                buy ("from") prices above. */}
+            {buylistCents != null && (
+              <div className="mt-3 rounded-lg border border-emerald-700/40 bg-emerald-950/20 p-3 text-sm">
+                <div className="flex flex-wrap items-baseline gap-x-2">
+                  <span className="font-semibold text-emerald-300">
+                    Sell to a store: up to {fmt(buylistCents)}
+                  </span>
+                  <span className="text-xs text-slate-500">
+                    buylist · {card.buylistRetailer ?? "vendor"}
+                    {country !== "US" ? " (USD buy price, converted)" : ""}
+                    {card.buylistUpdatedAt ? ` · updated ${timeAgo(card.buylistUpdatedAt)}` : ""}
+                  </span>
+                </div>
+                <p className="mt-1 text-xs leading-relaxed text-slate-500">
+                  The highest live buylist offer we{"’"}ve found — what {card.buylistRetailer ?? "a vendor"} will pay
+                  you for a Near Mint copy. Quoted in USD by the vendor and shown converted here.
                 </p>
               </div>
             )}
