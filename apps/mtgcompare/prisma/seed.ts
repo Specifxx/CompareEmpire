@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { normalizeSearch } from "../src/lib/format";
 import { POKEMON_SETS } from "../src/lib/pokemon-sets";
-import { enrichFromTcgplayer, buildCatalog, buildScryfallCatalog } from "./tcgplayer-enrich.mjs";
+import { enrichFromTcgplayer, buildCatalog, buildScryfallCatalog, fetchCardKingdomBuylist } from "./tcgplayer-enrich.mjs";
 import { importMagicStores } from "./store-import.mjs";
 
 const prisma = new PrismaClient();
@@ -169,6 +169,19 @@ async function main() {
     create: { email: "compareempire", passwordHash: ADMIN_HASH, displayName: "CompareEmpire", sellerName: "CompareEmpire Marketplace", isAdmin: true, verifiedSeller: true, emailVerified: new Date() },
   });
 
+  // Real buylist (what a store PAYS you) from Card Kingdom's public price list.
+  // Indexed by normalised name → best (highest) non-foil buy offer CK is actively
+  // making, so each card shows a real "sell to a store" figure alongside buy prices.
+  const ckBuy = await fetchCardKingdomBuylist();
+  const buyByName = new Map<string, number>();
+  for (const e of ckBuy as Array<{ name: string; isFoil: boolean; buyCents: number }>) {
+    if (e.isFoil) continue;
+    const k = normalizeSearch(e.name);
+    const prev = buyByName.get(k);
+    if (prev == null || e.buyCents > prev) buyByName.set(k, e.buyCents);
+  }
+  console.log(`Card Kingdom buylist indexed for ${buyByName.size} card names.`);
+
   // ---- cards (USD reference price; per-market lows computed from store rows) ----
   type Built = CardX & { usdRef: number };
   const built: Built[] = cards.map((c) => ({
@@ -198,6 +211,10 @@ async function main() {
       marketPriceCents: info.marketCents ?? c.usdRef,
       marketPriceSource: info.marketCents != null ? "TCGplayer" : "Estimate",
       marketPriceUpdatedAt: new Date(),
+      // Real buylist offer (USD cents) — Card Kingdom's live buy price for this card.
+      buylistPriceCents: buyByName.get(normalizeSearch(c.name)) ?? null,
+      buylistRetailer: buyByName.has(normalizeSearch(c.name)) ? "Card Kingdom" : null,
+      buylistUpdatedAt: buyByName.has(normalizeSearch(c.name)) ? new Date() : null,
       // lowest-price columns are filled below from the generated store rows.
       artSeed: Math.floor(rng() * 1_000_000),
     };

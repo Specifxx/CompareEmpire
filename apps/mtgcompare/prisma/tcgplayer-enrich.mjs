@@ -494,3 +494,31 @@ export async function buildScryfallCatalog(opts = {}) {
   console.log(`Scryfall: built ${cards.length} Magic cards`);
   return cards;
 }
+
+// Real MTG buylist (what a vendor PAYS you) from Card Kingdom's public price-list
+// API — JSON, refreshed daily, includes the live buy price + the quantity CK is
+// actively buying. We only keep entries CK is actually buying (qty_buying > 0) so
+// the figure is a real, current offer. Returns [{ name, edition, isFoil, buyCents,
+// qty }]; [] if unreachable. Prices are USD.
+export async function fetchCardKingdomBuylist() {
+  const UA = { "User-Agent": "CompareEmpire/1.0 (price comparison; contact admin@compareempire)", Accept: "application/json" };
+  try {
+    const r = await fetch("https://api.cardkingdom.com/api/v2/pricelist", { headers: UA, signal: AbortSignal.timeout(60000) });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const j = await r.json();
+    const list = Array.isArray(j) ? j : j.data || [];
+    const out = [];
+    for (const p of list) {
+      const buy = parseFloat(p.price_buy || "0");
+      const qty = typeof p.qty_buying === "number" ? p.qty_buying : parseInt(p.qty_buying || "0", 10);
+      if (!(buy > 0) || !(qty > 0)) continue; // only cards CK is actively buying
+      const isFoil = p.is_foil === true || p.is_foil === "true" || p.is_foil === 1 || p.is_foil === "1";
+      out.push({ name: p.name || "", edition: p.edition || "", isFoil, buyCents: Math.round(buy * 100), qty });
+    }
+    console.log(`Card Kingdom buylist: ${out.length} actively-bought entries.`);
+    return out;
+  } catch (e) {
+    console.warn(`Card Kingdom buylist fetch failed (${e.message})`);
+    return [];
+  }
+}
