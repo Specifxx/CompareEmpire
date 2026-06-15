@@ -1,27 +1,27 @@
-// OPCompare logo — a bold "O" in straw-hat orange/gold on a dark tile, with a
-// small price-spark. Vector so it stays crisp at any size.
+// OPCompare logo — Luffy's straw hat, One Piece's most iconic emblem, on a dark
+// crimson tile. Filter-free vector so it renders identically in the header,
+// favicon, Apple icon and OG image (next/og).
 export function Logo({ size = 36 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 48 48" role="img" aria-label="OPCompare logo" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="ocBg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#2a1405" />
-          <stop offset="100%" stopColor="#140a02" />
+        <linearGradient id="opTile" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#2c0c0c" />
+          <stop offset="100%" stopColor="#160606" />
         </linearGradient>
-        <linearGradient id="ocOrange" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#fbbf24" />
-          <stop offset="100%" stopColor="#ea580c" />
+        <linearGradient id="opStraw" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#f8d98b" />
+          <stop offset="100%" stopColor="#dca33f" />
         </linearGradient>
-        <filter id="ocGlow" x="-40%" y="-40%" width="180%" height="180%">
-          <feGaussianBlur stdDeviation="0.6" result="b" />
-          <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
-        </filter>
       </defs>
-      <rect x="2" y="2" width="44" height="44" rx="11" fill="url(#ocBg)" stroke="#7a4a1e" strokeWidth="1" />
-      {/* Letter O */}
-      <circle cx="24" cy="24" r="13" fill="none" stroke="url(#ocOrange)" strokeWidth="6.5" filter="url(#ocGlow)" />
-      {/* price spark */}
-      <path d="M38 8 l1.3 2.8 2.8 1.3 -2.8 1.3 -1.3 2.8 -1.3 -2.8 -2.8 -1.3 2.8 -1.3 z" fill="#fde047" filter="url(#ocGlow)" />
+      <rect x="1" y="1" width="46" height="46" rx="12" fill="url(#opTile)" stroke="#7a1f1f" strokeWidth="1.2" />
+      {/* crown (dome) */}
+      <path d="M11.5 31 C 12.6 16.8, 35.4 16.8, 36.5 31 Z" fill="url(#opStraw)" />
+      {/* red ribbon band */}
+      <ellipse cx="24" cy="26" rx="11.2" ry="2.6" fill="#d8392e" />
+      {/* wide brim */}
+      <ellipse cx="24" cy="31.6" rx="17.6" ry="5" fill="url(#opStraw)" />
+      <ellipse cx="24" cy="31.6" rx="17.6" ry="5" fill="none" stroke="#b5832f" strokeWidth="0.8" />
     </svg>
   );
 }
