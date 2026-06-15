@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { normalizeSearch } from "../src/lib/format";
 import { POKEMON_SETS } from "../src/lib/pokemon-sets";
 import { buildStores, topStores, storeQuery } from "./stores.mjs";
-import { enrichFromTcgplayer } from "./tcgplayer-enrich.mjs";
+import { enrichFromTcgplayer, buildCatalog } from "./tcgplayer-enrich.mjs";
 
 const prisma = new PrismaClient();
 
@@ -106,19 +106,35 @@ const cents = (n: number, floor = 8) => Math.max(floor, Math.round(n));
 const SPR = parseInt(process.env.STORES_PER_REGION || "0", 10);
 const STORES: Record<string, { key: string; name: string; search: (q: string) => string }[]> = SPR > 0 ? topStores("magic", SPR) : buildStores("magic");
 
-async function main() {
-  const cards = JSON.parse(
-    readFileSync(join(process.cwd(), "prisma", "mtg-cards.json"), "utf8")
-  ) as BuiltCard[];
-  console.log(`Loaded ${cards.length} Magic cards from the offline data mirror.`);
+type CardX = BuiltCard & { productUrl?: string | null; marketCents?: number | null };
 
-  // Real TCGplayer products → clean images + real product URLs (accurate US
-  // "View deal" → exact card, like dexcompare) + real US market price. Reachable
-  // from CI; falls back cleanly to the heuristic + store search when unreachable.
-  const TCG = await enrichFromTcgplayer("magic", cards).catch((e) => {
-    console.warn("TCGplayer enrichment failed:", e.message);
-    return new Map<string, { productId: number; productUrl: string; imageUrl: string; marketCents: number | null }>();
-  });
+async function main() {
+  // Build the Magic catalogue straight from TCGplayer — authoritative names,
+  // sets, CLEAN images and real US prices/links. Capped so it fits the Neon free
+  // tier; falls back to the committed file if TCGplayer is unreachable.
+  const MAX_FROM = parseInt(process.env.MTG_MAX_FROM || "20000", 10);
+  let cards: CardX[] = [];
+  let usingTcg = false;
+  try {
+    const tcg = (await buildCatalog("magic", { maxFrom: MAX_FROM })) as CardX[];
+    if (tcg.length >= 500) { cards = tcg; usingTcg = true; console.log(`Using TCGplayer Magic catalogue: ${tcg.length} cards (clean images + real prices).`); }
+  } catch (e) { console.warn("buildCatalog failed:", (e as Error).message); }
+  if (!usingTcg) {
+    cards = JSON.parse(readFileSync(join(process.cwd(), "prisma", "mtg-cards.json"), "utf8")) as CardX[];
+    console.log(`Fell back to the committed Magic catalogue: ${cards.length} cards.`);
+  }
+
+  const TCG = usingTcg
+    ? new Map<string, { productId: number; productUrl: string; imageUrl: string; marketCents: number | null }>()
+    : await enrichFromTcgplayer("magic", cards).catch((e) => {
+        console.warn("TCGplayer enrichment failed:", e.message);
+        return new Map<string, { productId: number; productUrl: string; imageUrl: string; marketCents: number | null }>();
+      });
+  const infoOf = (c: CardX) => {
+    if (usingTcg) return { imageUrl: c.imageUrl ?? null, productUrl: c.productUrl ?? null, marketCents: c.marketCents ?? null };
+    const e = TCG.get(c.externalId);
+    return { imageUrl: e?.imageUrl ?? c.imageUrl ?? null, productUrl: e?.productUrl ?? null, marketCents: e?.marketCents ?? null };
+  };
 
   console.log("Resetting data…");
   await prisma.order.deleteMany();
@@ -142,14 +158,14 @@ async function main() {
   });
 
   // ---- cards (USD reference price; per-market lows computed from store rows) ----
-  type Built = BuiltCard & { usdRef: number };
+  type Built = CardX & { usdRef: number };
   const built: Built[] = cards.map((c) => ({
     ...c,
     usdRef: cents(refUsd(c.rarity) * ageMult(c.releaseDate) * chaseMult(c.name, c.domain, c.type, c.subtype)),
   }));
 
   const cardRows = built.map((c) => {
-    const enr = TCG.get(c.externalId);
+    const info = infoOf(c);
     return {
       externalId: c.externalId,
       slug: `${c.externalId}-${normalizeSearch(c.name).replace(/\s+/g, "-")}`.toLowerCase().slice(0, 80),
@@ -164,11 +180,11 @@ async function main() {
       tags: c.subtype,
       flavorText: c.flavorText,
       description: c.artist ? `Illustrated by ${c.artist}` : null,
-      // Prefer the clean TCGplayer image; fall back to the Scryfall image.
-      imageUrl: enr?.imageUrl ?? c.imageUrl,
-      imageThumbUrl: enr?.imageUrl ?? c.imageThumbUrl,
-      marketPriceCents: enr?.marketCents ?? c.usdRef,
-      marketPriceSource: enr?.marketCents != null ? "TCGplayer" : "Estimate",
+      // Clean TCGplayer image; fall back to the Scryfall image.
+      imageUrl: info.imageUrl ?? c.imageUrl,
+      imageThumbUrl: info.imageUrl ?? c.imageThumbUrl,
+      marketPriceCents: info.marketCents ?? c.usdRef,
+      marketPriceSource: info.marketCents != null ? "TCGplayer" : "Estimate",
       marketPriceUpdatedAt: new Date(),
       // lowest-price columns are filled below from the generated store rows.
       artSeed: Math.floor(rng() * 1_000_000),
@@ -184,7 +200,7 @@ async function main() {
   const dbCards = await prisma.card.findMany({
     select: { id: true, externalId: true, name: true, setName: true, marketPriceCents: true, rarity: true },
   });
-  const refById = new Map(built.map((b) => [b.externalId, b]));
+  const productUrlByExt = new Map(built.map((b) => [b.externalId, infoOf(b).productUrl]));
 
   console.log(`Building retailer prices for ${dbCards.length} cards…`);
   const priceRows: any[] = [];
@@ -192,7 +208,7 @@ async function main() {
 
   for (const c of dbCards) {
     const usd = c.marketPriceCents; // USD cents reference
-    const enr = TCG.get(c.externalId!);
+    const tcgUrl = productUrlByExt.get(c.externalId!) ?? null;
     const q = encodeURIComponent(storeQuery(c));
     lows[c.externalId!] = {};
     for (const market of ["US", "AU", "GB", "NZ"] as const) {
@@ -201,10 +217,10 @@ async function main() {
       const marketStores = STORES[market];
       let marketMin = Infinity;
       for (const s of marketStores) {
-        // US TCGplayer: when matched, link to the REAL product page at the REAL
-        // market price (accurate "View deal" → exact card), like dexcompare.
-        const isRealTcg = s.key === "tcgplayer_us" && enr != null;
-        const nm = isRealTcg && enr!.marketCents != null ? enr!.marketCents : cents(usd * fx * between(0.9, 1.25));
+        // US TCGplayer: when we have it, link to the REAL product page (accurate
+        // "View deal" → exact card), like dexcompare; else fall back to search.
+        const isRealTcg = s.key === "tcgplayer_us" && !!tcgUrl;
+        const nm = cents(usd * fx * between(0.9, 1.25));
         const conditionPrices = {
           NM: nm,
           LP: cents(nm * 0.85),
@@ -216,7 +232,7 @@ async function main() {
           retailer: s.key,
           retailerName: s.name,
           title: `${c.name} (${c.setName})`,
-          url: isRealTcg ? enr!.productUrl : s.search(q),
+          url: isRealTcg ? tcgUrl! : s.search(q),
           condition: "NM",
           conditionPrices,
           priceCents: nm,

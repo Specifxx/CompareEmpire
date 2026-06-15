@@ -125,6 +125,15 @@ const attr = (p, k) => {
   const v = p.customAttributes?.[k];
   return v == null ? null : Array.isArray(v) ? v.join("/") : String(v);
 };
+const slug = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+// Pseudo set code from a set name ("Modern Horizons 3" → "MH3", "Limited
+// Edition Alpha" → "LEA") — TCGplayer doesn't expose the 3-letter code.
+function pseudoSetCode(setName) {
+  const s = String(setName || "").replace(/[:.,'']/g, " ");
+  const tail = (s.match(/\b(\d{1,3})\b\s*$/) || [])[1] || "";
+  const letters = s.replace(/\b\d+\b/g, " ").split(/\s+/).filter((w) => /^[a-z]/i.test(w) && !/^(the|of|and|edition|set)$/i.test(w)).map((w) => w[0]).join("").toUpperCase().slice(0, 4);
+  return (letters + tail).slice(0, 6) || "SET";
+}
 // Tidy a TCGplayer product name into a card name: drop trailing "(NNN)",
 // "- OP01-001", and par/alt-art parentheticals.
 function cleanCardName(name) {
@@ -141,6 +150,9 @@ const isAltPrint = (n) => /alternate art|parallel|special|manga|box topper|full 
 // seed because the hand-curated list had inaccurate name↔code pairings.
 export async function buildCatalog(productLine, opts = {}) {
   const maxFrom = opts.maxFrom ?? Infinity;
+  // "code": collector number is a unique card code (OP/YGO). "numset": number
+  // recurs across sets, so a card's identity is set + number (Magic).
+  const mode = opts.mode ?? (productLine === "magic" ? "numset" : "code");
   let first;
   try { first = await fetchPage(productLine, 0); }
   catch (e) { console.warn(`buildCatalog: TCGplayer unreachable (${e.message})`); return []; }
@@ -152,31 +164,31 @@ export async function buildCatalog(productLine, opts = {}) {
     catch (e) { console.warn(`buildCatalog page ${from}: ${e.message}`); break; }
   }
   console.log(`buildCatalog ${productLine}: pulled ${items.length} products`);
-  const byCode = new Map();
+  const byKey = new Map();
   for (const p of items) {
     const num = p.customAttributes?.number;
     if (!num) continue;
-    const key = codeKey(num);
-    if (!key) continue;
-    const prev = byCode.get(key);
-    // prefer a base (non-foil, non-alt) printing for the catalogue entry
+    const key = mode === "code" ? codeKey(num) : `${normSetName(p.setName)}|${numKey(num)}`;
+    if (!key || key === "|") continue;
+    const prev = byKey.get(key);
     const score = (p.foilOnly ? 0 : 2) + (isAltPrint(p.productName) ? 0 : 1);
     if (prev && prev.score >= score) continue;
-    byCode.set(key, { p, num, score });
+    byKey.set(key, { p, num, score });
   }
   const cards = [];
-  for (const { p, num } of byCode.values()) {
-    const setCode = String(num).split("-")[0].toUpperCase();
+  for (const { p, num } of byKey.values()) {
     const market = typeof p.marketPrice === "number" && p.marketPrice > 0 ? Math.round(p.marketPrice * 100) : null;
+    const setCode = mode === "code" ? String(num).split("-")[0].toUpperCase() : pseudoSetCode(p.setName);
+    const externalId = mode === "code" ? num : `${slug(p.setName)}-${num}`.slice(0, 70);
     cards.push({
-      externalId: num,
+      externalId,
       name: cleanCardName(p.productName),
       setCode,
       setName: p.setName || setCode,
       releaseDate: "2022/12/02",
       collectorNumber: num,
-      number: String(num).split("-").pop() || num,
-      domain: attr(p, "Color") || attr(p, "color") || "Red",
+      number: mode === "code" ? (String(num).split("-").pop() || num) : String(num),
+      domain: attr(p, "Color") || attr(p, "color") || (mode === "code" ? "Red" : "Colorless"),
       type: attr(p, "CardType") || attr(p, "cardType") || "Character",
       subtype: attr(p, "SubTypes") || attr(p, "subTypeName") || null,
       rarity: attr(p, "Rarity") || attr(p, "rarity") || "Common",
