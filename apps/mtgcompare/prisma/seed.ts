@@ -4,8 +4,8 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { normalizeSearch } from "../src/lib/format";
 import { POKEMON_SETS } from "../src/lib/pokemon-sets";
-import { shopifyStores } from "./stores.mjs";
-import { enrichFromTcgplayer, buildCatalog, fetchShopifyCatalog, matchShopifyByName } from "./tcgplayer-enrich.mjs";
+import { enrichFromTcgplayer, buildCatalog } from "./tcgplayer-enrich.mjs";
+import { importMagicStores } from "./store-import.mjs";
 
 const prisma = new PrismaClient();
 
@@ -201,70 +201,47 @@ async function main() {
   }
 
   const dbCards = await prisma.card.findMany({
-    select: { id: true, externalId: true, name: true, setName: true, marketPriceCents: true, rarity: true },
+    select: { id: true, externalId: true, name: true, setName: true, collectorNumber: true, marketPriceCents: true, rarity: true },
   });
   const productUrlByExt = new Map(built.map((b) => [b.externalId, infoOf(b).productUrl]));
 
-  // Shopify card stores → real product deep-links matched by NAME + set/number
-  // (accessories excluded). This is how Magic gets non-TCGplayer stores — essential
-  // now that TCGplayer is not offered for AU.
-  console.log("Fetching Shopify store catalogues for name-matched Magic deep-links…");
-  const shopMatches: { map: Map<string, ShopRow> }[] = [];
-  for (const s of shopifyStores()) {
-    try {
-      const cat = await fetchShopifyCatalog(s.host);
-      if (!cat.ok || !cat.products.length) { console.log(`  ${s.name} (${s.country}): no /products.json — skipped`); continue; }
-      const map = matchShopifyByName(cat.products, built, { retailer: s.key, retailerName: s.name, country: s.country, currency: s.currency, host: s.host }) as Map<string, ShopRow>;
-      console.log(`  ${s.name} (${s.country}): ${cat.products.length} products → ${map.size} card deep-links`);
-      if (map.size) shopMatches.push({ map });
-    } catch (e) { console.warn(`  ${s.name} failed: ${(e as Error).message}`); }
-  }
-
-  console.log(`Building deep-link prices for ${dbCards.length} cards…`);
-  const priceRows: any[] = [];
-  const lows: Record<string, Record<string, number | null>> = {}; // externalId -> {market -> minCents}
-
+  // (1) TCGplayer exact product page — US/GB/NZ only (NOT Australia).
+  console.log("Writing TCGplayer (US/GB/NZ) deep-link rows…");
+  const tcgRows: any[] = [];
   for (const c of dbCards) {
-    const ext = c.externalId!;
-    const usd = c.marketPriceCents; // USD cents reference
-    const tcgUrl = productUrlByExt.get(ext) ?? null;
-    const min: Record<string, number> = { US: Infinity, AU: Infinity, GB: Infinity, NZ: Infinity };
-    // (1) TCGplayer exact product page — US/GB/NZ only (not AU).
-    if (tcgUrl) {
-      for (const market of TCG_MARKETS) {
-        const price = cents(usd * FX[market]);
-        priceRows.push({ cardId: c.id, retailer: `tcgplayer_${market.toLowerCase()}`, retailerName: "TCGplayer", title: `${c.name} (${c.setName})`, url: tcgUrl, condition: "NM", conditionPrices: { NM: price }, priceCents: price, currency: CUR[market], inStock: true, country: market });
-        min[market] = Math.min(min[market], price);
-      }
+    const tcgUrl = productUrlByExt.get(c.externalId!) ?? null;
+    if (!tcgUrl) continue;
+    for (const market of TCG_MARKETS) {
+      const price = cents(c.marketPriceCents * FX[market]);
+      tcgRows.push({ cardId: c.id, retailer: `tcgplayer_${market.toLowerCase()}`, retailerName: "TCGplayer", title: `${c.name} (${c.setName})`, url: tcgUrl, condition: "NM", conditionPrices: { NM: price }, priceCents: price, currency: CUR[market], inStock: true, country: market });
     }
-    // (2) Shopify real product pages (real price + stock) where name-matched.
-    for (const { map } of shopMatches) {
-      const row = map.get(ext); if (!row) continue;
-      const price = row.priceCents ?? cents(usd * FX[row.country]);
-      priceRows.push({ cardId: c.id, retailer: row.retailer, retailerName: row.retailerName, title: `${c.name} (${c.setName})`, url: row.url, condition: "NM", conditionPrices: { NM: price }, priceCents: price, currency: row.currency, inStock: row.inStock, country: row.country });
-      if (row.inStock) min[row.country] = Math.min(min[row.country], price);
-    }
-    lows[ext] = Object.fromEntries(MARKETS.map((m) => [m, min[m] === Infinity ? null : min[m]]));
   }
+  for (let i = 0; i < tcgRows.length; i += 5000) await prisma.retailerPrice.createMany({ data: tcgRows.slice(i, i + 5000), skipDuplicates: true });
+  console.log(`Inserted ${tcgRows.length} TCGplayer rows.`);
 
-  console.log(`Inserting ${priceRows.length} retailer prices…`);
-  for (let i = 0; i < priceRows.length; i += 5000) {
-    await prisma.retailerPrice.createMany({ data: priceRows.slice(i, i + 5000), skipDuplicates: true });
-  }
+  // (2) Real Magic store deep-links across AU/NZ/US/GB — DexCompare's proven engine
+  // (sitemap collection discovery + country-priced products.json + title→card
+  // resolver). Writes a RetailerPrice row per matched card/store with real price+stock.
+  console.log("Importing live Magic store prices (DexCompare engine)…");
+  const imported = await importMagicStores(prisma, dbCards as any).catch((e) => { console.warn("store import failed:", (e as Error).message); return { totalRows: 0 }; });
+  console.log(`Store deep-link rows written: ${imported.totalRows}.`);
 
-  // Backfill each card's per-market lowest-price columns from the store rows.
+  // Recompute each card's per-market lowest from IN-STOCK rows (NM/LP or unstated grade).
+  console.log("Recomputing per-market lowest prices…");
+  const headlineWhere = (country: string) => ({ inStock: true, country, OR: [{ condition: { in: ["NM", "LP"] } }, { condition: null }] });
+  const [au, nz, us, gb] = await Promise.all([
+    prisma.retailerPrice.groupBy({ by: ["cardId"], where: headlineWhere("AU"), _min: { priceCents: true } }),
+    prisma.retailerPrice.groupBy({ by: ["cardId"], where: headlineWhere("NZ"), _min: { priceCents: true } }),
+    prisma.retailerPrice.groupBy({ by: ["cardId"], where: headlineWhere("US"), _min: { priceCents: true } }),
+    prisma.retailerPrice.groupBy({ by: ["cardId"], where: headlineWhere("GB"), _min: { priceCents: true } }),
+  ]);
+  const mAu = new Map(au.map((r) => [r.cardId, r._min.priceCents])); const mNz = new Map(nz.map((r) => [r.cardId, r._min.priceCents]));
+  const mUs = new Map(us.map((r) => [r.cardId, r._min.priceCents])); const mGb = new Map(gb.map((r) => [r.cardId, r._min.priceCents]));
   console.log("Updating card lowest-price columns…");
-  for (const c of dbCards) {
-    const l = lows[c.externalId!] ?? {};
-    await prisma.card.update({
-      where: { id: c.id },
-      data: {
-        lowestPriceCentsUs: l.US ?? null,
-        lowestPriceCents: l.AU ?? null,
-        lowestPriceCentsGb: l.GB ?? null,
-        lowestPriceCentsNz: l.NZ ?? null,
-      },
-    });
+  for (let i = 0; i < dbCards.length; i += 500) {
+    await Promise.all(dbCards.slice(i, i + 500).map((c) => prisma.card.update({ where: { id: c.id }, data: {
+      lowestPriceCentsUs: mUs.get(c.id) ?? null, lowestPriceCents: mAu.get(c.id) ?? null, lowestPriceCentsGb: mGb.get(c.id) ?? null, lowestPriceCentsNz: mNz.get(c.id) ?? null,
+    } })));
   }
 
   // ---- price-history snapshots (powers the Market Index, biggest movers & card charts) ----
