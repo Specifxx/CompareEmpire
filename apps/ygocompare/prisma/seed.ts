@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { normalizeSearch } from "../src/lib/format";
 import { POKEMON_SETS } from "../src/lib/pokemon-sets";
-import { enrichFromTcgplayer } from "./tcgplayer-enrich.mjs";
+import { enrichFromTcgplayer, buildCatalog } from "./tcgplayer-enrich.mjs";
 import { importStores } from "./store-import.mjs";
 
 const prisma = new PrismaClient();
@@ -74,6 +74,13 @@ type ShopRow = { retailer: string; retailerName: string; country: string; curren
 // the code lands directly on that one card — used for cards outside the top-value
 // set we fetch exact product ids for.
 const tcgCodeSearch = (code: string) => `https://www.tcgplayer.com/search/yugioh/product?q=${encodeURIComponent(code)}`;
+// Region-agnostic card-code key (set-code + number, language infix dropped) so a
+// card's "ROTD-EN036" keys to "rotd036" — used to merge the bulk TCGplayer price
+// catalogue into our offline-mirror cards by their unique code.
+const ygoCodeKey = (s: string) => {
+  const m = String(s || "").toLowerCase().match(/([a-z0-9]{2,6})-([a-z]{0,3})(\d{1,4})/);
+  return m ? m[1] + m[3] : "";
+};
 
 async function main() {
   const cards = JSON.parse(readFileSync(join(process.cwd(), "prisma", "ygo-cards.json"), "utf8")) as BuiltCard[];
@@ -92,6 +99,22 @@ async function main() {
     console.warn("TCGplayer enrichment failed:", e.message);
     return new Map<string, { productId: number; productUrl: string; imageUrl: string; marketCents: number | null }>();
   });
+
+  // Bulk: pull the WHOLE TCGplayer Yu-Gi-Oh! price catalogue (offset-paginated, by
+  // unique card code). This gives EVERY matchable card a real market price + exact
+  // product link — not just the top 1500 — so the AU view (TCGplayer doesn't serve
+  // AU) can show a real market guide instead of nothing for the long tail. Cards
+  // with no TCGplayer match stay "Estimate" and remain unpriced (accuracy first).
+  const tcgBulk = await buildCatalog("yugioh", { mode: "code" }).catch((e) => {
+    console.warn("TCGplayer bulk catalogue failed:", (e as Error).message);
+    return [] as Array<{ collectorNumber: string; productUrl: string; imageUrl: string; marketCents: number | null }>;
+  });
+  const bulkByCode = new Map<string, { productUrl: string; imageUrl: string; marketCents: number | null }>();
+  for (const t of tcgBulk) {
+    const k = ygoCodeKey(t.collectorNumber);
+    if (k && !bulkByCode.has(k)) bulkByCode.set(k, { productUrl: t.productUrl, imageUrl: t.imageUrl, marketCents: t.marketCents });
+  }
+  console.log(`TCGplayer bulk: ${bulkByCode.size} unique Yu-Gi-Oh! codes priced.`);
 
   console.log("Resetting data…");
   await prisma.order.deleteMany();
@@ -120,6 +143,11 @@ async function main() {
 
   const cardRows = built.map((c) => {
     const enr = TCG.get(c.externalId);
+    // Prefer the name-verified targeted match for the top cards; otherwise the
+    // bulk code-matched price/link from the full TCGplayer catalogue.
+    const bulk = bulkByCode.get(ygoCodeKey(c.collectorNumber));
+    const tcgMarket = enr?.marketCents ?? bulk?.marketCents ?? null;
+    const tcgImage = enr?.imageUrl ?? bulk?.imageUrl ?? null;
     return {
       externalId: c.externalId,
       slug: `${c.externalId}-${normalizeSearch(c.name).replace(/\s+/g, "-")}`.toLowerCase().slice(0, 80),
@@ -135,10 +163,10 @@ async function main() {
       flavorText: c.flavorText,
       description: c.subtype ? `${c.subtype}` : null,
       // ygoprodeck images are clean; only override with TCGplayer's when matched.
-      imageUrl: enr?.imageUrl ?? c.imageUrl,
-      imageThumbUrl: enr?.imageUrl ?? c.imageThumbUrl,
-      marketPriceCents: enr?.marketCents ?? c.usdRef,
-      marketPriceSource: enr?.marketCents != null ? "TCGplayer" : "Estimate",
+      imageUrl: tcgImage ?? c.imageUrl,
+      imageThumbUrl: tcgImage ?? c.imageThumbUrl,
+      marketPriceCents: tcgMarket ?? c.usdRef,
+      marketPriceSource: tcgMarket != null ? "TCGplayer" : "Estimate",
       marketPriceUpdatedAt: new Date(),
       artSeed: Math.floor(rng() * 1_000_000),
     };
@@ -156,7 +184,7 @@ async function main() {
   const tcgRows: any[] = [];
   for (const c of dbCards) {
     const enr = TCG.get(c.externalId!);
-    const tcgUrl = enr?.productUrl ?? tcgCodeSearch(c.collectorNumber);
+    const tcgUrl = enr?.productUrl ?? bulkByCode.get(ygoCodeKey(c.collectorNumber))?.productUrl ?? tcgCodeSearch(c.collectorNumber);
     for (const market of TCG_MARKETS) {
       const price = cents(c.marketPriceCents * FX[market]);
       tcgRows.push({ cardId: c.id, retailer: `tcgplayer_${market.toLowerCase()}`, retailerName: "TCGplayer", title: `${c.name} (${c.setName})`, url: tcgUrl, condition: "NM", conditionPrices: { NM: price }, priceCents: price, currency: CUR[market], inStock: true, country: market });

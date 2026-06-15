@@ -272,28 +272,34 @@ export function buildResolver(cards, mode) {
         // name path (a wrong-set code in the title shouldn't grab a same-name card).
         return null;
       }
-      // No code in the title: fall back to a strict name+set match. Only return
-      // a card when EXACTLY ONE of our cards has its full name present in the
-      // title AND a set-name token overlap — ambiguous names (parallels, same
-      // name across sets) resolve to null to stay accurate.
+      // No code in the title: fall back to a name match. Collect every card whose
+      // FULL name appears in the title. If exactly one card has that name, it's
+      // unambiguous → match it (covers shops that list "Blue-Eyes Ultimate Dragon"
+      // with no code/set). If several cards share the name (reprints/parallels),
+      // require a set-name overlap and a single winner; otherwise bail (accuracy).
       const ptoks = tokenize(title);
       if (!ptoks.length) return null;
       const set = new Set(ptoks);
       const seen = new Set();
-      let match = null;
+      const nameMatches = [];
       for (const tok of ptoks) {
         const cands = byName.get(tok);
         if (!cands) continue;
         for (const c of cands) {
           if (seen.has(c.id)) continue;
           seen.add(c.id);
-          if (!c.nameToks.every((x) => set.has(x))) continue;
-          if (c.setToks.length && !c.setToks.some((s) => set.has(s))) continue;
-          if (match) return null; // ambiguous → bail
-          match = c.id;
+          if (c.nameToks.every((x) => set.has(x))) nameMatches.push(c);
         }
       }
-      return match;
+      if (nameMatches.length === 0) return null;
+      // Prefer the most specific (longest) name so a shorter name that's a subset
+      // of the title ("Dark Magician" inside "Dark Magician Girl") doesn't shadow
+      // the real card.
+      const maxLen = Math.max(...nameMatches.map((c) => c.nameToks.length));
+      const longest = nameMatches.filter((c) => c.nameToks.length === maxLen);
+      if (longest.length === 1) return longest[0].id; // globally-unique name
+      const withSet = longest.filter((c) => c.setToks.length && c.setToks.some((s) => set.has(s)));
+      return withSet.length === 1 ? withSet[0].id : null;
     };
   }
   // Magic: full name + set-name overlap, collector number to disambiguate.
