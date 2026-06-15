@@ -67,6 +67,8 @@ const FX: Record<string, number> = { US: 1.0, AU: 1.55, NZ: 1.68, GB: 0.82 };
 const CUR: Record<string, string> = { US: "USD", AU: "AUD", NZ: "NZD", GB: "GBP" };
 const cents = (n: number, floor = 8) => Math.max(floor, Math.round(n));
 const MARKETS = ["US", "AU", "GB", "NZ"] as const;
+// TCGplayer ships these markets but NOT Australia — so it's never offered for AU.
+const TCG_MARKETS = ["US", "GB", "NZ"] as const;
 type ShopRow = { retailer: string; retailerName: string; country: string; currency: string; url: string; priceCents: number | null; inStock: boolean };
 // Yu-Gi-Oh! codes (e.g. ROTD-EN036) are globally unique, so a TCGplayer search by
 // the code lands directly on that one card — used for cards outside the top-value
@@ -172,8 +174,8 @@ async function main() {
     // that lands on the one card (YGO codes are unique).
     const tcgUrl = enr?.productUrl ?? tcgCodeSearch(c.collectorNumber);
     const min: Record<string, number> = { US: Infinity, AU: Infinity, GB: Infinity, NZ: Infinity };
-    // (1) TCGplayer deep-link, one row per market (ships worldwide).
-    for (const market of MARKETS) {
+    // (1) TCGplayer deep-link, per market — US/GB/NZ only (not AU).
+    for (const market of TCG_MARKETS) {
       const price = cents(usd * FX[market]);
       priceRows.push({ cardId: c.id, retailer: `tcgplayer_${market.toLowerCase()}`, retailerName: "TCGplayer", title: `${c.name} (${c.setName})`, url: tcgUrl, condition: "NM", conditionPrices: { NM: price }, priceCents: price, currency: CUR[market], inStock: true, country: market });
       min[market] = Math.min(min[market], price);

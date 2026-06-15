@@ -64,6 +64,8 @@ const FX: Record<string, number> = { US: 1.0, AU: 1.55, NZ: 1.68, GB: 0.82 };
 const CUR: Record<string, string> = { US: "USD", AU: "AUD", NZ: "NZD", GB: "GBP" };
 const cents = (n: number, floor = 8) => Math.max(floor, Math.round(n));
 const MARKETS = ["US", "AU", "GB", "NZ"] as const;
+// TCGplayer ships these markets but NOT Australia — so it's never offered for AU.
+const TCG_MARKETS = ["US", "GB", "NZ"] as const;
 
 type CardX = BuiltCard & { productUrl?: string | null; marketCents?: number | null };
 type ShopRow = { retailer: string; retailerName: string; country: string; currency: string; url: string; priceCents: number | null; inStock: boolean };
@@ -182,9 +184,9 @@ async function main() {
     const usd = c.marketPriceCents;
     const tcgUrl = productUrlByExt.get(ext) ?? null;
     const min: Record<string, number> = { US: Infinity, AU: Infinity, GB: Infinity, NZ: Infinity };
-    // (1) TCGplayer exact product page, one row per market (it ships worldwide).
+    // (1) TCGplayer exact product page, per market — US/GB/NZ only (not AU).
     if (tcgUrl) {
-      for (const market of MARKETS) {
+      for (const market of TCG_MARKETS) {
         const price = cents(usd * FX[market]);
         priceRows.push({ cardId: c.id, retailer: `tcgplayer_${market.toLowerCase()}`, retailerName: "TCGplayer", title: `${c.name} (${c.setName})`, url: tcgUrl, condition: "NM", conditionPrices: { NM: price }, priceCents: price, currency: CUR[market], inStock: true, country: market });
         min[market] = Math.min(min[market], price);

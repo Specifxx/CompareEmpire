@@ -226,6 +226,43 @@ export function matchShopify(idx, cards, { retailer, retailerName, country, curr
 }
 const norm = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/\s+/g, " ").trim();
 
+const BASIC_LAND = /^(plains|island|swamp|mountain|forest|wastes)$/;
+// Magic deep-link matcher. Magic has no unique per-card code on Shopify, so we
+// match by NAME + (set name OR collector number), with accessories excluded and
+// basic lands requiring the number (their name+set is ambiguous across arts). An
+// inverted token index keeps it fast across big catalogues. A row is only created
+// on a confident match, so a Magic link always lands on that card (or no row).
+export function matchShopifyByName(products, cards, store) {
+  const prods = products.filter((p) => !ACCESSORY_RE.test(p.title) && !ACCESSORY_RE.test(p.type));
+  const tokSets = prods.map((p) => new Set(norm(p.title).split(" ").filter((t) => t.length > 2)));
+  const inv = new Map(); // token -> [productIndex]
+  tokSets.forEach((set, i) => { for (const t of set) { let l = inv.get(t); if (!l) { l = []; inv.set(t, l); } l.push(i); } });
+  const rows = new Map();
+  for (const c of cards) {
+    const nameToks = norm(c.name).split(" ").filter((t) => t.length > 2);
+    if (!nameToks.length) continue;
+    let cand = null;
+    for (const t of nameToks) { const l = inv.get(t); if (!l) { cand = null; break; } if (!cand || l.length < cand.length) cand = l; }
+    if (!cand) continue;
+    const setToks = norm(c.setName).split(" ").filter((t) => t.length > 2);
+    const num = String(c.collectorNumber).replace(/\D/g, "");
+    const isBasic = BASIC_LAND.test(norm(c.name));
+    let best = null;
+    for (const i of cand) {
+      const set = tokSets[i];
+      if (!nameToks.every((t) => set.has(t))) continue; // every name word present
+      const title = norm(prods[i].title) + " " + norm(prods[i].handle);
+      const hasNum = !!num && new RegExp(`(^|\\D)${num}(\\D|$)`).test(title);
+      const hasSet = setToks.length > 0 && setToks.filter((t) => set.has(t)).length / setToks.length >= 0.6;
+      if (isBasic ? !hasNum : !(hasNum || hasSet)) continue; // confident signal required
+      if (!best || (!best.available && prods[i].available)) best = prods[i];
+      if (best && best.available) break;
+    }
+    if (best) rows.set(c.externalId, { retailer: store.retailer, retailerName: store.retailerName, country: store.country, currency: store.currency, url: `https://${store.host}/products/${best.handle}`, priceCents: best.priceCents, inStock: best.available });
+  }
+  return rows;
+}
+
 // Build a card catalogue straight from TCGplayer — authoritative names, codes,
 // sets, CLEAN images and real US market prices. Returns BuiltCard-shaped rows.
 // One row per card code (base/non-alt printing preferred). Used by the One Piece
