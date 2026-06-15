@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { normalizeSearch } from "../src/lib/format";
 import { POKEMON_SETS } from "../src/lib/pokemon-sets";
-import { enrichFromTcgplayer, buildCatalog } from "./tcgplayer-enrich.mjs";
+import { enrichFromTcgplayer, buildCatalog, buildScryfallCatalog } from "./tcgplayer-enrich.mjs";
 import { importMagicStores } from "./store-import.mjs";
 
 const prisma = new PrismaClient();
@@ -112,17 +112,26 @@ type ShopRow = { retailer: string; retailerName: string; country: string; curren
 type CardX = BuiltCard & { productUrl?: string | null; marketCents?: number | null };
 
 async function main() {
-  // Build the Magic catalogue straight from TCGplayer — authoritative names,
-  // sets, CLEAN images and real US prices/links. Capped so it fits the Neon free
-  // tier; falls back to the committed file if TCGplayer is unreachable.
+  // Build the Magic catalogue. PRIMARY: Scryfall bulk data — the complete MTG
+  // database (every card is searchable, with real prices + clean images +
+  // TCGplayer links). TCGplayer's own search API caps pagination at ~10k products,
+  // so it could only supply a fraction of Magic's cards (Black Lotus, Remand, most
+  // planeswalkers were missing → "no results"). Falls back to TCGplayer's bulk
+  // pull, then the committed file, if Scryfall is unreachable.
   const MAX_FROM = parseInt(process.env.MTG_MAX_FROM || "20000", 10);
   let cards: CardX[] = [];
-  let usingTcg = false;
+  let usingTcg = false; // true when the catalogue already carries productUrl/marketCents inline
   try {
-    const tcg = (await buildCatalog("magic", { maxFrom: MAX_FROM })) as CardX[];
-    if (tcg.length >= 500) { cards = tcg; usingTcg = true; console.log(`Using TCGplayer Magic catalogue: ${tcg.length} cards (clean images + real prices).`); }
-  } catch (e) { console.warn("buildCatalog failed:", (e as Error).message); }
-  if (!usingTcg) {
+    const sf = (await buildScryfallCatalog()) as CardX[];
+    if (sf.length >= 5000) { cards = sf; usingTcg = true; console.log(`Using Scryfall Magic catalogue: ${sf.length} cards (complete + real prices).`); }
+  } catch (e) { console.warn("buildScryfallCatalog failed:", (e as Error).message); }
+  if (!cards.length) {
+    try {
+      const tcg = (await buildCatalog("magic", { maxFrom: MAX_FROM })) as CardX[];
+      if (tcg.length >= 500) { cards = tcg; usingTcg = true; console.log(`Using TCGplayer Magic catalogue: ${tcg.length} cards (clean images + real prices).`); }
+    } catch (e) { console.warn("buildCatalog failed:", (e as Error).message); }
+  }
+  if (!cards.length) {
     cards = JSON.parse(readFileSync(join(process.cwd(), "prisma", "mtg-cards.json"), "utf8")) as CardX[];
     console.log(`Fell back to the committed Magic catalogue: ${cards.length} cards.`);
   }
