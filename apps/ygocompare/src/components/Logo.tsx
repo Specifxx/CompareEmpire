@@ -1,27 +1,31 @@
-// YGOCompare logo — a bold "Y" in Millennium purple/gold on a dark tile, with a
-// small price-spark. Vector so it stays crisp at any size.
+// YGOCompare logo — the Millennium Puzzle (gold inverted pyramid) bearing the
+// Eye of Wadjet, Yu-Gi-Oh!'s signature emblem, on a dark violet tile. Filter-free
+// vector so it renders identically in the header, favicon, Apple icon and OG
+// image (next/og).
 export function Logo({ size = 36 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 48 48" role="img" aria-label="YGOCompare logo" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="ycBg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#22103a" />
-          <stop offset="100%" stopColor="#100618" />
+        <linearGradient id="ygTile" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#241042" />
+          <stop offset="100%" stopColor="#120726" />
         </linearGradient>
-        <linearGradient id="ycPurple" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#c084fc" />
-          <stop offset="100%" stopColor="#7e22ce" />
+        <linearGradient id="ygGold" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#f7e08a" />
+          <stop offset="55%" stopColor="#e9c14b" />
+          <stop offset="100%" stopColor="#b8862b" />
         </linearGradient>
-        <filter id="ycGlow" x="-40%" y="-40%" width="180%" height="180%">
-          <feGaussianBlur stdDeviation="0.6" result="b" />
-          <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
-        </filter>
       </defs>
-      <rect x="2" y="2" width="44" height="44" rx="11" fill="url(#ycBg)" stroke="#4a2a7a" strokeWidth="1" />
-      {/* Letter Y */}
-      <path d="M11 11 H18 L24 21 L30 11 H37 L27.5 26 V38 H20.5 V26 Z" fill="url(#ycPurple)" filter="url(#ycGlow)" />
-      {/* price spark */}
-      <path d="M38 8 l1.3 2.8 2.8 1.3 -2.8 1.3 -1.3 2.8 -1.3 -2.8 -2.8 -1.3 2.8 -1.3 z" fill="#f5c518" filter="url(#ycGlow)" />
+      <rect x="1" y="1" width="46" height="46" rx="12" fill="url(#ygTile)" stroke="#5b3ba0" strokeWidth="1.2" />
+      {/* Millennium Puzzle — inverted pyramid */}
+      <path d="M9 13 H39 L24 41 Z" fill="url(#ygGold)" stroke="#8a5e1e" strokeWidth="0.8" strokeLinejoin="round" />
+      {/* Eye of Wadjet, inset into the gold */}
+      <path d="M15.5 22 Q24 16.5 32.5 22 Q24 27.5 15.5 22 Z" fill="#1c0d33" />
+      <circle cx="24" cy="22" r="3" fill="url(#ygGold)" />
+      <circle cx="24" cy="22" r="1.4" fill="#1c0d33" />
+      <path d="M14.5 19.8 Q24 14.6 33.5 19.8" fill="none" stroke="#1c0d33" strokeWidth="1.4" strokeLinecap="round" />
+      <path d="M19 26.3 L17.4 31.6" fill="none" stroke="#1c0d33" strokeWidth="1.4" strokeLinecap="round" />
+      <path d="M27.6 26 Q31.2 27.6 31.6 31.2" fill="none" stroke="#1c0d33" strokeWidth="1.4" strokeLinecap="round" />
     </svg>
   );
 }
