@@ -1,0 +1,43 @@
+name: Verify store deep-links
+
+# Runs on a GitHub runner (open internet) to verify that each store can resolve a
+# link to the SPECIFIC card the user wants. Two scripts:
+#   - scripts/verify-stores.mjs : explorer — which stores have a usable real-product
+#     catalogue (Shopify /products.json) we can deep-link into; reports KEEP/DROP.
+#   - scripts/verify-links.mjs  : (post-seed) samples the live DB and flags any
+#     stored link that doesn't resolve to the correct card.
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "explore (decide stores) | links:<MTG|OP|YGO url> (verify live DB)"
+        required: false
+        default: "explore"
+      db_url: { description: "DATABASE_URL for links mode (else *_DATABASE_URL secret)", required: false, default: "" }
+      game: { description: "links mode game: mtg | op | ygo", required: false, default: "op" }
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Mask secrets
+        run: |
+          echo "::add-mask::${{ inputs.db_url }}"
+          echo "::add-mask::${{ secrets.MTGCOMPARE_DATABASE_URL }}"
+          echo "::add-mask::${{ secrets.OPCOMPARE_DATABASE_URL }}"
+          echo "::add-mask::${{ secrets.YGOCOMPARE_DATABASE_URL }}"
+      - name: Explore (decide which stores can deep-link)
+        if: ${{ inputs.mode == 'explore' }}
+        run: node scripts/verify-stores.mjs
+      - name: Verify live links resolve to the correct card
+        if: ${{ startsWith(inputs.mode, 'links') }}
+        working-directory: apps/${{ inputs.game == 'mtg' && 'mtgcompare' || inputs.game == 'ygo' && 'ygocompare' || 'opcompare' }}
+        env:
+          DATABASE_URL: ${{ inputs.db_url || (inputs.game == 'mtg' && secrets.MTGCOMPARE_DATABASE_URL) || (inputs.game == 'ygo' && secrets.YGOCOMPARE_DATABASE_URL) || secrets.OPCOMPARE_DATABASE_URL }}
+        run: |
+          npm install --no-audit --no-fund
+          npx tsx ../../scripts/verify-links.mjs
