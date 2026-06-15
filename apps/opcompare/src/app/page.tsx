@@ -17,7 +17,7 @@ import { SETS, domainInfo, DOMAIN_KEYS } from "@/lib/constants";
 import { POKEMON_SETS } from "@/lib/pokemon-sets";
 import { Logo } from "@/components/Logo";
 
-export const revalidate = 180;
+export const revalidate = 86400;
 
 export const metadata: Metadata = {
   title: { absolute: "Buy & Compare One Piece Card Game Card Prices | OPCompare" },

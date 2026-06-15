@@ -19,7 +19,7 @@ import { Logo } from "@/components/Logo";
 
 // ISR while AU-only; becomes dynamic per-request when NZ mode is enabled (getCountry
 // then reads the country cookie).
-export const revalidate = 180;
+export const revalidate = 86400;
 
 // Market-neutral metadata (no country in the title) so search results aren't biased
 // to one country — the visible page below is still tailored to the visitor's market.

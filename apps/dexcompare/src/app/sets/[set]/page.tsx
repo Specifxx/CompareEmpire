@@ -12,7 +12,7 @@ import { SITE_URL } from "@/lib/site";
 // Rendered on the AU baseline server-side (country-neutral copy); the card tiles
 // localise each visitor's price client-side from the three price columns in the
 // card data. (The root layout reads the country cookie, so pages render per request.)
-export const revalidate = 1800;
+export const revalidate = 86400;
 
 export async function generateMetadata({ params }: { params: { set: string } }): Promise<Metadata> {
   const set = setBySlug(params.set);

@@ -25,7 +25,7 @@ import { TcgplayerAd } from "@/components/TcgplayerAd";
 import { EbayAd } from "@/components/EbayAd";
 
 // ISR while AU-only; dynamic per-request once NZ mode is enabled (cookie-driven).
-export const revalidate = 180;
+export const revalidate = 86400;
 
 // Accept either the slug ("vayne-hunter-sfd-223-221") or the legacy cuid.
 const whereParam = (p: string) => ({ OR: [{ slug: p }, { id: p }] });
