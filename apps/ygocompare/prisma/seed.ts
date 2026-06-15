@@ -124,7 +124,7 @@ async function main() {
   // gracefully to the bulk/estimate prices if unreachable.
   const ygoPrice = new Map<string, { cents: number; source: string }>();
   try {
-    const res = await fetch("https://db.ygoprodeck.com/api/v7/cardinfo.php?misc=no", {
+    const res = await fetch("https://db.ygoprodeck.com/api/v7/cardinfo.php", {
       headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36", Accept: "application/json" },
       signal: AbortSignal.timeout(120000),
     });
