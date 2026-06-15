@@ -116,6 +116,40 @@ async function main() {
   }
   console.log(`TCGplayer bulk: ${bulkByCode.size} unique Yu-Gi-Oh! codes priced.`);
 
+  // Full real-price coverage. TCGplayer's search API caps pagination at ~10k
+  // results, so the bulk pull above can't reach the long tail. ygoprodeck
+  // publishes a real market price (TCGplayer, else Cardmarket/eBay/CoolStuffInc)
+  // for essentially EVERY card, keyed by passcode (= our externalId without the
+  // leading "y"), so all ~12.7k cards get a real price in every market. Degrades
+  // gracefully to the bulk/estimate prices if unreachable.
+  const ygoPrice = new Map<string, { cents: number; source: string }>();
+  try {
+    const res = await fetch("https://db.ygoprodeck.com/api/v7/cardinfo.php?misc=no", {
+      headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36", Accept: "application/json" },
+      signal: AbortSignal.timeout(120000),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = (await res.json()) as { data?: Array<{ id: number; card_prices?: Array<Record<string, string>> }> };
+    const EUR_USD = 1.08;
+    for (const c of data.data ?? []) {
+      const cp = c.card_prices?.[0] ?? {};
+      const tcg = parseFloat(cp.tcgplayer_price || "0");
+      let cents = 0, source = "";
+      if (tcg > 0) { cents = Math.round(tcg * 100); source = "TCGplayer"; }
+      else {
+        const cm = parseFloat(cp.cardmarket_price || "0");
+        const csi = parseFloat(cp.coolstuffinc_price || "0");
+        const eb = parseFloat(cp.ebay_price || "0");
+        const alt = cm > 0 ? cm * EUR_USD : csi > 0 ? csi : eb;
+        if (alt > 0) { cents = Math.round(alt * 100); source = "Market"; }
+      }
+      if (cents > 0) ygoPrice.set(String(c.id), { cents, source });
+    }
+    console.log(`ygoprodeck: real market prices for ${ygoPrice.size} cards.`);
+  } catch (e) {
+    console.warn("ygoprodeck price fetch failed (long-tail cards stay estimate):", (e as Error).message);
+  }
+
   console.log("Resetting data…");
   await prisma.order.deleteMany();
   await prisma.buyOrder.deleteMany();
@@ -143,10 +177,14 @@ async function main() {
 
   const cardRows = built.map((c) => {
     const enr = TCG.get(c.externalId);
-    // Prefer the name-verified targeted match for the top cards; otherwise the
-    // bulk code-matched price/link from the full TCGplayer catalogue.
+    // Price priority: exact per-printing TCGplayer match (targeted, then bulk by
+    // code) → ygoprodeck's market price (covers the long tail TCGplayer's paged
+    // API can't reach) → seed-time estimate as a last resort.
     const bulk = bulkByCode.get(ygoCodeKey(c.collectorNumber));
-    const tcgMarket = enr?.marketCents ?? bulk?.marketCents ?? null;
+    const ygo = c.externalId.startsWith("y") ? ygoPrice.get(c.externalId.slice(1)) : undefined;
+    const exactCents = enr?.marketCents ?? bulk?.marketCents ?? null;
+    const realCents = exactCents ?? ygo?.cents ?? null;
+    const realSource = exactCents != null ? "TCGplayer" : ygo?.source ?? null;
     const tcgImage = enr?.imageUrl ?? bulk?.imageUrl ?? null;
     return {
       externalId: c.externalId,
@@ -165,8 +203,8 @@ async function main() {
       // ygoprodeck images are clean; only override with TCGplayer's when matched.
       imageUrl: tcgImage ?? c.imageUrl,
       imageThumbUrl: tcgImage ?? c.imageThumbUrl,
-      marketPriceCents: tcgMarket ?? c.usdRef,
-      marketPriceSource: tcgMarket != null ? "TCGplayer" : "Estimate",
+      marketPriceCents: realCents ?? c.usdRef,
+      marketPriceSource: realCents != null ? realSource! : "Estimate",
       marketPriceUpdatedAt: new Date(),
       artSeed: Math.floor(rng() * 1_000_000),
     };
@@ -175,14 +213,17 @@ async function main() {
   console.log("Inserting cards…");
   for (let i = 0; i < cardRows.length; i += 2000) await prisma.card.createMany({ data: cardRows.slice(i, i + 2000), skipDuplicates: true });
 
-  const dbCards = await prisma.card.findMany({ select: { id: true, externalId: true, name: true, setName: true, collectorNumber: true, marketPriceCents: true } });
+  const dbCards = await prisma.card.findMany({ select: { id: true, externalId: true, name: true, setName: true, collectorNumber: true, marketPriceCents: true, marketPriceSource: true } });
 
   // (1) TCGplayer deep-link — US/GB/NZ only (NOT Australia). Exact product page for
   // the top-value cards we fetched ids for; else a code search that lands on the one
-  // card (YGO codes are unique).
+  // card (YGO codes are unique). Only written for cards genuinely on TCGplayer
+  // (real TCGplayer price) — "Market"/estimate cards show the market guide instead
+  // of a TCGplayer link that might not resolve.
   console.log("Writing TCGplayer (US/GB/NZ) deep-link rows…");
   const tcgRows: any[] = [];
   for (const c of dbCards) {
+    if (c.marketPriceSource !== "TCGplayer") continue;
     const enr = TCG.get(c.externalId!);
     const tcgUrl = enr?.productUrl ?? bulkByCode.get(ygoCodeKey(c.collectorNumber))?.productUrl ?? tcgCodeSearch(c.collectorNumber);
     for (const market of TCG_MARKETS) {

@@ -155,8 +155,8 @@ export default async function CardPage({ params }: { params: { id: string } }) {
   const guideCents = guide?.priceCents ?? marketGuideCents(card.marketPriceCents, country);
   // A REAL guide comes from TCGplayer's market price; otherwise it's a seed-time
   // rarity/age heuristic — be honest about which it is rather than implying data.
-  const guideIsReal = card.marketPriceSource === "TCGplayer";
-  const guideSource = guideIsReal ? "TCGplayer" : "rough estimate";
+  const guideIsReal = !!card.marketPriceSource && card.marketPriceSource !== "Estimate";
+  const guideSource = guideIsReal ? (card.marketPriceSource as string) : "rough estimate";
 
   // Whether this market's comparison includes an eBay listing. The daily eBay
   // quota rotates through the catalogue, so plenty of cards haven't been checked
