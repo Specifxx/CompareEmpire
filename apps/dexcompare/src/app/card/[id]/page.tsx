@@ -66,9 +66,29 @@ export default async function CardPage({ params }: { params: { id: string } }) {
   const fmt = (cents: number) => formatMoney(cents, info.currency);
   const card = await prisma.card.findFirst({
     where: whereParam(params.id),
-    include: {
-      // Only the selected market's store listings (AU stores + eBay AU, or NZ stores).
-      retailerPrices: { where: { country }, orderBy: { priceCents: "asc" } },
+    // Select ONLY the columns this page + <CardImage> use (was `include`, which
+    // pulled every column — description/flavorText/tags/etc. — for the card AND
+    // every price row on every request). Per-request egress reduction; this page
+    // is dynamic (reads the country cookie) so it can't be cached, making the
+    // payload the lever. Keep the 4 lowestPrice* columns — pickPrice() reads them.
+    select: {
+      id: true, slug: true, name: true, nameNormalized: true,
+      setCode: true, setName: true, collectorNumber: true,
+      domain: true, type: true, rarity: true, variant: true, isPromo: true,
+      might: true, energyCost: true, orientation: true, artSeed: true,
+      imageUrl: true, imageThumbUrl: true, blurDataUrl: true,
+      marketPriceCents: true, marketPriceSource: true, marketPriceUpdatedAt: true,
+      lowestPriceCents: true, lowestPriceCentsNz: true, lowestPriceCentsUs: true, lowestPriceCentsGb: true,
+      // Only the selected market's store listings, and only the fields rendered.
+      retailerPrices: {
+        where: { country },
+        orderBy: { priceCents: "asc" },
+        select: {
+          id: true, retailer: true, retailerName: true, priceCents: true,
+          shippingCents: true, condition: true, conditionPrices: true,
+          isFoil: true, inStock: true, url: true, lastSeen: true,
+        },
+      },
     },
   });
 
