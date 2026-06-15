@@ -43,21 +43,35 @@ jobs:
                   "Authorization": f"Bearer {key}", "Accept": "application/json"})
               return json.load(urllib.request.urlopen(req, timeout=30))
 
+          # Neon migrated personal accounts under ORGANIZATIONS, and these endpoints
+          # 400 without an org_id for org-scoped accounts. Discover it best-effort.
+          org_id = None
+          try:
+              orgs = get("https://console.neon.tech/api/v2/users/me/organizations").get("organizations", [])
+              if orgs:
+                  org_id = orgs[0].get("id")
+                  print(f"Using Neon org_id={org_id}")
+          except Exception as e:
+              print(f"(org lookup skipped: {e})")
+          org_q = f"&org_id={org_id}" if org_id else ""
+
           # Billing period ≈ calendar month on the free plan.
           now = dt.datetime.now(dt.timezone.utc)
           frm = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
           url = ("https://console.neon.tech/api/v2/consumption_history/projects"
                  f"?from={frm.strftime('%Y-%m-%dT%H:%M:%SZ')}"
                  f"&to={now.strftime('%Y-%m-%dT%H:%M:%SZ')}"
-                 "&granularity=daily&limit=100")
+                 f"&granularity=daily&limit=100{org_q}")
           try:
               data = get(url)
           except Exception as e:
               print(f"consumption_history call failed ({e}); raw projects list follows for debugging:")
               try:
-                  print(json.dumps(get("https://console.neon.tech/api/v2/projects"), indent=2)[:3000])
+                  purl = "https://console.neon.tech/api/v2/projects" + (f"?org_id={org_id}" if org_id else "")
+                  print(json.dumps(get(purl), indent=2)[:2000])
               except Exception as e2:
                   print(f"projects call also failed: {e2}")
+              print("If this keeps failing, check usage directly: Neon dashboard → Billing / Usage.")
               sys.exit(1)
 
           worst = 0.0
