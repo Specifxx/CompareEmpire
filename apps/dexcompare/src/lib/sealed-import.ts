@@ -392,7 +392,12 @@ const typeRank = (t: string) => {
 // per warm lambda per TTL.
 type SealedMemo = Map<string, { at: number; data: SealedGroup[] }>;
 const sealedMemo: SealedMemo = ((globalThis as unknown as { __sealedGroups?: SealedMemo }).__sealedGroups ??= new Map());
-const SEALED_MEMO_TTL_MS = 15 * 60_000;
+// 60 min: getSealedGroups pulls the whole (multi-MB) sealed table for a market,
+// so a short TTL means every serverless cold-start re-pulls it — a real chunk of
+// Neon transfer. Sealed stock changes slowly (the live restock TRACKER uses its
+// own query), so an hour of staleness on the compare pages is fine and cuts the
+// cold-start re-pulls ~4×.
+const SEALED_MEMO_TTL_MS = 60 * 60_000;
 
 export async function getSealedGroups(country: string = "AU"): Promise<SealedGroup[]> {
   const market = SEALED_MARKETS.has(country) ? country : "AU";
