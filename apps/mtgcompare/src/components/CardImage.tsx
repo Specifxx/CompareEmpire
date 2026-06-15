@@ -40,12 +40,22 @@ function PromoStamp() {
 // self-contained generated SVG art when no image is available OR when the image
 // fails to load (so unverified/410'd CDN URLs never show a broken-image icon).
 export function CardImage({ card, isFoil = false, full = false, className }: Props) {
-  const [failed, setFailed] = useState(false);
-  const src = full
-    ? card.imageUrl ?? card.imageThumbUrl
-    : card.imageThumbUrl ?? card.imageUrl;
+  // Candidate image sources in priority order: stored image, then a Scryfall image
+  // (Scryfall has a real photo for every Magic card, incl. vintage sets like Alpha),
+  // then the generated SVG art — so a missing/410'd CDN URL never leaves a blank card.
+  const scryfall = card.name
+    ? `https://api.scryfall.com/cards/named?fuzzy=${encodeURIComponent(card.name)}&format=image&version=${full ? "normal" : "small"}`
+    : null;
+  const candidates = [
+    full ? card.imageUrl ?? card.imageThumbUrl : card.imageThumbUrl ?? card.imageUrl,
+    scryfall,
+  ].filter((s): s is string => !!s);
+  const srcs = candidates.filter((s, i) => candidates.indexOf(s) === i);
 
-  if (!src || failed) {
+  const [idx, setIdx] = useState(0);
+  const src = srcs[idx];
+
+  if (!src) {
     return (
       <div className={`relative ${className ?? ""}`}>
         <CardArt
@@ -79,11 +89,12 @@ export function CardImage({ card, isFoil = false, full = false, className }: Pro
       <div className="absolute inset-0 bg-ink-950/40" />
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
+        key={src}
         src={src}
         alt={card.name}
         loading="lazy"
         decoding="async"
-        onError={() => setFailed(true)}
+        onError={() => setIdx((i) => i + 1)} // advance to next source (→ SVG when exhausted)
         className={`relative z-10 h-full w-full ${isLandscape ? "object-contain" : "object-cover"}`}
       />
       {isFoil && (
