@@ -4,7 +4,8 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { normalizeSearch } from "../src/lib/format";
 import { POKEMON_SETS } from "../src/lib/pokemon-sets";
-import { buildStores, topStores } from "./stores.mjs";
+import { buildStores, topStores, storeQuery } from "./stores.mjs";
+import { enrichFromTcgplayer } from "./tcgplayer-enrich.mjs";
 
 const prisma = new PrismaClient();
 
@@ -72,6 +73,20 @@ async function main() {
   const cards = JSON.parse(readFileSync(join(process.cwd(), "prisma", "ygo-cards.json"), "utf8")) as BuiltCard[];
   console.log(`Loaded ${cards.length} Yu-Gi-Oh! cards from the offline data mirror.`);
 
+  // The full Yu-Gi-Oh! catalogue is 12,768 cards — far too many for per-card
+  // TCGplayer lookups (rate-limit risk). ygoprodeck images are already clean and
+  // the name-only store search links resolve to the card, so we enrich only the
+  // highest-value cards (where an exact product link + real price matter most).
+  const topForEnrich = [...cards]
+    .map((c) => ({ c, ref: refUsd(c.rarity) * ageMult(c.releaseDate) * chaseMult(c.name, c.rarity) }))
+    .sort((a, b) => b.ref - a.ref)
+    .slice(0, 1500)
+    .map((x) => x.c);
+  const TCG = await enrichFromTcgplayer("yugioh", topForEnrich, { concurrency: 6 }).catch((e) => {
+    console.warn("TCGplayer enrichment failed:", e.message);
+    return new Map<string, { productId: number; productUrl: string; imageUrl: string; marketCents: number | null }>();
+  });
+
   console.log("Resetting data…");
   await prisma.order.deleteMany();
   await prisma.buyOrder.deleteMany();
@@ -97,27 +112,31 @@ async function main() {
     usdRef: cents(refUsd(c.rarity) * ageMult(c.releaseDate) * chaseMult(c.name, c.rarity)),
   }));
 
-  const cardRows = built.map((c) => ({
-    externalId: c.externalId,
-    slug: `${c.externalId}-${normalizeSearch(c.name).replace(/\s+/g, "-")}`.toLowerCase().slice(0, 80),
-    name: c.name,
-    nameNormalized: normalizeSearch(c.name),
-    setCode: c.setCode,
-    setName: c.setName,
-    collectorNumber: c.collectorNumber,
-    domain: c.domain,
-    type: c.type,
-    rarity: c.rarity,
-    tags: c.subtype,
-    flavorText: c.flavorText,
-    description: c.subtype ? `${c.subtype}` : null,
-    imageUrl: c.imageUrl,
-    imageThumbUrl: c.imageThumbUrl,
-    marketPriceCents: c.usdRef,
-    marketPriceSource: "Estimate",
-    marketPriceUpdatedAt: new Date(),
-    artSeed: Math.floor(rng() * 1_000_000),
-  }));
+  const cardRows = built.map((c) => {
+    const enr = TCG.get(c.externalId);
+    return {
+      externalId: c.externalId,
+      slug: `${c.externalId}-${normalizeSearch(c.name).replace(/\s+/g, "-")}`.toLowerCase().slice(0, 80),
+      name: c.name,
+      nameNormalized: normalizeSearch(c.name),
+      setCode: c.setCode,
+      setName: c.setName,
+      collectorNumber: c.collectorNumber,
+      domain: c.domain,
+      type: c.type,
+      rarity: c.rarity,
+      tags: c.subtype,
+      flavorText: c.flavorText,
+      description: c.subtype ? `${c.subtype}` : null,
+      // ygoprodeck images are clean; only override with TCGplayer's when matched.
+      imageUrl: enr?.imageUrl ?? c.imageUrl,
+      imageThumbUrl: enr?.imageUrl ?? c.imageThumbUrl,
+      marketPriceCents: enr?.marketCents ?? c.usdRef,
+      marketPriceSource: enr?.marketCents != null ? "TCGplayer" : "Estimate",
+      marketPriceUpdatedAt: new Date(),
+      artSeed: Math.floor(rng() * 1_000_000),
+    };
+  });
 
   console.log("Inserting cards…");
   for (let i = 0; i < cardRows.length; i += 2000) await prisma.card.createMany({ data: cardRows.slice(i, i + 2000), skipDuplicates: true });
@@ -128,20 +147,24 @@ async function main() {
   const lows: Record<string, Record<string, number>> = {};
   for (const c of dbCards) {
     const usd = c.marketPriceCents;
-    const q = encodeURIComponent(`${c.name} ${c.setName}`);
+    const enr = TCG.get(c.externalId!);
+    const q = encodeURIComponent(storeQuery(c));
     lows[c.externalId!] = {};
     for (const market of ["US", "AU", "GB", "NZ"] as const) {
       const fx = FX[market]; const cur = CUR[market];
       const marketStores = STORES[market];
       let marketMin = Infinity;
       for (const s of marketStores) {
-        const nm = cents(usd * fx * between(0.9, 1.25));
+        // US TCGplayer: when matched, link to the REAL product page at the REAL
+        // market price (accurate "View deal" → exact card), like dexcompare.
+        const isRealTcg = s.key === "tcgplayer_us" && enr != null;
+        const nm = isRealTcg && enr!.marketCents != null ? enr!.marketCents : cents(usd * fx * between(0.9, 1.25));
         priceRows.push({
           cardId: c.id, retailer: s.key, retailerName: s.name, title: `${c.name} (${c.setName})`,
-          url: s.search(q), condition: "NM",
+          url: isRealTcg ? enr!.productUrl : s.search(q), condition: "NM",
           conditionPrices: { NM: nm, LP: cents(nm * 0.85), MP: cents(nm * 0.7), HP: cents(nm * 0.55) },
           priceCents: nm, shippingCents: market === "US" ? cents(between(0, 199)) : cents(between(0, 350)),
-          currency: cur, inStock: rng() > 0.08, country: market,
+          currency: cur, inStock: isRealTcg ? true : rng() > 0.08, country: market,
         });
         marketMin = Math.min(marketMin, nm);
       }
