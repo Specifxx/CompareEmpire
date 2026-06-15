@@ -421,3 +421,76 @@ export async function enrichFromTcgplayer(productLine, cards, opts = {}) {
   console.log(`TCGplayer ${productLine} [${mode}]: matched ${out.size} of ${list.length} cards (targeted search).`);
   return out;
 }
+
+// Build the COMPLETE Magic catalogue from Scryfall's bulk data. TCGplayer's search
+// API caps pagination at ~10k products, so it can only supply a fraction of Magic's
+// tens of thousands of cards (which is why searches for Black Lotus / Remand / most
+// planeswalkers returned nothing). Scryfall is the authoritative, complete MTG
+// database — every card, with real prices (its USD is the TCGplayer market price),
+// clean images and TCGplayer purchase links. Uses "oracle_cards" (one entry per
+// unique card) so every card is searchable while staying within the Neon free tier.
+// Returns BuiltCard-shaped rows with productUrl + marketCents; [] if unreachable.
+export async function buildScryfallCatalog(opts = {}) {
+  const variant = opts.variant || "oracle_cards";
+  const UA = { "User-Agent": "CompareEmpire/1.0 (price comparison; contact admin@compareempire)", Accept: "application/json" };
+  let meta;
+  try {
+    const r = await fetch("https://api.scryfall.com/bulk-data", { headers: UA, signal: AbortSignal.timeout(30000) });
+    if (!r.ok) throw new Error(`bulk-data ${r.status}`);
+    meta = await r.json();
+  } catch (e) { console.warn(`Scryfall bulk-data unreachable (${e.message})`); return []; }
+  const entry = (meta.data || []).find((d) => d.type === variant);
+  if (!entry?.download_uri) { console.warn("Scryfall: no download_uri for " + variant); return []; }
+  let raw;
+  try {
+    const r = await fetch(entry.download_uri, { headers: UA, signal: AbortSignal.timeout(180000) });
+    if (!r.ok) throw new Error(`download ${r.status}`);
+    raw = await r.json();
+  } catch (e) { console.warn(`Scryfall bulk download failed (${e.message})`); return []; }
+  console.log(`Scryfall: downloaded ${Array.isArray(raw) ? raw.length : 0} ${variant} objects`);
+
+  const COLOR = { W: "White", U: "Blue", B: "Black", R: "Red", G: "Green" };
+  const TYPES = ["Planeswalker", "Creature", "Instant", "Sorcery", "Artifact", "Enchantment", "Land", "Battle"];
+  const SKIP_LAYOUT = new Set(["token", "double_faced_token", "emblem", "art_series", "scheme", "vanguard"]);
+  const cards = [];
+  for (const c of raw || []) {
+    if (c.lang && c.lang !== "en") continue;
+    if (Array.isArray(c.games) && c.games.length && !c.games.includes("paper")) continue;
+    if (SKIP_LAYOUT.has(c.layout)) continue;
+    if (c.set_type === "memorabilia" || c.set_type === "token") continue;
+    const img = c.image_uris || c.card_faces?.[0]?.image_uris || null;
+    const imageUrl = img?.normal || img?.large || img?.small || null;
+    const prices = c.prices || {};
+    const usd = parseFloat(prices.usd || prices.usd_foil || "0");
+    const eur = parseFloat(prices.eur || prices.eur_foil || "0");
+    const marketCents = usd > 0 ? Math.round(usd * 100) : eur > 0 ? Math.round(eur * 1.08 * 100) : null;
+    const typeLine = c.type_line || "";
+    const head = typeLine.split("—")[0] || "";
+    const mainType = TYPES.find((t) => head.includes(t)) || (head.trim().split(/\s+/).pop() || "Card");
+    const sub = typeLine.includes("—") ? typeLine.split("—")[1].trim() : null;
+    const ci = c.color_identity || c.colors || [];
+    const domain = mainType === "Land" ? "Land" : ci.length === 0 ? "Colorless" : ci.length === 1 ? COLOR[ci[0]] || "Colorless" : "Multicolor";
+    cards.push({
+      externalId: `m${c.oracle_id || c.id}`,
+      name: c.name,
+      setCode: String(c.set || "").toUpperCase(),
+      setName: c.set_name || c.set || "",
+      releaseDate: (c.released_at || "2019-01-01").replace(/-/g, "/"),
+      collectorNumber: String(c.collector_number || ""),
+      number: String(c.collector_number || ""),
+      domain,
+      type: mainType,
+      subtype: sub,
+      rarity: c.rarity ? c.rarity[0].toUpperCase() + c.rarity.slice(1) : "Common",
+      hp: null,
+      artist: c.artist || null,
+      flavorText: c.flavor_text || null,
+      imageUrl,
+      imageThumbUrl: img?.small || imageUrl,
+      productUrl: c.purchase_uris?.tcgplayer || null,
+      marketCents,
+    });
+  }
+  console.log(`Scryfall: built ${cards.length} Magic cards`);
+  return cards;
+}

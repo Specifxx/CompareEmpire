@@ -62,7 +62,7 @@ export const metadata: Metadata = {
     // falls back to the real token — same trap as ADSENSE_CLIENT.
     google:
       process.env.GOOGLE_SITE_VERIFICATION ||
-      "NAFWq3cLo4QA0hk4Xs8qkVkKItZsYDqTJnkY3UCXk8E",
+      "vA2yZVn44kD0rJxKqTV_tf5c7txIY5vJWl6SJw9D9t8",
   },
 };
 
