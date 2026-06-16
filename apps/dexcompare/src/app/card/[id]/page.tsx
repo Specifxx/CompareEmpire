@@ -22,7 +22,6 @@ import { getCountry } from "@/lib/get-country";
 import { COUNTRIES, pickPrice, marketGuideCents } from "@/lib/country";
 import { OutboundLink } from "@/components/OutboundLink";
 import { AdSlot } from "@/components/AdSlot";
-import { ADSENSE_SLOTS } from "@/lib/ads";
 import { TcgplayerAd } from "@/components/TcgplayerAd";
 import { EbayAd } from "@/components/EbayAd";
 
@@ -540,7 +539,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
 
           {/* In-content ad below the price comparison — the highest-traffic surface.
               Renders nothing until a slot id is configured (Auto ads fill it meanwhile). */}
-          <AdSlot slot={ADSENSE_SLOTS.card} className="mt-6" height={120} />
+          <AdSlot className="mt-6" height={120} />
         </div>
       </div>
 

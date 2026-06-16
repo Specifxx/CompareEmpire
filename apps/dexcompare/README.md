@@ -46,8 +46,8 @@ npm run dev          # start the dev server
   fallback without one).
 - **Monetisation** — eBay Partner Network smart-link tagging on every eBay URL,
   Amazon Associates, TCGplayer via Impact, Sovrn Commerce fallback for the
-  Shopify long tail, Google AdSense (see `ADSENSE_SETUP.md`), and an outbound
-  click beacon (`/api/click` → `ClickEvent`) to verify earnings independently.
+  Shopify long tail, HilltopAds display ads, and an outbound click beacon
+  (`/api/click` → `ClickEvent`) to verify earnings independently.
 - **SEO** — sitemap (cards, sets, guides), robots, JSON-LD (Organization,
   WebSite, Product, TechArticle), canonical URLs, Search Console verification.
 

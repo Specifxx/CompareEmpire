@@ -11,7 +11,6 @@ import { QuickViewProvider } from "@/components/QuickView";
 import { WishlistDrawerProvider } from "@/components/WishlistDrawer";
 import { CountryProvider } from "@/components/CountryProvider";
 import { PriceAlertModal } from "@/components/PriceAlertModal";
-import { ADSENSE_CLIENT, ADSENSE_ENABLED } from "@/lib/ads";
 import { SovrnSnippet } from "@/components/SovrnSnippet";
 import { HilltopAdsLoader } from "@/components/HilltopAdsLoader";
 import { TcgplayerAd } from "@/components/TcgplayerAd";
@@ -60,7 +59,7 @@ export const metadata: Metadata = {
   // on every page. Override per-deploy via env if needed.
   verification: {
     // `||` (not `??`) so an env var accidentally set to an EMPTY string still
-    // falls back to the real token — same trap as ADSENSE_CLIENT.
+    // falls back to the real token (an empty value would silently disable it).
     google:
       process.env.GOOGLE_SITE_VERIFICATION ||
       "N0wgTl_HUriBqcifrYzMsLDL2KYnnzOY7q8AG0XUS_U",
@@ -101,23 +100,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en-AU" className={`${sora.variable} ${spaceGrotesk.variable}`}>
       <head>
-        {/* AdSense account/site verification — lets Google connect dexcompare.app
-            to the AdSense account instantly. */}
-        <meta name="google-adsense-account" content="ca-pub-6842128782879909" />
-        {/* Official AdSense snippet, server-rendered in <head> so Google's
-            application review reliably finds the code on every page (their
-            checker reads the raw HTML — a deferred client-side injection is
-            invisible to it). Async, so it doesn't block rendering. Once the
-            application is APPROVED this can be swapped back to the deferred
-            <AdSenseLoader/> if the PageSpeed points matter more. */}
-        {ADSENSE_ENABLED && (
-          // eslint-disable-next-line @next/next/no-sync-scripts
-          <script
-            async
-            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
-            crossOrigin="anonymous"
-          />
-        )}
         {/* Impact / TCGplayer affiliate site-ownership verification. Impact looks for
             the non-standard `value` attribute, so spread it past the meta typing. */}
         <meta {...({ name: "impact-site-verification", value: IMPACT_SITE_VERIFICATION } as any)} />
