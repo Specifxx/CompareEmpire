@@ -24,6 +24,9 @@ export const NAV_SECTIONS: NavSection[] = [
   {
     label: "Play & tools",
     links: [
+      { href: "/deck", icon: "🛠️", label: "Deck builder" },
+      { href: "/decks", icon: "🏆", label: "Meta decks" },
+      { href: "/proxy", icon: "🖨️", label: "Proxy printer" },
       { href: "/games", icon: "🕹️", label: "Minigames" },
       { href: "/trade", icon: "⚖️", label: "Trade calculator" },
       { href: "/wishlist", icon: "❤️", label: "Wishlist" },
