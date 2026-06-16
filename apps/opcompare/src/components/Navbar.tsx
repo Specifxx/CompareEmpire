@@ -6,10 +6,14 @@ import { MobileNav } from "./MobileNav";
 import { NavMenu } from "./NavMenu";
 import { CountrySwitcher } from "./CountrySwitcher";
 import { Logo } from "./Logo";
+import { UserMenu } from "./UserMenu";
+import { getCurrentUser } from "@/lib/auth";
 
 // Deliberately minimal: the database (browse/search) is the whole product. The only
-// other controls are the market/country switcher and the (cookie-based) wishlist.
-export function Navbar() {
+// other controls are the market/country switcher, the (cookie-based) wishlist and
+// the account menu.
+export async function Navbar() {
+  const user = await getCurrentUser();
   return (
     <header className="sticky top-0 z-40 border-b border-ink-800 bg-ink-950/95">
       <div className="container-app">
@@ -46,6 +50,18 @@ export function Navbar() {
           </div>
           <CountrySwitcher className="ml-1" />
           <NavWishlistButton />
+          <UserMenu
+            user={
+              user
+                ? {
+                    displayName: user.displayName,
+                    email: user.email,
+                    avatarUrl: user.avatarUrl,
+                    emailVerified: user.emailVerified,
+                  }
+                : null
+            }
+          />
           <MobileNav />
         </nav>
        </div>
