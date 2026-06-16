@@ -1,18 +1,21 @@
 // Ad-network configuration.
 //
-// Google AdSense has been removed — the site now monetises via HilltopAds, whose
-// MultiTag zone is loaded site-wide (see HilltopAdsLoader). All values here are
-// PUBLIC by design (they appear in the page HTML) and are driven by environment
-// variables so monetization can be switched on/off WITHOUT a code change.
+// Google AdSense has been removed — the site now monetises via HilltopAds. These
+// values are PUBLIC by design (they ship in the page HTML).
 
 // ── HilltopAds (primary ad network) ────────────────────────────────────────────
-// MultiTag "zone" loader URL — PUBLIC by design (it ships in the page HTML). The
-// live zone is the code default so ads work with no env config; override per-deploy
-// with NEXT_PUBLIC_HILLTOPADS_SRC, or set it to "" to turn HilltopAds off.
-// Protocol-relative so it inherits the page's https.
-export const HILLTOPADS_SRC =
-  process.env.NEXT_PUBLIC_HILLTOPADS_SRC ||
-  "//deliciouslip.com/buXEVeszd.GTl/0LYxWkcS/_elmG9/ulZsUzlGksP/TYc/xCNMDQEb0aOsDCUbtPNhzLEY0/MbT/Qh4rORQ_";
+// HilltopAds zone loader URLs, all loaded site-wide (see HilltopAdsLoader).
+// HilltopAds does its own device/geo targeting and per-zone frequency capping, so
+// every zone loads on every page and each fills only its eligible traffic (e.g. the
+// mobile zone fills on phones). Protocol-relative so they inherit the page's https.
+export const HILLTOPADS_ZONES: string[] = [
+  // Banner / MultiTag (display + popup).
+  "//deliciouslip.com/buXEVeszd.GTl/0LYxWkcS/_elmG9/ulZsUzlGksP/TYc/xCNMDQEb0aOsDCUbtPNhzLEY0/MbT/Qh4rORQ_",
+  // Popunder.
+  "//pleased-report.com/bP3.VK0TPw3bpXvUblm-VpJyZ/DB0X3mMgT/QoxwNOTGIe5KLgTAcXxTNTDGES1TMqz/ML",
+  // Mobile.
+  "//deliciouslip.com/b.XfVrsqdbG/l/0qYMWkcu/-esma9duaZHU/l-kGPPT/cBxhNpDbER1ZMCzgcntpNqzbET0DMNTgUu0kM/Qc",
+];
 
-// Guards the loader so an empty/"" zone ships no script at all.
-export const HILLTOPADS_ENABLED = HILLTOPADS_SRC.length > 0;
+// True when at least one zone is configured. Guards the loader.
+export const HILLTOPADS_ENABLED = HILLTOPADS_ZONES.length > 0;
