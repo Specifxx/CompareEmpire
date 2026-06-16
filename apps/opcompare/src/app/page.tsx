@@ -16,6 +16,7 @@ import { COUNTRIES, type CountryInfo } from "@/lib/country";
 import { SETS, domainInfo, DOMAIN_KEYS } from "@/lib/constants";
 import { POKEMON_SETS } from "@/lib/pokemon-sets";
 import { Logo } from "@/components/Logo";
+import { ScrollReveal } from "@/components/ScrollReveal";
 
 export const revalidate = 86400;
 
@@ -76,42 +77,61 @@ export default async function HomePage() {
 
   return (
     <div className="flex flex-col gap-10">
-      {/* Hero */}
-      <section className="card-surface animate-fade-up overflow-hidden">
-        <div className="relative bg-gradient-to-br from-brand-600/25 via-ink-850 to-gold/15 px-6 py-12 text-center">
-          <div className="mx-auto mb-5 flex items-center justify-center">
-            <span className="animate-float"><Logo size={76} /></span>
+      <ScrollReveal />
+      {/* Hero — the Grand Line */}
+      <section className="card-surface animate-fade-up relative overflow-hidden">
+        <div className="grandline-sky relative px-6 py-16 text-center">
+          {/* Floating pirate props (decorative). */}
+          <span className="hero-prop left-[5%] top-[16%] text-4xl animate-bob sm:text-5xl" aria-hidden>🏴‍☠️</span>
+          <span className="hero-prop right-[7%] top-[12%] text-4xl animate-bob-slow sm:text-5xl" aria-hidden>👒</span>
+          <span className="hero-prop left-[11%] bottom-[24%] text-3xl animate-float sm:text-4xl" aria-hidden>🧭</span>
+          <span className="hero-prop right-[11%] bottom-[28%] text-3xl animate-bob sm:text-4xl" aria-hidden>⚓</span>
+          <span className="hero-prop left-[46%] top-[6%] text-2xl animate-float sm:text-3xl" aria-hidden>🍖</span>
+
+          <div className="relative z-10">
+            <div className="mx-auto mb-5 flex items-center justify-center">
+              <span className="animate-pulse-glow rounded-full"><Logo size={84} /></span>
+            </div>
+            <p className="mb-2 text-xs font-bold uppercase tracking-[0.25em] text-accent">⚓ Set sail on the Grand Line</p>
+            <h1 className="mx-auto max-w-3xl text-3xl font-extrabold sm:text-5xl">
+              <span className="text-grandline">Compare One Piece card prices</span>
+              <span className="mt-1 block text-xl text-white/90 sm:text-3xl">across {info.adjective} stores</span>
+            </h1>
+            <p className="mx-auto mt-4 max-w-2xl text-sm text-slate-200/90 sm:text-base">
+              Find the cheapest place to buy One Piece singles in {info.place} — live prices in{" "}
+              {info.currency} compared across {storeCount} {info.adjective} stores, updated daily.
+            </p>
+
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+              <Link href="/browse" className="btn-accent shadow-treasure text-base">🗺️ Browse the database</Link>
+              <Link href="/deals" className="btn-ghost">🔥 Today&apos;s deals</Link>
+            </div>
+
+            <CountryHeroToggle />
+
+            <div className="mx-auto mt-8 grid max-w-2xl grid-cols-2 gap-4 sm:grid-cols-4">
+              <Stat value={totalCards.toLocaleString()} label="cards" />
+              <Stat value={pricedCards.toLocaleString()} label="priced" />
+              <Stat value={inStockUnits.toLocaleString()} label="in-stock listings" />
+              <Stat value={String(storeCount)} label={`${info.code} stores`} />
+            </div>
           </div>
-          <h1 className="mx-auto max-w-3xl text-2xl font-extrabold text-white sm:text-4xl">
-            Compare One Piece Card Game card prices across {info.adjective} stores
-          </h1>
-          <p className="mx-auto mt-3 max-w-2xl text-sm text-slate-400 sm:text-base">
-            Find the cheapest place to buy One Piece singles in {info.place} — live prices in{" "}
-            {info.currency} compared across {storeCount} {info.adjective} stores, updated daily.
-          </p>
 
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-            <Link href="/browse" className="btn-primary">Browse the database</Link>
-          </div>
-
-          <CountryHeroToggle />
-
-          <div className="mx-auto mt-8 grid max-w-2xl grid-cols-2 gap-4 sm:grid-cols-4">
-            <Stat value={totalCards.toLocaleString()} label="cards" />
-            <Stat value={pricedCards.toLocaleString()} label="priced" />
-            <Stat value={inStockUnits.toLocaleString()} label="in-stock listings" />
-            <Stat value={String(storeCount)} label={`${info.code} stores`} />
+          {/* Ocean waves drifting across the bottom of the hero. */}
+          <div className="ocean-waves" aria-hidden>
+            <div className="wave-layer wave-back animate-wave-slow" />
+            <div className="wave-layer wave-front animate-wave" />
           </div>
         </div>
       </section>
 
-      <HotRightNow />
+      <div className="reveal"><HotRightNow /></div>
 
       {/* Official partner programs — credibility strip (approved affiliates). */}
-      <Partners country={country} />
+      <div className="reveal"><Partners country={country} /></div>
 
       {newSealed.length >= 3 && (
-        <section>
+        <section className="reveal">
           <div className="mb-4 flex items-end justify-between gap-3">
             <div>
               <h2 className="text-xl font-extrabold text-white">🔥 Sealed product deals</h2>
@@ -133,7 +153,7 @@ export default async function HomePage() {
       )}
 
       {deals.length >= 4 && (
-        <section>
+        <section className="reveal">
           <div className="mb-4 flex items-end justify-between gap-3">
             <div>
               <h2 className="text-xl font-extrabold text-white">🔥 Today&apos;s best deals</h2>
@@ -159,10 +179,10 @@ export default async function HomePage() {
 
       <TcgplayerAd size="billboard" mobile="rect" country={country} />
 
-      <RecentlyViewed />
+      <div className="reveal"><RecentlyViewed /></div>
 
       {movers.length > 0 && (
-        <section>
+        <section className="reveal">
           <div className="mb-4 flex items-end justify-between gap-3">
             <div>
               <h2 className="text-xl font-extrabold text-white">Biggest price movers</h2>
@@ -188,7 +208,7 @@ export default async function HomePage() {
         </section>
       )}
 
-      <section>
+      <section className="reveal">
         <div className="mb-4 flex items-end justify-between gap-3">
           <div>
             <h2 className="text-xl font-extrabold text-white">Cheapest One Piece cards</h2>
@@ -207,7 +227,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section>
+      <section className="reveal">
         <div className="mb-4 flex items-end justify-between gap-3">
           <div>
             <h2 className="text-xl font-extrabold text-white">Most valuable cards</h2>
@@ -227,7 +247,7 @@ export default async function HomePage() {
       </section>
 
       {popularCards.length >= 4 && (
-        <section>
+        <section className="reveal">
           <div className="mb-4 flex items-end justify-between gap-3">
             <div>
               <h2 className="text-xl font-extrabold text-white">Most popular right now</h2>
@@ -249,7 +269,7 @@ export default async function HomePage() {
       <TcgplayerAd size="leaderboard" country={country} />
 
       {/* Browse by set */}
-      <section>
+      <section className="reveal">
         <div className="mb-4 flex items-center justify-between gap-3">
           <h2 className="text-xl font-extrabold text-white">Browse by set</h2>
           <Link href="/sets" className="btn-ghost text-xs shrink-0">View all {SETS.length} sets →</Link>
@@ -271,7 +291,7 @@ export default async function HomePage() {
       </section>
 
       {/* Browse by color */}
-      <section>
+      <section className="reveal">
         <h2 className="mb-4 text-xl font-extrabold text-white">Browse by color</h2>
         <div className="flex flex-wrap gap-2">
           {DOMAIN_KEYS.map((k) => {
@@ -292,7 +312,7 @@ export default async function HomePage() {
       </section>
 
       {/* About + FAQ */}
-      <section className="card-surface p-6">
+      <section className="card-surface reveal p-6">
         <h2 className="text-xl font-extrabold text-white">One Piece prices in {info.place}, all in one place</h2>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-slate-400">
           OPCompare is a free, independent price-comparison tool for One Piece Card Game, built for {info.adjective} players and collectors. We track live prices for One Piece singles across
@@ -329,9 +349,9 @@ export default async function HomePage() {
 
 function Stat({ value, label }: { value: string; label: string }) {
   return (
-    <div className="rounded-lg bg-ink-900/70 p-3">
-      <div className="text-xl font-extrabold text-gold">{value}</div>
-      <div className="text-xs uppercase tracking-wide text-slate-500">{label}</div>
+    <div className="rounded-xl bg-ink-950/40 p-3 ring-1 ring-white/10 backdrop-blur-sm transition-transform hover:-translate-y-0.5">
+      <div className="text-xl font-extrabold text-gold drop-shadow-[0_1px_6px_rgba(253,224,71,0.35)]">{value}</div>
+      <div className="text-xs uppercase tracking-wide text-slate-300/80">{label}</div>
     </div>
   );
 }
