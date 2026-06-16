@@ -45,6 +45,7 @@ model User {
   purchases    Order[]   @relation("BuyerOrders")
   sales        Order[]   @relation("SellerOrders")
   wishlist     WishlistItem[]
+  collection   CollectionItem[]
   authTokens   AuthToken[]
 
   @@index([googleId])
@@ -71,6 +72,20 @@ model WishlistItem {
   cardId    String
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, cardId])
+  @@index([userId])
+}
+
+model CollectionItem {
+  id             String   @id @default(cuid())
+  userId         String
+  cardId         String
+  qty            Int      @default(1)
+  costBasisCents Int?     // average paid per copy, in costCurrency
+  costCurrency   String?  // "AUD" | "NZD" | "USD" | "GBP"
+  createdAt      DateTime @default(now())
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, cardId])
   @@index([userId])

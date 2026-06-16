@@ -112,6 +112,61 @@ function persistBasis(changedId: string | null) {
   window.dispatchEvent(new CustomEvent("collection-change", { detail: { id: changedId } }));
 }
 
+// ─── Account sync ────────────────────────────────────────────────────────────
+// A unified per-card view combining the qty store and the cost-basis store, used
+// by CollectionSync to merge with the server and persist. Cost basis is flattened
+// to (costBasisCents, costCurrency) so it round-trips through the API verbatim.
+export interface CollectionEntry {
+  qty: number;
+  costBasisCents: number | null;
+  costCurrency: string | null;
+}
+
+export function getCollectionFull(): Record<string, CollectionEntry> {
+  const qtys = load();
+  const bases = loadBasis();
+  const out: Record<string, CollectionEntry> = {};
+  // Union of both stores: a card may have a qty, a cost basis, or both.
+  const ids = new Set([...Object.keys(qtys), ...Object.keys(bases)]);
+  for (const id of ids) {
+    const qty = qtys[id] ?? 0;
+    const b = bases[id] ?? null;
+    out[id] = {
+      qty,
+      costBasisCents: b ? b.unitCents : null,
+      costCurrency: b ? b.currency : null,
+    };
+  }
+  return out;
+}
+
+// Overwrite BOTH localStorage stores from a unified collection (used to apply the
+// merged set on sign-in). Fires ONE collection-change event so readers re-render
+// just once. Mirrors setWishlist's "replace the whole list" semantics.
+export function replaceCollection(items: Record<string, CollectionEntry>): void {
+  const nextQty: Record<string, number> = {};
+  const nextBasis: Record<string, CostBasis> = {};
+  for (const [id, v] of Object.entries(items)) {
+    if (!id) continue;
+    const n = Math.max(0, Math.min(9999, Math.floor(Number(v?.qty))));
+    if (Number.isFinite(n) && n > 0) nextQty[id] = n;
+    const unit = Math.floor(Number(v?.costBasisCents));
+    const cur = typeof v?.costCurrency === "string" ? v.costCurrency : "";
+    if (cur && Number.isFinite(unit) && unit > 0) {
+      nextBasis[id] = { unitCents: Math.min(unit, 1_000_000_00), currency: cur };
+    }
+  }
+  cache = nextQty;
+  basisCache = nextBasis;
+  try {
+    window.localStorage.setItem(KEY, JSON.stringify(nextQty));
+    window.localStorage.setItem(BASIS_KEY, JSON.stringify(nextBasis));
+  } catch {
+    // Storage full/blocked — keep the in-memory state so the session still works.
+  }
+  window.dispatchEvent(new CustomEvent("collection-change", { detail: { id: null } }));
+}
+
 export function getCostBasis(id: string): CostBasis | null {
   return loadBasis()[id] ?? null;
 }
