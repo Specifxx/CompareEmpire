@@ -145,6 +145,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <EbayAd size="leaderboard" country={country} />
         </div>
         <footer className="container-app border-t border-ink-800 py-8 text-center text-xs text-slate-500">
+          <p className="mb-4">
+            <a
+              href="https://buymeacoffee.com/riftcompare"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-full bg-[#FFDD00] px-4 py-1.5 text-sm font-semibold text-[#0b0e14] transition hover:opacity-90"
+            >
+              ☕ Buy me a coffee
+            </a>
+          </p>
           <NewsletterSignup siteName="OPCompare" />
           <nav className="mb-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-sm">
             <Link href="/browse" className="hover:text-slate-300">Database</Link>

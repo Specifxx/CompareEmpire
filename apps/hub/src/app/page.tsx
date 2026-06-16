@@ -184,6 +184,16 @@ export default async function Home() {
           <span className="font-semibold text-white/60">CompareEmpire</span>
         </div>
         <p className="mt-3">© {new Date().getFullYear()} CompareEmpire. A family of price-comparison sites.</p>
+        <p className="mt-4">
+          <a
+            href="https://buymeacoffee.com/riftcompare"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 rounded-full bg-[#FFDD00] px-4 py-1.5 text-sm font-semibold text-[#0b0e14] transition hover:opacity-90"
+          >
+            ☕ Buy me a coffee
+          </a>
+        </p>
       </footer>
     </main>
   );
