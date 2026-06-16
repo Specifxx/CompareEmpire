@@ -120,6 +120,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Impact / TCGplayer affiliate site-ownership verification. Impact looks for
             the non-standard `value` attribute, so spread it past the meta typing. */}
         <meta {...({ name: "impact-site-verification", value: IMPACT_SITE_VERIFICATION } as any)} />
+        {/* HilltopAds site-ownership verification (homepage). */}
+        <meta name="ad35f5ad68d39dd168984deaef49c100c9c942d8" content="ad35f5ad68d39dd168984deaef49c100c9c942d8" />
       </head>
       <body className="min-h-screen bg-ink-950">
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }} />

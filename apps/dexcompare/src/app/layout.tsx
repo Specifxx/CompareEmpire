@@ -121,6 +121,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Impact / TCGplayer affiliate site-ownership verification. Impact looks for
             the non-standard `value` attribute, so spread it past the meta typing. */}
         <meta {...({ name: "impact-site-verification", value: IMPACT_SITE_VERIFICATION } as any)} />
+        {/* HilltopAds site-ownership verification (homepage). */}
+        <meta name="d68c087f28c6dc4b343fac87f03a6358b9e3136e" content="d68c087f28c6dc4b343fac87f03a6358b9e3136e" />
         {/* Warm up the image CDN connection so card thumbnails start loading sooner. */}
         <link rel="preconnect" href="https://images.pokemontcg.io" crossOrigin="" />
         <link rel="dns-prefetch" href="https://images.pokemontcg.io" />
