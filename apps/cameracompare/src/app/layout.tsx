@@ -96,6 +96,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </WishlistDrawerProvider>
         </CountryProvider>
         <footer className="container-app border-t border-slate-200 py-8 text-center text-xs text-slate-500">
+          <p className="mb-4">
+            <a
+              href="https://buymeacoffee.com/riftcompare"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-full bg-[#FFDD00] px-4 py-1.5 text-sm font-semibold text-[#0b0e14] transition hover:opacity-90"
+            >
+              ☕ Buy me a coffee
+            </a>
+          </p>
           <div className="mb-2 flex items-center justify-center gap-4 text-sm">
             <Link href="/contact" className="text-slate-700 hover:text-brand-400">Contact &amp; feedback</Link>
             <span className="text-slate-700">·</span>
