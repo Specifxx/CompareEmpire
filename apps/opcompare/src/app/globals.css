@@ -109,6 +109,57 @@ h1, h2, h3 {
   background: #3a4564;
 }
 
+/* ── One Piece "Grand Line" theme ── */
+/* Living sunset-over-ocean gradient for the hero. The big background-size +
+   gradient-pan animation makes the sky slowly drift between sunrise hues. */
+.grandline-sky {
+  background-image:
+    radial-gradient(120% 120% at 50% -10%, rgba(253,224,71,0.22), transparent 55%),
+    linear-gradient(120deg, #0c4a6e 0%, #0e1116 28%, #7c2d12 60%, #b45309 78%, #0c4a6e 100%);
+  background-size: 100% 100%, 300% 300%;
+  animation: gradient-pan 14s ease-in-out infinite;
+}
+
+/* Gradient "Devil Fruit" headline with a sweeping sheen. */
+.text-grandline {
+  background-image: linear-gradient(100deg, #fde047 0%, #fb923c 25%, #ef4444 45%, #fde047 65%, #38bdf8 90%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 6s linear infinite;
+}
+
+/* Twin ocean wave layers at the bottom of the hero (each is a doubled SVG so the
+   -50% drift loops seamlessly). */
+.ocean-waves { position: absolute; left: 0; right: 0; bottom: -1px; height: 70px; overflow: hidden; pointer-events: none; }
+.ocean-waves .wave-layer {
+  position: absolute; bottom: 0; left: 0; width: 200%; height: 100%;
+  background-repeat: repeat-x; background-position: 0 bottom; background-size: 50% 100%;
+}
+.wave-back {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 70'><path d='M0 40 C150 10 300 70 600 40 C900 10 1050 70 1200 40 L1200 70 L0 70 Z' fill='%230ea5e9' opacity='0.35'/></svg>");
+}
+.wave-front {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 70'><path d='M0 48 C200 78 400 18 600 48 C800 78 1000 18 1200 48 L1200 70 L0 70 Z' fill='%230369a1' opacity='0.55'/></svg>");
+}
+
+/* Floating hero props (Jolly Roger, straw hat, log pose…). */
+.hero-prop { position: absolute; user-select: none; pointer-events: none; opacity: 0.9; filter: drop-shadow(0 6px 14px rgba(0,0,0,0.45)); }
+
+/* Scroll-reveal: sections start dimmed + nudged down, then rise in when the
+   ScrollReveal observer adds .is-visible. */
+.reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.6s ease-out, transform 0.6s cubic-bezier(0.22,0.7,0.3,1); will-change: opacity, transform; }
+.reveal.is-visible { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .grandline-sky, .text-grandline, .wave-layer, .hero-prop, .animate-bob, .animate-bob-slow,
+  .animate-gradient-pan, .animate-wave, .animate-wave-slow, .animate-pulse-glow, .animate-shimmer, .animate-float {
+    animation: none !important;
+  }
+  .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+}
+
 @layer components {
   .container-app {
     @apply mx-auto w-full max-w-[1400px] px-4 sm:px-6;
