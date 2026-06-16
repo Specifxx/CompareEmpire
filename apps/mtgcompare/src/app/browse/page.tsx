@@ -8,7 +8,6 @@ import { CardTile } from "@/components/CardTile";
 import { Pagination } from "@/components/Pagination";
 import { PageSizeSelect } from "@/components/PageSizeSelect";
 import { AdSlot } from "@/components/AdSlot";
-import { ADSENSE_SLOTS } from "@/lib/ads";
 import {
   buildCardOrderBy,
   buildCardWhere,
@@ -58,7 +57,7 @@ export default async function BrowsePage({ searchParams }: { searchParams: CardQ
       <Filters />
 
       <section className="min-w-0 flex-1">
-        <AdSlot slot={ADSENSE_SLOTS.browse} format="horizontal" height={90} className="mb-4" />
+        <AdSlot format="horizontal" height={90} className="mb-4" />
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <p className="text-sm text-slate-400">
             <span className="font-semibold text-white">{total.toLocaleString()}</span>{" "}

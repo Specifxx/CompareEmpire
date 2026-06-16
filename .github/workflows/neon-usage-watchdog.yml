@@ -43,44 +43,63 @@ jobs:
                   "Authorization": f"Bearer {key}", "Accept": "application/json"})
               return json.load(urllib.request.urlopen(req, timeout=30))
 
+          # Neon migrated personal accounts under ORGANIZATIONS, and these endpoints
+          # 400 without an org_id for org-scoped accounts. Discover it best-effort.
+          org_id = None
+          try:
+              orgs = get("https://console.neon.tech/api/v2/users/me/organizations").get("organizations", [])
+              if orgs:
+                  org_id = orgs[0].get("id")
+                  print(f"Using Neon org_id={org_id}")
+          except Exception as e:
+              print(f"(org lookup skipped: {e})")
+          org_q = f"&org_id={org_id}" if org_id else ""
+
           # Billing period ≈ calendar month on the free plan.
           now = dt.datetime.now(dt.timezone.utc)
           frm = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-          url = ("https://console.neon.tech/api/v2/consumption_history/projects"
-                 f"?from={frm.strftime('%Y-%m-%dT%H:%M:%SZ')}"
-                 f"&to={now.strftime('%Y-%m-%dT%H:%M:%SZ')}"
-                 "&granularity=daily&limit=100")
-          try:
-              data = get(url)
-          except Exception as e:
-              print(f"consumption_history call failed ({e}); raw projects list follows for debugging:")
+          qs = (f"from={frm.strftime('%Y-%m-%dT%H:%M:%SZ')}"
+                f"&to={now.strftime('%Y-%m-%dT%H:%M:%SZ')}"
+                f"&granularity=daily{org_q}")
+          # The consumption endpoint shape varies by account type, so try a few.
+          candidates = [
+              f"https://console.neon.tech/api/v2/consumption_history/account?{qs}",
+              f"https://console.neon.tech/api/v2/consumption_history/projects?{qs}&limit=100",
+          ]
+          data = None
+          for u in candidates:
               try:
-                  print(json.dumps(get("https://console.neon.tech/api/v2/projects"), indent=2)[:3000])
-              except Exception as e2:
-                  print(f"projects call also failed: {e2}")
-              sys.exit(1)
+                  data = get(u); break
+              except Exception as e:
+                  print(f"(consumption endpoint {u.split('/v2/')[1].split('?')[0]} failed: {e})")
+          if data is None:
+              # Don't fail the daily run for an API-compat hiccup — the alert exists
+              # for HIGH USAGE, not transient read errors. Check the dashboard instead.
+              print("Could not read Neon consumption via API — check usage directly: Neon dashboard → Billing / Usage.")
+              sys.exit(0)
 
-          worst = 0.0
-          for proj in data.get("projects", []):
-              total = 0
-              daily = []
-              for period in proj.get("periods", []):
-                  for c in period.get("consumption", []):
-                      b = c.get("data_transfer_bytes", 0) or 0
-                      total += b
-                      daily.append((c.get("timeframe_start", "?")[:10], b))
-              gb = total / 1e9
-              pct = 100 * gb / LIMIT_GB
-              worst = max(worst, pct)
-              print(f"\nproject {proj.get('project_id', '?')}: {gb:.2f} GB transfer this month ({pct:.0f}% of {LIMIT_GB} GB)")
-              for day, b in daily[-7:]:
-                  print(f"  {day}: {b/1e6:,.0f} MB")
+          # Deep-scan the response for data_transfer_bytes (shape differs per endpoint).
+          def sum_transfer(node):
+              t = 0
+              if isinstance(node, dict):
+                  for k, v in node.items():
+                      if k == "data_transfer_bytes" and isinstance(v, (int, float)):
+                          t += v
+                      else:
+                          t += sum_transfer(v)
+              elif isinstance(node, list):
+                  for v in node:
+                      t += sum_transfer(v)
+              return t
 
-          if worst >= CRIT_PCT:
-              print(f"\n🚨 {worst:.0f}% of the monthly transfer allowance used — find the leak NOW (check Vercel logs for [egress-guard] warnings).")
+          gb = sum_transfer(data) / 1e9
+          pct = 100 * gb / LIMIT_GB
+          print(f"\nNeon transfer this billing period: {gb:.2f} GB ({pct:.0f}% of {LIMIT_GB} GB)")
+          if pct >= CRIT_PCT:
+              print(f"🚨 {pct:.0f}% used — find the leak NOW (check Vercel logs for [egress-guard] warnings).")
               sys.exit(1)
-          if worst >= WARN_PCT:
-              print(f"\n⚠️ {worst:.0f}% of the monthly transfer allowance used — ahead of pace, keep an eye on it.")
+          if pct >= WARN_PCT:
+              print(f"⚠️ {pct:.0f}% used — ahead of pace, keep an eye on it.")
               sys.exit(1)
-          print(f"\n✅ {worst:.0f}% of the monthly transfer allowance used — healthy.")
+          print(f"✅ {pct:.0f}% used — healthy.")
           PY

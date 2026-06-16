@@ -317,6 +317,48 @@ export function sealedSlug(groupKey: string): string {
   return groupKey.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 80) || "product";
 }
 
+// Product types we can reconstruct from a slug, longest slug fragment first so
+// "booster-bundle" wins over "bundle" and "booster-box" over "box". These mirror
+// the labels classifySealed() emits, which is what groupKeys are built from.
+const SEALED_TYPE_SLUGS: { type: string; slug: string }[] = [
+  "Elite Trainer Box", "Booster Bundle", "Sleeved Booster", "Build & Battle",
+  "Collection Box", "Booster Case", "Booster Box", "Booster Pack", "Gift Box",
+  "Bundle", "Sealed", "Tin",
+]
+  .map((type) => ({ type, slug: sealedSlug(type) }))
+  .sort((a, b) => b.slug.length - a.slug.length);
+
+// Rebuild a sealed product's identity from its slug (set code + product type)
+// even when NO store currently lists it. Sealed pages are otherwise ephemeral —
+// they exist only while a listing does — so a product that's indexed by Google
+// and then sells out everywhere turns into a 404 (e.g. /sealed/me4-collection-box
+// when Chaos Rising collection boxes are gone). With this, such a slug serves a
+// real "no stores listing right now / set an alert" page (200) instead. Returns
+// null for slugs that don't map to a known set + sealed type, which still 404.
+export function synthesizeSealedGroup(slug: string): SealedGroup | null {
+  for (const { type, slug: typeSlug } of SEALED_TYPE_SLUGS) {
+    if (!slug.endsWith(`-${typeSlug}`)) continue;
+    const codeSlug = slug.slice(0, slug.length - typeSlug.length - 1);
+    const set = POKEMON_SETS.find((s) => sealedSlug(s.code) === codeSlug);
+    if (!set) continue;
+    return {
+      groupKey: `${set.code}|${type}`,
+      slug,
+      name: `${set.name} ${type}`,
+      productType: type,
+      setCode: set.code,
+      setName: set.name,
+      releaseDate: set.releaseDate,
+      imageUrl: set.logo,
+      lowestPriceCents: null,
+      storeCount: 0,
+      totalCount: 0,
+      listings: [],
+    };
+  }
+  return null;
+}
+
 // Pokémon sealed set detection: longest set name that appears in the product
 // title wins (so "Base Set 2" beats "Base"). Cached, derived from the catalogue.
 let SETS_BY_LEN: { code: string; name: string; releaseDate: string; rx: RegExp }[] | null = null;
@@ -350,7 +392,12 @@ const typeRank = (t: string) => {
 // per warm lambda per TTL.
 type SealedMemo = Map<string, { at: number; data: SealedGroup[] }>;
 const sealedMemo: SealedMemo = ((globalThis as unknown as { __sealedGroups?: SealedMemo }).__sealedGroups ??= new Map());
-const SEALED_MEMO_TTL_MS = 15 * 60_000;
+// 60 min: getSealedGroups pulls the whole (multi-MB) sealed table for a market,
+// so a short TTL means every serverless cold-start re-pulls it — a real chunk of
+// Neon transfer. Sealed stock changes slowly (the live restock TRACKER uses its
+// own query), so an hour of staleness on the compare pages is fine and cuts the
+// cold-start re-pulls ~4×.
+const SEALED_MEMO_TTL_MS = 60 * 60_000;
 
 export async function getSealedGroups(country: string = "AU"): Promise<SealedGroup[]> {
   const market = SEALED_MARKETS.has(country) ? country : "AU";

@@ -10,17 +10,18 @@ import { WishlistButton } from "@/components/WishlistButton";
 import { ShareButton } from "@/components/ShareButton";
 import { CollectionButton } from "@/components/CollectionButton";
 import { CardViewBeacon } from "@/components/CardViewBeacon";
+import { CardReviews, type ReviewView } from "@/components/CardReviews";
 import { CardTile, type CardTileData } from "@/components/CardTile";
 import { PriceChart, changeOver, type PricePoint } from "@/components/PriceChart";
 import { cardTileSelect } from "@/lib/cards";
 import { formatMoney, timeAgo } from "@/lib/format";
 import { effectiveShippingCents, shippingPolicyUrl } from "@/lib/retailers";
 import { affiliateUrl, ebaySearchUrl } from "@/lib/affiliate";
+import { aggregateOffer } from "@/lib/structured-data";
 import { getCountry } from "@/lib/get-country";
 import { COUNTRIES, pickPrice, marketGuideCents } from "@/lib/country";
 import { OutboundLink } from "@/components/OutboundLink";
 import { AdSlot } from "@/components/AdSlot";
-import { ADSENSE_SLOTS } from "@/lib/ads";
 import { TcgplayerAd } from "@/components/TcgplayerAd";
 import { EbayAd } from "@/components/EbayAd";
 
@@ -64,9 +65,29 @@ export default async function CardPage({ params }: { params: { id: string } }) {
   const fmt = (cents: number) => formatMoney(cents, info.currency);
   const card = await prisma.card.findFirst({
     where: whereParam(params.id),
-    include: {
-      // Only the selected market's store listings (AU stores + eBay AU, or NZ stores).
-      retailerPrices: { where: { country }, orderBy: { priceCents: "asc" } },
+    // Select ONLY the columns this page + <CardImage> use (was `include`, which
+    // pulled every column — description/flavorText/tags/etc. — for the card AND
+    // every price row on every request). Per-request egress reduction; this page
+    // is dynamic (reads the country cookie) so it can't be cached, making the
+    // payload the lever. Keep the 4 lowestPrice* columns — pickPrice() reads them.
+    select: {
+      id: true, slug: true, name: true, nameNormalized: true,
+      setCode: true, setName: true, collectorNumber: true,
+      domain: true, type: true, rarity: true, variant: true, isPromo: true,
+      might: true, energyCost: true, orientation: true, artSeed: true,
+      imageUrl: true, imageThumbUrl: true, blurDataUrl: true,
+      marketPriceCents: true, marketPriceSource: true, marketPriceUpdatedAt: true,
+      lowestPriceCents: true, lowestPriceCentsNz: true, lowestPriceCentsUs: true, lowestPriceCentsGb: true,
+      // Only the selected market's store listings, and only the fields rendered.
+      retailerPrices: {
+        where: { country },
+        orderBy: { priceCents: "asc" },
+        select: {
+          id: true, retailer: true, retailerName: true, priceCents: true,
+          shippingCents: true, condition: true, conditionPrices: true,
+          isFoil: true, inStock: true, url: true, lastSeen: true,
+        },
+      },
     },
   });
 
@@ -75,7 +96,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
   // Daily cheapest-price snapshots (AU market) for the trend chart, plus every
   // other printing of this card (same name, different set/number) so collectors
   // can compare reprints — e.g. Base Set vs Classic Collection.
-  const [historyRows, otherPrints] = await Promise.all([
+  const [historyRows, otherPrints, reviewRows] = await Promise.all([
     // Trend history for the VISITOR'S market (each market priced in its own currency).
     prisma.priceHistory.findMany({
       where: { cardId: card.id, country },
@@ -91,8 +112,24 @@ export default async function CardPage({ params }: { params: { id: string } }) {
           take: 12,
         })
       : Promise.resolve([]),
+    // Genuine user reviews (per-card scoped + capped — egress-safe). These are the
+    // sole source of the page's rating/review markup; never market-specific.
+    // Reviews are an OPTIONAL enhancement: if this query fails (e.g. the table
+    // hasn't been migrated onto this environment yet) degrade to "no reviews"
+    // rather than 500-ing the whole price-comparison page.
+    prisma.cardReview
+      .findMany({
+        where: { cardId: card.id, status: "PUBLISHED" },
+        orderBy: { createdAt: "desc" },
+        select: { id: true, rating: true, title: true, body: true, author: true, createdAt: true },
+        take: 20,
+      })
+      .catch(() => [] as Array<{ id: string; rating: number; title: string | null; body: string | null; author: string | null; createdAt: Date }>),
   ]);
   const history: PricePoint[] = historyRows.map((h) => ({ day: h.day, cents: h.lowestPriceCents }));
+  const reviews: ReviewView[] = reviewRows.map((r) => ({ ...r, createdAt: r.createdAt.toISOString() }));
+  const reviewCount = reviews.length;
+  const ratingAvg = reviewCount ? reviews.reduce((s, r) => s + r.rating, 0) / reviewCount : 0;
   // Now per-market — the 7-day trend applies to whichever market the visitor is in.
   const weekChange = changeOver(history, 7);
 
@@ -166,34 +203,46 @@ export default async function CardPage({ params }: { params: { id: string } }) {
   const ebaySearchHref = ebaySearchUrl(`pokemon ${card.name} ${card.collectorNumber.split("/")[0]}`, country);
 
   // Structured data so Google can show a rich price snippet ("$X, N stores").
+  // Legitimate enrichment only: offers derive from real store prices, and
+  // aggregateRating/review (below) come solely from genuine user reviews — never
+  // fabricated self-serving ratings.
+  const offers = aggregateOffer({
+    priceCentsList: prices.map((p) => p.priceCents),
+    inStock: true, // the comparison rows are live in-stock listings
+    currency: info.currency,
+  });
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
     name: card.name,
     category: "Trading Card",
     description: `${card.name} — Pokémon ${card.setName} (${card.setCode}) ${card.collectorNumber}. Compare ${info.adjective} prices.`,
-    // Legitimate enrichment only — never fabricated ratings/reviews (Google
-    // penalises self-serving review markup; the GSC "missing aggregateRating/
-    // review" notes are optional-field suggestions, safe to leave).
     brand: { "@type": "Brand", name: "Pokémon TCG" },
     sku: `${card.setCode}-${card.collectorNumber}`,
     ...(card.imageUrl ? { image: card.imageUrl } : {}),
-    ...(prices.length
+    // aggregateRating/review come ONLY from real, user-submitted reviews (see the
+    // <CardReviews> section) — emitted just when at least one exists, so the markup
+    // mirrors what's visible on the page and we never fabricate self-serving ratings.
+    ...(reviewCount
       ? {
-          offers: {
-            "@type": "AggregateOffer",
-            priceCurrency: info.currency,
-            // Min/max of ACTUAL item prices (prices is sorted by delivered cost,
-            // so its last element isn't necessarily the highest item price).
-            lowPrice: (Math.min(...prices.map((p) => p.priceCents)) / 100).toFixed(2),
-            highPrice: (Math.max(...prices.map((p) => p.priceCents)) / 100).toFixed(2),
-            offerCount: prices.length,
-            availability: "https://schema.org/InStock",
-            // Honest expiry: prices refresh with the daily import.
-            priceValidUntil: new Date(Date.now() + 86400e3).toISOString().slice(0, 10),
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: ratingAvg.toFixed(1),
+            reviewCount,
+            bestRating: 5,
+            worstRating: 1,
           },
+          review: reviews.slice(0, 10).map((r) => ({
+            "@type": "Review",
+            reviewRating: { "@type": "Rating", ratingValue: r.rating, bestRating: 5, worstRating: 1 },
+            author: { "@type": "Person", name: r.author?.trim() || "Anonymous" },
+            datePublished: r.createdAt.slice(0, 10),
+            ...(r.title ? { name: r.title } : {}),
+            ...(r.body ? { reviewBody: r.body } : {}),
+          })),
         }
       : {}),
+    ...(offers ? { offers } : {}),
   };
 
   return (
@@ -490,9 +539,12 @@ export default async function CardPage({ params }: { params: { id: string } }) {
 
           {/* In-content ad below the price comparison — the highest-traffic surface.
               Renders nothing until a slot id is configured (Auto ads fill it meanwhile). */}
-          <AdSlot slot={ADSENSE_SLOTS.card} className="mt-6" height={120} />
+          <AdSlot className="mt-6" height={120} />
         </div>
       </div>
+
+      {/* Genuine user reviews — the only source of this page's rating/review markup. */}
+      <CardReviews cardId={card.slug ?? card.id} cardName={card.name} initialReviews={reviews} />
 
       {/* Other printings — the same card in other sets (reprints, promos, alt
           numbers), so collectors can compare which printing is cheapest. */}

@@ -13,6 +13,7 @@ import { recentRestockEvents } from "@/lib/restock-recheck";
 import { RestockAlertForm } from "@/components/RestockAlertForm";
 import { OutboundLink } from "@/components/OutboundLink";
 import { affiliateUrl, ebaySearchUrl } from "@/lib/affiliate";
+import { aggregateOffer } from "@/lib/structured-data";
 import { getCountry } from "@/lib/get-country";
 import { COUNTRIES } from "@/lib/country";
 import { RETAILER_LIST } from "@/lib/retailers";
@@ -97,15 +98,21 @@ export default async function RestockTrackerPage({ params }: { params: { slug: s
   const lastChecked = all.reduce<Date | null>((latest, r) => (!latest || r.lastSeen > latest ? r.lastSeen : latest), null);
   const coverageCount = RETAILER_LIST.filter((s) => (s.country ?? "AU") === country).length;
 
+  // One valid AggregateOffer from every retail listing price (in stock or last
+  // seen); eBay secondary rows are excluded so the snippet reflects buy-it-new
+  // prices. Omitted when we hold no retail price — see lib/structured-data.
+  const offers = aggregateOffer({
+    priceCentsList: stores.map((r) => r.priceCents),
+    inStock: isLive,
+    currency: info.currency,
+  });
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
     name: product.name,
     category: "Trading Card Game Sealed Product",
     description: product.blurb,
-    ...(headlineInStock.length
-      ? { offers: { "@type": "AggregateOffer", priceCurrency: info.currency, lowPrice: ((cheapestStoreCents as number) / 100).toFixed(2), availability: "https://schema.org/InStock", offerCount: headlineInStock.length } }
-      : { offers: { "@type": "AggregateOffer", priceCurrency: info.currency, availability: "https://schema.org/OutOfStock", offerCount: 0 } }),
+    ...(offers ? { offers } : {}),
   };
 
   return (

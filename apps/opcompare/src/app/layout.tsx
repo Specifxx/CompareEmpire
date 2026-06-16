@@ -11,8 +11,8 @@ import { QuickViewProvider } from "@/components/QuickView";
 import { WishlistDrawerProvider } from "@/components/WishlistDrawer";
 import { CountryProvider } from "@/components/CountryProvider";
 import { PriceAlertModal } from "@/components/PriceAlertModal";
-import { ADSENSE_CLIENT, ADSENSE_ENABLED } from "@/lib/ads";
 import { SovrnSnippet } from "@/components/SovrnSnippet";
+import { HilltopAdsLoader } from "@/components/HilltopAdsLoader";
 import { TcgplayerAd } from "@/components/TcgplayerAd";
 import { EbayAd } from "@/components/EbayAd";
 import { getCountry } from "@/lib/get-country";
@@ -59,10 +59,10 @@ export const metadata: Metadata = {
   // on every page. Override per-deploy via env if needed.
   verification: {
     // `||` (not `??`) so an env var accidentally set to an EMPTY string still
-    // falls back to the real token — same trap as ADSENSE_CLIENT.
+    // falls back to the real token (an empty value would silently break it).
     google:
       process.env.GOOGLE_SITE_VERIFICATION ||
-      "NAFWq3cLo4QA0hk4Xs8qkVkKItZsYDqTJnkY3UCXk8E",
+      "vA2yZVn44kD0rJxKqTV_tf5c7txIY5vJWl6SJw9D9t8",
   },
 };
 
@@ -100,26 +100,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en-AU" className={`${sora.variable} ${spaceGrotesk.variable}`}>
       <head>
-        {/* AdSense account/site verification — lets Google connect dexcompare.app
-            to the AdSense account instantly. */}
-        <meta name="google-adsense-account" content="ca-pub-6842128782879909" />
-        {/* Official AdSense snippet, server-rendered in <head> so Google's
-            application review reliably finds the code on every page (their
-            checker reads the raw HTML — a deferred client-side injection is
-            invisible to it). Async, so it doesn't block rendering. Once the
-            application is APPROVED this can be swapped back to the deferred
-            <AdSenseLoader/> if the PageSpeed points matter more. */}
-        {ADSENSE_ENABLED && (
-          // eslint-disable-next-line @next/next/no-sync-scripts
-          <script
-            async
-            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
-            crossOrigin="anonymous"
-          />
-        )}
         {/* Impact / TCGplayer affiliate site-ownership verification. Impact looks for
             the non-standard `value` attribute, so spread it past the meta typing. */}
         <meta {...({ name: "impact-site-verification", value: IMPACT_SITE_VERIFICATION } as any)} />
+        {/* HilltopAds site-ownership verification (homepage). */}
+        <meta name="ad35f5ad68d39dd168984deaef49c100c9c942d8" content="ad35f5ad68d39dd168984deaef49c100c9c942d8" />
       </head>
       <body className="min-h-screen bg-ink-950">
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }} />
@@ -136,6 +121,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <PriceAlertModal />
         </CountryProvider>
         <SovrnSnippet />
+        {/* HilltopAds zone loader — the primary ad network, injected site-wide. */}
+        <HilltopAdsLoader />
         {/* Site-wide affiliate banners above the footer — BOTH live partners
             (TCGplayer Impact + eBay Partner Network) on every page, so no page
             is left unmonetised. Both are CPC/affiliate: they pay on click-through

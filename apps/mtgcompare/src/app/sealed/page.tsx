@@ -3,7 +3,6 @@ import Link from "next/link";
 import { getSealedGroups } from "@/lib/sealed-import";
 import { SealedTile } from "@/components/SealedTile";
 import { AdSlot } from "@/components/AdSlot";
-import { ADSENSE_SLOTS } from "@/lib/ads";
 import { getCountry } from "@/lib/get-country";
 import { COUNTRIES } from "@/lib/country";
 
@@ -84,7 +83,7 @@ export default async function SealedPage({ searchParams }: { searchParams: { q?:
         </div>
       </section>
 
-      <AdSlot slot={ADSENSE_SLOTS.browse} format="horizontal" height={90} />
+      <AdSlot format="horizontal" height={90} />
 
       {/* Type filters */}
       <div className="flex flex-wrap gap-2">

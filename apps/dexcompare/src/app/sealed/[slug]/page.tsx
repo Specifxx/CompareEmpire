@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
-import { getSealedGroups, type SealedGroup } from "@/lib/sealed-import";
+import { getSealedGroups, synthesizeSealedGroup, type SealedGroup } from "@/lib/sealed-import";
 import { FEATURED_RESTOCKS, restockTitleRegex, type FeaturedRestock } from "@/lib/restocks";
 import { recentRestockEvents } from "@/lib/restock-recheck";
 import { RestockAlertForm } from "@/components/RestockAlertForm";
@@ -11,8 +11,8 @@ import { OutboundLink } from "@/components/OutboundLink";
 import { AdSlot } from "@/components/AdSlot";
 import { TcgplayerAd } from "@/components/TcgplayerAd";
 import { EbayAd } from "@/components/EbayAd";
-import { ADSENSE_SLOTS } from "@/lib/ads";
 import { affiliateUrl, ebaySearchUrl } from "@/lib/affiliate";
+import { aggregateOffer } from "@/lib/structured-data";
 import { getCountry } from "@/lib/get-country";
 import { COUNTRIES } from "@/lib/country";
 import { POKEMON_SETS } from "@/lib/pokemon-sets";
@@ -29,7 +29,10 @@ async function findAny(slug: string, country: string): Promise<SealedGroup | nul
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const country = getCountry();
-  const g = (await findAny(params.slug, country)) ?? (await findAny(params.slug, "AU"));
+  const g =
+    (await findAny(params.slug, country)) ??
+    (await findAny(params.slug, "AU")) ??
+    synthesizeSealedGroup(params.slug);
   if (!g) notFound(); // real 404 — metadata resolves before streaming
   const title = `${g.name} — compare prices`;
   const description = `Compare live prices for ${g.name} across the stores we track in Australia, New Zealand, the US and the UK, and find the cheapest place to buy this sealed Pokémon product.`;
@@ -37,6 +40,10 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     title,
     description,
     alternates: { canonical: `/sealed/${g.slug}` },
+    // A synthesized product (no live listing anywhere) is a real page, not a 404,
+    // but it has no offers — noindex it so we don't feed Google a thin/soft-404
+    // page. It flips back to indexable automatically once a store lists it again.
+    ...(g.listings.length === 0 ? { robots: { index: false, follow: true } } : {}),
     openGraph: { type: "website", title, description, ...(g.imageUrl ? { images: [g.imageUrl] } : {}) },
   };
 }
@@ -64,6 +71,13 @@ export default async function SealedComparePage({ params }: { params: { slug: st
     group = (await getSealedGroups("AU")).find((g) => g.slug === params.slug);
     if (group) priceInfo = COUNTRIES.AU;
   }
+  // Known product that no store currently lists → rebuild it from its slug so the
+  // page renders (200) with the "no stores listing / set an alert" state instead
+  // of 404-ing a URL Google has already indexed. Unknown slugs still 404.
+  if (!group) {
+    group = synthesizeSealedGroup(params.slug) ?? undefined;
+    if (group) priceInfo = COUNTRIES.AU;
+  }
   if (!group) notFound();
 
   const featured = matchFeatured(group.name);
@@ -89,26 +103,21 @@ export default async function SealedComparePage({ params }: { params: { slug: st
   const ebayHref = ebaySearchUrl(group.name, country);
   const lastSeen = listings.reduce<Date | null>((latest, l) => (!latest || l.lastSeen > latest ? l.lastSeen : latest), null);
 
+  // One valid AggregateOffer from every known listing price (in stock or last
+  // seen). Omitted entirely when we hold no price, rather than emitting an
+  // invalid offerCount:0 node — see lib/structured-data.
+  const offers = aggregateOffer({
+    priceCentsList: listings.map((l) => l.priceCents),
+    inStock: inStock.length > 0,
+    currency: priceInfo.currency,
+  });
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
     name: group.name,
     category: "Trading Card Game Sealed Product",
     ...(group.imageUrl ? { image: group.imageUrl } : {}),
-    ...(inStock.length
-      ? {
-          offers: {
-            "@type": "AggregateOffer",
-            priceCurrency: priceInfo.currency,
-            lowPrice: ((lowest as number) / 100).toFixed(2),
-            highPrice: (Math.max(...listings.map((l) => l.priceCents)) / 100).toFixed(2),
-            availability: "https://schema.org/InStock",
-            offerCount: inStock.length,
-            // Prices refresh daily — valid until tomorrow keeps the markup honest.
-            priceValidUntil: new Date(Date.now() + 86400e3).toISOString().slice(0, 10),
-          },
-        }
-      : { offers: { "@type": "AggregateOffer", priceCurrency: priceInfo.currency, availability: "https://schema.org/OutOfStock", offerCount: 0 } }),
+    ...(offers ? { offers } : {}),
   };
 
   return (
@@ -225,7 +234,7 @@ export default async function SealedComparePage({ params }: { params: { slug: st
       <TcgplayerAd size="leaderboard" country={country} className="mt-6" />
       <EbayAd size="leaderboard" country={country} query={group.name} className="mt-3" />
 
-      <AdSlot slot={ADSENSE_SLOTS.card} height={120} className="mt-6" />
+      <AdSlot height={120} className="mt-6" />
 
       {/* Chase-single hook — buying the singles you want often beats a full box. */}
       {setMeta && (

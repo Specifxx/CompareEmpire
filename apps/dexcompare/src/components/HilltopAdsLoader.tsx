@@ -1,0 +1,26 @@
+"use client";
+
+import { useEffect } from "react";
+import { HILLTOPADS_ENABLED, HILLTOPADS_ZONES } from "@/lib/ads";
+
+// Loads the HilltopAds zones — the primary ad network now that AdSense rejected the
+// site. Injected once, site-wide, from the root layout so they run on every page.
+// Each HilltopAds tag reads `document.currentScript.settings`, so we recreate the
+// snippet per zone: build a <script>, set `.settings = {}`, async-load it.
+export function HilltopAdsLoader() {
+  useEffect(() => {
+    if (!HILLTOPADS_ENABLED) return;
+    HILLTOPADS_ZONES.forEach((src, i) => {
+      const id = `hilltopads-zone-${i}`;
+      if (document.getElementById(id)) return; // guard double-inject (strict mode / re-render)
+      const s = document.createElement("script");
+      s.id = id;
+      (s as unknown as { settings: unknown }).settings = {};
+      s.src = src;
+      s.async = true;
+      s.referrerPolicy = "no-referrer-when-downgrade";
+      document.body.appendChild(s);
+    });
+  }, []);
+  return null;
+}

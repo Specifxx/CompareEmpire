@@ -12,7 +12,6 @@ import { OutboundLink } from "@/components/OutboundLink";
 import { AdSlot } from "@/components/AdSlot";
 import { TcgplayerAd } from "@/components/TcgplayerAd";
 import { EbayAd } from "@/components/EbayAd";
-import { ADSENSE_SLOTS } from "@/lib/ads";
 import { affiliateUrl, ebaySearchUrl } from "@/lib/affiliate";
 import { getCountry } from "@/lib/get-country";
 import { COUNTRIES } from "@/lib/country";
@@ -226,7 +225,7 @@ export default async function SealedComparePage({ params }: { params: { slug: st
       <TcgplayerAd size="leaderboard" country={country} className="mt-6" />
       <EbayAd size="leaderboard" country={country} query={group.name} className="mt-3" />
 
-      <AdSlot slot={ADSENSE_SLOTS.card} height={120} className="mt-6" />
+      <AdSlot height={120} className="mt-6" />
 
       {/* Chase-single hook — buying the singles you want often beats a full box. */}
       {setMeta && (
