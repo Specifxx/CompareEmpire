@@ -1,7 +1,8 @@
 // Ad-network configuration.
 //
-// Google AdSense has been removed — the site now monetises via HilltopAds. These
-// values are PUBLIC by design (they ship in the page HTML).
+// Google AdSense has been removed — the site now monetises via HilltopAds (loaded
+// site-wide; see HilltopAdsLoader). These values are PUBLIC by design (they ship in
+// the page HTML).
 
 // ── HilltopAds (primary ad network) ────────────────────────────────────────────
 // HilltopAds zone loader URLs, all loaded site-wide (see HilltopAdsLoader).
