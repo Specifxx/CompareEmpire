@@ -66,3 +66,67 @@ export function collectionSize(): number {
 export function collectionTotalQty(): number {
   return Object.values(load()).reduce((s, q) => s + q, 0);
 }
+
+// ─── Cost basis ────────────────────────────────────────────────────────────────
+// What you paid, stored ALONGSIDE the qty collection (separate key) so every
+// existing collection reader — card buttons, set progress — stays untouched. Per
+// card we keep the average unit cost in the currency it was entered in. P&L is
+// only computed against the live price when that currency matches the viewer's
+// market, so we never invent an FX rate for a number the user typed by hand.
+const BASIS_KEY = "dex_cost_basis_v1";
+
+export interface CostBasis {
+  unitCents: number; // average paid per copy, in `currency`
+  currency: string; // "AUD" | "NZD" | "USD" | "GBP"
+}
+
+let basisCache: Record<string, CostBasis> | null = null;
+
+function loadBasis(): Record<string, CostBasis> {
+  if (basisCache) return basisCache;
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = window.localStorage.getItem(BASIS_KEY);
+    const parsed = raw ? (JSON.parse(raw) as Record<string, CostBasis>) : {};
+    basisCache = {};
+    for (const [id, v] of Object.entries(parsed)) {
+      const unit = Math.floor(Number(v?.unitCents));
+      const cur = typeof v?.currency === "string" ? v.currency : "";
+      if (id && cur && Number.isFinite(unit) && unit > 0) {
+        basisCache[id] = { unitCents: Math.min(unit, 1_000_000_00), currency: cur };
+      }
+    }
+  } catch {
+    basisCache = {};
+  }
+  return basisCache!;
+}
+
+function persistBasis(changedId: string | null) {
+  try {
+    window.localStorage.setItem(BASIS_KEY, JSON.stringify(basisCache ?? {}));
+  } catch {
+    // Storage full/blocked — keep in-memory state so the session still works.
+  }
+  // Reuse the collection-change event so the portfolio view re-renders on edits.
+  window.dispatchEvent(new CustomEvent("collection-change", { detail: { id: changedId } }));
+}
+
+export function getCostBasis(id: string): CostBasis | null {
+  return loadBasis()[id] ?? null;
+}
+
+export function getAllCostBases(): Record<string, CostBasis> {
+  return { ...loadBasis() };
+}
+
+// Set (or clear, when unitCents is 0) the average paid price for a card. A blank
+// currency is ignored — callers pass the market currency in effect at entry time.
+export function setCostBasis(id: string, unitCents: number, currency: string): void {
+  if (!currency) return;
+  const map = loadBasis();
+  const unit = Math.max(0, Math.min(1_000_000_00, Math.floor(unitCents)));
+  if (unit === 0) delete map[id];
+  else map[id] = { unitCents: unit, currency };
+  persistBasis(id);
+}
