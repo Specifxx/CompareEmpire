@@ -4,8 +4,15 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { CardImage } from "@/components/CardImage";
 import { DomainBadge, RarityBadge, VariantBadge, OvernumberedBadge, PromoBadge, SignatureBadge } from "@/components/Badge";
-import { isOvernumbered, isSignature } from "@/lib/constants";
+import { isOvernumbered, isSignature, conditionInfo } from "@/lib/constants";
 import { POKEMON_SETS } from "@/lib/pokemon-sets";
+import { getCurrentUser } from "@/lib/auth";
+import { BuyButton } from "@/components/BuyButton";
+import { CardListingForm } from "@/components/CardListingForm";
+import {
+  PlaceBuyOrderForm,
+  SellToBidButton,
+} from "@/components/BuyOrderActions";
 import { WishlistButton } from "@/components/WishlistButton";
 import { ShareButton } from "@/components/ShareButton";
 import { CollectionButton } from "@/components/CollectionButton";
@@ -91,6 +98,48 @@ export default async function CardPage({ params }: { params: { id: string } }) {
         })
       : Promise.resolve([]),
   ]);
+  // CompareEmpire Marketplace: active user listings (asks) + open buy orders
+  // (bids) for THIS card, plus the signed-in viewer so we can gate buy/sell
+  // actions. This is a test-mode, play-money marketplace.
+  const [viewer, listings, buyOrders] = await Promise.all([
+    getCurrentUser(),
+    prisma.listing.findMany({
+      where: { cardId: card.id, status: "ACTIVE", quantity: { gt: 0 } },
+      orderBy: { priceCents: "asc" },
+      select: {
+        id: true,
+        condition: true,
+        isFoil: true,
+        priceCents: true,
+        quantity: true,
+        currency: true,
+        sellerId: true,
+        seller: { select: { displayName: true, sellerName: true } },
+      },
+    }),
+    prisma.buyOrder.findMany({
+      where: { cardId: card.id, status: "OPEN" },
+      orderBy: { maxPriceCents: "desc" },
+      select: {
+        id: true,
+        condition: true,
+        isFoil: true,
+        maxPriceCents: true,
+        quantity: true,
+        quantityFilled: true,
+        buyerId: true,
+        buyer: { select: { displayName: true } },
+      },
+    }),
+  ]);
+  // Only verified sellers may create listings (test-mode marketplace).
+  const viewerAccount = viewer
+    ? await prisma.user.findUnique({
+        where: { id: viewer.id },
+        select: { verifiedSeller: true },
+      })
+    : null;
+
   const history: PricePoint[] = historyRows.map((h) => ({ day: h.day, cents: h.lowestPriceCents }));
   // Now per-market — the 7-day trend applies to whichever market the visitor is in.
   const weekChange = changeOver(history, 7);
@@ -503,6 +552,115 @@ export default async function CardPage({ params }: { params: { id: string } }) {
             <p className="border-t border-ink-800 p-3 text-center text-[11px] text-slate-600">
               Prices are collected from public store listings and may change. MTGCompare
               may earn a commission on some outbound links.
+            </p>
+          </div>
+
+          {/* ---- CompareEmpire Marketplace ------------------------------------
+              Community-listed copies of this card (test-mode, play-money). Verified
+              sellers can list; signed-in buyers can buy from their wallet or place a
+              buy order (bid) that escrows funds until a seller fills it. */}
+          <div className="card-surface mt-6 overflow-hidden">
+            <div className="flex items-center justify-between border-b border-ink-700 p-4">
+              <div>
+                <h2 className="font-bold text-white">CompareEmpire Marketplace</h2>
+                <p className="mt-0.5 text-xs text-slate-500">
+                  Buy directly from collectors · test-mode play money
+                </p>
+              </div>
+              <span className="chip bg-brand-500/15 text-brand-400">{listings.length} for sale</span>
+            </div>
+
+            {/* Asks — listings you can buy now */}
+            {listings.length === 0 ? (
+              <div className="p-6 text-center text-sm text-slate-400">
+                No marketplace listings for this card yet.
+                {viewerAccount?.verifiedSeller
+                  ? " Be the first to list one below."
+                  : " Place a buy order below to signal what you'd pay."}
+              </div>
+            ) : (
+              <ul className="divide-y divide-ink-800">
+                {listings.map((l) => {
+                  const c = conditionInfo(l.condition);
+                  const own = viewer?.id === l.sellerId;
+                  const sellerLabel = l.seller.sellerName || l.seller.displayName;
+                  return (
+                    <li key={l.id} className="flex flex-wrap items-center gap-x-3 gap-y-2 p-3 hover:bg-ink-900/50 sm:flex-nowrap sm:p-4">
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate font-semibold text-white">{sellerLabel}</div>
+                        <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-500">
+                          <span className="chip bg-ink-800" style={{ color: c.color }} title={c.full}>{c.label}</span>
+                          {l.isFoil && <span className="chip bg-gold/15 font-semibold text-gold">✦ Foil</span>}
+                          {l.quantity > 1 && <span>{l.quantity} available</span>}
+                        </div>
+                      </div>
+                      <div className="shrink-0 text-right text-lg font-bold text-accent">
+                        {formatMoney(l.priceCents, l.currency)}
+                      </div>
+                      <div className="order-last w-full basis-full sm:order-none sm:w-auto sm:basis-auto">
+                        <BuyButton
+                          listingId={l.id}
+                          canBuy={!!viewer && !own}
+                          reason={!viewer ? "Sign in to buy" : own ? "Your listing" : undefined}
+                        />
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+
+            {/* Sell — verified sellers list a copy of this exact card */}
+            {viewerAccount?.verifiedSeller && (
+              <div className="border-t border-ink-800 bg-ink-900/40 p-4">
+                <h3 className="mb-2 text-sm font-semibold text-white">List your copy for sale</h3>
+                <CardListingForm cardId={card.id} marketPriceCents={card.marketPriceCents} />
+              </div>
+            )}
+
+            {/* Bids — open buy orders, plus the place-a-buy-order CTA */}
+            <div className="border-t border-ink-800 p-4">
+              <h3 className="mb-3 text-sm font-semibold text-white">
+                Buy orders (bids) <span className="text-slate-500">({buyOrders.length})</span>
+              </h3>
+              {buyOrders.length > 0 && (
+                <ul className="mb-3 divide-y divide-ink-800 rounded-lg border border-ink-800">
+                  {buyOrders.map((b) => {
+                    const own = viewer?.id === b.buyerId;
+                    const remaining = b.quantity - b.quantityFilled;
+                    return (
+                      <li key={b.id} className="flex flex-wrap items-center gap-x-3 gap-y-2 p-3">
+                        <div className="min-w-0 flex-1">
+                          <div className="truncate text-sm font-semibold text-white">{b.buyer.displayName}</div>
+                          <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-500">
+                            <span className="chip bg-ink-800 text-slate-300">{b.condition === "ANY" ? "Any condition" : b.condition}</span>
+                            {b.isFoil && <span className="chip bg-gold/15 font-semibold text-gold">✦ Foil</span>}
+                            {remaining > 1 && <span>wants {remaining}</span>}
+                          </div>
+                        </div>
+                        <div className="shrink-0 text-right text-base font-bold text-white">{fmt(b.maxPriceCents)}</div>
+                        <div className="order-last w-full basis-full sm:order-none sm:w-auto sm:basis-auto">
+                          <SellToBidButton
+                            buyOrderId={b.id}
+                            canSell={!!viewer && !own}
+                            reason={!viewer ? "Sign in" : own ? "Your bid" : undefined}
+                          />
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+              <PlaceBuyOrderForm
+                cardId={card.id}
+                marketPriceCents={card.marketPriceCents}
+                signedIn={!!viewer}
+              />
+            </div>
+
+            <p className="border-t border-ink-800 p-3 text-center text-[11px] text-slate-600">
+              The CompareEmpire Marketplace is a test-mode demo using play money — no real
+              payments are processed.
             </p>
           </div>
 

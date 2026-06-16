@@ -37,3 +37,47 @@ export function ResendVerifyButton() {
     </button>
   );
 }
+
+// Demo wallet top-up — adds play money (test-mode marketplace, no real payment).
+export function TopUpButton({ amount = 10000 }: { amount?: number }) {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  return (
+    <button
+      disabled={loading}
+      onClick={async () => {
+        setLoading(true);
+        await fetch("/api/wallet", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ amountCents: amount }),
+        });
+        router.refresh();
+        setLoading(false);
+      }}
+      className="btn-accent"
+    >
+      {loading ? "Adding…" : `+ Add $${(amount / 100).toFixed(0)} (demo)`}
+    </button>
+  );
+}
+
+// Cancel one of your own active listings.
+export function CancelListingButton({ id }: { id: string }) {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  return (
+    <button
+      disabled={loading}
+      onClick={async () => {
+        setLoading(true);
+        await fetch(`/api/listings?id=${id}`, { method: "DELETE" });
+        router.refresh();
+        setLoading(false);
+      }}
+      className="chip bg-ink-800 text-red-400 hover:bg-red-500/10"
+    >
+      {loading ? "…" : "Cancel"}
+    </button>
+  );
+}
