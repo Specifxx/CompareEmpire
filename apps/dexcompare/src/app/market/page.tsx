@@ -3,7 +3,6 @@ import Link from "next/link";
 import { CardTile } from "@/components/CardTile";
 import { PriceChart, changeOver } from "@/components/PriceChart";
 import { AdSlot } from "@/components/AdSlot";
-import { ADSENSE_SLOTS } from "@/lib/ads";
 import { getMarketIndex, scopeChips, scopeFromParam } from "@/lib/market-index";
 import { getMarketWrap, latestWrapDay } from "@/lib/market-wrap";
 import { getCountry } from "@/lib/get-country";
@@ -188,7 +187,7 @@ export default async function MarketPage({ searchParams }: { searchParams: { sco
         />
       </div>
 
-      <AdSlot slot={ADSENSE_SLOTS.browse} format="horizontal" height={90} className="mt-6" />
+      <AdSlot format="horizontal" height={90} className="mt-6" />
 
       {/* Movers inside the basket */}
       {(data.gainers.length > 0 || data.losers.length > 0) && (

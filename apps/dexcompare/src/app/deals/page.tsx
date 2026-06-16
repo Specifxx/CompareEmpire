@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { CardTile } from "@/components/CardTile";
 import { AdSlot } from "@/components/AdSlot";
-import { ADSENSE_SLOTS } from "@/lib/ads";
 import { getTopDeals } from "@/lib/deals";
 import { getCountry } from "@/lib/get-country";
 import { COUNTRIES } from "@/lib/country";
@@ -40,7 +39,7 @@ export default async function DealsPage() {
         </div>
       </section>
 
-      <AdSlot slot={ADSENSE_SLOTS.browse} format="horizontal" height={90} />
+      <AdSlot format="horizontal" height={90} />
 
       {deals.length === 0 ? (
         <div className="card-surface grid place-items-center p-16 text-center">
