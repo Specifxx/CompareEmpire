@@ -28,6 +28,7 @@ export const NAV_SECTIONS: NavSection[] = [
       { href: "/trade", icon: "⚖️", label: "Trade calculator" },
       { href: "/wishlist", icon: "❤️", label: "Wishlist" },
       { href: "/collection", icon: "📚", label: "Collection" },
+      { href: "/forum", icon: "💬", label: "Community" },
     ],
   },
   {
