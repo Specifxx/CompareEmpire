@@ -12,6 +12,7 @@ import { WishlistDrawerProvider } from "@/components/WishlistDrawer";
 import { CountryProvider } from "@/components/CountryProvider";
 import { PriceAlertModal } from "@/components/PriceAlertModal";
 import { SovrnSnippet } from "@/components/SovrnSnippet";
+import { HilltopAdsLoader } from "@/components/HilltopAdsLoader";
 import { TcgplayerAd } from "@/components/TcgplayerAd";
 import { EbayAd } from "@/components/EbayAd";
 import { getCountry } from "@/lib/get-country";
@@ -124,6 +125,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <PriceAlertModal />
         </CountryProvider>
         <SovrnSnippet />
+        {/* HilltopAds zone loader — the primary ad network, injected site-wide. */}
+        <HilltopAdsLoader />
         {/* Site-wide affiliate banners above the footer — BOTH live partners
             (TCGplayer Impact + eBay Partner Network) on every page, so no page
             is left unmonetised. Both are CPC/affiliate: they pay on click-through
