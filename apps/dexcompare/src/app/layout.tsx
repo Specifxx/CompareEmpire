@@ -5,6 +5,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import Link from "next/link";
 import "./globals.css";
 import { Navbar } from "@/components/Navbar";
+import { AccountSync } from "@/components/AccountSync";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { SideNav } from "@/components/SideNav";
 import { QuickViewProvider } from "@/components/QuickView";
@@ -131,6 +132,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <WishlistDrawerProvider>
           <QuickViewProvider>
             <Navbar />
+            {/* Mounted once: merges a signed-in user's saved wishlist + collection
+                with their anonymous local data, then keeps both synced cross-device. */}
+            <AccountSync />
             <div className="container-app flex gap-6 py-6">
               <SideNav />
               <main className="min-w-0 flex-1">{children}</main>
