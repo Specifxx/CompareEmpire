@@ -5,6 +5,7 @@ import { useCountry } from "./CountryProvider";
 import { cardDisplayName } from "@/lib/card-name";
 import { tradeGremlin, type TradeTone } from "@/lib/trade-gremlin";
 import { priceOrGuide, type Country } from "@/lib/country";
+import { dollarsToCents } from "@/lib/format";
 
 // A card added to one side of a trade. We store the full set of market prices so
 // the totals re-compute live when the visitor switches country/currency.
@@ -55,6 +56,10 @@ export function TradeCalculator() {
   // the two adjusted totals.
   const [yoursPct, setYoursPct] = useState(100);
   const [theirsPct, setTheirsPct] = useState(100);
+  // Optional postage each side pays to ship their cards — added to that side's total
+  // so the fairness verdict reflects true delivered cost, not just card value (cents).
+  const [yoursShip, setYoursShip] = useState(0);
+  const [theirsShip, setTheirsShip] = useState(0);
   // Per-card value override (cents), keyed by card id — set by typing a value or by
   // picking a specific store's price.
   const [overrides, setOverrides] = useState<Record<string, number>>({});
@@ -71,6 +76,8 @@ export function TradeCalculator() {
         if (data.overrides && typeof data.overrides === "object") setOverrides(data.overrides);
         if (typeof data.yoursPct === "number") setYoursPct(data.yoursPct);
         if (typeof data.theirsPct === "number") setTheirsPct(data.theirsPct);
+        if (typeof data.yoursShip === "number") setYoursShip(data.yoursShip);
+        if (typeof data.theirsShip === "number") setTheirsShip(data.theirsShip);
       }
     } catch {
       /* ignore corrupt state */
@@ -81,11 +88,11 @@ export function TradeCalculator() {
   useEffect(() => {
     if (!loaded) return;
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ yours, theirs, overrides, yoursPct, theirsPct }));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ yours, theirs, overrides, yoursPct, theirsPct, yoursShip, theirsShip }));
     } catch {
       /* quota/private mode — fine */
     }
-  }, [yours, theirs, overrides, yoursPct, theirsPct, loaded]);
+  }, [yours, theirs, overrides, yoursPct, theirsPct, yoursShip, theirsShip, loaded]);
 
   const setter = (side: Side) => (side === "yours" ? setYours : setTheirs);
 
@@ -135,15 +142,20 @@ export function TradeCalculator() {
   const rawTheirs = sideTotal(theirs);
   const adjYours = Math.round((rawYours * yoursPct) / 100);
   const adjTheirs = Math.round((rawTheirs * theirsPct) / 100);
-  const cashDiff = adjTheirs - adjYours; // who pays whom is left to the traders
+  // Each side's postage is part of what that side actually costs to deliver, so we
+  // fold it into the totals the verdict and cash difference are computed from.
+  const giveTotal = adjYours + Math.max(0, yoursShip);
+  const getTotal = adjTheirs + Math.max(0, theirsShip);
+  const cashDiff = getTotal - giveTotal; // who pays whom is left to the traders
   const hasCards = yours.length + theirs.length > 0;
   const unpriced = sideUnpriced(yours) + sideUnpriced(theirs);
 
-  // Live gremlin fairness verdict (free, instant). adjYours = you give; adjTheirs = you get.
-  const gremlin = hasCards ? tradeGremlin(adjYours, adjTheirs, currency) : null;
+  // Live gremlin fairness verdict (free, instant). giveTotal = you give (your cards +
+  // your postage); getTotal = you get (their cards + their postage).
+  const gremlin = hasCards ? tradeGremlin(giveTotal, getTotal, currency) : null;
 
   // The on-demand roast is a snapshot — clear it whenever the trade changes.
-  useEffect(() => { setRoast(null); }, [adjYours, adjTheirs]);
+  useEffect(() => { setRoast(null); }, [giveTotal, getTotal]);
 
   async function getRoast() {
     setRoasting(true);
@@ -152,8 +164,8 @@ export function TradeCalculator() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          giveCents: adjYours,
-          getCents: adjTheirs,
+          giveCents: giveTotal,
+          getCents: getTotal,
           currency,
           yours: yours.map((c) => `${c.name}${c.qty > 1 ? ` x${c.qty}` : ""}`),
           theirs: theirs.map((c) => `${c.name}${c.qty > 1 ? ` x${c.qty}` : ""}`),
@@ -245,6 +257,40 @@ export function TradeCalculator() {
               )}
             </div>
           </div>
+
+          {hasCards && (
+            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-ink-800 pt-3">
+              <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Postage ({currency})</span>
+              <label className="flex items-center gap-1.5 text-xs text-slate-400">
+                Your side
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  inputMode="decimal"
+                  value={yoursShip ? (yoursShip / 100).toFixed(2) : ""}
+                  onChange={(e) => setYoursShip(e.target.value.trim() ? dollarsToCents(e.target.value) : 0)}
+                  placeholder="0.00"
+                  aria-label="Postage you pay"
+                  className="w-20 rounded-md bg-ink-900 px-2 py-1 text-right text-white outline-none ring-1 ring-ink-700 focus:ring-brand-500"
+                />
+              </label>
+              <label className="flex items-center gap-1.5 text-xs text-slate-400">
+                Their side
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  inputMode="decimal"
+                  value={theirsShip ? (theirsShip / 100).toFixed(2) : ""}
+                  onChange={(e) => setTheirsShip(e.target.value.trim() ? dollarsToCents(e.target.value) : 0)}
+                  placeholder="0.00"
+                  aria-label="Postage they pay"
+                  className="w-20 rounded-md bg-ink-900 px-2 py-1 text-right text-white outline-none ring-1 ring-ink-700 focus:ring-brand-500"
+                />
+              </label>
+            </div>
+          )}
 
           {unpriced > 0 && (
             <p className="mt-2 text-xs text-gold">
