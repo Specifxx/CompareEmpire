@@ -17,6 +17,7 @@ import {
   parsePageSize,
 } from "@/lib/cards";
 import { getCountry } from "@/lib/get-country";
+import { SITE_URL } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
 
@@ -52,8 +53,35 @@ export default async function BrowsePage({ searchParams }: { searchParams: CardQ
   ]);
   const totalPages = Math.max(1, Math.ceil(total / size));
 
+  // Structured data only on the canonical, unfiltered first page (filtered/search
+  // permutations are noindex — see generateMetadata).
+  const isFiltered = Boolean(searchParams.q || searchParams.domain || searchParams.rarity || searchParams.type || searchParams.set);
+  const itemListJsonLd =
+    !isFiltered && page === 1
+      ? {
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          name: "Pokémon Card Database",
+          url: `${SITE_URL}/browse`,
+          description: "Every Pokémon TCG card with live prices compared across stores.",
+          isPartOf: { "@type": "WebSite", name: "DexCompare", url: SITE_URL },
+          mainEntity: {
+            "@type": "ItemList",
+            itemListElement: cards.slice(0, 24).map((c, i) => ({
+              "@type": "ListItem",
+              position: i + 1,
+              url: `${SITE_URL}/card/${c.slug ?? c.id}`,
+              name: c.name,
+            })),
+          },
+        }
+      : null;
+
   return (
     <div className="flex flex-col gap-6 lg:flex-row">
+      {itemListJsonLd && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }} />
+      )}
       <Filters />
 
       <section className="min-w-0 flex-1">

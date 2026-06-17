@@ -5,6 +5,7 @@ import { SealedTile } from "@/components/SealedTile";
 import { AdSlot } from "@/components/AdSlot";
 import { getCountry } from "@/lib/get-country";
 import { COUNTRIES } from "@/lib/country";
+import { SITE_URL } from "@/lib/site";
 
 // Per-request: the market (and therefore prices/stock) comes from the country cookie.
 export const dynamic = "force-dynamic";
@@ -56,8 +57,33 @@ export default async function SealedPage({ searchParams }: { searchParams: { q?:
     return s ? `/sealed?${s}` : "/sealed";
   };
 
+  // Structured data only on the canonical, unfiltered view (filtered views are noindex).
+  const collectionJsonLd =
+    !q && !type
+      ? {
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          name: "Pokémon Sealed Product Prices",
+          url: `${SITE_URL}/sealed`,
+          description: "Pokémon booster boxes, ETBs, bundles and packs with live prices compared across stores.",
+          isPartOf: { "@type": "WebSite", name: "DexCompare", url: SITE_URL },
+          mainEntity: {
+            "@type": "ItemList",
+            itemListElement: all.slice(0, 24).map((g, i) => ({
+              "@type": "ListItem",
+              position: i + 1,
+              url: `${SITE_URL}/sealed/${g.slug}`,
+              name: g.name,
+            })),
+          },
+        }
+      : null;
+
   return (
     <div className="flex flex-col gap-6">
+      {collectionJsonLd && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionJsonLd) }} />
+      )}
       {/* Header */}
       <section className="card-surface overflow-hidden">
         <div className="relative bg-gradient-to-br from-brand-600/25 via-ink-850 to-gold/15 px-6 py-8">
