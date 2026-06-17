@@ -184,6 +184,14 @@ export default async function CardPage({ params }: { params: { id: string } }) {
 
   const lowestPrice = pickPrice(card, country);
 
+  // Other markets' local store lows — informational only. Each is priced in its own
+  // market's currency (never FX-converted), so we present them as "also listed
+  // elsewhere", never as a direct saving.
+  const otherMarketPrices = (["AU", "NZ", "US", "GB"] as const)
+    .filter((c) => c !== country)
+    .map((c) => ({ code: c, cents: pickPrice(card, c), label: COUNTRIES[c].label, flag: COUNTRIES[c].flag, currency: COUNTRIES[c].currency }))
+    .filter((m) => m.cents != null);
+
   // Split the catalogue MARKET GUIDE (an estimate, e.g. AU where TCGplayer doesn't
   // ship) from real, buyable store listings. The guide is shown as a labelled
   // reference with no buy link; real stores are what we rank and link to.
@@ -363,7 +371,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
             {hasSpectrum && (
               <div className="mt-4">
                 <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-500">Cheapest by condition</div>
-                <div className="grid grid-cols-5 gap-2">
+                <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
                   {GRADES.map((g) => {
                     const v = byGrade.get(g.code);
                     return (
@@ -473,7 +481,9 @@ export default async function CardPage({ params }: { params: { id: string } }) {
                 {prices.map((p, i) => (
                   <li
                     key={p.id}
-                    className="flex flex-wrap items-center gap-x-3 gap-y-2 p-3 hover:bg-ink-900/50 sm:flex-nowrap sm:p-4"
+                    className={`flex flex-wrap items-center gap-x-3 gap-y-2 p-3 hover:bg-ink-900/50 sm:flex-nowrap sm:p-4${
+                      Date.now() - p.lastSeen.getTime() > 21 * 86_400_000 ? " opacity-60" : ""
+                    }`}
                   >
                     <div className="w-5 shrink-0 text-center text-sm font-bold text-slate-500 sm:w-6">{i + 1}</div>
                     <div className="min-w-0 flex-1">
@@ -495,6 +505,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
                             shipping policy ↗
                           </a>
                         )}
+                        <span className="text-slate-500">updated {timeAgo(p.lastSeen)}</span>
                       </div>
                     </div>
                     <div className="shrink-0 text-right">
@@ -577,6 +588,24 @@ export default async function CardPage({ params }: { params: { id: string } }) {
               may earn a commission on some outbound links.
             </p>
           </div>
+
+          {otherMarketPrices.length > 0 && (
+            <div className="card-surface mt-6 p-4">
+              <h2 className="font-bold text-white">Also listed in other regions</h2>
+              <p className="mt-0.5 text-xs text-slate-500">
+                Cheapest live store price in each market, in that market&apos;s own currency (not
+                converted) — handy if you import. Always factor in shipping &amp; duties.
+              </p>
+              <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                {otherMarketPrices.map((m) => (
+                  <div key={m.code} className="rounded-lg bg-ink-900 p-3 text-center">
+                    <div className="text-[11px] uppercase tracking-wide text-slate-500">{m.flag} {m.label}</div>
+                    <div className="mt-0.5 text-base font-bold text-white">{formatMoney(m.cents as number, m.currency)}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* ---- CompareEmpire Marketplace ------------------------------------
               Community-listed copies of this card (test-mode, play-money). Verified
