@@ -27,7 +27,10 @@ const nextConfig = {
   // Preview-stage: the sites were rapidly adapted from one codebase, so some
   // inherited types/lint rules don't yet match each vertical. Don't block
   // deploys on them — tighten and remove these later.
-  typescript: { ignoreBuildErrors: true },
+  // App code is type-checked on every build now (dev-only scripts/ are excluded
+  // from the app tsconfig, so they can't block a deploy). ESLint stays off during
+  // builds to avoid blocking on lint-only warnings.
+  typescript: { ignoreBuildErrors: false },
   eslint: { ignoreDuringBuilds: true },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
