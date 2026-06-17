@@ -26,6 +26,7 @@ export const NAV_SECTIONS: NavSection[] = [
     label: "Market",
     links: [
       { href: "/market", icon: "📈", label: "DexCompare Index" },
+      { href: "/tools/arbitrage", icon: "💱", label: "Arbitrage & eBay deals" },
       { href: "/blog/market-wrap", icon: "📰", label: "Daily Market Wrap" },
       { href: "/restock", icon: "📅", label: "Drops & restocks" },
     ],
