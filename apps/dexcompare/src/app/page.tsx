@@ -16,6 +16,7 @@ import { COUNTRIES, type CountryInfo } from "@/lib/country";
 import { SETS, domainInfo, DOMAIN_KEYS } from "@/lib/constants";
 import { POKEMON_SETS } from "@/lib/pokemon-sets";
 import { Logo } from "@/components/Logo";
+import { NAV_SECTIONS } from "@/components/nav-sections";
 
 // ISR while AU-only; becomes dynamic per-request when NZ mode is enabled (getCountry
 // then reads the country cookie).
@@ -323,6 +324,25 @@ export default async function HomePage() {
               </Link>
             );
           })}
+        </div>
+      </section>
+
+      {/* Tools & community — surface the account/tools features beyond the price DB */}
+      <section>
+        <h2 className="mb-4 text-xl font-extrabold text-white">Tools &amp; community</h2>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          {NAV_SECTIONS.filter((s) => s.label === "My stuff" || s.label === "Play & tools")
+            .flatMap((s) => s.links)
+            .map((l) => (
+              <Link
+                key={l.href}
+                href={l.href}
+                className="card-surface flex items-center gap-3 p-4 transition-colors hover:border-brand-500"
+              >
+                <span className="text-2xl" aria-hidden>{l.icon}</span>
+                <span className="font-semibold text-white">{l.label}</span>
+              </Link>
+            ))}
         </div>
       </section>
 

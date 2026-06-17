@@ -52,6 +52,7 @@ export const NAV_SECTIONS: NavSection[] = [
     label: "Learn & help",
     links: [
       { href: "/guides", icon: "📖", label: "Buying guides" },
+      { href: "/stores", icon: "🏪", label: "Stores we track" },
       { href: "/blog", icon: "✍️", label: "Blog" },
       { href: "/contact", icon: "✉️", label: "Contact" },
     ],
