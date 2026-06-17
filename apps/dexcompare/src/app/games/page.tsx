@@ -8,6 +8,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "/games" },
 };
 
+export const revalidate = 86400;
+
 // The arcade hub. Every game runs on the site's real card + price data, so
 // playing doubles as discovering cards — each result links to live prices.
 const GAMES = [

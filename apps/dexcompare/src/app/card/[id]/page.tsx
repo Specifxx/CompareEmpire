@@ -27,6 +27,7 @@ import { affiliateUrl, ebaySearchUrl } from "@/lib/affiliate";
 import { aggregateOffer } from "@/lib/structured-data";
 import { getCountry } from "@/lib/get-country";
 import { COUNTRIES, pickPrice, marketGuideCents } from "@/lib/country";
+import { SITE_URL } from "@/lib/site";
 import { OutboundLink } from "@/components/OutboundLink";
 import { AdSlot } from "@/components/AdSlot";
 import { TcgplayerAd } from "@/components/TcgplayerAd";
@@ -302,9 +303,22 @@ export default async function CardPage({ params }: { params: { id: string } }) {
     ...(offers ? { offers } : {}),
   };
 
+  // Breadcrumb so Google shows Home › Database › Set › Card in the SERP.
+  const setSlug = POKEMON_SETS.find((s) => s.code === card.setCode)?.slug;
+  const breadcrumb = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: "Database", item: `${SITE_URL}/browse` },
+      ...(setSlug ? [{ "@type": "ListItem", position: 3, name: card.setName, item: `${SITE_URL}/sets/${setSlug}` }] : []),
+      { "@type": "ListItem", position: setSlug ? 4 : 3, name: card.name },
+    ],
+  };
+
   return (
     <div>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify([jsonLd, breadcrumb]) }} />
       <CardViewBeacon idOrSlug={card.slug ?? card.id} cardId={card.id} />
       <Link href="/browse" className="mb-4 inline-flex items-center gap-1 text-sm text-slate-400 hover:text-white">
         ← Back to database
