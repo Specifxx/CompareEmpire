@@ -725,6 +725,13 @@ export async function importPrices(): Promise<ImportSummary> {
     summary.totalMatched += matched;
     summary.totalUnmatched += unmatched;
     console.log(`  [${++storesDone}/${RETAILER_LIST.length}] ${store.name} (${cc}): ${products.length} products → ${rows.size} priced, ${matched} matched`);
+    // Store-health: make silent failures (sitemap/collection-discovery broke, or the
+    // matcher stopped matching) visible in the CI logs instead of just shrinking coverage.
+    if (products.length === 0) {
+      console.warn(`  [store-health] ${store.name} (${cc}): 0 products returned — sitemap/collection discovery may be failing.`);
+    } else if (matched === 0) {
+      console.warn(`  [store-health] ${store.name} (${cc}): ${products.length} products but 0 matched — check the matcher / collection handles.`);
+    }
   }
 
   // Worker pool: STORE_CONCURRENCY stores in flight at once. Stops launching new
