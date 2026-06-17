@@ -377,7 +377,12 @@ const EBAY_ROW_TTL_MS = (Number(process.env.EBAY_ROW_TTL_DAYS) || 21) * 24 * 60 
 // Share of each market's budget always spent on the TOP-demand cards (even if
 // fresh), so chase cards stay near-daily fresh while the rest of the budget
 // rotates through the stale long tail.
-const EBAY_HOT_SHARE = Math.min(0.9, Math.max(0, Number(process.env.EBAY_HOT_SHARE ?? 0.25)));
+const EBAY_HOT_SHARE = Math.min(0.9, Math.max(0, Number(process.env.EBAY_HOT_SHARE ?? 0.35)));
+// Non-eBay store rows not re-confirmed within this window are orphans from a store
+// that has stopped responding (dead domain / broken sitemap). A live store has all
+// its rows recreated with a fresh lastSeen every run, so only dead-store rows ever
+// go stale — pruned, but ONLY on a healthy run (see the guard below).
+const STORE_ROW_TTL_MS = (Number(process.env.STORE_ROW_TTL_DAYS) || 21) * 24 * 60 * 60 * 1000;
 
 // Refresh eBay prices for the AU, US and GB markets. Returns the total rows
 // written. The catalogue is much larger than the daily call budget, so:
@@ -761,6 +766,29 @@ export async function importPrices(): Promise<ImportSummary> {
     console.log(`Budget reached during store walk — stopped after ${storesDone}/${RETAILER_LIST.length} stores.`);
   }
   console.log(`Store walk complete: ${summary.totalMatched} matched across ${RETAILER_LIST.length} stores (${Math.round((Date.now() - importStart) / 1000)}s).`);
+
+  // Prune orphaned store rows (dead domains / broken sitemaps): any non-eBay,
+  // non-guide row not re-confirmed for STORE_ROW_TTL_DAYS. Live stores recreate
+  // their rows with a fresh lastSeen every run, so only genuinely-dead stores go
+  // stale. HARD-GUARDED so a transient outage can never empty the catalogue: only
+  // prune when this run was healthy — every store was attempted (not budget-stopped)
+  // AND a strong majority returned products. At this point summary.stores holds only
+  // the retail stores (eBay/TCGplayer entries are pushed later).
+  {
+    const succeeded = summary.stores.filter((s) => s.products > 0).length;
+    const healthy = !stoppedForBudget && succeeded >= RETAILER_LIST.length * 0.6;
+    if (healthy) {
+      const pruned = await prisma.retailerPrice.deleteMany({
+        where: {
+          lastSeen: { lt: new Date(Date.now() - STORE_ROW_TTL_MS) },
+          NOT: [{ retailer: { startsWith: "ebay" } }, { retailer: { startsWith: "marketguide" } }],
+        },
+      });
+      if (pruned.count) console.log(`Pruned ${pruned.count} orphaned store rows unconfirmed for ${Math.round(STORE_ROW_TTL_MS / 86400000)}+ days.`);
+    } else {
+      console.warn(`[store-prune] Skipped orphan prune — run not healthy (succeeded ${succeeded}/${RETAILER_LIST.length}, budgetStopped=${stoppedForBudget}).`);
+    }
+  }
 
   // Confirm each card's displayed (cheapest) price against the live product page,
   // since the collection feed can lag it.
