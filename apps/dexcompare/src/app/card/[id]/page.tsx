@@ -28,6 +28,7 @@ import { aggregateOffer } from "@/lib/structured-data";
 import { getCountry } from "@/lib/get-country";
 import { COUNTRIES, pickPrice, marketGuideCents } from "@/lib/country";
 import { SITE_URL } from "@/lib/site";
+import { EnglishOnlyToggle } from "@/components/EnglishOnlyToggle";
 import { OutboundLink } from "@/components/OutboundLink";
 import { AdSlot } from "@/components/AdSlot";
 import { TcgplayerAd } from "@/components/TcgplayerAd";
@@ -93,7 +94,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
         select: {
           id: true, retailer: true, retailerName: true, priceCents: true,
           shippingCents: true, condition: true, conditionPrices: true,
-          isFoil: true, inStock: true, url: true, lastSeen: true,
+          isFoil: true, inStock: true, url: true, lastSeen: true, title: true,
         },
       },
     },
@@ -196,14 +197,19 @@ export default async function CardPage({ params }: { params: { id: string } }) {
   // Split the catalogue MARKET GUIDE (an estimate, e.g. AU where TCGplayer doesn't
   // ship) from real, buyable store listings. The guide is shown as a labelled
   // reference with no buy link; real stores are what we rank and link to.
+  // Flag foreign-language listings (mostly cheap JP/KR/CN eBay printings) so buyers
+  // can hide them — they're a different product and the top "too good to be true" trap.
+  const FOREIGN_RE = /japanese|japan|jpn|\bjp\b|korean|\bkor?\b|chinese|\bcn\b|中|日本|한/i;
   const all = card.retailerPrices.map((p) => {
     const ship = effectiveShippingCents(p.shippingCents); // number | null (null = unknown)
-    return { ...p, ship, delivered: p.priceCents + (ship ?? 0), isGuide: p.retailer.startsWith("marketguide") };
+    const isGuide = p.retailer.startsWith("marketguide");
+    return { ...p, ship, delivered: p.priceCents + (ship ?? 0), isGuide, foreign: !isGuide && !!p.title && FOREIGN_RE.test(p.title) };
   });
   const guide = all.filter((p) => p.isGuide).sort((a, b) => a.priceCents - b.priceCents)[0] ?? null;
   const storeRows = all.filter((p) => !p.isGuide).sort((a, b) => a.delivered - b.delivered);
   const prices = storeRows.filter((p) => p.inStock);
   const outOfStock = storeRows.filter((p) => !p.inStock);
+  const foreignCount = prices.filter((p) => p.foreign).length;
 
   // Pokémon cards span a big condition range (NM → damaged). Build the cheapest
   // in-stock price PER GRADE from the store listings, so buyers see the whole spectrum.
@@ -447,9 +453,12 @@ export default async function CardPage({ params }: { params: { id: string } }) {
                   </span>
                 )}
               </div>
-              {prices[0] && (
-                <span className="text-xs text-slate-500">updated {timeAgo(prices[0].lastSeen)}</span>
-              )}
+              <div className="flex items-center gap-3">
+                <EnglishOnlyToggle targetId="dc-price-list" foreignCount={foreignCount} />
+                {prices[0] && (
+                  <span className="text-xs text-slate-500">updated {timeAgo(prices[0].lastSeen)}</span>
+                )}
+              </div>
             </div>
 
             {prices.length === 0 && outOfStock.length === 0 ? (
@@ -491,10 +500,11 @@ export default async function CardPage({ params }: { params: { id: string } }) {
                 </OutboundLink>
               </div>
             ) : (
-              <ul className="divide-y divide-ink-800">
+              <ul id="dc-price-list" className="divide-y divide-ink-800">
                 {prices.map((p, i) => (
                   <li
                     key={p.id}
+                    data-foreign={p.foreign ? "true" : undefined}
                     className={`flex flex-wrap items-center gap-x-3 gap-y-2 p-3 hover:bg-ink-900/50 sm:flex-nowrap sm:p-4${
                       Date.now() - p.lastSeen.getTime() > 21 * 86_400_000 ? " opacity-60" : ""
                     }`}

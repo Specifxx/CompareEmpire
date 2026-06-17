@@ -93,6 +93,12 @@ h1, h2, h3 {
   .flip-inner { transition: none !important; }
 }
 
+/* "English only" price-list filter: hide foreign-language listings (marked
+   data-foreign) when the toggle adds .hide-foreign to the list. */
+.hide-foreign [data-foreign="true"] {
+  display: none;
+}
+
 /* Thin custom scrollbar to match the dark marketplace aesthetic */
 ::-webkit-scrollbar {
   width: 10px;
