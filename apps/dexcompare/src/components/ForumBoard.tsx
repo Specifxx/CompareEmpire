@@ -495,7 +495,11 @@ export function ForumBoard({
         <div className="card-surface grid place-items-center p-16 text-center text-slate-400">
           <div>
             <p className="text-lg font-semibold text-white">No posts yet</p>
-            <p className="mt-1 text-sm">Be the first to post.</p>
+            <p className="mx-auto mt-1 max-w-md text-sm">
+              This is the community board for buying, selling and talking Pokémon with collectors in
+              your region. Post a want-to-buy/sell listing or start a discussion.
+            </p>
+            <button onClick={() => setShowForm(true)} className="btn-primary mt-4">+ New post</button>
           </div>
         </div>
       ) : (

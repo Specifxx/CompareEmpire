@@ -16,6 +16,7 @@ import { SovrnSnippet } from "@/components/SovrnSnippet";
 import { HilltopAdsLoader } from "@/components/HilltopAdsLoader";
 import { TcgplayerAd } from "@/components/TcgplayerAd";
 import { EbayAd } from "@/components/EbayAd";
+import { PathGate } from "@/components/PathGate";
 import { getCountry } from "@/lib/get-country";
 import { CONTACT_EMAIL, SITE_NAME, SITE_URL } from "@/lib/site";
 import { IMPACT_SITE_VERIFICATION } from "@/lib/affiliate";
@@ -135,10 +136,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             (TCGplayer Impact + eBay Partner Network) on every page, so no page
             is left unmonetised. Both are CPC/affiliate: they pay on click-through
             purchases, so placement-where-relevant beats raw banner count. */}
-        <div className="container-app flex flex-col items-center gap-3 pb-8">
-          <TcgplayerAd size="leaderboard" country={country} />
-          <EbayAd size="leaderboard" country={country} />
-        </div>
+        <PathGate allow={["/", "/browse", "/card", "/sealed", "/deals", "/market", "/card-value", "/sets", "/restock"]}>
+          <div className="container-app flex flex-col items-center gap-3 pb-8">
+            <TcgplayerAd size="leaderboard" country={country} />
+            <EbayAd size="leaderboard" country={country} />
+          </div>
+        </PathGate>
         <footer className="container-app border-t border-ink-800 py-8 text-center text-xs text-slate-500">
           <p className="mb-4">
             <a
@@ -160,6 +163,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Link href="/games" className="hover:text-slate-300">Minigames</Link>
             <Link href="/restock" className="hover:text-slate-300">Drops &amp; restocks</Link>
             <Link href="/guides" className="hover:text-slate-300">Buying guides</Link>
+            <Link href="/stores" className="hover:text-slate-300">Stores we track</Link>
             <Link href="/blog" className="hover:text-slate-300">Blog</Link>
             <Link href="/trade" className="hover:text-slate-300">Trade calculator</Link>
             <Link href="/wishlist" className="hover:text-slate-300">Wishlist</Link>
