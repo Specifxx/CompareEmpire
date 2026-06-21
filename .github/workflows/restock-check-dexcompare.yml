@@ -12,8 +12,11 @@ name: DexCompare restock check (every ~15 min)
 # real cadence is ~15–30 min — still vastly better than the daily import.
 
 on:
-  schedule:
-    - cron: "*/15 * * * *"
+  # Scheduled runs DISABLED 2026-06-21 — DexCompare deactivated to cut cost.
+  # This ran every ~15 min (the biggest Actions/Neon consumer and the source of
+  # the failure-email flood). Re-enable by uncommenting the two lines below.
+  # schedule:
+  #   - cron: "*/15 * * * *"
   workflow_dispatch:
     inputs:
       dexcompare_url:
