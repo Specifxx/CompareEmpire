@@ -11,8 +11,10 @@ name: Refresh DexCompare prices (daily)
 # the URL as an input instead.
 
 on:
-  schedule:
-    - cron: "30 18 * * *" # 04:30 Sydney (AEST) daily, before the AU morning
+  # Scheduled runs DISABLED 2026-06-21 — DexCompare deactivated to cut cost.
+  # Re-enable by uncommenting the two lines below.
+  # schedule:
+  #   - cron: "30 18 * * *" # 04:30 Sydney (AEST) daily, before the AU morning
   workflow_dispatch:
     inputs:
       dexcompare_url:
