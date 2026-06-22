@@ -7,8 +7,10 @@ name: Publish DexCompare Daily Market Wrap
 # noticed the same morning.
 
 on:
-  schedule:
-    - cron: "0 8 * * *" # 4:00 a.m. ET (EDT). Winter (EST) shifts this to 3:00 a.m. ET — still pre-market.
+  # Scheduled runs DISABLED 2026-06-21 — DexCompare deactivated to cut cost.
+  # Re-enable by uncommenting the two lines below.
+  # schedule:
+  #   - cron: "0 8 * * *" # 4:00 a.m. ET (EDT). Winter (EST) shifts this to 3:00 a.m. ET — still pre-market.
   workflow_dispatch:
 
 jobs:
