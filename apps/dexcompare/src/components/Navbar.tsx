@@ -36,13 +36,13 @@ export async function Navbar() {
         {/* Nav: the three commerce tabs stay inline; EVERYTHING else lives in the
             grouped Menu (same sections as the phone sheet — one mental model). */}
         <nav className="ml-auto flex items-center gap-0.5 sm:gap-1 lg:ml-0">
-          <Link href="/browse" className="rounded-lg px-2 py-2 text-sm font-medium text-slate-200 hover:bg-ink-800 hover:text-white sm:px-2.5">
+          <Link href="/browse" className="rounded-lg px-2 py-2 text-sm font-medium text-slate-200 outline-none transition-colors hover:bg-ink-800 hover:text-brand-300 focus-visible:ring-2 focus-visible:ring-brand-400 sm:px-2.5">
             Database
           </Link>
-          <Link href="/sealed" className="hidden rounded-lg px-2.5 py-2 text-sm font-medium text-slate-200 hover:bg-ink-800 hover:text-white sm:block">
+          <Link href="/sealed" className="hidden rounded-lg px-2.5 py-2 text-sm font-medium text-slate-200 outline-none transition-colors hover:bg-ink-800 hover:text-brand-300 focus-visible:ring-2 focus-visible:ring-brand-400 sm:block">
             Sealed
           </Link>
-          <Link href="/deals" className="hidden rounded-lg px-2.5 py-2 text-sm font-medium text-gold hover:bg-ink-800 md:block">
+          <Link href="/deals" className="hidden rounded-lg px-2.5 py-2 text-sm font-medium text-gold outline-none transition-colors hover:bg-ink-800 hover:brightness-110 focus-visible:ring-2 focus-visible:ring-brand-400 md:block">
             Deals
           </Link>
           <div className="hidden lg:block xl:hidden">

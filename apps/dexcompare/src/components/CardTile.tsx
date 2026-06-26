@@ -73,13 +73,13 @@ export function CardTile({ card }: { card: CardTileData }) {
     // Outer wrapper holds the hover state and the wishlist button. The wishlist
     // button is a SIBLING of the link (not inside it) so toggling it never triggers
     // navigation or the top loading bar.
-    <div className="cv-auto group card-surface relative flex flex-col overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-glow">
+    <div className="cv-auto group card-surface lift relative flex flex-col overflow-hidden">
       <div className="absolute right-2 top-2 z-10">
         <WishlistButton cardId={card.id} />
       </div>
       <Link href={cardHref(card)} prefetch={false} onClick={onClick} className="flex flex-1 flex-col">
         <div
-          className="relative aspect-[5/7] w-full overflow-hidden p-3"
+          className="shine relative aspect-[5/7] w-full overflow-hidden p-3"
           style={{ background: `radial-gradient(120% 80% at 50% 0%, ${r.color}22, transparent 60%)` }}
         >
           <CardImage
@@ -95,7 +95,7 @@ export function CardTile({ card }: { card: CardTileData }) {
         <h3 className="line-clamp-1 text-sm font-semibold text-white" title={card.name}>
           {card.name}
         </h3>
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-slate-400">
           {card.setCode} · {card.collectorNumber}
         </p>
 
@@ -103,7 +103,7 @@ export function CardTile({ card }: { card: CardTileData }) {
           <div>
             {lowest != null ? (
               <>
-                <div className="text-[11px] text-slate-500">from</div>
+                <div className="text-[11px] text-slate-400">from</div>
                 <div className="text-lg font-bold text-accent">
                   {fmt(lowest)}
                 </div>
@@ -126,7 +126,7 @@ export function CardTile({ card }: { card: CardTileData }) {
                 <div className="text-lg font-semibold text-slate-400">≈ {fmt(est)}</div>
               </>
             ) : (
-              <div className="text-sm font-medium text-slate-500">No price yet</div>
+              <div className="text-sm font-medium text-slate-400">No price yet</div>
             )}
           </div>
           {stores > 0 && (

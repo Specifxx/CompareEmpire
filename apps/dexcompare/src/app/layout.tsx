@@ -103,6 +103,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en-AU" className={`${sora.variable} ${spaceGrotesk.variable}`}>
       <head>
+        {/* Mark JS as available before first paint so the scroll-reveal CSS only
+            hides content for users who can actually see the animation. Non-JS
+            visitors and crawlers keep `html` class-less → everything stays
+            visible (no FOUC, no hidden text). */}
+        <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />
         {/* Impact / TCGplayer affiliate site-ownership verification. Impact looks for
             the non-standard `value` attribute, so spread it past the meta typing. */}
         <meta {...({ name: "impact-site-verification", value: IMPACT_SITE_VERIFICATION } as any)} />
@@ -113,6 +118,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="dns-prefetch" href="https://images.pokemontcg.io" />
       </head>
       <body className="min-h-screen bg-ink-950">
+        <a href="#main-content" className="skip-link">Skip to content</a>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }} />
         <CountryProvider initial={country}>
         <WishlistDrawerProvider>
@@ -123,7 +129,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <AccountSync />
             <div className="container-app flex gap-6 py-6">
               <SideNav />
-              <main className="min-w-0 flex-1">{children}</main>
+              <main id="main-content" className="min-w-0 flex-1">{children}</main>
             </div>
           </QuickViewProvider>
         </WishlistDrawerProvider>

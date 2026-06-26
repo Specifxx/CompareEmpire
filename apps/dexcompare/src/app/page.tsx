@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense, type ReactNode } from "react";
 import { CardTile } from "@/components/CardTile";
 import { CountryHeroToggle } from "@/components/CountryHeroToggle";
 import { HotRightNow } from "@/components/HotRightNow";
@@ -17,6 +18,10 @@ import { SETS, domainInfo, DOMAIN_KEYS } from "@/lib/constants";
 import { POKEMON_SETS } from "@/lib/pokemon-sets";
 import { Logo } from "@/components/Logo";
 import { NAV_SECTIONS } from "@/components/nav-sections";
+import { Reveal } from "@/components/Reveal";
+import { CountUp } from "@/components/CountUp";
+import { ScrollProgress } from "@/components/ScrollProgress";
+import { SearchBar } from "@/components/SearchBar";
 
 // ISR while AU-only; becomes dynamic per-request when NZ mode is enabled (getCountry
 // then reads the country cookie).
@@ -88,306 +93,327 @@ export default async function HomePage() {
     await Promise.all([getHomeData(country), getTopMovers(12, country), getTopDeals(12, country)]);
 
   return (
-    <div className="flex flex-col gap-10">
-      {/* Hero */}
-      <section className="card-surface animate-fade-up overflow-hidden">
-        <div className="relative bg-gradient-to-br from-brand-600/25 via-ink-850 to-gold/15 px-6 py-12 text-center">
-          <div className="mx-auto mb-5 flex items-center justify-center">
-            <span className="animate-float"><Logo size={76} /></span>
-          </div>
-          <h1 className="mx-auto max-w-3xl text-2xl font-extrabold text-white sm:text-4xl">
-            Compare Pokémon card prices across {info.adjective} stores
-          </h1>
-          <p className="mx-auto mt-3 max-w-2xl text-sm text-slate-400 sm:text-base">
-            Find the cheapest place to buy Pokémon TCG cards in {info.place} — live prices in{" "}
-            {info.currency} compared across {storeCount} {info.adjective} stores, updated daily.
-          </p>
-
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-            <Link href="/browse" className="btn-primary">Browse the database</Link>
+    <>
+      <ScrollProgress />
+      <div className="flex flex-col gap-10">
+        {/* ── Hero: animated aurora + count-up stats + search-forward ── */}
+        <section className="card-surface animate-fade-up relative isolate overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-brand-600/20 via-ink-850 to-gold/10" aria-hidden />
+          <div className="aurora-layer" aria-hidden>
+            <span className="aurora-blob" style={{ width: 380, height: 380, left: "6%", top: "-12%", background: "#ee1515", opacity: 0.5 }} />
+            <span className="aurora-blob" style={{ width: 440, height: 440, right: "4%", top: "-6%", background: "#ffcb05", opacity: 0.32, animationDelay: "-6s" }} />
+            <span className="aurora-blob" style={{ width: 320, height: 320, left: "42%", top: "18%", background: "#ff4d4d", opacity: 0.28, animationDelay: "-12s" }} />
           </div>
 
-          {/* Country / market toggle */}
-          <CountryHeroToggle />
-
-          {/* Stats */}
-          <div className="mx-auto mt-8 grid max-w-2xl grid-cols-2 gap-4 sm:grid-cols-4">
-            <Stat value={totalCards.toLocaleString()} label="cards" />
-            <Stat value={pricedCards.toLocaleString()} label="priced" />
-            <Stat value={inStockUnits.toLocaleString()} label="in-stock listings" />
-            <Stat value={String(storeCount)} label={`${info.code} stores`} />
-          </div>
-        </div>
-      </section>
-
-      {/* The demand magnet — what collectors are hunting right now, before
-          anything else. Curated in lib/hot.ts from live community demand. */}
-      <HotRightNow />
-
-      {/* Official partner programs — credibility strip (approved affiliates). */}
-      <Partners country={country} />
-
-      {/* New sealed arrivals — rides demand for the hottest just-released sealed
-          product. Click any item to compare its price across stores (and find the
-          cheapest resell). Replaces a single restock banner with a whole shelf. */}
-      {newSealed.length >= 3 && (
-        <section>
-          <div className="mb-4 flex items-end justify-between gap-3">
-            <div>
-              <h2 className="text-xl font-extrabold text-white">🔥 New sealed arrivals</h2>
-              <p className="mt-0.5 text-xs text-slate-500">
-                The newest booster boxes, ETBs &amp; bundles — compare every {info.adjective} store to find
-                the cheapest place to buy (or the best resale value).
-              </p>
+          <div className="relative px-6 py-14 text-center sm:py-16">
+            <div className="mx-auto mb-5 flex items-center justify-center">
+              <span className="animate-float"><Logo size={84} /></span>
             </div>
-            <Link href="/sealed" className="btn-ghost text-xs shrink-0">View all →</Link>
-          </div>
-          <div className="-mx-1 flex gap-4 overflow-x-auto px-1 pb-2">
-            {newSealed.map((g) => (
-              <div key={g.slug} className="w-40 shrink-0 sm:w-44">
-                <SealedTile group={g} currency={info.currency} />
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
 
-      {/* Today's deals — live store prices well below the TCGplayer market guide. */}
-      {deals.length >= 4 && (
-        <section>
-          <div className="mb-4 flex items-end justify-between gap-3">
-            <div>
-              <h2 className="text-xl font-extrabold text-white">🔥 Today&apos;s best deals</h2>
-              <p className="mt-0.5 text-xs text-slate-500">
-                {info.adjective} store prices sitting well below the TCGplayer market guide right now.
-              </p>
+            <div className="mx-auto mb-4 inline-flex items-center gap-2 rounded-full border border-ink-700/70 bg-ink-900/60 px-3 py-1 text-xs font-medium text-slate-300 backdrop-blur">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-pulse-ring rounded-full bg-emerald-400/70" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+              </span>
+              Live prices · updated daily
             </div>
-            <Link href="/deals" className="btn-ghost text-xs shrink-0">All deals →</Link>
-          </div>
-          <div className="-mx-1 flex gap-4 overflow-x-auto px-1 pb-2">
-            {deals.map((d) => (
-              <div key={d.card.id} className="w-36 shrink-0 sm:w-44">
-                <div className="mb-1.5 flex items-center justify-between px-1 text-xs font-bold">
-                  <span className="text-emerald-400">▼ {d.pct}%</span>
-                  <span className="text-slate-500 line-through">{formatMoney(d.guideCents, info.currency)}</span>
-                </div>
-                <CardTile card={d.card} />
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
 
-      {/* TCGplayer affiliate banner — billboard on desktop, 300x250 rectangle on
-          phones (the strongest mobile in-content unit). */}
-      <TcgplayerAd size="billboard" mobile="rect" country={country} />
-
-      {/* Recently viewed — local to this visitor; renders nothing on a first visit */}
-      <RecentlyViewed />
-
-      {/* Biggest price movers — 7-day change from the daily price snapshots, in
-          the visitor's market. Hidden until two days of that market's history exist. */}
-      {movers.length > 0 && (
-        <section>
-          <div className="mb-4 flex items-end justify-between gap-3">
-            <div>
-              <h2 className="text-xl font-extrabold text-white">Biggest price movers</h2>
-              <p className="mt-0.5 text-xs text-slate-500">
-                The sharpest rises and falls in the cheapest {info.adjective} price over the last week.
-              </p>
-            </div>
-          </div>
-          <div className="-mx-1 flex gap-4 overflow-x-auto px-1 pb-2">
-            {movers.map((m) => (
-              <div key={m.card.id} className="w-36 shrink-0 sm:w-44">
-                <div
-                  className={`mb-1.5 text-center text-xs font-bold ${
-                    m.pct > 0 ? "text-emerald-400" : "text-red-400"
-                  }`}
-                >
-                  {m.pct > 0 ? "▲" : "▼"} {Math.abs(m.pct).toFixed(1)}% this week
-                </div>
-                <CardTile card={m.card} />
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Cheapest cards — lowest live prices, showing how many stores we compare per card */}
-      <section>
-        <div className="mb-4 flex items-end justify-between gap-3">
-          <div>
-            <h2 className="text-xl font-extrabold text-white">Cheapest Pokémon cards</h2>
-            <p className="mt-0.5 text-xs text-slate-500">
-              The lowest live prices right now — we check {storeCount} {info.adjective} stores for every card so you always pay the least.
+            <h1 className="mx-auto max-w-3xl text-3xl font-extrabold tracking-tight text-white sm:text-5xl">
+              Compare{" "}
+              <span className="text-gradient animate-gradient-pan">Pokémon card prices</span>{" "}
+              across {info.adjective} stores
+            </h1>
+            <p className="mx-auto mt-3 max-w-2xl text-sm text-slate-400 sm:text-base">
+              Find the cheapest place to buy Pokémon TCG cards in {info.place} — live prices in{" "}
+              {info.currency} compared across {storeCount} {info.adjective} stores, updated daily.
             </p>
-          </div>
-          <Link href="/browse?priced=1&sort=price_asc" className="btn-ghost text-xs shrink-0">View all →</Link>
-        </div>
-        <div className="-mx-1 flex gap-4 overflow-x-auto px-1 pb-2">
-          {cheapestCards.map((c) => (
-            <div key={c.id} className="w-36 shrink-0 sm:w-44">
-              <CardTile card={c} />
-            </div>
-          ))}
-        </div>
-      </section>
 
-      {/* Most valuable cards — the chase grails, highest-first */}
-      <section>
-        <div className="mb-4 flex items-end justify-between gap-3">
-          <div>
-            <h2 className="text-xl font-extrabold text-white">Most valuable cards</h2>
-            <p className="mt-0.5 text-xs text-slate-500">
-              The biggest chase cards by market value — Charizards, alt-arts, vintage holos and more.
-            </p>
-          </div>
-          <Link href="/browse?priced=1&sort=price_desc" className="btn-ghost text-xs shrink-0">View all →</Link>
-        </div>
-        <div className="-mx-1 flex gap-4 overflow-x-auto px-1 pb-2">
-          {valuableCards.map((c) => (
-            <div key={c.id} className="w-36 shrink-0 sm:w-44">
-              <CardTile card={c} />
+            {/* Search-forward: the database is the product — let visitors dive straight in. */}
+            <div className="mx-auto mt-6 flex max-w-xl justify-center">
+              <Suspense fallback={<div className="input" />}>
+                <SearchBar />
+              </Suspense>
             </div>
-          ))}
-        </div>
-      </section>
 
-      {/* Most popular — what other collectors are looking at right now */}
-      {popularCards.length >= 4 && (
-        <section>
-          <div className="mb-4 flex items-end justify-between gap-3">
-            <div>
-              <h2 className="text-xl font-extrabold text-white">Most popular right now</h2>
-              <p className="mt-0.5 text-xs text-slate-500">
-                The cards collectors are checking most on DexCompare.
-              </p>
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+              <Link href="/browse" className="btn-primary">Browse the database</Link>
+              <Link href="/deals" className="btn-ghost">🔥 Today&apos;s deals</Link>
+            </div>
+
+            {/* Country / market toggle */}
+            <CountryHeroToggle />
+
+            {/* Stats — count up when they scroll into view */}
+            <div className="mx-auto mt-8 grid max-w-2xl grid-cols-2 gap-4 sm:grid-cols-4">
+              <HeroStat value={totalCards} label="cards" delay={0} />
+              <HeroStat value={pricedCards} label="priced" delay={80} />
+              <HeroStat value={inStockUnits} label="in-stock listings" delay={160} />
+              <HeroStat value={storeCount} label={`${info.code} stores`} delay={240} />
             </div>
           </div>
-          <div className="-mx-1 flex gap-4 overflow-x-auto px-1 pb-2">
-            {popularCards.map((c) => (
-              <div key={c.id} className="w-36 shrink-0 sm:w-44">
+        </section>
+
+        {/* The demand magnet — what collectors are hunting right now. */}
+        <Reveal><HotRightNow /></Reveal>
+
+        {/* Official partner programs — credibility strip (approved affiliates). */}
+        <Reveal><Partners country={country} /></Reveal>
+
+        {/* New sealed arrivals */}
+        {newSealed.length >= 3 && (
+          <Reveal as="section">
+            <SectionHeading
+              title="🔥 New sealed arrivals"
+              sub={`The newest booster boxes, ETBs & bundles — compare every ${info.adjective} store to find the cheapest place to buy (or the best resale value).`}
+              href="/sealed"
+              cta="View all →"
+            />
+            <Carousel>
+              {newSealed.map((g) => (
+                <div key={g.slug} className="w-40 shrink-0 snap-start sm:w-44">
+                  <SealedTile group={g} currency={info.currency} />
+                </div>
+              ))}
+            </Carousel>
+          </Reveal>
+        )}
+
+        {/* Today's deals — live store prices well below the TCGplayer market guide. */}
+        {deals.length >= 4 && (
+          <Reveal as="section">
+            <SectionHeading
+              title="🔥 Today's best deals"
+              sub={`${info.adjective} store prices sitting well below the TCGplayer market guide right now.`}
+              href="/deals"
+              cta="All deals →"
+            />
+            <Carousel>
+              {deals.map((d) => (
+                <div key={d.card.id} className="w-36 shrink-0 snap-start sm:w-44">
+                  <div className="mb-1.5 flex items-center justify-between px-1 text-xs font-bold">
+                    <span className="text-emerald-400">▼ {d.pct}%</span>
+                    <span className="text-slate-500 line-through">{formatMoney(d.guideCents, info.currency)}</span>
+                  </div>
+                  <CardTile card={d.card} />
+                </div>
+              ))}
+            </Carousel>
+          </Reveal>
+        )}
+
+        {/* TCGplayer affiliate banner */}
+        <TcgplayerAd size="billboard" mobile="rect" country={country} />
+
+        {/* Recently viewed — local to this visitor; renders nothing on a first visit */}
+        <RecentlyViewed />
+
+        {/* Biggest price movers */}
+        {movers.length > 0 && (
+          <Reveal as="section">
+            <SectionHeading
+              title="📈 Biggest price movers"
+              sub={`The sharpest rises and falls in the cheapest ${info.adjective} price over the last week.`}
+            />
+            <Carousel>
+              {movers.map((m) => (
+                <div key={m.card.id} className="w-36 shrink-0 snap-start sm:w-44">
+                  <div className={`mb-1.5 text-center text-xs font-bold ${m.pct > 0 ? "text-emerald-400" : "text-red-400"}`}>
+                    {m.pct > 0 ? "▲" : "▼"} {Math.abs(m.pct).toFixed(1)}% this week
+                  </div>
+                  <CardTile card={m.card} />
+                </div>
+              ))}
+            </Carousel>
+          </Reveal>
+        )}
+
+        {/* Cheapest cards */}
+        <Reveal as="section">
+          <SectionHeading
+            title="💸 Cheapest Pokémon cards"
+            sub={`The lowest live prices right now — we check ${storeCount} ${info.adjective} stores for every card so you always pay the least.`}
+            href="/browse?priced=1&sort=price_asc"
+            cta="View all →"
+          />
+          <Carousel>
+            {cheapestCards.map((c) => (
+              <div key={c.id} className="w-36 shrink-0 snap-start sm:w-44">
                 <CardTile card={c} />
               </div>
             ))}
-          </div>
-        </section>
-      )}
+          </Carousel>
+        </Reveal>
 
-      {/* Second TCGplayer banner — far enough from the first that it never
-          shares a viewport with it. */}
-      <TcgplayerAd size="leaderboard" country={country} />
-
-      {/* Browse by set — newest first, horizontal sliding window. Full list on /sets. */}
-      <section>
-        <div className="mb-4 flex items-center justify-between gap-3">
-          <h2 className="text-xl font-extrabold text-white">Browse by set</h2>
-          <Link href="/sets" className="btn-ghost text-xs shrink-0">View all {SETS.length} sets →</Link>
-        </div>
-        <div className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-2">
-          {POKEMON_SETS.slice(0, 24).map((s) => (
-            <Link
-              key={s.code}
-              href={`/sets/${s.slug}`}
-              className="card-surface group flex w-40 shrink-0 flex-col items-center gap-2 p-4 transition-colors hover:border-brand-500"
-            >
-              <div className="flex h-14 w-full items-center justify-center">
-                {s.logo ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={s.logo} alt={s.name} loading="lazy" className="max-h-14 max-w-full object-contain transition-transform group-hover:scale-105" />
-                ) : (
-                  <span className="text-lg font-bold text-white">{s.code.toUpperCase()}</span>
-                )}
+        {/* Most valuable cards */}
+        <Reveal as="section">
+          <SectionHeading
+            title="💎 Most valuable cards"
+            sub="The biggest chase cards by market value — Charizards, alt-arts, vintage holos and more."
+            href="/browse?priced=1&sort=price_desc"
+            cta="View all →"
+          />
+          <Carousel>
+            {valuableCards.map((c) => (
+              <div key={c.id} className="w-36 shrink-0 snap-start sm:w-44">
+                <CardTile card={c} />
               </div>
-              <span className="line-clamp-1 text-center text-xs text-slate-400">{s.name}</span>
-            </Link>
-          ))}
-        </div>
-      </section>
+            ))}
+          </Carousel>
+        </Reveal>
 
-      {/* Browse by energy type */}
-      <section>
-        <h2 className="mb-4 text-xl font-extrabold text-white">Browse by energy type</h2>
-        <div className="flex flex-wrap gap-2">
-          {DOMAIN_KEYS.map((k) => {
-            const d = domainInfo(k);
-            return (
-              <Link
-                key={k}
-                href={`/browse?domain=${k}`}
-                className="chip border border-ink-700 px-3 py-1.5 text-sm hover:border-brand-500"
-                style={{ color: d.color }}
-              >
-                <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: d.color }} />
-                {d.label}
-              </Link>
-            );
-          })}
-        </div>
-      </section>
+        {/* Most popular */}
+        {popularCards.length >= 4 && (
+          <Reveal as="section">
+            <SectionHeading title="🔎 Most popular right now" sub="The cards collectors are checking most on DexCompare." />
+            <Carousel>
+              {popularCards.map((c) => (
+                <div key={c.id} className="w-36 shrink-0 snap-start sm:w-44">
+                  <CardTile card={c} />
+                </div>
+              ))}
+            </Carousel>
+          </Reveal>
+        )}
 
-      {/* Tools & community — surface the account/tools features beyond the price DB */}
-      <section>
-        <h2 className="mb-4 text-xl font-extrabold text-white">Tools &amp; community</h2>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-          {NAV_SECTIONS.filter((s) => s.label === "My stuff" || s.label === "Play & tools")
-            .flatMap((s) => s.links)
-            .map((l) => (
+        {/* Second TCGplayer banner */}
+        <TcgplayerAd size="leaderboard" country={country} />
+
+        {/* Browse by set */}
+        <Reveal as="section">
+          <SectionHeading title="🗂️ Browse by set" href="/sets" cta={`View all ${SETS.length} sets →`} />
+          <Carousel gap="gap-3">
+            {POKEMON_SETS.slice(0, 24).map((s) => (
               <Link
-                key={l.href}
-                href={l.href}
-                className="card-surface flex items-center gap-3 p-4 transition-colors hover:border-brand-500"
+                key={s.code}
+                href={`/sets/${s.slug}`}
+                className="card-surface lift group flex w-40 shrink-0 snap-start flex-col items-center gap-2 p-4"
               >
-                <span className="text-2xl" aria-hidden>{l.icon}</span>
-                <span className="font-semibold text-white">{l.label}</span>
+                <div className="flex h-14 w-full items-center justify-center">
+                  {s.logo ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={s.logo} alt={s.name} loading="lazy" className="max-h-14 max-w-full object-contain transition-transform group-hover:scale-105" />
+                  ) : (
+                    <span className="text-lg font-bold text-white">{s.code.toUpperCase()}</span>
+                  )}
+                </div>
+                <span className="line-clamp-1 text-center text-xs text-slate-400">{s.name}</span>
               </Link>
             ))}
-        </div>
-      </section>
+          </Carousel>
+        </Reveal>
 
-      {/* About + FAQ — keyword-relevant content for search */}
-      <section className="card-surface p-6">
-        <h2 className="text-xl font-extrabold text-white">Pokémon prices in {info.place}, all in one place</h2>
-        <p className="mt-2 max-w-3xl text-sm leading-relaxed text-slate-400">
-          DexCompare is a free, independent price-comparison tool for the Pokémon Trading Card
-          Game, built for {info.adjective} collectors and players. We track live prices for every Pokémon card across
-          {" "}{info.adjective} stores{ebay ? ` and ${ebay}` : ""} so you can buy Pokémon cards in {info.place} for
-          less — find the cheapest store for any single, fast.
-        </p>
-        <div className="mt-6 grid gap-5 sm:grid-cols-2">
-          {faqs.map((f) => (
-            <div key={f.q}>
-              <h3 className="font-semibold text-white">{f.q}</h3>
-              <p className="mt-1 text-sm leading-relaxed text-slate-400">{f.a}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+        {/* Browse by energy type */}
+        <Reveal as="section">
+          <h2 className="mb-4 text-xl font-extrabold text-white sm:text-2xl">⚡ Browse by energy type</h2>
+          <div className="flex flex-wrap gap-2">
+            {DOMAIN_KEYS.map((k, i) => {
+              const d = domainInfo(k);
+              return (
+                <Reveal key={k} delay={i * 50}>
+                  <Link
+                    href={`/browse?domain=${k}`}
+                    className="chip border border-ink-700 px-3 py-1.5 text-sm outline-none transition-colors hover:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-400"
+                    style={{ color: d.color }}
+                  >
+                    <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: d.color }} />
+                    {d.label}
+                  </Link>
+                </Reveal>
+              );
+            })}
+          </div>
+        </Reveal>
 
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "FAQPage",
-            mainEntity: faqs.map((f) => ({
-              "@type": "Question",
-              name: f.q,
-              acceptedAnswer: { "@type": "Answer", text: f.a },
-            })),
-          }),
-        }}
-      />
+        {/* Tools & community */}
+        <Reveal as="section">
+          <h2 className="mb-4 text-xl font-extrabold text-white sm:text-2xl">🧰 Tools &amp; community</h2>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            {NAV_SECTIONS.filter((s) => s.label === "My stuff" || s.label === "Play & tools")
+              .flatMap((s) => s.links)
+              .map((l, i) => (
+                <Reveal key={l.href} delay={i * 50}>
+                  <Link href={l.href} className="card-surface lift flex items-center gap-3 p-4">
+                    <span className="text-2xl" aria-hidden>{l.icon}</span>
+                    <span className="font-semibold text-white">{l.label}</span>
+                  </Link>
+                </Reveal>
+              ))}
+          </div>
+        </Reveal>
+
+        {/* About + FAQ */}
+        <Reveal as="section" className="card-surface p-6">
+          <h2 className="text-xl font-extrabold text-white sm:text-2xl">Pokémon prices in {info.place}, all in one place</h2>
+          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-slate-400">
+            DexCompare is a free, independent price-comparison tool for the Pokémon Trading Card
+            Game, built for {info.adjective} collectors and players. We track live prices for every Pokémon card across
+            {" "}{info.adjective} stores{ebay ? ` and ${ebay}` : ""} so you can buy Pokémon cards in {info.place} for
+            less — find the cheapest store for any single, fast.
+          </p>
+          <div className="mt-6 grid gap-5 sm:grid-cols-2">
+            {faqs.map((f) => (
+              <div key={f.q}>
+                <h3 className="font-semibold text-white">{f.q}</h3>
+                <p className="mt-1 text-sm leading-relaxed text-slate-400">{f.a}</p>
+              </div>
+            ))}
+          </div>
+        </Reveal>
+
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              mainEntity: faqs.map((f) => ({
+                "@type": "Question",
+                name: f.q,
+                acceptedAnswer: { "@type": "Answer", text: f.a },
+              })),
+            }),
+          }}
+        />
+      </div>
+    </>
+  );
+}
+
+// Hero stat tile with a scroll-triggered count-up.
+function HeroStat({ value, label, delay }: { value: number; label: string; delay: number }) {
+  return (
+    <Reveal delay={delay} zoom className="rounded-xl border border-ink-700/60 bg-ink-900/70 p-3">
+      <div className="text-xl font-extrabold text-gold sm:text-2xl">
+        <CountUp value={value} />
+      </div>
+      <div className="text-xs uppercase tracking-wide text-slate-400">{label}</div>
+    </Reveal>
+  );
+}
+
+// Consistent section header with an accent bar + optional "view all" link.
+function SectionHeading({ title, sub, href, cta }: { title: string; sub?: string; href?: string; cta?: string }) {
+  return (
+    <div className="mb-4 flex items-end justify-between gap-3">
+      <div className="min-w-0">
+        <h2 className="flex items-center gap-2 text-xl font-extrabold text-white sm:text-2xl">
+          <span className="h-5 w-1 rounded-full bg-gradient-to-b from-brand-400 to-gold" aria-hidden />
+          {title}
+        </h2>
+        {sub && <p className="mt-1 text-xs text-slate-400">{sub}</p>}
+      </div>
+      {href && cta && (
+        <Link href={href} className="btn-ghost shrink-0 text-xs">{cta}</Link>
+      )}
     </div>
   );
 }
 
-function Stat({ value, label }: { value: string; label: string }) {
+// Horizontal snap carousel with faded scroll edges.
+function Carousel({ children, gap = "gap-4" }: { children: ReactNode; gap?: string }) {
   return (
-    <div className="rounded-lg bg-ink-900/70 p-3">
-      <div className="text-xl font-extrabold text-gold">{value}</div>
-      <div className="text-xs uppercase tracking-wide text-slate-500">{label}</div>
+    <div className={`edge-fade snap-x-mandatory -mx-1 flex ${gap} overflow-x-auto px-1 pb-2`}>
+      {children}
     </div>
   );
 }

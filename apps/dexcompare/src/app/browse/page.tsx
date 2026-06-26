@@ -8,6 +8,7 @@ import { CardTile } from "@/components/CardTile";
 import { Pagination } from "@/components/Pagination";
 import { PageSizeSelect } from "@/components/PageSizeSelect";
 import { AdSlot } from "@/components/AdSlot";
+import { BrowseHint } from "@/components/BrowseHint";
 import {
   buildCardOrderBy,
   buildCardWhere,
@@ -102,6 +103,8 @@ export default async function BrowsePage({ searchParams }: { searchParams: CardQ
         </div>
 
         <ActiveFilters />
+
+        <BrowseHint />
 
         {cards.length === 0 ? (
           <div className="card-surface grid place-items-center p-16 text-center">

@@ -88,9 +88,15 @@ export function SearchBar() {
             setOpen(true);
           }}
           onFocus={() => setOpen(true)}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") setOpen(false);
+          }}
           placeholder="Search Pokémon, cards, sets…"
           className="input pl-9"
           aria-label="Search Pokémon cards"
+          role="combobox"
+          aria-expanded={showDropdown}
+          aria-controls="search-results"
           autoComplete="off"
           enterKeyHint="search"
         />
@@ -103,7 +109,7 @@ export function SearchBar() {
               {loading ? "Searching…" : "No matches — press Enter to search anyway."}
             </div>
           ) : (
-            <ul className="max-h-[70vh] overflow-y-auto py-1">
+            <ul id="search-results" role="listbox" className="max-h-[70vh] overflow-y-auto py-1">
               {results.map((r) => (
                 <li key={r.id}>
                   <Link
@@ -125,7 +131,7 @@ export function SearchBar() {
                     <div className="h-12 w-9 shrink-0 overflow-hidden rounded bg-ink-900">
                       {r.imageThumbUrl && (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={r.imageThumbUrl} alt="" className="h-full w-full object-cover" loading="lazy" />
+                        <img src={r.imageThumbUrl} alt={`${r.name} (${r.setCode})`} className="h-full w-full object-cover" loading="lazy" />
                       )}
                     </div>
                     <div className="min-w-0 flex-1">

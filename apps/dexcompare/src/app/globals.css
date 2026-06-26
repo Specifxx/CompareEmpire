@@ -6,6 +6,10 @@
   color-scheme: dark;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 html,
 body {
   background-color: #0b0e14;
@@ -121,6 +125,7 @@ h1, h2, h3 {
   }
   .btn {
     @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-all duration-150 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50;
+    @apply outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2 focus-visible:ring-offset-ink-950;
   }
   .btn-primary {
     @apply btn bg-gradient-to-br from-brand-400 to-brand-600 text-white shadow-glow hover:brightness-110;
@@ -135,9 +140,74 @@ h1, h2, h3 {
     @apply w-full rounded-xl border border-ink-700 bg-ink-900 px-3 py-2 text-base text-slate-100 placeholder:text-slate-500 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/40 sm:text-sm;
   }
   .card-surface {
-    @apply rounded-2xl border border-ink-700/70 bg-ink-850 shadow-card;
+    @apply rounded-2xl border border-ink-700/70 bg-gradient-to-b from-ink-850 to-ink-900 shadow-card-lg transition-[transform,box-shadow,border-color] duration-200;
   }
   .chip {
     @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium;
   }
+  /* Interactive lift for tappable surfaces (tiles, link cards). */
+  .lift {
+    @apply transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-1 hover:shadow-glow-lg hover:border-brand-500/60;
+  }
+  /* Skip-to-content link: visually hidden until keyboard-focused. */
+  .skip-link {
+    @apply sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-brand-500 focus:px-4 focus:py-2 focus:font-semibold focus:text-white focus:shadow-glow;
+  }
+  /* Animated gradient text for hero accents. */
+  .text-gradient {
+    @apply bg-gradient-to-r from-brand-400 via-accent to-gold bg-clip-text text-transparent;
+    background-size: 200% auto;
+  }
+}
+
+/* ── Motion layer: scroll reveals, aurora, edge-fades, skeletons ──
+   All gated on `html.js` so non-JS visitors and crawlers see fully-visible,
+   non-animated content (no FOUC, no hidden text for SEO). */
+.js .reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+.js .reveal-zoom { transform: translateY(24px) scale(0.97); }
+.js .reveal.in-view { opacity: 1; transform: none; }
+
+/* Aurora blobs for the hero background (pure CSS, transform/opacity only). */
+.aurora-layer { position: absolute; inset: -20% -10% auto -10%; height: 140%; pointer-events: none; filter: blur(60px); }
+.aurora-blob { position: absolute; border-radius: 9999px; mix-blend-mode: screen; animation: aurora 18s ease-in-out infinite; }
+
+/* Horizontal carousels: fade the scroll edges so cut-off tiles look intentional. */
+.edge-fade {
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 24px, #000 calc(100% - 24px), transparent);
+  mask-image: linear-gradient(to right, transparent, #000 24px, #000 calc(100% - 24px), transparent);
+}
+.snap-x-mandatory { scroll-snap-type: x mandatory; }
+.snap-start { scroll-snap-align: start; }
+
+/* Skeleton shimmer block. */
+.skeleton { position: relative; overflow: hidden; background-color: #191e28; }
+.skeleton::after {
+  content: ""; position: absolute; inset: 0; transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
+  animation: shimmer 1.6s infinite;
+}
+
+/* Card micro-interaction: subtle shine sweep on hover. */
+.shine { position: relative; overflow: hidden; }
+.shine::before {
+  content: ""; position: absolute; top: 0; left: -75%; width: 50%; height: 100%;
+  background: linear-gradient(115deg, transparent, rgba(255,255,255,0.12), transparent);
+  transform: skewX(-20deg); transition: left 0.6s ease; pointer-events: none;
+}
+.group:hover .shine::before, .shine:hover::before { left: 125%; }
+
+/* Respect reduced motion: neutralize ALL custom motion. */
+@media (prefers-reduced-motion: reduce) {
+  .js .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .aurora-blob,
+  .animate-aurora, .animate-float, .animate-gradient-pan, .animate-shimmer, .animate-pulse-ring,
+  .skeleton::after, .shine::before { animation: none !important; }
+  .text-gradient { background-position: 0 0 !important; }
+  html { scroll-behavior: auto !important; }
 }
