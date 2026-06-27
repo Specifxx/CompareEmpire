@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { SearchBar } from "./SearchBar";
 import { NavWishlistButton } from "./NavWishlistButton";
 import { MobileNav } from "./MobileNav";
-import { NavMenu } from "./NavMenu";
+import { NavLauncherButton } from "./NavLauncherButton";
 import { CountrySwitcher } from "./CountrySwitcher";
 import { Logo } from "./Logo";
 import { UserMenu } from "./UserMenu";
@@ -46,7 +46,7 @@ export async function Navbar() {
             Deals
           </Link>
           <div className="hidden lg:block xl:hidden">
-            <NavMenu />
+            <NavLauncherButton compact />
           </div>
           <CountrySwitcher className="ml-1" />
           <NavWishlistButton />

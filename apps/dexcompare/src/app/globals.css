@@ -202,12 +202,31 @@ h1, h2, h3 {
 }
 .group:hover .shine::before, .shine:hover::before { left: 125%; }
 
+/* ── Cinematic full-screen menu ── */
+/* Slow "ken burns" drift for the blurred background montage. */
+@keyframes ken-burns {
+  0% { transform: scale(1.08) translate3d(0, 0, 0); }
+  100% { transform: scale(1.22) translate3d(-2.5%, -2.5%, 0); }
+}
+.kenburns { animation: ken-burns 26s ease-in-out infinite alternate; }
+/* Staggered entrance for menu items — tied to the `.cine-open` state (not mount),
+   so it plays each time the overlay opens. Delay is injected per item. */
+.cine-item {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--cine-delay, 0ms);
+}
+.cine-open .cine-item { opacity: 1; transform: none; }
+
 /* Respect reduced motion: neutralize ALL custom motion. */
 @media (prefers-reduced-motion: reduce) {
   .js .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
   .aurora-blob,
   .animate-aurora, .animate-float, .animate-gradient-pan, .animate-shimmer, .animate-pulse-ring,
   .skeleton::after, .shine::before { animation: none !important; }
+  .kenburns { animation: none !important; }
+  .cine-item { opacity: 1 !important; transform: none !important; transition: none !important; }
   .text-gradient { background-position: 0 0 !important; }
   html { scroll-behavior: auto !important; }
 }

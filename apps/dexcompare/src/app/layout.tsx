@@ -12,6 +12,7 @@ import { QuickViewProvider } from "@/components/QuickView";
 import { WishlistDrawerProvider } from "@/components/WishlistDrawer";
 import { CountryProvider } from "@/components/CountryProvider";
 import { PriceAlertModal } from "@/components/PriceAlertModal";
+import { MegaMenuProvider } from "@/components/MegaMenuProvider";
 import { SovrnSnippet } from "@/components/SovrnSnippet";
 import { HilltopAdsLoader } from "@/components/HilltopAdsLoader";
 import { TcgplayerAd } from "@/components/TcgplayerAd";
@@ -121,6 +122,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <a href="#main-content" className="skip-link">Skip to content</a>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }} />
         <CountryProvider initial={country}>
+        <MegaMenuProvider>
         <WishlistDrawerProvider>
           <QuickViewProvider>
             <Navbar />
@@ -134,6 +136,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </QuickViewProvider>
         </WishlistDrawerProvider>
         <PriceAlertModal />
+        </MegaMenuProvider>
         </CountryProvider>
         <SovrnSnippet />
         {/* HilltopAds zone loader — the primary ad network, injected site-wide. */}

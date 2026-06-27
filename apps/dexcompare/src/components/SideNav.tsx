@@ -1,29 +1,57 @@
-import Link from "next/link";
-import { NAV_SECTIONS } from "./nav-sections";
+"use client";
 
-// Persistent desktop rail (xl+): the whole site visible at first glance — user
-// feedback: "should be side tabs… you should see most of what the site offers
-// without clicking". Same shared sections as the phone sheet and the Menu.
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { NAV_SECTIONS } from "./nav-sections";
+import { NavLauncherButton } from "./NavLauncherButton";
+
+// Persistent desktop rail (xl+): the whole site visible at first glance. Restyled
+// with an active-page indicator, hover motion, and an "Explore everything"
+// launcher that opens the full-screen cinematic menu. Same shared NAV_SECTIONS as
+// the phone sheet and the cinematic overlay.
 export function SideNav() {
+  const pathname = usePathname();
   return (
     <aside className="hidden w-52 shrink-0 xl:block">
-      <nav className="sticky top-20 space-y-4 pb-8">
-        {NAV_SECTIONS.map((s) => (
-          <div key={s.label}>
-            <div className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-wide text-slate-500">{s.label}</div>
-            <ul className="space-y-0.5">
-              {s.links.map((l) => (
-                <li key={l.href}>
-                  <Link href={l.href} className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-[13px] font-medium text-slate-300 hover:bg-ink-800 hover:text-white">
-                    <span className="text-sm leading-none" aria-hidden>{l.icon}</span>
-                    {l.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </nav>
+      <div className="sticky top-20 space-y-4 pb-8">
+        <NavLauncherButton />
+
+        <nav className="space-y-4">
+          {NAV_SECTIONS.map((s) => (
+            <div key={s.label}>
+              <div className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-wide text-slate-500">{s.label}</div>
+              <ul className="space-y-0.5">
+                {s.links.map((l) => {
+                  const active = pathname === l.href || (l.href !== "/" && pathname.startsWith(l.href));
+                  return (
+                    <li key={l.href}>
+                      <Link
+                        href={l.href}
+                        aria-current={active ? "page" : undefined}
+                        className={`group relative flex items-center gap-2 rounded-lg py-1.5 pl-3 pr-2 text-[13px] font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand-400 ${
+                          active
+                            ? "bg-brand-500/15 text-white shadow-glow"
+                            : "text-slate-300 hover:bg-ink-800 hover:text-white"
+                        }`}
+                      >
+                        {/* Active accent bar */}
+                        <span
+                          className={`absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-full bg-gradient-to-b from-brand-400 to-gold transition-opacity ${
+                            active ? "opacity-100" : "opacity-0"
+                          }`}
+                          aria-hidden
+                        />
+                        <span className="text-sm leading-none transition-transform group-hover:scale-110" aria-hidden>{l.icon}</span>
+                        <span className="transition-transform group-hover:translate-x-0.5">{l.label}</span>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
+        </nav>
+      </div>
     </aside>
   );
 }
