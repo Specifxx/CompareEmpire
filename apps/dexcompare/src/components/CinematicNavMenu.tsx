@@ -76,14 +76,16 @@ export function CinematicNavMenu() {
         className={`absolute inset-0 bg-ink-950 transition-opacity duration-300 ${open ? "opacity-100" : "opacity-0"}`}
       />
 
-      {/* Vibrant glow orbs that light the solid backdrop (glow, not transparency). */}
-      <div className="absolute inset-0 overflow-hidden" aria-hidden>
-        <div className="aurora-layer">
-          <span className="aurora-blob" style={{ width: 480, height: 480, left: "4%", top: "-10%", background: "#ee1515", opacity: 0.6 }} />
-          <span className="aurora-blob" style={{ width: 520, height: 520, right: "2%", top: "-6%", background: "#ffcb05", opacity: 0.45, animationDelay: "-7s" }} />
-          <span className="aurora-blob" style={{ width: 420, height: 420, left: "38%", bottom: "-12%", background: "#38bdf8", opacity: 0.35, animationDelay: "-13s" }} />
-        </div>
-      </div>
+      {/* One big glow radiating FROM the centre panel, washing the whole width
+          (left + right) — not discrete orbs on the sides. */}
+      <div
+        aria-hidden
+        className={`absolute inset-0 transition-opacity duration-500 ${open ? "opacity-100" : "opacity-0"}`}
+        style={{
+          background:
+            "radial-gradient(125% 95% at 50% 47%, rgba(238,21,21,0.50) 0%, rgba(255,113,67,0.30) 20%, rgba(255,203,5,0.14) 42%, rgba(10,12,16,0) 70%)",
+        }}
+      />
 
       {/* Content (click empty space to close) */}
       <div

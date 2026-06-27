@@ -45,9 +45,7 @@ export async function Navbar() {
           <Link href="/deals" className="hidden rounded-lg px-2.5 py-2 text-sm font-medium text-gold outline-none transition-colors hover:bg-ink-800 hover:brightness-110 focus-visible:ring-2 focus-visible:ring-brand-400 md:block">
             Deals
           </Link>
-          <div className="hidden lg:block xl:hidden">
-            <NavLauncherButton compact />
-          </div>
+          <NavLauncherButton compact className="ml-1 hidden lg:inline-flex" />
           <CountrySwitcher className="ml-1" />
           <NavWishlistButton />
           <UserMenu

@@ -3,19 +3,18 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { NAV_SECTIONS } from "./nav-sections";
-import { NavLauncherButton } from "./NavLauncherButton";
 
 // Persistent desktop rail (xl+): the whole site visible at first glance. Restyled
-// with an active-page indicator, hover motion, and an "Explore everything"
-// launcher that opens the full-screen cinematic menu. Same shared NAV_SECTIONS as
-// the phone sheet and the cinematic overlay.
+// with an active-page indicator and hover motion. Same shared NAV_SECTIONS as the
+// phone sheet and the cinematic overlay. Hidden on the homepage so the grid-first
+// marketplace gets the full width (nav there lives in the top bar + ⌘K launcher
+// and the on-page "Shop by collection" tiles).
 export function SideNav() {
   const pathname = usePathname();
+  if (pathname === "/") return null;
   return (
     <aside className="hidden w-52 shrink-0 xl:block">
       <div className="sticky top-20 space-y-4 pb-8">
-        <NavLauncherButton />
-
         <nav className="space-y-4">
           {NAV_SECTIONS.map((s) => (
             <div key={s.label}>
