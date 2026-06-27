@@ -2,6 +2,8 @@
 
 Newest first. Each entry: what · why · commit.
 
+- /browse: added FAQ section (4 Q&As: which sets are in the database, how to find the cheapest price, why the same Pokémon appears multiple times, and how often prices update) + FAQPage JSON-LD; gated to canonical unfiltered page 1 only · SEO rich-result eligibility on the main card database landing page — the highest-traffic page on the site, which was the last major page without FAQ markup · (this commit)
+
 - Accessibility: PriceAlertModal now has a full keyboard focus trap (Tab cycles forward, Shift+Tab backward through all focusable elements inside the modal; Escape still closes; body scroll locked while open; `role="dialog"` moved to the modal panel, not the backdrop wrapper) · completes WCAG 2.1 SC 2.1.2 (No Keyboard Trap) for both dialogs — WishlistDrawer was done last run; PriceAlertModal was the remaining gap · (this commit)
 
 - Accessibility: WishlistDrawer now has a full keyboard focus trap — Tab cycles forward through all focusable elements in the drawer, Shift+Tab cycles backward; focus never escapes to the page behind the dialog · completes the dialog accessibility work started two runs ago; required for WCAG 2.1 SC 2.1.2 (No Keyboard Trap) · (this commit)

@@ -57,31 +57,47 @@ export default async function BrowsePage({ searchParams }: { searchParams: CardQ
   // Structured data only on the canonical, unfiltered first page (filtered/search
   // permutations are noindex — see generateMetadata).
   const isFiltered = Boolean(searchParams.q || searchParams.domain || searchParams.rarity || searchParams.type || searchParams.set);
-  const itemListJsonLd =
-    !isFiltered && page === 1
-      ? {
-          "@context": "https://schema.org",
-          "@type": "CollectionPage",
-          name: "Pokémon Card Database",
-          url: `${SITE_URL}/browse`,
-          description: "Every Pokémon TCG card with live prices compared across stores.",
-          isPartOf: { "@type": "WebSite", name: "DexCompare", url: SITE_URL },
-          mainEntity: {
-            "@type": "ItemList",
-            itemListElement: cards.slice(0, 24).map((c, i) => ({
-              "@type": "ListItem",
-              position: i + 1,
-              url: `${SITE_URL}/card/${c.slug ?? c.id}`,
-              name: c.name,
-            })),
-          },
-        }
-      : null;
+  const isCanonical = !isFiltered && page === 1;
+  const itemListJsonLd = isCanonical
+    ? {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        name: "Pokémon Card Database",
+        url: `${SITE_URL}/browse`,
+        description: "Every Pokémon TCG card with live prices compared across stores.",
+        isPartOf: { "@type": "WebSite", name: "DexCompare", url: SITE_URL },
+        mainEntity: {
+          "@type": "ItemList",
+          itemListElement: cards.slice(0, 24).map((c, i) => ({
+            "@type": "ListItem",
+            position: i + 1,
+            url: `${SITE_URL}/card/${c.slug ?? c.id}`,
+            name: c.name,
+          })),
+        },
+      }
+    : null;
+
+  const faqJsonLd = isCanonical
+    ? {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        url: `${SITE_URL}/browse`,
+        mainEntity: BROWSE_FAQS.map((f) => ({
+          "@type": "Question",
+          name: f.q,
+          acceptedAnswer: { "@type": "Answer", text: f.a },
+        })),
+      }
+    : null;
 
   return (
     <div className="flex flex-col gap-6 lg:flex-row">
       {itemListJsonLd && (
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }} />
+      )}
+      {faqJsonLd && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
       )}
       <Filters />
 
@@ -92,7 +108,7 @@ export default async function BrowsePage({ searchParams }: { searchParams: CardQ
             <span className="font-semibold text-white">{total.toLocaleString()}</span>{" "}
             {total === 1 ? "card" : "cards"}
             {searchParams.q && (
-              <> for <span className="text-brand-400">“{searchParams.q}”</span></>
+              <> for <span className="text-brand-400">"{searchParams.q}"</span></>
             )}
             {total > 0 && <span className="text-slate-600"> · page {page} of {totalPages}</span>}
           </p>
@@ -126,7 +142,43 @@ export default async function BrowsePage({ searchParams }: { searchParams: CardQ
             <Pagination page={page} totalPages={totalPages} params={searchParams as Record<string, string | undefined>} />
           </>
         )}
+
+        {/* FAQ — canonical page only; answers real buyer questions and enables
+            FAQPage rich results for the database's highest-traffic landing page. */}
+        {isCanonical && (
+          <section className="card-surface mt-8 divide-y divide-ink-700 overflow-hidden">
+            <h2 className="px-6 py-4 text-lg font-extrabold text-white">Frequently asked questions</h2>
+            {BROWSE_FAQS.map((f) => (
+              <details key={f.q} className="group px-6 py-4">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-semibold text-slate-200 hover:text-white">
+                  {f.q}
+                  <span className="shrink-0 text-slate-500 transition-transform group-open:rotate-180" aria-hidden>▾</span>
+                </summary>
+                <p className="mt-3 text-sm leading-relaxed text-slate-400">{f.a}</p>
+              </details>
+            ))}
+          </section>
+        )}
       </section>
     </div>
   );
 }
+
+const BROWSE_FAQS = [
+  {
+    q: "Which Pokémon card sets are in the database?",
+    a: "The database covers all major English-language Pokémon TCG sets — Scarlet & Violet, Sword & Shield, Sun & Moon, XY, and older eras — plus promos, special releases, and regional variants. New sets are added as cards are listed by the stores we track.",
+  },
+  {
+    q: "How do I find the cheapest price for a specific Pokémon card?",
+    a: "Search for the card by name using the search bar, then open its card page. The price table lists every store's current live price sorted by total delivered cost — card price plus postage — so the best deal is always at the top. You can also add the card to your wishlist and receive an email when its price drops.",
+  },
+  {
+    q: "Why does the same Pokémon appear more than once in the database?",
+    a: "A single Pokémon like Charizard or Pikachu can appear in dozens of different sets and promos, each with its own artwork, collector number, rarity, and price. DexCompare tracks every printing separately so you can compare them and find the one that fits your collection or budget — sometimes a reprint is far cheaper than the original.",
+  },
+  {
+    q: "How often are card prices updated?",
+    a: "Prices refresh daily. Our crawlers check each store's live listings once every 24 hours, so the comparison always reflects the most recent data from each retailer. Stock levels and prices can change between our update and when you visit, so always confirm the final total at checkout before buying.",
+  },
+];
