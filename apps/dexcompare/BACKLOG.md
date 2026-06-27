@@ -21,7 +21,7 @@ Checked-and-skipped or deferred, so iterations don't re-evaluate blindly.
 ## Candidate safe wins (code-only) to pick from next
 - Per-card meta description enrichment (rarity + lowest price) — verify it's not already rich enough first.
 - Trust/urgency: surface the existing 7-day price change as a pill near the card headline + a small sparkline (data already in PriceHistory).
-- Card-page comparison: highlight the cheapest-delivered row / "best total" tag.
+- Card-page comparison: highlight the cheapest-delivered row / "best total" tag. — DONE (this run)
 - Accessibility sweep: focus traps on WishlistDrawer/PriceAlertModal, alt text audits, heading order.
 - Per-route FAQ JSON-LD on `/sealed` — DONE. `/sets/[set]` — DONE. Next candidate: `/stores` or `/browse` page.
 - `error.tsx` boundaries (global + route) for graceful DB-down fallback.

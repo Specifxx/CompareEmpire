@@ -506,6 +506,8 @@ export default async function CardPage({ params }: { params: { id: string } }) {
                     key={p.id}
                     data-foreign={p.foreign ? "true" : undefined}
                     className={`flex flex-wrap items-center gap-x-3 gap-y-2 p-3 hover:bg-ink-900/50 sm:flex-nowrap sm:p-4${
+                      i === 0 && prices.length > 1 ? " bg-emerald-500/[0.04]" : ""
+                    }${
                       Date.now() - p.lastSeen.getTime() > 21 * 86_400_000 ? " opacity-60" : ""
                     }`}
                   >
@@ -513,6 +515,9 @@ export default async function CardPage({ params }: { params: { id: string } }) {
                     <div className="min-w-0 flex-1">
                       <div className="truncate font-semibold text-white">{p.retailerName}</div>
                       <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-500">
+                        {i === 0 && prices.length > 1 && (
+                          <span className="chip bg-emerald-500/15 font-semibold text-emerald-400">✓ Best deal</span>
+                        )}
                         {p.isFoil && <span className="chip bg-gold/15 font-semibold text-gold">✦ Foil</span>}
                         {p.condition && <span className="chip bg-ink-800 text-slate-300">{p.condition}</span>}
                         <span className="text-brand-400">● In stock</span>
