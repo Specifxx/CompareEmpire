@@ -516,6 +516,119 @@ Put together, one Pokémon in one set can exist as: plain, reverse holo, holo, p
 4. **Shiny frame vs shiny art** → reverse vs holo.
 5. **Then [look the exact printing up](/browse)** — the market settles the rest.`,
   },
+  {
+    slug: "pokemon-sealed-products-explained",
+    category: "guide",
+    title: "Pokémon TCG Sealed Products Explained — Booster Boxes, ETBs, Tins & More",
+    excerpt:
+      "What's actually in a Booster Box vs an Elite Trainer Box vs a tin? How many packs, what extras, and which format to buy for your goal — a plain-English breakdown of every Pokémon sealed product type.",
+    author: "DexCompare",
+    date: "2026-06-27",
+    readMins: 7,
+    tags: ["sealed", "booster box", "ETB", "buying", "beginners"],
+    body: `Walk into any game store or scroll any retailer and you'll see a wall of Pokémon sealed product — Booster Boxes, Elite Trainer Boxes, tins, blisters, Premium Collections and more. They all look impressive. They're all priced very differently. Here's exactly what's inside each one and when it makes sense to buy it.
+
+## The products, explained one by one
+
+### Booster Box
+
+**What it is:** The workhorse of sealed Pokémon product — 36 booster packs bundled together.
+
+**What's inside:** 36 packs × 10 cards = 360 cards. No accessories, no promo, no dividers — just packs. Modern sets usually guarantee one rare or better per pack, so a box gives roughly 36 holos/rares minimum plus a shot at the ultra-rares.
+
+**Price range:** Roughly AU$160–$250, US$110–$160, GBP£90–$130 at MSRP, depending on the set.
+
+**Who it's for:** Someone who wants the opening experience at volume, is building a play set, or is holding sealed product long-term. It's also the most price-transparent format — comparing box prices across stores before you buy routinely saves $20–50 on a single purchase.
+
+**What to watch:** Booster Box prices vary widely between stores, especially at launch and during restock windows. The [sealed products compare page](/sealed) shows every store's live Booster Box price, cheapest first.
+
+---
+
+### Elite Trainer Box (ETB)
+
+**What it is:** The collector's bundle — a midsize box with packs plus accessories.
+
+**What's inside:** Typically 9 booster packs (some sets give 10), plus card sleeves (65 usually), a set of energy cards, damage counters, a player's guide, and dividers for the box itself. The exact contents vary by set — always check the listing.
+
+**Price range:** Roughly AU$80–$110, US$50–$65, GBP£45–$60 at MSRP.
+
+**Who it's for:** Someone who plays the game and will actually use the sleeves and accessories, or a collector who wants a modest opening experience plus a display piece. The box itself is designed to store a binder's worth of sleeved cards once you've ripped the packs.
+
+**What to watch:** ETBs are one of the most scalped products in the hobby — when a set is hyped, ETBs sell out faster than Booster Boxes and recover more slowly. The [restock tracker](/restock) alerts you the moment one comes back in stock at any store we watch.
+
+---
+
+### Tins
+
+**What it is:** A small decorative metal tin, typically featuring a single Pokémon.
+
+**What's inside:** Usually 2–4 booster packs plus one or two promo cards. The promo is specific to the tin variant — if you want a particular promo, you need that exact tin.
+
+**Price range:** AU$20–$45, US$15–$30 depending on content.
+
+**Who it's for:** Casual buyers, gifts, and promo collectors. The promo itself is often the reason to buy a tin — the pack count is too low to make it a sensible way to open cards for value. Tins also make good storage once opened.
+
+**What to watch:** Tins are listed inconsistently — some list just the promo card name, others the tin design. If you're after a specific promo card, check the card's own page on [DexCompare](/browse) first: the single is almost always cheaper than buying the tin just for the promo.
+
+---
+
+### Blister Packs
+
+**What it is:** Retail-format sealed packaging, usually 1–3 packs plus a promo, designed for peg hooks in mass-market stores.
+
+**What's inside:** 1–3 booster packs and typically a promotional card or coin, all shrink-wrapped together.
+
+**Price range:** AU$12–$35, US$8–$22.
+
+**Who it's for:** Impulse purchases, small gifts, and collectors who want a specific promo without paying tin prices. Per-pack cost is higher than a Booster Box, so purely for the opening experience blisters are poor value.
+
+**What to watch:** Many "promo card" blisters feature cards that are also available as standalone singles. Check the promo card's price on [DexCompare](/browse) before you pay blister prices for it.
+
+---
+
+### Collection Boxes & Premium Collections
+
+**What it is:** Larger boxed products, often featuring an oversized card, a playmat, pins, or coins alongside packs.
+
+**What's inside:** Varies enormously by product — typically 4–8 booster packs plus accessories and usually an exclusive promo. Pokémon releases dozens of these annually, each with a different Pokémon focus.
+
+**Price range:** AU$50–$120, US$35–$80.
+
+**Who it's for:** Collectors who want a specific Pokémon's merchandise or a playmat, and don't mind paying the accessory premium. The exclusive oversized or textured promos in some Collections can have standalone collector value.
+
+---
+
+### Build & Battle Kits / Starter Sets
+
+**What it is:** Entry-level product designed to teach the game.
+
+**What's inside:** A pre-built 40-card deck, 4 booster packs, and a damage counter set.
+
+**Price range:** AU$25–$40, US$15–$25.
+
+**Who it's for:** Total beginners and parents buying for kids who want to play, not just collect. The packs are secondary to the ready-to-play deck. Not a value purchase for a collector.
+
+---
+
+## Buying sealed: the three questions
+
+**1. Do you want specific cards, or the opening experience?**
+If you want specific cards, [buy the singles](/browse) — it's almost always cheaper than the expected-value math on sealed product. Sealed is for the experience, the accessories, or long-term holding.
+
+**2. Which format matches your use case?**
+Playing? ETB (sleeves + packs). Holding? Booster Box (most liquid at resale). Gift? Tin or blister. New to the game? Build & Battle.
+
+**3. Are you comparing before you buy?**
+The same Booster Box can vary $30–60 between stores on the same day — the [sealed product compare page](/sealed) lists every store's live price. At launch or during restocks, checking it before you click buy is the easiest $20 you'll save all week.
+
+## Where to find the cheapest sealed prices
+
+- **[Sealed products browse](/sealed)** — every Booster Box, ETB, and Collection sorted by price across every store we track in your country.
+- **[Drops & restocks](/restock)** — upcoming releases and sold-out sets, with free email alerts for when stock appears.
+- **[Deals page](/deals)** — cards and sealed products listed below their market guide right now.
+
+The single most important rule: compare before you buy. Launch-window pricing on a hyped ETB or Booster Box can vary as much as 40% between stores — and that's before factoring in postage.`,
+  },
   // ── Blog — buying-focused takes and commentary ────────────────────────────
   {
     slug: "cheapest-way-to-buy-pokemon-cards",

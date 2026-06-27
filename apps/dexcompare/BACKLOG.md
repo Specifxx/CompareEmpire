@@ -24,5 +24,6 @@ Checked-and-skipped or deferred, so iterations don't re-evaluate blindly.
 - Card-page comparison: highlight the cheapest-delivered row / "best total" tag. — DONE (this run)
 - Accessibility sweep: WishlistDrawer + PriceAlertModal dialog semantics — DONE. Remaining: full focus trap (tab cycles within drawer), alt text audits, heading order sweep.
 - Per-route FAQ JSON-LD on `/sealed` — DONE. `/sets/[set]` — DONE. `/stores` — DONE. `/browse` page still todo (force-dynamic; FAQ would be on unfiltered canonical only).
+- Guides: sealed products explained — DONE (this run). Further guide ideas: "How to Value Your Collection", "Pokémon Cards as an Investment — Honest Take", "Buying Pokémon Cards Internationally".
 - `error.tsx` boundaries (global + route) for graceful DB-down fallback.
 - zod validation on API/query params; lightweight rate-limit on `/api/search`, `/api/cards`.

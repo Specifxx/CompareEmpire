@@ -2,6 +2,8 @@
 
 Newest first. Each entry: what · why · commit.
 
+- Guides: new evergreen article "Pokémon TCG Sealed Products Explained — Booster Boxes, ETBs, Tins & More" — covers every sealed product format (Booster Box, ETB, tins, blisters, Premium Collections, Build & Battle), what's inside each, per-format pricing, and when to buy which; cross-links to /sealed, /restock, and /deals; targets high-volume buyer searches like "what is an elite trainer box" and "pokemon booster box vs etb" · (this commit)
+
 - /stores: added FAQ section (4 Q&As: update frequency, delivered-cost ranking, markets covered, price trustworthiness) + FAQPage JSON-LD · SEO rich-result eligibility on the stores page; answers the questions buyers actually type before checking a price comparison · (this commit)
 
 - Accessibility: WishlistDrawer now has `role="dialog"` + `aria-modal="true"` + `aria-labelledby` + auto-focus on the close button when opened; PriceAlertModal gains `aria-labelledby` to complete its dialog semantics · screen-reader/keyboard users now land inside the drawer immediately and AT announces it as a labelled modal dialog · (this commit)
