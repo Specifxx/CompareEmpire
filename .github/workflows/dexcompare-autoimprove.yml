@@ -7,17 +7,15 @@ name: DexCompare autonomous improver
 # The improvement prompt lives at .github/auto-improve-prompt.md on `main`.
 #
 # AUTH — set ONE of these repo secrets (Settings -> Secrets and variables -> Actions):
-#   CLAUDE_CODE_OAUTH_TOKEN  (preferred — no extra billing; uses your Claude
-#       Pro/Max subscription. Generate it by running `claude setup-token` in the
-#       Claude Code CLI on your machine, then paste the output as this secret.)
+#   CLAUDE_CODE_OAUTH_TOKEN  (preferred — uses your Claude Pro/Max subscription;
+#       generate via `claude setup-token` in the Claude Code CLI.)
 #   ANTHROPIC_API_KEY        (alternative — pay-per-token Anthropic API billing.)
 #
 # `main` is not protected, so the default GITHUB_TOKEN can push (no PAT needed).
 #
-# Cost note: this runs Claude up to ~72x/day. GitHub Actions minutes are free on
-# this public repo. With a subscription token, usage counts against your Pro/Max
-# limits (it may get rate-limited). To pause: disable this workflow in the
-# Actions tab (or delete this file).
+# Cost note: runs Claude up to ~72x/day. GitHub Actions minutes are free on this
+# public repo; subscription/API usage is not. To pause: disable this workflow in
+# the Actions tab (or delete this file).
 
 on:
   schedule:
@@ -72,16 +70,29 @@ jobs:
             --max-turns 120 \
             || echo "Claude run exited non-zero — the verify gate below decides whether anything ships."
 
-      - name: Verify & push (only if a commit was made, only if green)
+      - name: Verify & push (rebase onto latest main; only push if green)
         run: |
           if [ -z "$(git log origin/main..HEAD --oneline)" ]; then
             echo "No new commit this run — nothing to ship."
             exit 0
           fi
-          echo "New commit(s) to verify:"; git log origin/main..HEAD --oneline
-          # Backstop: re-run the full verify gate before anything reaches production.
+          echo "New commit(s):"; git log origin/main..HEAD --oneline
+          # main may have advanced since checkout — replay our commit on top of it.
+          git fetch origin main
+          if ! git rebase origin/main; then
+            git rebase --abort || true
+            echo "::warning::Rebase conflict with concurrent change — skipping this run's push."
+            exit 0
+          fi
+          # Backstop verify the FINAL tree before it reaches production.
           # (prisma db push is gated on VERCEL_ENV=production, so this never touches a DB.)
           ( cd apps/dexcompare && npx tsc --noEmit )
           ( cd apps/dexcompare && DATABASE_URL="postgresql://u:p@127.0.0.1:5432/none" npx next build )
-          git push origin HEAD:main
+          # Push, with one rebase+retry if main moved again during verify.
+          if ! git push origin HEAD:main; then
+            echo "Push rejected — re-syncing and retrying once."
+            git fetch origin main
+            git rebase origin/main || { git rebase --abort || true; echo "::warning::conflict on retry — skipping."; exit 0; }
+            git push origin HEAD:main || { echo "::warning::push still failing — skipping this run."; exit 0; }
+          fi
           echo "Pushed improvement to main."
