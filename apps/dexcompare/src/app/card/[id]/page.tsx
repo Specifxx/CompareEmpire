@@ -447,9 +447,9 @@ export default async function CardPage({ params }: { params: { id: string } }) {
                 <h2 className="font-bold text-white">
                   Price comparison <span className="text-slate-500">({prices.length})</span>
                 </h2>
-                {prices.length > 1 && prices[prices.length - 1].priceCents > prices[0].priceCents && (
+                {storeRows.length > 1 && storeRows[storeRows.length - 1].delivered > storeRows[0].delivered && (
                   <span className="rounded-full bg-brand/15 px-2.5 py-0.5 text-xs font-semibold text-brand-400">
-                    Save {fmt(prices[prices.length - 1].priceCents - prices[0].priceCents)} vs the priciest seller
+                    Save {fmt(storeRows[storeRows.length - 1].delivered - storeRows[0].delivered)} delivered vs the priciest seller
                   </span>
                 )}
               </div>
