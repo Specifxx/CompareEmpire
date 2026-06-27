@@ -57,6 +57,26 @@ export default async function SealedPage({ searchParams }: { searchParams: { q?:
     return s ? `/sealed?${s}` : "/sealed";
   };
 
+  const faqs = [
+    {
+      q: "What Pokémon sealed products does DexCompare compare?",
+      a: `DexCompare tracks booster boxes, elite trainer boxes (ETBs), booster bundles, collection boxes, tins, and individual booster packs from ${info.adjective} retailers we index. Prices are refreshed daily from each store's live listings.`,
+    },
+    {
+      q: `Do sealed product prices include postage to ${info.place}?`,
+      a: `The prices shown are each retailer's listed ${info.currency} price for the sealed product itself. Delivery fees vary by store and your location — check the retailer's checkout before buying to confirm the total landed cost.`,
+    },
+    {
+      q: "What is the difference between a booster box and an Elite Trainer Box?",
+      a: "A booster box contains 36 booster packs and nothing else. An elite trainer box (ETB) typically bundles 9 booster packs with accessories — card sleeves, dice, and a player's guide. Per booster pack, the box is nearly always cheaper; the ETB makes a better gift or starter set.",
+    },
+    {
+      q: "How do I find the cheapest place to buy a sealed Pokémon product?",
+      a: "Click any product tile to open its full price-comparison table, ranked from lowest to highest by total delivered cost. Prices update daily from each retailer's live listings.",
+    },
+  ];
+  const showFaq = !q && !type;
+
   // Structured data only on the canonical, unfiltered view (filtered views are noindex).
   const collectionJsonLd =
     !q && !type
@@ -153,6 +173,36 @@ export default async function SealedPage({ searchParams }: { searchParams: { q?:
             <SealedTile key={g.slug} group={g} currency={info.currency} />
           ))}
         </div>
+      )}
+
+      {showFaq && (
+        <>
+          <section className="card-surface p-6">
+            <h2 className="text-lg font-extrabold text-white">Pokémon sealed products — FAQ</h2>
+            <div className="mt-4 grid gap-5 sm:grid-cols-2">
+              {faqs.map((f) => (
+                <div key={f.q}>
+                  <h3 className="font-semibold text-white">{f.q}</h3>
+                  <p className="mt-1 text-sm leading-relaxed text-slate-400">{f.a}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "FAQPage",
+                mainEntity: faqs.map((f) => ({
+                  "@type": "Question",
+                  name: f.q,
+                  acceptedAnswer: { "@type": "Answer", text: f.a },
+                })),
+              }),
+            }}
+          />
+        </>
       )}
 
       <p className="text-center text-[11px] text-slate-600">
