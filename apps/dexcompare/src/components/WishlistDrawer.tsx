@@ -41,6 +41,7 @@ function WishlistDrawer({ open, onClose }: { open: boolean; onClose: () => void 
   const { fmt, country } = useCountry();
   const [cards, setCards] = useState<MiniCard[] | null>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const drawerRef = useRef<HTMLElement>(null);
   // Store price if we have one, else a real market guide so guide-only cards
   // still contribute a value to the wishlist total.
   const valueOf = (c: MiniCard) => priceOrGuide(c, country as Country);
@@ -87,7 +88,22 @@ function WishlistDrawer({ open, onClose }: { open: boolean; onClose: () => void 
   }, [open]);
 
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    const FOCUSABLE =
+      'a[href],button:not([disabled]),input:not([disabled]),textarea:not([disabled]),select:not([disabled]),[tabindex]:not([tabindex="-1"])';
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") { onClose(); return; }
+      if (e.key === "Tab" && drawerRef.current) {
+        const els = Array.from(drawerRef.current.querySelectorAll<HTMLElement>(FOCUSABLE));
+        if (!els.length) return;
+        const first = els[0];
+        const last = els[els.length - 1];
+        if (e.shiftKey) {
+          if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+        } else {
+          if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+        }
+      }
+    };
     if (open) {
       document.body.style.overflow = "hidden";
       window.addEventListener("keydown", onKey);
@@ -109,6 +125,7 @@ function WishlistDrawer({ open, onClose }: { open: boolean; onClose: () => void 
       />
       {/* drawer */}
       <aside
+        ref={drawerRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="dc-wishlist-title"

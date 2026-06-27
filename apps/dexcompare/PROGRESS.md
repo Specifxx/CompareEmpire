@@ -2,6 +2,8 @@
 
 Newest first. Each entry: what · why · commit.
 
+- Accessibility: WishlistDrawer now has a full keyboard focus trap — Tab cycles forward through all focusable elements in the drawer, Shift+Tab cycles backward; focus never escapes to the page behind the dialog · completes the dialog accessibility work started two runs ago; required for WCAG 2.1 SC 2.1.2 (No Keyboard Trap) · (this commit)
+
 - Guides: new evergreen article "Pokémon TCG Sealed Products Explained — Booster Boxes, ETBs, Tins & More" — covers every sealed product format (Booster Box, ETB, tins, blisters, Premium Collections, Build & Battle), what's inside each, per-format pricing, and when to buy which; cross-links to /sealed, /restock, and /deals; targets high-volume buyer searches like "what is an elite trainer box" and "pokemon booster box vs etb" · (this commit)
 
 - /stores: added FAQ section (4 Q&As: update frequency, delivered-cost ranking, markets covered, price trustworthiness) + FAQPage JSON-LD · SEO rich-result eligibility on the stores page; answers the questions buyers actually type before checking a price comparison · (this commit)
