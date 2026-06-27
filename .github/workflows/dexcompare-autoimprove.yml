@@ -6,13 +6,18 @@ name: DexCompare autonomous improver
 # lives here on the default branch, but it checks out and pushes to `main`.
 # The improvement prompt lives at .github/auto-improve-prompt.md on `main`.
 #
-# REQUIRED repo secret: ANTHROPIC_API_KEY  (Settings -> Secrets -> Actions)
-# OPTIONAL repo secret: GH_PAT  (a PAT with `repo` scope) — only needed if `main`
-#   is a protected branch the default GITHUB_TOKEN cannot push to.
+# AUTH — set ONE of these repo secrets (Settings -> Secrets and variables -> Actions):
+#   CLAUDE_CODE_OAUTH_TOKEN  (preferred — no extra billing; uses your Claude
+#       Pro/Max subscription. Generate it by running `claude setup-token` in the
+#       Claude Code CLI on your machine, then paste the output as this secret.)
+#   ANTHROPIC_API_KEY        (alternative — pay-per-token Anthropic API billing.)
 #
-# Cost note: this calls the Anthropic API up to ~72x/day. GitHub Actions minutes
-# are free on this public repo, but API usage is not — monitor spend. To pause,
-# disable this workflow in the Actions tab (or delete this file).
+# `main` is not protected, so the default GITHUB_TOKEN can push (no PAT needed).
+#
+# Cost note: this runs Claude up to ~72x/day. GitHub Actions minutes are free on
+# this public repo. With a subscription token, usage counts against your Pro/Max
+# limits (it may get rate-limited). To pause: disable this workflow in the
+# Actions tab (or delete this file).
 
 on:
   schedule:
@@ -55,10 +60,11 @@ jobs:
 
       - name: One improvement iteration (Claude Code, headless)
         env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
-          if [ -z "$ANTHROPIC_API_KEY" ]; then
-            echo "::error::ANTHROPIC_API_KEY secret is not set — add it in Settings -> Secrets and variables -> Actions."
+          if [ -z "$CLAUDE_CODE_OAUTH_TOKEN" ] && [ -z "$ANTHROPIC_API_KEY" ]; then
+            echo "::error::No auth. Set CLAUDE_CODE_OAUTH_TOKEN (from 'claude setup-token', uses your Pro/Max subscription) or ANTHROPIC_API_KEY in repo secrets."
             exit 1
           fi
           claude -p "$(cat .github/auto-improve-prompt.md)" \
