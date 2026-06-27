@@ -18,6 +18,10 @@ export interface HomeData {
   valuableCards: CardTileData[];
   storeCount: number;
   popularCards: CardTileData[];
+  // The shoppable marketplace grid on the homepage: a deduped blend of the
+  // popular/valuable/cheapest arrays already fetched above, so it adds ZERO extra
+  // Neon queries and shares the same 5-min memo.
+  featuredGrid: CardTileData[];
   newSealed: SealedGroup[];
 }
 
@@ -34,6 +38,18 @@ async function computeHomeData(country: Country): Promise<HomeData> {
       getPopularCards(12, country),
       getNewSealedArrivals(country, 12),
     ]);
+
+  // Build the shoppable grid from the cards we already have (no extra query):
+  // popular first (most shop-relevant), then chase grails, then bargains; dedup
+  // by id so the same card never appears twice.
+  const seen = new Set<string>();
+  const featuredGrid: CardTileData[] = [];
+  for (const c of [...popularCards, ...valuableCards, ...cheapestCards]) {
+    if (seen.has(c.id)) continue;
+    seen.add(c.id);
+    featuredGrid.push(c);
+  }
+
   return {
     totalCards,
     pricedCards,
@@ -42,6 +58,7 @@ async function computeHomeData(country: Country): Promise<HomeData> {
     valuableCards,
     storeCount: storeGroups.length,
     popularCards,
+    featuredGrid,
     // The homepage tiles never render per-store listings, and Date fields
     // wouldn't survive the cache's JSON round-trip — strip them.
     newSealed: newSealed.map((g) => ({ ...g, listings: [] })),

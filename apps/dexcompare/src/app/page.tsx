@@ -22,6 +22,8 @@ import { Reveal } from "@/components/Reveal";
 import { CountUp } from "@/components/CountUp";
 import { ScrollProgress } from "@/components/ScrollProgress";
 import { SearchBar } from "@/components/SearchBar";
+import { CollectionTiles } from "@/components/CollectionTiles";
+import { HomeShoppableGrid } from "@/components/HomeShoppableGrid";
 
 // ISR while AU-only; becomes dynamic per-request when NZ mode is enabled (getCountry
 // then reads the country cookie).
@@ -86,99 +88,93 @@ export default async function HomePage() {
   const info = COUNTRIES[country];
   const ebay = ebayLabel(country);
   const faqs = faqsFor(info, ebay);
-  // One cached bundle per market (5-min revalidate) — TTFB was the biggest
-  // PageSpeed cost, and prices only move on the imports anyway. Movers and
-  // deals carry their own caches.
-  const [{ totalCards, pricedCards, inStockUnits, cheapestCards, valuableCards, storeCount, popularCards, newSealed }, movers, deals] =
+  // One cached bundle per market (5-min memo) — TTFB was the biggest PageSpeed
+  // cost, and prices only move on the imports anyway. Movers and deals carry
+  // their own caches.
+  const [{ totalCards, pricedCards, inStockUnits, storeCount, featuredGrid, newSealed }, movers, deals] =
     await Promise.all([getHomeData(country), getTopMovers(12, country), getTopDeals(12, country)]);
+
+  // A few "shop by" quick chips for the header (known-good routes only).
+  const chipSets = POKEMON_SETS.slice(0, 5);
 
   return (
     <>
       <ScrollProgress />
       <div className="flex flex-col gap-10">
-        {/* ── Hero: animated aurora + count-up stats + search-forward ── */}
+        {/* ── Slim marketplace header ── */}
         <section className="card-surface animate-fade-up relative isolate overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-brand-600/20 via-ink-850 to-gold/10" aria-hidden />
+          <div className="absolute inset-0 bg-gradient-to-br from-brand-600/15 via-ink-850 to-gold/10" aria-hidden />
           <div className="aurora-layer" aria-hidden>
-            <span className="aurora-blob" style={{ width: 380, height: 380, left: "6%", top: "-12%", background: "#ee1515", opacity: 0.5 }} />
-            <span className="aurora-blob" style={{ width: 440, height: 440, right: "4%", top: "-6%", background: "#ffcb05", opacity: 0.32, animationDelay: "-6s" }} />
-            <span className="aurora-blob" style={{ width: 320, height: 320, left: "42%", top: "18%", background: "#ff4d4d", opacity: 0.28, animationDelay: "-12s" }} />
+            <span className="aurora-blob" style={{ width: 300, height: 300, left: "8%", top: "-14%", background: "#ee1515", opacity: 0.4 }} />
+            <span className="aurora-blob" style={{ width: 340, height: 340, right: "6%", top: "-10%", background: "#ffcb05", opacity: 0.26, animationDelay: "-6s" }} />
           </div>
 
-          <div className="relative px-6 py-14 text-center sm:py-16">
-            <div className="mx-auto mb-5 flex items-center justify-center">
-              <span className="animate-float"><Logo size={84} /></span>
-            </div>
+          <div className="relative px-5 py-8 sm:px-8 sm:py-10">
+            <div className="flex flex-col items-center gap-4 text-center">
+              <div className="flex items-center gap-3">
+                <Logo size={44} />
+                <span className="inline-flex items-center gap-2 rounded-full border border-ink-700/70 bg-ink-900/60 px-3 py-1 text-xs font-medium text-slate-300 backdrop-blur">
+                  <span className="relative flex h-2 w-2">
+                    <span className="absolute inline-flex h-full w-full animate-pulse-ring rounded-full bg-emerald-400/70" />
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+                  </span>
+                  Live prices · updated daily
+                </span>
+              </div>
 
-            <div className="mx-auto mb-4 inline-flex items-center gap-2 rounded-full border border-ink-700/70 bg-ink-900/60 px-3 py-1 text-xs font-medium text-slate-300 backdrop-blur">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-pulse-ring rounded-full bg-emerald-400/70" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
-              </span>
-              Live prices · updated daily
-            </div>
+              <h1 className="max-w-3xl text-2xl font-extrabold tracking-tight text-white sm:text-4xl">
+                The <span className="text-gradient animate-gradient-pan">Pokémon card</span> marketplace — every store, one price
+              </h1>
 
-            <h1 className="mx-auto max-w-3xl text-3xl font-extrabold tracking-tight text-white sm:text-5xl">
-              Compare{" "}
-              <span className="text-gradient animate-gradient-pan">Pokémon card prices</span>{" "}
-              across {info.adjective} stores
-            </h1>
-            <p className="mx-auto mt-3 max-w-2xl text-sm text-slate-400 sm:text-base">
-              Find the cheapest place to buy Pokémon TCG cards in {info.place} — live prices in{" "}
-              {info.currency} compared across {storeCount} {info.adjective} stores, updated daily.
-            </p>
+              {/* Search-forward */}
+              <div className="w-full max-w-2xl">
+                <Suspense fallback={<div className="input" />}>
+                  <SearchBar />
+                </Suspense>
+              </div>
 
-            {/* Search-forward: the database is the product — let visitors dive straight in. */}
-            <div className="mx-auto mt-6 flex max-w-xl justify-center">
-              <Suspense fallback={<div className="input" />}>
-                <SearchBar />
-              </Suspense>
-            </div>
+              {/* Shop-by quick chips */}
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                <Link href="/deals" prefetch={false} className="chip border border-emerald-500/40 px-3 py-1 text-sm text-emerald-300 outline-none transition-colors hover:border-emerald-400 focus-visible:ring-2 focus-visible:ring-brand-400">🔥 Deals</Link>
+                {chipSets.map((s) => (
+                  <Link key={s.code} href={`/sets/${s.slug}`} prefetch={false} className="chip border border-ink-700 px-3 py-1 text-sm text-slate-300 outline-none transition-colors hover:border-brand-500 hover:text-white focus-visible:ring-2 focus-visible:ring-brand-400">
+                    {s.name}
+                  </Link>
+                ))}
+                <Link href="/sealed" prefetch={false} className="chip border border-sky-500/40 px-3 py-1 text-sm text-sky-300 outline-none transition-colors hover:border-sky-400 focus-visible:ring-2 focus-visible:ring-brand-400">📦 Sealed</Link>
+              </div>
 
-            <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
-              <Link href="/browse" className="btn-primary">Browse the database</Link>
-              <Link href="/deals" className="btn-ghost">🔥 Today&apos;s deals</Link>
-            </div>
+              <CountryHeroToggle />
 
-            {/* Country / market toggle */}
-            <CountryHeroToggle />
-
-            {/* Stats — count up when they scroll into view */}
-            <div className="mx-auto mt-8 grid max-w-2xl grid-cols-2 gap-4 sm:grid-cols-4">
-              <HeroStat value={totalCards} label="cards" delay={0} />
-              <HeroStat value={pricedCards} label="priced" delay={80} />
-              <HeroStat value={inStockUnits} label="in-stock listings" delay={160} />
-              <HeroStat value={storeCount} label={`${info.code} stores`} delay={240} />
+              {/* Thin live stats strip */}
+              <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1 text-xs text-slate-400">
+                <Stat value={totalCards} label="cards" />
+                <span className="text-ink-700" aria-hidden>·</span>
+                <Stat value={pricedCards} label="priced" />
+                <span className="text-ink-700" aria-hidden>·</span>
+                <Stat value={inStockUnits} label="in-stock listings" />
+                <span className="text-ink-700" aria-hidden>·</span>
+                <Stat value={storeCount} label={`${info.code} stores`} />
+              </div>
             </div>
           </div>
         </section>
 
+        {/* ── Shop by collection (Shopify-style merchandising) ── */}
+        <Reveal as="section">
+          <h2 className="mb-4 text-xl font-extrabold text-white sm:text-2xl">🛍️ Shop by collection</h2>
+          <CollectionTiles />
+        </Reveal>
+
+        {/* ── The shoppable grid (marketplace centerpiece) ── */}
+        <Reveal as="section">
+          <HomeShoppableGrid cards={featuredGrid} totalCards={totalCards} storeCount={storeCount} adjective={info.adjective} />
+        </Reveal>
+
         {/* The demand magnet — what collectors are hunting right now. */}
         <Reveal><HotRightNow /></Reveal>
 
-        {/* Official partner programs — credibility strip (approved affiliates). */}
-        <Reveal><Partners country={country} /></Reveal>
-
-        {/* New sealed arrivals */}
-        {newSealed.length >= 3 && (
-          <Reveal as="section">
-            <SectionHeading
-              title="🔥 New sealed arrivals"
-              sub={`The newest booster boxes, ETBs & bundles — compare every ${info.adjective} store to find the cheapest place to buy (or the best resale value).`}
-              href="/sealed"
-              cta="View all →"
-            />
-            <Carousel>
-              {newSealed.map((g) => (
-                <div key={g.slug} className="w-40 shrink-0 snap-start sm:w-44">
-                  <SealedTile group={g} currency={info.currency} />
-                </div>
-              ))}
-            </Carousel>
-          </Reveal>
-        )}
-
-        {/* Today's deals — live store prices well below the TCGplayer market guide. */}
+        {/* Today's deals — the "sale" row. */}
         {deals.length >= 4 && (
           <Reveal as="section">
             <SectionHeading
@@ -204,10 +200,7 @@ export default async function HomePage() {
         {/* TCGplayer affiliate banner */}
         <TcgplayerAd size="billboard" mobile="rect" country={country} />
 
-        {/* Recently viewed — local to this visitor; renders nothing on a first visit */}
-        <RecentlyViewed />
-
-        {/* Biggest price movers */}
+        {/* Biggest price movers — marketplace volatility row. */}
         {movers.length > 0 && (
           <Reveal as="section">
             <SectionHeading
@@ -227,56 +220,32 @@ export default async function HomePage() {
           </Reveal>
         )}
 
-        {/* Cheapest cards */}
-        <Reveal as="section">
-          <SectionHeading
-            title="💸 Cheapest Pokémon cards"
-            sub={`The lowest live prices right now — we check ${storeCount} ${info.adjective} stores for every card so you always pay the least.`}
-            href="/browse?priced=1&sort=price_asc"
-            cta="View all →"
-          />
-          <Carousel>
-            {cheapestCards.map((c) => (
-              <div key={c.id} className="w-36 shrink-0 snap-start sm:w-44">
-                <CardTile card={c} />
-              </div>
-            ))}
-          </Carousel>
-        </Reveal>
-
-        {/* Most valuable cards */}
-        <Reveal as="section">
-          <SectionHeading
-            title="💎 Most valuable cards"
-            sub="The biggest chase cards by market value — Charizards, alt-arts, vintage holos and more."
-            href="/browse?priced=1&sort=price_desc"
-            cta="View all →"
-          />
-          <Carousel>
-            {valuableCards.map((c) => (
-              <div key={c.id} className="w-36 shrink-0 snap-start sm:w-44">
-                <CardTile card={c} />
-              </div>
-            ))}
-          </Carousel>
-        </Reveal>
-
-        {/* Most popular */}
-        {popularCards.length >= 4 && (
+        {/* New sealed arrivals — Shopify "new products" row. */}
+        {newSealed.length >= 3 && (
           <Reveal as="section">
-            <SectionHeading title="🔎 Most popular right now" sub="The cards collectors are checking most on DexCompare." />
+            <SectionHeading
+              title="🆕 New sealed arrivals"
+              sub={`The newest booster boxes, ETBs & bundles — compare every ${info.adjective} store to find the cheapest place to buy (or the best resale value).`}
+              href="/sealed"
+              cta="View all →"
+            />
             <Carousel>
-              {popularCards.map((c) => (
-                <div key={c.id} className="w-36 shrink-0 snap-start sm:w-44">
-                  <CardTile card={c} />
+              {newSealed.map((g) => (
+                <div key={g.slug} className="w-40 shrink-0 snap-start sm:w-44">
+                  <SealedTile group={g} currency={info.currency} />
                 </div>
               ))}
             </Carousel>
           </Reveal>
         )}
 
-        {/* Second TCGplayer banner */}
-        <TcgplayerAd size="leaderboard" country={country} />
+        {/* Recently viewed — local to this visitor; renders nothing on a first visit */}
+        <RecentlyViewed />
+
+        {/* Official partner programs — credibility strip (approved affiliates). */}
+        <Reveal><Partners country={country} /></Reveal>
+
+        {/* ── Discovery + SEO content below the shop ── */}
 
         {/* Browse by set */}
         <Reveal as="section">
@@ -360,6 +329,9 @@ export default async function HomePage() {
           </div>
         </Reveal>
 
+        {/* Second TCGplayer banner */}
+        <TcgplayerAd size="leaderboard" country={country} />
+
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -379,15 +351,13 @@ export default async function HomePage() {
   );
 }
 
-// Hero stat tile with a scroll-triggered count-up.
-function HeroStat({ value, label, delay }: { value: number; label: string; delay: number }) {
+// Thin live stat: real number always in the DOM (SEO), animated on scroll.
+function Stat({ value, label }: { value: number; label: string }) {
   return (
-    <Reveal delay={delay} zoom className="rounded-xl border border-ink-700/60 bg-ink-900/70 p-3">
-      <div className="text-xl font-extrabold text-gold sm:text-2xl">
-        <CountUp value={value} />
-      </div>
-      <div className="text-xs uppercase tracking-wide text-slate-400">{label}</div>
-    </Reveal>
+    <span>
+      <span className="font-extrabold text-gold"><CountUp value={value} /></span>{" "}
+      <span className="uppercase tracking-wide">{label}</span>
+    </span>
   );
 }
 
