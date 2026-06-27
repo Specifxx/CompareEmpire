@@ -32,6 +32,8 @@ export function PriceAlertModal() {
   // Lightweight toast for the silent (already-subscribed) path.
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Ref on the modal panel so we can trap Tab focus inside it.
+  const modalRef = useRef<HTMLDivElement>(null);
 
   const flashToast = useCallback((msg: string) => {
     setToast(msg);
@@ -106,14 +108,31 @@ export function PriceAlertModal() {
     };
   }, [subscribe, flashToast]);
 
-  // Close on Escape.
+  // Close on Escape; trap Tab focus within the modal panel (WCAG 2.1 SC 2.1.2).
   useEffect(() => {
     if (!open) return;
+    const FOCUSABLE =
+      'a[href],button:not([disabled]),input:not([disabled]),textarea:not([disabled]),select:not([disabled]),[tabindex]:not([tabindex="-1"])';
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") { setOpen(false); return; }
+      if (e.key === "Tab" && modalRef.current) {
+        const els = Array.from(modalRef.current.querySelectorAll<HTMLElement>(FOCUSABLE));
+        if (!els.length) return;
+        const first = els[0];
+        const last = els[els.length - 1];
+        if (e.shiftKey) {
+          if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+        } else {
+          if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+        }
+      }
     };
+    document.body.style.overflow = "hidden";
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", onKey);
+    };
   }, [open]);
 
   async function onSubmit(e: React.FormEvent) {
@@ -148,9 +167,9 @@ export function PriceAlertModal() {
       )}
 
       {open && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="dc-alert-title">
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/70" onClick={() => setOpen(false)} />
-          <div className="relative z-10 w-full max-w-md overflow-hidden rounded-2xl border border-ink-700 bg-ink-900 shadow-2xl">
+          <div ref={modalRef} role="dialog" aria-modal="true" aria-labelledby="dc-alert-title" className="relative z-10 w-full max-w-md overflow-hidden rounded-2xl border border-ink-700 bg-ink-900 shadow-2xl">
             <button
               onClick={() => setOpen(false)}
               aria-label="Close"
