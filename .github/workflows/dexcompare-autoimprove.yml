@@ -1,0 +1,81 @@
+name: DexCompare autonomous improver
+
+# Runs Claude Code headless every ~20 minutes to make ONE small, verified
+# improvement to apps/dexcompare and push it to `main` (the Vercel production
+# branch). Scheduled workflows fire only from the DEFAULT branch, so this file
+# lives here on the default branch, but it checks out and pushes to `main`.
+# The improvement prompt lives at .github/auto-improve-prompt.md on `main`.
+#
+# REQUIRED repo secret: ANTHROPIC_API_KEY  (Settings -> Secrets -> Actions)
+# OPTIONAL repo secret: GH_PAT  (a PAT with `repo` scope) — only needed if `main`
+#   is a protected branch the default GITHUB_TOKEN cannot push to.
+#
+# Cost note: this calls the Anthropic API up to ~72x/day. GitHub Actions minutes
+# are free on this public repo, but API usage is not — monitor spend. To pause,
+# disable this workflow in the Actions tab (or delete this file).
+
+on:
+  schedule:
+    - cron: "*/20 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: dexcompare-autoimprove
+  cancel-in-progress: false
+
+jobs:
+  improve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    steps:
+      - name: Check out main (the production branch we improve + push to)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies + Claude Code
+        working-directory: apps/dexcompare
+        run: |
+          npm install --no-audit --no-fund
+          npx prisma generate
+          npm install -g @anthropic-ai/claude-code
+
+      - name: Configure git author
+        run: |
+          git config user.name "dexcompare-improver[bot]"
+          git config user.email "dexcompare-improver@users.noreply.github.com"
+
+      - name: One improvement iteration (Claude Code, headless)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -z "$ANTHROPIC_API_KEY" ]; then
+            echo "::error::ANTHROPIC_API_KEY secret is not set — add it in Settings -> Secrets and variables -> Actions."
+            exit 1
+          fi
+          claude -p "$(cat .github/auto-improve-prompt.md)" \
+            --dangerously-skip-permissions \
+            --max-turns 120 \
+            || echo "Claude run exited non-zero — the verify gate below decides whether anything ships."
+
+      - name: Verify & push (only if a commit was made, only if green)
+        run: |
+          if [ -z "$(git log origin/main..HEAD --oneline)" ]; then
+            echo "No new commit this run — nothing to ship."
+            exit 0
+          fi
+          echo "New commit(s) to verify:"; git log origin/main..HEAD --oneline
+          # Backstop: re-run the full verify gate before anything reaches production.
+          # (prisma db push is gated on VERCEL_ENV=production, so this never touches a DB.)
+          ( cd apps/dexcompare && npx tsc --noEmit )
+          ( cd apps/dexcompare && DATABASE_URL="postgresql://u:p@127.0.0.1:5432/none" npx next build )
+          git push origin HEAD:main
+          echo "Pushed improvement to main."
