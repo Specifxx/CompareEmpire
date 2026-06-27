@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { getWishlist, toggleWishlist } from "@/lib/wishlist-client";
 import { cardHref } from "@/lib/card-url";
 import { priceOrGuide, type Country } from "@/lib/country";
@@ -40,6 +40,7 @@ export function WishlistDrawerProvider({ children }: { children: React.ReactNode
 function WishlistDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { fmt, country } = useCountry();
   const [cards, setCards] = useState<MiniCard[] | null>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
   // Store price if we have one, else a real market guide so guide-only cards
   // still contribute a value to the wishlist total.
   const valueOf = (c: MiniCard) => priceOrGuide(c, country as Country);
@@ -79,6 +80,12 @@ function WishlistDrawer({ open, onClose }: { open: boolean; onClose: () => void 
     window.addEventListener("wishlist-change", onChange);
     return () => window.removeEventListener("wishlist-change", onChange);
   }, [load]);
+  // Move focus to the close button when the drawer opens so keyboard/AT users
+  // land inside the dialog immediately without having to tab through the page.
+  useEffect(() => {
+    if (open) closeRef.current?.focus();
+  }, [open]);
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     if (open) {
@@ -102,17 +109,20 @@ function WishlistDrawer({ open, onClose }: { open: boolean; onClose: () => void 
       />
       {/* drawer */}
       <aside
-        className={`fixed right-0 top-0 z-[71] flex h-full w-full max-w-sm flex-col border-l border-ink-700 bg-ink-900 shadow-2xl transition-transform duration-200 ${open ? "translate-x-0" : "translate-x-full"}`}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="dc-wishlist-title"
         aria-hidden={!open}
+        className={`fixed right-0 top-0 z-[71] flex h-full w-full max-w-sm flex-col border-l border-ink-700 bg-ink-900 shadow-2xl transition-transform duration-200 ${open ? "translate-x-0" : "translate-x-full"}`}
       >
         <div className="flex items-center justify-between border-b border-ink-700 p-4">
-          <h2 className="flex items-center gap-2 text-lg font-extrabold text-white">
+          <h2 id="dc-wishlist-title" className="flex items-center gap-2 text-lg font-extrabold text-white">
             ♥ Wishlist
             {cards && cards.length > 0 && (
               <span className="rounded-full bg-brand-500 px-2 py-0.5 text-xs text-white">{cards.length}</span>
             )}
           </h2>
-          <button onClick={onClose} aria-label="Close" className="grid h-8 w-8 place-items-center rounded-full text-slate-400 hover:text-white">✕</button>
+          <button ref={closeRef} onClick={onClose} aria-label="Close wishlist" className="grid h-8 w-8 place-items-center rounded-full text-slate-400 hover:text-white">✕</button>
         </div>
 
         <div className="min-h-0 flex-1 overflow-y-auto">

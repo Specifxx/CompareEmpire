@@ -148,7 +148,7 @@ export function PriceAlertModal() {
       )}
 
       {open && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4" role="dialog" aria-modal="true">
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="dc-alert-title">
           <div className="absolute inset-0 bg-black/70" onClick={() => setOpen(false)} />
           <div className="relative z-10 w-full max-w-md overflow-hidden rounded-2xl border border-ink-700 bg-ink-900 shadow-2xl">
             <button
@@ -167,7 +167,7 @@ export function PriceAlertModal() {
                   </svg>
                   <span className="text-xs font-semibold uppercase tracking-wide">Added to wishlist</span>
                 </div>
-                <h2 className="font-display text-xl font-bold text-white">Get price-drop emails</h2>
+                <h2 id="dc-alert-title" className="font-display text-xl font-bold text-white">Get price-drop emails</h2>
                 <p className="mt-2 text-sm leading-relaxed text-slate-300">
                   We&apos;ll watch your wishlist and email you the moment any card gets cheaper. No account
                   needed — just an email. Unsubscribe anytime.
