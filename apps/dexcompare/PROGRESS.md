@@ -2,6 +2,8 @@
 
 Newest first. Each entry: what · why · commit.
 
+- /stores: added FAQ section (4 Q&As: update frequency, delivered-cost ranking, markets covered, price trustworthiness) + FAQPage JSON-LD · SEO rich-result eligibility on the stores page; answers the questions buyers actually type before checking a price comparison · (this commit)
+
 - Accessibility: WishlistDrawer now has `role="dialog"` + `aria-modal="true"` + `aria-labelledby` + auto-focus on the close button when opened; PriceAlertModal gains `aria-labelledby` to complete its dialog semantics · screen-reader/keyboard users now land inside the drawer immediately and AT announces it as a labelled modal dialog · (this commit)
 
 - Guides: new evergreen article "How to Complete a Pokémon TCG Set (Without Buying 200 Packs)" — covers pack maths vs singles strategy, 4-step buying order, timing, and a cost breakdown table; high-traffic search topic linking to sets/browse/collection/wishlist · (this commit)
