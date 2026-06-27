@@ -386,6 +386,84 @@ Plastic stops scratches; it doesn't stop physics.
 Protection is the cheapest "investment return" in the hobby: a $0.02 sleeve preserving a card's NM status protects the 20–30% price gap to LP forever. Before you buy your next card on [DexCompare](/browse), make sure the ones you own aren't quietly downgrading themselves in a drawer.`,
   },
   {
+    slug: "how-to-complete-a-pokemon-tcg-set",
+    category: "guide",
+    title: "How to Complete a Pokémon TCG Set (Without Buying 200 Packs)",
+    excerpt:
+      "The pack maths, the singles strategy, the order to buy, and how to use DexCompare's set tracker — everything you need to finish a set for the least money.",
+    author: "DexCompare",
+    date: "2026-06-27",
+    readMins: 7,
+    tags: ["set completion", "singles", "collecting", "strategy"],
+    body: `Completing a Pokémon TCG set — every card in the binder, 100% done — is one of the most satisfying things you can do in the hobby. It's also where most collectors accidentally spend three times more than they needed to. Here's the complete strategy for finishing a set cheaply.
+
+## Why packs are the wrong tool for completion
+
+Each booster pack contains a random slice of the set, so completing a 200-card set from packs is a coupon-collecting problem. Because the ultra-rare slots are shared between dozens of cards, the expected number of packs to pull the full set is far above the set size — for a modern set, typically 500–700 packs, or 14–20 booster boxes. That's $1,400–$2,000+ at MSRP.
+
+The singles maths: the cheapest 150 commons and uncommons in any recent set cost under $30 bought as singles. The ten most expensive chase cards (SIRs, gold rares) might run $300–500 total. The full 200-card set via singles: roughly $350–550 depending on the set, versus $1,400+ in packs.
+
+**Packs are entertainment. Singles are completion.**
+
+## The four-step singles strategy
+
+### Step 1: Start with the [set page on DexCompare](/sets)
+
+Every set has its own card list, sorted by collector number, with the cheapest live store price for each card. Bookmark the set you're completing — that page is your completion dashboard.
+
+### Step 2: Track your progress with the collection feature
+
+Add cards to your [collection](/collection) as you acquire them — DexCompare's set page shows you exactly which cards you own and what percentage you've completed. You'll see the gap clearly instead of hunting through a box.
+
+### Step 3: Buy in three tiers — cheapest to most expensive
+
+Bulk-buying in tiers saves significantly on postage:
+
+- **Tier 1 — Commons & uncommons (≤$0.50 each):** These can often be found in bulk lots on eBay or bought in a single order from one specialist TCG store. Aim to tick off 60–70% of the set for under $30.
+- **Tier 2 — Rares and holo rares ($0.50–$10):** Order these in a second pass — bundle as many as you can from the same store to share postage. For each card, the [browse database](/browse) shows every store stocking it, cheapest first with postage included.
+- **Tier 3 — Ultra-rares (SIRs, full arts, secret rares, $10+):** Buy these one by one, using the card page's price table. These cards are where the big price spread between stores lives — comparing before you buy here is where you save the most money.
+
+### Step 4: Use the wishlist for Tier 3 cards
+
+Add the expensive missing cards to your [wishlist](/wishlist) and turn on price-drop alerts. Ultra-rare prices move daily, especially in the first 3–6 months after a set releases. Waiting even two weeks on a $50 card can save $10–15.
+
+## Timing: when to start completing a set
+
+- **New set (week 1–8 after release):** Bulk commons are cheap immediately. Ultra-rare prices are highest at launch and fall quickly — start with the bulk and let the SIR prices settle.
+- **Set is 3–12 months old:** The sweet spot. Prices have found their floor, eBay supply is deep, and bulk lots appear as people who ripped boxes sell their duplicates.
+- **Set is discontinued (2+ years old):** Some commons get scarcer; ultra-rares from beloved sets tend to rise. Start sooner rather than later for vintage sets.
+
+## What a finished set actually costs
+
+For a typical modern Scarlet & Violet set (around 200 cards):
+
+| Tier | Cards | Approx cost |
+|---|---|---|
+| Commons & uncommons | ~130 cards | $20–35 |
+| Rares & holo rares | ~40 cards | $40–80 |
+| Ultra-rares (ex, full art) | ~20 cards | $80–150 |
+| Secret rares & SIRs | ~10 cards | $150–300 |
+| **Total** | **~200 cards** | **$290–565** |
+
+Compare that to the pack route ($1,400+) and the singles premium pays for itself in the first five cards.
+
+## The three common mistakes
+
+1. **Buying singles before sorting duplicates.** If you've already opened some packs, count what you have first — you probably own a third of the commons already.
+2. **Ignoring the collector number.** The same Pokémon appears in multiple sets; always confirm the set code (e.g. \`SV08\`) and collector number before buying.
+3. **Paying market price for bulk.** Commons are worth almost nothing — never pay more than $0.25 each for them from a specialist TCG store. eBay bulk lots of 50+ mixed cards often beat single-card listings dramatically.
+
+## TL;DR
+
+1. Open the [set page](/sets) for your target set.
+2. Start your collection tracker.
+3. Buy commons and uncommons in bulk (single order, one store).
+4. Buy rares in a second pass, same store where possible.
+5. Wishlist the expensive cards and buy each individually from the cheapest store.
+
+That's it. One complete set, minimum money.`,
+  },
+  {
     slug: "pokemon-card-rarities-explained",
     category: "guide",
     title: "Pokémon Card Rarities & Variants Explained",
