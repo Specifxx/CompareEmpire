@@ -517,6 +517,112 @@ Put together, one Pokémon in one set can exist as: plain, reverse holo, holo, p
 5. **Then [look the exact printing up](/browse)** — the market settles the rest.`,
   },
   {
+    slug: "how-to-value-your-pokemon-card-collection",
+    category: "guide",
+    title: "How to Value Your Pokémon Card Collection",
+    excerpt:
+      "A step-by-step guide to finding out what your Pokémon cards are actually worth today — market prices, condition adjustments, the difference between resale and retail value, and when grading changes the number.",
+    author: "DexCompare",
+    date: "2026-06-27",
+    readMins: 7,
+    tags: ["valuation", "collection", "grading", "market price"],
+    body: `"What are my Pokémon cards worth?" is one of the most Googled questions in the hobby — and the answer is almost always more nuanced than people expect. This guide walks through the correct process, the common mistakes that inflate or deflate your number, and how to turn a shoebox of cards into an accurate total you can actually do something with.
+
+## Why "what I paid" is not the answer
+
+Card values move constantly. A card you bought three years ago for $5 might be $40 today — or $1. A brand-new set's chase card peaks at launch and often drops 40–60% in the following months. Valuing a collection means finding what things are worth *now*, not anchoring to purchase price or "what I've seen them listed for."
+
+## Step 1: Identify every card precisely
+
+Before you can price anything, you need the exact printing. The same Pokémon can exist across dozens of printings with wildly different values:
+
+- Check the **set symbol** (bottom left of the card).
+- Check the **collector number** (e.g. \`058/091\`).
+- Note the **holo type** — plain, reverse holo, holo rare, full art, or alt art.
+
+A card without its set code and number is just "some Charizard." A card with both is a specific, priceable item.
+
+## Step 2: Find the live market price for each card
+
+The fastest method: **[search the card by name on DexCompare](/browse)**, open the card page, and read the **market price guide**. This is sourced from TCGplayer's market price — the average of real recent sales in the world's deepest card market — updated daily. It's as close to "what the card is actually worth" as a single number gets.
+
+For each card you find, note:
+
+- The **market guide price** (what the card trades at on the open market).
+- The **cheapest live store price** in your country (what you could get if you sold locally vs. what someone would pay to buy it from a store today).
+
+These two numbers bracket your card's real-world value.
+
+## Step 3: Apply the condition haircut
+
+The market price guide is for **Near Mint (NM)** — cards that look unplayed. Every step down from NM cuts the value:
+
+| Condition | Typical % of NM price |
+|---|---|
+| Near Mint (NM) | 100% |
+| Lightly Played (LP) | 70–85% |
+| Moderately Played (MP) | 45–60% |
+| Heavily Played (HP) | 25–40% |
+| Damaged (DMG) | <20% |
+
+Be honest. Most people grade their own cards a condition or two higher than the market would. A scratch you've stopped seeing is still a scratch.
+
+For a full breakdown of what each grade means: [Pokémon Card Conditions & Grading Explained](/guides/pokemon-card-conditions-and-grading).
+
+## Step 4: Understand "collection value" vs "resale value"
+
+This is the most important distinction in collection valuation.
+
+**Collection value** (what you'd pay to replace everything) is roughly the sum of the cheapest live store prices. This number tends to be higher than what you could sell for.
+
+**Resale value** (what you'd actually net selling the collection) is typically **40–65% of the market guide total** for most raw collections. Why the gap?
+
+- Buyers on eBay and marketplaces want a discount vs. market price.
+- Platforms take 8–15% in fees.
+- Shipping, packaging, and time have a real cost.
+- Commons and low-value cards are often worth nothing to resell individually.
+- Only the top 5–10% of cards in a typical collection drive most of the value.
+
+If you're thinking about selling, the honest resale estimate is your market-guide total × 0.5 for a mixed collection. Chase cards in NM condition, especially in high-demand sets, fare better.
+
+## Step 5: Know when grading changes the number
+
+For any card where the live NM price is above $80–100, it's worth asking: **would a PSA 10 or CGC 10 on this card be worth grading?**
+
+A gem-mint graded copy of a desirable card can trade at 3–10× the raw NM price. But grading costs $20–50+ per card at slow tiers, takes months, and a card that comes back a 7 or 8 often trades *below* raw NM. The math only works when:
+
+1. Your copy is genuinely perfect (check centering, edges, corners and surface under direct light).
+2. The card's graded-10 value is well above the raw price + grading fee.
+3. You're holding long-term or explicitly targeting the graded market.
+
+Don't grade your collection's bulk — it will cost more than the cards are worth.
+
+## Practical approach: the 80/20 rule
+
+In any mixed collection, roughly 80% of the value lives in 20% or fewer of the cards. Don't waste time pricing commons at $0.20 each. Instead:
+
+1. **Sort by rarity first** — set aside anything with a star, full-art frame, or "secret rare" collector number.
+2. **Price the top tier individually** — these are the cards where precision matters.
+3. **Bulk-estimate the rest** — common/uncommon bulk is worth roughly $0.05–0.20 per card to a dealer; uncommons and non-holo rares maybe $0.25–0.50. Be conservative.
+4. **Add the totals.**
+
+## The free tool for this: the DexCompare value checker
+
+The **[card value checker](/card-value)** is designed exactly for this: search a card, see its market guide price and live store prices, note the condition, and move to the next. It's faster than bouncing between tabs and the prices update daily.
+
+For ongoing tracking, add your cards to your **[collection](/collection)** — you'll see the live value of your tracked cards whenever you log in, and price changes will be reflected automatically.
+
+## Summary
+
+1. Identify every card by set code + collector number.
+2. Search it on [DexCompare](/browse) for the live market guide price.
+3. Apply the condition discount honestly.
+4. Distinguish between collection value (replacement cost) and resale value (~50–60% of guide for most raw collections).
+5. Only consider grading for genuinely mint, high-value cards where the maths works.
+
+The process takes longer than a gut feeling, but it's the only version that tells you something real.`,
+  },
+  {
     slug: "pokemon-sealed-products-explained",
     category: "guide",
     title: "Pokémon TCG Sealed Products Explained — Booster Boxes, ETBs, Tins & More",

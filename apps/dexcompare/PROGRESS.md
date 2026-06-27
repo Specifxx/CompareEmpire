@@ -2,6 +2,8 @@
 
 Newest first. Each entry: what · why · commit.
 
+- Guides: new evergreen article "How to Value Your Pokémon Card Collection" — covers the 5-step valuation process (identify by set code/collector number, look up the market guide, apply condition haircut, distinguish collection vs resale value, when grading changes the number); includes a condition-grade table, the 80/20 bulk-sorting tip, and links to /card-value, /collection, /browse, and the grading guide; targets high-intent "pokemon card collection value" searches · (this commit)
+
 - /browse: added FAQ section (4 Q&As: which sets are in the database, how to find the cheapest price, why the same Pokémon appears multiple times, and how often prices update) + FAQPage JSON-LD; gated to canonical unfiltered page 1 only · SEO rich-result eligibility on the main card database landing page — the highest-traffic page on the site, which was the last major page without FAQ markup · (this commit)
 
 - Accessibility: PriceAlertModal now has a full keyboard focus trap (Tab cycles forward, Shift+Tab backward through all focusable elements inside the modal; Escape still closes; body scroll locked while open; `role="dialog"` moved to the modal panel, not the backdrop wrapper) · completes WCAG 2.1 SC 2.1.2 (No Keyboard Trap) for both dialogs — WishlistDrawer was done last run; PriceAlertModal was the remaining gap · (this commit)
