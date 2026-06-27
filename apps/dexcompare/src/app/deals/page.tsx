@@ -22,6 +22,21 @@ export default async function DealsPage() {
   const info = COUNTRIES[country];
   const deals = await getTopDeals(60, country);
 
+  const faqs = [
+    {
+      q: "What counts as a deal on DexCompare?",
+      a: `A deal is a live ${info.adjective} store price at least 15% below the card's TCGplayer market guide. We cap deals at 70% off — deeper gaps are almost always listing errors, not real bargains.`,
+    },
+    {
+      q: "How often do the deals update?",
+      a: "Every price import — typically daily. Newly underpriced listings appear at the next refresh, and sold-out ones drop off automatically.",
+    },
+    {
+      q: `Are the prices shown in ${info.currency}?`,
+      a: `Yes. Store prices are the live ${info.adjective} prices in ${info.currency}; the market guide is TCGplayer's market price converted at an indicative rate for comparison only.`,
+    },
+  ];
+
   return (
     <div className="flex flex-col gap-6">
       <section className="card-surface overflow-hidden">
@@ -64,10 +79,38 @@ export default async function DealsPage() {
         </div>
       )}
 
+      {/* Contextual FAQ — visible content backing the FAQPage structured data. */}
+      <section className="card-surface p-6">
+        <h2 className="text-lg font-extrabold text-white">Pokémon deals — FAQ</h2>
+        <div className="mt-4 grid gap-5 sm:grid-cols-2">
+          {faqs.map((f) => (
+            <div key={f.q}>
+              <h3 className="font-semibold text-white">{f.q}</h3>
+              <p className="mt-1 text-sm leading-relaxed text-slate-400">{f.a}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
       <p className="text-center text-[11px] text-slate-600">
         Market guide is TCGplayer&apos;s market price converted to {info.currency} at an indicative rate.
         Always confirm price and condition on the store&apos;s site before buying.
       </p>
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: faqs.map((f) => ({
+              "@type": "Question",
+              name: f.q,
+              acceptedAnswer: { "@type": "Answer", text: f.a },
+            })),
+          }),
+        }}
+      />
     </div>
   );
 }
