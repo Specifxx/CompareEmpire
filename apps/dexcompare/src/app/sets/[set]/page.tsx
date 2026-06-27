@@ -73,9 +73,49 @@ export default async function SetPage({ params }: { params: { set: string } }) {
     isPartOf: { "@type": "WebSite", name: "DexCompare", url: SITE_URL },
   };
 
+  const faqs = set.comingSoon
+    ? [
+        {
+          q: `When does Pokémon ${set.name} come out?`,
+          a: `Pokémon ${set.name} hasn't released yet. DexCompare will list every ${set.name} card with live prices the moment the set drops — bookmark this page and check back soon.`,
+        },
+        {
+          q: `How will I know when ${set.name} prices are live?`,
+          a: `We update our price feeds daily. As soon as ${set.name} singles are stocked by stores we track, their prices will appear here automatically.`,
+        },
+      ]
+    : [
+        {
+          q: `How many cards are in Pokémon ${set.name}?`,
+          a: `Pokémon ${set.name} has ${cards.length} cards in our database${priced > 0 ? `, and ${priced} of them have live store prices right now` : ""}. Click any card to compare prices across stores and find the cheapest place to buy.`,
+        },
+        {
+          q: `Where can I buy ${set.name} singles cheapest?`,
+          a: `DexCompare compares live prices for every ${set.name} single across multiple ${["AU"].includes(DEFAULT_COUNTRY) ? "Australian" : ""} stores and ranks them by total delivered cost — so you always see the cheapest option including postage. Click any card to see the full store comparison.`,
+        },
+        {
+          q: `How often do ${set.name} prices update?`,
+          a: `Prices are refreshed with every import run — typically daily. Each store listing is checked for availability and current price, so you're always seeing the latest.`,
+        },
+        {
+          q: `Are ${set.name} cards worth buying?`,
+          a: `Value depends on the card's rarity, condition, and how much you're paying vs the market price. DexCompare shows you a TCGplayer market-price guide alongside live store prices so you can judge whether a listing is fairly priced before you buy.`,
+        },
+      ];
+
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
+  };
+
   return (
     <div className="flex flex-col gap-8">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify([breadcrumb, collection]) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify([breadcrumb, collection, faqSchema]) }} />
 
       {/* Breadcrumb + hero */}
       <div>
@@ -139,6 +179,19 @@ export default async function SetPage({ params }: { params: { set: string } }) {
           </p>
         </section>
       )}
+
+      {/* FAQ — visible content backing the FAQPage structured data above. */}
+      <section className="card-surface p-6">
+        <h2 className="text-lg font-extrabold text-white">Pokémon {set.name} — FAQ</h2>
+        <div className="mt-4 grid gap-5 sm:grid-cols-2">
+          {faqs.map((f) => (
+            <div key={f.q}>
+              <h3 className="font-semibold text-white">{f.q}</h3>
+              <p className="mt-1 text-sm leading-relaxed text-slate-400">{f.a}</p>
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }

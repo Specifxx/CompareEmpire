@@ -23,6 +23,6 @@ Checked-and-skipped or deferred, so iterations don't re-evaluate blindly.
 - Trust/urgency: surface the existing 7-day price change as a pill near the card headline + a small sparkline (data already in PriceHistory).
 - Card-page comparison: highlight the cheapest-delivered row / "best total" tag.
 - Accessibility sweep: focus traps on WishlistDrawer/PriceAlertModal, alt text audits, heading order.
-- Per-route FAQ JSON-LD on `/sealed` — DONE. Next candidate: `/sets/[set]` set page.
+- Per-route FAQ JSON-LD on `/sealed` — DONE. `/sets/[set]` — DONE. Next candidate: `/stores` or `/browse` page.
 - `error.tsx` boundaries (global + route) for graceful DB-down fallback.
 - zod validation on API/query params; lightweight rate-limit on `/api/search`, `/api/cards`.
