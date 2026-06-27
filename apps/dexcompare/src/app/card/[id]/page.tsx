@@ -776,6 +776,27 @@ export default async function CardPage({ params }: { params: { id: string } }) {
           </div>
         </section>
       )}
+
+      {/* Mobile sticky buy bar — the cheapest delivered in-stock store, one tap to buy.
+          Desktop keeps the full table; phones get a persistent CTA without scrolling. */}
+      {storeRows.length > 0 && (
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-ink-700 bg-ink-950/95 px-4 py-2.5 backdrop-blur lg:hidden">
+          <div className="mx-auto flex max-w-3xl items-center justify-between gap-3">
+            <div className="min-w-0">
+              <div className="truncate text-[11px] text-slate-400">Cheapest delivered · {storeRows[0].retailerName}</div>
+              <div className="text-base font-extrabold text-accent">{fmt(storeRows[0].delivered)}</div>
+            </div>
+            <OutboundLink
+              href={affiliateUrl(storeRows[0].url)}
+              retailer={storeRows[0].retailer}
+              country={country}
+              className="btn-primary shrink-0"
+            >
+              View deal →
+            </OutboundLink>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
