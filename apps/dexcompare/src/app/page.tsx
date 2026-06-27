@@ -94,9 +94,6 @@ export default async function HomePage() {
   const [{ totalCards, pricedCards, inStockUnits, storeCount, featuredGrid, newSealed }, movers, deals] =
     await Promise.all([getHomeData(country), getTopMovers(12, country), getTopDeals(12, country)]);
 
-  // A few "shop by" quick chips for the header (known-good routes only).
-  const chipSets = POKEMON_SETS.slice(0, 5);
-
   return (
     <>
       <ScrollProgress />
@@ -105,8 +102,8 @@ export default async function HomePage() {
         <section className="card-surface animate-fade-up relative isolate overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-brand-600/15 via-ink-850 to-gold/10" aria-hidden />
           <div className="aurora-layer" aria-hidden>
-            <span className="aurora-blob" style={{ width: 300, height: 300, left: "8%", top: "-14%", background: "#ee1515", opacity: 0.4 }} />
-            <span className="aurora-blob" style={{ width: 340, height: 340, right: "6%", top: "-10%", background: "#ffcb05", opacity: 0.26, animationDelay: "-6s" }} />
+            <span className="aurora-blob" style={{ width: 300, height: 300, left: "8%", top: "-14%", background: "#ee1515", opacity: 0.18 }} />
+            <span className="aurora-blob" style={{ width: 340, height: 340, right: "6%", top: "-10%", background: "#3b5bff", opacity: 0.12, animationDelay: "-6s" }} />
           </div>
 
           <div className="relative px-5 py-8 sm:px-8 sm:py-10">
@@ -123,25 +120,37 @@ export default async function HomePage() {
               </div>
 
               <h1 className="max-w-3xl text-2xl font-extrabold tracking-tight text-white sm:text-4xl">
-                The <span className="text-gradient animate-gradient-pan">Pokémon card</span> marketplace — every store, one price
+                The Pokémon card <span className="text-brand-400">price database</span>
               </h1>
+              <p className="max-w-2xl text-sm text-slate-400 sm:text-base">
+                Search {totalCards.toLocaleString()} cards and compare every {info.adjective} store&apos;s live price to find the cheapest place to buy.
+              </p>
 
-              {/* Search-forward */}
+              {/* Search — the primary way into the database */}
               <div className="w-full max-w-2xl">
                 <Suspense fallback={<div className="input" />}>
                   <SearchBar />
                 </Suspense>
               </div>
 
-              {/* Shop-by quick chips */}
+              {/* Muted quick links into the database */}
               <div className="flex flex-wrap items-center justify-center gap-2">
-                <Link href="/deals" prefetch={false} className="chip border border-emerald-500/40 px-3 py-1 text-sm text-emerald-300 outline-none transition-colors hover:border-emerald-400 focus-visible:ring-2 focus-visible:ring-brand-400">🔥 Deals</Link>
-                {chipSets.map((s) => (
-                  <Link key={s.code} href={`/sets/${s.slug}`} prefetch={false} className="chip border border-ink-700 px-3 py-1 text-sm text-slate-300 outline-none transition-colors hover:border-brand-500 hover:text-white focus-visible:ring-2 focus-visible:ring-brand-400">
-                    {s.name}
+                {[
+                  { href: "/browse", label: "🃏 Browse all" },
+                  { href: "/deals", label: "🔥 Deals" },
+                  { href: "/card-value", label: "💰 Value checker" },
+                  { href: "/sealed", label: "📦 Sealed" },
+                  { href: "/sets", label: "🗂️ Sets" },
+                ].map((c) => (
+                  <Link
+                    key={c.href}
+                    href={c.href}
+                    prefetch={false}
+                    className="chip border border-ink-700 bg-ink-900 px-3 py-1 text-sm text-slate-300 outline-none transition-colors hover:border-brand-500 hover:text-white focus-visible:ring-2 focus-visible:ring-brand-400"
+                  >
+                    {c.label}
                   </Link>
                 ))}
-                <Link href="/sealed" prefetch={false} className="chip border border-sky-500/40 px-3 py-1 text-sm text-sky-300 outline-none transition-colors hover:border-sky-400 focus-visible:ring-2 focus-visible:ring-brand-400">📦 Sealed</Link>
               </div>
 
               <CountryHeroToggle />
@@ -160,13 +169,13 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* ── Shop by collection (Shopify-style merchandising) ── */}
+        {/* ── Explore the database (dark, low-key entry points) ── */}
         <Reveal as="section">
-          <h2 className="mb-4 text-xl font-extrabold text-white sm:text-2xl">🛍️ Shop by collection</h2>
+          <h2 className="mb-4 text-xl font-extrabold text-white sm:text-2xl">🔍 Explore the database</h2>
           <CollectionTiles />
         </Reveal>
 
-        {/* ── The shoppable grid (marketplace centerpiece) ── */}
+        {/* ── Database preview grid + deep-link sort bar ── */}
         <Reveal as="section">
           <HomeShoppableGrid cards={featuredGrid} totalCards={totalCards} storeCount={storeCount} adjective={info.adjective} />
         </Reveal>

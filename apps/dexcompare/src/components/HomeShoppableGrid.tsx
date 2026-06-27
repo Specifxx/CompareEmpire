@@ -25,8 +25,8 @@ export function HomeShoppableGrid({
       <div className="sticky top-16 z-30 -mx-1 mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-ink-800 bg-ink-950/90 px-1 py-3 backdrop-blur">
         <div className="min-w-0">
           <h2 id="shop-heading" className="flex items-center gap-2 text-xl font-extrabold text-white sm:text-2xl">
-            <span className="h-5 w-1 rounded-full bg-gradient-to-b from-brand-400 to-gold" aria-hidden />
-            Shop Pokémon singles
+            <span className="h-5 w-1 rounded-full bg-brand-500" aria-hidden />
+            Browse the card database
           </h2>
           <p className="mt-0.5 text-xs text-slate-400">
             <span className="font-semibold text-white">{totalCards.toLocaleString()}</span> cards ·
