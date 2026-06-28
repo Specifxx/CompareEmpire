@@ -9,7 +9,7 @@ import { SITE_NAME, SITE_URL } from "@/lib/site";
 export function ArticleView({ article }: { article: Article }) {
   const isGuide = article.category === "guide";
   const backHref = isGuide ? "/guides" : "/blog";
-  const backLabel = isGuide ? "All guides" : "All posts";
+  const backLabel = isGuide ? "Guides" : "Blog";
   const related = getRelatedArticles(article.slug, 3);
 
   const jsonLd = {
@@ -23,13 +23,28 @@ export function ArticleView({ article }: { article: Article }) {
     mainEntityOfPage: `${SITE_URL}${backHref}/${article.slug}`,
   };
 
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: backLabel, item: `${SITE_URL}${backHref}` },
+      { "@type": "ListItem", position: 3, name: article.title },
+    ],
+  };
+
   return (
     <article className="mx-auto max-w-3xl">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
 
-      <Link href={backHref} className="mb-4 inline-flex items-center gap-1 text-sm text-slate-400 hover:text-white">
-        ← {backLabel}
-      </Link>
+      <nav aria-label="Breadcrumb" className="mb-4 flex min-w-0 items-center gap-1.5 text-sm">
+        <Link href="/" className="shrink-0 text-slate-500 transition-colors hover:text-slate-300">Home</Link>
+        <span className="shrink-0 text-slate-600" aria-hidden>›</span>
+        <Link href={backHref} className="shrink-0 text-slate-500 transition-colors hover:text-slate-300">{backLabel}</Link>
+        <span className="shrink-0 text-slate-600" aria-hidden>›</span>
+        <span className="truncate text-slate-400" aria-current="page">{article.title}</span>
+      </nav>
 
       <div className="mb-2 flex flex-wrap gap-1.5">
         {article.tags.map((t) => (
