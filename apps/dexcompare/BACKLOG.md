@@ -28,5 +28,5 @@ Checked-and-skipped or deferred, so iterations don't re-evaluate blindly.
 - /sets index redesigned to grouped-by-era layout — DONE.
 - `error.tsx` boundaries (global + route) for graceful DB-down fallback.
 - zod validation on API/query params; lightweight rate-limit on `/api/search`, `/api/cards`.
-- Blog article: "Pokémon Cards as an Investment — Honest Take" — honest take on collectible speculation; high-intent search; straightforward content addition.
+- Blog article: "Pokémon Cards as an Investment — Honest Take" — DONE (this run).
 - Blog article: "Buying Pokémon Cards Internationally" — covers the country-switcher feature, customs/duties, region selection; targets "import pokemon cards" searches.

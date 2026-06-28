@@ -815,6 +815,84 @@ A booster box is three different products. Be honest about which one you want:
 **Bottom line:** boxes are a great entertainment purchase and an occasionally-great sealed hold, but they are never the cheap way to get cards you can just point at. Point first, then [check the price](/browse).`,
   },
   {
+    slug: "pokemon-cards-as-an-investment",
+    category: "blog",
+    title: "Pokémon Cards as an Investment — Honest Take (2026)",
+    excerpt:
+      "The 2021 bubble, what actually held value, what crashed, and the real maths behind 'holding' cards — before you buy anything as an investment read this first.",
+    author: "DexCompare",
+    date: "2026-06-28",
+    readMins: 8,
+    tags: ["investment", "value", "collecting", "market", "sealed"],
+    body: `The Pokémon card market had one of the more dramatic bull runs of the modern collectibles era. Between mid-2020 and early 2021, prices for vintage cards, sealed product, and even bulk modern cards climbed 200–500%. Booster Boxes that sat at retail for months disappeared overnight. First-edition Base Set Charizards that had traded at $10,000–$20,000 suddenly surfaced at $50,000–$100,000+.
+
+Then prices fell. Most of them fell hard — 40–70% from peak by late 2022. Some haven't recovered. For anyone who bought at the peak, the "investment" has been a significant loss. For anyone who already held the right cards before the boom, it was generational.
+
+Which category would you be in if you bought Pokémon cards today as an investment?
+
+## What has actually held value
+
+Not everything collapsed equally. The assets that have retained — and often continued growing from — their pre-boom values:
+
+- **Vintage high grade.** PSA 10 and BGS 10 copies of the genuinely iconic cards — Base Set Charizard Shadowless 1st Edition, Tropical Mega Battle promos, pre-release Raichu — have held elevated values. The authentic scarcity of a Gem Mint copy of a 27-year-old card doesn't change when hype cycles do.
+- **Factory-sealed vintage boxes.** An unopened First Edition Base Set Booster Box isn't abundant, and it becomes slightly less abundant every time someone opens one. Sealed vintage is the most defensible long-term hold in the hobby.
+- **Loved modern sealed (unopened).** The most-loved modern sets — base Sword & Shield, early Scarlet & Violet expansions with iconic SIRs — have tended to hold or appreciate slowly when unopened and well-stored. "Slowly" means years, not months.
+- **Specific high-art singles.** Certain Illustration Rares and SIRs with crossover appeal (buyers who buy the art, not the game) have maintained collector demand above and beyond TCG-player interest.
+
+## What hasn't held value
+
+- **Modern bulk boxes at or above MSRP.** Pokémon prints aggressively. A sold-out new set will restock. Sets rarely stay scarce enough to sustain box prices above MSRP unless they were genuinely beloved AND are now fully out of print.
+- **Graded modern commons.** If you sent $5 cards to PSA during the boom because "everything is going up," you now have $25+ in grading fees and a slab worth $3.
+- **Raw cards held as an "investment".** A card that sits in a sleeve for three years is still a raw card when you go to sell. Condition claims require a buyer's trust; graded slabs are the version that trades in an investment market.
+- **Most Pokémon merchandise.** Tins, playmats, pins: almost none of this appreciates meaningfully. Budget it as a purchase, not a hold.
+
+## The honest maths
+
+Say you buy a modern Booster Box today for $160 AUD at MSRP.
+
+**Carrying costs over 5 years:**
+- Climate-controlled storage (avoid humidity, heat, UV) — part of a storage solution.
+- Insurance on a serious collection runs roughly 1–2% of declared value per year.
+- Opportunity cost of $160 not invested elsewhere.
+
+**Likely outcome spectrum:**
+- Set is loved and out of print in 5 years → maybe 2–3× MSRP.
+- Set is popular but sees multiple reprints → flat to slight decline.
+- Hobby contracts or the set isn't fondly remembered → loss.
+
+A 2–3× return on a 5-year hold in the best case is about 15% compounded annually. That's genuinely solid *if* it happens. But most boxes don't hit that number, and you need to pick right, store right, and never open it.
+
+## The cost people forget: liquidity
+
+When you need to sell, you need a buyer, a platform, and a fee. eBay takes ~13–15% in most markets; a buyer expects a discount off the market guide. A card priced at $500 often nets $350–$400 after fees and negotiation. Factor that in before calculating returns.
+
+Stocks can be sold in seconds. A popular sealed Booster Box takes days to a couple of weeks. Vintage cards in thin markets can take months. That illiquidity is a real cost that rarely appears in "Pokémon investment" content.
+
+## When it makes more sense
+
+Being honest, "Pokémon cards as an investment" is often a post-hoc justification for buying something you already enjoy. That's fine — collecting what you love is a perfectly sound reason to be in this hobby. The problem is when that framing leads to overpaying, holding too long, or buying things you'd never enjoy because a video promised expected value growth.
+
+The cases where holding Pokémon cards as an asset makes more sense:
+
+1. **You're buying vintage, authenticated, graded cards** — you understand the PSA/BGS grading market, you're buying grades with documented population scarcity, and you can afford to hold for 5–10+ years.
+2. **You already collect and love the hobby** — the things you buy because you love them cost you nothing in regret if the price doesn't move. The floor on a Charizard you display in your collection is the enjoyment of owning it.
+3. **You're buying at or below MSRP** — the hold strategy breaks immediately if you start above retail. Only the MSRP buyers have the margin that makes a 2× return meaningful.
+
+## The data angle
+
+We're a price-comparison database, not an investment platform — but the same data that tells you where to buy a card cheapest also tells you how the market is moving. Every [card page](/browse) shows the market guide price sourced from TCGplayer's real transaction history. If you're holding cards as an asset, you need accurate price data, not hype.
+
+The most useful thing you can do with DexCompare for this purpose: [add cards to your collection](/collection) with what you paid, and watch the live market guide next to your cost basis. That's a more honest ledger than optimism.
+
+## The honest summary
+
+Pokémon cards *can* appreciate — some of them, under the right conditions, meaningfully. They are not a reliable asset class. The boom that made it look like one was fuelled by lockdowns, celebrity unboxing videos, and monetary stimulus, not fundamentals. The fundamentals are: scarcity, condition, authenticity, and ongoing demand. Those exist for the best vintage cards and the most beloved sealed product. For most things sold at a game store right now, they don't.
+
+If you're buying cards because you love them: do it. They'll never be worth nothing to you.
+
+If you're buying cards purely as an investment: be honest about which specific cards you're choosing, why they'll be scarce and desired in ten years, and what you'd do if they're not. The investors who came out ahead in 2020–2021 weren't people who bought because the market was hot — they were people who already held things because they genuinely loved them.`,
+  },
+  {
     slug: "why-pokemon-card-prices-differ-between-stores",
     category: "blog",
     title: "Why the Same Pokémon Card Has Five Different Prices",
