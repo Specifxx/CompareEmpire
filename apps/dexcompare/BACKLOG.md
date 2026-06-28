@@ -24,6 +24,7 @@ Checked-and-skipped or deferred, so iterations don't re-evaluate blindly.
 - Card-page comparison: highlight the cheapest-delivered row / "best total" tag. — DONE (this run)
 - Accessibility sweep: WishlistDrawer + PriceAlertModal dialog semantics — DONE. Focus trap in WishlistDrawer — DONE. Focus trap in PriceAlertModal — DONE. Remaining: alt text audits, heading order sweep.
 - Per-route FAQ JSON-LD on `/sealed` — DONE. `/sets/[set]` — DONE. `/stores` — DONE. `/browse` — DONE (canonical unfiltered page 1 only).
+- /guides topic grouping — DONE (Getting started / Value & grading / Buying strategy / Care & safety).
 - Guides: sealed products explained — DONE. How to Value Your Collection — DONE. Related articles section in ArticleView — DONE. Further guide ideas: "Pokémon Cards as an Investment — Honest Take", "Buying Pokémon Cards Internationally".
 - /sets index redesigned to grouped-by-era layout — DONE.
 - `error.tsx` boundaries (global + route) for graceful DB-down fallback — DONE. Branded `not-found.tsx` 404 page — DONE.
