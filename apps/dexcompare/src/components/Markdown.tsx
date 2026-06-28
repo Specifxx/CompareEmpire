@@ -50,7 +50,7 @@ export function Markdown({ content }: { content: string }) {
   const blocks: React.ReactNode[] = [];
   let i = 0;
   let key = 0;
-  const isBreak = (l: string) => /^(#{2,3}\s|[-*]\s|\d+\.\s|---\s*$)/.test(l.trim());
+  const isBreak = (l: string) => /^(#{2,3}\s|[-*]\s|\d+\.\s|---\s*$|\|)/.test(l.trim());
 
   while (i < lines.length) {
     const trimmed = lines[i].trim();
@@ -81,6 +81,44 @@ export function Markdown({ content }: { content: string }) {
         </ol>
       );
       key++;
+      continue;
+    }
+
+    if (trimmed.startsWith("|")) {
+      const rows: string[] = [];
+      while (i < lines.length && lines[i].trim().startsWith("|")) { rows.push(lines[i].trim()); i++; }
+      if (rows.length >= 2) {
+        const parseRow = (r: string) => r.split("|").slice(1, -1).map((c) => c.trim());
+        const [headerRow, , ...dataRows] = rows; // skip the separator row at index 1 (|---|---|)
+        const headers = parseRow(headerRow);
+        blocks.push(
+          <div key={key} className="my-4 overflow-x-auto rounded-lg border border-ink-700">
+            <table className="min-w-full divide-y divide-ink-700 text-sm">
+              <thead>
+                <tr>
+                  {headers.map((h, j) => (
+                    <th key={j} className="bg-ink-900 px-4 py-2.5 text-left text-xs font-bold uppercase tracking-wide text-slate-400">
+                      {inline(h, `th${key}-${j}`)}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-ink-800">
+                {dataRows.map((row, j) => (
+                  <tr key={j} className={j % 2 ? "bg-ink-900/30" : ""}>
+                    {parseRow(row).map((cell, k) => (
+                      <td key={k} className="px-4 py-2.5 text-slate-300">
+                        {inline(cell, `td${key}-${j}-${k}`)}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        );
+        key++;
+      }
       continue;
     }
 

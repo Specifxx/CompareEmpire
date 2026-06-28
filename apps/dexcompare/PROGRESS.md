@@ -2,6 +2,8 @@
 
 Newest first. Each entry: what · why · commit.
 
+- Markdown renderer: added table support (`|`-delimited markdown tables now render as styled HTML `<table>` elements with a dark rounded border, uppercase column headers, alternating row tints, and overflow-x-auto for narrow screens) · two existing articles ("How to Value Your Collection" condition-haircut table; "How to Complete a Set" tier cost breakdown) were previously displaying as blobs of pipe-separated text instead of readable tables; this fix makes the content actually usable · (this commit)
+
 - Guides listing page: redesigned from flat 2-column grid → topic-grouped layout with four sections (Getting started, Value & grading, Buying strategy, Care & safety), a rounded-pill jump-nav at the top, and article counts per section; any future guide slugs not yet assigned fall into a graceful "More guides" overflow section · with 9 guides the flat list was already hard to scan; grouping by intent lets buyers navigate straight to the topic they need (beginner vs valuation vs care), and the jump-nav makes the page useful on mobile without scrolling · (this commit)
 
 - Per-route `not-found.tsx` for `/card/[id]`, `/sets/[set]`, `/guides/[slug]`, `/blog/[slug]` — each shows a contextual message (e.g. "Card not found — search by name or collector number" with an inline search form for the card route; set/guide/blog variants link to their respective listing pages) instead of the generic root 404; the card variant includes a plain-HTML search form that submits to `/browse?q=` without JS · when users hit a broken card URL or mistyped set slug the recovery CTA is now relevant to where they were, keeping them in the right part of the site · (this commit)
