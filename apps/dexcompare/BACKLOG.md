@@ -26,7 +26,8 @@ Checked-and-skipped or deferred, so iterations don't re-evaluate blindly.
 - Per-route FAQ JSON-LD on `/sealed` — DONE. `/sets/[set]` — DONE. `/stores` — DONE. `/browse` — DONE (canonical unfiltered page 1 only).
 - Guides: sealed products explained — DONE. How to Value Your Collection — DONE. Related articles section in ArticleView — DONE. Further guide ideas: "Pokémon Cards as an Investment — Honest Take", "Buying Pokémon Cards Internationally".
 - /sets index redesigned to grouped-by-era layout — DONE.
-- `error.tsx` boundaries (global + route) for graceful DB-down fallback.
+- `error.tsx` boundaries (global + route) for graceful DB-down fallback — DONE. Branded `not-found.tsx` 404 page — DONE.
 - zod validation on API/query params; lightweight rate-limit on `/api/search`, `/api/cards`.
+- Per-route `not-found.tsx` for `/card/[id]` (card not found), `/sets/[set]` (set not found), `/guides/[slug]` — when the slug doesn't match, these currently fall through to the root 404 or throw; could show a more contextual message (e.g. "We couldn't find that card — search for it below").
 - Blog article: "Pokémon Cards as an Investment — Honest Take" — DONE (this run).
 - Blog article: "Buying Pokémon Cards Internationally" — DONE (this run).
