@@ -20,7 +20,7 @@ Checked-and-skipped or deferred, so iterations don't re-evaluate blindly.
 
 ## Candidate safe wins (code-only) to pick from next
 - Per-card meta description enrichment (rarity + lowest price) — verify it's not already rich enough first.
-- Trust/urgency: surface the existing 7-day price change as a pill near the card headline + a small sparkline (data already in PriceHistory).
+- Trust/urgency: ~~surface the existing 7-day price change as a pill~~ — DONE (coloured Metric tile with sentiment prop, green/rose).
 - Card-page comparison: highlight the cheapest-delivered row / "best total" tag. — DONE (this run)
 - Accessibility sweep: WishlistDrawer + PriceAlertModal dialog semantics — DONE. Focus trap in WishlistDrawer — DONE. Focus trap in PriceAlertModal — DONE. Remaining: alt text audits, heading order sweep.
 - Per-route FAQ JSON-LD on `/sealed` — DONE. `/sets/[set]` — DONE. `/stores` — DONE. `/browse` — DONE (canonical unfiltered page 1 only).

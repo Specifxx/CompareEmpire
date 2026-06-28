@@ -380,7 +380,11 @@ export default async function CardPage({ params }: { params: { id: string } }) {
               {!headlineIsFoil && cheapestFoil != null && <Metric label="✦ Foil from" value={fmt(cheapestFoil)} highlight />}
               <Metric label="Compared at" value={`${prices.length} ${prices.length === 1 ? "store" : "stores"}`} />
               {weekChange != null && Math.abs(weekChange) >= 0.05 ? (
-                <Metric label="7-day trend" value={`${weekChange > 0 ? "▲" : "▼"} ${Math.abs(weekChange).toFixed(1)}%`} />
+                <Metric
+                  label="7-day trend"
+                  value={`${weekChange > 0 ? "▲" : "▼"} ${Math.abs(weekChange).toFixed(1)}%`}
+                  sentiment={weekChange < 0 ? "positive" : "negative"}
+                />
               ) : (
                 card.might != null && <Metric label="HP" value={String(card.might)} />
               )}
@@ -806,11 +810,35 @@ export default async function CardPage({ params }: { params: { id: string } }) {
   );
 }
 
-function Metric({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
+function Metric({
+  label,
+  value,
+  highlight,
+  sentiment,
+}: {
+  label: string;
+  value: string;
+  highlight?: boolean;
+  sentiment?: "positive" | "negative";
+}) {
+  const bg =
+    sentiment === "positive"
+      ? "bg-emerald-500/[0.07]"
+      : sentiment === "negative"
+      ? "bg-rose-500/[0.07]"
+      : "bg-ink-900";
+  const valueColor =
+    sentiment === "positive"
+      ? "text-emerald-400"
+      : sentiment === "negative"
+      ? "text-rose-400"
+      : highlight
+      ? "text-accent"
+      : "text-white";
   return (
-    <div className="rounded-lg bg-ink-900 p-3">
+    <div className={`rounded-lg p-3 ${bg}`}>
       <div className="text-[11px] uppercase tracking-wide text-slate-500">{label}</div>
-      <div className={`text-lg font-bold ${highlight ? "text-accent" : "text-white"}`}>{value}</div>
+      <div className={`text-lg font-bold ${valueColor}`}>{value}</div>
     </div>
   );
 }
