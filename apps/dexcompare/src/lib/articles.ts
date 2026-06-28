@@ -893,6 +893,96 @@ If you're buying cards because you love them: do it. They'll never be worth noth
 If you're buying cards purely as an investment: be honest about which specific cards you're choosing, why they'll be scarce and desired in ten years, and what you'd do if they're not. The investors who came out ahead in 2020–2021 weren't people who bought because the market was hot — they were people who already held things because they genuinely loved them.`,
   },
   {
+    slug: "buying-pokemon-cards-internationally",
+    category: "blog",
+    title: "Buying Pokémon Cards Internationally — What You Need to Know",
+    excerpt:
+      "When importing cards saves money, when it costs you extra, how customs works in AU/NZ/US/UK, and how to use the country switcher so you're comparing stores that actually ship to you.",
+    author: "DexCompare",
+    date: "2026-06-28",
+    readMins: 7,
+    tags: ["buying", "international", "import", "stores", "prices"],
+    body: `Pokémon TCG cards are a global product but a locally-priced one. The same card can be $15 USD in the US, $25 AUD in Australia (roughly $16 USD), and £12 GBP in the UK (roughly $15 USD) — or the gaps can run the other way, depending on the set and the stores. That spread makes "should I buy internationally?" a real question, and the answer isn't always obvious.
+
+## Why the price gap exists
+
+Local stores in each market pay their own import and distribution costs, carry inventory in their local currency, and price to the local competitive landscape. A dedicated TCG retailer in Melbourne is competing with other Melbourne shops; they're not competing with a US store that doesn't ship to Australia economically.
+
+The result: for popular modern English cards, US stores almost always have the deepest supply and the lowest floor prices, because the US is the largest TCG market and TCGplayer alone lists millions of singles. Australian, NZ, and UK buyers looking at international options are usually comparing against US sources.
+
+**The gap that matters is the delivered price — card + international shipping + any import duty.** That's what DexCompare is actually showing when you set your country and filter by market.
+
+## How the DexCompare country switcher works
+
+The **country selector** at the top of every page filters the stores you see to those that ship to your selected country. When you're set to Australia, you see Australian stores (and any international stores that ship to Australia) with prices in AUD. New Zealand shows NZD from NZ stores. US shows USD. UK shows GBP.
+
+This means the comparison you're doing is already "international-aware" — if an overseas store ships to your country at a price that's competitive after postage, it appears in your comparison. If it doesn't, it doesn't.
+
+Practical takeaway: **set your country first, then browse.** You'll see the real comparison — local and international stores that ship to you, cheapest delivered first — without having to manually calculate currency and shipping for each tab.
+
+## When importing genuinely saves money
+
+A few scenarios where buying internationally makes sense:
+
+**1. The card isn't stocked locally.**
+For older singles — cards from sets that released a few years ago — local stores in smaller markets (NZ especially) often have thin or no inventory. A US or AU source ships internationally for a modest flat fee, and suddenly the card you've been waiting for is available today.
+
+**2. The domestic price is well above the market guide.**
+Every card page shows the market guide price, sourced from TCGplayer's real transaction history. If every local store in your country is, say, 40% above that guide, and a US source ships internationally for $8–12, the maths often work — especially for cards $30+.
+
+**3. You're ordering multiple cards at once.**
+International shipping is mostly a fixed cost ($5–15 in most cases for registered post from a US store). A single $12 card doesn't justify it; five $15–20 cards in one order almost always does. The per-card shipping cost collapses to $2–3, and the price advantage of the US market takes over.
+
+## When it doesn't make sense
+
+**1. Customs and import duties.**
+This is the hidden cost most guides skip.
+
+- **Australia:** Cards are generally zero-rated for GST if the total order value is under AU$1,000 (the low-value import threshold). Above $1,000, the marketplace or seller is supposed to collect GST. In practice, small parcels under the threshold arrive without additional tax the vast majority of the time. Large, high-value purchases may attract GST at the border.
+- **New Zealand:** Similar threshold system; parcels under NZ$1,000 in total value are typically GST-free. The NZ customs authority does spot-check packages.
+- **United States:** Buying internationally *into* the US from, say, a Japanese store is a different scenario — import duties can apply on goods above the de minimis threshold (currently US$800). For most TCG card orders this threshold is rarely reached, but buying high-value sealed product internationally can attract attention.
+- **United Kingdom:** Post-Brexit, all goods imported from outside the UK are subject to VAT (currently 20%) if the consignment value exceeds £135. For card orders — especially sealed Booster Boxes or high-value singles — this is a real cost. A £100 order from a US store can attract £20 in VAT plus Royal Mail's handling fee.
+
+**The practical rule:** for most raw singles under $50–100 in value, international shipping works fine. For sealed product worth $150+ or large collections, check the duty situation for your country before ordering.
+
+**2. Condition disputes across borders.**
+Returning a card internationally is expensive and slow. If a card arrives in worse condition than described, a "not as described" claim works — but the postage cost to return it often exceeds the card's value. This argues for buying high-value raw cards from local stores, or from sellers with clear grading photos, when you're importing.
+
+**3. Small orders where postage kills the saving.**
+A single $8 common doesn't make sense to import even if the card is $3 cheaper internationally. The crossover point for most shipping scenarios is roughly $15–20 per card at international shipping rates, and the card needs to be meaningfully above the domestic price.
+
+## Japanese vs English cards: the language trap
+
+A significant fraction of "cheap international" listings are Japanese cards. Japanese printings of popular cards are often 40–70% cheaper than English — which makes them attractive to buyers who discover them on search, and attractive to sellers who list them without being clear about the language.
+
+**Japanese cards are legitimately beautiful and legitimately cheaper.** They're the same game, different language, typically with slightly different card sizes and different backs. If you're collecting for art or display, Japanese is a genuine option.
+
+**Japanese cards are not substitutes for English in most price comparisons** — their graded and raw markets are separate, a Japanese PSA 10 is worth less than an English one, and bulk Japanese cards have essentially no resale value in English markets.
+
+On DexCompare, our comparisons filter to English-language cards. The market price guide is TCGplayer's, which covers the English market. If you're buying to match the prices you see here, buy English.
+
+## The delivered-price discipline
+
+Whether you're buying locally or internationally, the number that matters is the one that leaves your account:
+
+**Card price + postage = delivered price.**
+
+For domestic orders, DexCompare shows postage where stores publish it. For international orders, you need to add international shipping manually (typically US$8–15 from US stores to AU/NZ/UK; check the store's shipping page for your destination).
+
+The quick calculation: find the card's cheapest domestic store on the [browse page](/browse), note the delivered price, then check whether a cheaper international source — after shipping — still beats it. For high-value singles and multi-card orders, it often does.
+
+## The sensible approach
+
+1. **Set your country** in the DexCompare selector to see the real local comparison first.
+2. **Check if the local delivered price is near the market guide.** If it is, buy locally — simpler, faster, no duty risk.
+3. **If local prices are 20%+ above guide**, look at international options — especially US sources for AU/NZ/UK buyers.
+4. **Bundle orders** when buying internationally — the shipping cost is mostly fixed, so more cards = better maths.
+5. **Know the duty rules for your country** on high-value orders before you click.
+6. **Stick to English cards** unless you're deliberately collecting Japanese prints.
+
+The country switcher and the market guide are the two tools that make this comparison quick. Everything else is just the delivered-price discipline applied across borders.`,
+  },
+  {
     slug: "why-pokemon-card-prices-differ-between-stores",
     category: "blog",
     title: "Why the Same Pokémon Card Has Five Different Prices",
