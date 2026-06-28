@@ -28,6 +28,6 @@ Checked-and-skipped or deferred, so iterations don't re-evaluate blindly.
 - /sets index redesigned to grouped-by-era layout — DONE.
 - `error.tsx` boundaries (global + route) for graceful DB-down fallback — DONE. Branded `not-found.tsx` 404 page — DONE.
 - zod validation on API/query params; lightweight rate-limit on `/api/search`, `/api/cards`.
-- Per-route `not-found.tsx` for `/card/[id]` (card not found), `/sets/[set]` (set not found), `/guides/[slug]` — when the slug doesn't match, these currently fall through to the root 404 or throw; could show a more contextual message (e.g. "We couldn't find that card — search for it below").
+- Per-route `not-found.tsx` for `/card/[id]`, `/sets/[set]`, `/guides/[slug]`, `/blog/[slug]` — DONE (this run).
 - Blog article: "Pokémon Cards as an Investment — Honest Take" — DONE (this run).
 - Blog article: "Buying Pokémon Cards Internationally" — DONE (this run).
