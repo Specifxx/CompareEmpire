@@ -3,7 +3,8 @@
 Checked-and-skipped or deferred, so iterations don't re-evaluate blindly.
 
 ## Already implemented (do NOT redo)
-- Markdown table support — `|`-delimited tables now render as styled HTML tables (DONE this run).
+- SearchBar arrow-key navigation — ArrowDown/ArrowUp cycle results, Enter opens QuickView, aria-activedescendant (DONE this run).
+- Markdown table support — `|`-delimited tables now render as styled HTML tables (DONE).
 - Delivered-cost ranking of the card-page store table (`card/[id]/page.tsx` sorts by `delivered`).
 - BreadcrumbList JSON-LD on the card page; Product/FAQ structured data; per-card metadata.
 - Set page: rich `generateMetadata` + `SetCompletion` component already exist (`sets/[set]/page.tsx`).

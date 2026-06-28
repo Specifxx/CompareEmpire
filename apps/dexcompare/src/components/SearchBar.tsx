@@ -12,6 +12,7 @@ type Result = CardTileData;
 
 // Search with a live preview dropdown (debounced + abortable so typing stays
 // snappy). Submitting still does a real navigation to the results page.
+// Arrow keys navigate the dropdown; Enter opens the highlighted result.
 export function SearchBar() {
   const router = useRouter();
   const params = useSearchParams();
@@ -21,7 +22,9 @@ export function SearchBar() {
   const [results, setResults] = useState<Result[]>([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(-1);
   const boxRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
 
   // Debounced fetch of preview results.
@@ -50,6 +53,11 @@ export function SearchBar() {
     return () => clearTimeout(t);
   }, [value]);
 
+  // Reset active index whenever results list changes.
+  useEffect(() => {
+    setActiveIndex(-1);
+  }, [results]);
+
   // Close on outside click.
   useEffect(() => {
     function onClick(e: MouseEvent) {
@@ -66,7 +74,40 @@ export function SearchBar() {
     router.push(q ? `/browse?q=${encodeURIComponent(q)}` : "/browse");
   }
 
+  function openResult(r: Result) {
+    setOpen(false);
+    fetch(`/api/card/${r.slug ?? r.id}/view?source=search`, { method: "POST", keepalive: true }).catch(() => {});
+    openQuickView(r);
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (!showDropdown) {
+      if (e.key === "Escape") setOpen(false);
+      return;
+    }
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setActiveIndex((i) => (i < results.length - 1 ? i + 1 : 0));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setActiveIndex((i) => {
+        if (i <= 0) {
+          // Wrap back to bottom or deselect.
+          return i === 0 ? results.length - 1 : -1;
+        }
+        return i - 1;
+      });
+    } else if (e.key === "Enter" && activeIndex >= 0) {
+      e.preventDefault();
+      openResult(results[activeIndex]);
+    } else if (e.key === "Escape") {
+      setActiveIndex(-1);
+      setOpen(false);
+    }
+  }
+
   const showDropdown = open && value.trim().length >= 2;
+  const activeId = activeIndex >= 0 ? `search-result-${activeIndex}` : undefined;
 
   return (
     <div ref={boxRef} className="relative max-w-xl">
@@ -82,21 +123,21 @@ export function SearchBar() {
           <path d="m21 21-4.3-4.3" />
         </svg>
         <input
+          ref={inputRef}
           value={value}
           onChange={(e) => {
             setValue(e.target.value);
             setOpen(true);
           }}
           onFocus={() => setOpen(true)}
-          onKeyDown={(e) => {
-            if (e.key === "Escape") setOpen(false);
-          }}
+          onKeyDown={handleKeyDown}
           placeholder="Search Pokémon, cards, sets…"
           className="input pl-9"
           aria-label="Search Pokémon cards"
           role="combobox"
           aria-expanded={showDropdown}
           aria-controls="search-results"
+          aria-activedescendant={activeId}
           autoComplete="off"
           enterKeyHint="search"
         />
@@ -110,43 +151,44 @@ export function SearchBar() {
             </div>
           ) : (
             <ul id="search-results" role="listbox" className="max-h-[70vh] overflow-y-auto py-1">
-              {results.map((r) => (
-                <li key={r.id}>
-                  <Link
-                    href={cardHref(r)}
-                    prefetch={false}
-                    onClick={(e) => {
-                      // A search-result click is the key demand signal (drives eBay
-                      // priority) — record it however they open the card.
-                      fetch(`/api/card/${r.slug ?? r.id}/view?source=search`, { method: "POST", keepalive: true }).catch(() => {});
-                      // Left-click opens the instant modal (fast); modifier/middle
-                      // click still opens the full page in a new tab.
-                      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
-                      e.preventDefault();
-                      setOpen(false);
-                      openQuickView(r);
-                    }}
-                    className="flex items-center gap-3 px-3 py-2 hover:bg-ink-800"
-                  >
-                    <div className="h-12 w-9 shrink-0 overflow-hidden rounded bg-ink-900">
-                      {r.imageThumbUrl && (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={r.imageThumbUrl} alt={`${r.name} (${r.setCode})`} className="h-full w-full object-cover" loading="lazy" />
-                      )}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-semibold text-white">{r.name}</div>
-                      <div className="text-xs text-slate-500">
-                        {r.setCode} · {r.collectorNumber}
-                        {r.variant ? ` · Alt ${r.variant}` : ""}
+              {results.map((r, idx) => {
+                const isActive = idx === activeIndex;
+                return (
+                  <li key={r.id} id={`search-result-${idx}`} role="option" aria-selected={isActive}>
+                    <Link
+                      href={cardHref(r)}
+                      prefetch={false}
+                      onClick={(e) => {
+                        // A search-result click is the key demand signal (drives eBay
+                        // priority) — record it however they open the card.
+                        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+                        e.preventDefault();
+                        openResult(r);
+                      }}
+                      className={`flex items-center gap-3 px-3 py-2 transition-colors ${
+                        isActive ? "bg-ink-700" : "hover:bg-ink-800"
+                      }`}
+                    >
+                      <div className="h-12 w-9 shrink-0 overflow-hidden rounded bg-ink-900">
+                        {r.imageThumbUrl && (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={r.imageThumbUrl} alt={`${r.name} (${r.setCode})`} className="h-full w-full object-cover" loading="lazy" />
+                        )}
                       </div>
-                    </div>
-                    <div className="shrink-0 text-sm font-bold text-accent">
-                      {price(r) != null ? fmt(price(r)!) : "—"}
-                    </div>
-                  </Link>
-                </li>
-              ))}
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm font-semibold text-white">{r.name}</div>
+                        <div className="text-xs text-slate-500">
+                          {r.setCode} · {r.collectorNumber}
+                          {r.variant ? ` · Alt ${r.variant}` : ""}
+                        </div>
+                      </div>
+                      <div className="shrink-0 text-sm font-bold text-accent">
+                        {price(r) != null ? fmt(price(r)!) : "—"}
+                      </div>
+                    </Link>
+                  </li>
+                );
+              })}
               <li className="border-t border-ink-800">
                 <button
                   type="button"
@@ -156,7 +198,7 @@ export function SearchBar() {
                   }}
                   className="w-full px-4 py-2 text-left text-xs text-brand-400 hover:bg-ink-800"
                 >
-                  See all results for “{value.trim()}” →
+                  See all results for &ldquo;{value.trim()}&rdquo; →
                 </button>
               </li>
             </ul>

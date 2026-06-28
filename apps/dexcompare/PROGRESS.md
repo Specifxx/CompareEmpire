@@ -2,6 +2,8 @@
 
 Newest first. Each entry: what · why · commit.
 
+- SearchBar: added arrow-key navigation to the live search dropdown — ArrowDown/ArrowUp cycle through results (wrapping), the active row gets a distinct `bg-ink-700` highlight, Enter opens the highlighted card's QuickView, Escape closes; `aria-activedescendant` + `role="option"` + `aria-selected` wired for screen readers; `activeIndex` resets on every new result set so stale highlights never persist · users expect arrow-key navigation in any search-as-you-type box; without it the dropdown is mouse-only which feels unfinished and forces keyboard users to tab through results one by one · (this commit)
+
 - Markdown renderer: added table support (`|`-delimited markdown tables now render as styled HTML `<table>` elements with a dark rounded border, uppercase column headers, alternating row tints, and overflow-x-auto for narrow screens) · two existing articles ("How to Value Your Collection" condition-haircut table; "How to Complete a Set" tier cost breakdown) were previously displaying as blobs of pipe-separated text instead of readable tables; this fix makes the content actually usable · (this commit)
 
 - Guides listing page: redesigned from flat 2-column grid → topic-grouped layout with four sections (Getting started, Value & grading, Buying strategy, Care & safety), a rounded-pill jump-nav at the top, and article counts per section; any future guide slugs not yet assigned fall into a graceful "More guides" overflow section · with 9 guides the flat list was already hard to scan; grouping by intent lets buyers navigate straight to the topic they need (beginner vs valuation vs care), and the jump-nav makes the page useful on mobile without scrolling · (this commit)
