@@ -3,69 +3,113 @@ import type { Metadata } from "next";
 import { POKEMON_SETS } from "@/lib/pokemon-sets";
 
 export const metadata: Metadata = {
-  title: "All Pokémon TCG Sets",
-  description: "Browse every Pokémon TCG set and compare card prices set by set.",
+  title: "All Pokémon TCG Sets — Browse by Era",
+  description: "Browse every Pokémon TCG set by era — from Mega Evolution and Scarlet & Violet back to the original Base Set. Compare card prices set by set.",
   alternates: { canonical: "/sets" },
 };
 
-const PER_PAGE = 24;
+// Group POKEMON_SETS (newest first) into ordered series buckets.
+// First occurrence of a series in the array defines its sort position, so
+// the newest series (Mega Evolution) naturally comes first.
+function groupBySeries(sets: typeof POKEMON_SETS) {
+  const order: string[] = [];
+  const map: Record<string, typeof POKEMON_SETS> = {};
+  for (const s of sets) {
+    if (!map[s.series]) {
+      map[s.series] = [];
+      order.push(s.series);
+    }
+    map[s.series].push(s);
+  }
+  return order.map((series) => ({ series, sets: map[series] }));
+}
 
-export default function SetsIndex({ searchParams }: { searchParams: { page?: string } }) {
+export default function SetsIndex() {
   const total = POKEMON_SETS.length;
-  const pages = Math.ceil(total / PER_PAGE);
-  const page = Math.min(Math.max(1, parseInt(searchParams.page ?? "1", 10) || 1), pages);
-  const start = (page - 1) * PER_PAGE;
-  const slice = POKEMON_SETS.slice(start, start + PER_PAGE);
+  const grouped = groupBySeries(POKEMON_SETS);
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-8">
-      <div className="mb-1 flex items-end justify-between gap-3">
+      <div className="mb-2">
         <h1 className="text-2xl font-extrabold text-white">All Pokémon TCG sets</h1>
-        <span className="text-sm text-slate-400">{total} sets · page {page} of {pages}</span>
+        <p className="mt-1 text-sm text-slate-400">
+          {total} sets across {grouped.length} eras — newest first. Pick a set to compare its card prices.
+        </p>
       </div>
-      <p className="mb-6 text-sm text-slate-400">Newest first. Pick a set to compare its card prices.</p>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-        {slice.map((s) => (
-          <Link
-            key={s.code}
-            href={`/sets/${s.slug}`}
-            className="card-surface group flex flex-col items-center justify-between gap-3 p-4 transition-colors hover:border-brand-500"
+      {/* Era quick-jump nav */}
+      <nav aria-label="Jump to era" className="mb-8 flex flex-wrap gap-2">
+        {grouped.map(({ series }) => (
+          <a
+            key={series}
+            href={`#${slugify(series)}`}
+            className="rounded-full border border-ink-700 bg-ink-900 px-3 py-1 text-xs font-medium text-slate-300 transition-colors hover:border-brand-500 hover:text-white"
           >
-            <div className="flex h-16 w-full items-center justify-center">
-              {s.logo ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={s.logo} alt={s.name} loading="lazy" className="max-h-16 max-w-full object-contain transition-transform group-hover:scale-105" />
-              ) : (
-                <span className="text-lg font-bold text-white">{s.code.toUpperCase()}</span>
-              )}
+            {series}
+          </a>
+        ))}
+      </nav>
+
+      {/* Sets grouped by era */}
+      <div className="space-y-10">
+        {grouped.map(({ series, sets: seriesSets }) => (
+          <section key={series} id={slugify(series)} aria-labelledby={`hd-${slugify(series)}`}>
+            {/* Series header */}
+            <div className="mb-4 flex items-baseline gap-3 border-b border-ink-700 pb-2">
+              <h2
+                id={`hd-${slugify(series)}`}
+                className="text-base font-bold text-white"
+              >
+                {series}
+              </h2>
+              <span className="text-xs text-slate-500">
+                {seriesSets.length} {seriesSets.length === 1 ? "set" : "sets"}
+              </span>
+              <span className="ml-auto text-xs text-slate-600">
+                {seriesSets[seriesSets.length - 1].releaseDate.slice(0, 4)}
+                {seriesSets[0].releaseDate.slice(0, 4) !== seriesSets[seriesSets.length - 1].releaseDate.slice(0, 4)
+                  ? `–${seriesSets[0].releaseDate.slice(0, 4)}`
+                  : ""}
+              </span>
             </div>
-            <div className="text-center">
-              <div className="truncate text-sm font-semibold text-white">{s.name}</div>
-              <div className="text-[11px] text-slate-500">{s.series} · {s.releaseDate.slice(0, 4)}</div>
+
+            {/* Set tiles */}
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+              {seriesSets.map((s) => (
+                <Link
+                  key={s.code}
+                  href={`/sets/${s.slug}`}
+                  className="card-surface group flex flex-col items-center gap-3 p-4 transition-colors hover:border-brand-500"
+                >
+                  <div className="flex h-14 w-full items-center justify-center">
+                    {s.logo ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={s.logo}
+                        alt={s.name}
+                        loading="lazy"
+                        className="max-h-14 max-w-full object-contain transition-transform group-hover:scale-105"
+                      />
+                    ) : (
+                      <span className="text-sm font-bold text-white">{s.code.toUpperCase()}</span>
+                    )}
+                  </div>
+                  <div className="w-full text-center">
+                    <div className="truncate text-xs font-semibold text-white">{s.name}</div>
+                    <div className="mt-0.5 text-[10px] text-slate-500">
+                      {s.total} cards · {s.releaseDate.slice(0, 4)}
+                    </div>
+                  </div>
+                </Link>
+              ))}
             </div>
-          </Link>
+          </section>
         ))}
       </div>
-
-      {/* Pagination */}
-      <nav className="mt-8 flex flex-wrap items-center justify-center gap-2 text-sm">
-        {page > 1 && <Link href={`/sets?page=${page - 1}`} className="btn-ghost">← Prev</Link>}
-        {Array.from({ length: pages }, (_, i) => i + 1)
-          .filter((p) => p === 1 || p === pages || Math.abs(p - page) <= 2)
-          .map((p, idx, arr) => (
-            <span key={p} className="flex items-center gap-2">
-              {idx > 0 && arr[idx - 1] !== p - 1 && <span className="text-slate-600">…</span>}
-              <Link
-                href={`/sets?page=${p}`}
-                className={`rounded-lg px-3 py-1.5 ${p === page ? "bg-brand text-white" : "text-slate-300 hover:bg-ink-800"}`}
-              >
-                {p}
-              </Link>
-            </span>
-          ))}
-        {page < pages && <Link href={`/sets?page=${page + 1}`} className="btn-ghost">Next →</Link>}
-      </nav>
     </main>
   );
+}
+
+function slugify(text: string): string {
+  return text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }

@@ -2,6 +2,8 @@
 
 Newest first. Each entry: what · why · commit.
 
+- /sets index: redesigned from flat paginated grid → grouped-by-era layout with 17 series buckets (Mega Evolution → Base), each section with an anchor, card count per tile (`s.total`), year-range in the header, and a quick-jump era nav at the top; removed pagination — all 173 sets visible at once grouped logically; purely static (no DB query) · a paginated flat grid offers no sense of era or scale; grouped layout lets collectors navigate straight to the era they collect, and shows card counts to compare set sizes · (this commit)
+
 - Discovery: "More guides/posts you might like" section added at the bottom of every article (ArticleView) — ranked by tag overlap with the current article, shows up to 3 related articles in a responsive 3-column card grid; boosts internal linking, reduces bounce from guide pages, and surfaces related content automatically without manual curation · (this commit)
 
 - Guides: new evergreen article "How to Value Your Pokémon Card Collection" — covers the 5-step valuation process (identify by set code/collector number, look up the market guide, apply condition haircut, distinguish collection vs resale value, when grading changes the number); includes a condition-grade table, the 80/20 bulk-sorting tip, and links to /card-value, /collection, /browse, and the grading guide; targets high-intent "pokemon card collection value" searches · (this commit)

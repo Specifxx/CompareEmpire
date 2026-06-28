@@ -25,5 +25,8 @@ Checked-and-skipped or deferred, so iterations don't re-evaluate blindly.
 - Accessibility sweep: WishlistDrawer + PriceAlertModal dialog semantics — DONE. Focus trap in WishlistDrawer — DONE. Focus trap in PriceAlertModal — DONE. Remaining: alt text audits, heading order sweep.
 - Per-route FAQ JSON-LD on `/sealed` — DONE. `/sets/[set]` — DONE. `/stores` — DONE. `/browse` — DONE (canonical unfiltered page 1 only).
 - Guides: sealed products explained — DONE. How to Value Your Collection — DONE. Related articles section in ArticleView — DONE. Further guide ideas: "Pokémon Cards as an Investment — Honest Take", "Buying Pokémon Cards Internationally".
+- /sets index redesigned to grouped-by-era layout — DONE.
 - `error.tsx` boundaries (global + route) for graceful DB-down fallback.
 - zod validation on API/query params; lightweight rate-limit on `/api/search`, `/api/cards`.
+- Blog article: "Pokémon Cards as an Investment — Honest Take" — honest take on collectible speculation; high-intent search; straightforward content addition.
+- Blog article: "Buying Pokémon Cards Internationally" — covers the country-switcher feature, customs/duties, region selection; targets "import pokemon cards" searches.
