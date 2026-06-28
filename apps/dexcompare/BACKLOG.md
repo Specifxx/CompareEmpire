@@ -21,6 +21,7 @@ Checked-and-skipped or deferred, so iterations don't re-evaluate blindly.
 - **Lint-on-build (`eslint.ignoreDuringBuilds: false`)**: only after auditing/fixing existing lint, else it could break the prod build.
 
 ## Candidate safe wins (code-only) to pick from next
+- Guide: "Pokémon Card Grading — PSA vs CGC" — DONE (this run, slug: pokemon-card-grading-psa-vs-cgc).
 - Per-card meta description enrichment (rarity + lowest price) — verify it's not already rich enough first.
 - Trust/urgency: ~~surface the existing 7-day price change as a pill~~ — DONE (coloured Metric tile with sentiment prop, green/rose).
 - Card-page comparison: highlight the cheapest-delivered row / "best total" tag. — DONE (this run)

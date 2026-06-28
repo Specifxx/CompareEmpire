@@ -28,6 +28,7 @@ const TOPICS: { id: string; label: string; slugs: string[] }[] = [
       "pokemon-card-rarities-explained",
       "pokemon-card-conditions-and-grading",
       "how-to-value-your-pokemon-card-collection",
+      "pokemon-card-grading-psa-vs-cgc",
     ],
   },
   {

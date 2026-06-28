@@ -983,6 +983,89 @@ The quick calculation: find the card's cheapest domestic store on the [browse pa
 The country switcher and the market guide are the two tools that make this comparison quick. Everything else is just the delivered-price discipline applied across borders.`,
   },
   {
+    slug: "pokemon-card-grading-psa-vs-cgc",
+    category: "guide",
+    title: "Pokémon Card Grading — PSA vs CGC, Costs & What Gets a 10 (2026)",
+    excerpt:
+      "Everything you need to decide whether to grade your Pokémon cards: PSA vs CGC compared, 2026 costs and turnaround times, the maths of when grading pays off, and how to self-assess before you submit.",
+    author: "DexCompare",
+    date: "2026-06-28",
+    readMins: 7,
+    tags: ["grading", "PSA", "CGC", "value", "collecting"],
+    body: `Professional grading turns a raw card into a certified slab — but it costs money, takes time, and can go badly wrong if you submit the wrong card. This guide covers the decision honestly so you can keep your money where it belongs.
+
+## What grading actually does
+
+A grader (PSA, CGC or Beckett) authenticates your card, inspects it under magnification across four dimensions — centering, edges, corners and surface — and assigns a numeric grade from 1 to 10. The card is then sealed in a tamper-evident plastic case (a "slab") with the grade printed on it.
+
+The practical effects:
+- **Condition is locked in** — a PSA 10 is a PSA 10 forever; no dispute about whether it's NM.
+- **Fakes are ruled out** — legitimate companies authenticate before grading.
+- **Resale is faster and cleaner** — buyers know exactly what they're getting.
+
+## PSA vs CGC: the real difference
+
+| | PSA | CGC |
+|---|---|---|
+| **Brand recognition** | Highest — the gold standard | Strong and growing fast |
+| **Resale liquidity** | Best — PSA 10s command the highest premiums | Good; premium vs raw is lower but catching up |
+| **Sub-grades** | No | Yes (centering/edges/corners/surface) |
+| **Economy turnaround** | ~60–90 days | ~45–80 days |
+| **Economy tier cost** | ~US$25/card | ~US$20/card |
+| **Best for** | Vintage and high-value cards where PSA brand pays | Modern cards, high volume, or when sub-grades add context |
+
+**Bottom line:** PSA if you're grading a vintage card or anything where slabs trade heavily and the PSA brand premium justifies the extra cost. CGC if you're doing modern cards, want sub-grades, or are running higher-volume submissions where cost differences add up.
+
+Beckett (BGS) is worth knowing about — their "Black Label 10" (all four sub-grades perfect) is the rarest flex in the hobby — but BGS is a niche market and BGS slabs outside vintage are harder to sell.
+
+## The economics: when grading pays off
+
+Grading costs roughly US$20–30 per card at economy tiers in 2026, excluding return shipping. That fee is sunk — you don't get it back if the card comes back a 7. Run the maths before you submit.
+
+**The decision formula:**
+
+1. Find the raw NM market price for your card — [check the card page](/card-value).
+2. Estimate your realistic grade. Most hobbyist cards that look mint come back 8–9, not 10.
+3. Look up completed eBay sales for "PSA 10 [card name]" and "PSA 9 [card name]".
+4. Subtract: grading fee ($25) + return shipping (~$8) + marketplace fees (~13% on eBay).
+5. If the net uplift over raw still beats your cost in step 1 — you have a case.
+
+**Concrete example (2026):**
+- Raw NM: $80. PSA 10 comparables: $240. PSA 9 comparables: $95.
+- If it's genuinely a 10: $240 − $25 − $8 − $31 (eBay 13%) = $176 net. You paid $80 raw. **Profit of $96.** Worth it.
+- If it's more likely a 9: $95 − $25 − $8 − $12 = $50 net. You paid $80. **Loss of $30.** Not worth it.
+
+The maths is brutal and honest: most cards don't pass it. That's fine — raw cards in sleeves are a perfectly good collection.
+
+**Cards almost never worth grading:** commons, uncommons, modern bulk, anything under ~$50 raw, played copies, and cards where graded sales are sparse (no buyers = no premium).
+
+## Self-grading: what the companies actually check
+
+Inspect your card under a single bright point light, tilted at an angle. The four dimensions:
+
+- **Centering** — PSA 10 needs roughly 55/45 or better front, 75/25 back. Even slightly off-centre rarely grades 10.
+- **Edges** — run your fingernail along each edge under light. Any white chipping = 8 at best.
+- **Corners** — all four must be sharp. A single fuzzy corner is a 9 ceiling.
+- **Surface** — holo scratches are the most common killer. Rotate slowly under a point light and look for rings or fine lines. Any visible = 8 or below.
+
+If you can easily spot problems, the card is a 9 at best. Only submit 9s where the 9-vs-raw premium justifies the fee.
+
+## Practical submission tips
+
+1. **Use a local submission service** — Australian, NZ and UK collectors shipping direct to PSA/CGC in the US face expensive one-way postage. Several local TCG dealers run group submissions that pool the shipping cost significantly.
+2. **Double-sleeve for transit** — penny sleeve first, rigid top-loader, team bag, padded envelope. Never ship a bare card.
+3. **Declare the correct value** — PSA/CGC insurance is based on your declared value; under-declaring is your risk, over-declaring drives up their declared-value tier fees.
+4. **Set realistic expectations** — most hobbyist submissions return 7–9. A genuine 10 requires a card that was never touched without gloves or sleeved fresh from a pack.
+
+## Should you buy graded or raw?
+
+**Buy raw** when you're collecting for enjoyment, the card is under $100, and the seller's photos are clear. Condition risk on good stores with honest descriptions is low.
+
+**Buy graded** when the card is expensive and condition risk matters — a raw $500 vintage card can easily be a 7 dressed up as NM. A PSA 9 or 10 removes that uncertainty. The [condition guide](/guides/pokemon-card-conditions-and-grading) covers how to read condition in photos when buying raw.
+
+Track your raw cards and their current market values in the [collection tracker](/collection) — the fastest way to spot which cards in your binder have grown enough that grading might finally make economic sense.`,
+  },
+  {
     slug: "why-pokemon-card-prices-differ-between-stores",
     category: "blog",
     title: "Why the Same Pokémon Card Has Five Different Prices",
