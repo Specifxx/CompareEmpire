@@ -866,3 +866,14 @@ export function getArticles(category?: ArticleCategory): Article[] {
 export function getArticle(slug: string): Article | undefined {
   return ARTICLES.find((a) => a.slug === slug);
 }
+
+export function getRelatedArticles(currentSlug: string, limit = 3): Article[] {
+  const current = ARTICLES.find((a) => a.slug === currentSlug);
+  if (!current) return [];
+  const others = ARTICLES.filter((a) => a.slug !== currentSlug && a.category === current.category);
+  return others
+    .map((a) => ({ article: a, overlap: a.tags.filter((t) => current.tags.includes(t)).length }))
+    .sort((a, b) => b.overlap - a.overlap || b.article.date.localeCompare(a.article.date))
+    .slice(0, limit)
+    .map((s) => s.article);
+}

@@ -2,6 +2,8 @@
 
 Newest first. Each entry: what · why · commit.
 
+- Discovery: "More guides/posts you might like" section added at the bottom of every article (ArticleView) — ranked by tag overlap with the current article, shows up to 3 related articles in a responsive 3-column card grid; boosts internal linking, reduces bounce from guide pages, and surfaces related content automatically without manual curation · (this commit)
+
 - Guides: new evergreen article "How to Value Your Pokémon Card Collection" — covers the 5-step valuation process (identify by set code/collector number, look up the market guide, apply condition haircut, distinguish collection vs resale value, when grading changes the number); includes a condition-grade table, the 80/20 bulk-sorting tip, and links to /card-value, /collection, /browse, and the grading guide; targets high-intent "pokemon card collection value" searches · (this commit)
 
 - /browse: added FAQ section (4 Q&As: which sets are in the database, how to find the cheapest price, why the same Pokémon appears multiple times, and how often prices update) + FAQPage JSON-LD; gated to canonical unfiltered page 1 only · SEO rich-result eligibility on the main card database landing page — the highest-traffic page on the site, which was the last major page without FAQ markup · (this commit)
