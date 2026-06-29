@@ -512,14 +512,17 @@ export default async function CardPage({ params }: { params: { id: string } }) {
                   <li className="flex flex-wrap items-center gap-x-3 gap-y-2 p-3 hover:bg-ink-900/50 sm:flex-nowrap sm:p-4">
                     <div className="w-5 shrink-0 text-center text-sm font-bold text-slate-500 sm:w-6" aria-hidden>★</div>
                     <div className="min-w-0 flex-1">
-                      <div className="truncate font-semibold text-white">eBay{country === "NZ" ? " AU" : ""}</div>
+                      <div className="truncate font-semibold text-white">
+                        eBay{country === "NZ" ? " AU" : ""}{" "}
+                        <span className="font-normal text-slate-500">(price not available)</span>
+                      </div>
                       <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-500">
                         <span className="chip bg-ink-800 text-slate-300">Marketplace</span>
-                        <span>live Buy It Now &amp; auction listings</span>
+                        <span>search live Buy It Now &amp; auction listings</span>
                       </div>
                     </div>
                     <div className="shrink-0 text-right">
-                      <div className="text-sm font-semibold text-slate-300">See listings</div>
+                      <div className="text-lg font-bold text-slate-500">—</div>
                     </div>
                     <OutboundLink
                       href={ebaySearchHref}
@@ -527,7 +530,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
                       country={country}
                       className="btn-primary order-last w-full basis-full justify-center sm:order-none sm:w-auto sm:basis-auto"
                     >
-                      Search on eBay →
+                      Search eBay →
                     </OutboundLink>
                   </li>
                 )}
