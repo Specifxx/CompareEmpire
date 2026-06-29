@@ -199,6 +199,32 @@ function QuickViewModal({ card, onClose }: { card: CardTileData; onClose: () => 
                 </div>
               ) : (
                 <ul className="divide-y divide-ink-800">
+                  {/* Interim eBay entry (no API price yet): high-key search row at the
+                      top, styled like a store row, affiliate-tagged. */}
+                  {!hasEbay && (
+                    <li className="flex items-center gap-3 py-2">
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm font-semibold text-white">
+                          eBay{country === "NZ" ? " AU" : ""}{" "}
+                          <span className="font-normal text-slate-500">(price not available)</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-[11px] text-slate-500">
+                          <span>Marketplace · search live listings</span>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm font-bold text-slate-500">—</div>
+                      </div>
+                      <OutboundLink
+                        href={ebaySearchHref}
+                        retailer="ebay_search"
+                        country={country}
+                        className="btn-primary px-3 py-1.5 text-xs"
+                      >
+                        Search eBay →
+                      </OutboundLink>
+                    </li>
+                  )}
                   {inStock.slice(0, 6).map((p, i) => (
                     <li key={p.id} className="flex items-center gap-3 py-2">
                       <div className="min-w-0 flex-1">
@@ -243,18 +269,16 @@ function QuickViewModal({ card, onClose }: { card: CardTileData; onClose: () => 
                   See all {inStock.length} stores →
                 </a>
               )}
-              {/* eBay not compared for this card yet (quota rotation) — be upfront
-                  and hand over an affiliate-tagged search instead. */}
-              {prices && inStock.length > 0 && !hasEbay && (
-                <p className="mt-2 border-t border-ink-800 pt-2 text-[11px] text-slate-500">
-                  eBay isn&apos;t in this comparison yet — we rotate daily eBay checks across the catalogue.{" "}
+              {/* eBay already priced above — still offer a search for more eBay listings. */}
+              {prices && inStock.length > 0 && hasEbay && (
+                <p className="mt-2 border-t border-ink-800 pt-2 text-right text-[11px] text-slate-500">
                   <OutboundLink
                     href={ebaySearchHref}
                     retailer="ebay_search"
                     country={country}
                     className="font-semibold text-brand-400 hover:underline"
                   >
-                    Search eBay{country === "NZ" ? " AU" : ""} for a cheaper price →
+                    Search eBay{country === "NZ" ? " AU" : ""} for more listings →
                   </OutboundLink>
                 </p>
               )}
