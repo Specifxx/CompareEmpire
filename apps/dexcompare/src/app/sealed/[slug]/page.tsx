@@ -101,6 +101,7 @@ export default async function SealedComparePage({ params }: { params: { slug: st
   const inStock = listings.filter((l) => l.inStock);
   const lowest = group.lowestPriceCents;
   const ebayHref = ebaySearchUrl(group.name, country);
+  const hasEbay = listings.some((l) => l.retailer === "ebay");
   const lastSeen = listings.reduce<Date | null>((latest, l) => (!latest || l.lastSeen > latest ? l.lastSeen : latest), null);
 
   // One valid AggregateOffer from every known listing price (in stock or last
@@ -193,6 +194,31 @@ export default async function SealedComparePage({ params }: { params: { slug: st
           </div>
         ) : (
           <ul className="divide-y divide-ink-800">
+            {/* eBay as a store row at the top when it isn't already listed — gives
+                every sealed page a second source (and drives the eBay affiliate). */}
+            {!hasEbay && (
+              <li className="flex flex-wrap items-center gap-x-3 gap-y-2 px-3 py-3 sm:flex-nowrap sm:px-4">
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-sm font-semibold text-white">
+                    eBay{country === "NZ" ? " AU" : ""}{" "}
+                    <span className="font-normal text-slate-500">(price not available)</span>
+                  </div>
+                  <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-slate-500">
+                    <span>Marketplace · search live listings</span>
+                  </div>
+                </div>
+                <div className="shrink-0 text-right text-sm font-bold text-slate-500">—</div>
+                <OutboundLink
+                  href={ebayHref}
+                  retailer="ebay_search"
+                  country={country}
+                  kind="sealed"
+                  className="btn-primary order-last w-full basis-full justify-center sm:order-none sm:w-auto sm:basis-auto"
+                >
+                  Search eBay →
+                </OutboundLink>
+              </li>
+            )}
             {listings.map((l, i) => (
               <li
                 key={i}
@@ -221,12 +247,13 @@ export default async function SealedComparePage({ params }: { params: { slug: st
             ))}
           </ul>
         )}
-        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-ink-800 bg-ink-900/40 px-4 py-3 text-xs text-slate-400">
-          <span>Want the secondary market too?</span>
-          <OutboundLink href={ebayHref} retailer="ebay_search" country={country} kind="sealed" className="shrink-0 font-semibold text-brand-400 hover:underline">
-            Search eBay{country === "NZ" ? " AU" : ""} →
-          </OutboundLink>
-        </div>
+        {hasEbay && (
+          <div className="flex items-center justify-end border-t border-ink-800 px-4 py-2.5 text-xs">
+            <OutboundLink href={ebayHref} retailer="ebay_search" country={country} kind="sealed" className="font-semibold text-brand-400 hover:underline">
+              Search eBay{country === "NZ" ? " AU" : ""} for more listings →
+            </OutboundLink>
+          </div>
+        )}
       </section>
 
       {/* Affiliate banners — both live partners on this high-AOV sealed page.
