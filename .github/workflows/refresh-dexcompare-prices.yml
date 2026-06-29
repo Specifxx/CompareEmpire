@@ -11,10 +11,11 @@ name: Refresh DexCompare prices (daily)
 # the URL as an input instead.
 
 on:
-  # Scheduled runs DISABLED 2026-06-21 — DexCompare deactivated to cut cost.
-  # Re-enable by uncommenting the two lines below.
-  # schedule:
-  #   - cron: "30 18 * * *" # 04:30 Sydney (AEST) daily, before the AU morning
+  # Re-enabled 2026-06-28 — DexCompare is back online on the new DB. This run is
+  # the authoritative writer of the daily PriceHistory snapshot (the Vercel cron
+  # times out first), which powers the Index, Market Wrap, trend charts + movers.
+  schedule:
+    - cron: "30 18 * * *" # 04:30 Sydney (AEST) daily, before the AU morning
   workflow_dispatch:
     inputs:
       dexcompare_url:
