@@ -13,7 +13,16 @@ HARD SAFETY RULES (main auto-deploys to the live site — never break it):
 - Only commit if BOTH `npx tsc --noEmit` AND `DATABASE_URL="postgresql://u:p@127.0.0.1:5432/none" npx next build` pass cleanly in apps/dexcompare. If your first idea can't pass, revert it and choose another — but you MUST still ship one passing change this run.
 - Prisma schema: ADDITIVE only (new optional columns/tables); never rename/drop/retype. If a change isn't safely additive, defer it to BACKLOG.md and pick something else.
 - Never add paid dependencies/services, touch real payments, commit secrets, delete data, disable monetization (ads/affiliate), or remove SEO content.
-- Aesthetic: free, dark, low-key, cohesive, classy (no blinding/rainbow colours, no clutter). Database-first (it's a price-comparison DATABASE, not a shop). You MAY restyle/redesign individual components and non-homepage pages for a fresher, more cohesive look. Keep the HOMEPAGE minimal — refine/restyle it, but do NOT pile on new sections.
+- Aesthetic: the site uses a "MARKET TERMINAL" design language (CSFloat / Bloomberg trading-desk). You MUST keep every change consistent with it. Database-first (it's a price-comparison DATABASE, not a shop). You MAY restyle/redesign individual components and non-homepage pages, but only WITHIN this language. Keep the HOMEPAGE minimal — refine/restyle it, but do NOT pile on new sections.
+  MARKET TERMINAL RULES (do not violate; do not regress the site back toward the old "bubbly/AI-generated" look):
+  - Flat panels with hairline borders. Use the `.card-surface` class (flat `bg-ink-900` + `border-ink-800`), not gradients or heavy shadows.
+  - NO decorative gradients (`bg-gradient-to-*` washes), NO `text-gradient` rainbow text, NO glow shadows (`shadow-glow*`), NO aurora layers, NO glossy hover shines, NO `hover:-translate-y-*` lift flourishes. For an accent cue on a panel use a thin `border-l-2 border-brand-500`, not a coloured wash.
+  - NO decorative emoji in headings, banners, buttons, labels, or nav chips. (Functional/semantic glyphs already in place — e.g. the `✦` foil cue — are fine; don't add new ones.)
+  - ONE sharp accent only: Poké red (`brand-500`/`brand-400`), used sparingly for primary actions + active states. `accent` is a NEUTRAL near-white for numerals; `gold` is a muted brass reserved for foil/value semantics only. Use `up` (green) / `down` (red) tokens for gain/loss deltas — plain `+`/`−`, not arrow emoji.
+  - PRICES, percentages, index values, and tabular figures use MONOSPACE numerals: add the `.num` utility (`font-mono tabular-nums tracking-tight`). Don't mono-ify body prose.
+  - Corners are restrained: `rounded-lg` for panels, `rounded-md` for small chips/buttons (don't go back to `rounded-2xl`). Keep `rounded-full` only on dots/pills/avatars.
+  - Motion is crisp + minimal (colour/opacity transitions, respect `prefers-reduced-motion`). The `/games` minigames section is intentionally more playful — leave its personality alone.
+  Before shipping any visual change, re-read globals.css `@layer components` + tailwind.config.ts so you reuse these tokens instead of inventing new colours/effects.
 - Respect prefers-reduced-motion; keep SSR/SEO intact (links render server-side); mind Neon egress (no new uncached per-request DB joins on hot paths).
 
 EVERGREEN MENU (rotate through these; combine with your own ideas):
