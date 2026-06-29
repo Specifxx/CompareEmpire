@@ -45,7 +45,7 @@ Checked-and-skipped or deferred, so iterations don't re-evaluate blindly.
 4. Card image alt enrichment: `"{name} ({setCode} {collectorNumber})"` in `CardImage.tsx`/`CardTile.tsx` — DONE (added `setCode?: string` to `CardImageData`; all six rendering contexts automatically pick it up).
 5. New high-intent, genuinely-useful landing page: `/cheapest` — DONE (three price bands, 8 cards each, BreadcrumbList + FAQPage JSON-LD, nav link added). Sibling `/sealed-deals` page (sealed below MSRP) still to do.
 6. "Popular/trending" hub (`/trending` or `/popular`) listing most-viewed cards (views already tracked) + link it from nav + footer — concentrates internal link equity. DONE (this run — `/trending` page + nav-sections.ts "Trending cards" entry in Market section).
-7. Related-link blocks on card pages: "Cheaper cards in {set}" and "Other {type} cards" (more crawl paths + dwell time).
+7. Related-link blocks on card pages: "Cheaper cards in {set}" and "Other {type} cards" (more crawl paths + dwell time). — DONE (this run).
 8. About page (who/why, data sourcing + freshness + Index methodology) for E-E-A-T; add author to guides if not already.
 9. Market-wrap editions: ensure each carries unique substantive analysis (named movers + why), not just price deltas (avoid auto-generated/thin-content risk). `src/lib/market-wrap.ts`.
 10. Sitemap index: split `sitemap.ts` into a sitemap index + child sitemaps (cards/sets/sealed/content) with per-section revalidate, so new cards are discovered faster at scale.

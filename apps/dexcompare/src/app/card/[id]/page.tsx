@@ -105,7 +105,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
   // Daily cheapest-price snapshots (AU market) for the trend chart, plus every
   // other printing of this card (same name, different set/number) so collectors
   // can compare reprints — e.g. Base Set vs Classic Collection.
-  const [historyRows, otherPrints, reviewRows] = await Promise.all([
+  const [historyRows, otherPrints, reviewRows, cheaperInSet, sameTypeCards] = await Promise.all([
     // Trend history for the VISITOR'S market (each market priced in its own currency).
     prisma.priceHistory.findMany({
       where: { cardId: card.id, country },
@@ -134,6 +134,21 @@ export default async function CardPage({ params }: { params: { id: string } }) {
         take: 20,
       })
       .catch(() => [] as Array<{ id: string; rating: number; title: string | null; body: string | null; author: string | null; createdAt: Date }>),
+    // Cheapest other cards in the same set — crawl depth + "also in this set" discovery.
+    prisma.card.findMany({
+      where: { setCode: card.setCode, id: { not: card.id } },
+      orderBy: [{ lowestPriceCents: { sort: "asc", nulls: "last" } }],
+      select: cardTileSelect(country),
+      take: 8,
+    }),
+    // Other cards of the same Pokémon type from a different set — broadens discovery
+    // without duplicating the "also in this set" section above.
+    prisma.card.findMany({
+      where: { type: card.type, id: { not: card.id }, setCode: { not: card.setCode } },
+      orderBy: [{ lowestPriceCents: { sort: "asc", nulls: "last" } }],
+      select: cardTileSelect(country),
+      take: 8,
+    }),
   ]);
   // CompareEmpire Marketplace: active user listings (asks) + open buy orders
   // (bids) for THIS card, plus the signed-in viewer so we can gate buy/sell
@@ -802,6 +817,51 @@ export default async function CardPage({ params }: { params: { id: string } }) {
           </div>
           <div className="-mx-1 flex gap-4 overflow-x-auto px-1 pb-2">
             {(otherPrints as CardTileData[]).map((c) => (
+              <div key={c.id} className="w-36 shrink-0 sm:w-44">
+                <CardTile card={c} />
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Cheaper cards in the same set — internal links + dwell time. */}
+      {cheaperInSet.length > 0 && (
+        <section className="mt-8">
+          <div className="mb-4 flex items-end justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-extrabold text-white">More cards from {card.setName}</h2>
+              <p className="mt-0.5 text-xs text-slate-500">
+                Other singles in this set, sorted by cheapest price.
+              </p>
+            </div>
+            {setSlug && (
+              <Link href={`/sets/${setSlug}`} className="shrink-0 text-xs font-semibold text-brand-400 hover:underline">
+                See all {card.setName} cards →
+              </Link>
+            )}
+          </div>
+          <div className="-mx-1 flex gap-4 overflow-x-auto px-1 pb-2">
+            {(cheaperInSet as CardTileData[]).map((c) => (
+              <div key={c.id} className="w-36 shrink-0 sm:w-44">
+                <CardTile card={c} />
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Other cards of the same type — cross-set discovery. */}
+      {sameTypeCards.length > 0 && (
+        <section className="mt-8">
+          <div className="mb-4">
+            <h2 className="text-xl font-extrabold text-white">Other {card.type} cards</h2>
+            <p className="mt-0.5 text-xs text-slate-500">
+              More {card.type} singles from across the Pokémon TCG, sorted by cheapest price.
+            </p>
+          </div>
+          <div className="-mx-1 flex gap-4 overflow-x-auto px-1 pb-2">
+            {(sameTypeCards as CardTileData[]).map((c) => (
               <div key={c.id} className="w-36 shrink-0 sm:w-44">
                 <CardTile card={c} />
               </div>

@@ -2,6 +2,8 @@
 
 Newest first. Each entry: what · why · commit.
 
+- SEO: related-link blocks on every card page — two new horizontal-scroll sections added below "Other printings": "More cards from {setName}" (up to 8 cheapest singles in the same set, with a "See all → /sets/{slug}" link) and "Other {type} cards" (up to 8 cheapest cards of the same Pokémon type from other sets); both reuse the existing `cardTileSelect` + `CardTile` pattern with zero new components; deepens crawl paths from every card page into its set and into the same Pokémon type cluster, increases internal link equity across ~20k card URLs, and gives buyers a natural discovery path for related singles · (this commit)
+
 - SEO: new `/trending` landing page — most-viewed cards per market (uses existing `viewCount` + `getPopularCards`), BreadcrumbList + FAQPage JSON-LD, "Live" pill in hero, nav entry added to Market section; targets "trending Pokémon cards", "popular Pokémon singles", "what Pokémon cards are hot right now" — concentrates internal link equity on a high-intent discovery cluster · (this commit)
 
 - SEO: new `/cheapest` landing page — three price bands (under $5, $5–$10, $10–$50), 8 real card tiles per band pulled live from the DB for the visitor's market, BreadcrumbList + FAQPage JSON-LD, "Cheapest cards" nav link added to "Shop prices" section; targets "cheapest Pokémon cards", "cheap Pokémon singles", "Pokémon cards under $5/$10/$50" — a high-intent search cluster with no dedicated page previously · (this commit)
