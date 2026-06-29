@@ -3,6 +3,19 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CardTile, CardTileData } from "./CardTile";
 
+function CardSkeleton() {
+  return (
+    <div className="card-surface overflow-hidden">
+      <div className="aspect-[5/7] w-full animate-pulse bg-ink-800" />
+      <div className="space-y-2 border-t border-ink-700 p-3">
+        <div className="h-3 w-3/4 animate-pulse rounded bg-ink-800" />
+        <div className="h-2.5 w-1/2 animate-pulse rounded bg-ink-800" />
+        <div className="mt-3 h-5 w-1/3 animate-pulse rounded bg-ink-800" />
+      </div>
+    </div>
+  );
+}
+
 export function BrowseGrid({
   initial,
   total,
@@ -61,16 +74,13 @@ export function BrowseGrid({
         {cards.map((c) => (
           <CardTile key={c.id} card={c} />
         ))}
+        {loading &&
+          Array.from({ length: 12 }).map((_, i) => <CardSkeleton key={`sk-${i}`} />)}
       </div>
 
-      {hasMore && (
-        <div ref={sentinel} className="flex justify-center py-8">
-          <div className="flex items-center gap-2 text-sm text-slate-500">
-            <span className="h-4 w-4 animate-spin rounded-full border-2 border-ink-600 border-t-brand-400" />
-            Loading more…
-          </div>
-        </div>
-      )}
+      {/* Invisible sentinel — IntersectionObserver triggers loadMore 600 px before it enters the viewport */}
+      {hasMore && <div ref={sentinel} className="h-px" aria-hidden="true" />}
+
       {!hasMore && cards.length > 0 && (
         <p className="py-8 text-center text-xs text-slate-600">
           You&apos;ve reached the end · {total.toLocaleString()} cards
