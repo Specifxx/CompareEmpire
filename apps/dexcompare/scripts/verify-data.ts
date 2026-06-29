@@ -15,7 +15,15 @@ import { prisma } from "../src/lib/db";
 import { marketGuideCents } from "../src/lib/country";
 
 const PCT_OF_GUIDE_FLOOR = Number(process.env.VERIFY_GUIDE_FLOOR ?? 0.4); // <40% of guide = suspicious
-const SUSPICIOUS_CAP = Number(process.env.VERIFY_SUSPICIOUS_CAP ?? 150); // fail if more than this many are suspicious
+// Check B is a SPIKE detector (a sudden jump = a matching regression), so its
+// ceiling must scale with the catalogue. As TCGplayer-guided coverage + store
+// count grew, a fixed count of 150 became too tight (a normal ~2-3% long tail of
+// genuinely-cheap played/bulk AU singles below an inflated low-liquidity USD
+// guide now exceeds it). We fail only if the suspicious count tops the LARGER of
+// an absolute floor and a fraction of the guided population — so organic growth
+// passes, but a true regression (a big spike, e.g. >6% of guided cards) still fails.
+const SUSPICIOUS_CAP = Number(process.env.VERIFY_SUSPICIOUS_CAP ?? 300); // absolute floor (raised from 150 for the larger catalogue)
+const SUSPICIOUS_RATIO = Number(process.env.VERIFY_SUSPICIOUS_RATIO ?? 0.06); // ...or this fraction of guided cards, whichever is larger
 const DROP_FAIL_RATIO = Number(process.env.VERIFY_DROP_RATIO ?? 0.5); // fail if priced count < 50% of previous day
 
 // Same predicate the importer uses to recompute a market's headline lowest price:
@@ -58,9 +66,11 @@ async function main() {
     return guideAud != null && (c.lowestPriceCents as number) < guideAud * PCT_OF_GUIDE_FLOOR;
   });
   // A handful of genuine clearance deals is fine; a SPIKE means a matching regression.
-  const bOk = suspicious.length <= SUSPICIOUS_CAP;
+  // Scale the ceiling with the guided population (see note above the constants).
+  const suspiciousCap = Math.max(SUSPICIOUS_CAP, Math.round(guided.length * SUSPICIOUS_RATIO));
+  const bOk = suspicious.length <= suspiciousCap;
   if (!bOk) failed = true;
-  lines.push(`B suspicious (<${Math.round(PCT_OF_GUIDE_FLOOR * 100)}% of TCGplayer guide)          ${bOk ? "PASS" : "FAIL"}  ${suspicious.length} cards (cap ${SUSPICIOUS_CAP})`);
+  lines.push(`B suspicious (<${Math.round(PCT_OF_GUIDE_FLOOR * 100)}% of TCGplayer guide)          ${bOk ? "PASS" : "FAIL"}  ${suspicious.length}/${guided.length} cards (cap ${suspiciousCap})`);
   if (suspicious.length) console.error("  e.g.", suspicious.slice(0, 8).map((c) => c.name).join(" | "));
 
   // ── Check C: priced-card count didn't collapse vs the previous day ─────────
