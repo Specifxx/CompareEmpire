@@ -82,21 +82,14 @@ export default async function HomePage() {
       <ScrollProgress />
       <div className="flex flex-col gap-10">
         {/* ── Hero: search-first gateway to the database ── */}
-        <section className="card-surface animate-fade-up relative isolate overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-brand-600/12 via-ink-850 to-ink-900" aria-hidden />
-          <div className="aurora-layer" aria-hidden>
-            <span className="aurora-blob" style={{ width: 300, height: 300, left: "10%", top: "-14%", background: "#ee1515", opacity: 0.16 }} />
-            <span className="aurora-blob" style={{ width: 340, height: 340, right: "8%", top: "-10%", background: "#3b5bff", opacity: 0.1, animationDelay: "-6s" }} />
-          </div>
-
-          <div className="relative px-5 py-10 sm:px-8 sm:py-12">
+        <section className="card-surface relative overflow-hidden">
+          <div className="px-5 py-9 sm:px-8 sm:py-11">
             <div className="flex flex-col items-center gap-4 text-center">
               <div className="flex items-center gap-3">
-                <Logo size={44} />
-                <span className="inline-flex items-center gap-2 rounded-full border border-ink-700/70 bg-ink-900/60 px-3 py-1 text-xs font-medium text-slate-300">
-                  <span className="relative flex h-2 w-2">
-                    <span className="absolute inline-flex h-full w-full animate-pulse-ring rounded-full bg-emerald-400/70" />
-                    <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+                <Logo size={40} />
+                <span className="inline-flex items-center gap-2 rounded border border-ink-700 bg-ink-950 px-2.5 py-1 text-[11px] font-medium uppercase tracking-wide text-slate-400">
+                  <span className="relative flex h-1.5 w-1.5">
+                    <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-up" />
                   </span>
                   Live prices · updated daily
                 </span>
@@ -106,7 +99,7 @@ export default async function HomePage() {
                 The Pokémon card <span className="text-brand-400">price database</span>
               </h1>
               <p className="max-w-2xl text-sm text-slate-400 sm:text-base">
-                Search {totalCards.toLocaleString()} cards and compare every {info.adjective} store&apos;s live price to find the cheapest place to buy.
+                Search <span className="num text-slate-300">{totalCards.toLocaleString()}</span> cards and compare every {info.adjective} store&apos;s live price to find the cheapest place to buy.
               </p>
 
               {/* Search — the primary action */}
@@ -119,15 +112,15 @@ export default async function HomePage() {
               {/* Only the essential shortcuts */}
               <div className="flex flex-wrap items-center justify-center gap-2">
                 {[
-                  { href: "/browse", label: "🃏 Browse all" },
-                  { href: "/deals", label: "🔥 Deals" },
-                  { href: "/card-value", label: "💰 Value checker" },
+                  { href: "/browse", label: "Browse all" },
+                  { href: "/deals", label: "Deals" },
+                  { href: "/card-value", label: "Value checker" },
                 ].map((c) => (
                   <Link
                     key={c.href}
                     href={c.href}
                     prefetch={false}
-                    className="chip border border-ink-700 bg-ink-900 px-3 py-1 text-sm text-slate-300 outline-none transition-colors hover:border-brand-500 hover:text-white focus-visible:ring-2 focus-visible:ring-brand-400"
+                    className="chip rounded border border-ink-700 bg-ink-950 px-3 py-1 text-sm text-slate-300 outline-none transition-colors hover:border-brand-500 hover:text-white focus-visible:ring-2 focus-visible:ring-brand-400"
                   >
                     {c.label}
                   </Link>
@@ -159,8 +152,8 @@ export default async function HomePage() {
             <div className="mb-4 flex items-end justify-between gap-3">
               <div className="min-w-0">
                 <h2 className="flex items-center gap-2 text-xl font-extrabold text-white sm:text-2xl">
-                  <span className="h-5 w-1 rounded-full bg-brand-500" aria-hidden />
-                  🔥 Today&apos;s best deals
+                  <span className="h-5 w-1 bg-brand-500" aria-hidden />
+                  Today&apos;s best deals
                 </h2>
                 <p className="mt-1 text-xs text-slate-400">{info.adjective} store prices well below the TCGplayer market guide right now.</p>
               </div>
@@ -170,8 +163,8 @@ export default async function HomePage() {
               {deals.map((d) => (
                 <div key={d.card.id} className="w-36 shrink-0 snap-start sm:w-44">
                   <div className="mb-1.5 flex items-center justify-between px-1 text-xs font-bold">
-                    <span className="text-emerald-400">▼ {d.pct}%</span>
-                    <span className="text-slate-500 line-through">{formatMoney(d.guideCents, info.currency)}</span>
+                    <span className="num text-up">−{d.pct}%</span>
+                    <span className="num text-slate-500 line-through">{formatMoney(d.guideCents, info.currency)}</span>
                   </div>
                   <CardTile card={d.card} />
                 </div>
@@ -221,7 +214,7 @@ export default async function HomePage() {
 function Stat({ value, label }: { value: number; label: string }) {
   return (
     <span>
-      <span className="font-extrabold text-gold"><CountUp value={value} /></span>{" "}
+      <span className="num font-extrabold text-slate-200"><CountUp value={value} /></span>{" "}
       <span className="uppercase tracking-wide">{label}</span>
     </span>
   );

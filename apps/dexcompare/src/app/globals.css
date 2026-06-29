@@ -124,39 +124,46 @@ h1, h2, h3 {
     @apply mx-auto w-full max-w-[1400px] px-4 sm:px-6;
   }
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-all duration-150 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-semibold transition-colors duration-150 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50;
     @apply outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2 focus-visible:ring-offset-ink-950;
   }
+  /* Primary action: flat, solid Poké-red — the one sharp accent. No gradient/glow. */
   .btn-primary {
-    @apply btn bg-gradient-to-br from-brand-400 to-brand-600 text-white shadow-glow hover:brightness-110;
+    @apply btn bg-brand-500 text-white hover:bg-brand-600;
   }
   .btn-ghost {
-    @apply btn bg-ink-800 text-slate-200 hover:bg-ink-700;
+    @apply btn border border-ink-700 bg-ink-850 text-slate-200 hover:border-ink-600 hover:bg-ink-800;
   }
+  /* Secondary "bright" action: flat near-white panel button with dark ink text. */
   .btn-accent {
-    @apply btn bg-gradient-to-br from-gold to-accent text-ink-950 hover:brightness-105;
+    @apply btn bg-accent text-ink-950 hover:bg-white;
   }
   .input {
-    @apply w-full rounded-xl border border-ink-700 bg-ink-900 px-3 py-2 text-base text-slate-100 placeholder:text-slate-500 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/40 sm:text-sm;
+    @apply w-full rounded-md border border-ink-700 bg-ink-950 px-3 py-2 text-base text-slate-100 placeholder:text-slate-500 outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 sm:text-sm;
   }
+  /* Flat terminal panel: hairline border, square-ish corners, quiet elevation. */
   .card-surface {
-    @apply rounded-2xl border border-ink-700/70 bg-gradient-to-b from-ink-850 to-ink-900 shadow-card-lg transition-[transform,box-shadow,border-color] duration-200;
+    @apply rounded-lg border border-ink-800 bg-ink-900 shadow-card transition-colors duration-150;
   }
   .chip {
-    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium;
+    @apply inline-flex items-center gap-1 rounded px-2.5 py-0.5 text-xs font-medium;
   }
-  /* Interactive lift for tappable surfaces (tiles, link cards). */
+  /* Interactive surfaces (tiles, link cards): hairline highlight on hover, no lift/glow. */
   .lift {
-    @apply transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-1 hover:shadow-glow-lg hover:border-brand-500/60;
+    @apply transition-colors duration-150 hover:border-ink-600;
+  }
+  /* Tabular numerals for prices/tickers — the terminal voice. */
+  .num {
+    @apply font-mono tabular-nums tracking-tight;
   }
   /* Skip-to-content link: visually hidden until keyboard-focused. */
   .skip-link {
-    @apply sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-brand-500 focus:px-4 focus:py-2 focus:font-semibold focus:text-white focus:shadow-glow;
+    @apply sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-brand-500 focus:px-4 focus:py-2 focus:font-semibold focus:text-white;
   }
-  /* Animated gradient text for hero accents. */
+  /* Formerly rainbow hero text — now a solid near-white headline accent.
+     Kept as a class so every existing `.text-gradient` usage neutralises at once. */
   .text-gradient {
-    @apply bg-gradient-to-r from-brand-400 via-accent to-gold bg-clip-text text-transparent;
-    background-size: 200% auto;
+    @apply text-white;
   }
 }
 
@@ -173,9 +180,10 @@ h1, h2, h3 {
 .js .reveal-zoom { transform: translateY(24px) scale(0.97); }
 .js .reveal.in-view { opacity: 1; transform: none; }
 
-/* Aurora blobs for the hero background (pure CSS, transform/opacity only). */
-.aurora-layer { position: absolute; inset: -20% -10% auto -10%; height: 140%; pointer-events: none; filter: blur(60px); }
-.aurora-blob { position: absolute; border-radius: 9999px; mix-blend-mode: screen; animation: aurora 18s ease-in-out infinite; }
+/* Aurora retired for the market-terminal look. Kept as no-ops so any lingering
+   `.aurora-layer`/`.aurora-blob` markup renders nothing (no neon glow). */
+.aurora-layer { display: none; }
+.aurora-blob { display: none; }
 
 /* Horizontal carousels: fade the scroll edges so cut-off tiles look intentional. */
 .edge-fade {
@@ -193,14 +201,9 @@ h1, h2, h3 {
   animation: shimmer 1.6s infinite;
 }
 
-/* Card micro-interaction: subtle shine sweep on hover. */
+/* Shine sweep retired for the flat terminal look — kept as a no-op container
+   so existing `.shine` markup keeps its overflow clipping without the gloss. */
 .shine { position: relative; overflow: hidden; }
-.shine::before {
-  content: ""; position: absolute; top: 0; left: -75%; width: 50%; height: 100%;
-  background: linear-gradient(115deg, transparent, rgba(255,255,255,0.12), transparent);
-  transform: skewX(-20deg); transition: left 0.6s ease; pointer-events: none;
-}
-.group:hover .shine::before, .shine:hover::before { left: 125%; }
 
 /* ── Cinematic full-screen menu ── */
 /* Slow "ken burns" drift for the blurred background montage. */

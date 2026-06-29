@@ -116,7 +116,7 @@ function QuickViewModal({ card, onClose }: { card: CardTileData; onClose: () => 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4" role="dialog" aria-modal="true">
       <div className="absolute inset-0 bg-black/70" onClick={onClose} />
-      <div className="relative z-10 max-h-[88vh] w-full max-w-3xl overflow-hidden rounded-2xl border border-ink-700 bg-ink-900 shadow-2xl">
+      <div className="relative z-10 max-h-[88vh] w-full max-w-3xl overflow-hidden rounded-lg border border-ink-700 bg-ink-900 shadow-2xl">
         <button
           onClick={onClose}
           aria-label="Close"
@@ -156,9 +156,9 @@ function QuickViewModal({ card, onClose }: { card: CardTileData; onClose: () => 
               <WishlistButton cardId={card.id} variant="full" />
             </div>
 
-            <div className="mt-3 rounded-lg bg-ink-950/50 p-3">
+            <div className="mt-3 rounded-md border border-ink-800 bg-ink-950 p-3">
               <div className="text-[11px] uppercase tracking-wide text-slate-500">Cheapest price</div>
-              <div className="text-2xl font-extrabold text-accent">
+              <div className="num text-2xl font-extrabold text-white">
                 {lowest != null ? fmt(lowest) : "—"}
               </div>
               {/* No buyable price → show a figure anyway: the real TCGplayer market
@@ -171,7 +171,7 @@ function QuickViewModal({ card, onClose }: { card: CardTileData; onClose: () => 
                 return (
                   <div className="mt-1 text-xs text-slate-400">
                     {real ? "Market guide" : "Estimate"} ≈{" "}
-                    <span className="font-semibold text-slate-200">{fmt(guide)}</span>
+                    <span className="num font-semibold text-slate-200">{fmt(guide)}</span>
                     <span className="text-slate-500"> · {real ? "source: TCGplayer" : "from rarity & age"}</span>
                   </div>
                 );
@@ -235,8 +235,8 @@ function QuickViewModal({ card, onClose }: { card: CardTileData; onClose: () => 
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className={`text-sm font-bold ${i === 0 ? "text-accent" : "text-white"}`}>{fmt(p.priceCents)}</div>
-                        <div className="text-[10px] text-slate-500">
+                        <div className={`num text-sm font-bold ${i === 0 ? "text-white" : "text-slate-300"}`}>{fmt(p.priceCents)}</div>
+                        <div className="num text-[10px] text-slate-500">
                           {p.ship == null ? (
                             shippingPolicyUrl(p.retailer) ? (
                               <a href={shippingPolicyUrl(p.retailer)!} target="_blank" rel="nofollow noopener noreferrer" className="underline decoration-dotted hover:text-slate-300">
