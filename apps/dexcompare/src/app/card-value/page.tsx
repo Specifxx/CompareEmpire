@@ -6,6 +6,7 @@ import { CardTile } from "@/components/CardTile";
 import { getValuableCards } from "@/lib/cheapest-cards";
 import { getCountry } from "@/lib/get-country";
 import { COUNTRIES } from "@/lib/country";
+import { SITE_URL } from "@/lib/site";
 
 // Dedicated lander for the biggest evergreen query family in the hobby:
 // "pokemon card value" / "how much are my pokemon cards worth" / "price
@@ -13,20 +14,27 @@ import { COUNTRIES } from "@/lib/country";
 // for that intent and captures the keyword.
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "Pokémon Card Value Checker — Free Price Guide (2026)",
-  description:
-    "Check what your Pokémon cards are worth, free: search any card to see its live market value plus real store prices in Australia, New Zealand, the US and the UK. Vintage Base Set to the newest Mega Evolution chases — updated daily.",
-  keywords: [
-    "pokemon card value",
-    "pokemon card value checker",
-    "how much are my pokemon cards worth",
-    "pokemon card price checker",
-    "pokemon card worth",
-    "pokemon card price guide",
-  ],
-  alternates: { canonical: "/card-value" },
-};
+// generateMetadata (not a static export) so the price-guide YEAR is always the
+// current one — a hardcoded year silently goes stale and dents CTR every January.
+export function generateMetadata(): Metadata {
+  const year = new Date().getFullYear();
+  return {
+    title: `Pokémon Card Value Checker — Free Price Guide (${year})`,
+    description:
+      "Check what your Pokémon cards are worth, free: search any card to see its live market value plus real store prices in Australia, New Zealand, the US and the UK. Vintage Base Set to the newest Mega Evolution chases — updated daily.",
+    keywords: [
+      "pokemon card value",
+      "pokemon card value checker",
+      "how much are my pokemon cards worth",
+      "what are my pokemon cards worth",
+      "pokemon card price checker",
+      "pokemon card worth",
+      "rare pokemon card values",
+      "pokemon card price guide",
+    ],
+    alternates: { canonical: "/card-value" },
+  };
+}
 
 const FAQS = [
   {
@@ -126,6 +134,18 @@ export default async function CardValuePage() {
         <span className="btn-primary shrink-0">Check Base Set values →</span>
       </Link>
 
+      {/* Routes deeper into value content — concentrates internal link equity. */}
+      <section className="grid gap-4 sm:grid-cols-2">
+        <Link href="/most-valuable" className="card-surface p-4 transition-colors hover:border-ink-600">
+          <div className="text-sm font-extrabold text-white">Most valuable cards</div>
+          <p className="mt-1 text-xs text-slate-400">The priciest Pokémon singles in stock right now, ranked.</p>
+        </Link>
+        <Link href="/trending" className="card-surface p-4 transition-colors hover:border-ink-600">
+          <div className="text-sm font-extrabold text-white">Trending cards</div>
+          <p className="mt-1 text-xs text-slate-400">What collectors are searching for most this week.</p>
+        </Link>
+      </section>
+
       {/* FAQ + JSON-LD */}
       <section className="card-surface p-6">
         <h2 className="text-xl font-extrabold text-white">Pokémon card value — FAQ</h2>
@@ -142,15 +162,36 @@ export default async function CardValuePage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "FAQPage",
-            mainEntity: FAQS.map((f) => ({
-              "@type": "Question",
-              name: f.q,
-              acceptedAnswer: { "@type": "Answer", text: f.a },
-            })),
-          }),
+          __html: JSON.stringify([
+            {
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              mainEntity: FAQS.map((f) => ({
+                "@type": "Question",
+                name: f.q,
+                acceptedAnswer: { "@type": "Answer", text: f.a },
+              })),
+            },
+            {
+              "@context": "https://schema.org",
+              "@type": "BreadcrumbList",
+              itemListElement: [
+                { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+                { "@type": "ListItem", position: 2, name: "Card Value Checker", item: `${SITE_URL}/card-value` },
+              ],
+            },
+            {
+              "@context": "https://schema.org",
+              "@type": "WebApplication",
+              name: "Pokémon Card Value Checker",
+              url: `${SITE_URL}/card-value`,
+              applicationCategory: "FinanceApplication",
+              operatingSystem: "Web",
+              offers: { "@type": "Offer", price: "0", priceCurrency: info.currency },
+              description:
+                "Free Pokémon card value checker: search any card for its live market value and real store prices across AU, NZ, US and UK.",
+            },
+          ]),
         }}
       />
     </div>
