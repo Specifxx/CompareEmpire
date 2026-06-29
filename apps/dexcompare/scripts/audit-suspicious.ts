@@ -26,7 +26,7 @@ async function main() {
   // Same population + predicate as verify-data.ts Check B.
   const guided = await prisma.card.findMany({
     where: { marketPriceSource: "TCGplayer", marketPriceCents: { gt: 0 }, lowestPriceCents: { not: null } },
-    select: { id: true, name: true, setName: true, setCode: true, collectorNumber: true, isFoil: true, lowestPriceCents: true, marketPriceCents: true },
+    select: { id: true, name: true, setName: true, setCode: true, collectorNumber: true, rarity: true, variant: true, lowestPriceCents: true, marketPriceCents: true },
   });
   const suspicious = guided
     .map((c) => {
@@ -67,8 +67,11 @@ async function main() {
       const hasNum = digitsOf(c.collectorNumber) !== "" && title.includes(digitsOf(c.collectorNumber));
       const hasName = title.includes(firstNameTok(c.name));
       const isEbay = low.retailer.startsWith("ebay");
+      // The card's guide tracks a holo/foil/chase variant if its rarity/variant says so;
+      // a non-foil matched listing is then a cheaper-variant explanation, not a bug.
+      const cardLikelyFoil = /holo|foil|ultra|secret|illustration|rainbow|gold|shiny|amazing/i.test(`${c.rarity ?? ""} ${c.variant ?? ""}`);
       if (low.condition && PLAYED.test(low.condition)) label = "CONDITION_PLAYED";
-      else if (c.isFoil && !low.isFoil) label = "FOIL_VARIANT";
+      else if (cardLikelyFoil && !low.isFoil) label = "FOIL_VARIANT";
       else if (!isEbay && (!hasName || !hasNum)) label = "NAME_NUMBER_MISMATCH";
       else if (isEbay) label = "EBAY_CHEAP";
     }

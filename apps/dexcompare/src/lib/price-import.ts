@@ -521,13 +521,45 @@ export async function refreshEbayMarkets(
 // A card as needed for title→card matching.
 export interface MatchCard { id: string; name: string; setName: string | null; collectorNumber: string }
 
+// ── Variant-class guard ─────────────────────────────────────────────────────
+// A base card (e.g. "Arceus", "Zekrom") must never absorb a listing for its
+// V / ex / GX / VMAX / VSTAR / LV.X variant ("Arceus V", "Zekrom ex") and
+// vice-versa — they're DIFFERENT cards that share a name (and sometimes a
+// number), so the base name being a substring of the variant name made the
+// looser name fallbacks mis-match a cheap variant listing onto a pricey base
+// card. We classify the card name's variant, and the marker that sits right
+// AFTER the card's core name in the listing title (a stray "EX <Set>" or
+// "Scarlet & Violet" elsewhere in the title is ignored).
+const VARIANT_MARK = "(vmax|vstar|v-?union|gx|ex|lv\\.?\\s*x|break|prime|v)";
+function variantClassOf(s: string): string {
+  const t = s.toLowerCase();
+  if (/\bvmax\b/.test(t)) return "vmax";
+  if (/\bvstar\b/.test(t)) return "vstar";
+  if (/\bv-?union\b/.test(t)) return "vunion";
+  if (/\blv\.?\s*x\b/.test(t)) return "lvx";
+  if (/\bgx\b/.test(t)) return "gx";
+  if (/\bex\b/.test(t)) return "ex";
+  if (/\bbreak\b/.test(t)) return "break";
+  if (/\bprime\b/.test(t)) return "prime";
+  if (/\bv\b/.test(t)) return "v";
+  return "base";
+}
+const VARIANT_TOK = new Set(["v", "vmax", "vstar", "vunion", "gx", "ex", "break", "prime", "lv", "x", "mega"]);
+// The card name with trailing variant tokens stripped ("Charizard ex" → ["charizard"]).
+function coreNameToks(nameToks: string[]): string[] {
+  let e = nameToks.length;
+  while (e > 0 && VARIANT_TOK.has(nameToks[e - 1])) e--;
+  return e > 0 ? nameToks.slice(0, e) : nameToks;
+}
+function escapeRe(s: string): string { return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
+
 // Build a Pokémon title→cardId resolver over a set of cards. Pokémon store titles
 // reliably carry the collector number ("125/197") and the card name, and usually the
 // set name ("Obsidian Flames"); the set CODE almost never appears. So we match on
 // number + name, using the set name to disambiguate when several cards share a number
 // (rare cross-set collisions on equal set sizes). Pure + exported so it's unit-tested.
 export function buildPokemonResolver(cards: MatchCard[]): (title: string) => string | null {
-  interface IdxCard { id: string; nameToks: string[]; setToks: string[]; total: number }
+  interface IdxCard { id: string; nameToks: string[]; setToks: string[]; total: number; num: number; vclass: string; core: string[] }
   const byKey = new Map<string, IdxCard[]>(); // "num/total"
   const byNum = new Map<number, IdxCard[]>(); // num
   const byName = new Map<string, IdxCard[]>(); // primary name token
@@ -551,7 +583,12 @@ export function buildPokemonResolver(cards: MatchCard[]): (title: string) => str
     const nameToks = tokenize(c.name);
     if (!nameToks.length) continue;
     const d = cardNum(c.collectorNumber);
-    const ic: IdxCard = { id: c.id, nameToks, setToks: tokenize(c.setName || "").filter((s) => !SET_GENERIC.has(s)), total: d?.total ?? 0 };
+    const ic: IdxCard = {
+      id: c.id, nameToks,
+      setToks: tokenize(c.setName || "").filter((s) => !SET_GENERIC.has(s)),
+      total: d?.total ?? 0, num: d?.num ?? -1,
+      vclass: variantClassOf(c.name), core: coreNameToks(nameToks),
+    };
     if (d) {
       if (d.total) push(byKey, `${d.num}/${d.total}`, ic);
       push(byNum, d.num, ic);
@@ -569,9 +606,19 @@ export function buildPokemonResolver(cards: MatchCard[]): (title: string) => str
     const ptoks = tokenize(t);
     if (!ptoks.length) return null;
     const ptokset = new Set(ptoks);
+    const lower = t.toLowerCase();
     const nameOk = (c: IdxCard) => ptokset.has(c.nameToks[0]);
     const fullNameOk = (c: IdxCard) => c.nameToks.every((x) => ptokset.has(x));
     const setOk = (c: IdxCard) => c.setToks.some((s) => ptokset.has(s));
+    // Variant guard: the marker right after the card's core name in the title
+    // must match the card's own variant class (base ≠ V ≠ ex ≠ GX ≠ LV.X …).
+    const titleVclass = (c: IdxCard): string => {
+      const last = c.core[c.core.length - 1];
+      if (!last) return variantClassOf(lower);
+      const mm = lower.match(new RegExp("\\b" + escapeRe(last) + "\\b[^a-z0-9]*" + VARIANT_MARK + "\\b", "i"));
+      return mm ? mm[1].toLowerCase().replace(/[^a-z]/g, "") : "base";
+    };
+    const variantOk = (c: IdxCard) => titleVclass(c) === c.vclass;
 
     // Celebrations / Classic Collection reprints reuse the ORIGINAL card's number in
     // store titles (e.g. "Charizard 4/102 [Celebrations: Classic Collection]"), which
@@ -599,10 +646,10 @@ export function buildPokemonResolver(cards: MatchCard[]): (title: string) => str
       const exact = byKey.get(`${num}/${total}`);
       if (exact && exact.length) {
         const hit =
-          exact.find((c) => setOk(c) && fullNameOk(c)) ??
-          exact.find((c) => setOk(c) && nameOk(c)) ??
-          exact.find(fullNameOk) ??
-          exact.find(nameOk);
+          exact.find((c) => variantOk(c) && setOk(c) && fullNameOk(c)) ??
+          exact.find((c) => variantOk(c) && setOk(c) && nameOk(c)) ??
+          exact.find((c) => variantOk(c) && fullNameOk(c)) ??
+          exact.find((c) => variantOk(c) && nameOk(c));
         if (hit) return hit.id;
       }
       // 2) same number (set size differs/omitted): require the name to line up. The
@@ -615,18 +662,24 @@ export function buildPokemonResolver(cards: MatchCard[]): (title: string) => str
       const same = byNum.get(num);
       if (same && same.length) {
         const hit =
-          same.find((c) => setOk(c) && fullNameOk(c)) ??
-          same.find((c) => setOk(c) && nameOk(c)) ??
-          same.find((c) => fullNameOk(c) && totalOk(c));
+          same.find((c) => variantOk(c) && setOk(c) && fullNameOk(c)) ??
+          same.find((c) => variantOk(c) && setOk(c) && nameOk(c)) ??
+          same.find((c) => variantOk(c) && fullNameOk(c) && totalOk(c));
         if (hit) return hit.id;
       }
     }
 
-    // 3) no usable number on the listing → match by full name + set name.
+    // 3) no usable "n/total" on the listing → match by full name + set name, with
+    // a variant guard AND a bare-number sanity check: if the title carries any
+    // standalone number that ISN'T this card's collector number, it's a different
+    // printing (e.g. a 2009 "Rising Rivals" card vs a 2025 "Destined Rivals 061"
+    // listing — they share the word "Rivals"), so don't match.
+    const bareNums = lower.split(/[^0-9]+/).filter((x) => x.length >= 1 && x.length <= 3).map(Number);
+    const numOk = (c: IdxCard) => bareNums.length === 0 || c.num < 0 || bareNums.includes(c.num);
     for (const tok of ptoks) {
       const cands = byName.get(tok);
       if (!cands) continue;
-      const hit = cands.find((c) => fullNameOk(c) && setOk(c));
+      const hit = cands.find((c) => fullNameOk(c) && setOk(c) && variantOk(c) && numOk(c));
       if (hit) return hit.id;
     }
     return null;
