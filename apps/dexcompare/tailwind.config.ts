@@ -5,8 +5,8 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Clean, low-saturation dark palette (CSFloat-style): near-black surfaces,
-        // cool grey borders, restrained accents — no neon.
+        // Market-terminal palette: near-neutral graphite surfaces, cool grey
+        // hairline borders, ONE sharp accent (Poké red), used sparingly. No neon.
         ink: {
           950: "#0a0c10",
           900: "#0e1116",
@@ -15,27 +15,39 @@ const config: Config = {
           700: "#252b38",
           600: "#333b4d",
         },
-        // Pokémon-inspired: bold Poké Ball red accent + electric yellow for prices.
+        // The single sharp accent — Poké-Ball red, reserved for primary actions
+        // and the active state. Everything else stays neutral.
         brand: {
           DEFAULT: "#ee1515",
           400: "#ff4d4d",
           500: "#ee1515",
           600: "#c20d0d",
         },
-        accent: "#ffcb05", // electric yellow — prices & highlights
-        gold: "#ffd23f",
+        // "accent" now reads as the high-contrast NUMERAL colour — a near-white
+        // ink for prices, so figures stay crisp and neutral like a trading desk.
+        // (Repointed from electric yellow → neutral; kills the neon-price tell
+        // site-wide wherever `text-accent` was used for a price.)
+        accent: "#eef1f5",
+        // Muted brass — reserved for genuine "gold"/foil semantics only, never UI chrome.
+        gold: "#caa85a",
+        // Market deltas: gains/losses on the terminal. Calm, not neon.
+        up: "#3fb950",
+        down: "#f0506e",
       },
       fontFamily: {
         sans: ["var(--font-sans)", "ui-sans-serif", "system-ui", "Segoe UI", "Roboto", "Helvetica", "Arial", "sans-serif"],
         display: ["var(--font-display)", "var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
+        // Monospace — prices, tickers, tabular figures (the terminal voice).
+        mono: ["var(--font-mono)", "ui-monospace", "SFMono-Regular", "Menlo", "Consolas", "monospace"],
       },
       boxShadow: {
-        // Soft elevation + a gentle brand glow for the bubbly look.
-        card: "0 1px 0 rgba(255,255,255,0.03), 0 8px 24px rgba(0,0,0,0.35)",
-        // Stronger, layered elevation for the refreshed card surface.
-        "card-lg": "inset 0 1px 0 rgba(255,255,255,0.05), 0 2px 4px rgba(0,0,0,0.2), 0 16px 40px rgba(0,0,0,0.45)",
-        glow: "0 0 0 1px rgba(238,21,21,0.25), 0 10px 30px rgba(255,203,5,0.18)",
-        "glow-lg": "0 0 0 1px rgba(238,21,21,0.35), 0 16px 48px rgba(255,203,5,0.22)",
+        // Flat panels: a hairline top highlight + a quiet drop. No coloured glow.
+        card: "0 1px 0 rgba(255,255,255,0.02), 0 1px 2px rgba(0,0,0,0.4)",
+        "card-lg": "0 1px 0 rgba(255,255,255,0.03), 0 4px 12px rgba(0,0,0,0.4)",
+        // Kept for API compatibility, but neutralised to a quiet elevation —
+        // any lingering `shadow-glow` references no longer emit neon.
+        glow: "0 1px 0 rgba(255,255,255,0.03), 0 4px 12px rgba(0,0,0,0.45)",
+        "glow-lg": "0 2px 0 rgba(255,255,255,0.04), 0 8px 24px rgba(0,0,0,0.5)",
       },
       keyframes: {
         "fade-up": {

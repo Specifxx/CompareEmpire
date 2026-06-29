@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Sora, Space_Grotesk } from "next/font/google";
+import { Sora, Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import Link from "next/link";
@@ -32,6 +32,9 @@ import { IMPACT_SITE_VERIFICATION } from "@/lib/affiliate";
 // visit after the first. Zero font CLS by construction.
 const sora = Sora({ subsets: ["latin"], variable: "--font-sans", display: "optional" });
 const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-display", display: "optional" });
+// Monospace for prices / tabular figures — the "market terminal" numeral voice.
+// `display: "optional"` keeps the zero-CLS guarantee (metric-matched fallback).
+const jetbrainsMono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono", display: "optional" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -109,7 +112,7 @@ const orgJsonLd = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const country = getCountry();
   return (
-    <html lang="en-AU" className={`${sora.variable} ${spaceGrotesk.variable}`}>
+    <html lang="en-AU" className={`${sora.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
       <head>
         {/* Mark JS as available before first paint so the scroll-reveal CSS only
             hides content for users who can actually see the animation. Non-JS

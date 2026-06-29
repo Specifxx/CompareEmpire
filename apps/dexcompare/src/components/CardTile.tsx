@@ -7,7 +7,6 @@ import { WishlistButton } from "./WishlistButton";
 import { useQuickView } from "./QuickView";
 import { useCountry } from "./CountryProvider";
 import { cardHref } from "@/lib/card-url";
-import { rarityInfo, isOvernumbered, isSignature } from "@/lib/constants";
 import { marketGuideCents, type Country } from "@/lib/country";
 
 export interface CardTileData {
@@ -40,7 +39,6 @@ export interface CardTileData {
 }
 
 export function CardTile({ card }: { card: CardTileData }) {
-  const r = rarityInfo(card.rarity);
   const stores = card._count.retailerPrices;
   const { open } = useQuickView();
   const { fmt, price, country } = useCountry();
@@ -78,10 +76,7 @@ export function CardTile({ card }: { card: CardTileData }) {
         <WishlistButton cardId={card.id} />
       </div>
       <Link href={cardHref(card)} prefetch={false} onClick={onClick} className="flex flex-1 flex-col">
-        <div
-          className="shine relative aspect-[5/7] w-full overflow-hidden p-3"
-          style={{ background: `radial-gradient(120% 80% at 50% 0%, ${r.color}22, transparent 60%)` }}
-        >
+        <div className="shine relative aspect-[5/7] w-full overflow-hidden bg-ink-950 p-3">
           <CardImage
             card={card}
             className="h-full w-full transition-transform duration-300 group-hover:scale-[1.03]"
@@ -103,30 +98,30 @@ export function CardTile({ card }: { card: CardTileData }) {
           <div>
             {lowest != null ? (
               <>
-                <div className="text-[11px] text-slate-400">from</div>
-                <div className="text-lg font-bold text-accent">
+                <div className="text-[11px] uppercase tracking-wide text-slate-500">from</div>
+                <div className="num text-lg font-bold text-white">
                   {fmt(lowest)}
                 </div>
               </>
             ) : guide != null ? (
               <>
-                <div className="text-[11px] text-slate-500" title={`Market-price guide${card.marketPriceSource ? ` (source: ${card.marketPriceSource})` : ""} — not a store price`}>
+                <div className="text-[11px] uppercase tracking-wide text-slate-500" title={`Market-price guide${card.marketPriceSource ? ` (source: ${card.marketPriceSource})` : ""} — not a store price`}>
                   market guide
                 </div>
-                <div className="text-lg font-bold text-slate-300">≈ {fmt(guide)}</div>
+                <div className="num text-lg font-bold text-slate-300">≈ {fmt(guide)}</div>
               </>
             ) : est != null ? (
               <>
                 <div
-                  className="text-[11px] text-slate-600"
+                  className="text-[11px] uppercase tracking-wide text-slate-600"
                   title="Rough estimate from the card's rarity and age — not a market or store price."
                 >
                   est.
                 </div>
-                <div className="text-lg font-semibold text-slate-400">≈ {fmt(est)}</div>
+                <div className="num text-lg font-semibold text-slate-400">≈ {fmt(est)}</div>
               </>
             ) : (
-              <div className="text-sm font-medium text-slate-400">No price yet</div>
+              <div className="text-sm font-medium text-slate-500">No price yet</div>
             )}
           </div>
           {stores > 0 && (
