@@ -21,6 +21,8 @@ interface Props {
   card: CardImageData;
   isFoil?: boolean;
   full?: boolean; // use full-res image instead of the thumbnail
+  /** Set true on the above-the-fold LCP image to skip lazy-loading. */
+  priority?: boolean;
   className?: string;
 }
 
@@ -39,7 +41,7 @@ function PromoStamp() {
 // Renders the real Pokémon card image (the Pokémon TCG database CDN) over a blurred backdrop
 // so both portrait and landscape cards look good. Falls back to generated SVG art
 // when no image is available.
-export function CardImage({ card, isFoil = false, full = false, className }: Props) {
+export function CardImage({ card, isFoil = false, full = false, priority = false, className }: Props) {
   const src = full
     ? card.imageUrl ?? card.imageThumbUrl
     : card.imageThumbUrl ?? card.imageUrl;
@@ -94,7 +96,8 @@ export function CardImage({ card, isFoil = false, full = false, className }: Pro
               ? `${card.name} ${card.collectorNumber}`
               : card.name
         }
-        loading="lazy"
+        loading={priority ? "eager" : "lazy"}
+        fetchPriority={priority ? "high" : undefined}
         decoding="async"
         className={`relative z-10 h-full w-full ${
           isLandscape ? "object-contain" : "object-cover"

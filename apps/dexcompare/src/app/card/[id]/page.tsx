@@ -349,7 +349,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
         {/* Card visual */}
         <div className="lg:sticky lg:top-20 lg:self-start">
           <div className="card-surface mx-auto max-w-[320px] p-4">
-            <CardImage card={card} full className="aspect-[5/7] w-full" />
+            <CardImage card={card} full priority className="aspect-[5/7] w-full" />
           </div>
         </div>
 

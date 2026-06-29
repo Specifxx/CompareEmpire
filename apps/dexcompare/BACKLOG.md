@@ -49,6 +49,6 @@ Checked-and-skipped or deferred, so iterations don't re-evaluate blindly.
 8. About page (who/why, data sourcing + freshness + Index methodology) for E-E-A-T; add author to guides if not already. — DONE (this run, `/about` page with `AboutPage` + `BreadcrumbList` JSON-LD, footer link added).
 9. Market-wrap editions: ensure each carries unique substantive analysis (named movers + why), not just price deltas (avoid auto-generated/thin-content risk). `src/lib/market-wrap.ts`.
 10. Sitemap index: split `sitemap.ts` into a sitemap index + child sitemaps (cards/sets/sealed/content) with per-section revalidate, so new cards are discovered faster at scale.
-11. CWV: explicit width/height (aspect-ratio) on card art to lock CLS; ensure the card-page hero image is NOT lazy-loaded (LCP).
+11. CWV: card-page hero image LCP fix — DONE (`priority` prop on `CardImage` → `loading="eager"` + `fetchPriority="high"`). CLS already locked by `aspect-[5/7]` CSS on the container. Remaining CWV: audit other above-fold images (sets hero, sealed hero) if Lighthouse flags them.
 12. Heading-order + remaining alt-text sweep across pages.
 - Deferred (need care / data): ISR conversion of the `force-dynamic` price pages requires rendering a market-neutral baseline for the no-cookie crawler case — do deliberately, verify. hreflang / path-based locales (`/au` etc.) — defer until Search Console shows real NZ/US/GB demand.
