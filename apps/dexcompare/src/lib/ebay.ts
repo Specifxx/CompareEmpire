@@ -36,7 +36,11 @@ export function isEbayRateLimited(): boolean {
 // importer runs several times a day (schedule delays, deploys, manual runs) the
 // quota can never hit zero.
 const QUOTA_RESERVE = Number(process.env.EBAY_QUOTA_RESERVE ?? 600); // always leave this many
-const FALLBACK_BUDGET = Number(process.env.EBAY_MAX_CALLS ?? 2200); // used only if the live count can't be read (covers ~1 full run)
+// Self-imposed per-run cap on DexCompare's eBay Browse spend. Also the fallback
+// when the live remaining count can't be read. Capping here (rather than spending
+// everything down to the reserve) leaves the rest of the SHARED daily quota for
+// RiftCompare, which we prioritise. Lower EBAY_MAX_CALLS to give RiftCompare more.
+const FALLBACK_BUDGET = Number(process.env.EBAY_MAX_CALLS ?? 2200);
 let spendable = Infinity; // Browse calls we may still make this run
 let spentThisRun = 0;
 
@@ -75,7 +79,10 @@ export async function primeEbayBudget(): Promise<{ remaining: number | null; bud
   rateLimited = false;
   spentThisRun = 0;
   const { remaining, limit } = await fetchQuota();
-  spendable = remaining == null ? FALLBACK_BUDGET : Math.max(0, remaining - QUOTA_RESERVE);
+  // Spend the lesser of (a) what's free above the shared reserve and (b) our
+  // self-imposed per-run cap — so DexCompare never drains quota RiftCompare needs.
+  const liveAvailable = remaining == null ? FALLBACK_BUDGET : Math.max(0, remaining - QUOTA_RESERVE);
+  spendable = Math.min(FALLBACK_BUDGET, liveAvailable);
   if (spendable <= 0) rateLimited = true;
   console.log(
     `eBay quota: ${remaining ?? "unknown"}/${limit ?? "unknown"} remaining today → budget ${spendable} calls this run (reserve ${QUOTA_RESERVE}).`
