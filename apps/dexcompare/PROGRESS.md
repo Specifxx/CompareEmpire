@@ -2,6 +2,8 @@
 
 Newest first. Each entry: what · why · commit.
 
+- SEO: BreadcrumbList JSON-LD added to `/sealed/[slug]` and `/restock/[slug]` — both pages already had Product structured data; adding a BreadcrumbList alongside unlocks Google SERP breadcrumb display (Home › Sealed products › {name} and Home › Restock trackers › {name}) for ~500 sealed product URLs and all featured restock tracker pages · these were the last two high-traffic page types missing breadcrumb markup (card/set/article pages all already have it) · (this commit)
+
 - eBay monetization: every card now has an eBay affiliate touchpoint — high-key "Search eBay →" store row when eBay has no price, and a "Search eBay for more listings →" affiliate link when eBay is already a priced store; raised `EBAY_HOT_SHARE` default 0.35→0.6 so the capped 5k/day Browse budget concentrates on the most-viewed/searched cards (tail covered by the affiliate row) · eBay is the top revenue source — maximise affiliate clicks + keep chase cards fresh under the API limit · (this commit)
 
 - SEO focus: pointed the autonomous loop at a prioritized "SEO ranking queue" in BACKLOG.md + a CURRENT-PRIORITY Google-ranking directive in the improver prompt · makes organic search the loop's default workstream so SEO compounds every run · (this commit)

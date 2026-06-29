@@ -13,6 +13,7 @@ import { TcgplayerAd } from "@/components/TcgplayerAd";
 import { EbayAd } from "@/components/EbayAd";
 import { affiliateUrl, ebaySearchUrl } from "@/lib/affiliate";
 import { aggregateOffer } from "@/lib/structured-data";
+import { SITE_URL } from "@/lib/site";
 import { getCountry } from "@/lib/get-country";
 import { COUNTRIES } from "@/lib/country";
 import { POKEMON_SETS } from "@/lib/pokemon-sets";
@@ -120,10 +121,19 @@ export default async function SealedComparePage({ params }: { params: { slug: st
     ...(group.imageUrl ? { image: group.imageUrl } : {}),
     ...(offers ? { offers } : {}),
   };
+  const breadcrumb = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: "Sealed products", item: `${SITE_URL}/sealed` },
+      { "@type": "ListItem", position: 3, name: group.name, item: `${SITE_URL}/sealed/${group.slug}` },
+    ],
+  };
 
   return (
     <div className="mx-auto max-w-3xl">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify([jsonLd, breadcrumb]) }} />
       <Link href="/sealed" className="mb-4 inline-flex items-center gap-1 text-sm text-slate-400 hover:text-white">
         ← All sealed products
       </Link>
