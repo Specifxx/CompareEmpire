@@ -592,6 +592,21 @@ export default async function CardPage({ params }: { params: { id: string } }) {
               </ul>
             )}
 
+            {/* eBay is already a priced store above — still offer a search for MORE
+                eBay listings (auctions / other conditions). Affiliate-tagged. */}
+            {hasEbay && (
+              <div className="flex items-center justify-end border-t border-ink-800 px-4 py-2.5">
+                <OutboundLink
+                  href={ebaySearchHref}
+                  retailer="ebay_search"
+                  country={country}
+                  className="text-sm font-semibold text-brand-400 hover:underline"
+                >
+                  Search eBay{country === "NZ" ? " AU" : ""} for more listings →
+                </OutboundLink>
+              </div>
+            )}
+
             {outOfStock.length > 0 && (
               <div className="border-t border-ink-800">
                 <div className="bg-ink-900/40 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-slate-500">

@@ -374,10 +374,12 @@ const EBAY_STALE_MS = (Number(process.env.EBAY_STALE_HOURS) || 72) * 60 * 60 * 1
 // eBay rows not re-confirmed within this window are dead weight (the listing has
 // almost certainly ended) — pruned so an ancient price can't sit in the comparison.
 const EBAY_ROW_TTL_MS = (Number(process.env.EBAY_ROW_TTL_DAYS) || 21) * 24 * 60 * 60 * 1000;
-// Share of each market's budget always spent on the TOP-demand cards (even if
-// fresh), so chase cards stay near-daily fresh while the rest of the budget
-// rotates through the stale long tail.
-const EBAY_HOT_SHARE = Math.min(0.9, Math.max(0, Number(process.env.EBAY_HOT_SHARE ?? 0.35)));
+// Share of each market's budget always spent on the TOP-demand cards (most
+// searched/viewed, even if fresh) so chase cards stay near-daily fresh. With the
+// API limit capped at the default 5k/day (the limit-increase was declined), we
+// concentrate the budget on demand — the long tail that doesn't get an API price
+// is covered by the on-card eBay affiliate search row. Override via EBAY_HOT_SHARE.
+const EBAY_HOT_SHARE = Math.min(0.9, Math.max(0, Number(process.env.EBAY_HOT_SHARE ?? 0.6)));
 // Non-eBay store rows not re-confirmed within this window are orphans from a store
 // that has stopped responding (dead domain / broken sitemap). A live store has all
 // its rows recreated with a fresh lastSeen every run, so only dead-store rows ever
