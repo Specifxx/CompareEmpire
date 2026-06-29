@@ -1066,6 +1066,153 @@ If you can easily spot problems, the card is a 9 at best. Only submit 9s where t
 Track your raw cards and their current market values in the [collection tracker](/collection) — the fastest way to spot which cards in your binder have grown enough that grading might finally make economic sense.`,
   },
   {
+    slug: "how-to-sell-pokemon-cards",
+    category: "guide",
+    title: "How to Sell Your Pokémon Cards — Where to Sell & Get the Best Price",
+    excerpt:
+      "The complete seller's guide: which channel to use for valuable singles, bulk and graded slabs, how to price from real data, what to avoid, and the honest maths on what you'll net.",
+    author: "DexCompare",
+    date: "2026-06-29",
+    readMins: 8,
+    tags: ["selling", "eBay", "marketplace", "value", "pricing"],
+    body: `There's a right way to sell Pokémon cards and a very costly wrong way. The right way involves knowing what you have, choosing the correct channel for each card, and pricing from real transaction data — not wishful thinking. This guide covers all three.
+
+## Step 1: Know what you actually have
+
+Before listing anything, identify each card precisely:
+
+- **Set code and collector number** — printed bottom-left (e.g. \`SV08 198/191\`). This uniquely identifies the card and its printing. The same Pokémon can have a dozen printings at wildly different prices.
+- **Condition** — assess honestly against the five grades (NM, LP, MP, HP, DMG). Most people grade their own cards one tier higher than buyers would. See [Pokémon Card Conditions & Grading Explained](/guides/pokemon-card-conditions-and-grading) for the precise definitions.
+- **Variant** — plain, reverse holo, holo rare, full art, special illustration rare? Each is a separate listing with a separate price.
+
+Once you know what you have, [search each card on DexCompare](/card-value) to see the **market price guide** (sourced from TCGplayer's real transaction history) and what local stores are currently charging. Those two numbers bracket what you can realistically ask.
+
+## Step 2: Sort cards before you start listing
+
+In any mixed collection, roughly 80% of the value lives in 20% of the cards. Working from most to least valuable saves enormous time:
+
+1. **Separate by rarity** — set aside anything with a star rarity, full-art or alt-art frame, or a collector number above the printed set total (secret rares).
+2. **Price the top tier individually** — these are the cards where the right channel and right price make a real difference.
+3. **Group the rest by value bracket** — $2–10 cards can go in set lots; anything under $2 should be sold as bulk.
+
+## Which channel to use — a plain comparison
+
+### eBay
+
+**Best for:** singles $20 and above, vintage cards, graded slabs, anything where a global buyer pool lifts the price.
+
+eBay is the deepest buyer pool in most English markets. A rare card that a local store would buy at 40 cents on the dollar often finds a collector on eBay who pays close to market guide.
+
+- **Fees:** roughly 13–15% of the final sale price in most markets (AU, US, UK). No listing fees for the first 250 listings per month.
+- **Buy It Now vs Auction:** Use Buy It Now at 5–10% below the market guide for modern singles — it sells faster and the price is predictable. Use auctions for vintage chase cards (Base Set holos, 1st Edition copies) where bidder competition can lift the price above any fixed listing.
+- **Critical step:** always check **Completed/Sold listings** on eBay before you price — search your card, filter to Sold, and look at what actually sold (not what's listed, which is aspirational). Listed prices are wishes; sold prices are the market.
+- **Postage:** offer tracked postage, photograph everything before sealing. An untracked $100 card that "gets lost" is your loss.
+
+### Local game stores
+
+**Best for:** quick cash, bulk lots, worn cards, anything under $5 that isn't worth individual effort.
+
+Local game stores (LGS) buy cards to resell at a margin. Their offer will be **30–50% of market value** — lower for bulk, higher for specific chase cards they're short on. That discount is the price you pay for instant certainty and zero packing/posting time.
+
+When it makes sense: you want the collection gone quickly, you have a lot of low-value bulk, or you're dealing with played cards where the online buyer-condition-dispute risk isn't worth the extra dollars.
+
+### Specialist TCG Facebook groups and communities
+
+**Best for:** collector-to-collector sales of cards $20–200, where negotiating a fair price without platform fees is worth the effort.
+
+Pokémon card trading groups on Facebook have active buyers and regular buy/sell/trade threads. No fees — but no buyer protection either. Use PayPal Goods & Services (not Friends & Family) to protect both parties; F&F is for people you know, not strangers.
+
+Condition disputes are the biggest risk here: photograph every card clearly, describe the condition honestly, and price a little under market guide — buyers in these groups know prices.
+
+### TCGplayer (US sellers)
+
+**Best for:** US-based sellers with a steady flow of modern cards to move.
+
+TCGplayer is the dominant US marketplace — millions of listings, the deepest liquidity for English singles. Fees are roughly 10–12% plus a small per-transaction fee. You set up a "store" and ship orders directly to buyers. The volume of traffic makes it faster to move $3–10 cards than eBay auctions.
+
+Non-US sellers can use TCGplayer as a price benchmark but usually can't list there directly.
+
+### Cardmarket (UK and Europe)
+
+**Best for:** UK and European sellers, especially for cards that trade at a meaningful premium on the European market.
+
+Cardmarket is the dominant card marketplace in the EU and UK. Fees are lower than eBay. Worth checking for cards where European demand (or EU-exclusive promos) lifts the price above the TCGplayer guide.
+
+## How to price your cards
+
+The **market guide on DexCompare** is your anchor — it's the average of real recent sales, the fairest single number for what a NM English copy trades at globally.
+
+**From that number:**
+- **NM condition:** price at 5–10% below the market guide to sell within a week, or at guide if you can wait.
+- **LP condition:** 70–80% of NM guide.
+- **MP condition:** 45–55% of NM guide.
+- **HP/DMG:** 20–35% of NM — and be explicit in the listing about the condition.
+
+**Account for fees in your asking price.** If eBay takes 13% and you want $30 net, your listing price needs to be $34.50. Many first-time sellers forget this and are disappointed at what actually lands in the account.
+
+## Bulk vs individual listings — the crossover point
+
+**Cards under $2:** not worth individual eBay listings (time vs money is terrible). Options:
+- Sell to a local game store by weight or by count
+- Batch into lots of 50–100 mixed cards for $5–15 per eBay lot
+- Give away to local players — goodwill, no time cost
+
+**Cards $2–10:** usually worth listing in small themed lots (e.g. "10× SV08 rare assortment") rather than individual listings. More efficient and still captures most of the value.
+
+**Cards $10+:** worth individual listings with good photos. These are the cards where the 20-minute effort of a proper listing recovers real money.
+
+## Selling graded cards (PSA, CGC, BGS slabs)
+
+Slabs trade in their own market at different price levels than raw cards:
+
+- Search "PSA 10 [card name]" and "CGC 10 [card name]" on eBay **Sold Listings** — that's your anchor, not the raw NM guide.
+- eBay is almost always the right venue for graded cards — deepest buyer pool for slabs.
+- Photograph the slab clearly (front, back, label) — buyers paying hundreds or thousands want to see the actual grade label, not a stock photo.
+- Ship slabs with tracking and insurance; tape the slab in a bubble mailer snugly (no rattling).
+
+## How to pack and ship safely
+
+Poorly packed cards are the number one cause of condition disputes and lost returns. The correct stack:
+
+1. Penny sleeve
+2. Rigid toploader (not a team bag alone — too much give)
+3. Team bag sealed with tape
+4. Cardboard stiffeners front and back in the envelope, taped so the toploader can't slide
+5. Padded envelope or bubble mailer
+
+For anything $50 or above: use tracked and signed post, and photograph the whole pack process before sealing.
+
+## What you'll realistically net
+
+Honest estimate for a typical mixed raw collection sold card by card on eBay:
+
+| | |
+|---|---|
+| Market guide total | your starting reference |
+| eBay fees | −13–15% |
+| Postage per parcel | −$1–3 |
+| Your time | real but unquantified |
+| **Net proceeds** | **~55–65% of market guide total** |
+
+Quick game store sell-out: 30–40% of market guide — zero effort, zero time, same week.
+
+## The five common mistakes
+
+1. **Pricing from listed prices, not sold prices.** Listed prices are aspirations. Check "Completed/Sold" on eBay to see what actually traded.
+2. **Overgrading your own cards.** Every seller thinks their played card is NM. Take photos under good light and describe honestly — buyers will dispute anything they disagree with.
+3. **Listing bulk individually.** The time cost of 200 individual $0.50 listings (photos, packing, postage, messages) vastly exceeds the proceeds. Sell in lots or to a local store.
+4. **Using PayPal Friends & Family with strangers.** F&F removes buyer protection and is against PayPal's terms for goods transactions. Always use Goods & Services.
+5. **Untracked postage for valuable cards.** A card that doesn't arrive is a refund you're legally obliged to give. Track everything over $20.
+
+## Using DexCompare before you sell
+
+The [card value checker](/card-value) gives you the market guide and live store prices for any card in seconds — the essential pre-listing check that tells you whether your price is competitive.
+
+If you've been tracking cards in the [collection tracker](/collection), you already have cost basis vs current value at a glance: the cards where market value has exceeded what you paid are your prime sell candidates.
+
+Price from data, not from what you hope. The market always has the last word.`,
+  },
+  {
     slug: "why-pokemon-card-prices-differ-between-stores",
     category: "blog",
     title: "Why the Same Pokémon Card Has Five Different Prices",

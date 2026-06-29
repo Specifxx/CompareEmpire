@@ -4,9 +4,9 @@ import { ArticleList } from "@/components/ArticleList";
 import type { Article } from "@/lib/articles";
 
 export const metadata: Metadata = {
-  title: "Pokémon Card Buying Guides — Where to Buy, Grading, Storage & Fakes",
+  title: "Pokémon Card Guides — Buying, Selling, Grading & Storage",
   description:
-    "Buyer-focused Pokémon TCG guides: where to buy cards cheapest, card conditions and grading, spotting fakes, storage and protection, and rarities explained.",
+    "Pokémon TCG guides for collectors: where to buy cards cheapest, how to sell your collection, card conditions and grading, spotting fakes, storage and protection, and rarities explained.",
   alternates: { canonical: "/guides" },
 };
 
@@ -47,6 +47,13 @@ const TOPICS: { id: string; label: string; slugs: string[] }[] = [
       "how-to-spot-fake-pokemon-cards",
     ],
   },
+  {
+    id: "selling",
+    label: "Selling your cards",
+    slugs: [
+      "how-to-sell-pokemon-cards",
+    ],
+  },
 ];
 
 export default function GuidesPage() {
@@ -60,8 +67,8 @@ export default function GuidesPage() {
       <div className="mb-5">
         <h1 className="text-2xl font-extrabold text-white">Buying Guides</h1>
         <p className="mt-1 text-sm text-slate-400">
-          How to buy Pokémon cards well — the right price, the right condition,
-          no fakes, and a collection that stays mint.
+          How to buy, value and sell Pokémon cards well — the right price, the
+          right condition, no fakes, and a collection that stays mint.
         </p>
       </div>
 
