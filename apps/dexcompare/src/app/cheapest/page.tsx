@@ -82,7 +82,7 @@ export default async function CheapestPage() {
     <div className="flex flex-col gap-8">
       {/* Hero */}
       <section className="card-surface overflow-hidden">
-        <div className="relative bg-gradient-to-br from-emerald-700/20 via-ink-850 to-brand-600/15 px-6 py-8">
+        <div className="relative border-l-2 border-brand-500 bg-ink-900 px-6 py-8">
           <h1 className="text-2xl font-extrabold text-white sm:text-3xl">
             Cheapest Pokémon cards for sale right now
           </h1>
@@ -146,17 +146,17 @@ export default async function CheapestPage() {
       <section className="card-surface p-5">
         <h2 className="text-sm font-semibold text-slate-300">Find more bargains</h2>
         <div className="mt-3 flex flex-wrap gap-2">
-          <Link href="/deals" className="rounded-full bg-ink-700 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-ink-600 hover:text-white">
-            🔥 Today&apos;s deals
+          <Link href="/deals" className="rounded bg-ink-800 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-ink-700 hover:text-white">
+            Today&apos;s deals
           </Link>
-          <Link href="/browse?priced=1&sort=price_asc" className="rounded-full bg-ink-700 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-ink-600 hover:text-white">
-            🃏 Full card database
+          <Link href="/browse?priced=1&sort=price_asc" className="rounded bg-ink-800 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-ink-700 hover:text-white">
+            Full card database
           </Link>
-          <Link href="/sealed" className="rounded-full bg-ink-700 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-ink-600 hover:text-white">
-            📦 Cheapest sealed products
+          <Link href="/sealed" className="rounded bg-ink-800 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-ink-700 hover:text-white">
+            Cheapest sealed products
           </Link>
-          <Link href="/guides/cheapest-way-to-buy-pokemon-cards" className="rounded-full bg-ink-700 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-ink-600 hover:text-white">
-            📖 Cheapest way to buy guide
+          <Link href="/guides/cheapest-way-to-buy-pokemon-cards" className="rounded bg-ink-800 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-ink-700 hover:text-white">
+            Cheapest way to buy guide
           </Link>
         </div>
       </section>

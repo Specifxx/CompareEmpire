@@ -65,10 +65,10 @@ export default async function TrendingPage() {
     <div className="flex flex-col gap-8">
       {/* Hero */}
       <section className="card-surface overflow-hidden">
-        <div className="relative bg-gradient-to-br from-fuchsia-700/20 via-ink-850 to-brand-600/15 px-6 py-8">
+        <div className="relative border-l-2 border-brand-500 bg-ink-900 px-6 py-8">
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-fuchsia-500/15 px-2.5 py-0.5 text-xs font-semibold text-fuchsia-300 ring-1 ring-fuchsia-500/30">
-              <span aria-hidden className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-fuchsia-400" />
+            <span className="inline-flex items-center gap-1.5 rounded border border-ink-700 bg-ink-950 px-2.5 py-0.5 text-[11px] font-medium uppercase tracking-wide text-slate-400">
+              <span aria-hidden className="inline-block h-1.5 w-1.5 rounded-full bg-up" />
               Live
             </span>
           </div>
@@ -138,20 +138,20 @@ export default async function TrendingPage() {
       <section className="card-surface p-5">
         <h2 className="text-sm font-semibold text-slate-300">More ways to browse</h2>
         <div className="mt-3 flex flex-wrap gap-2">
-          <Link href="/deals" className="rounded-full bg-ink-700 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-ink-600 hover:text-white">
-            🔥 Today&apos;s deals
+          <Link href="/deals" className="rounded bg-ink-800 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-ink-700 hover:text-white">
+            Today&apos;s deals
           </Link>
-          <Link href="/cheapest" className="rounded-full bg-ink-700 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-ink-600 hover:text-white">
-            💸 Cheapest cards in stock
+          <Link href="/cheapest" className="rounded bg-ink-800 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-ink-700 hover:text-white">
+            Cheapest cards in stock
           </Link>
-          <Link href="/market" className="rounded-full bg-ink-700 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-ink-600 hover:text-white">
-            📈 Price movers
+          <Link href="/market" className="rounded bg-ink-800 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-ink-700 hover:text-white">
+            Price movers
           </Link>
-          <Link href="/browse" className="rounded-full bg-ink-700 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-ink-600 hover:text-white">
-            🃏 Full card database
+          <Link href="/browse" className="rounded bg-ink-800 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-ink-700 hover:text-white">
+            Full card database
           </Link>
-          <Link href="/guides/cheapest-way-to-buy-pokemon-cards" className="rounded-full bg-ink-700 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-ink-600 hover:text-white">
-            📖 Buying strategy guide
+          <Link href="/guides/cheapest-way-to-buy-pokemon-cards" className="rounded bg-ink-800 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-ink-700 hover:text-white">
+            Buying strategy guide
           </Link>
         </div>
       </section>
