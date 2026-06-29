@@ -27,21 +27,21 @@ export function SideNav() {
                       <Link
                         href={l.href}
                         aria-current={active ? "page" : undefined}
-                        className={`group relative flex items-center gap-2 rounded-lg py-1.5 pl-3 pr-2 text-[13px] font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand-400 ${
+                        className={`group relative flex items-center gap-2 rounded-md py-1.5 pl-3 pr-2 text-[13px] font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand-400 ${
                           active
-                            ? "bg-brand-500/15 text-white shadow-glow"
+                            ? "bg-ink-850 text-white"
                             : "text-slate-300 hover:bg-ink-800 hover:text-white"
                         }`}
                       >
                         {/* Active accent bar */}
                         <span
-                          className={`absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-full bg-gradient-to-b from-brand-400 to-gold transition-opacity ${
+                          className={`absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 bg-brand-500 transition-opacity ${
                             active ? "opacity-100" : "opacity-0"
                           }`}
                           aria-hidden
                         />
-                        <span className="text-sm leading-none transition-transform group-hover:scale-110" aria-hidden>{l.icon}</span>
-                        <span className="transition-transform group-hover:translate-x-0.5">{l.label}</span>
+                        <span className="text-sm leading-none" aria-hidden>{l.icon}</span>
+                        <span>{l.label}</span>
                       </Link>
                     </li>
                   );

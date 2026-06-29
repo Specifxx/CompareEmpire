@@ -75,7 +75,7 @@ export function ArticleView({ article }: { article: Article }) {
               <Link
                 key={a.slug}
                 href={`${backHref}/${a.slug}`}
-                className="card-surface flex flex-col p-4 transition-all hover:-translate-y-0.5 hover:shadow-glow"
+                className="card-surface flex flex-col p-4 transition-colors hover:border-ink-600"
               >
                 <div className="flex flex-wrap gap-1 mb-2">
                   {a.tags.slice(0, 2).map((t) => (

@@ -55,7 +55,7 @@ export default async function CardValuePage() {
   return (
     <div className="flex flex-col gap-10">
       <section className="card-surface overflow-hidden">
-        <div className="relative bg-gradient-to-br from-brand-600/25 via-ink-850 to-gold/15 px-6 py-10 text-center">
+        <div className="relative border-l-2 border-brand-500 bg-ink-850 px-6 py-10 text-center">
           <h1 className="mx-auto max-w-3xl text-2xl font-extrabold text-white sm:text-4xl">
             Pokémon card value checker
           </h1>
@@ -115,10 +115,10 @@ export default async function CardValuePage() {
       {/* Vintage gateway — Base Set searches are spiking on 30th nostalgia. */}
       <Link
         href="/sets/base"
-        className="card-surface flex flex-wrap items-center justify-between gap-3 px-5 py-4 transition-all hover:-translate-y-0.5 hover:shadow-glow"
+        className="card-surface flex flex-wrap items-center justify-between gap-3 px-5 py-4 transition-colors hover:border-ink-600"
       >
         <div className="min-w-0">
-          <div className="text-sm font-extrabold text-white">📦 Found a shoebox of 90s cards?</div>
+          <div className="text-sm font-extrabold text-white">Found a shoebox of 90s cards?</div>
           <p className="mt-0.5 text-xs text-slate-400">
             Start with the 1999 Base Set — every card priced, from common Rattata to the Charizard everyone hopes for.
           </p>

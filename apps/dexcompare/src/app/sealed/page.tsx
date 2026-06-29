@@ -106,7 +106,7 @@ export default async function SealedPage({ searchParams }: { searchParams: { q?:
       )}
       {/* Header */}
       <section className="card-surface overflow-hidden">
-        <div className="relative bg-gradient-to-br from-brand-600/25 via-ink-850 to-gold/15 px-6 py-8">
+        <div className="relative border-l-2 border-brand-500 bg-ink-900 px-6 py-8">
           <h1 className="text-2xl font-extrabold text-white sm:text-3xl">Pokémon sealed products</h1>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-300">
             Booster boxes, elite trainer boxes, bundles, collection boxes and tins — with live{" "}
@@ -151,7 +151,7 @@ export default async function SealedPage({ searchParams }: { searchParams: { q?:
       </div>
 
       <p className="text-sm text-slate-400">
-        <span className="font-semibold text-white">{groups.length.toLocaleString()}</span>{" "}
+        <span className="num font-semibold text-white">{groups.length.toLocaleString()}</span>{" "}
         {groups.length === 1 ? "product" : "products"}
         {searchParams.q && <> for <span className="text-brand-400">“{searchParams.q}”</span></>}
         {type && <> · {type}</>}

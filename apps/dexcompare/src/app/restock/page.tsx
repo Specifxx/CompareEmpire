@@ -92,7 +92,7 @@ export default async function DropsIndex() {
       {/* New & upcoming releases — where to preorder/buy cheapest, right now. */}
       {drops.length > 0 && (
         <section className="mb-8">
-          <h2 className="mb-3 text-lg font-extrabold text-white">📅 New &amp; upcoming releases</h2>
+          <h2 className="mb-3 text-lg font-extrabold text-white">New &amp; upcoming releases</h2>
           <div className="grid gap-4 sm:grid-cols-2">
             {drops.map((d) => {
               const lead = d.box ?? d.etb;
@@ -138,7 +138,7 @@ export default async function DropsIndex() {
 
       {/* Restock trackers — the sold-out sets people camp for. */}
       <section>
-        <h2 className="mb-3 text-lg font-extrabold text-white">🔔 Restock trackers</h2>
+        <h2 className="mb-3 text-lg font-extrabold text-white">Restock trackers</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           {FEATURED_RESTOCKS.map((p) => {
             const live = liveSlugs.has(p.slug);
@@ -146,7 +146,7 @@ export default async function DropsIndex() {
               <Link
                 key={p.slug}
                 href={`/restock/${p.slug}`}
-                className="card-surface flex flex-col p-5 transition-all hover:-translate-y-0.5 hover:shadow-glow"
+                className="card-surface flex flex-col p-5 transition-colors hover:border-ink-600"
               >
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="chip bg-ink-800 text-slate-400">{p.series}</span>
@@ -174,7 +174,7 @@ function DropRow({ label, group, currency, upcoming }: { label: string; group: S
       {live ? (
         <span className="font-bold text-accent">
           {upcoming ? "preorder " : "from "}
-          {formatMoney(group.lowestPriceCents as number, currency)}
+          <span className="num">{formatMoney(group.lowestPriceCents as number, currency)}</span>
           <span className="ml-1.5 text-[11px] font-semibold text-brand-400">
             {group.storeCount} {group.storeCount === 1 ? "store" : "stores"}
           </span>

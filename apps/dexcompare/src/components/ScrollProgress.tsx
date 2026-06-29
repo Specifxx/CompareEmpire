@@ -38,7 +38,7 @@ export function ScrollProgress() {
     <div className="pointer-events-none fixed inset-x-0 top-0 z-[90] h-0.5">
       <div
         ref={ref}
-        className="h-full origin-left scale-x-0 bg-gradient-to-r from-brand-500 via-accent to-gold"
+        className="h-full origin-left scale-x-0 bg-brand-500"
       />
     </div>
   );

@@ -37,9 +37,9 @@ export default async function MarketWrapIndex() {
         <>
           <Link
             href={`/blog/market-wrap/${latest}`}
-            className="card-surface mt-6 flex items-center justify-between gap-3 border-brand-500/30 bg-gradient-to-r from-brand-600/15 to-transparent p-4 hover:border-brand-500"
+            className="card-surface mt-6 flex items-center justify-between gap-3 border-l-2 border-l-brand-500 p-4 transition-colors hover:border-ink-600"
           >
-            <span className="font-bold text-white">📈 Today&apos;s edition — {latest}</span>
+            <span className="font-bold text-white">Today&apos;s edition — {latest}</span>
             <span className="shrink-0 text-sm font-semibold text-brand-400">Read →</span>
           </Link>
           {editions.length > 1 && (

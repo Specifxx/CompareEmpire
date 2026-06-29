@@ -40,8 +40,8 @@ export default async function DealsPage() {
   return (
     <div className="flex flex-col gap-6">
       <section className="card-surface overflow-hidden">
-        <div className="relative bg-gradient-to-br from-brand-600/25 via-ink-850 to-gold/15 px-6 py-8">
-          <h1 className="text-2xl font-extrabold text-white sm:text-3xl">🔥 Today&apos;s best Pokémon deals</h1>
+        <div className="relative border-l-2 border-brand-500 bg-ink-900 px-6 py-8">
+          <h1 className="text-2xl font-extrabold text-white sm:text-3xl">Today&apos;s best Pokémon deals</h1>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-300">
             Cards listed by {info.adjective} stores <strong className="text-white">well below their TCGplayer
             market price</strong> right now. Every deal shows the live store price next to the market guide —
@@ -70,8 +70,8 @@ export default async function DealsPage() {
           {deals.map((d) => (
             <div key={d.card.id}>
               <div className="mb-1.5 flex items-center justify-between px-1 text-xs font-bold">
-                <span className="text-emerald-400">▼ {d.pct}% vs market</span>
-                <span className="text-slate-500 line-through">{formatMoney(d.guideCents, info.currency)}</span>
+                <span className="num text-up">−{d.pct}% vs market</span>
+                <span className="num text-slate-500 line-through">{formatMoney(d.guideCents, info.currency)}</span>
               </div>
               <CardTile card={d.card} />
             </div>

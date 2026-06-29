@@ -25,7 +25,7 @@ function Delta({ label, pct }: { label: string; pct: number | null }) {
     return (
       <div className="rounded-lg bg-ink-900 px-3 py-2 text-center">
         <div className="text-[10px] uppercase tracking-wide text-slate-500">{label}</div>
-        <div className="text-sm font-extrabold text-slate-500">—</div>
+        <div className="num text-sm font-extrabold text-slate-500">—</div>
       </div>
     );
   const up = pct > 0.005;
@@ -33,8 +33,8 @@ function Delta({ label, pct }: { label: string; pct: number | null }) {
   return (
     <div className="rounded-lg bg-ink-900 px-3 py-2 text-center">
       <div className="text-[10px] uppercase tracking-wide text-slate-500">{label}</div>
-      <div className={`text-sm font-extrabold ${up ? "text-emerald-400" : down ? "text-red-400" : "text-slate-300"}`}>
-        {up || down ? `${up ? "▲ +" : "▼ "}${pct.toFixed(2)}%` : "flat"}
+      <div className={`num text-sm font-extrabold ${up ? "text-up" : down ? "text-down" : "text-slate-300"}`}>
+        {up || down ? `${up ? "+" : "−"}${Math.abs(pct).toFixed(2)}%` : "flat"}
       </div>
     </div>
   );
@@ -102,7 +102,7 @@ export default async function MarketPage({ searchParams }: { searchParams: { sco
       </nav>
 
       <header className="mb-5">
-        <h1 className="font-display text-3xl font-extrabold text-white">📈 The DexCompare Index</h1>
+        <h1 className="font-display text-3xl font-extrabold text-white">The DexCompare Index</h1>
         <p className="mt-1 max-w-2xl text-slate-400">
           The Pokémon singles market in one number: a base-100 index of the {data.basketSize || "top"} most
           valuable {data.scopeLabel !== "All cards" ? `${data.scopeLabel} ` : ""}cards, priced daily from the
@@ -134,13 +134,13 @@ export default async function MarketPage({ searchParams }: { searchParams: { sco
             <div className="text-[11px] font-bold uppercase tracking-wide text-slate-500">
               {country} market{startDay ? ` · base 100 on ${startDay}` : ""}
             </div>
-            <div className="font-display text-5xl font-extrabold text-white">
+            <div className="num font-display text-5xl font-extrabold text-white">
               {indexLevel != null ? indexLevel.toFixed(1) : "100.0"}
             </div>
             {wrap?.globalD1 != null && (
               <div className="mt-1 text-xs text-slate-400">
                 Global composite (all 4 markets, {wrap.day}):{" "}
-                <span className={wrap.globalD1 > 0.05 ? "font-bold text-emerald-400" : wrap.globalD1 < -0.05 ? "font-bold text-red-400" : "font-bold text-slate-300"}>
+                <span className={`num ${wrap.globalD1 > 0.05 ? "font-bold text-up" : wrap.globalD1 < -0.05 ? "font-bold text-down" : "font-bold text-slate-300"}`}>
                   {wrap.globalD1 > 0 ? "+" : ""}{wrap.globalD1.toFixed(2)}%
                 </span>{" "}
                 · <Link href={`/blog/market-wrap/${wrap.day}`} className="text-brand-400 hover:underline">today&apos;s wrap →</Link>
@@ -181,7 +181,7 @@ export default async function MarketPage({ searchParams }: { searchParams: { sco
         <Metric label={`Priced cards (${country})`} value={data.trackedCards.toLocaleString()} sub="with a live store price" />
         <Metric
           label="7-day breadth"
-          value={breadthTotal ? `${data.risers}▲ / ${data.fallers}▼` : "—"}
+          value={breadthTotal ? `${data.risers} up / ${data.fallers} down` : "—"}
           sub={breadthTotal ? `${data.flat} flat of ${breadthTotal} in basket` : "history building up"}
           tone={data.risers > data.fallers ? "up" : data.fallers > data.risers ? "down" : undefined}
         />
@@ -194,11 +194,11 @@ export default async function MarketPage({ searchParams }: { searchParams: { sco
         <section className="mt-8 grid gap-8 lg:grid-cols-2">
           {data.gainers.length > 0 && (
             <div>
-              <h2 className="mb-3 text-lg font-extrabold text-white">📈 Biggest 7-day gainers</h2>
+              <h2 className="mb-3 text-lg font-extrabold text-white">Biggest 7-day gainers</h2>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-2">
                 {data.gainers.slice(0, 4).map((m) => (
                   <div key={m.card.id}>
-                    <div className="mb-1 text-center text-xs font-bold text-emerald-400">▲ +{m.pct.toFixed(1)}%</div>
+                    <div className="num mb-1 text-center text-xs font-bold text-up">+{m.pct.toFixed(1)}%</div>
                     <CardTile card={m.card} />
                   </div>
                 ))}
@@ -207,11 +207,11 @@ export default async function MarketPage({ searchParams }: { searchParams: { sco
           )}
           {data.losers.length > 0 && (
             <div>
-              <h2 className="mb-3 text-lg font-extrabold text-white">📉 Biggest 7-day fallers</h2>
+              <h2 className="mb-3 text-lg font-extrabold text-white">Biggest 7-day fallers</h2>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-2">
                 {data.losers.slice(0, 4).map((m) => (
                   <div key={m.card.id}>
-                    <div className="mb-1 text-center text-xs font-bold text-red-400">▼ {m.pct.toFixed(1)}%</div>
+                    <div className="num mb-1 text-center text-xs font-bold text-down">−{Math.abs(m.pct).toFixed(1)}%</div>
                     <CardTile card={m.card} />
                   </div>
                 ))}
@@ -225,7 +225,7 @@ export default async function MarketPage({ searchParams }: { searchParams: { sco
       {data.sealed.length > 0 && (
         <section className="card-surface mt-8 overflow-hidden">
           <div className="border-b border-ink-700 p-4">
-            <h2 className="font-bold text-white">📦 Sealed supply — newest sets</h2>
+            <h2 className="font-bold text-white">Sealed supply — newest sets</h2>
             <p className="mt-0.5 text-xs text-slate-500">
               Box/ETB listings in stock across {info.adjective} stores — low numbers mean a camped set.
             </p>
@@ -239,13 +239,13 @@ export default async function MarketPage({ searchParams }: { searchParams: { sco
                     <div className="truncate text-sm font-semibold text-white">{s.setName}</div>
                     <div className="mt-1 h-1.5 w-full max-w-[220px] overflow-hidden rounded bg-ink-800">
                       <div
-                        className={`h-full ${pct < 25 ? "bg-rose-500" : pct < 60 ? "bg-amber-400" : "bg-emerald-500"}`}
+                        className="h-full bg-brand-500"
                         style={{ width: `${Math.max(4, pct)}%` }}
                       />
                     </div>
                   </div>
                   <div className="shrink-0 text-right">
-                    <div className="text-sm font-bold text-white">{s.inStock}/{s.total} in stock</div>
+                    <div className="text-sm font-bold text-white"><span className="num">{s.inStock}/{s.total}</span> in stock</div>
                     <div className="text-[11px] text-slate-500">
                       {s.cheapestBoxCents != null ? `box from ${formatMoney(s.cheapestBoxCents, info.currency)}` : "boxes sold out"}
                     </div>
@@ -288,7 +288,7 @@ function Metric({ label, value, sub, tone }: { label: string; value: string; sub
   return (
     <div className="card-surface p-3.5">
       <div className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">{label}</div>
-      <div className={`mt-0.5 text-lg font-extrabold ${tone === "up" ? "text-emerald-400" : tone === "down" ? "text-red-400" : "text-white"}`}>
+      <div className={`num mt-0.5 text-lg font-extrabold ${tone === "up" ? "text-up" : tone === "down" ? "text-down" : "text-white"}`}>
         {value}
       </div>
       {sub && <div className="text-[11px] text-slate-500">{sub}</div>}

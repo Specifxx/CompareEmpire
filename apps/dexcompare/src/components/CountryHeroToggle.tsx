@@ -15,7 +15,7 @@ export function CountryHeroToggle() {
       <span className="text-[10px] font-medium uppercase tracking-wide text-slate-500 sm:text-xs sm:text-slate-400">
         Shopping from
       </span>
-      <div className="inline-flex flex-wrap items-center justify-center gap-1 rounded-full border border-ink-700 bg-ink-950/60 p-1 backdrop-blur sm:gap-1.5 sm:p-1.5">
+      <div className="inline-flex flex-wrap items-center justify-center gap-1 rounded-full border border-ink-800 bg-ink-900 p-1 sm:gap-1.5 sm:p-1.5">
         {COUNTRY_LIST.map((c) => {
           const active = c.code === country;
           return (
@@ -24,9 +24,9 @@ export function CountryHeroToggle() {
               onClick={() => setCountry(c.code)}
               aria-pressed={active}
               aria-label={c.label}
-              className={`flex items-center gap-1 rounded-full px-2.5 py-1.5 text-xs font-semibold transition-all sm:gap-1.5 sm:px-3.5 sm:py-2 sm:text-sm ${
+              className={`flex items-center gap-1 rounded-full px-2.5 py-1.5 text-xs font-semibold transition-colors sm:gap-1.5 sm:px-3.5 sm:py-2 sm:text-sm ${
                 active
-                  ? "bg-gradient-to-br from-brand-400 to-brand-600 text-white shadow-glow"
+                  ? "bg-brand-500 text-white"
                   : "text-slate-300 hover:bg-ink-800 hover:text-white"
               }`}
             >

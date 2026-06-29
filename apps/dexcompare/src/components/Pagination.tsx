@@ -21,7 +21,7 @@ function windowed(page: number, total: number): (number | "…")[] {
 // Bigger touch targets on mobile (h-11 ≈ 44px, the recommended minimum); tighter on
 // desktop where a mouse is precise.
 const cell =
-  "grid h-11 min-w-[2.75rem] place-items-center rounded-lg px-2.5 text-sm font-medium transition-colors select-none sm:h-9 sm:min-w-[2.25rem]";
+  "grid h-11 min-w-[2.75rem] place-items-center rounded-md px-2.5 text-sm font-medium num transition-colors select-none sm:h-9 sm:min-w-[2.25rem]";
 
 export function Pagination({
   page,
@@ -65,7 +65,7 @@ export function Pagination({
   const items = windowed(current, totalPages);
   const PrevNext = (label: string, target: number, enabled: boolean) =>
     enabled ? (
-      <a href={href(target)} onClick={(e) => go(target, e)} className={`${cell} border border-ink-700 text-slate-300 hover:border-brand-500 hover:text-white`}>{label}</a>
+      <a href={href(target)} onClick={(e) => go(target, e)} className={`${cell} border border-ink-800 text-slate-300 hover:border-brand-500 hover:text-white`}>{label}</a>
     ) : (
       <span className={`${cell} border border-ink-800 text-slate-600`}>{label}</span>
     );
@@ -89,8 +89,8 @@ export function Pagination({
             aria-current={it === current ? "page" : undefined}
             className={`${cell} ${
               it === current
-                ? "bg-gradient-to-br from-brand-400 to-brand-600 text-white shadow-glow"
-                : "border border-ink-700 text-slate-300 hover:border-brand-500 hover:text-white"
+                ? "bg-brand-500 text-white"
+                : "border border-ink-800 text-slate-300 hover:border-brand-500 hover:text-white"
             }`}
           >
             {it}

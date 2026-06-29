@@ -397,7 +397,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
               {weekChange != null && Math.abs(weekChange) >= 0.05 ? (
                 <Metric
                   label="7-day trend"
-                  value={`${weekChange > 0 ? "▲" : "▼"} ${Math.abs(weekChange).toFixed(1)}%`}
+                  value={`${weekChange > 0 ? "+" : "−"}${Math.abs(weekChange).toFixed(1)}%`}
                   sentiment={weekChange < 0 ? "positive" : "negative"}
                 />
               ) : (
@@ -416,7 +416,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
                     return (
                       <div key={g.code} className={`rounded-lg p-2 text-center ${v != null ? "bg-ink-900" : "bg-ink-900/40"}`}>
                         <div className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">{g.label}</div>
-                        <div className={`text-sm font-bold ${v != null ? "text-white" : "text-slate-600"}`}>{v != null ? fmt(v) : "—"}</div>
+                        <div className={`num text-sm font-bold ${v != null ? "text-white" : "text-slate-600"}`}>{v != null ? fmt(v) : "—"}</div>
                       </div>
                     );
                   })}
@@ -431,7 +431,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
               <div className="mt-4 rounded-lg border border-dashed border-ink-600 bg-ink-900/50 p-3 text-sm">
                 <div className="flex flex-wrap items-baseline gap-x-2">
                   <span className="font-semibold text-slate-200">
-                    {guideIsReal ? "Market price guide" : "Rough estimate"}: {fmt(guideCents)}
+                    {guideIsReal ? "Market price guide" : "Rough estimate"}: <span className="num">{fmt(guideCents)}</span>
                   </span>
                   <span className="text-xs text-slate-500">
                     source: {guideSource}
@@ -464,11 +464,11 @@ export default async function CardPage({ params }: { params: { id: string } }) {
             <div className="flex items-center justify-between border-b border-ink-700 p-4">
               <div className="flex flex-wrap items-center gap-3">
                 <h2 className="font-bold text-white">
-                  Price comparison <span className="text-slate-500">({prices.length})</span>
+                  Price comparison <span className="num text-slate-500">({prices.length})</span>
                 </h2>
                 {storeRows.length > 1 && storeRows[storeRows.length - 1].delivered > storeRows[0].delivered && (
                   <span className="rounded-full bg-brand/15 px-2.5 py-0.5 text-xs font-semibold text-brand-400">
-                    Save {fmt(storeRows[storeRows.length - 1].delivered - storeRows[0].delivered)} delivered vs the priciest seller
+                    Save <span className="num">{fmt(storeRows[storeRows.length - 1].delivered - storeRows[0].delivered)}</span> delivered vs the priciest seller
                   </span>
                 )}
               </div>
@@ -554,17 +554,17 @@ export default async function CardPage({ params }: { params: { id: string } }) {
                     key={p.id}
                     data-foreign={p.foreign ? "true" : undefined}
                     className={`flex flex-wrap items-center gap-x-3 gap-y-2 p-3 hover:bg-ink-900/50 sm:flex-nowrap sm:p-4${
-                      i === 0 && prices.length > 1 ? " bg-emerald-500/[0.04]" : ""
+                      i === 0 && prices.length > 1 ? " bg-up/[0.04]" : ""
                     }${
                       Date.now() - p.lastSeen.getTime() > 21 * 86_400_000 ? " opacity-60" : ""
                     }`}
                   >
-                    <div className="w-5 shrink-0 text-center text-sm font-bold text-slate-500 sm:w-6">{i + 1}</div>
+                    <div className="num w-5 shrink-0 text-center text-sm font-bold text-slate-500 sm:w-6">{i + 1}</div>
                     <div className="min-w-0 flex-1">
                       <div className="truncate font-semibold text-white">{p.retailerName}</div>
                       <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-500">
                         {i === 0 && prices.length > 1 && (
-                          <span className="chip bg-emerald-500/15 font-semibold text-emerald-400">✓ Best deal</span>
+                          <span className="chip bg-up/15 font-semibold text-up">Best deal</span>
                         )}
                         {p.isFoil && <span className="chip bg-gold/15 font-semibold text-gold">✦ Foil</span>}
                         {p.condition && <span className="chip bg-ink-800 text-slate-300">{p.condition}</span>}
@@ -586,11 +586,11 @@ export default async function CardPage({ params }: { params: { id: string } }) {
                       </div>
                     </div>
                     <div className="shrink-0 text-right">
-                      <div className={`text-lg font-bold ${i === 0 ? "text-accent" : "text-white"}`}>
+                      <div className={`num text-lg font-bold ${i === 0 ? "text-accent" : "text-white"}`}>
                         {fmt(p.priceCents)}
                       </div>
                       {p.ship != null && (
-                        <div className="text-[11px] text-slate-400">≈ {fmt(p.delivered)} delivered</div>
+                        <div className="num text-[11px] text-slate-400">≈ {fmt(p.delivered)} delivered</div>
                       )}
                     </div>
                     {/* Full-width below the row on phones; inline button on sm+. */}
@@ -639,7 +639,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
                         </div>
                       </div>
                       <div className="shrink-0 text-right">
-                        <div className="text-lg font-bold text-slate-400 line-through">{fmt(p.priceCents)}</div>
+                        <div className="num text-lg font-bold text-slate-400 line-through">{fmt(p.priceCents)}</div>
                       </div>
                       <OutboundLink
                         href={affiliateUrl(p.url)}
@@ -672,7 +672,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
                 {otherMarketPrices.map((m) => (
                   <div key={m.code} className="rounded-lg bg-ink-900 p-3 text-center">
                     <div className="text-[11px] uppercase tracking-wide text-slate-500">{m.flag} {m.label}</div>
-                    <div className="mt-0.5 text-base font-bold text-white">{formatMoney(m.cents as number, m.currency)}</div>
+                    <div className="num mt-0.5 text-base font-bold text-white">{formatMoney(m.cents as number, m.currency)}</div>
                   </div>
                 ))}
               </div>
@@ -691,7 +691,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
                   Buy directly from collectors · test-mode play money
                 </p>
               </div>
-              <span className="chip bg-brand-500/15 text-brand-400">{listings.length} for sale</span>
+              <span className="chip bg-brand-500/15 text-brand-400"><span className="num">{listings.length}</span> for sale</span>
             </div>
 
             {/* Asks — listings you can buy now */}
@@ -718,7 +718,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
                           {l.quantity > 1 && <span>{l.quantity} available</span>}
                         </div>
                       </div>
-                      <div className="shrink-0 text-right text-lg font-bold text-accent">
+                      <div className="num shrink-0 text-right text-lg font-bold text-accent">
                         {formatMoney(l.priceCents, l.currency)}
                       </div>
                       <div className="order-last w-full basis-full sm:order-none sm:w-auto sm:basis-auto">
@@ -745,7 +745,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
             {/* Bids — open buy orders, plus the place-a-buy-order CTA */}
             <div className="border-t border-ink-800 p-4">
               <h3 className="mb-3 text-sm font-semibold text-white">
-                Buy orders (bids) <span className="text-slate-500">({buyOrders.length})</span>
+                Buy orders (bids) <span className="num text-slate-500">({buyOrders.length})</span>
               </h3>
               {buyOrders.length > 0 && (
                 <ul className="mb-3 divide-y divide-ink-800 rounded-lg border border-ink-800">
@@ -762,7 +762,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
                             {remaining > 1 && <span>wants {remaining}</span>}
                           </div>
                         </div>
-                        <div className="shrink-0 text-right text-base font-bold text-white">{fmt(b.maxPriceCents)}</div>
+                        <div className="num shrink-0 text-right text-base font-bold text-white">{fmt(b.maxPriceCents)}</div>
                         <div className="order-last w-full basis-full sm:order-none sm:w-auto sm:basis-auto">
                           <SellToBidButton
                             buyOrderId={b.id}
@@ -877,7 +877,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
           <div className="mx-auto flex max-w-3xl items-center justify-between gap-3">
             <div className="min-w-0">
               <div className="truncate text-[11px] text-slate-400">Cheapest delivered · {storeRows[0].retailerName}</div>
-              <div className="text-base font-extrabold text-accent">{fmt(storeRows[0].delivered)}</div>
+              <div className="num text-base font-extrabold text-accent">{fmt(storeRows[0].delivered)}</div>
             </div>
             <OutboundLink
               href={affiliateUrl(storeRows[0].url)}
@@ -907,22 +907,22 @@ function Metric({
 }) {
   const bg =
     sentiment === "positive"
-      ? "bg-emerald-500/[0.07]"
+      ? "bg-up/[0.07]"
       : sentiment === "negative"
-      ? "bg-rose-500/[0.07]"
+      ? "bg-down/[0.07]"
       : "bg-ink-900";
   const valueColor =
     sentiment === "positive"
-      ? "text-emerald-400"
+      ? "text-up"
       : sentiment === "negative"
-      ? "text-rose-400"
+      ? "text-down"
       : highlight
       ? "text-accent"
       : "text-white";
   return (
     <div className={`rounded-lg p-3 ${bg}`}>
       <div className="text-[11px] uppercase tracking-wide text-slate-500">{label}</div>
-      <div className={`text-lg font-bold ${valueColor}`}>{value}</div>
+      <div className={`num text-lg font-bold ${valueColor}`}>{value}</div>
     </div>
   );
 }
