@@ -186,6 +186,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Link href="/blog" className="hover:text-slate-300">Blog</Link>
             <Link href="/trade" className="hover:text-slate-300">Trade calculator</Link>
             <Link href="/wishlist" className="hover:text-slate-300">Wishlist</Link>
+            <Link href="/about" className="hover:text-slate-300">About</Link>
             <Link href="/contact" className="hover:text-slate-300">Contact</Link>
             <Link href="/privacy" className="hover:text-slate-300">Privacy</Link>
             <a href={`mailto:${CONTACT_EMAIL}`} className="text-gold hover:underline">{CONTACT_EMAIL}</a>

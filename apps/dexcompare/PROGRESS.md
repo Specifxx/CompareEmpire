@@ -2,6 +2,8 @@
 
 Newest first. Each entry: what · why · commit.
 
+- SEO/E-E-A-T: new `/about` page — covers mission, data sourcing methodology (daily crawl, set-code card matching), delivered-cost index methodology, markets (AU/NZ/US/GB), price freshness, card database sourcing, affiliate transparency, and contact; includes `AboutPage` JSON-LD with `BreadcrumbList`; "About" link added to the footer nav · E-E-A-T (Experience, Expertise, Authoritativeness, Trustworthiness) is a major Google quality signal; the site had no self-disclosure of methodology — About page is the canonical place Google/users look to assess trustworthiness of a price-comparison tool · (this commit)
+
 - SEO: related-link blocks on every card page — two new horizontal-scroll sections added below "Other printings": "More cards from {setName}" (up to 8 cheapest singles in the same set, with a "See all → /sets/{slug}" link) and "Other {type} cards" (up to 8 cheapest cards of the same Pokémon type from other sets); both reuse the existing `cardTileSelect` + `CardTile` pattern with zero new components; deepens crawl paths from every card page into its set and into the same Pokémon type cluster, increases internal link equity across ~20k card URLs, and gives buyers a natural discovery path for related singles · (this commit)
 
 - SEO: new `/trending` landing page — most-viewed cards per market (uses existing `viewCount` + `getPopularCards`), BreadcrumbList + FAQPage JSON-LD, "Live" pill in hero, nav entry added to Market section; targets "trending Pokémon cards", "popular Pokémon singles", "what Pokémon cards are hot right now" — concentrates internal link equity on a high-intent discovery cluster · (this commit)
