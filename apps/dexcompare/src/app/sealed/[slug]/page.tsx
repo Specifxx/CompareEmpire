@@ -34,8 +34,8 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     (await findAny(params.slug, "AU")) ??
     synthesizeSealedGroup(params.slug);
   if (!g) notFound(); // real 404 — metadata resolves before streaming
-  const title = `${g.name} — compare prices`;
-  const description = `Compare live prices for ${g.name} across the stores we track in Australia, New Zealand, the US and the UK, and find the cheapest place to buy this sealed Pokémon product.`;
+  const title = `${g.name} price — compare the cheapest stores`;
+  const description = `${g.name} price comparison: live prices across the stores we track in Australia, New Zealand, the US and the UK so you can find the cheapest place to buy this sealed Pokémon product.`;
   return {
     title,
     description,

@@ -37,3 +37,18 @@ Checked-and-skipped or deferred, so iterations don't re-evaluate blindly.
 - Per-route `not-found.tsx` for `/card/[id]`, `/sets/[set]`, `/guides/[slug]`, `/blog/[slug]` — DONE (this run).
 - Blog article: "Pokémon Cards as an Investment — Honest Take" — DONE (this run).
 - Blog article: "Buying Pokémon Cards Internationally" — DONE (this run).
+
+## SEO ranking queue (CURRENT PRIORITY — work these first, top-down; one per run; keep useful + human)
+1. Sealed page price-intent title/description — DONE (`{name} price — compare the cheapest stores`).
+2. Organization `contactPoint` + `sameAs` (RiftCompare + any socials) in the root `@graph` (`layout.tsx`).
+3. BreadcrumbList JSON-LD on `/sealed/[slug]` and `/restock/[slug]` (card/set/articles already have it — verify these two, add if missing).
+4. Card image alt enrichment: `"{name} ({setCode} {collectorNumber})"` in `CardImage.tsx`/`CardTile.tsx` (currently just name).
+5. New high-intent, genuinely-useful landing page: `/cheapest` — curated cheapest cards in bands (<$5/$10/$50), real data, internal links. (Then a sibling `/sealed-deals` page: sealed below MSRP, clone `/deals` logic for sealed.)
+6. "Popular/trending" hub (`/trending` or `/popular`) listing most-viewed cards (views already tracked) + link it from nav + footer — concentrates internal link equity.
+7. Related-link blocks on card pages: "Cheaper cards in {set}" and "Other {type} cards" (more crawl paths + dwell time).
+8. About page (who/why, data sourcing + freshness + Index methodology) for E-E-A-T; add author to guides if not already.
+9. Market-wrap editions: ensure each carries unique substantive analysis (named movers + why), not just price deltas (avoid auto-generated/thin-content risk). `src/lib/market-wrap.ts`.
+10. Sitemap index: split `sitemap.ts` into a sitemap index + child sitemaps (cards/sets/sealed/content) with per-section revalidate, so new cards are discovered faster at scale.
+11. CWV: explicit width/height (aspect-ratio) on card art to lock CLS; ensure the card-page hero image is NOT lazy-loaded (LCP).
+12. Heading-order + remaining alt-text sweep across pages.
+- Deferred (need care / data): ISR conversion of the `force-dynamic` price pages requires rendering a market-neutral baseline for the no-cookie crawler case — do deliberately, verify. hreflang / path-based locales (`/au` etc.) — defer until Search Console shows real NZ/US/GB demand.
