@@ -1,5 +1,5 @@
 import { prisma } from "./db";
-import { buildCardWhere, buildCardOrderBy, cardTileSelect } from "./cards";
+import { buildCardWhere, buildCardOrderBy, cardTileSelect, type CardQuery } from "./cards";
 import { pickPrice, type Country } from "./country";
 import type { CardTileData } from "@/components/CardTile";
 
@@ -15,6 +15,33 @@ export async function getCheapestCards(limit = 12, country: Country = "AU"): Pro
     orderBy: buildCardOrderBy("price_asc", country),
     // Over-fetch the cheapest tier so the coverage tiebreak has room to work.
     take: limit * 5,
+    select: cardTileSelect(country),
+  })) as CardTileData[];
+
+  return cards
+    .sort(
+      (a, b) =>
+        (pickPrice(a, country)! - pickPrice(b, country)!) ||
+        b._count.retailerPrices - a._count.retailerPrices
+    )
+    .slice(0, limit);
+}
+
+// "Cheapest cards in a price band" — used by the /cheapest landing page to
+// build three tiers (under $5, $5–$10, $10–$50).
+export async function getCheapestCardsInBand(
+  minDollars: number | null,
+  maxDollars: number,
+  limit = 8,
+  country: Country = "AU"
+): Promise<CardTileData[]> {
+  const query: CardQuery = { priced: "1", max: String(maxDollars) };
+  if (minDollars !== null) query.min = String(minDollars);
+
+  const cards = (await prisma.card.findMany({
+    where: buildCardWhere(query, country),
+    orderBy: buildCardOrderBy("price_asc", country),
+    take: limit * 3,
     select: cardTileSelect(country),
   })) as CardTileData[];
 

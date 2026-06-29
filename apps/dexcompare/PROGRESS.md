@@ -2,6 +2,8 @@
 
 Newest first. Each entry: what · why · commit.
 
+- SEO: new `/cheapest` landing page — three price bands (under $5, $5–$10, $10–$50), 8 real card tiles per band pulled live from the DB for the visitor's market, BreadcrumbList + FAQPage JSON-LD, "Cheapest cards" nav link added to "Shop prices" section; targets "cheapest Pokémon cards", "cheap Pokémon singles", "Pokémon cards under $5/$10/$50" — a high-intent search cluster with no dedicated page previously · (this commit)
+
 - SEO: card image alt text enriched to `"{name} ({setCode} {collectorNumber})"` — added `setCode?: string` to `CardImageData` so every real card image now carries a precise alt like "Charizard (OBF 004)"; applies automatically to all six rendering contexts (CardImage in the card page hero, QuickView, CardTile browse grid, CollectionView, and SellForm); the canonical setCode+collectorNumber identifier is exactly what a collector types when searching, so it's strong signal for Google Images and screen-reader users · the previous alt included only name+collectorNumber; adding the set code makes the identifier unambiguous (many cards share a name across sets) · (this commit)
 
 - SEO: BreadcrumbList JSON-LD added to `/sealed/[slug]` and `/restock/[slug]` — both pages already had Product structured data; adding a BreadcrumbList alongside unlocks Google SERP breadcrumb display (Home › Sealed products › {name} and Home › Restock trackers › {name}) for ~500 sealed product URLs and all featured restock tracker pages · these were the last two high-traffic page types missing breadcrumb markup (card/set/article pages all already have it) · (this commit)
