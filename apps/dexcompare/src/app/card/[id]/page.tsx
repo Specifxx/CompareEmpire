@@ -505,6 +505,32 @@ export default async function CardPage({ params }: { params: { id: string } }) {
               </div>
             ) : (
               <ul id="dc-price-list" className="divide-y divide-ink-800">
+                {/* Interim eBay entry for cards the daily eBay quota hasn't reached:
+                    show eBay as a store at the TOP with an affiliate-tagged search,
+                    styled exactly like a real store row. */}
+                {!hasEbay && (
+                  <li className="flex flex-wrap items-center gap-x-3 gap-y-2 p-3 hover:bg-ink-900/50 sm:flex-nowrap sm:p-4">
+                    <div className="w-5 shrink-0 text-center text-sm font-bold text-slate-500 sm:w-6" aria-hidden>★</div>
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate font-semibold text-white">eBay{country === "NZ" ? " AU" : ""}</div>
+                      <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-500">
+                        <span className="chip bg-ink-800 text-slate-300">Marketplace</span>
+                        <span>live Buy It Now &amp; auction listings</span>
+                      </div>
+                    </div>
+                    <div className="shrink-0 text-right">
+                      <div className="text-sm font-semibold text-slate-300">See listings</div>
+                    </div>
+                    <OutboundLink
+                      href={ebaySearchHref}
+                      retailer="ebay_search"
+                      country={country}
+                      className="btn-primary order-last w-full basis-full justify-center sm:order-none sm:w-auto sm:basis-auto"
+                    >
+                      Search on eBay →
+                    </OutboundLink>
+                  </li>
+                )}
                 {prices.map((p, i) => (
                   <li
                     key={p.id}
@@ -561,26 +587,6 @@ export default async function CardPage({ params }: { params: { id: string } }) {
                   </li>
                 ))}
               </ul>
-            )}
-
-            {/* Stores listed but eBay not compared for this card yet (the daily
-                eBay quota rotates through the catalogue) — be upfront about it and
-                hand the visitor an affiliate-tagged search instead. */}
-            {prices.length > 0 && !hasEbay && (
-              <div className="flex flex-wrap items-center justify-between gap-2 border-t border-ink-800 bg-ink-900/40 px-4 py-3 text-xs text-slate-400">
-                <span>
-                  eBay isn&apos;t in this comparison yet — we rotate our daily eBay checks across the
-                  catalogue and haven&apos;t reached this card recently.
-                </span>
-                <OutboundLink
-                  href={ebaySearchHref}
-                  retailer="ebay_search"
-                  country={country}
-                  className="shrink-0 font-semibold text-brand-400 hover:underline"
-                >
-                  Search eBay{country === "NZ" ? " AU" : ""} for a cheaper price →
-                </OutboundLink>
-              </div>
             )}
 
             {outOfStock.length > 0 && (

@@ -82,6 +82,13 @@ const orgJsonLd = {
       logo: `${SITE_URL}/icon-512.png`,
       description:
         "Pokémon TCG card database and live price-comparison across Australia, New Zealand, the US and the UK.",
+      contactPoint: {
+        "@type": "ContactPoint",
+        contactType: "customer support",
+        email: CONTACT_EMAIL,
+        availableLanguage: "English",
+      },
+      sameAs: ["https://riftcompare.com"],
     },
     {
       "@type": "WebSite",
