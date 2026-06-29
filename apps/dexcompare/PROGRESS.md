@@ -2,6 +2,8 @@
 
 Newest first. Each entry: what · why · commit.
 
+- SEO: card image alt text enriched to `"{name} ({setCode} {collectorNumber})"` — added `setCode?: string` to `CardImageData` so every real card image now carries a precise alt like "Charizard (OBF 004)"; applies automatically to all six rendering contexts (CardImage in the card page hero, QuickView, CardTile browse grid, CollectionView, and SellForm); the canonical setCode+collectorNumber identifier is exactly what a collector types when searching, so it's strong signal for Google Images and screen-reader users · the previous alt included only name+collectorNumber; adding the set code makes the identifier unambiguous (many cards share a name across sets) · (this commit)
+
 - SEO: BreadcrumbList JSON-LD added to `/sealed/[slug]` and `/restock/[slug]` — both pages already had Product structured data; adding a BreadcrumbList alongside unlocks Google SERP breadcrumb display (Home › Sealed products › {name} and Home › Restock trackers › {name}) for ~500 sealed product URLs and all featured restock tracker pages · these were the last two high-traffic page types missing breadcrumb markup (card/set/article pages all already have it) · (this commit)
 
 - eBay monetization: every card now has an eBay affiliate touchpoint — high-key "Search eBay →" store row when eBay has no price, and a "Search eBay for more listings →" affiliate link when eBay is already a priced store; raised `EBAY_HOT_SHARE` default 0.35→0.6 so the capped 5k/day Browse budget concentrates on the most-viewed/searched cards (tail covered by the affiliate row) · eBay is the top revenue source — maximise affiliate clicks + keep chase cards fresh under the API limit · (this commit)

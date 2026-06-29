@@ -8,6 +8,7 @@ export interface CardImageData {
   isPromo?: boolean;
   energyCost?: number | null;
   might?: number | null;
+  setCode?: string;
   collectorNumber?: string;
   artSeed?: number;
   orientation?: string | null;
@@ -86,7 +87,13 @@ export function CardImage({ card, isFoil = false, full = false, className }: Pro
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={src}
-        alt={card.collectorNumber ? `${card.name} ${card.collectorNumber}` : card.name}
+        alt={
+          card.setCode && card.collectorNumber
+            ? `${card.name} (${card.setCode} ${card.collectorNumber})`
+            : card.collectorNumber
+              ? `${card.name} ${card.collectorNumber}`
+              : card.name
+        }
         loading="lazy"
         decoding="async"
         className={`relative z-10 h-full w-full ${
