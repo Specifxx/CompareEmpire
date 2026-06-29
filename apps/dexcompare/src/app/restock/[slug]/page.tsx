@@ -134,7 +134,7 @@ export default async function RestockTrackerPage({ params }: { params: { slug: s
 
       {/* Hero + status */}
       <div className="card-surface overflow-hidden">
-        <div className="relative bg-gradient-to-br from-brand-600/25 via-ink-850 to-gold/15 px-6 py-8">
+        <div className="relative border-l-2 border-brand-500 bg-ink-850 px-6 py-8">
           <div className="flex flex-wrap items-center gap-2">
             <span className="chip bg-ink-950/60 text-slate-300">{product.series}</span>
             <span className={`chip font-semibold ${isLive ? "bg-brand-500/20 text-brand-300" : "bg-rose-500/15 text-rose-300"}`}>
@@ -181,7 +181,7 @@ export default async function RestockTrackerPage({ params }: { params: { slug: s
 
       {/* Chase-single hook — only when the set's singles are in our catalogue. */}
       {product.setCode && (
-        <Link href={`/browse?set=${product.setCode}&sort=price_desc`} className="mt-4 block rounded-xl border border-ink-700 bg-ink-900/60 p-4 transition-colors hover:border-brand-500/50">
+        <Link href={`/browse?set=${product.setCode}&sort=price_desc`} className="mt-4 block rounded-lg border border-ink-700 bg-ink-900/60 p-4 transition-colors hover:border-ink-600">
           <div className="text-sm font-semibold text-white">Only want the chase cards, not a whole box?</div>
           <p className="mt-0.5 text-xs text-slate-400">
             Buying the {product.shortName} singles you actually want is almost always cheaper than a gouged sealed box —
@@ -202,7 +202,7 @@ export default async function RestockTrackerPage({ params }: { params: { slug: s
               <li key={i} className="flex items-center gap-3 p-3 text-sm">
                 <span className="text-xs text-slate-500">{timeAgo(e.inStockAt)}</span>
                 <span className="flex-1 truncate text-slate-200">
-                  <strong className="text-white">{e.retailerName}</strong> · {e.productType} · {formatMoney(e.priceCents, info.currency)}
+                  <strong className="text-white">{e.retailerName}</strong> · {e.productType} · <span className="num">{formatMoney(e.priceCents, info.currency)}</span>
                 </span>
                 <span className={`chip shrink-0 ${e.soldOutAt ? "bg-ink-800 text-slate-400" : "bg-brand-500/15 text-brand-300"}`}>
                   {e.soldOutAt ? `sold out in ${e.durationMins ?? "?"} min` : "in stock"}
@@ -253,7 +253,7 @@ export default async function RestockTrackerPage({ params }: { params: { slug: s
                             <span>· seen {timeAgo(r.lastSeen)}</span>
                           </div>
                         </div>
-                        <div className={`shrink-0 text-right text-sm font-bold ${r.inStock ? "text-accent" : "text-slate-400 line-through"}`}>
+                        <div className={`num shrink-0 text-right text-sm font-bold ${r.inStock ? "text-accent" : "text-slate-400 line-through"}`}>
                           {formatMoney(r.priceCents, info.currency)}
                         </div>
                         <OutboundLink
@@ -294,8 +294,8 @@ function Metric({ label, value, sub, good }: { label: string; value: string; sub
   return (
     <div className="rounded-lg bg-ink-900 p-3">
       <div className="text-[11px] uppercase tracking-wide text-slate-500">{label}</div>
-      <div className={`text-lg font-bold ${good ? "text-accent" : "text-white"}`}>{value}</div>
-      {sub && <div className="text-[11px] text-slate-500">{sub}</div>}
+      <div className={`num text-lg font-bold ${good ? "text-accent" : "text-white"}`}>{value}</div>
+      {sub && <div className="num text-[11px] text-slate-500">{sub}</div>}
     </div>
   );
 }

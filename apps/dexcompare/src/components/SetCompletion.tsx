@@ -27,12 +27,12 @@ export function SetCompletion({ cardIds, setName }: { cardIds: string[]; setName
       <div className="min-w-[200px] flex-1">
         <div className="flex items-baseline justify-between gap-3">
           <span className="text-sm font-semibold text-white">
-            Your {setName} collection: {owned} of {cardIds.length} cards
+            Your {setName} collection: <span className="num">{owned}</span> of <span className="num">{cardIds.length}</span> cards
           </span>
-          <span className="text-sm font-bold text-brand-400">{pct}%</span>
+          <span className="num text-sm font-bold text-brand-400">{pct}%</span>
         </div>
         <div className="mt-2 h-2 overflow-hidden rounded-full bg-ink-800">
-          <div className="h-full rounded-full bg-gradient-to-r from-brand-500 to-brand-400" style={{ width: `${pct}%` }} />
+          <div className="h-full rounded-full bg-brand-500" style={{ width: `${pct}%` }} />
         </div>
       </div>
       <Link href="/collection" className="btn-ghost shrink-0 text-xs">View my collection →</Link>

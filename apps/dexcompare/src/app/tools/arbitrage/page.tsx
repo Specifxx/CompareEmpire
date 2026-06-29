@@ -51,24 +51,24 @@ export default async function ArbitragePage({
           <span>/</span>
           <span className="text-slate-300">Arbitrage</span>
         </nav>
-        <h1 className="font-display text-2xl font-extrabold text-white sm:text-3xl">💱 Arbitrage &amp; eBay Deals</h1>
+        <h1 className="font-display text-2xl font-extrabold text-white sm:text-3xl">Arbitrage &amp; eBay Deals</h1>
       </div>
 
       {/* Tabs */}
-      <div className="mb-4 flex gap-1 rounded-xl border border-ink-700 bg-ink-900 p-1" role="tablist" aria-label="Views">
+      <div className="mb-4 flex gap-1 rounded-lg border border-ink-700 bg-ink-900 p-1" role="tablist" aria-label="Views">
         <Link
           href="/tools/arbitrage"
           aria-current={view === "flip" ? "page" : undefined}
-          className={`flex-1 rounded-lg px-3 py-2 text-center text-sm font-bold ${view === "flip" ? "bg-brand-500/20 text-brand-200" : "text-slate-400 hover:text-white"}`}
+          className={`flex-1 rounded-md px-3 py-2 text-center text-sm font-bold ${view === "flip" ? "bg-brand-500/20 text-brand-200" : "text-slate-400 hover:text-white"}`}
         >
-          💱 Flip to eBay
+          Flip to eBay
         </Link>
         <Link
           href="/tools/arbitrage?view=deals"
           aria-current={view === "deals" ? "page" : undefined}
-          className={`flex-1 rounded-lg px-3 py-2 text-center text-sm font-bold ${view === "deals" ? "bg-sky-500/20 text-sky-200" : "text-slate-400 hover:text-white"}`}
+          className={`flex-1 rounded-md px-3 py-2 text-center text-sm font-bold ${view === "deals" ? "bg-sky-500/20 text-sky-200" : "text-slate-400 hover:text-white"}`}
         >
-          🛒 Cheapest on eBay
+          Cheapest on eBay
         </Link>
       </div>
 
@@ -147,19 +147,19 @@ async function FlipView({
                   <tr key={it.card.id} className="hover:bg-ink-900/50">
                     <CardCell card={it.card} />
                     <td className="px-2 py-2 text-right">
-                      <OutboundLink href={it.buyUrl} retailer={it.buyStore} country={country} className="font-semibold text-white hover:text-brand-400">
+                      <OutboundLink href={it.buyUrl} retailer={it.buyStore} country={country} className="num font-semibold text-white hover:text-brand-400">
                         {formatMoney(it.buyCents, info.currency)}
                       </OutboundLink>
                       <div className="truncate text-[10px] text-slate-500" title={it.buyStoreName}>{it.buyStoreName}</div>
                     </td>
                     <td className="px-2 py-2 text-right">
-                      <OutboundLink href={it.sellUrl} retailer="ebay_arb" country={country} className="font-semibold text-slate-200 hover:text-brand-400">
+                      <OutboundLink href={it.sellUrl} retailer="ebay_arb" country={country} className="num font-semibold text-slate-200 hover:text-brand-400">
                         {formatMoney(it.sellCents, info.currency)}
                       </OutboundLink>
                       <div className="text-[10px] text-sky-400">{it.sellName}</div>
                     </td>
-                    <td className="px-2 py-2 text-right font-bold text-brand-400">+{formatMoney(it.netCents, info.currency)}</td>
-                    <td className="px-4 py-2 text-right font-semibold text-brand-300">{it.marginPct}%</td>
+                    <td className="num px-2 py-2 text-right font-bold text-up">+{formatMoney(it.netCents, info.currency)}</td>
+                    <td className="num px-4 py-2 text-right font-semibold text-up">{it.marginPct}%</td>
                   </tr>
                 ))}
               </tbody>
@@ -218,18 +218,18 @@ async function DealsView({
                   <tr key={it.card.id} className="hover:bg-ink-900/50">
                     <CardCell card={it.card} />
                     <td className="px-2 py-2 text-right">
-                      <OutboundLink href={it.ebayUrl} retailer="ebay_deal" country={country} className="font-semibold text-sky-300 hover:text-sky-200">
+                      <OutboundLink href={it.ebayUrl} retailer="ebay_deal" country={country} className="num font-semibold text-sky-300 hover:text-sky-200">
                         {formatMoney(it.ebayCents, info.currency)}
                       </OutboundLink>
                       <div className="text-[10px] text-sky-400">on eBay →</div>
                     </td>
                     <td className="px-2 py-2 text-right">
-                      <div className="text-slate-300">{formatMoney(it.storeCents, info.currency)}</div>
+                      <div className="num text-slate-300">{formatMoney(it.storeCents, info.currency)}</div>
                       <div className="truncate text-[10px] text-slate-500" title={it.storeName}>{it.storeName}</div>
                     </td>
                     <td className="px-4 py-2 text-right">
-                      <span className="font-bold text-brand-400">{formatMoney(it.savingCents, info.currency)}</span>
-                      <span className="ml-1 text-[11px] font-semibold text-brand-300">({it.savingPct}%)</span>
+                      <span className="num font-bold text-up">{formatMoney(it.savingCents, info.currency)}</span>
+                      <span className="num ml-1 text-[11px] font-semibold text-up">({it.savingPct}%)</span>
                     </td>
                   </tr>
                 ))}
@@ -274,7 +274,7 @@ function SortTabs<T extends string>({ sorts, active, hrefFor }: { sorts: { key: 
           <Link
             key={s.key}
             href={hrefFor(s.key)}
-            className={`rounded-lg px-3 py-2 text-sm font-semibold ${active === s.key ? "bg-brand-500/20 text-brand-200" : "bg-ink-900 text-slate-400 hover:text-white"}`}
+            className={`rounded-md px-3 py-2 text-sm font-semibold ${active === s.key ? "bg-brand-500/20 text-brand-200" : "bg-ink-900 text-slate-400 hover:text-white"}`}
           >
             {s.label}
           </Link>

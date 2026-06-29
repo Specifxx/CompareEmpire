@@ -141,7 +141,7 @@ export default async function SealedComparePage({ params }: { params: { slug: st
       {/* Hero */}
       <div className="card-surface overflow-hidden">
         <div className="flex flex-col gap-5 p-5 sm:flex-row">
-          <div className="grid aspect-square w-full shrink-0 place-items-center overflow-hidden rounded-xl bg-gradient-to-br from-ink-850 to-ink-900 p-4 sm:w-48">
+          <div className="grid aspect-square w-full shrink-0 place-items-center overflow-hidden rounded-lg border border-ink-800 bg-ink-900 p-4 sm:w-48">
             {group.imageUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={group.imageUrl} alt={group.name} className="max-h-full max-w-full object-contain" />
@@ -163,12 +163,12 @@ export default async function SealedComparePage({ params }: { params: { slug: st
               {lowest != null ? (
                 <div>
                   <div className="text-[11px] uppercase tracking-wide text-slate-500">Cheapest in {priceInfo.code}</div>
-                  <div className="text-3xl font-extrabold text-accent">{formatMoney(lowest, priceInfo.currency)}</div>
+                  <div className="num text-3xl font-extrabold text-accent">{formatMoney(lowest, priceInfo.currency)}</div>
                 </div>
               ) : (
                 <div>
                   <div className="text-[11px] uppercase tracking-wide text-slate-500">Status</div>
-                  <div className="text-2xl font-extrabold text-rose-300">Sold out in {priceInfo.code}</div>
+                  <div className="text-2xl font-extrabold text-down">Sold out in {priceInfo.code}</div>
                 </div>
               )}
             </div>
@@ -241,7 +241,7 @@ export default async function SealedComparePage({ params }: { params: { slug: st
                     <span>· seen {timeAgo(l.lastSeen)}</span>
                   </div>
                 </div>
-                <div className={`shrink-0 text-right text-sm font-bold ${l.inStock ? "text-accent" : "text-slate-400 line-through"}`}>
+                <div className={`num shrink-0 text-right text-sm font-bold ${l.inStock ? "text-accent" : "text-slate-400 line-through"}`}>
                   {formatMoney(l.priceCents, priceInfo.currency)}
                 </div>
                 <OutboundLink
@@ -277,7 +277,7 @@ export default async function SealedComparePage({ params }: { params: { slug: st
       {setMeta && (
         <Link
           href={`/browse?set=${group.setCode}&sort=price_desc`}
-          className="mt-4 block rounded-xl border border-ink-700 bg-ink-900/60 p-4 transition-colors hover:border-brand-500/50"
+          className="mt-4 block rounded-lg border border-ink-700 bg-ink-900/60 p-4 transition-colors hover:border-ink-600"
         >
           <div className="text-sm font-semibold text-white">Only want the chase cards, not a whole box?</div>
           <p className="mt-0.5 text-xs text-slate-400">
@@ -299,7 +299,7 @@ export default async function SealedComparePage({ params }: { params: { slug: st
               <li key={i} className="flex items-center gap-3 p-3 text-sm">
                 <span className="text-xs text-slate-500">{timeAgo(e.inStockAt)}</span>
                 <span className="flex-1 truncate text-slate-200">
-                  <strong className="text-white">{e.retailerName}</strong> · {e.productType} · {formatMoney(e.priceCents, priceInfo.currency)}
+                  <strong className="text-white">{e.retailerName}</strong> · {e.productType} · <span className="num">{formatMoney(e.priceCents, priceInfo.currency)}</span>
                 </span>
                 <span className={`chip shrink-0 ${e.soldOutAt ? "bg-ink-800 text-slate-400" : "bg-brand-500/15 text-brand-300"}`}>
                   {e.soldOutAt ? `sold out in ${e.durationMins ?? "?"} min` : "in stock"}

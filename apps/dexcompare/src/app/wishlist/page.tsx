@@ -10,7 +10,7 @@ export default function WishlistPage() {
   return (
     <div>
       <div className="card-surface mb-5 overflow-hidden">
-        <div className="bg-gradient-to-r from-gold/15 via-ink-850 to-brand-600/20 p-6">
+        <div className="border-l-2 border-brand-500 bg-ink-850 p-6">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <h1 className="text-2xl font-extrabold text-white">Your Wishlist</h1>

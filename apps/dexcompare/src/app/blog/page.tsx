@@ -26,11 +26,11 @@ export default function BlogPage() {
       {/* Automated daily market report — fresh content every day. */}
       <Link
         href="/blog/market-wrap"
-        className="card-surface mb-6 flex flex-wrap items-center justify-between gap-3 border-brand-500/30 bg-gradient-to-r from-brand-600/15 to-transparent p-4 transition-colors hover:border-brand-500"
+        className="card-surface mb-6 flex flex-wrap items-center justify-between gap-3 border-l-2 border-l-brand-500 p-4 transition-colors hover:border-ink-600"
       >
         <div className="min-w-0">
           <div className="flex items-center gap-2 font-bold text-white">
-            <span aria-hidden>📈</span> Daily Market Wrap
+            Daily Market Wrap
             <span className="chip bg-brand-500/15 text-[10px] font-bold uppercase tracking-wide text-brand-300">New every day</span>
           </div>
           <p className="mt-0.5 text-xs text-slate-400">

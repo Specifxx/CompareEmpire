@@ -28,7 +28,7 @@ export function ArticleList({ articles, basePath }: { articles: Article[]; baseP
         <Link
           key={a.slug}
           href={`${basePath}/${a.slug}`}
-          className="card-surface flex flex-col p-5 transition-all hover:-translate-y-0.5 hover:shadow-glow"
+          className="card-surface flex flex-col p-5 transition-colors hover:border-ink-600"
         >
           <div className="flex flex-wrap gap-1.5">
             {a.tags.slice(0, 3).map((t) => (

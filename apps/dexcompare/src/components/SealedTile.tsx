@@ -12,9 +12,9 @@ export function SealedTile({ group, currency }: { group: SealedGroup; currency: 
   return (
     <Link
       href={`/sealed/${g.slug}`}
-      className="cv-auto group card-surface relative flex flex-col overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-glow"
+      className="cv-auto group card-surface relative flex flex-col overflow-hidden transition-colors hover:border-ink-600"
     >
-      <div className="relative grid aspect-square w-full place-items-center overflow-hidden bg-gradient-to-br from-ink-850 to-ink-900 p-4">
+      <div className="relative grid aspect-square w-full place-items-center overflow-hidden bg-ink-950 p-4">
         {g.imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -36,7 +36,7 @@ export function SealedTile({ group, currency }: { group: SealedGroup; currency: 
         )}
       </div>
 
-      <div className="flex flex-1 flex-col gap-1.5 border-t border-ink-700 p-3">
+      <div className="flex flex-1 flex-col gap-1.5 border-t border-ink-800 p-3">
         <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-white" title={g.name}>
           {g.name}
         </h3>
@@ -49,13 +49,13 @@ export function SealedTile({ group, currency }: { group: SealedGroup; currency: 
             ) : (
               <>
                 <div className="text-[11px] text-slate-500">from</div>
-                <div className="text-lg font-bold text-accent">{formatMoney(g.lowestPriceCents as number, currency)}</div>
+                <div className="num text-lg font-bold text-accent">{formatMoney(g.lowestPriceCents as number, currency)}</div>
               </>
             )}
           </div>
           {g.totalCount > 0 && (
             <div className="text-right text-[11px] font-semibold text-brand-400">
-              {g.totalCount} {g.totalCount === 1 ? "store" : "stores"}
+              <span className="num">{g.totalCount}</span> {g.totalCount === 1 ? "store" : "stores"}
             </div>
           )}
         </div>
