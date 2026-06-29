@@ -93,12 +93,6 @@ export default async function TrendingPage() {
             >
               Price movers this week →
             </Link>
-            <Link
-              href="/cheapest"
-              className="rounded-full bg-ink-700 px-3 py-1 text-xs font-medium text-slate-300 hover:bg-ink-600 hover:text-white"
-            >
-              Cheapest cards in stock →
-            </Link>
           </div>
         </div>
       </section>
@@ -141,8 +135,8 @@ export default async function TrendingPage() {
           <Link href="/deals" className="rounded bg-ink-800 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-ink-700 hover:text-white">
             Today&apos;s deals
           </Link>
-          <Link href="/cheapest" className="rounded bg-ink-800 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-ink-700 hover:text-white">
-            Cheapest cards in stock
+          <Link href="/most-valuable" className="rounded bg-ink-800 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-ink-700 hover:text-white">
+            Most valuable cards
           </Link>
           <Link href="/market" className="rounded bg-ink-800 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-ink-700 hover:text-white">
             Price movers

@@ -127,7 +127,7 @@ export default async function MostValuablePage() {
         </div>
       </section>
 
-      <section className="grid gap-4 sm:grid-cols-3">
+      <section className="grid gap-4 sm:grid-cols-2">
         <Link href="/card-value" className="card-surface p-4 transition-colors hover:border-ink-600">
           <div className="text-sm font-extrabold text-white">Value checker</div>
           <p className="mt-1 text-xs text-slate-400">What&apos;s your card worth? Search any card.</p>
@@ -135,10 +135,6 @@ export default async function MostValuablePage() {
         <Link href="/sets/base" className="card-surface p-4 transition-colors hover:border-ink-600">
           <div className="text-sm font-extrabold text-white">1999 Base Set</div>
           <p className="mt-1 text-xs text-slate-400">Where the vintage value lives — every card priced.</p>
-        </Link>
-        <Link href="/cheapest" className="card-surface p-4 transition-colors hover:border-ink-600">
-          <div className="text-sm font-extrabold text-white">Cheapest cards</div>
-          <p className="mt-1 text-xs text-slate-400">The other end — bargains in stock under $5, $10 and $50.</p>
         </Link>
       </section>
 

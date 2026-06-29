@@ -34,8 +34,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/card-value`, changeFrequency: "daily", priority: 0.85, lastModified: priceDay },
     // Most valuable cards — "most/expensive valuable pokemon cards" query family.
     { url: `${SITE_URL}/most-valuable`, changeFrequency: "daily", priority: 0.8, lastModified: priceDay },
-    // Cheapest cards + trending hubs (price-band + most-viewed landers).
-    { url: `${SITE_URL}/cheapest`, changeFrequency: "daily", priority: 0.8, lastModified: priceDay },
+    // Trending hub — most-viewed cards.
     { url: `${SITE_URL}/trending`, changeFrequency: "daily", priority: 0.8, lastModified: priceDay },
     // The market index — stock-style view of the whole singles market.
     { url: `${SITE_URL}/market`, changeFrequency: "daily", priority: 0.8, lastModified: priceDay },

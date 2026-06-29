@@ -135,7 +135,7 @@ export default async function CardValuePage() {
       </Link>
 
       {/* Routes deeper into value content — concentrates internal link equity. */}
-      <section className="grid gap-4 sm:grid-cols-3">
+      <section className="grid gap-4 sm:grid-cols-2">
         <Link href="/most-valuable" className="card-surface p-4 transition-colors hover:border-ink-600">
           <div className="text-sm font-extrabold text-white">Most valuable cards</div>
           <p className="mt-1 text-xs text-slate-400">The priciest Pokémon singles in stock right now, ranked.</p>
@@ -143,10 +143,6 @@ export default async function CardValuePage() {
         <Link href="/trending" className="card-surface p-4 transition-colors hover:border-ink-600">
           <div className="text-sm font-extrabold text-white">Trending cards</div>
           <p className="mt-1 text-xs text-slate-400">What collectors are searching for most this week.</p>
-        </Link>
-        <Link href="/cheapest" className="card-surface p-4 transition-colors hover:border-ink-600">
-          <div className="text-sm font-extrabold text-white">Cheapest cards</div>
-          <p className="mt-1 text-xs text-slate-400">Bargain singles in stock — under $5, $10 and $50.</p>
         </Link>
       </section>
 
