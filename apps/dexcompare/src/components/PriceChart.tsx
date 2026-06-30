@@ -46,15 +46,19 @@ export function PriceChart({
   title,
   note,
   currency = "AUD",
+  unit = "currency",
 }: {
   points: PricePoint[];
   title: string;
   note?: string;
   currency?: string;
+  // "currency" formats values as money; "index" treats `cents` as an index level
+  // ×100 (e.g. 10320 → "103.2") for the currency-neutral global composite.
+  unit?: "currency" | "index";
 }) {
   if (points.length === 0) return null;
 
-  const fmt = (c: number) => formatMoney(c, currency);
+  const fmt = (c: number) => (unit === "index" ? (c / 100).toFixed(1) : formatMoney(c, currency));
 
   if (points.length === 1) {
     return (

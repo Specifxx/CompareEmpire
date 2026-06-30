@@ -35,7 +35,9 @@ async function computeHomeData(country: Country): Promise<HomeData> {
       getCheapestCards(12, country),
       getValuableCards(12, country),
       prisma.retailerPrice.groupBy({ by: ["retailer"], where: { country, NOT: { retailer: { startsWith: "ebay" } } } }),
-      getPopularCards(12, country),
+      // Pull more popular cards so the homepage's featured grid is dominated by
+      // what collectors actually view most (valuable/cheapest only backfill it).
+      getPopularCards(24, country),
       getNewSealedArrivals(country, 12),
     ]);
 

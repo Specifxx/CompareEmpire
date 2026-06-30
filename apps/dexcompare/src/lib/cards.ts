@@ -117,6 +117,10 @@ export function buildCardOrderBy(
       return [{ [field]: { sort: "desc", nulls: "last" } } as Prisma.CardOrderByWithRelationInput, { name: "asc" }];
     case "name":
       return [{ name: "asc" }];
+    case "popular":
+      // Most-viewed first (DexCompare's own demand signal); never-viewed cards
+      // fall to the bottom alphabetically.
+      return [{ viewCount: "desc" }, { name: "asc" }];
     case "number":
     default:
       return [{ setCode: "asc" }, { collectorNumber: "asc" }];

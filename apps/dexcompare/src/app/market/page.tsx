@@ -3,10 +3,11 @@ import Link from "next/link";
 import { CardTile } from "@/components/CardTile";
 import { PriceChart, changeOver } from "@/components/PriceChart";
 import { AdSlot } from "@/components/AdSlot";
-import { getMarketIndex, scopeChips, scopeFromParam } from "@/lib/market-index";
+import { getMarketIndex, getGlobalIndex, scopeChips, scopeFromParam } from "@/lib/market-index";
 import { getMarketWrap, latestWrapDay } from "@/lib/market-wrap";
 import { getCountry } from "@/lib/get-country";
-import { COUNTRIES } from "@/lib/country";
+import { COUNTRIES, type Country } from "@/lib/country";
+import { MarketSelect } from "@/components/MarketSelect";
 import { formatMoney } from "@/lib/format";
 import { SITE_URL } from "@/lib/site";
 
@@ -40,11 +41,26 @@ function Delta({ label, pct }: { label: string; pct: number | null }) {
   );
 }
 
-export default async function MarketPage({ searchParams }: { searchParams: { scope?: string } }) {
-  const country = getCountry();
-  const info = COUNTRIES[country];
+const MARKET_CODES: Country[] = ["AU", "NZ", "US", "GB"];
+
+export default async function MarketPage({ searchParams }: { searchParams: { scope?: string; market?: string } }) {
   const scope = scopeFromParam(searchParams.scope);
-  const data = await getMarketIndex(country, scope);
+  // "Global" (currency-neutral composite of all markets) is the default; a market
+  // param picks one market's index instead.
+  const isGlobal = !searchParams.market || searchParams.market === "global";
+  const selected = MARKET_CODES.includes(searchParams.market as Country) ? (searchParams.market as Country) : null;
+  const country: Country = selected ?? getCountry();
+  const info = COUNTRIES[country];
+  const data = isGlobal ? await getGlobalIndex(scope) : await getMarketIndex(country, scope);
+
+  // Preserve the chosen market when switching scope chips.
+  const mkHref = (scopeVal: string) => {
+    const sp = new URLSearchParams();
+    if (scopeVal !== "all") sp.set("scope", scopeVal);
+    if (!isGlobal) sp.set("market", country);
+    const qs = sp.toString();
+    return `/market${qs ? `?${qs}` : ""}`;
+  };
 
   // THE INDEX NUMBER: the basket cost series rebased so the first recorded day
   // = 100 (a real index level, like any market index — "103.2" means the
@@ -105,17 +121,21 @@ export default async function MarketPage({ searchParams }: { searchParams: { sco
         <h1 className="font-display text-3xl font-extrabold text-white">The DexCompare Index</h1>
         <p className="mt-1 max-w-2xl text-slate-400">
           The Pokémon singles market in one number: a base-100 index of the {data.basketSize || "top"} most
-          valuable {data.scopeLabel !== "All cards" ? `${data.scopeLabel} ` : ""}cards, priced daily from the
-          cheapest live {info.adjective} store listing. Switch country at the top for your market.
+          valuable {data.scopeLabel !== "All cards" ? `${data.scopeLabel} ` : ""}cards.{" "}
+          {isGlobal
+            ? "Global view: each of the AU, NZ, US & UK markets is rebased to 100 and averaged — currency-neutral. Use the market selector to drill into one market."
+            : `Priced daily from the cheapest live ${info.adjective} store listing.`}
         </p>
       </header>
 
-      {/* Scope selector — all / recent releases / newest sets. */}
-      <div className="mb-5 flex flex-wrap gap-2">
+      {/* Market selector (Global default) + scope selector (all / recent / newest sets). */}
+      <div className="mb-5 flex flex-wrap items-center gap-2">
+        <MarketSelect />
+        <span className="mx-1 hidden h-5 w-px bg-ink-700 sm:block" aria-hidden />
         {scopeChips().map((c) => (
           <Link
             key={c.value}
-            href={c.value === "all" ? "/market" : `/market?scope=${c.value}`}
+            href={mkHref(c.value)}
             className={`chip border px-3 py-1.5 text-sm ${
               activeChip === c.value
                 ? "border-brand-500 bg-brand-500/15 text-brand-300"
@@ -132,7 +152,7 @@ export default async function MarketPage({ searchParams }: { searchParams: { sco
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <div className="text-[11px] font-bold uppercase tracking-wide text-slate-500">
-              {country} market{startDay ? ` · base 100 on ${startDay}` : ""}
+              {isGlobal ? "Global · all markets" : `${country} market`}{startDay ? ` · base 100 on ${startDay}` : ""}
             </div>
             <div className="num font-display text-5xl font-extrabold text-white">
               {indexLevel != null ? indexLevel.toFixed(1) : "100.0"}
@@ -160,8 +180,17 @@ export default async function MarketPage({ searchParams }: { searchParams: { sco
             <PriceChart
               points={data.points}
               currency={info.currency}
-              title={`Basket cost — what the ${data.scopeLabel.toLowerCase()} basket costs to buy (${info.currency})`}
-              note={`The ${data.basketSize} most valuable ${data.scopeLabel === "All cards" ? "" : `${data.scopeLabel} `}cards with history, cheapest live ${info.adjective} price, carried forward on quiet days. The index level above is this line rebased to 100.`}
+              unit={isGlobal ? "index" : "currency"}
+              title={
+                isGlobal
+                  ? `Global index — ${data.scopeLabel.toLowerCase()} basket, all markets rebased to 100`
+                  : `Basket cost — what the ${data.scopeLabel.toLowerCase()} basket costs to buy (${info.currency})`
+              }
+              note={
+                isGlobal
+                  ? `The ${data.basketSize} most valuable ${data.scopeLabel === "All cards" ? "" : `${data.scopeLabel} `}cards, priced in each of AU/NZ/US/UK, every market rebased to 100 at the start and averaged — currency-neutral, carried forward on quiet days.`
+                  : `The ${data.basketSize} most valuable ${data.scopeLabel === "All cards" ? "" : `${data.scopeLabel} `}cards with history, cheapest live ${info.adjective} price, carried forward on quiet days. The index level above is this line rebased to 100.`
+              }
             />
           </div>
         ) : (
@@ -178,7 +207,7 @@ export default async function MarketPage({ searchParams }: { searchParams: { sco
       {/* Secondary stats */}
       <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
         <Metric label="Market cap (tracked)" value={`≈ ${formatMoney(data.marketCapCents, "USD")}`} sub="sum of TCGplayer guides" />
-        <Metric label={`Priced cards (${country})`} value={data.trackedCards.toLocaleString()} sub="with a live store price" />
+        <Metric label={`Priced cards (${isGlobal ? "US" : country})`} value={data.trackedCards.toLocaleString()} sub="with a live store price" />
         <Metric
           label="7-day breadth"
           value={breadthTotal ? `${data.risers} up / ${data.fallers} down` : "—"}
@@ -227,7 +256,7 @@ export default async function MarketPage({ searchParams }: { searchParams: { sco
           <div className="border-b border-ink-700 p-4">
             <h2 className="font-bold text-white">Sealed supply — newest sets</h2>
             <p className="mt-0.5 text-xs text-slate-500">
-              Box/ETB listings in stock across {info.adjective} stores — low numbers mean a camped set.
+              Box/ETB listings in stock across {isGlobal ? "all markets" : `${info.adjective} stores`} — low numbers mean a camped set.
             </p>
           </div>
           <ul className="divide-y divide-ink-800">
@@ -247,7 +276,11 @@ export default async function MarketPage({ searchParams }: { searchParams: { sco
                   <div className="shrink-0 text-right">
                     <div className="text-sm font-bold text-white"><span className="num">{s.inStock}/{s.total}</span> in stock</div>
                     <div className="text-[11px] text-slate-500">
-                      {s.cheapestBoxCents != null ? `box from ${formatMoney(s.cheapestBoxCents, info.currency)}` : "boxes sold out"}
+                      {isGlobal
+                        ? "across all markets"
+                        : s.cheapestBoxCents != null
+                          ? `box from ${formatMoney(s.cheapestBoxCents, info.currency)}`
+                          : "boxes sold out"}
                     </div>
                   </div>
                   <Link href={`/sealed?q=${encodeURIComponent(s.setName)}`} className="btn-ghost shrink-0 text-xs">
