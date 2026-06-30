@@ -206,7 +206,7 @@ export default async function MarketPage({ searchParams }: { searchParams: { sco
 
       {/* Secondary stats */}
       <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <Metric label="Market cap (tracked)" value={`≈ ${formatMoney(data.marketCapCents, "USD")}`} sub="sum of TCGplayer guides" />
+        <Metric label="Total value · 1 of each" value={`≈ ${formatMoney(data.marketCapCents, "USD")}`} sub="one of every tracked card · TCGplayer guide" />
         <Metric label={`Priced cards (${isGlobal ? "US" : country})`} value={data.trackedCards.toLocaleString()} sub="with a live store price" />
         <Metric
           label="7-day breadth"
@@ -302,9 +302,11 @@ export default async function MarketPage({ searchParams }: { searchParams: { sco
           each market (NM/LP conditions; market-guide estimates excluded), sum the basket, and rebase the
           series to 100 at its start — an index of 103 means the basket is 3% dearer than at the start.
           Days without a snapshot carry the last price forward, so the line only moves when prices move.
-          It reflects retail ask prices, not graded sales or auctions. Market cap is the sum of TCGplayer
-          market guides across every tracked card. The global composite is the equal-weighted average of
-          the four markets&apos; matched-pair daily moves — currency-neutral by construction.
+          It reflects retail ask prices, not graded sales or auctions. &ldquo;Total value · 1 of each&rdquo;
+          is what one copy of every tracked card would cost at the TCGplayer market guide — the price of a
+          complete one-of-each collection, NOT a circulation-weighted market cap (card print runs aren&apos;t
+          public, so a true market cap can&apos;t be computed). The global composite is the equal-weighted
+          average of the four markets&apos; matched-pair daily moves — currency-neutral by construction.
         </p>
         <p className="text-slate-300">
           <strong>Citing the Index:</strong> journalists and creators are welcome to quote it freely as
