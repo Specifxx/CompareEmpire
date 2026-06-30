@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getSealedGroups } from "@/lib/sealed-import";
+import { getSealedGroups, type SealedGroup } from "@/lib/sealed-import";
 import { SealedTile } from "@/components/SealedTile";
+import { SealedFilters } from "@/components/SealedFilters";
+import { SealedSort } from "@/components/SealedSort";
 import { AdSlot } from "@/components/AdSlot";
 import { getCountry } from "@/lib/get-country";
 import { COUNTRIES } from "@/lib/country";
@@ -10,19 +12,32 @@ import { SITE_URL } from "@/lib/site";
 // Per-request: the market (and therefore prices/stock) comes from the country cookie.
 export const dynamic = "force-dynamic";
 
-export function generateMetadata({ searchParams }: { searchParams: { q?: string; type?: string } }): Metadata {
-  const filtered = Boolean(searchParams.q || searchParams.type);
+interface SealedParams {
+  q?: string;
+  type?: string; // CSV of product types
+  set?: string; // CSV of set codes
+  min?: string;
+  max?: string;
+  instock?: string; // "1" = in stock only
+  sort?: string;
+}
+
+function isFilteredParams(sp: SealedParams): boolean {
+  return Boolean(sp.q || sp.type || sp.set || sp.min || sp.max || sp.instock);
+}
+
+export function generateMetadata({ searchParams }: { searchParams: SealedParams }): Metadata {
   return {
     title: "Pokémon booster packs, boxes & ETBs — compare sealed prices",
     description:
       "Browse the full Pokémon sealed-product database — booster packs, booster boxes, elite trainer boxes, bundles, collection boxes and tins — and compare live prices across stores in Australia, New Zealand, the US and the UK to find the cheapest place to buy.",
     alternates: { canonical: "/sealed" },
-    ...(filtered ? { robots: { index: false, follow: true } } : {}),
+    ...(isFilteredParams(searchParams) ? { robots: { index: false, follow: true } } : {}),
   };
 }
 
-// The product-type filters, in display order. "All" is implied (no `type` param).
-const TYPE_FILTERS = [
+// Product-type display order; any present type not listed is appended alphabetically.
+const TYPE_ORDER = [
   "Booster Box",
   "Elite Trainer Box",
   "Booster Case",
@@ -33,29 +48,48 @@ const TYPE_FILTERS = [
   "Booster Pack",
 ];
 
-export default async function SealedPage({ searchParams }: { searchParams: { q?: string; type?: string } }) {
+const csv = (v?: string) => (v ?? "").split(",").map((s) => s.trim()).filter(Boolean);
+
+export default async function SealedPage({ searchParams }: { searchParams: SealedParams }) {
   const country = getCountry();
   const info = COUNTRIES[country];
   const all = await getSealedGroups(country);
 
   const q = (searchParams.q ?? "").trim().toLowerCase();
-  const type = searchParams.type ?? "";
+  const types = csv(searchParams.type);
+  const setsSel = csv(searchParams.set);
+  const minCents = searchParams.min ? Math.round(parseFloat(searchParams.min) * 100) : null;
+  const maxCents = searchParams.max ? Math.round(parseFloat(searchParams.max) * 100) : null;
+  const instock = searchParams.instock === "1";
+  const sort = searchParams.sort ?? "";
 
-  let groups = all;
-  if (type) groups = groups.filter((g) => g.productType === type);
+  let groups: SealedGroup[] = all;
+  if (types.length) groups = groups.filter((g) => types.includes(g.productType));
+  if (setsSel.length) groups = groups.filter((g) => g.setCode != null && setsSel.includes(g.setCode));
+  if (instock) groups = groups.filter((g) => g.storeCount > 0);
+  if (minCents != null) groups = groups.filter((g) => g.lowestPriceCents != null && g.lowestPriceCents >= minCents);
+  if (maxCents != null) groups = groups.filter((g) => g.lowestPriceCents != null && g.lowestPriceCents <= maxCents);
   if (q) groups = groups.filter((g) => `${g.name} ${g.setName ?? ""} ${g.productType}`.toLowerCase().includes(q));
 
-  // Only show type chips that actually have products in this market.
-  const present = new Set(all.map((g) => g.productType));
-  const typeChips = TYPE_FILTERS.filter((t) => present.has(t));
+  if (sort) {
+    groups = [...groups];
+    if (sort === "price_asc") groups.sort((a, b) => (a.lowestPriceCents ?? Infinity) - (b.lowestPriceCents ?? Infinity));
+    else if (sort === "price_desc") groups.sort((a, b) => (b.lowestPriceCents ?? -1) - (a.lowestPriceCents ?? -1));
+    else if (sort === "newest") groups.sort((a, b) => (b.releaseDate ?? "").localeCompare(a.releaseDate ?? ""));
+    else if (sort === "name") groups.sort((a, b) => a.name.localeCompare(b.name));
+  }
 
-  const chipHref = (t: string) => {
-    const sp = new URLSearchParams();
-    if (q) sp.set("q", q);
-    if (t) sp.set("type", t);
-    const s = sp.toString();
-    return s ? `/sealed?${s}` : "/sealed";
-  };
+  // Facet options — only the types/sets that actually have products in this market.
+  const presentTypes = [...new Set(all.map((g) => g.productType))];
+  const typeOptions = [
+    ...TYPE_ORDER.filter((t) => presentTypes.includes(t)),
+    ...presentTypes.filter((t) => !TYPE_ORDER.includes(t)).sort((a, b) => a.localeCompare(b)),
+  ];
+  const setMap = new Map<string, string>();
+  for (const g of all) if (g.setCode && g.setName) setMap.set(g.setCode, g.setName);
+  const setOptions = [...setMap].map(([code, name]) => ({ code, name })).sort((a, b) => a.name.localeCompare(b.name));
+
+  const isFiltered = isFilteredParams(searchParams);
 
   const faqs = [
     {
@@ -75,29 +109,26 @@ export default async function SealedPage({ searchParams }: { searchParams: { q?:
       a: "Click any product tile to open its full price-comparison table, ranked from lowest to highest by total delivered cost. Prices update daily from each retailer's live listings.",
     },
   ];
-  const showFaq = !q && !type;
 
-  // Structured data only on the canonical, unfiltered view (filtered views are noindex).
-  const collectionJsonLd =
-    !q && !type
-      ? {
-          "@context": "https://schema.org",
-          "@type": "CollectionPage",
-          name: "Pokémon Sealed Product Prices",
-          url: `${SITE_URL}/sealed`,
-          description: "Pokémon booster boxes, ETBs, bundles and packs with live prices compared across stores.",
-          isPartOf: { "@type": "WebSite", name: "DexCompare", url: SITE_URL },
-          mainEntity: {
-            "@type": "ItemList",
-            itemListElement: all.slice(0, 24).map((g, i) => ({
-              "@type": "ListItem",
-              position: i + 1,
-              url: `${SITE_URL}/sealed/${g.slug}`,
-              name: g.name,
-            })),
-          },
-        }
-      : null;
+  const collectionJsonLd = !isFiltered
+    ? {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        name: "Pokémon Sealed Product Prices",
+        url: `${SITE_URL}/sealed`,
+        description: "Pokémon booster boxes, ETBs, bundles and packs with live prices compared across stores.",
+        isPartOf: { "@type": "WebSite", name: "DexCompare", url: SITE_URL },
+        mainEntity: {
+          "@type": "ItemList",
+          itemListElement: all.slice(0, 24).map((g, i) => ({
+            "@type": "ListItem",
+            position: i + 1,
+            url: `${SITE_URL}/sealed/${g.slug}`,
+            name: g.name,
+          })),
+        },
+      }
+    : null;
 
   return (
     <div className="flex flex-col gap-6">
@@ -113,7 +144,7 @@ export default async function SealedPage({ searchParams }: { searchParams: { q?:
             {info.adjective} prices compared across every store we track, so you find the cheapest place
             to buy (and the best resale value). Updated daily.
           </p>
-          {/* Search */}
+          {/* Search — preserves active filters via hidden inputs */}
           <form action="/sealed" className="mt-4 flex max-w-md gap-2">
             <input
               type="search"
@@ -123,7 +154,12 @@ export default async function SealedPage({ searchParams }: { searchParams: { q?:
               className="input flex-1"
               aria-label="Search sealed products"
             />
-            {type && <input type="hidden" name="type" value={type} />}
+            {searchParams.type && <input type="hidden" name="type" value={searchParams.type} />}
+            {searchParams.set && <input type="hidden" name="set" value={searchParams.set} />}
+            {searchParams.min && <input type="hidden" name="min" value={searchParams.min} />}
+            {searchParams.max && <input type="hidden" name="max" value={searchParams.max} />}
+            {searchParams.instock && <input type="hidden" name="instock" value={searchParams.instock} />}
+            {searchParams.sort && <input type="hidden" name="sort" value={searchParams.sort} />}
             <button type="submit" className="btn-primary shrink-0">Search</button>
           </form>
         </div>
@@ -131,51 +167,41 @@ export default async function SealedPage({ searchParams }: { searchParams: { q?:
 
       <AdSlot format="horizontal" height={90} />
 
-      {/* Type filters */}
-      <div className="flex flex-wrap gap-2">
-        <Link
-          href={chipHref("")}
-          className={`chip border px-3 py-1.5 text-sm ${type === "" ? "border-brand-500 bg-brand-500/15 text-brand-300" : "border-ink-700 text-slate-300 hover:border-brand-500"}`}
-        >
-          All products
-        </Link>
-        {typeChips.map((t) => (
-          <Link
-            key={t}
-            href={chipHref(t)}
-            className={`chip border px-3 py-1.5 text-sm ${type === t ? "border-brand-500 bg-brand-500/15 text-brand-300" : "border-ink-700 text-slate-300 hover:border-brand-500"}`}
-          >
-            {t}
-          </Link>
-        ))}
+      {/* Filters sidebar + results (same layout as the card database) */}
+      <div className="flex flex-col gap-6 lg:flex-row">
+        <SealedFilters types={typeOptions} sets={setOptions} currency={info.currency} />
+
+        <section className="min-w-0 flex-1">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <p className="text-sm text-slate-400">
+              <span className="num font-semibold text-white">{groups.length.toLocaleString()}</span>{" "}
+              {groups.length === 1 ? "product" : "products"}
+              {searchParams.q && <> for <span className="text-brand-400">&ldquo;{searchParams.q}&rdquo;</span></>}
+            </p>
+            <SealedSort />
+          </div>
+
+          {groups.length === 0 ? (
+            <div className="card-surface grid place-items-center p-16 text-center">
+              <p className="text-lg font-semibold text-white">No sealed products found</p>
+              <p className="mt-1 text-sm text-slate-400">
+                {all.length === 0
+                  ? `We haven't indexed any ${info.adjective} sealed products yet — check back soon.`
+                  : "Try a different search or loosen the filters."}
+              </p>
+              <Link href="/sealed" className="btn-primary mt-4">Reset filters</Link>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-4">
+              {groups.map((g) => (
+                <SealedTile key={g.slug} group={g} currency={info.currency} />
+              ))}
+            </div>
+          )}
+        </section>
       </div>
 
-      <p className="text-sm text-slate-400">
-        <span className="num font-semibold text-white">{groups.length.toLocaleString()}</span>{" "}
-        {groups.length === 1 ? "product" : "products"}
-        {searchParams.q && <> for <span className="text-brand-400">“{searchParams.q}”</span></>}
-        {type && <> · {type}</>}
-      </p>
-
-      {groups.length === 0 ? (
-        <div className="card-surface grid place-items-center p-16 text-center">
-          <p className="text-lg font-semibold text-white">No sealed products found</p>
-          <p className="mt-1 text-sm text-slate-400">
-            {all.length === 0
-              ? `We haven't indexed any ${info.adjective} sealed products yet — check back soon.`
-              : "Try a different search or product type."}
-          </p>
-          <Link href="/sealed" className="btn-primary mt-4">Reset</Link>
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-          {groups.map((g) => (
-            <SealedTile key={g.slug} group={g} currency={info.currency} />
-          ))}
-        </div>
-      )}
-
-      {showFaq && (
+      {!isFiltered && (
         <>
           <section className="card-surface p-6">
             <h2 className="text-lg font-extrabold text-white">Pokémon sealed products — FAQ</h2>
