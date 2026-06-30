@@ -9,9 +9,7 @@ import { formatMoney } from "@/lib/format";
 import { getCountry } from "@/lib/get-country";
 import { COUNTRIES, type CountryInfo } from "@/lib/country";
 import { Logo } from "@/components/Logo";
-import { Reveal } from "@/components/Reveal";
 import { CountUp } from "@/components/CountUp";
-import { ScrollProgress } from "@/components/ScrollProgress";
 import { SearchBar } from "@/components/SearchBar";
 import { HomeShoppableGrid } from "@/components/HomeShoppableGrid";
 
@@ -78,8 +76,6 @@ export default async function HomePage() {
   ]);
 
   return (
-    <>
-      <ScrollProgress />
       <div className="flex flex-col gap-10">
         {/* ── Hero: search-first gateway to the database ── */}
         <section className="card-surface relative overflow-hidden">
@@ -142,13 +138,11 @@ export default async function HomePage() {
         </section>
 
         {/* ── Browse the database (the core) ── */}
-        <Reveal as="section">
-          <HomeShoppableGrid cards={featuredGrid} totalCards={totalCards} storeCount={storeCount} adjective={info.adjective} />
-        </Reveal>
+        <HomeShoppableGrid cards={featuredGrid} totalCards={totalCards} storeCount={storeCount} adjective={info.adjective} />
 
         {/* ── One highlight: today's best deals ── */}
         {deals.length >= 4 && (
-          <Reveal as="section">
+          <section>
             <div className="mb-4 flex items-end justify-between gap-3">
               <div className="min-w-0">
                 <h2 className="flex items-center gap-2 text-xl font-extrabold text-white sm:text-2xl">
@@ -170,11 +164,11 @@ export default async function HomePage() {
                 </div>
               ))}
             </Carousel>
-          </Reveal>
+          </section>
         )}
 
         {/* ── About + FAQ (SEO) ── */}
-        <Reveal as="section" className="card-surface p-6">
+        <section className="card-surface p-6">
           <h2 className="text-xl font-extrabold text-white sm:text-2xl">Pokémon prices in {info.place}, all in one place</h2>
           <p className="mt-2 max-w-3xl text-sm leading-relaxed text-slate-400">
             DexCompare is a free, independent price-comparison tool for the Pokémon Trading Card Game. We track live prices
@@ -189,7 +183,7 @@ export default async function HomePage() {
               </div>
             ))}
           </div>
-        </Reveal>
+        </section>
 
         <script
           type="application/ld+json"
@@ -206,7 +200,6 @@ export default async function HomePage() {
           }}
         />
       </div>
-    </>
   );
 }
 

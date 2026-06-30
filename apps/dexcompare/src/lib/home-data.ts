@@ -25,6 +25,10 @@ export interface HomeData {
   newSealed: SealedGroup[];
 }
 
+// How many cards the homepage featured grid shows. Kept small so mobile first
+// paint stays fast (each tile fetches a card image).
+const GRID_SIZE = 15;
+
 async function computeHomeData(country: Country): Promise<HomeData> {
   const field = priceField(country);
   const [totalCards, pricedCards, inStockUnits, cheapestCards, valuableCards, storeGroups, popularCards, newSealed] =
@@ -35,18 +39,19 @@ async function computeHomeData(country: Country): Promise<HomeData> {
       getCheapestCards(12, country),
       getValuableCards(12, country),
       prisma.retailerPrice.groupBy({ by: ["retailer"], where: { country, NOT: { retailer: { startsWith: "ebay" } } } }),
-      // Pull more popular cards so the homepage's featured grid is dominated by
-      // what collectors actually view most (valuable/cheapest only backfill it).
-      getPopularCards(24, country),
+      // Popular cards lead the homepage featured grid (valuable/cheapest backfill).
+      getPopularCards(GRID_SIZE, country),
       getNewSealedArrivals(country, 12),
     ]);
 
   // Build the shoppable grid from the cards we already have (no extra query):
   // popular first (most shop-relevant), then chase grails, then bargains; dedup
-  // by id so the same card never appears twice.
+  // by id so the same card never appears twice. Capped at GRID_SIZE so the
+  // homepage stays light on mobile (fewer card images to fetch on first paint).
   const seen = new Set<string>();
   const featuredGrid: CardTileData[] = [];
   for (const c of [...popularCards, ...valuableCards, ...cheapestCards]) {
+    if (featuredGrid.length >= GRID_SIZE) break;
     if (seen.has(c.id)) continue;
     seen.add(c.id);
     featuredGrid.push(c);
