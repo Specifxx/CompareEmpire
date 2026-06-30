@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { importPrices } from "@/lib/price-import";
+import { pingAfterPriceRefresh } from "@/lib/indexnow";
 
 // Scheduled price refresh. Triggered by Vercel Cron (see vercel.json) or any
 // scheduler hitting this URL with the Authorization: Bearer <CRON_SECRET> header.
@@ -21,7 +22,9 @@ export async function GET(req: Request) {
     // block the real one. eBay runs in the GitHub Actions import (120-min cap).
     process.env.EBAY_REFRESH = "false";
     const summary = await importPrices();
-    return NextResponse.json({ ok: true, ...summary });
+    // Tell Bing/Yandex (IndexNow) the priced pages just changed — recrawl now.
+    const pinged = await pingAfterPriceRefresh().catch(() => 0);
+    return NextResponse.json({ ok: true, indexnowSubmitted: pinged, ...summary });
   } catch (e) {
     const message = e instanceof Error ? e.message : "import failed";
     return NextResponse.json({ ok: false, error: message }, { status: 500 });

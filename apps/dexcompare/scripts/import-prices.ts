@@ -9,6 +9,7 @@
  */
 import { importPrices } from "../src/lib/price-import";
 import { importSealed } from "../src/lib/sealed-import";
+import { pingAfterPriceRefresh } from "../src/lib/indexnow";
 import { prisma } from "../src/lib/db";
 
 async function main() {
@@ -25,6 +26,16 @@ async function main() {
     console.log(`Sealed import done: ${n} listings.`);
   } catch (e) {
     console.error("Sealed import failed:", e);
+  }
+
+  // IndexNow: tell Bing/Yandex the priced pages changed so they recrawl now.
+  // force: this runs in GitHub Actions (not the Vercel runtime), but the host +
+  // key are the real production ones, so the ping is legitimate.
+  try {
+    const pinged = await pingAfterPriceRefresh({ force: true });
+    console.log(`IndexNow: submitted ${pinged} URLs.`);
+  } catch (e) {
+    console.error("IndexNow ping failed:", e);
   }
 }
 
