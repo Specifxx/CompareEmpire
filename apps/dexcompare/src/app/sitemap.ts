@@ -123,7 +123,7 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
   if (id === 1) {
     try {
       const cards = await prisma.card.findMany({
-        select: { id: true, slug: true, lowestPriceCents: true },
+        select: { id: true, slug: true, lowestPriceCents: true, imageUrl: true },
         orderBy: { lowestPriceCents: { sort: "desc", nulls: "last" } },
       });
       return cards.map((c) => ({
@@ -131,6 +131,8 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
         changeFrequency: "daily" as const,
         priority: c.lowestPriceCents != null ? 0.8 : 0.5,
         lastModified: c.lowestPriceCents != null ? priceDay : undefined,
+        // Image sitemap: surface each card's unique art to image search (absolute URLs only).
+        ...(c.imageUrl && c.imageUrl.startsWith("http") ? { images: [c.imageUrl] } : {}),
       }));
     } catch {
       return [];

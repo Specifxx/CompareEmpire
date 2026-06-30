@@ -9,11 +9,11 @@ export const revalidate = 900;
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const seed = getDeckSeed(params.slug);
-  if (!seed) return { title: "Deck not found" };
+  if (!seed) notFound();
   const legendName = seed.legend.replace(/\s*-\s*Starter$/i, "");
   return {
     title: `${seed.name} — Pokémon meta deck & build cost`,
-    description: `${seed.description} See the full ${legendName} decklist priced live across Australian stores.`,
+    description: `${seed.description} See the full ${legendName} decklist priced live across the stores we track in Australia, New Zealand, the US and the UK.`,
     alternates: { canonical: `/decks/${params.slug}` },
   };
 }

@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import { TradeCalculator } from "@/components/TradeCalculator";
+import { getCountry } from "@/lib/get-country";
+import { COUNTRIES } from "@/lib/country";
+import { SITE_URL } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Pokémon Trade Calculator — Compare card trade values",
@@ -11,8 +14,23 @@ export const metadata: Metadata = {
 // Static shell; the calculator itself is client-side (reads the country cookie via
 // the CountryProvider and fetches prices on demand).
 export default function TradePage() {
+  const country = getCountry();
   return (
     <div className="mx-auto max-w-4xl">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebApplication",
+            name: "Pokémon Trade Calculator",
+            url: `${SITE_URL}/trade`,
+            applicationCategory: "UtilityApplication",
+            operatingSystem: "Web",
+            offers: { "@type": "Offer", price: "0", priceCurrency: COUNTRIES[country].currency },
+          }),
+        }}
+      />
       <header className="mb-5">
         <h1 className="font-display text-3xl font-extrabold text-white">Trade Calculator</h1>
         <p className="mt-1 text-slate-400">

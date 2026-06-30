@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { COUNTRIES, DEFAULT_COUNTRY } from "@/lib/country";
+import { SITE_URL } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Minigames — free Pokémon card games",
@@ -63,6 +65,21 @@ const GAMES = [
 export default function GamesPage() {
   return (
     <div className="mx-auto max-w-4xl">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebApplication",
+            name: "DexCompare Arcade — free Pokémon card games",
+            url: `${SITE_URL}/games`,
+            applicationCategory: "GameApplication",
+            operatingSystem: "Web",
+            // Static hub (revalidate); market-neutral free offer in the default currency.
+            offers: { "@type": "Offer", price: "0", priceCurrency: COUNTRIES[DEFAULT_COUNTRY].currency },
+          }),
+        }}
+      />
       <header className="mb-6 text-center">
         <h1 className="font-display text-3xl font-extrabold text-white">🕹️ DexCompare Arcade</h1>
         <p className="mx-auto mt-2 max-w-2xl text-slate-400">

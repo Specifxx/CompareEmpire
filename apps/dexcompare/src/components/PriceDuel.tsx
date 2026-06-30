@@ -124,8 +124,12 @@ export function PriceDuel() {
   const panel = (card: DuelCard | null, side: "left" | "right") => (
     <div className="card-surface flex flex-col items-center p-4 sm:p-5">
       {card?.imageThumbUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={card.imageThumbUrl} alt={card.name} className="h-48 w-auto rounded-lg object-contain sm:h-60" />
+        // Fixed-size box matching the skeleton below so the loaded art doesn't
+        // resize the panel (no CLS) — image is contained within it.
+        <div className="h-48 w-36 sm:h-60">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={card.imageThumbUrl} alt={card.name} className="h-full w-full rounded-lg object-contain" />
+        </div>
       ) : (
         <div className="h-48 w-36 animate-pulse rounded-lg bg-ink-800 sm:h-60" />
       )}

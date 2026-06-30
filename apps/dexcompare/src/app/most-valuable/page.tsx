@@ -74,10 +74,22 @@ export default async function MostValuablePage() {
       { "@type": "ListItem", position: 2, name: "Most Valuable Cards", item: `${SITE_URL}/most-valuable` },
     ],
   };
+  const itemListLd = cards.length
+    ? {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        itemListElement: cards.map((c, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          url: `${SITE_URL}/card/${c.slug ?? c.id}`,
+          name: c.name,
+        })),
+      }
+    : null;
 
   return (
     <div className="flex flex-col gap-10">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify([faqLd, breadcrumbLd]) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd ? [faqLd, breadcrumbLd, itemListLd] : [faqLd, breadcrumbLd]) }} />
 
       <section className="card-surface overflow-hidden">
         <div className="relative border-l-2 border-brand-500 bg-ink-850 px-6 py-9">

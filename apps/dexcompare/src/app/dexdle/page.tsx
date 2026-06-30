@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Dexdle } from "@/components/Dexdle";
 import { TcgplayerAd } from "@/components/TcgplayerAd";
 import { getCountry } from "@/lib/get-country";
+import { COUNTRIES } from "@/lib/country";
+import { SITE_URL } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Dexdle — the daily Pokémon card guessing game",
@@ -19,6 +21,20 @@ export default function DexdlePage() {
   const country = getCountry();
   return (
     <div>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebApplication",
+            name: "Dexdle — daily Pokémon card guessing game",
+            url: `${SITE_URL}/dexdle`,
+            applicationCategory: "GameApplication",
+            operatingSystem: "Web",
+            offers: { "@type": "Offer", price: "0", priceCurrency: COUNTRIES[country].currency },
+          }),
+        }}
+      />
       <Dexdle />
       {/* TCGplayer banner under the puzzle — the game's daily repeat visitors
           are exactly the audience these creatives convert. */}

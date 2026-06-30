@@ -50,7 +50,8 @@ export default async function MarketWrapDayPage({ params }: { params: { day: str
     headline: `${wrap.headline} — DexCompare Daily Market Wrap`,
     description: wrap.lede,
     datePublished: wrap.day,
-    author: { "@type": "Organization", name: "DexCompare", url: SITE_URL },
+    dateModified: wrap.day,
+    author: { "@type": "Organization", "@id": `${SITE_URL}/#org`, name: "DexCompare", url: SITE_URL },
     publisher: { "@type": "Organization", name: "DexCompare", url: SITE_URL },
     mainEntityOfPage: `${SITE_URL}/blog/market-wrap/${wrap.day}`,
   };

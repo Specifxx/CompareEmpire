@@ -61,6 +61,19 @@ export default async function TrendingPage() {
     })),
   };
 
+  const itemListLd = cards.length
+    ? {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        itemListElement: cards.map((c, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          url: `${SITE_URL}/card/${c.slug ?? c.id}`,
+          name: c.name,
+        })),
+      }
+    : null;
+
   return (
     <div className="flex flex-col gap-8">
       {/* Hero */}
@@ -168,7 +181,7 @@ export default async function TrendingPage() {
         live store listings in {info.currency}.
       </p>
 
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify([breadcrumb, faqLd]) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd ? [breadcrumb, faqLd, itemListLd] : [breadcrumb, faqLd]) }} />
     </div>
   );
 }

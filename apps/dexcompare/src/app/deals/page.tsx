@@ -6,6 +6,7 @@ import { getTopDeals } from "@/lib/deals";
 import { getCountry } from "@/lib/get-country";
 import { COUNTRIES } from "@/lib/country";
 import { formatMoney } from "@/lib/format";
+import { SITE_URL } from "@/lib/site";
 
 // Per-request: deals are computed for the visitor's market.
 export const dynamic = "force-dynamic";
@@ -100,15 +101,39 @@ export default async function DealsPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "FAQPage",
-            mainEntity: faqs.map((f) => ({
-              "@type": "Question",
-              name: f.q,
-              acceptedAnswer: { "@type": "Answer", text: f.a },
-            })),
-          }),
+          __html: JSON.stringify([
+            {
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              mainEntity: faqs.map((f) => ({
+                "@type": "Question",
+                name: f.q,
+                acceptedAnswer: { "@type": "Answer", text: f.a },
+              })),
+            },
+            {
+              "@context": "https://schema.org",
+              "@type": "BreadcrumbList",
+              itemListElement: [
+                { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+                { "@type": "ListItem", position: 2, name: "Deals", item: `${SITE_URL}/deals` },
+              ],
+            },
+            ...(deals.length
+              ? [
+                  {
+                    "@context": "https://schema.org",
+                    "@type": "ItemList",
+                    itemListElement: deals.map((d, i) => ({
+                      "@type": "ListItem",
+                      position: i + 1,
+                      url: `${SITE_URL}/card/${d.card.slug ?? d.card.id}`,
+                      name: d.card.name,
+                    })),
+                  },
+                ]
+              : []),
+          ]),
         }}
       />
     </div>

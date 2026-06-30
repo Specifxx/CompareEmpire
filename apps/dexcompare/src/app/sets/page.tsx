@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { POKEMON_SETS } from "@/lib/pokemon-sets";
+import { SITE_URL } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "All Pokémon TCG Sets — Browse by Era",
@@ -28,8 +29,37 @@ export default function SetsIndex() {
   const total = POKEMON_SETS.length;
   const grouped = groupBySeries(POKEMON_SETS);
 
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      name: "All Pokémon TCG Sets",
+      url: `${SITE_URL}/sets`,
+      description: "Every Pokémon TCG set, grouped by era — compare card prices set by set.",
+      isPartOf: { "@type": "WebSite", name: "DexCompare", url: SITE_URL },
+      mainEntity: {
+        "@type": "ItemList",
+        itemListElement: POKEMON_SETS.map((s, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          url: `${SITE_URL}/sets/${s.slug}`,
+          name: `Pokémon ${s.name}`,
+        })),
+      },
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+        { "@type": "ListItem", position: 2, name: "Sets", item: `${SITE_URL}/sets` },
+      ],
+    },
+  ];
+
   return (
     <main className="mx-auto max-w-6xl px-4 py-8">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <div className="mb-2">
         <h1 className="text-2xl font-extrabold text-white">All Pokémon TCG sets</h1>
         <p className="mt-1 text-sm text-slate-400">

@@ -11,9 +11,9 @@ import { SITE_NAME } from "@/lib/site";
 export const revalidate = 900;
 
 export const metadata: Metadata = {
-  title: "Pokémon Top Meta Decks & Build Cost (Australia)",
+  title: "Pokémon Top Meta Decks & Build Cost",
   description:
-    "Ready-made Pokémon decklists, each priced live across Australian stores. See what it costs to build a deck and where to buy every card.",
+    "Ready-made Pokémon decklists, each priced live across the stores we track in Australia, New Zealand, the US and the UK. See what it costs to build a deck and where to buy every card.",
   alternates: { canonical: "/decks" },
 };
 

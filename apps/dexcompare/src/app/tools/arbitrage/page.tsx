@@ -45,6 +45,20 @@ export default async function ArbitragePage({
 
   return (
     <div className="mx-auto max-w-3xl">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebApplication",
+            name: "Pokémon Arbitrage & eBay Deals",
+            url: `${SITE_URL}/tools/arbitrage`,
+            applicationCategory: "UtilityApplication",
+            operatingSystem: "Web",
+            offers: { "@type": "Offer", price: "0", priceCurrency: info.currency },
+          }),
+        }}
+      />
       <div className="mb-4">
         <nav className="mb-3 flex items-center gap-1.5 text-xs text-slate-500" aria-label="Breadcrumb">
           <Link href="/" className="hover:text-slate-300">Home</Link>

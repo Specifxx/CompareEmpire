@@ -17,6 +17,29 @@ const securityHeaders = [
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   // We don't use these device APIs — deny them.
   { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+  // Content-Security-Policy in REPORT-ONLY mode: it logs violations but never
+  // blocks anything, so it can't break ads/affiliates while we tune the allow-list.
+  // Allow-lists `self` + the third parties actually referenced in the codebase:
+  //   - Vercel Analytics / Speed Insights (va.vercel-scripts.com, *.vercel-insights.com)
+  //   - Card image CDNs (images.pokemontcg.io, images.scrydex.com)
+  //   - Affiliate creatives/links (a.impactradius-go.com, partner.tcgplayer.com)
+  //   - HilltopAds delivery (deliciouslip.com)
+  //   - Sovrn / VigLink (cdn.viglink.com)
+  // Ad networks chain to further hosts at runtime — those will surface as reports
+  // and get added before any enforcing CSP is promoted. Report-only only.
+  {
+    key: "Content-Security-Policy-Report-Only",
+    value: [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://cdn.viglink.com https://deliciouslip.com",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "font-src 'self' https://fonts.gstatic.com data:",
+      "img-src 'self' data: blob: https://images.pokemontcg.io https://images.scrydex.com https://a.impactradius-go.com https://partner.tcgplayer.com https://deliciouslip.com https://cdn.viglink.com",
+      "connect-src 'self' https://*.vercel-insights.com https://va.vercel-scripts.com https://cdn.viglink.com https://deliciouslip.com",
+      "frame-src 'self' https://deliciouslip.com",
+      "frame-ancestors 'self'",
+    ].join("; "),
+  },
 ];
 
 const nextConfig = {

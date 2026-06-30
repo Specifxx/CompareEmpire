@@ -19,6 +19,7 @@ import { TcgplayerAd } from "@/components/TcgplayerAd";
 import { EbayAd } from "@/components/EbayAd";
 import { PathGate } from "@/components/PathGate";
 import { getCountry } from "@/lib/get-country";
+import { COUNTRIES } from "@/lib/country";
 import { CONTACT_EMAIL, SITE_NAME, SITE_URL } from "@/lib/site";
 import { IMPACT_SITE_VERIFICATION } from "@/lib/affiliate";
 
@@ -60,6 +61,13 @@ export const metadata: Metadata = {
       "Compare live Pokémon TCG card prices across stores in Australia, New Zealand, the US and the UK to find the cheapest place to buy.",
   },
   twitter: { card: "summary_large_image" },
+  // Opt into large image thumbnails + full text snippets in Google/Bing results
+  // (Search-Essentials best practice). Per-page noindex still overrides this.
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 },
+  },
   // Search engine site verification. Google's "HTML tag" method (URL-prefix
   // property) verifies instantly — this renders
   //   <meta name="google-site-verification" content="…" />
@@ -112,7 +120,7 @@ const orgJsonLd = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const country = getCountry();
   return (
-    <html lang="en-AU" className={`${sora.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
+    <html lang={COUNTRIES[country].locale} className={`${sora.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
       <head>
         {/* Mark JS as available before first paint so the scroll-reveal CSS only
             hides content for users who can actually see the animation. Non-JS
@@ -177,6 +185,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Link href="/browse" className="hover:text-slate-300">Database</Link>
             <Link href="/sealed" className="hover:text-slate-300">Sealed products</Link>
             <Link href="/deals" className="hover:text-slate-300">Deals</Link>
+            <Link href="/most-valuable" className="hover:text-slate-300">Most valuable</Link>
             <Link href="/market" className="hover:text-slate-300">Market index</Link>
             <Link href="/card-value" className="hover:text-slate-300">Card value checker</Link>
             <Link href="/games" className="hover:text-slate-300">Minigames</Link>

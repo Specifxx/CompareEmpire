@@ -10,7 +10,7 @@ export default function robots(): MetadataRoute.Robots {
         // Keep account/utility + transactional routes out of the index.
         disallow: [
           "/api/", "/admin", "/login", "/register", "/profile", "/wishlist",
-          "/unsubscribe",
+          "/unsubscribe", "/sell",
         ],
       },
     ],

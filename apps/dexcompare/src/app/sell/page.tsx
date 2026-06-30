@@ -7,6 +7,9 @@ import { SellForm, type SellCard } from "@/components/SellForm";
 
 export const dynamic = "force-dynamic";
 
+// Auth-gated transactional page — no index value.
+export const metadata = { robots: { index: false } };
+
 // List a Pokémon card for sale on the CompareEmpire Marketplace. Selling is
 // limited to verified sellers (test-mode play-money marketplace).
 export default async function SellPage() {

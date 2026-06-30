@@ -25,13 +25,16 @@ export const dynamic = "force-dynamic";
 export function generateMetadata({ searchParams }: { searchParams: CardQuery }): Metadata {
   // Search-result and filtered views are infinite query-string permutations — keep
   // them out of the index (and never let them claim to be the canonical /browse).
+  // Deep pages (page>1) are noindex too: only page 1 claims the bare /browse
+  // canonical, so the static canonical stays valid and pages don't compete.
   const isFiltered = Boolean(searchParams.q || searchParams.domain || searchParams.rarity || searchParams.type || searchParams.set);
+  const page = parsePageNum(searchParams.page);
   return {
     title: "Browse the Pokémon card database",
     description:
       "Search and filter every Pokémon TCG card and compare live prices across stores in Australia, New Zealand, the US and the UK to find the cheapest place to buy.",
     alternates: { canonical: "/browse" },
-    ...(isFiltered ? { robots: { index: false, follow: true } } : {}),
+    ...(isFiltered || page > 1 ? { robots: { index: false, follow: true } } : {}),
   };
 }
 
@@ -102,6 +105,7 @@ export default async function BrowsePage({ searchParams }: { searchParams: CardQ
       <Filters />
 
       <section className="min-w-0 flex-1">
+        <h1 className="mb-4 text-2xl font-extrabold text-white">Pokémon card database</h1>
         <AdSlot format="horizontal" height={90} className="mb-4" />
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <p className="text-sm text-slate-400">

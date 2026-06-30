@@ -18,7 +18,8 @@ export function ArticleView({ article }: { article: Article }) {
     headline: article.title,
     description: article.excerpt,
     datePublished: article.date,
-    author: { "@type": "Organization", name: article.author },
+    dateModified: article.updated ?? article.date,
+    author: { "@type": "Organization", "@id": `${SITE_URL}/#org`, name: article.author },
     publisher: { "@type": "Organization", name: SITE_NAME },
     mainEntityOfPage: `${SITE_URL}${backHref}/${article.slug}`,
   };

@@ -371,7 +371,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
                   const logo = POKEMON_SETS.find((s) => s.code === card.setCode)?.logo;
                   return logo ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={logo} alt={card.setName} className="mt-1 h-9 w-auto max-w-[88px] object-contain" />
+                    <img src={logo} alt={card.setName} width={88} height={36} className="mt-1 h-9 w-auto max-w-[88px] object-contain" />
                   ) : null;
                 })()}
                 <div>
