@@ -52,7 +52,9 @@ async function computeTopMovers(limit: number, country: Country): Promise<MoverC
   const withPct = rows
     .map((r) => ({ cardId: r.cardId, now: Number(r.now), before: Number(r.before), pct: ((Number(r.now) - Number(r.before)) / Number(r.before)) * 100 }))
     // Ignore sub-2% wiggle so the section is real movement, not feed jitter.
-    .filter((r) => Math.abs(r.pct) >= 2);
+    // Outlier guard: a ≥80% drop (or ≥300% spike) is a data-quality artifact
+    // (mismatched/one-off junk price), not a real move — drop it.
+    .filter((r) => Math.abs(r.pct) >= 2 && r.pct > -80 && r.pct < 300);
 
   const risers = withPct.filter((r) => r.pct > 0).sort((a, b) => b.pct - a.pct).slice(0, Math.ceil(limit / 2));
   const fallers = withPct.filter((r) => r.pct < 0).sort((a, b) => a.pct - b.pct).slice(0, Math.floor(limit / 2));

@@ -143,7 +143,10 @@ async function computeWrap(day: string): Promise<MarketWrapData | null> {
     const pairs = perMarketPairs.get(insightMarket.country)!;
     const moves = [...pairs.entries()]
       .filter(([, v]) => v.from >= MOVER_FLOOR_CENTS && v.to !== v.from)
-      .map(([cardId, v]) => ({ cardId, pct: ((v.to - v.from) / v.from) * 100, from: v.from, to: v.to }));
+      .map(([cardId, v]) => ({ cardId, pct: ((v.to - v.from) / v.from) * 100, from: v.from, to: v.to }))
+      // Outlier guard: a ≥80% drop (or ≥300% spike) is bad data, not a real move —
+      // keep it out of the published Market Wrap.
+      .filter((m) => m.pct > -80 && m.pct < 300);
     const gainers = [...moves].sort((a, b) => b.pct - a.pct).slice(0, 3);
     const losers = [...moves].sort((a, b) => a.pct - b.pct).slice(0, 3);
     const ids = [...new Set([...gainers, ...losers].map((m) => m.cardId))];

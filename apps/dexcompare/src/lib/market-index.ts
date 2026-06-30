@@ -154,7 +154,10 @@ async function computeIndex(country: Country, scope: IndexScope): Promise<Market
     else if (pct < -1) fallers++;
     else flat++;
     const card = cardById.get(cardId);
-    if (card && Math.abs(pct) >= 2 && last >= 200) movers.push({ card, pct: Math.round(pct * 10) / 10 });
+    // Outlier guard: a ≥80% one-week drop (or a ≥300% spike) is a data-quality
+    // artifact — a mismatched/one-off junk price — not a real move, so don't headline it.
+    if (card && Math.abs(pct) >= 2 && last >= 200 && pct > -80 && pct < 300)
+      movers.push({ card, pct: Math.round(pct * 10) / 10 });
   }
   movers.sort((a, b) => b.pct - a.pct);
   const gainers = movers.filter((m) => m.pct > 0).slice(0, 8);
