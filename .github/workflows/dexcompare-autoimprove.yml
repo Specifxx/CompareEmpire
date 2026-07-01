@@ -1,11 +1,12 @@
 name: DexCompare autonomous improver
 
-# Runs Claude Code headless WEEKLY to make ONE small, verified improvement to
+# Runs Claude Code headless DAILY to make ONE small, verified improvement to
 # apps/dexcompare and push it to `main` (the Vercel production branch). It used
-# to run every ~20 minutes, but each push is a Vercel production deployment, so
-# the high cadence burned through the Hobby plan's deploy / Fluid-compute budget
-# (commits land in git but stop deploying once the cap is hit). Weekly keeps the
-# SEO improvements compounding without exhausting the deploy budget.
+# to run every ~20 minutes, which — combined with the monorepo fan-out (every
+# push rebuilt all ~11 apps) — blew through the Hobby deploy budget. Now the
+# other apps carry an `ignoreCommand: exit 0` build guard, so a push to `main`
+# only rebuilds dexcompare (~1 deploy/run) — safe to run daily for compounding
+# SEO/UX wins. (Raise/lower the cron below to taste.)
 # Scheduled workflows fire only from the DEFAULT branch, so this file lives here
 # on the default branch, but it checks out and pushes to `main`.
 # The improvement prompt lives at .github/auto-improve-prompt.md on `main`.
@@ -17,13 +18,13 @@ name: DexCompare autonomous improver
 #
 # `main` is not protected, so the default GITHUB_TOKEN can push (no PAT needed).
 #
-# Cost note: runs Claude once a week. GitHub Actions minutes are free on this
+# Cost note: runs Claude once a day. GitHub Actions minutes are free on this
 # public repo; subscription/API usage is not. To pause: disable this workflow in
 # the Actions tab (or delete this file). To re-time, edit the cron below.
 
 on:
   schedule:
-    - cron: "0 6 * * 1" # weekly — Mondays 06:00 UTC
+    - cron: "0 6 * * *" # daily — 06:00 UTC
   workflow_dispatch:
 
 concurrency:
