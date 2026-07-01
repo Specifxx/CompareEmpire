@@ -455,6 +455,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
             <PriceChart
               points={history}
               title="Price trend"
+              currency={info.currency}
               note={`Cheapest ${info.adjective} price (${info.currency}), snapshotted daily`}
             />
           )}

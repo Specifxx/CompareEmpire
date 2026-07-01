@@ -10,6 +10,7 @@ import {
   domainInfo,
   rarityInfo,
 } from "@/lib/constants";
+import { useCountry } from "./CountryProvider";
 
 function toggleCsv(current: string | null, value: string): string {
   const set = new Set(current ? current.split(",").filter(Boolean) : []);
@@ -28,6 +29,7 @@ function Chevron({ open }: { open: boolean }) {
 
 export function Filters() {
   const router = useRouter();
+  const { currency } = useCountry();
   const params = useSearchParams();
   const paramsStr = params.toString();
   const [, startTransition] = useTransition();
@@ -115,7 +117,7 @@ export function Filters() {
             )}
           </div>
 
-          <Section title="Price (AUD)" defaultOpen>
+          <Section title={`Price (${currency})`} defaultOpen>
             <div className="flex items-center gap-2">
               <input type="number" placeholder="Min" value={min} onChange={(e) => setMin(e.target.value)} className="input" />
               <span className="text-slate-500">–</span>
