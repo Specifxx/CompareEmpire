@@ -62,8 +62,11 @@ export default async function CardValuePage() {
 
   return (
     <div className="flex flex-col gap-10">
-      <section className="card-surface overflow-hidden">
-        <div className="relative border-l-2 border-brand-500 bg-ink-850 px-6 py-10 text-center">
+      <section className="card-surface">
+        {/* rounded-lg matches the section's own radius so this full-bleed
+            background doesn't need overflow-hidden on the section (which would
+            clip the search dropdown below instead of letting it scroll). */}
+        <div className="relative rounded-lg border-l-2 border-brand-500 bg-ink-850 px-6 py-10 text-center">
           <h1 className="mx-auto max-w-3xl text-2xl font-extrabold text-white sm:text-4xl">
             Pokémon card value checker
           </h1>

@@ -78,7 +78,10 @@ export default async function HomePage() {
   return (
       <div className="flex flex-col gap-10">
         {/* ── Hero: search-first gateway to the database ── */}
-        <section className="card-surface relative overflow-hidden">
+        {/* No overflow-hidden here: the search dropdown is absolutely positioned
+            inside this section and needs to render (and scroll) past its bottom
+            edge instead of being clipped by it. */}
+        <section className="card-surface relative">
           <div className="px-5 py-9 sm:px-8 sm:py-11">
             <div className="flex flex-col items-center gap-4 text-center">
               <div className="flex items-center gap-3">
