@@ -27,7 +27,20 @@ export function generateMetadata({ searchParams }: { searchParams: CardQuery }):
   // them out of the index (and never let them claim to be the canonical /browse).
   // Deep pages (page>1) are noindex too: only page 1 claims the bare /browse
   // canonical, so the static canonical stays valid and pages don't compete.
-  const isFiltered = Boolean(searchParams.q || searchParams.domain || searchParams.rarity || searchParams.type || searchParams.set);
+  const isFiltered = Boolean(
+    searchParams.q ||
+      searchParams.domain ||
+      searchParams.rarity ||
+      searchParams.type ||
+      searchParams.set ||
+      searchParams.variant ||
+      searchParams.sig ||
+      searchParams.promo ||
+      searchParams.priced ||
+      searchParams.min ||
+      searchParams.max ||
+      searchParams.sort
+  );
   const page = parsePageNum(searchParams.page);
   return {
     title: "Browse the Pokémon card database",
@@ -59,7 +72,20 @@ export default async function BrowsePage({ searchParams }: { searchParams: CardQ
 
   // Structured data only on the canonical, unfiltered first page (filtered/search
   // permutations are noindex — see generateMetadata).
-  const isFiltered = Boolean(searchParams.q || searchParams.domain || searchParams.rarity || searchParams.type || searchParams.set);
+  const isFiltered = Boolean(
+    searchParams.q ||
+      searchParams.domain ||
+      searchParams.rarity ||
+      searchParams.type ||
+      searchParams.set ||
+      searchParams.variant ||
+      searchParams.sig ||
+      searchParams.promo ||
+      searchParams.priced ||
+      searchParams.min ||
+      searchParams.max ||
+      searchParams.sort
+  );
   const isCanonical = !isFiltered && page === 1;
   const itemListJsonLd = isCanonical
     ? {

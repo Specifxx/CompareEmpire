@@ -23,7 +23,7 @@ interface SealedParams {
 }
 
 function isFilteredParams(sp: SealedParams): boolean {
-  return Boolean(sp.q || sp.type || sp.set || sp.min || sp.max || sp.instock);
+  return Boolean(sp.q || sp.type || sp.set || sp.min || sp.max || sp.instock || sp.sort);
 }
 
 export function generateMetadata({ searchParams }: { searchParams: SealedParams }): Metadata {

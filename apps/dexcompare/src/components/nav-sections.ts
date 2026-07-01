@@ -17,6 +17,7 @@ export const NAV_SECTIONS: NavSection[] = [
     label: "Shop prices",
     links: [
       { href: "/browse", icon: "🃏", label: "Card database" },
+      { href: "/sets", icon: "🗂️", label: "Browse by set" },
       { href: "/sealed", icon: "📦", label: "Sealed" },
       { href: "/deals", icon: "🔥", label: "Deals" },
       { href: "/card-value", icon: "💰", label: "Value checker" },
