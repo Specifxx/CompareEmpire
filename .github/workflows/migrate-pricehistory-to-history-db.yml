@@ -1,0 +1,146 @@
+name: Migrate PriceHistory into the history database (one-off)
+
+# When the PriceHistory/ClickEvent/RestockEvent split (src/lib/db-history.ts) was
+# activated, the app started writing/reading PriceHistory through
+# HISTORY_DATABASE_URL -- but all PriceHistory rows written BEFORE that moment
+# are still sitting in the primary DEXCOMPARE_DATABASE_URL database, invisible
+# to the market index / trend charts / daily wrap (they only query the history
+# database now). This is a one-time copy of those existing rows across.
+#
+# Safe to run more than once: uses skipDuplicates against the
+# [cardId, country, day] unique constraint, so re-running just no-ops on rows
+# already copied. cardId values are valid as-is in the destination because both
+# databases share the same Card rows (no reseed happened between when this
+# PriceHistory data was written and now) -- unlike the earlier abandoned
+# migrate-pricehistory.yml, which needed externalId remapping because THAT
+# source database had gone through a full reseed.
+#
+# Read-only against the source (DEXCOMPARE_DATABASE_URL); only writes to the
+# destination (HISTORY_DATABASE_URL). Does not touch/clear the source table --
+# a separate manual cleanup step, only after this migration is confirmed good.
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Preview only -- report counts without writing"
+        required: false
+        default: "true"
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Resolve database URLs
+        id: db
+        env:
+          SOURCE_URL: ${{ secrets.DEXCOMPARE_DATABASE_URL }}
+          DEST_URL: ${{ secrets.HISTORY_DATABASE_URL }}
+        run: |
+          if [ -z "$SOURCE_URL" ] || [ -z "$DEST_URL" ]; then
+            echo "Both DEXCOMPARE_DATABASE_URL and HISTORY_DATABASE_URL secrets must be set." >> "$GITHUB_STEP_SUMMARY"
+            echo "found=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "::add-mask::$SOURCE_URL"
+            echo "::add-mask::$DEST_URL"
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.db.outputs.found == 'true'
+        with:
+          ref: main
+
+      - uses: actions/setup-node@v4
+        if: steps.db.outputs.found == 'true'
+        with:
+          node-version: 20
+
+      - name: Copy PriceHistory rows
+        if: steps.db.outputs.found == 'true'
+        working-directory: apps/dexcompare
+        env:
+          SOURCE_URL: ${{ secrets.DEXCOMPARE_DATABASE_URL }}
+          DEST_URL: ${{ secrets.HISTORY_DATABASE_URL }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          npm install --no-audit --no-fund
+          npx prisma generate
+          node <<'JS'
+          const { PrismaClient } = require("@prisma/client");
+          const source = new PrismaClient({ datasourceUrl: process.env.SOURCE_URL });
+          const dest = new PrismaClient({ datasourceUrl: process.env.DEST_URL });
+          const dryRun = process.env.DRY_RUN !== "false";
+          const BATCH = 2000;
+
+          (async () => {
+            try {
+              const [sourceCount, destCountBefore] = await Promise.all([
+                source.priceHistory.count(),
+                dest.priceHistory.count(),
+              ]);
+              console.log(`Source (primary DB) PriceHistory rows: ${sourceCount.toLocaleString()}`);
+              console.log(`Destination (history DB) PriceHistory rows before: ${destCountBefore.toLocaleString()}`);
+
+              if (dryRun) {
+                const out = [
+                  "### PriceHistory migration -- DRY RUN",
+                  `- Source rows: ${sourceCount.toLocaleString()}`,
+                  `- Destination rows before: ${destCountBefore.toLocaleString()}`,
+                  "",
+                  "Re-run with dry_run=false to actually copy.",
+                ].join("\n");
+                console.log(out);
+                if (process.env.GITHUB_STEP_SUMMARY) require("fs").appendFileSync(process.env.GITHUB_STEP_SUMMARY, out + "\n");
+                return;
+              }
+
+              let cursor = undefined;
+              let copied = 0;
+              while (true) {
+                const rows = await source.priceHistory.findMany({
+                  take: BATCH,
+                  ...(cursor ? { skip: 1, cursor: { id: cursor } } : {}),
+                  orderBy: { id: "asc" },
+                });
+                if (rows.length === 0) break;
+                await dest.priceHistory.createMany({
+                  data: rows.map((r) => ({
+                    id: r.id,
+                    cardId: r.cardId,
+                    country: r.country,
+                    day: r.day,
+                    lowestPriceCents: r.lowestPriceCents,
+                    recordedAt: r.recordedAt,
+                  })),
+                  skipDuplicates: true,
+                });
+                copied += rows.length;
+                cursor = rows[rows.length - 1].id;
+                console.log(`Copied ${copied.toLocaleString()} / ${sourceCount.toLocaleString()}...`);
+                if (rows.length < BATCH) break;
+              }
+
+              const destCountAfter = await dest.priceHistory.count();
+              const out = [
+                "### PriceHistory migration -- LIVE RUN complete",
+                `- Source rows: ${sourceCount.toLocaleString()}`,
+                `- Destination rows before: ${destCountBefore.toLocaleString()}`,
+                `- Destination rows after: ${destCountAfter.toLocaleString()}`,
+                destCountAfter >= sourceCount
+                  ? "✅ Destination now has at least as many rows as the source. Migration complete."
+                  : "⚠️ Destination still has fewer rows than the source -- check for errors above.",
+              ].join("\n");
+              console.log(out);
+              if (process.env.GITHUB_STEP_SUMMARY) require("fs").appendFileSync(process.env.GITHUB_STEP_SUMMARY, out + "\n");
+            } catch (e) {
+              const msg = "❌ Migration failed: " + e.message;
+              console.error(msg);
+              if (process.env.GITHUB_STEP_SUMMARY) require("fs").appendFileSync(process.env.GITHUB_STEP_SUMMARY, msg + "\n");
+              process.exit(1);
+            } finally {
+              await Promise.all([source.$disconnect(), dest.$disconnect()]);
+            }
+          })();
+          JS
