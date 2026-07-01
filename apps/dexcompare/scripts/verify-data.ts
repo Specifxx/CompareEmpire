@@ -12,6 +12,7 @@
 //
 // Usage: npx tsx scripts/verify-data.ts   (needs DATABASE_URL)
 import { prisma } from "../src/lib/db";
+import { dbHistory } from "../src/lib/db-history";
 import { marketGuideCents } from "../src/lib/country";
 
 const PCT_OF_GUIDE_FLOOR = Number(process.env.VERIFY_GUIDE_FLOOR ?? 0.4); // <40% of guide = suspicious
@@ -74,14 +75,14 @@ async function main() {
   if (suspicious.length) console.error("  e.g.", suspicious.slice(0, 8).map((c) => c.name).join(" | "));
 
   // ── Check C: priced-card count didn't collapse vs the previous day ─────────
-  const days = await prisma.priceHistory.findMany({
+  const days = await dbHistory.priceHistory.findMany({
     where: { country: "AU" }, distinct: ["day"], orderBy: { day: "desc" }, select: { day: true }, take: 2,
   });
   let cOk = true;
   if (days.length === 2) {
     const [today, prev] = await Promise.all([
-      prisma.priceHistory.count({ where: { country: "AU", day: days[0].day } }),
-      prisma.priceHistory.count({ where: { country: "AU", day: days[1].day } }),
+      dbHistory.priceHistory.count({ where: { country: "AU", day: days[0].day } }),
+      dbHistory.priceHistory.count({ where: { country: "AU", day: days[1].day } }),
     ]);
     cOk = prev === 0 || today >= prev * DROP_FAIL_RATIO;
     if (!cOk) failed = true;
@@ -95,12 +96,12 @@ async function main() {
   console.log("─────────────────────────────────────────────────────────────");
   console.log(failed ? "RESULT: FAIL — see flagged checks above." : "RESULT: PASS");
 
-  await prisma.$disconnect();
+  await Promise.all([prisma.$disconnect(), dbHistory.$disconnect()]);
   if (failed) process.exit(1);
 }
 
 main().catch(async (e) => {
   console.error("verify-data crashed:", e);
-  await prisma.$disconnect();
+  await Promise.all([prisma.$disconnect(), dbHistory.$disconnect()]);
   process.exit(1);
 });

@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/db";
+import { dbHistory } from "@/lib/db-history";
 import { SITE_URL } from "@/lib/site";
 import { SETS } from "@/lib/constants";
 import { getArticles } from "@/lib/articles";
@@ -33,7 +34,7 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
   let priceDay: Date | undefined;
   try {
     priceDay = (
-      await prisma.priceHistory.findFirst({ orderBy: { day: "desc" }, select: { day: true } })
+      await dbHistory.priceHistory.findFirst({ orderBy: { day: "desc" }, select: { day: true } })
     )?.day;
   } catch {
     /* DB unavailable — priceDay stays undefined */
@@ -100,7 +101,7 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
       { url: `${SITE_URL}/blog/market-wrap`, changeFrequency: "daily", priority: 0.8, lastModified: priceDay },
     ];
     try {
-      const wrapDayRows = await prisma.priceHistory.findMany({
+      const wrapDayRows = await dbHistory.priceHistory.findMany({
         distinct: ["day"],
         select: { day: true },
         orderBy: { day: "desc" },

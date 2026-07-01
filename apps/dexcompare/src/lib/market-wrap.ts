@@ -1,5 +1,6 @@
 import { unstable_cache } from "next/cache";
 import { prisma } from "./db";
+import { dbHistory } from "./db-history";
 import { COUNTRIES, type Country } from "./country";
 
 // The Daily Market Wrap — an automated, AFR-style report on how the Pokémon
@@ -57,7 +58,7 @@ const ymd = (d: Date) => d.toISOString().slice(0, 10);
 
 // Distinct snapshot days (any market), oldest → newest.
 export async function wrapDays(limit = 40): Promise<string[]> {
-  const rows = await prisma.priceHistory.findMany({
+  const rows = await dbHistory.priceHistory.findMany({
     distinct: ["day"],
     select: { day: true },
     orderBy: { day: "desc" },
@@ -94,11 +95,11 @@ async function computeWrap(day: string): Promise<MarketWrapData | null> {
 
   for (const country of MARKETS) {
     const [prevRows, dayRows] = await Promise.all([
-      prisma.priceHistory.findMany({
+      dbHistory.priceHistory.findMany({
         where: { country, day: new Date(`${prevDay}T00:00:00.000Z`) },
         select: { cardId: true, lowestPriceCents: true },
       }),
-      prisma.priceHistory.findMany({
+      dbHistory.priceHistory.findMany({
         where: { country, day: new Date(`${day}T00:00:00.000Z`) },
         select: { cardId: true, lowestPriceCents: true },
       }),

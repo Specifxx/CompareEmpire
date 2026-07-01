@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
+import { dbHistory } from "@/lib/db-history";
 import { CardImage } from "@/components/CardImage";
 import { DomainBadge, RarityBadge, VariantBadge, OvernumberedBadge, PromoBadge, SignatureBadge } from "@/components/Badge";
 import { isOvernumbered, isSignature, conditionInfo } from "@/lib/constants";
@@ -106,7 +107,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
   // can compare reprints — e.g. Base Set vs Classic Collection.
   const [historyRows, otherPrints, reviewRows, cheaperInSet, sameTypeCards] = await Promise.all([
     // Trend history for the VISITOR'S market (each market priced in its own currency).
-    prisma.priceHistory.findMany({
+    dbHistory.priceHistory.findMany({
       where: { cardId: card.id, country },
       orderBy: { day: "asc" },
       select: { day: true, lowestPriceCents: true },

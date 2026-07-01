@@ -11,6 +11,7 @@
 //
 //   DATABASE_URL=... npx tsx scripts/snapshot-history.ts [--stats-only]
 import { prisma } from "../src/lib/db";
+import { dbHistory } from "../src/lib/db-history";
 
 function sydneyDay(d = new Date()): Date {
   const ymd = new Intl.DateTimeFormat("en-CA", { timeZone: "Australia/Sydney" }).format(d);
@@ -20,7 +21,7 @@ function sydneyDay(d = new Date()): Date {
 const MARKETS = ["AU", "NZ", "US", "GB"] as const;
 
 async function stats(label: string) {
-  const rows = await prisma.priceHistory.groupBy({
+  const rows = await dbHistory.priceHistory.groupBy({
     by: ["country", "day"],
     _count: { _all: true },
     orderBy: [{ day: "asc" }, { country: "asc" }],
@@ -59,8 +60,8 @@ async function main() {
     const points = grouped
       .filter((r) => r._min.priceCents != null)
       .map((r) => ({ cardId: r.cardId, country, day, lowestPriceCents: r._min.priceCents as number }));
-    await prisma.priceHistory.deleteMany({ where: { country, day } });
-    if (points.length > 0) await prisma.priceHistory.createMany({ data: points });
+    await dbHistory.priceHistory.deleteMany({ where: { country, day } });
+    if (points.length > 0) await dbHistory.priceHistory.createMany({ data: points });
     console.log(`snapshot ${country}: ${points.length} cards for ${day.toISOString().slice(0, 10)}`);
     total += points.length;
   }
@@ -74,4 +75,4 @@ main()
     console.error(e);
     process.exit(1);
   })
-  .finally(() => prisma.$disconnect());
+  .finally(() => Promise.all([prisma.$disconnect(), dbHistory.$disconnect()]));

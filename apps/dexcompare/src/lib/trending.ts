@@ -1,6 +1,7 @@
 import { unstable_cache } from "next/cache";
 import { Prisma } from "@prisma/client";
 import { prisma } from "./db";
+import { dbHistory } from "./db-history";
 import { cardTileSelect } from "./cards";
 import { priceField, type Country } from "./country";
 import type { CardTileData } from "@/components/CardTile";
@@ -19,7 +20,7 @@ export interface MoverCard {
 // ranks cards by % change. Returns [] until at least two days of history exist for
 // that market, so the homepage section simply doesn't render in a fresh database.
 async function computeTopMovers(limit: number, country: Country): Promise<MoverCard[]> {
-  const days = await prisma.priceHistory.findMany({
+  const days = await dbHistory.priceHistory.findMany({
     where: { country },
     distinct: ["day"],
     orderBy: { day: "desc" },
@@ -36,7 +37,7 @@ async function computeTopMovers(limit: number, country: Country): Promise<MoverC
     .reduce((best, d) => (Math.abs(d.day.getTime() - target) < Math.abs(best.day.getTime() - target) ? d : best)).day;
 
   // Floors cut noise: a 50¢ bulk common doubling isn't a story. Baseline ≥ $3.
-  const rows = await prisma.$queryRaw<{ cardId: string; now: number; before: number }[]>(Prisma.sql`
+  const rows = await dbHistory.$queryRaw<{ cardId: string; now: number; before: number }[]>(Prisma.sql`
     SELECT a."cardId", a."lowestPriceCents" AS now, b."lowestPriceCents" AS before
     FROM "PriceHistory" a
     JOIN "PriceHistory" b

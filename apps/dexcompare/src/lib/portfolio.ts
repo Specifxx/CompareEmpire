@@ -1,4 +1,4 @@
-import { prisma } from "./db";
+import { dbHistory } from "./db-history";
 import type { Country } from "./country";
 
 // Portfolio value-over-time, built from the same daily per-card price snapshots
@@ -41,7 +41,7 @@ export async function computePortfolioSeries(
   if (!ids.length) return [];
 
   const since = new Date(Date.now() - windowDays * 86400e3);
-  const history = await prisma.priceHistory.findMany({
+  const history = await dbHistory.priceHistory.findMany({
     where: { cardId: { in: ids }, country: market, day: { gte: since } },
     select: { cardId: true, day: true, lowestPriceCents: true },
     orderBy: { day: "asc" },

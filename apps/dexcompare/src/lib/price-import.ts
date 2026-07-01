@@ -5,6 +5,7 @@
 
 import { Prisma } from "@prisma/client";
 import { prisma } from "./db";
+import { dbHistory } from "./db-history";
 import { RETAILER_LIST, RetailerInfo } from "./retailers";
 import { isEbayEnabled, isEbayRateLimited, searchEbayLowest, primeEbayBudget, ebaySpentThisRun, ebaySpendable } from "./ebay";
 import { importSealed } from "./sealed-import";
@@ -980,14 +981,14 @@ export async function importPrices(): Promise<ImportSummary> {
       const points = grouped
         .filter((r) => r._min.priceCents != null)
         .map((r) => ({ cardId: r.cardId, country, day, lowestPriceCents: r._min.priceCents as number }));
-      await prisma.priceHistory.deleteMany({ where: { country, day } });
-      if (points.length > 0) await prisma.priceHistory.createMany({ data: points });
+      await dbHistory.priceHistory.deleteMany({ where: { country, day } });
+      if (points.length > 0) await dbHistory.priceHistory.createMany({ data: points });
       total += points.length;
     }
     // Retention: keep ~6 months of snapshots so the table can't grow unbounded
     // on the size-capped database.
     const cutoff = new Date(day.getTime() - 180 * 86400_000);
-    const purged = await prisma.priceHistory.deleteMany({ where: { day: { lt: cutoff } } });
+    const purged = await dbHistory.priceHistory.deleteMany({ where: { day: { lt: cutoff } } });
     console.log(`Price history: recorded ${total} points across 4 markets for ${day.toISOString().slice(0, 10)} (purged ${purged.count} old).`);
   } catch (e) {
     console.warn("Price-history snapshot failed:", e);

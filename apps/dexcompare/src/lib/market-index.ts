@@ -1,5 +1,6 @@
 import { unstable_cache } from "next/cache";
 import { prisma } from "./db";
+import { dbHistory } from "./db-history";
 import { cardTileSelect } from "./cards";
 import { priceField, type Country } from "./country";
 import { POKEMON_SETS } from "./pokemon-sets";
@@ -98,7 +99,7 @@ async function computeIndex(country: Country, scope: IndexScope): Promise<Market
   // Snapshot history for the basket in this market.
   const since = new Date(Date.now() - WINDOW_DAYS * 86400e3);
   const history = ids.length
-    ? await prisma.priceHistory.findMany({
+    ? await dbHistory.priceHistory.findMany({
         where: { cardId: { in: ids }, country, day: { gte: since } },
         select: { cardId: true, day: true, lowestPriceCents: true },
         orderBy: { day: "asc" },
@@ -257,7 +258,7 @@ async function computeGlobalIndex(scope: IndexScope): Promise<MarketIndexData> {
 
   for (const country of INDEX_MARKETS) {
     if (!ids.length) break;
-    const history = await prisma.priceHistory.findMany({
+    const history = await dbHistory.priceHistory.findMany({
       where: { cardId: { in: ids }, country, day: { gte: since } },
       select: { cardId: true, day: true, lowestPriceCents: true },
       orderBy: { day: "asc" },
