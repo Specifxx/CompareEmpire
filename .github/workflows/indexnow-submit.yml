@@ -40,15 +40,30 @@ jobs:
               print("Key file never served the key — aborting (re-run after deploy)."); sys.exit(0)
           print("Key file verified live.")
 
-          # 2) Collect page URLs from the sitemap (follow a sitemap index if present).
+          # 2) Discover sitemap URL(s) from robots.txt rather than hardcoding a
+          #    single path — a hardcoded "/sitemap.xml" is exactly what silently
+          #    broke this workflow once already (the site moved to per-bucket
+          #    sitemaps served at /sitemap/0.xml etc, with no combining index at
+          #    the bare /sitemap.xml). Reading robots.txt's Sitemap: line(s)
+          #    keeps this correct even if the sitemap layout changes again.
           def locs(xml): return re.findall(r"<loc>\s*(.*?)\s*</loc>", xml)
-          root = get(f"https://{HOST}/sitemap.xml")
-          found = locs(root)
-          urls, children = [], [u for u in found if u.endswith(".xml")]
-          urls += [u for u in found if not u.endswith(".xml")]
-          for c in children:
-              try: urls += [u for u in locs(get(c)) if not u.endswith(".xml")]
-              except Exception as e: print("child sitemap failed", c, e)
+          robots_txt = get(f"https://{HOST}/robots.txt")
+          roots = re.findall(r"(?im)^sitemap:\s*(\S+)", robots_txt)
+          if not roots:
+              print("No Sitemap: line found in robots.txt — aborting."); sys.exit(0)
+          print("Sitemap root(s) from robots.txt:", roots)
+
+          urls = []
+          for root_url in roots:
+              try:
+                  found = locs(get(root_url))
+              except Exception as e:
+                  print("root sitemap failed", root_url, e); continue
+              children = [u for u in found if u.endswith(".xml")]
+              urls += [u for u in found if not u.endswith(".xml")]
+              for c in children:
+                  try: urls += [u for u in locs(get(c)) if not u.endswith(".xml")]
+                  except Exception as e: print("child sitemap failed", c, e)
           urls = sorted(set(urls))
           print("Collected", len(urls), "URLs.")
           if not urls: sys.exit(0)
