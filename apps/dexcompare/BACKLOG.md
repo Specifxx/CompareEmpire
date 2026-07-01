@@ -53,6 +53,14 @@ doorway pages or keyword-stuffed titles; every new page must carry real data + r
    `/most-valuable`. Titles ≤ ~60 chars, descriptions ≤ ~155, human, no stuffing. When
    `GSC_SA_KEY` is configured, prioritise the pages the daily GSC monitor shows as
    HIGH impressions + LOW CTR — that's where a better title converts fastest.
+   `/sealed/[slug]` — DONE (this run, GSC-driven): GSC-TARGETS.md flagged
+   `/sealed/pokemon30thcelebrationelitetrainerboxpre` at 118 impr / 0.0% CTR / pos 7.6.
+   Root cause: the `<title>` was built from the raw scraped store title, which for
+   preorder SKUs carries junk like "(Pre-Order - Ships Sept 16)" that pushed the tag
+   well past Google's ~60-char truncation, burying the "compare prices" hook. Added
+   `cleanSealedName()` + `truncateAtWord()` + a preorder-aware title/description —
+   applies to every scraped sealed product, not just this one. Still queued for future
+   runs: `/sets/[set]`, `/card/[id]`, `/deals`, `/trending`, `/market`, `/most-valuable`.
 2. **`/sealed-deals` landing page** — sealed products priced below the market/MSRP guide
    (clone the `/deals` logic for sealed groups). Real data only; BreadcrumbList + FAQPage
    JSON-LD; link from nav + `/deals` + `/sealed`.

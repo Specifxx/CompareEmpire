@@ -28,6 +28,32 @@ async function findAny(slug: string, country: string): Promise<SealedGroup | nul
   return groups.find((g) => g.slug === slug) ?? null;
 }
 
+const PREORDER_RE = /pre[\s-]?order/i;
+
+// Scraped titles carry store-specific preorder noise ("(Pre-Order)", "- PREORDER
+// Ships Sept 16") that (a) bloats the <title> past Google's ~60-char truncation
+// point, burying the "compare prices" hook the SERP snippet needs to earn a
+// click, and (b) reads as messy copy. Strip it into one clean "Preorder" signal
+// we control the wording of — the exact intent buyers are already searching for.
+function cleanSealedName(raw: string): string {
+  const cleaned = raw
+    .replace(/\(\s*pre[\s-]?order[^)]*\)?/gi, "")
+    .replace(/[-|]\s*pre[\s-]?order.*$/i, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+  return cleaned || raw.trim();
+}
+
+// Truncate at a word boundary so the title never ends mid-word — Google elides
+// with "…" itself, we don't need to add one.
+function truncateAtWord(name: string, max: number): string {
+  const trimmed = name.trim();
+  if (trimmed.length <= max) return trimmed;
+  const cut = trimmed.slice(0, max);
+  const lastSpace = cut.lastIndexOf(" ");
+  return lastSpace > max * 0.6 ? cut.slice(0, lastSpace) : cut;
+}
+
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const country = getCountry();
   const g =
@@ -35,8 +61,13 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     (await findAny(params.slug, "AU")) ??
     synthesizeSealedGroup(params.slug);
   if (!g) notFound(); // real 404 — metadata resolves before streaming
-  const title = `${g.name} price — compare the cheapest stores`;
-  const description = `${g.name} price comparison: live prices across the stores we track in Australia, New Zealand, the US and the UK so you can find the cheapest place to buy this sealed Pokémon product.`;
+  const isPreorder = PREORDER_RE.test(g.name);
+  const cleanName = cleanSealedName(g.name);
+  const displayName = truncateAtWord(cleanName, isPreorder ? 34 : 43);
+  const title = isPreorder ? `${displayName} Preorder — Compare Prices` : `${displayName} — Compare Prices`;
+  const description = isPreorder
+    ? `${displayName} preorder — compare live prices across AU, NZ, US & UK stores before it sells out.`
+    : `${displayName} price comparison across AU, NZ, US & UK stores — find the cheapest place to buy.`;
   return {
     title,
     description,
