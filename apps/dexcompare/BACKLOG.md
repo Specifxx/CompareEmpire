@@ -39,16 +39,47 @@ Checked-and-skipped or deferred, so iterations don't re-evaluate blindly.
 - Blog article: "Buying Pokémon Cards Internationally" — DONE (this run).
 
 ## SEO ranking queue (CURRENT PRIORITY — work these first, top-down; one per run; keep useful + human)
-1. Sealed page price-intent title/description — DONE (`{name} price — compare the cheapest stores`).
-2. Organization `contactPoint` + `sameAs` (RiftCompare + any socials) in the root `@graph` (`layout.tsx`).
-3. BreadcrumbList JSON-LD on `/sealed/[slug]` and `/restock/[slug]` — DONE (this run).
-4. Card image alt enrichment: `"{name} ({setCode} {collectorNumber})"` in `CardImage.tsx`/`CardTile.tsx` — DONE (added `setCode?: string` to `CardImageData`; all six rendering contexts automatically pick it up).
-5. New high-intent, genuinely-useful landing page: `/cheapest` — DONE (three price bands, 8 cards each, BreadcrumbList + FAQPage JSON-LD, nav link added). Sibling `/sealed-deals` page (sealed below MSRP) still to do.
-6. "Popular/trending" hub (`/trending` or `/popular`) listing most-viewed cards (views already tracked) + link it from nav + footer — concentrates internal link equity. DONE (this run — `/trending` page + nav-sections.ts "Trending cards" entry in Market section).
-7. Related-link blocks on card pages: "Cheaper cards in {set}" and "Other {type} cards" (more crawl paths + dwell time). — DONE (this run).
-8. About page (who/why, data sourcing + freshness + Index methodology) for E-E-A-T; add author to guides if not already. — DONE (this run, `/about` page with `AboutPage` + `BreadcrumbList` JSON-LD, footer link added).
-9. Market-wrap editions: ensure each carries unique substantive analysis (named movers + why), not just price deltas (avoid auto-generated/thin-content risk). `src/lib/market-wrap.ts`.
-10. Sitemap index: split `sitemap.ts` into a sitemap index + child sitemaps (cards/sets/sealed/content) with per-section revalidate, so new cards are discovered faster at scale. — DONE (this run — `generateSitemaps` generates 3 child sitemaps, revalidate 1h).
-11. CWV: card-page hero image LCP fix — DONE (`priority` prop on `CardImage` → `loading="eager"` + `fetchPriority="high"`). CLS already locked by `aspect-[5/7]` CSS on the container. Remaining CWV: audit other above-fold images (sets hero, sealed hero) if Lighthouse flags them.
-12. Heading-order + remaining alt-text sweep across pages.
-- Deferred (need care / data): ISR conversion of the `force-dynamic` price pages requires rendering a market-neutral baseline for the no-cookie crawler case — do deliberately, verify. hreflang / path-based locales (`/au` etc.) — defer until Search Console shows real NZ/US/GB demand.
+
+Prior queue (v1, items 1–12) shipped — see PROGRESS.md. This is the refreshed
+**agentic-SEO** queue: compounding on-page + content + internal-linking + linkable-asset
+wins, ONE verified change per run, highest-leverage undone item first. NEVER ship thin/
+doorway pages or keyword-stuffed titles; every new page must carry real data + real value.
+
+1. **CTR title/meta sweep (highest ROI — a good rewrite can lift CTR ~20% on pages that
+   already rank).** Each run, pick ONE page-type and rewrite its `<title>` + meta
+   description to be more click-worthy for its real buyer query — lead with intent + a
+   concrete hook (price / "cheapest" / rarity / set / "compare"). Rotate through
+   `/sealed/[slug]`, `/sets/[set]`, `/card/[id]`, `/deals`, `/trending`, `/market`,
+   `/most-valuable`. Titles ≤ ~60 chars, descriptions ≤ ~155, human, no stuffing. When
+   `GSC_SA_KEY` is configured, prioritise the pages the daily GSC monitor shows as
+   HIGH impressions + LOW CTR — that's where a better title converts fastest.
+2. **`/sealed-deals` landing page** — sealed products priced below the market/MSRP guide
+   (clone the `/deals` logic for sealed groups). Real data only; BreadcrumbList + FAQPage
+   JSON-LD; link from nav + `/deals` + `/sealed`.
+3. **Sealed "booster box price" intent** — confirm each `/sealed/[slug]` box `<title>`
+   reads like "{Set} Booster Box price — cheapest {market}" so it captures the fat
+   "[set] booster box price" / "[set] etb price" long-tail across ~500–1000 products.
+4. **Embeddable Index badge (backlink engine).** Add an "Embed this" section on `/market`
+   with a copy-paste HTML snippet / small iframe others can drop on their site
+   (e.g. "Pokémon singles index 103.2 ▲ · DexCompare") that links back — a natural,
+   scalable backlink generator. This is our best off-page lever; make it genuinely nice.
+5. **Internal-linking depth (crawl + dwell).** Add contextual cross-links where missing:
+   guide → the specific cards/sets it mentions; card → "more from {set}" / "same rarity";
+   `/market` movers → the mover card pages; set → its sealed products; footer/nav hub
+   coverage for orphan pages. One surface per run.
+6. **One new evergreen guide per run**, targeting a real query with real value — e.g.
+   "Is a {set} booster box worth it?", "How to price your Pokémon cards", "Spot fake
+   {set} cards", per-country buying guides. Hub-and-spoke: link each to ≥5 card/set pages.
+7. **Freshness + rich results.** Add `dateModified` + FAQPage/HowTo JSON-LD to guides/blog
+   that lack it; keep the Daily Market Wrap substantive (named movers + why, never bare
+   deltas) so it never reads as auto-generated thin content.
+8. **OG image coverage** — ensure every indexable template renders a compelling
+   `opengraph-image` (SERP + social CTR); add per-type images where the default is generic.
+9. **CWV pass** — audit above-the-fold images on `/sets`, `/sealed`, `/market` for LCP;
+   keep CLS locked (explicit dimensions / aspect-ratio). Trim any unused client JS.
+10. **Programmatic depth (careful):** where a template already ranks, deepen it with real
+    on-page value (price history blurb, "X stores from $Y", related products) rather than
+    spinning up new thin pages — quality over page count.
+- Deferred (need care / data): ISR of the `force-dynamic` price pages via a market-neutral
+  crawler baseline — do deliberately, verify. hreflang / `/au` locales — defer until Search
+  Console shows real NZ/US/GB demand.
