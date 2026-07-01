@@ -1,0 +1,45 @@
+name: Provision DexCompare history database (manual)
+
+# One-off: runs `prisma db push` against a NEW Neon database to create the
+# schema there, so it's ready to receive PriceHistory/ClickEvent/RestockEvent
+# traffic once HISTORY_DATABASE_URL is set in Vercel + GitHub secrets (see
+# src/lib/db-history.ts). Creates the full schema (all tables), but only
+# those three actually see real writes/reads from the app — the rest stay
+# empty and cost negligible storage.
+#
+# The URL is a manual-dispatch input only — never stored as a secret by this
+# workflow (add it separately as HISTORY_DATABASE_URL once you're ready to
+# activate the split).
+on:
+  workflow_dispatch:
+    inputs:
+      history_database_url:
+        description: "NEW Neon DATABASE_URL to provision (pooled, sslmode=require)"
+        required: true
+
+jobs:
+  provision:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Mask connection string
+        run: echo "::add-mask::${{ inputs.history_database_url }}"
+
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: prisma db push
+        working-directory: apps/dexcompare
+        env:
+          DATABASE_URL: ${{ inputs.history_database_url }}
+        run: |
+          npm install --no-audit --no-fund
+          npx prisma db push
+          echo "Schema created on the new database. Add its connection string as" >> "$GITHUB_STEP_SUMMARY"
+          echo "HISTORY_DATABASE_URL in Vercel (Production) and as a GitHub secret" >> "$GITHUB_STEP_SUMMARY"
+          echo "(same name) to activate the PriceHistory/ClickEvent/RestockEvent split." >> "$GITHUB_STEP_SUMMARY"
