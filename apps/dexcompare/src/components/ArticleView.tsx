@@ -17,10 +17,15 @@ export function ArticleView({ article }: { article: Article }) {
     "@type": isGuide ? "TechArticle" : "BlogPosting",
     headline: article.title,
     description: article.excerpt,
+    // Article rich results want an image; articles have no per-post hero, so
+    // use the site's OG image (served by app/opengraph-image.tsx).
+    image: [`${SITE_URL}/opengraph-image`],
     datePublished: article.date,
     dateModified: article.updated ?? article.date,
     author: { "@type": "Organization", "@id": `${SITE_URL}/#org`, name: article.author },
-    publisher: { "@type": "Organization", name: SITE_NAME },
+    // Reference the layout's #org entity (which carries the publisher logo)
+    // instead of an inline logo-less Organization.
+    publisher: { "@type": "Organization", "@id": `${SITE_URL}/#org`, name: SITE_NAME },
     mainEntityOfPage: `${SITE_URL}${backHref}/${article.slug}`,
   };
 

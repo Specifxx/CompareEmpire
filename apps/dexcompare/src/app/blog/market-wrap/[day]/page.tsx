@@ -28,6 +28,12 @@ export async function generateMetadata({ params }: { params: { day: string } }):
     title: `${wrap.headline} — Market Wrap, ${longDate(wrap.day)}`,
     description: wrap.lede,
     alternates: { canonical: `/blog/market-wrap/${wrap.day}` },
+    // Dated editions are template-generated (numeric deltas + one machine
+    // sentence) — thin near-duplicates at ~30 URLs, a helpful-content risk.
+    // Keep them crawlable for readers arriving via the hub, but out of the
+    // index; the /blog/market-wrap hub (always showing the latest wrap) is the
+    // indexable surface for this content.
+    robots: { index: false, follow: true },
   };
 }
 

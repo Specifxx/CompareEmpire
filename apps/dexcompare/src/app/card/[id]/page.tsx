@@ -52,13 +52,28 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   // copy ("price in the United States") would be what gets indexed for every
   // market — fragmented snippets at 20k-page scale.
   const title = `${card.name} (${card.setCode} ${card.collectorNumber}) price — compare cheapest stores`;
-  const description = `See today's cheapest price for ${card.name} (${card.setCode} ${card.collectorNumber}) across stores in Australia, New Zealand, the US and the UK — updated live.`;
+  // Lead the snippet with a real price where one exists (currency-labelled, so
+  // still market-neutral) — a concrete number lifts SERP CTR at 20k-page scale.
+  const from =
+    card.lowestPriceCents != null ? `from ${formatMoney(card.lowestPriceCents, "AUD")}` :
+    card.lowestPriceCentsUs != null ? `from ${formatMoney(card.lowestPriceCentsUs, "USD")}` :
+    card.lowestPriceCentsGb != null ? `from ${formatMoney(card.lowestPriceCentsGb, "GBP")}` :
+    card.lowestPriceCentsNz != null ? `from ${formatMoney(card.lowestPriceCentsNz, "NZD")}` :
+    null;
+  const description = from
+    ? `${card.name} (${card.setCode} ${card.collectorNumber}) ${from} today. Compare live prices across stores in Australia, New Zealand, the US and the UK — updated daily.`
+    : `See today's cheapest price for ${card.name} (${card.setCode} ${card.collectorNumber}) across stores in Australia, New Zealand, the US and the UK — updated live.`;
   const image = card.imageUrl ?? card.imageThumbUrl ?? undefined;
 
   return {
     title,
     description,
     alternates: { canonical: `/card/${card.slug ?? params.id}` },
+    // A card with no price in ANY market renders a "No prices found yet" shell —
+    // thin content at ~8k-page scale. Keep it crawlable (follow) but out of the
+    // index until it gains a price; this flips back automatically on the next
+    // crawl once the importer prices it.
+    ...(from ? {} : { robots: { index: false, follow: true } }),
     openGraph: {
       title,
       description,
@@ -290,7 +305,10 @@ export default async function CardPage({ params }: { params: { id: string } }) {
     inStock: true, // the comparison rows are live in-stock listings
     currency: info.currency,
   });
-  const jsonLd = {
+  // A Product with none of offers/review/aggregateRating is invalid for rich
+  // results and a Search Console critical error — and ~40% of cards have no
+  // live prices at any given time. Emit the node only when it carries one.
+  const jsonLd = !offers && !reviewCount ? null : {
     "@context": "https://schema.org",
     "@type": "Product",
     name: card.name,
@@ -339,7 +357,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
 
   return (
     <div>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify([jsonLd, breadcrumb]) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd ? [jsonLd, breadcrumb] : [breadcrumb]) }} />
       <CardViewBeacon idOrSlug={card.slug ?? card.id} cardId={card.id} />
       <Link href="/browse" className="mb-4 inline-flex items-center gap-1 text-sm text-slate-400 hover:text-white">
         ← Back to database

@@ -144,13 +144,15 @@ export default async function SealedComparePage({ params }: { params: { slug: st
     inStock: inStock.length > 0,
     currency: priceInfo.currency,
   });
-  const jsonLd = {
+  // A Product without offers (and with no reviews here) is a Search Console
+  // critical error — emit the node only when we hold a real price.
+  const jsonLd = !offers ? null : {
     "@context": "https://schema.org",
     "@type": "Product",
     name: group.name,
     category: "Trading Card Game Sealed Product",
     ...(group.imageUrl ? { image: group.imageUrl } : {}),
-    ...(offers ? { offers } : {}),
+    offers,
   };
   const breadcrumb = {
     "@context": "https://schema.org",
@@ -164,7 +166,7 @@ export default async function SealedComparePage({ params }: { params: { slug: st
 
   return (
     <div className="mx-auto max-w-3xl">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify([jsonLd, breadcrumb]) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd ? [jsonLd, breadcrumb] : [breadcrumb]) }} />
       <Link href="/sealed" className="mb-4 inline-flex items-center gap-1 text-sm text-slate-400 hover:text-white">
         ← All sealed products
       </Link>

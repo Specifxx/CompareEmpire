@@ -7,6 +7,7 @@ import { SetCompletion } from "@/components/SetCompletion";
 import { cardTileSelect } from "@/lib/cards";
 import { pickPrice, DEFAULT_COUNTRY } from "@/lib/country";
 import { SETS, setBySlug } from "@/lib/constants";
+import { POKEMON_SETS } from "@/lib/pokemon-sets";
 import { SITE_URL } from "@/lib/site";
 
 // Rendered on the AU baseline server-side (country-neutral copy); the card tiles
@@ -43,6 +44,18 @@ export async function generateMetadata({ params }: { params: { set: string } }):
 export default async function SetPage({ params }: { params: { set: string } }) {
   const set = setBySlug(params.set);
   if (!set) notFound();
+
+  // Full catalogue record (series, release date) — SETS strips these, but they
+  // give each of the 173 set pages unique, set-specific copy instead of a
+  // paragraph that varies only by name.
+  const meta = POKEMON_SETS.find((s) => s.code === set.code);
+  const released = meta?.releaseDate
+    ? new Date(meta.releaseDate.replace(/\//g, "-")).toLocaleDateString("en-AU", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      })
+    : null;
 
   const country = DEFAULT_COUNTRY; // AU baseline; client tiles localise the price
 
@@ -131,9 +144,9 @@ export default async function SetPage({ params }: { params: { set: string } }) {
         </h1>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-slate-400">
           {set.comingSoon ? (
-            <>Pokémon <strong className="text-slate-200">{set.name}</strong> isn&apos;t out yet. This page will list every {set.name} card with live prices the moment it releases — check back soon.</>
+            <>Pokémon <strong className="text-slate-200">{set.name}</strong>{released && meta ? <> releases on {released} as part of the {meta.series} series</> : <> isn&apos;t out yet</>}. This page will list every {set.name} card with live prices the moment it releases — check back soon.</>
           ) : (
-            <>Browse all {cards.length} Pokémon <strong className="text-slate-200">{set.name}</strong> cards and compare live prices across stores to find the cheapest singles. {priced.toLocaleString()} cards are priced right now, updated daily — switch your country at the top to see local prices.</>
+            <>Browse all {cards.length} Pokémon <strong className="text-slate-200">{set.name}</strong> cards{released && meta ? <> from the <strong className="text-slate-200">{meta.series}</strong> series (released {released})</> : null} and compare live prices across stores to find the cheapest singles. {priced.toLocaleString()} cards are priced right now, updated daily — switch your country at the top to see local prices.</>
           )}
         </p>
       </div>

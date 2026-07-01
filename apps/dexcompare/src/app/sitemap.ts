@@ -45,6 +45,7 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
     const staticRoutes: MetadataRoute.Sitemap = [
       { url: `${SITE_URL}/`, changeFrequency: "daily", priority: 1, lastModified: priceDay },
       { url: `${SITE_URL}/browse`, changeFrequency: "daily", priority: 0.9, lastModified: priceDay },
+      { url: `${SITE_URL}/sets`, changeFrequency: "weekly", priority: 0.85 },
       { url: `${SITE_URL}/sealed`, changeFrequency: "daily", priority: 0.85, lastModified: priceDay },
       { url: `${SITE_URL}/deals`, changeFrequency: "daily", priority: 0.85, lastModified: priceDay },
       { url: `${SITE_URL}/card-value`, changeFrequency: "daily", priority: 0.85, lastModified: priceDay },
@@ -96,28 +97,14 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
       lastModified: priceDay,
     }));
 
-    // Market Wrap hub + dated editions — DB-dependent, fail gracefully.
+    // Market Wrap: only the canonical hub. The dated editions are
+    // template-generated (numeric deltas + one machine sentence) — thin,
+    // near-duplicate pages that are a helpful-content risk at ~30 URLs, so they
+    // carry noindex (see blog/market-wrap/[day]/page.tsx) and stay out of the
+    // sitemap. The hub always shows the latest wrap and stays indexable.
     const wrapRoutes: MetadataRoute.Sitemap = [
       { url: `${SITE_URL}/blog/market-wrap`, changeFrequency: "daily", priority: 0.8, lastModified: priceDay },
     ];
-    try {
-      const wrapDayRows = await dbHistory.priceHistory.findMany({
-        distinct: ["day"],
-        select: { day: true },
-        orderBy: { day: "desc" },
-        take: 31,
-      });
-      wrapRoutes.push(
-        ...wrapDayRows.slice(0, -1).map((r) => ({
-          url: `${SITE_URL}/blog/market-wrap/${r.day.toISOString().slice(0, 10)}`,
-          changeFrequency: "weekly" as const,
-          priority: 0.6,
-          lastModified: r.day,
-        })),
-      );
-    } catch {
-      /* DB unavailable — only the hub link is included */
-    }
 
     return [...staticRoutes, ...contentRoutes, ...setRoutes, ...wrapRoutes];
   }
@@ -125,15 +112,28 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
   // ── Sitemap 1: card singles (~20 k URLs) ──────────────────────────────────
   if (id === 1) {
     try {
+      // Only cards priced in AT LEAST ONE market: cards with no price anywhere
+      // render a thin "No prices found yet" shell and carry noindex (see
+      // card/[id]/page.tsx generateMetadata) — submitting noindexed URLs sends
+      // Google a mixed signal. A card re-enters the sitemap automatically the
+      // day the importer prices it.
       const cards = await prisma.card.findMany({
+        where: {
+          OR: [
+            { lowestPriceCents: { not: null } },
+            { lowestPriceCentsNz: { not: null } },
+            { lowestPriceCentsUs: { not: null } },
+            { lowestPriceCentsGb: { not: null } },
+          ],
+        },
         select: { id: true, slug: true, lowestPriceCents: true, imageUrl: true },
         orderBy: { lowestPriceCents: { sort: "desc", nulls: "last" } },
       });
       return cards.map((c) => ({
         url: `${SITE_URL}/card/${c.slug ?? c.id}`,
         changeFrequency: "daily" as const,
-        priority: c.lowestPriceCents != null ? 0.8 : 0.5,
-        lastModified: c.lowestPriceCents != null ? priceDay : undefined,
+        priority: c.lowestPriceCents != null ? 0.8 : 0.6,
+        lastModified: priceDay,
         // Image sitemap: surface each card's unique art to image search (absolute URLs only).
         ...(c.imageUrl && c.imageUrl.startsWith("http") ? { images: [c.imageUrl] } : {}),
       }));

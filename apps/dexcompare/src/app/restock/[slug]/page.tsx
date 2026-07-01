@@ -107,13 +107,15 @@ export default async function RestockTrackerPage({ params }: { params: { slug: s
     inStock: isLive,
     currency: info.currency,
   });
-  const jsonLd = {
+  // A Product without offers (and with no reviews here) is a Search Console
+  // critical error — emit the node only when we hold a real price.
+  const jsonLd = !offers ? null : {
     "@context": "https://schema.org",
     "@type": "Product",
     name: product.name,
     category: "Trading Card Game Sealed Product",
     description: product.blurb,
-    ...(offers ? { offers } : {}),
+    offers,
   };
   const breadcrumb = {
     "@context": "https://schema.org",
@@ -127,7 +129,7 @@ export default async function RestockTrackerPage({ params }: { params: { slug: s
 
   return (
     <div className="mx-auto max-w-3xl">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify([jsonLd, breadcrumb]) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd ? [jsonLd, breadcrumb] : [breadcrumb]) }} />
       <Link href="/restock" className="mb-4 inline-flex items-center gap-1 text-sm text-slate-400 hover:text-white">
         ← All restock trackers
       </Link>
