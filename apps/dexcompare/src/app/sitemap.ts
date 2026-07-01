@@ -12,9 +12,11 @@ export const revalidate = 3600;
 
 /**
  * Three child sitemaps — one per content bucket.
- * Next.js generates a sitemap index at /sitemap.xml pointing to each child at
- * /sitemap/0.xml, /sitemap/1.xml, /sitemap/2.xml.
- * robots.ts still points to /sitemap.xml (the index) so no robots change needed.
+ * generateSitemaps() with multiple ids makes Next.js serve EACH child directly
+ * at /sitemap/0.xml, /sitemap/1.xml, /sitemap/2.xml — there is NO automatic
+ * combining index at the bare /sitemap.xml (a wrong assumption in a previous
+ * version of this comment left /sitemap.xml a live 404 with nothing pointing
+ * at the real files). robots.ts lists all three child URLs directly instead.
  *
  *   0 → static routes + guides + blog + sets + market wraps  (stable, low churn)
  *   1 → card singles pages          (~20 k URLs, daily price updates)
