@@ -1,0 +1,96 @@
+name: Verify DexCompare history DB split (manual, mostly read-only)
+
+# One-off diagnostic: sends a single test click beacon to the live site, then
+# checks whether it landed in the HISTORY_DATABASE_URL database (the split
+# working) and reports row counts for PriceHistory/ClickEvent/RestockEvent
+# there, plus confirms the same database's Card table is still empty (proof
+# it's genuinely a separate database, not an alias for the primary one).
+#
+# The only "write" this performs is that one beacon hit -- identical to what a
+# real visitor's browser does when they click an outbound retailer link.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Resolve history database URL
+        id: db
+        env:
+          SECRET_URL: ${{ secrets.HISTORY_DATABASE_URL }}
+        run: |
+          if [ -z "$SECRET_URL" ]; then
+            echo "No HISTORY_DATABASE_URL secret set." >> "$GITHUB_STEP_SUMMARY"
+            echo "found=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "::add-mask::$SECRET_URL"
+            echo "DATABASE_URL=$SECRET_URL" >> "$GITHUB_ENV"
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Send a test click beacon to the live site
+        if: steps.db.outputs.found == 'true'
+        run: |
+          curl -fsS -o /dev/null -w "beacon HTTP status: %{http_code}\n" \
+            -X POST https://dexcompare.app/api/click \
+            -H "Content-Type: application/json" \
+            -d '{"retailer":"verify-history-db-test","country":"AU","kind":"single"}'
+          sleep 3
+
+      - uses: actions/checkout@v4
+        if: steps.db.outputs.found == 'true'
+        with:
+          ref: main
+
+      - uses: actions/setup-node@v4
+        if: steps.db.outputs.found == 'true'
+        with:
+          node-version: 20
+
+      - name: Report history-database state
+        if: steps.db.outputs.found == 'true'
+        working-directory: apps/dexcompare
+        run: |
+          npm install --no-audit --no-fund
+          npx prisma generate
+          node <<'JS'
+          const { PrismaClient } = require("@prisma/client");
+          const prisma = new PrismaClient();
+          (async () => {
+            try {
+              const [cardCount, priceHistoryCount, clickEventCount, restockEventCount, testHit] = await Promise.all([
+                prisma.card.count(),
+                prisma.priceHistory.count(),
+                prisma.clickEvent.count(),
+                prisma.restockEvent.count(),
+                prisma.clickEvent.findFirst({
+                  where: { retailer: "verify-history-db-test" },
+                  orderBy: { createdAt: "desc" },
+                }),
+              ]);
+              const out = [
+                "### HISTORY_DATABASE_URL — current state",
+                `- **Card rows** (expected ~0 — proves this is a separate DB): ${cardCount.toLocaleString()}`,
+                `- **PriceHistory rows**: ${priceHistoryCount.toLocaleString()}`,
+                `- **ClickEvent rows**: ${clickEventCount.toLocaleString()}`,
+                `- **RestockEvent rows**: ${restockEventCount.toLocaleString()}`,
+                "",
+                testHit
+                  ? `✅ Test click beacon landed here (id ${testHit.id}, recorded ${testHit.createdAt.toISOString()}). The split is LIVE and working.`
+                  : "❌ Test click beacon NOT found here — the live site is still writing to the primary database (Vercel env var not applied yet, or redeploy hasn't happened).",
+              ].join("\n");
+              console.log(out);
+              if (process.env.GITHUB_STEP_SUMMARY) require("fs").appendFileSync(process.env.GITHUB_STEP_SUMMARY, out + "\n");
+            } catch (e) {
+              const msg = "❌ Could not query the history database: " + e.message;
+              console.error(msg);
+              if (process.env.GITHUB_STEP_SUMMARY) require("fs").appendFileSync(process.env.GITHUB_STEP_SUMMARY, msg + "\n");
+              process.exit(1);
+            } finally {
+              await prisma.$disconnect();
+            }
+          })();
+          JS
