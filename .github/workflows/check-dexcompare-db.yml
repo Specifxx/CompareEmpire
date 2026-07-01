@@ -1,0 +1,81 @@
+name: Check DexCompare database (manual, read-only)
+
+# One-off diagnostic: reports basic row counts (Card, RetailerPrice, PriceHistory)
+# for whatever DATABASE_URL the DEXCOMPARE_DATABASE_URL secret currently points
+# to. Read-only — no schema changes, no writes. Used to confirm a newly-pointed
+# Neon database actually has the schema + data before flipping production over
+# to it (an empty new database would take the live site down).
+on:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Resolve database URL
+        id: db
+        env:
+          SECRET_URL: ${{ secrets.DEXCOMPARE_DATABASE_URL }}
+        run: |
+          if [ -z "$SECRET_URL" ]; then
+            echo "No DEXCOMPARE_DATABASE_URL secret set." >> "$GITHUB_STEP_SUMMARY"
+            echo "found=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "::add-mask::$SECRET_URL"
+            echo "DATABASE_URL=$SECRET_URL" >> "$GITHUB_ENV"
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.db.outputs.found == 'true'
+        with:
+          ref: main
+
+      - uses: actions/setup-node@v4
+        if: steps.db.outputs.found == 'true'
+        with:
+          node-version: 20
+
+      - name: Report row counts
+        if: steps.db.outputs.found == 'true'
+        working-directory: apps/dexcompare
+        run: |
+          npm install --no-audit --no-fund
+          npx prisma generate
+          node <<'JS'
+          const { PrismaClient } = require("@prisma/client");
+          const prisma = new PrismaClient();
+          (async () => {
+            try {
+              const [cards, priced, retailerPrices, priceHistory, latestSnapshot] = await Promise.all([
+                prisma.card.count(),
+                prisma.card.count({ where: { lowestPriceCents: { not: null } } }),
+                prisma.retailerPrice.count(),
+                prisma.priceHistory.count(),
+                prisma.priceHistory.findFirst({ orderBy: { day: "desc" }, select: { day: true } }),
+              ]);
+              const out = [
+                "### DexCompare database — current DEXCOMPARE_DATABASE_URL secret",
+                `- **Cards**: ${cards.toLocaleString()}`,
+                `- **Priced cards**: ${priced.toLocaleString()}`,
+                `- **Retailer price rows**: ${retailerPrices.toLocaleString()}`,
+                `- **Price history rows**: ${priceHistory.toLocaleString()}`,
+                `- **Latest price snapshot day**: ${latestSnapshot?.day ?? "none"}`,
+                "",
+                cards === 0
+                  ? "⚠️ **EMPTY DATABASE** — schema may or may not exist, but there is no card data. Do NOT point production at this yet — run the seed workflow first."
+                  : "✅ Database has real card data.",
+              ].join("\n");
+              console.log(out);
+              if (process.env.GITHUB_STEP_SUMMARY) require("fs").appendFileSync(process.env.GITHUB_STEP_SUMMARY, out + "\n");
+            } catch (e) {
+              const msg = "❌ Could not query the database: " + e.message;
+              console.error(msg);
+              if (process.env.GITHUB_STEP_SUMMARY) require("fs").appendFileSync(process.env.GITHUB_STEP_SUMMARY, msg + "\n");
+              process.exit(1);
+            } finally {
+              await prisma.$disconnect();
+            }
+          })();
+          JS
