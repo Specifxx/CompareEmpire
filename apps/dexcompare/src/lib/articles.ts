@@ -24,6 +24,220 @@ export interface Article {
 
 export const ARTICLES: Article[] = [
   {
+    slug: "pokemon-card-set-symbols-and-collector-numbers-explained",
+    category: "guide",
+    title: "How to Read a Pokemon Card's Set Symbol and Number",
+    excerpt:
+      "Learn what the tiny symbol, the 054/198-style number, and the rarity icon on a Pokemon card actually mean before you buy or sell.",
+    author: "DexCompare",
+    date: "2026-07-01",
+    readMins: 5,
+    tags: ["set-symbol", "collector-number", "rarity", "card-basics"],
+    body: `Look at the bottom edge of any Pokemon card and you'll find three small pieces of information crammed into a couple of centimetres: a little icon, a number that looks like a fraction, and (on most modern cards) a shape or letter combination that signals rarity. Collectors read this strip automatically, but if you're new to buying and selling, it's easy to miss - and misreading it is one of the most common reasons people overpay or list a card under the wrong name. Here's what each part is actually telling you.
+
+## What is the set symbol on a Pokemon card?
+
+The set symbol is the small icon printed near the collector number, usually bottom-left or bottom-right of the card depending on the card's era. It identifies which expansion the card was printed in - the same way an ISBN prefix tells you which edition of a book you're holding. Two cards can show the exact same Pokemon, the same artwork even, and still be worth very different amounts because they came from different sets.
+
+Early cards from the late 1990s and early 2000s didn't use a symbol at all, or used very plain ones, which is part of why those older sets can be tricky to tell apart at a glance. From the early 2000s onward, every mainline set got its own distinct symbol - a shape, a small badge, sometimes a stylised letter - and that symbol has stayed consistent on every card printed within that set's run.
+
+### Why the symbol matters more than the artwork
+
+Reprints are common in the Pokemon TCG. A popular Pokemon might appear in a base set, then again in a special collection, then again in an anniversary set, often with near-identical illustration. If you're trying to identify exactly which printing you own - which matters for both grading and pricing - the set symbol is a faster and more reliable check than trying to match artwork by eye. If you're not sure which set a symbol belongs to, [browsing the full set index](/sets) side by side with your card is the quickest way to confirm it, since sets are generally organised in release order with their symbols visible.
+
+## What does the number on a Pokemon card mean (e.g. 054/198)?
+
+The collector number - printed as something like \`054/198\` - tells you two things at once. The second number is the total count of cards in that set's main numbering run. The first number is where this specific card sits within that sequence. So \`054/198\` means this is card 54 out of a base set of 198.
+
+A few practical points that trip people up:
+
+- **The second number isn't always the "full" set size.** Many modern sets include "secret rares" numbered higher than the stated total - a card numbered \`199/198\` or \`210/198\` in a 198-card set is a bonus card beyond the official print run, not a misprint. These are frequently some of the more sought-after cards in a set precisely because there are proportionally fewer of them printed at those higher numbers.
+- **Leading zeros are normal.** \`009/198\` and \`9/198\` refer to the same position; some sets pad the number, others don't, depending on formatting choices made at print time.
+- **Number plus set symbol together uniquely identify a printing.** Neither one on its own is enough, since collector numbers reset with every new set. Card \`054\` exists in dozens of different sets - it's only \`054\` *of that specific set* that narrows it down.
+
+If you're trying to match a physical card to a listing, searching by name and then cross-checking the number against [the card database](/browse) is the most reliable way to confirm you're comparing like for like, especially before you commit to a price.
+
+## What do the rarity symbols on Pokemon cards mean?
+
+Alongside the set symbol, most cards from the last couple of decades carry a small rarity marker - typically a circle, diamond, or star, sometimes with additional shapes for special card types. Broadly speaking a circle indicates a common card, a diamond an uncommon, and a star a rare - but the star category in particular has splintered over the years into holo rares, ultra rares, secret rares and more, each with its own visual treatment rather than a single consistent icon.
+
+This is genuinely one of the more confusing parts of the hobby because rarity symbols have evolved across eras and don't map perfectly onto how *scarce* or *valuable* a card actually is - a card marked rare isn't automatically worth more than a common, and two "rare" symbols from different sets can represent quite different actual print quantities. Because this deserves proper treatment rather than a quick summary, we've covered the full breakdown - including how the modern star, and full-art, and rainbow-tier symbols differ - in a [dedicated guide to Pokemon card rarities](/guides/pokemon-card-rarities-explained).
+
+### Reading all three together
+
+The real value of learning this strip is being able to read it as a set, not in isolation. Set symbol tells you *when and where* a card was printed. Collector number tells you *its position* within that specific print run, including whether it's a standard-run card or a secret rare beyond the stated total. Rarity icon gives you a rough signal of *print category*, which is a starting point for understanding scarcity but never the whole story - actual market value depends on demand, condition and how many were produced, not the icon alone.
+
+## Why this matters before you buy or sell
+
+None of this is trivia for its own sake. Sellers occasionally list cards with the wrong set attached, buyers sometimes assume a "rare" star symbol means more than it does, and reprints mean the same artwork can legitimately appear under several different set symbols and price points. Taking ten seconds to check the symbol and number against a reliable set list before you buy is the single easiest way to avoid paying for the wrong printing.`,
+  },
+  {
+    slug: "do-pokemon-card-prices-drop-when-a-new-set-releases",
+    category: "guide",
+    title: "Do Older Set Prices Move When a New Pokemon Set Drops?",
+    excerpt:
+      "New Pokemon set releases can quietly push older card prices up or down. Here's what actually drives it and how to time your buys around a launch window.",
+    author: "DexCompare",
+    date: "2026-07-01",
+    readMins: 5,
+    tags: ["price-trends", "set-releases", "buying-guide", "market-timing"],
+    body: `## Does a new Pokemon set actually affect older card prices?
+
+Yes, but not in one predictable direction, and not for every card. A new set release changes buyer attention, print supply, and short-term cash flow in the hobby all at once, and older singles respond to whichever of those forces is strongest for that specific card. Some older cards dip because collectors are spending their budget on the new set instead. Others climb because the new set reminds everyone why an older card was scarce or good in the first place. The honest answer is "it depends on the card," but the mechanisms behind that answer are consistent enough to plan around.
+
+If you're trying to time a purchase, the useful move isn't predicting the market perfectly — it's understanding which of the following forces applies to the specific card you want, then watching how it actually behaves using a live source like the [DexCompare Index](/market) rather than guessing from memory of "what usually happens."
+
+## Why older prices tend to soften around a new release
+
+### Collector budgets are finite and attention is a limited resource
+
+Most buyers aren't restocking their entire want list every month — they have a rough budget, and a new set release pulls a chunk of that budget toward fresh product: booster boxes, new chase cards, and the singles everyone is talking about on release week. Demand for older singles doesn't disappear, but it can soften for a few weeks simply because fewer buyers are actively shopping for them. Sellers who need to move older stock sometimes shade prices down to compete for the reduced pool of active buyers.
+
+### New chase cards can genuinely steal the spotlight
+
+If the new set features a mechanic, art style, or character that overlaps with an older card's appeal, some of that older card's demand can migrate permanently, not just temporarily. This is different from the budget effect above — it's a genuine shift in what collectors want, and it tends to matter most for cards whose appeal was mostly about being the newest or flashiest option in a category, rather than cards valued for format-defining playability or historical significance.
+
+### Bulk supply from box breaks doesn't touch every card equally
+
+New set releases mean fresh product is being opened at scale, but that only affects the price of cards *in that new set* — it doesn't directly increase the supply of older cards. Where it indirectly matters is opportunity cost: sellers sitting on older inventory sometimes list more aggressively around a release window because they want cash freed up to buy into the new set themselves, which can nudge asking prices on older cards down even though nothing about the older card's actual scarcity changed.
+
+## Why some older cards climb right after a new set launches
+
+### Reprints and reminders can validate scarcity instead of hurting it
+
+A common assumption is that any reprint-adjacent news pushes older prices down. Often the opposite happens. When a new set reintroduces a popular Pokemon, a returning trainer card, or a mechanic that echoes an older release, it puts that older card back in front of buyers who'd forgotten about it. If the older printing is scarcer, has better art, or is tied to a more significant tournament era, renewed attention can lift its price rather than compete it away. The new set acts as free marketing for the old one.
+
+### Format rotation and playability shifts
+
+For cards with any competitive relevance, a new set can change what's viable, which changes demand for staples that support (or counter) the new strategies. A card that suddenly synergizes with a new archetype can see real demand increases that have nothing to do with nostalgia or aesthetics — it's a simple function of players needing four copies for their decks. This effect is sharper and faster than the collector-driven effects above, because competitive players tend to move on tournament schedules, not on when they feel like it.
+
+## How to actually time a purchase around a release window
+
+### Watch behavior, don't assume a rule
+
+Because both directions are possible, the safest approach is to track the specific card you want rather than applying a blanket "always buy before" or "always buy after" rule. Set a baseline for the card a couple of weeks before the release, then check it again a couple of weeks after. [Browsing sets](/sets) to see what's actually printed in the new release is a quick way to judge whether there's a plausible connection to your target card at all — if there's no overlap in theme, mechanic, or character, the release is less likely to move that card much either way.
+
+### Let softness work in your favor
+
+If a release window does soften prices on a card you already wanted, that's simply a buying opportunity, not a signal to wait longer for it to drop further. Checking [current deals](/deals) during release weeks can surface cards that dipped below guide simply because seller attention shifted elsewhere — that's often a better entry point than trying to time a bottom that may not come.
+
+### Don't chase the new set's spotlight effect
+
+If you're buying an older card specifically because a new set seems to be reviving interest in it, be aware that spotlight effects can fade once the new set's own hype cycle ends. If the card's fundamentals — actual print scarcity, real competitive use, lasting collector demand — don't support the new attention, a short-term bump is more likely to normalize than compound. Cards backed by genuine scarcity or format relevance tend to hold gains; cards riding pure novelty from a release-week narrative tend to give them back.`,
+  },
+  {
+    slug: "how-to-track-pokemon-card-price-history-before-you-buy",
+    category: "guide",
+    title: "Why Today's Price Isn't Enough: Reading Pokemon Card Price History",
+    excerpt:
+      "A low price today could be a real deal or a data error. Here's how to read a card's price history like a collector, not a gambler.",
+    author: "DexCompare",
+    date: "2026-07-01",
+    readMins: 5,
+    tags: ["price-history", "buying-guide", "market-trends", "collecting"],
+    body: `## Why a single price snapshot can mislead you
+
+If you only ever look at what a card costs right now, you're missing the part of the story that actually tells you whether that number is good, bad, or meaningless. A single listing is one seller's opinion on one day. It might reflect a genuine shift in the card's demand, or it might just be a mispriced listing, a bulk-lot leftover, or a low-grade copy that got lumped in with higher-grade sales data by mistake.
+
+Price history fixes this by showing you the shape of the trend, not just the endpoint. A card sitting at a certain price after months of slow, steady decline tells a very different story than a card at that same price after a sudden overnight drop. The number can be identical. The context changes everything about whether you should buy now, wait, or keep scrolling.
+
+This matters more in the Pokemon TCG than people expect, because so much of the market is driven by reprints, set rotations, tournament results, and content creator hype cycles that spike and fade fast. A chart smooths out the noise from any one seller and shows you what's actually happening across the market.
+
+## How do you tell a real price dip from a data glitch?
+
+This is the question that actually saves or costs you money, so it's worth being deliberate about it. A handful of checks will filter out most bad reads.
+
+### Look at the trend line, not just the low point
+
+A genuine dip usually has some lead-up: a gradual slide over days or weeks as more copies get listed and sellers compete on price. A glitch tends to look like a single vertical spike down (or up) that doesn't connect to anything before or after it. If the line drops off a cliff for one day and then snaps straight back to the previous range, that's a strong sign the outlier was a data error, a single mispriced listing, or a sale of a damaged or miscategorized copy rather than a market move.
+
+### Check whether the move matches the card's grade and printing
+
+Price history is only useful if you're comparing like with like. A raw copy, a graded slab, and a specific print run (first edition, unlimited, a particular set reprint) can trade at completely different levels. If a "drop" coincides with a mix of listing types suddenly appearing in the data, you're not looking at a real price change, you're looking at a change in what's being measured. Always confirm you're viewing history for the exact card, set, and condition you actually want, using the [card value checker](/card-value) to pin down specifics before you read too much into a chart.
+
+### Ask why, not just what
+
+Real dips usually have a reason you can name: a new set released that increased supply, a card rotated out of a competitive format, a reprint was announced, or general market-wide softness hit multiple cards at once. If you can't think of any plausible reason for a sudden move and it only affects one listing, treat it as noise until proven otherwise. If the same pattern shows up across a card's history repeatedly, or across other cards in the same set, that's a signal the move is real and structural rather than a one-off.
+
+### Give it time before you commit
+
+If a price just dropped in the last day or two, resist the urge to treat it as the new floor immediately. Genuine dips tend to hold or continue for at least a few days as the broader market catches up; glitches correct themselves almost immediately. A short waiting period costs you very little and protects you from buying into a number that was never real.
+
+## What does a healthy long-term price trend actually look like?
+
+Cards that are genuinely appreciating tend to move in a stair-step pattern rather than a straight line: periods of flat or slightly declining prices, punctuated by step-ups tied to real events, rather than one continuous rocket-shaped curve. A chart that's smooth and gradual is usually more trustworthy than one with wild daily swings, because it suggests enough transaction volume for the price to reflect genuine buyer and seller behavior rather than a thin market being moved by one or two trades.
+
+It also helps to zoom out. A card that looks flat over a month might show a clear seasonal pattern over a year, easing around set release windows and firming up around anniversaries or nostalgia-driven demand. Judging a card only on its most recent weeks can make a completely normal cycle look like a trend when it's really just the pattern repeating.
+
+## How can you actually monitor this without checking every day?
+
+Nobody wants to manually refresh a listing page every morning hoping to catch a dip. This is really what price history and alerts are built for. Browsing the [DexCompare Index](/market) gives you a sense of where prices for popular cards and sets currently sit relative to their recent range, which is a faster way to spot cards trading unusually low or high than eyeballing individual listings one at a time.
+
+For cards you're actually planning to buy, the more useful move is setting up a [wishlist alert](/wishlist) so you get notified when a price actually moves, instead of trying to remember to check back. That way you're reacting to a real, sustained change rather than guessing based on a single visit. And if you're just trying to see what's currently trading below its recent history across categories, the [deals page](/deals) rounds up listings worth a second look without you having to build that comparison yourself.
+
+None of this guarantees a card only goes up from here. But reading the history instead of the headline number is the difference between buying based on evidence and buying based on a single, possibly misleading, snapshot.`,
+  },
+  {
+    slug: "do-pokemon-card-reprints-lower-value",
+    category: "guide",
+    title: "Do Pokemon Card Reprints Kill Value? What Really Happens",
+    excerpt:
+      "A reprint doesn't automatically tank your card's price. Here's the honest breakdown of when reprints matter, when they don't, and what to check before you panic-sell.",
+    author: "DexCompare",
+    date: "2026-07-01",
+    readMins: 5,
+    tags: ["reprints", "card-value", "pokemon-tcg", "collecting-basics"],
+    body: `## Does reprinting a Pokemon card lower its value?
+
+Sometimes, but far less often and far less dramatically than most collectors assume. A reprint only pushes a price down when it meaningfully increases the *available supply of that specific card* relative to how many people want it. That sounds obvious, but the details matter a lot, and they're the part most panic-driven forum posts skip over.
+
+The confusion usually comes from mixing up two different things: reprinting the *artwork or character* versus reprinting the *exact card*. When Charizard gets a new illustration in a fresh set, that is not a reprint of your card at all - it's a new, separate collectible competing for the same fan's attention. When a specific numbered card (same set, same art, same rarity) gets reissued in a special collection with a new print run, that's a true reprint, and that's the scenario worth actually analyzing.
+
+### The two kinds of "reprint" collectors confuse
+
+- **New artwork of the same Pokemon** - a new Charizard card in a new set. This barely touches the value of an older Charizard card, because collectors treat each print as a distinct item, not a substitute.
+- **The literal same card reissued** - identical artwork, set symbol, and card number appearing again in a reprint product (this happens more with vintage-style reprint sets or promotional reissues). This is the only case where supply genuinely increases for that exact card.
+
+If you're trying to figure out which category a card falls into before you decide whether to worry, [checking its current market data](/card-value) is a faster way to get a real answer than guessing from a rumor.
+
+## Why supply alone doesn't determine price
+
+Print runs going up is only half the equation. Price is set by supply *relative to* demand, and reprints often arrive at the exact moment demand is also rising - which is precisely why a company chooses to reprint that card in the first place. Nobody reprints a card nobody wants.
+
+This is the mechanic that trips people up: a reprint can increase supply by, say, tens of thousands of copies, but if the character or card is popular enough that demand grows by more than that over the same period, the price holds or even climbs. Conversely, a niche card that gets bundled into every entry-level starter deck for years can see real, lasting price erosion, because supply keeps climbing while demand for that particular card stays flat.
+
+### What actually causes lasting price drops
+
+- **Repeated, ongoing reprints** rather than a single one-off run. A card reissued once in a special collection behaves differently than a card that keeps reappearing in starter products year after year.
+- **Reprints in high-print-run product types** like structure decks or beginner boxes, which are made in far greater quantities than a limited chase set.
+- **A drop in the card's underlying demand** at the same time as the reprint - for example if the Pokemon falls out of competitive relevance or the artwork style ages out of fashion.
+- **Condition-graded copies flooding the market** alongside the reprint, since a fresh run also means a fresh wave of mint-condition submissions.
+
+### What usually does NOT cause a lasting drop
+
+- A single special-collection or tin reprint of a card that remains genuinely scarce in its *original* print run and grade.
+- Reprints of the character rather than the exact card (new art, new set).
+- Reprints that target a completely different collector segment - for instance, a budget-friendly reissue aimed at new players doesn't necessarily compete with someone chasing an original first-edition copy in near-mint condition.
+
+## How rarity and print run interact with reprints
+
+This is where understanding rarity actually pays off. Two cards can look similarly "special" to a casual buyer but respond completely differently to a reprint announcement, because their underlying scarcity mechanics are different. A card whose value rests mainly on being hard to pull from packs will feel a reprint much more than a card whose value rests on grade, autograph, or first-edition status, since those factors don't get reproduced even when the base card does.
+
+If you're not sure how a card's specific rarity marking affects its supply story, it's worth reading through [how Pokemon card rarities actually work](/guides/pokemon-card-rarities-explained) before you draw conclusions from a reprint headline alone. Rarity symbols tell you a lot about original print behavior, but they don't tell you anything about future reissue plans - those are separate questions entirely.
+
+## Should you sell before a reprint hits the market?
+
+Selling purely because a reprint was *announced* is usually a reaction to headlines, not to actual market data. Prices move on realized supply and realized demand, not announcements - and by the time a reprint product actually ships and gets opened, the market has often already priced in most of the expected effect, for better or worse.
+
+A more useful approach is to treat a reprint announcement as a prompt to check your card's actual trend rather than an automatic sell signal. Look at how the price has moved historically after comparable reprints of similar cards, use [the value checker](/card-value) to see current pricing across sources rather than relying on memory of what it "used to" sell for, and factor in your card's grade and edition, since those often matter more to long-term value than whether the base artwork got reissued.
+
+If you're building out a fuller picture of a collection rather than just one card, our guide on [valuing your full Pokemon card collection](/guides/how-to-value-your-pokemon-card-collection) walks through how to weigh reprints alongside condition, rarity, and demand when you're assessing what you actually own. And if you want to see how a specific reprinted version compares side-by-side with the original across sets, [browsing the card database](/browse) will show you both listings rather than leaving you to guess from memory.
+
+## The bottom line
+
+Reprints are a supply signal, not a verdict. The real question is never "did this get reprinted," it's "did supply grow faster than demand for this exact card." Most of the time, especially with popular characters, demand keeps up. The cards that genuinely lose value long-term are usually the ones getting reprinted repeatedly into low-demand, high-volume products - not the ones that show up once in a shiny new collection box.`,
+  },
+  {
     slug: "pokemon-30th-celebration-preorder-guide",
     category: "blog",
     title: "Pokémon 30th Celebration (Sept 16): What We Know & How to Get It at MSRP",

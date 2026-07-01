@@ -29,6 +29,8 @@ const TOPICS: { id: string; label: string; slugs: string[] }[] = [
       "pokemon-card-conditions-and-grading",
       "how-to-value-your-pokemon-card-collection",
       "pokemon-card-grading-psa-vs-cgc",
+      "pokemon-card-set-symbols-and-collector-numbers-explained",
+      "do-pokemon-card-reprints-lower-value",
     ],
   },
   {
@@ -37,6 +39,8 @@ const TOPICS: { id: string; label: string; slugs: string[] }[] = [
     slugs: [
       "how-to-complete-a-pokemon-tcg-set",
       "pokemon-sealed-products-explained",
+      "do-pokemon-card-prices-drop-when-a-new-set-releases",
+      "how-to-track-pokemon-card-price-history-before-you-buy",
     ],
   },
   {
