@@ -1,0 +1,144 @@
+name: Migrate PriceHistory to new DexCompare database (manual)
+
+# One-off data migration: copies PriceHistory rows (the daily price snapshots
+# that power the DexCompare Index, Market Wrap and per-card price-trend
+# charts) from an OLD Neon database into the CURRENT one (DEXCOMPARE_DATABASE_URL).
+#
+# IMPORTANT: Card.id is a fresh cuid() generated on every reseed, so it is NOT
+# the same between the old and new database even for the identical card. This
+# script matches cards by externalId (the stable Pokemon TCG API id, which is
+# identical in both databases) and remaps cardId through that, rather than
+# copying the raw id — a raw copy would violate the PriceHistory -> Card
+# foreign key and be rejected outright.
+#
+# The old database URL is NEVER stored — paste it directly into the manual
+# dispatch form each time you run this (masked in logs immediately). Delete
+# this workflow file once the migration is done and confirmed, since it's a
+# one-off tool, not part of the regular pipeline.
+on:
+  workflow_dispatch:
+    inputs:
+      old_database_url:
+        description: "OLD Neon DATABASE_URL to copy PriceHistory FROM (pooled, sslmode=require)"
+        required: true
+      dry_run:
+        description: "Dry run — report counts only, insert nothing"
+        type: boolean
+        default: true
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Mask connection strings
+        run: |
+          echo "::add-mask::${{ inputs.old_database_url }}"
+
+      - name: Resolve new database URL
+        id: db
+        env:
+          NEW_URL: ${{ secrets.DEXCOMPARE_DATABASE_URL }}
+        run: |
+          if [ -z "$NEW_URL" ]; then
+            echo "No DEXCOMPARE_DATABASE_URL secret set — nothing to migrate into." >> "$GITHUB_STEP_SUMMARY"
+            echo "found=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "::add-mask::$NEW_URL"
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.db.outputs.found == 'true'
+        with:
+          ref: main
+
+      - uses: actions/setup-node@v4
+        if: steps.db.outputs.found == 'true'
+        with:
+          node-version: 20
+
+      - name: Install deps
+        if: steps.db.outputs.found == 'true'
+        working-directory: apps/dexcompare
+        run: |
+          npm install --no-audit --no-fund
+          npx prisma generate
+
+      - name: Migrate PriceHistory (externalId-remapped)
+        if: steps.db.outputs.found == 'true'
+        working-directory: apps/dexcompare
+        env:
+          OLD_URL: ${{ inputs.old_database_url }}
+          NEW_URL: ${{ secrets.DEXCOMPARE_DATABASE_URL }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          node <<'JS'
+          const { PrismaClient } = require("@prisma/client");
+          const oldDb = new PrismaClient({ datasources: { db: { url: process.env.OLD_URL } } });
+          const newDb = new PrismaClient({ datasources: { db: { url: process.env.NEW_URL } } });
+          const dryRun = process.env.DRY_RUN !== "false";
+
+          (async () => {
+            const summary = [];
+            const log = (s) => { console.log(s); summary.push(s); };
+
+            log(`### PriceHistory migration ${dryRun ? "(DRY RUN — nothing will be written)" : "(LIVE)"}`);
+
+            // 1) Build externalId -> id maps for both databases.
+            const [oldCards, newCards] = await Promise.all([
+              oldDb.card.findMany({ select: { id: true, externalId: true } }),
+              newDb.card.findMany({ select: { id: true, externalId: true } }),
+            ]);
+            const oldIdToExternal = new Map(oldCards.filter((c) => c.externalId).map((c) => [c.id, c.externalId]));
+            const externalToNewId = new Map(newCards.filter((c) => c.externalId).map((c) => [c.externalId, c.id]));
+            log(`- Old DB cards: ${oldCards.length.toLocaleString()} (${oldIdToExternal.size.toLocaleString()} with externalId)`);
+            log(`- New DB cards: ${newCards.length.toLocaleString()} (${externalToNewId.size.toLocaleString()} with externalId)`);
+
+            // 2) Pull all PriceHistory rows from the old database.
+            const oldHistory = await oldDb.priceHistory.findMany({
+              select: { cardId: true, country: true, day: true, lowestPriceCents: true, recordedAt: true },
+            });
+            log(`- Old DB PriceHistory rows: ${oldHistory.length.toLocaleString()}`);
+
+            // 3) Remap cardId via externalId; count what can't be matched.
+            let unmatchedCard = 0, unmatchedExternal = 0;
+            const toInsert = [];
+            for (const row of oldHistory) {
+              const ext = oldIdToExternal.get(row.cardId);
+              if (!ext) { unmatchedCard++; continue; }
+              const newCardId = externalToNewId.get(ext);
+              if (!newCardId) { unmatchedExternal++; continue; }
+              toInsert.push({
+                cardId: newCardId,
+                country: row.country,
+                day: row.day,
+                lowestPriceCents: row.lowestPriceCents,
+                recordedAt: row.recordedAt,
+              });
+            }
+            log(`- Rows remapped successfully: ${toInsert.length.toLocaleString()}`);
+            log(`- Skipped (old card had no externalId): ${unmatchedCard.toLocaleString()}`);
+            log(`- Skipped (no matching card in new DB): ${unmatchedExternal.toLocaleString()}`);
+
+            if (dryRun) {
+              log("");
+              log("Dry run only — re-run with dry_run=false to actually insert these rows.");
+            } else {
+              // 4) Batch insert, skipping any (cardId, country, day) duplicates.
+              const BATCH = 5000;
+              let inserted = 0;
+              for (let i = 0; i < toInsert.length; i += BATCH) {
+                const batch = toInsert.slice(i, i + BATCH);
+                const res = await newDb.priceHistory.createMany({ data: batch, skipDuplicates: true });
+                inserted += res.count;
+                console.log(`  batch ${i / BATCH + 1}: inserted ${res.count} / ${batch.length}`);
+              }
+              log(`- **Rows actually inserted into new DB: ${inserted.toLocaleString()}**`);
+            }
+
+            if (process.env.GITHUB_STEP_SUMMARY) require("fs").appendFileSync(process.env.GITHUB_STEP_SUMMARY, summary.join("\n") + "\n");
+          })()
+            .catch((e) => { console.error("Migration failed:", e); process.exit(1); })
+            .finally(async () => { await oldDb.$disconnect(); await newDb.$disconnect(); });
+          JS
