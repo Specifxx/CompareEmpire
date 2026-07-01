@@ -59,8 +59,14 @@ doorway pages or keyword-stuffed titles; every new page must carry real data + r
    preorder SKUs carries junk like "(Pre-Order - Ships Sept 16)" that pushed the tag
    well past Google's ~60-char truncation, burying the "compare prices" hook. Added
    `cleanSealedName()` + `truncateAtWord()` + a preorder-aware title/description —
-   applies to every scraped sealed product, not just this one. Still queued for future
-   runs: `/sets/[set]`, `/card/[id]`, `/deals`, `/trending`, `/market`, `/most-valuable`.
+   applies to every scraped sealed product, not just this one.
+   `/card/[id]` — DONE (this run, GSC-driven): GSC-TARGETS.md flagged
+   `/card/me4-69-tauros` at 30 impr / 0.0% CTR / pos 5.1 (page-1 rank, zero clicks),
+   with several sibling ME4 cards similarly stuck. Title rewritten from "{name} ({set}
+   {no}) — Pokémon Card Price" to "{name} ({set} {no}) price — compare cheapest
+   stores"; description now leads with "See today's cheapest price for…". Applies
+   site-wide to every card page. Still queued for future runs: `/sets/[set]`, `/deals`,
+   `/trending`, `/market`, `/most-valuable`.
 2. **`/sealed-deals` landing page** — sealed products priced below the market/MSRP guide
    (clone the `/deals` logic for sealed groups). Real data only; BreadcrumbList + FAQPage
    JSON-LD; link from nav + `/deals` + `/sealed`.

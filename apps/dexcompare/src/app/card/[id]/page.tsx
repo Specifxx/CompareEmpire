@@ -49,10 +49,9 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 
   // MARKET-NEUTRAL metadata: Googlebot crawls from US IPs, so cookie-derived
   // copy ("price in the United States") would be what gets indexed for every
-  // market — fragmented snippets at 20k-page scale. Neutral title also stays
-  // under the ~60-char SERP truncation point.
-  const title = `${card.name} (${card.setCode} ${card.collectorNumber}) — Pokémon Card Price`;
-  const description = `Compare live prices for ${card.name}, Pokémon ${card.setName} ${card.collectorNumber}, across stores in Australia, New Zealand, the US and the UK — find the cheapest place to buy.`;
+  // market — fragmented snippets at 20k-page scale.
+  const title = `${card.name} (${card.setCode} ${card.collectorNumber}) price — compare cheapest stores`;
+  const description = `See today's cheapest price for ${card.name} (${card.setCode} ${card.collectorNumber}) across stores in Australia, New Zealand, the US and the UK — updated live.`;
   const image = card.imageUrl ?? card.imageThumbUrl ?? undefined;
 
   return {
