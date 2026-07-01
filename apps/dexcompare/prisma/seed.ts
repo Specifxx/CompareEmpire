@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { normalizeSearch } from "../src/lib/format";
+import { dbHistory } from "../src/lib/db-history";
 
 const prisma = new PrismaClient();
 
@@ -208,7 +209,10 @@ async function main() {
   // TRUNCATE (not DELETE) frees space immediately — important if a prior run bloated
   // the table near the storage cap.
   await prisma.$executeRawUnsafe('TRUNCATE TABLE "RetailerPrice"');
-  await prisma.priceHistory.deleteMany();
+  // PriceHistory lives on a separate database (see src/lib/db-history.ts) —
+  // clear it there too so a reseed doesn't leave orphaned rows pointing at
+  // cardIds that no longer exist once Card is re-created below.
+  await dbHistory.priceHistory.deleteMany();
   await prisma.sealedListing.deleteMany();
   await prisma.card.deleteMany();
   await prisma.user.deleteMany();
@@ -398,5 +402,5 @@ main()
     process.exit(1);
   })
   .finally(async () => {
-    await prisma.$disconnect();
+    await Promise.all([prisma.$disconnect(), dbHistory.$disconnect()]);
   });

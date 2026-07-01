@@ -153,7 +153,6 @@ model Card {
   listings        Listing[]
   buyOrders       BuyOrder[]
   retailerPrices  RetailerPrice[]
-  priceHistory    PriceHistory[]
   priceAlerts     PriceAlert[]
   reviews         CardReview[]
 
@@ -273,6 +272,11 @@ model ContactMessage {
 // (CSFloat-style). Written by the importer: at most one row per card per
 // Australia/Sydney day — a same-day re-run (e.g. a deploy) replaces that day's
 // value. Collected in the backend now; the chart ships once a week+ exists.
+//
+// cardId is a plain string, NOT a Prisma relation — this table lives on a
+// separate physical database (see src/lib/db-history.ts) whose Card table is
+// never populated, so a real foreign key here would make every write fail
+// with a FK violation. Application code joins to Card in JS when needed.
 model PriceHistory {
   id               String   @id @default(cuid())
   cardId           String
@@ -283,8 +287,6 @@ model PriceHistory {
   day              DateTime @db.Date
   lowestPriceCents Int
   recordedAt       DateTime @default(now())
-
-  card             Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
 
   @@unique([cardId, country, day])
   @@index([cardId, country, day])
