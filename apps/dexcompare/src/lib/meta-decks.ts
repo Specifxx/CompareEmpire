@@ -24,6 +24,7 @@ export const META_DECKS: MetaDeckSeed[] = (metaDecksData.decks ?? []) as MetaDec
 
 export interface ResolvedCardData {
   id: string;
+  slug: string | null;
   name: string;
   nameNormalized: string;
   setCode: string;
@@ -61,6 +62,7 @@ export interface ResolvedDeck extends MetaDeckSeed {
 
 const CARD_SELECT = {
   id: true,
+  slug: true,
   name: true,
   nameNormalized: true,
   setCode: true,

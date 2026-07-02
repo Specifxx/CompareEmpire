@@ -58,5 +58,13 @@ const nextConfig = {
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },
+  async redirects() {
+    return [
+      // /cheapest was removed (replaced by the value pages); Google still knows
+      // the URL (GSC "Not found (404)"). 301 to /deals to close the 404 and
+      // recover any residual link equity.
+      { source: "/cheapest", destination: "/deals", permanent: true },
+    ];
+  },
 };
 module.exports = nextConfig;

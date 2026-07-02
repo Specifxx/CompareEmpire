@@ -111,57 +111,66 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
 
   // ── Sitemap 1: card singles (~20 k URLs) ──────────────────────────────────
   if (id === 1) {
-    try {
-      // Only cards priced in AT LEAST ONE market: cards with no price anywhere
-      // render a thin "No prices found yet" shell and carry noindex (see
-      // card/[id]/page.tsx generateMetadata) — submitting noindexed URLs sends
-      // Google a mixed signal. A card re-enters the sitemap automatically the
-      // day the importer prices it.
-      const cards = await prisma.card.findMany({
-        where: {
-          OR: [
-            { lowestPriceCents: { not: null } },
-            { lowestPriceCentsNz: { not: null } },
-            { lowestPriceCentsUs: { not: null } },
-            { lowestPriceCentsGb: { not: null } },
-          ],
-        },
-        select: { id: true, slug: true, lowestPriceCents: true, imageUrl: true },
-        orderBy: { lowestPriceCents: { sort: "desc", nulls: "last" } },
-      });
-      return cards.map((c) => ({
-        url: `${SITE_URL}/card/${c.slug ?? c.id}`,
-        changeFrequency: "daily" as const,
-        priority: c.lowestPriceCents != null ? 0.8 : 0.6,
-        lastModified: priceDay,
-        // Image sitemap: surface each card's unique art to image search (absolute URLs only).
-        ...(c.imageUrl && c.imageUrl.startsWith("http") ? { images: [c.imageUrl] } : {}),
-      }));
-    } catch {
-      return [];
+    // FAIL LOUDLY on DB errors — never `return []`. An empty array serializes
+    // as a VALID 200 <urlset/>, so a transient Neon blip at any hourly ISR
+    // revalidation used to silently REPLACE the 20k-URL sitemap with an empty
+    // one that Google accepts as "Success — 0 pages discovered" (the exact GSC
+    // symptom this site had). Throwing instead makes ISR keep serving the last
+    // good cached copy (and fails the build loudly rather than shipping an
+    // empty sitemap).
+    //
+    // Only cards priced in AT LEAST ONE market: cards with no price anywhere
+    // render a thin "No prices found yet" shell and carry noindex (see
+    // card/[id]/page.tsx generateMetadata) — submitting noindexed URLs sends
+    // Google a mixed signal. A card re-enters the sitemap automatically the
+    // day the importer prices it.
+    const cards = await prisma.card.findMany({
+      where: {
+        OR: [
+          { lowestPriceCents: { not: null } },
+          { lowestPriceCentsNz: { not: null } },
+          { lowestPriceCentsUs: { not: null } },
+          { lowestPriceCentsGb: { not: null } },
+        ],
+      },
+      select: { id: true, slug: true, lowestPriceCents: true, imageUrl: true },
+      orderBy: { lowestPriceCents: { sort: "desc", nulls: "last" } },
+    });
+    // Zero priced cards is never a valid production state (it means the DB was
+    // reseeded before the price importer ran) — refuse to publish it.
+    if (cards.length === 0) {
+      throw new Error("sitemap: card bucket resolved to 0 priced cards — refusing to publish an empty sitemap");
     }
+    return cards.map((c) => ({
+      url: `${SITE_URL}/card/${c.slug ?? c.id}`,
+      changeFrequency: "daily" as const,
+      priority: c.lowestPriceCents != null ? 0.8 : 0.6,
+      lastModified: priceDay,
+      // Image sitemap: surface each card's unique art to image search (absolute URLs only).
+      ...(c.imageUrl && c.imageUrl.startsWith("http") ? { images: [c.imageUrl] } : {}),
+    }));
   }
 
   // ── Sitemap 2: sealed product pages (~500 URLs) ────────────────────────────
   if (id === 2) {
-    try {
-      const sealed = await getSealedGroups("AU");
-      const seenSlugs = new Set<string>();
-      const routes: MetadataRoute.Sitemap = [];
-      for (const g of sealed) {
-        if (seenSlugs.has(g.slug)) continue;
-        seenSlugs.add(g.slug);
-        routes.push({
-          url: `${SITE_URL}/sealed/${g.slug}`,
-          changeFrequency: "daily" as const,
-          priority: g.lowestPriceCents != null ? 0.75 : 0.55,
-          lastModified: g.lowestPriceCents != null ? priceDay : undefined,
-        });
-      }
-      return routes;
-    } catch {
-      return [];
+    // Same fail-loud policy as bucket 1 — no silent empty-200s.
+    const sealed = await getSealedGroups("AU");
+    const seenSlugs = new Set<string>();
+    const routes: MetadataRoute.Sitemap = [];
+    for (const g of sealed) {
+      if (seenSlugs.has(g.slug)) continue;
+      seenSlugs.add(g.slug);
+      routes.push({
+        url: `${SITE_URL}/sealed/${g.slug}`,
+        changeFrequency: "daily" as const,
+        priority: g.lowestPriceCents != null ? 0.75 : 0.55,
+        lastModified: g.lowestPriceCents != null ? priceDay : undefined,
+      });
     }
+    if (routes.length === 0) {
+      throw new Error("sitemap: sealed bucket resolved to 0 products — refusing to publish an empty sitemap");
+    }
+    return routes;
   }
 
   return [];

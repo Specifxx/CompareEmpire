@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useCountry } from "./CountryProvider";
+import { cardHref } from "@/lib/card-url";
 
 // UTF-8-safe base64 so a decklist (incl. accented names) survives a URL round-trip.
 function encodeList(text: string): string {
@@ -27,6 +28,7 @@ interface Item {
 
 interface DeckBuilderCard {
   id: string;
+  slug?: string | null;
   name: string;
   setCode: string;
   collectorNumber: string;
@@ -247,7 +249,7 @@ export function DeckBuilder({ initialList }: { initialList?: string }) {
                     )}
                     <div className="min-w-0 flex-1">
                       {it.card ? (
-                        <Link href={`/card/${it.card.id}`} className="font-medium text-white hover:text-brand-400">
+                        <Link href={cardHref(it.card)} className="font-medium text-white hover:text-brand-400">
                           {it.card.name}
                         </Link>
                       ) : (
