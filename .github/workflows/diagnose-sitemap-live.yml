@@ -1,0 +1,75 @@
+name: Diagnose live sitemap + card-page indexability (manual, read-only)
+
+# Fetches exactly what Googlebot receives from production: the sitemap index,
+# every child sitemap (status, Content-Type, URL counts, sample entries), the
+# robots.txt, and a sample card page's RAW HTML (canonical, title, meta
+# robots, server-rendered content). Diagnoses GSC's "sitemap discovers 0
+# pages" and "crawled - not indexed / canonical N/A" reports.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Sitemap index
+        run: |
+          set -e
+          echo "== GET /sitemap.xml =="
+          curl -fsSL -D /tmp/h.txt https://dexcompare.app/sitemap.xml -o /tmp/index.xml
+          grep -iE "^(HTTP|content-type|x-vercel-cache|cache-control|age)" /tmp/h.txt || true
+          echo "-- body --"; cat /tmp/index.xml
+          grep -o "<loc>[^<]*</loc>" /tmp/index.xml | sed "s/<[^>]*>//g" > /tmp/children.txt
+          echo "-- children found: $(wc -l < /tmp/children.txt) --"; cat /tmp/children.txt
+
+      - name: Each child sitemap — status, type, URL count, samples
+        run: |
+          set -e
+          while read -r URL; do
+            echo "===================================================="
+            echo "== GET $URL =="
+            CODE=$(curl -sSL -D /tmp/ch.txt -o /tmp/child.xml -w "%{http_code}" "$URL")
+            echo "HTTP $CODE"
+            grep -iE "^(content-type|x-vercel-cache|cache-control|age|content-length)" /tmp/ch.txt || true
+            BYTES=$(wc -c < /tmp/child.xml)
+            COUNT=$(grep -o "<loc>" /tmp/child.xml | wc -l)
+            LASTMOD=$(grep -c "<lastmod>" /tmp/child.xml || true)
+            echo "bytes=$BYTES url_count=$COUNT lastmod_count=$LASTMOD"
+            echo "-- first 3 entries --"
+            grep -o "<loc>[^<]*</loc>" /tmp/child.xml | head -3
+            echo "-- last entry --"
+            grep -o "<loc>[^<]*</loc>" /tmp/child.xml | tail -1
+            # Save a card URL for the next step
+            grep -o "<loc>[^<]*</loc>" /tmp/child.xml | sed "s/<[^>]*>//g" | grep "/card/" | head -1 >> /tmp/cardurls.txt || true
+          done < /tmp/children.txt
+          echo "===================================================="
+          echo "sample card URLs collected:"; cat /tmp/cardurls.txt 2>/dev/null || echo "(none — card child is EMPTY)"
+
+      - name: robots.txt
+        run: |
+          curl -fsSL https://dexcompare.app/robots.txt
+
+      - name: Sample card page — raw HTML indexability
+        run: |
+          set -e
+          CARD=$(head -1 /tmp/cardurls.txt 2>/dev/null || true)
+          if [ -z "$CARD" ]; then
+            # Card sitemap empty — find a card via the browse page instead
+            CARD="https://dexcompare.app$(curl -fsSL https://dexcompare.app/browse | grep -o 'href="/card/[a-z0-9-]*"' | head -1 | sed 's/^href="//;s/"$//')"
+            echo "(card sitemap empty — using card from /browse instead)"
+          fi
+          echo "== GET $CARD =="
+          curl -fsSL -D /tmp/cardh.txt "$CARD" -o /tmp/card.html
+          grep -iE "^(HTTP|content-type|x-vercel-cache|x-robots-tag)" /tmp/cardh.txt || true
+          echo "-- canonical --";  grep -o '<link rel="canonical"[^>]*>' /tmp/card.html || echo "MISSING CANONICAL"
+          echo "-- title --";      grep -o "<title>[^<]*</title>" /tmp/card.html | head -1
+          echo "-- meta desc --";  grep -o '<meta name="description"[^>]*>' /tmp/card.html | head -1 | cut -c1-220
+          echo "-- meta robots --";grep -o '<meta name="robots"[^>]*>' /tmp/card.html || echo "(no meta robots = indexable)"
+          echo "-- h1 --";         grep -o "<h1[^>]*>.*</h1>" /tmp/card.html | head -1 | cut -c1-200
+          echo "-- SSR content check --"
+          grep -q "Price comparison" /tmp/card.html && echo "OK: store table server-rendered" || echo "WARN: no price table in raw HTML"
+          grep -c 'href="/card/' /tmp/card.html | xargs echo "internal /card/ links in raw HTML:"
+          grep -c 'application/ld+json' /tmp/card.html | xargs echo "JSON-LD blocks:"
+          wc -c < /tmp/card.html | xargs echo "raw HTML bytes:"
