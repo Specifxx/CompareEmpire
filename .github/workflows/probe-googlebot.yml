@@ -1,0 +1,38 @@
+name: Probe as Googlebot UA (manual, read-only)
+
+# Fetches the sitemaps + a card page + homepage with Googlebot's user-agent
+# string to detect UA-conditional responses (firewall challenges, bot
+# blocking) that plain curl wouldn't see. NOTE: a challenge here would NOT
+# prove real Googlebot is blocked (some firewalls verify Googlebot IPs and
+# challenge spoofed UAs harder) — but a clean 200 proves there is no
+# UA-based blocking at the app/CDN layer.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Fetch key URLs with Googlebot UA
+        run: |
+          UA="Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
+          for URL in \
+            https://dexcompare.app/sitemap.xml \
+            https://dexcompare.app/sitemap/0.xml \
+            https://dexcompare.app/sitemap/1.xml \
+            https://dexcompare.app/sitemap/2.xml \
+            https://dexcompare.app/robots.txt \
+            https://dexcompare.app/ \
+            https://dexcompare.app/card/ex13-104-pikachu ; do
+            echo "================================================"
+            echo "== $URL =="
+            CODE=$(curl -sSL -A "$UA" -D /tmp/h.txt -o /tmp/body.bin -w "%{http_code} time=%{time_total}s size=%{size_download}" "$URL")
+            echo "HTTP $CODE"
+            grep -iE "^(content-type|x-vercel|server|cf-|x-robots-tag|retry-after)" /tmp/h.txt || true
+            # Detect challenge/interstitial pages
+            head -c 300 /tmp/body.bin | grep -qiE "challenge|captcha|verify you are|attention required" \
+              && { echo "!!! CHALLENGE PAGE DETECTED — first 300 bytes:"; head -c 300 /tmp/body.bin; echo; } \
+              || echo "body looks normal ($(head -c 60 /tmp/body.bin | tr -d '\n' | cut -c1-60)...)"
+          done
