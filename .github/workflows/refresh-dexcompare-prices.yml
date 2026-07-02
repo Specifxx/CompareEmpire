@@ -11,9 +11,6 @@ name: Refresh DexCompare prices (daily)
 # the URL as an input instead.
 
 on:
-  # Re-enabled 2026-06-28 — DexCompare is back online on the new DB. This run is
-  # the authoritative writer of the daily PriceHistory snapshot (the Vercel cron
-  # times out first), which powers the Index, Market Wrap, trend charts + movers.
   schedule:
     - cron: "30 18 * * *" # 04:30 Sydney (AEST) daily, before the AU morning
   workflow_dispatch:
@@ -33,6 +30,7 @@ jobs:
         env:
           SECRET_URL: ${{ secrets.DEXCOMPARE_DATABASE_URL }}
           INPUT_URL: ${{ inputs.dexcompare_url }}
+          HISTORY_URL: ${{ secrets.HISTORY_DATABASE_URL }}
         run: |
           URL="${INPUT_URL:-$SECRET_URL}"
           if [ -z "$URL" ]; then
@@ -43,16 +41,15 @@ jobs:
             echo "::add-mask::$URL"
             # Secrets can't travel via step outputs; hand it to later steps as an env var.
             echo "DATABASE_URL=$URL" >> "$GITHUB_ENV"
+            if [ -n "$HISTORY_URL" ]; then
+              echo "::add-mask::$HISTORY_URL"
+              echo "HISTORY_DATABASE_URL=$HISTORY_URL" >> "$GITHUB_ENV"
+            fi
             echo "found=true" >> "$GITHUB_OUTPUT"
           fi
 
-      # Run the PRODUCTION app code (main), not this default branch — main carries
-      # the maintained import + matcher (and the data-quality gate). Scheduled
-      # workflows must live on the default branch, but they operate on main.
       - uses: actions/checkout@v4
         if: steps.db.outputs.found == 'true'
-        with:
-          ref: main
 
       - uses: actions/setup-node@v4
         if: steps.db.outputs.found == 'true'

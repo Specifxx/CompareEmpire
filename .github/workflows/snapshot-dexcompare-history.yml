@@ -16,6 +16,10 @@ on:
         description: "Override DATABASE_URL (defaults to the repo secret)"
         required: false
         default: ""
+      history_database_url:
+        description: "Override HISTORY_DATABASE_URL (defaults to the repo secret)"
+        required: false
+        default: ""
 
 jobs:
   snapshot:
@@ -30,6 +34,7 @@ jobs:
         working-directory: apps/dexcompare
         env:
           DATABASE_URL: ${{ inputs.dexcompare_url || secrets.DEXCOMPARE_DATABASE_URL }}
+          HISTORY_DATABASE_URL: ${{ inputs.history_database_url || secrets.HISTORY_DATABASE_URL }}
         run: |
           npm install --no-audit --no-fund
           npx prisma generate

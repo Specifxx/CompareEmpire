@@ -84,6 +84,7 @@ jobs:
         id: db
         env:
           SECRET_URL: ${{ secrets.DEXCOMPARE_DATABASE_URL }}
+          HISTORY_URL: ${{ secrets.HISTORY_DATABASE_URL }}
         run: |
           if [ -z "$SECRET_URL" ]; then
             echo "No DEXCOMPARE_DATABASE_URL secret — skipping the data gate." >> "$GITHUB_STEP_SUMMARY"
@@ -91,6 +92,10 @@ jobs:
           else
             echo "::add-mask::$SECRET_URL"
             echo "DATABASE_URL=$SECRET_URL" >> "$GITHUB_ENV"
+            if [ -n "$HISTORY_URL" ]; then
+              echo "::add-mask::$HISTORY_URL"
+              echo "HISTORY_DATABASE_URL=$HISTORY_URL" >> "$GITHUB_ENV"
+            fi
             echo "found=true" >> "$GITHUB_OUTPUT"
           fi
       - uses: actions/checkout@v4
