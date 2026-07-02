@@ -6,14 +6,16 @@ import { MobileNav } from "./MobileNav";
 import { NavLauncherButton } from "./NavLauncherButton";
 import { CountrySwitcher } from "./CountrySwitcher";
 import { Logo } from "./Logo";
-import { UserMenu } from "./UserMenu";
-import { getCurrentUser } from "@/lib/auth";
+import { NavUser } from "./NavUser";
 
 // Deliberately minimal: the database (browse/search) is the whole product. The only
 // other controls are the market/country switcher, the (cookie-based) wishlist and
 // the account menu.
-export async function Navbar() {
-  const user = await getCurrentUser();
+//
+// NO server-side session read here: the navbar renders on every route, so a
+// cookies() read would force the whole site dynamic (killing ISR). NavUser
+// fetches the session client-side via /api/me instead.
+export function Navbar() {
   return (
     <header className="sticky top-0 z-40 border-b border-ink-800 bg-ink-950/95">
       <div className="container-app">
@@ -48,18 +50,7 @@ export async function Navbar() {
           <NavLauncherButton compact className="ml-1 hidden lg:inline-flex" />
           <CountrySwitcher className="ml-1" />
           <NavWishlistButton />
-          <UserMenu
-            user={
-              user
-                ? {
-                    displayName: user.displayName,
-                    email: user.email,
-                    avatarUrl: user.avatarUrl,
-                    emailVerified: user.emailVerified,
-                  }
-                : null
-            }
-          />
+          <NavUser />
           <MobileNav />
         </nav>
        </div>

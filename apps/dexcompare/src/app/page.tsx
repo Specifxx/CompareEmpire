@@ -6,16 +6,18 @@ import { CountryHeroToggle } from "@/components/CountryHeroToggle";
 import { getHomeData } from "@/lib/home-data";
 import { getTopDeals } from "@/lib/deals";
 import { formatMoney } from "@/lib/format";
-import { getCountry } from "@/lib/get-country";
-import { COUNTRIES, type CountryInfo } from "@/lib/country";
+import { DEFAULT_COUNTRY } from "@/lib/country";
 import { Logo } from "@/components/Logo";
 import { CountUp } from "@/components/CountUp";
 import { SearchBar } from "@/components/SearchBar";
 import { HomeShoppableGrid } from "@/components/HomeShoppableGrid";
 
-// ISR while AU-only; becomes dynamic per-request when NZ mode is enabled (getCountry
-// then reads the country cookie).
-export const revalidate = 86400;
+// REAL ISR: this page renders a market-NEUTRAL baseline (no cookie/header
+// reads — copy names all four markets, data fetched for the AU baseline) so
+// Google indexes one coherent global page and every visitor gets fast cached
+// HTML. Client components (CardTile, CountryHeroToggle, SearchBar) localise
+// prices to the visitor's market after hydration via CountryProvider.
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: { absolute: "Buy & Compare Pokémon Card Prices | DexCompare" },
@@ -35,44 +37,38 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
 };
 
-function ebayLabel(country: string): string | null {
-  return country === "AU" ? "eBay AU" : country === "US" ? "eBay US" : null;
-}
-
-function faqsFor(info: CountryInfo, ebay: string | null): { q: string; a: string }[] {
-  const { adjective, place, currency } = info;
-  return [
-    {
-      q: `Where can I buy Pokémon cards in ${place}?`,
-      a: `DexCompare compares live Pokémon prices across a wide range of ${adjective} stores${ebay ? ` plus ${ebay}` : ""}, so you can buy Pokémon cards from whichever shop is cheapest. Search any card to see every store's price and click straight through to buy.`,
-    },
-    {
-      q: `How do I find the cheapest Pokémon prices in ${place}?`,
-      a: `Search or browse the card database and each card shows the lowest live price across ${adjective} stores, ranked by total delivered cost (item plus shipping). It's the fastest way to find the cheapest Pokémon cards in ${place}.`,
-    },
-    {
-      q: "How many Pokémon cards does DexCompare track?",
-      a: `DexCompare covers a comprehensive database of Pokémon singles, each priced live across ${adjective} retailers so you can always find the cheapest place to buy.`,
-    },
-    {
-      q: "How much are my Pokémon cards worth?",
-      a: `Use the free Pokémon card value checker: search any card by name and collector number to see its live market value plus real ${adjective} store prices, updated daily.`,
-    },
-    {
-      q: `Are the Pokémon prices shown in ${currency}?`,
-      a: `Yes. Every price is the live ${adjective} price in ${currency}, so there are no surprise currency conversions — what you see is what you pay locally.`,
-    },
-  ];
-}
+// MARKET-NEUTRAL FAQs: Googlebot crawls from US IPs and this page is cached,
+// so exactly one version is ever indexed/served — copy that names all four
+// markets ranks in all four, and the country names double as keywords.
+const FAQS: { q: string; a: string }[] = [
+  {
+    q: "Where can I buy Pokémon cards online?",
+    a: "DexCompare compares live Pokémon prices across a wide range of local stores in Australia, New Zealand, the US and the UK, plus eBay (AU, US and UK), so you can buy Pokémon cards from whichever shop is cheapest. Search any card to see every store's price and click straight through to buy.",
+  },
+  {
+    q: "How do I find the cheapest Pokémon card prices?",
+    a: "Search or browse the card database — every card shows the lowest live price across the stores in your market, ranked by total delivered cost (item plus shipping). It's the fastest way to find the cheapest Pokémon cards wherever you are.",
+  },
+  {
+    q: "How many Pokémon cards does DexCompare track?",
+    a: "DexCompare covers a comprehensive database of Pokémon singles, each priced live across local retailers so you can always find the cheapest place to buy.",
+  },
+  {
+    q: "How much are my Pokémon cards worth?",
+    a: "Use the free Pokémon card value checker: search any card by name and collector number to see its live market value plus real store prices, updated daily.",
+  },
+  {
+    q: "Are the Pokémon prices shown in my local currency?",
+    a: "Yes. Prices are shown in the local currency of your selected market — AUD in Australia, NZD in New Zealand, USD in the US and GBP in the UK — so there are no surprise currency conversions.",
+  },
+];
 
 export default async function HomePage() {
-  const country = getCountry();
-  const info = COUNTRIES[country];
-  const ebay = ebayLabel(country);
-  const faqs = faqsFor(info, ebay);
+  // AU-baseline data on the cached render; client tiles re-price to the
+  // visitor's market after hydration (all four price columns ship with each card).
   const [{ totalCards, inStockUnits, storeCount, featuredGrid }, deals] = await Promise.all([
-    getHomeData(country),
-    getTopDeals(12, country),
+    getHomeData(DEFAULT_COUNTRY),
+    getTopDeals(12, DEFAULT_COUNTRY),
   ]);
 
   return (
@@ -98,7 +94,7 @@ export default async function HomePage() {
                 The Pokémon card <span className="text-brand-400">price database</span>
               </h1>
               <p className="max-w-2xl text-sm text-slate-400 sm:text-base">
-                Search <span className="num text-slate-300">{totalCards.toLocaleString()}</span> cards and compare every {info.adjective} store&apos;s live price to find the cheapest place to buy.
+                Search <span className="num text-slate-300">{totalCards.toLocaleString()}</span> cards and compare live prices across Australian, NZ, US and UK stores to find the cheapest place to buy.
               </p>
 
               {/* Search — the primary action */}
@@ -134,14 +130,14 @@ export default async function HomePage() {
                 <span className="text-ink-700" aria-hidden>·</span>
                 <Stat value={inStockUnits} label="in-stock listings" />
                 <span className="text-ink-700" aria-hidden>·</span>
-                <Stat value={storeCount} label={`${info.code} stores`} />
+                <Stat value={storeCount} label="AU stores" />
               </div>
             </div>
           </div>
         </section>
 
         {/* ── Browse the database (the core) ── */}
-        <HomeShoppableGrid cards={featuredGrid} totalCards={totalCards} storeCount={storeCount} adjective={info.adjective} />
+        <HomeShoppableGrid cards={featuredGrid} totalCards={totalCards} storeCount={storeCount} adjective="local" />
 
         {/* ── One highlight: today's best deals ── */}
         {deals.length >= 4 && (
@@ -152,7 +148,7 @@ export default async function HomePage() {
                   <span className="h-5 w-1 bg-brand-500" aria-hidden />
                   Today&apos;s best deals
                 </h2>
-                <p className="mt-1 text-xs text-slate-400">{info.adjective} store prices well below the TCGplayer market guide right now.</p>
+                <p className="mt-1 text-xs text-slate-400">Australian store prices well below the TCGplayer market guide right now.</p>
               </div>
               <Link href="/deals" className="btn-ghost shrink-0 text-xs">All deals →</Link>
             </div>
@@ -161,7 +157,7 @@ export default async function HomePage() {
                 <div key={d.card.id} className="w-36 shrink-0 snap-start sm:w-44">
                   <div className="mb-1.5 flex items-center justify-between px-1 text-xs font-bold">
                     <span className="num text-up">−{d.pct}%</span>
-                    <span className="num text-slate-500 line-through">{formatMoney(d.guideCents, info.currency)}</span>
+                    <span className="num text-slate-500 line-through">{formatMoney(d.guideCents, "AUD")}</span>
                   </div>
                   <CardTile card={d.card} />
                 </div>
@@ -172,14 +168,14 @@ export default async function HomePage() {
 
         {/* ── About + FAQ (SEO) ── */}
         <section className="card-surface p-6">
-          <h2 className="text-xl font-extrabold text-white sm:text-2xl">Pokémon prices in {info.place}, all in one place</h2>
+          <h2 className="text-xl font-extrabold text-white sm:text-2xl">Pokémon prices in Australia, New Zealand, the US &amp; UK — all in one place</h2>
           <p className="mt-2 max-w-3xl text-sm leading-relaxed text-slate-400">
             DexCompare is a free, independent price-comparison tool for the Pokémon Trading Card Game. We track live prices
-            for every Pokémon card across {info.adjective} stores{ebay ? ` and ${ebay}` : ""} so you can buy Pokémon cards
-            in {info.place} for less — find the cheapest store for any single, fast.
+            for every Pokémon card across local stores in Australia, New Zealand, the US and the UK, plus eBay (AU, US and
+            UK), so you can buy Pokémon cards for less — find the cheapest store for any single, fast.
           </p>
           <div className="mt-6 grid gap-5 sm:grid-cols-2">
-            {faqs.map((f) => (
+            {FAQS.map((f) => (
               <div key={f.q}>
                 <h3 className="font-semibold text-white">{f.q}</h3>
                 <p className="mt-1 text-sm leading-relaxed text-slate-400">{f.a}</p>
@@ -194,7 +190,7 @@ export default async function HomePage() {
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "FAQPage",
-              mainEntity: faqs.map((f) => ({
+              mainEntity: FAQS.map((f) => ({
                 "@type": "Question",
                 name: f.q,
                 acceptedAnswer: { "@type": "Answer", text: f.a },

@@ -24,16 +24,38 @@ export function CountryProvider({ initial, children }: { initial: Country; child
   const [country, setState] = useState<Country>(INTL_ENABLED ? initial : "AU");
   const router = useRouter();
 
-  // Static pages (blog/guides) are prerendered at build time with the default
-  // country baked in. After mount, reconcile with the real cookie so the selector
-  // and any client prices match the user's actual choice. Runs post-hydration, so
-  // it can't cause a hydration mismatch; no router.refresh (nothing server-rendered
-  // here depends on it — dynamic pages already read the cookie server-side).
+  // Pages are server-rendered/cached with the AU default baked in (the shared
+  // chrome deliberately no longer reads the country cookie — that dynamic read
+  // used to force every route to render per-request, killing ISR). After
+  // mount, reconcile with the real cookie so the selector and all
+  // client-localised prices match the user's actual choice. Runs
+  // post-hydration, so it can't cause a hydration mismatch. First-time
+  // visitors with no cookie get one geo-detection fetch (/api/geo reads
+  // Vercel's IP-country header) so NZ/US/UK visitors still land on their
+  // local market automatically.
   useEffect(() => {
     if (!INTL_ENABLED) return; // AU-only: ignore any country cookie
     const m = document.cookie.match(new RegExp(`(?:^|; )${COUNTRY_COOKIE}=([^;]*)`));
-    const cookieCountry = normalizeCountry(m ? decodeURIComponent(m[1]) : undefined);
-    if (cookieCountry !== country) setState(cookieCountry);
+    if (m) {
+      const cookieCountry = normalizeCountry(decodeURIComponent(m[1]));
+      if (cookieCountry !== country) setState(cookieCountry);
+      return;
+    }
+    let cancelled = false;
+    fetch("/api/geo")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!cancelled && d?.country) {
+          const geo = normalizeCountry(d.country);
+          setState((prev) => (geo !== prev ? geo : prev));
+        }
+      })
+      .catch(() => {
+        /* geo is best-effort — the AU default stands */
+      });
+    return () => {
+      cancelled = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -41,7 +63,8 @@ export function CountryProvider({ initial, children }: { initial: Country; child
     (c: Country) => {
       if (!INTL_ENABLED || c === country) return;
       setState(c);
-      // 1-year cookie so the choice persists; server components read it via getCountry().
+      // 1-year cookie so the choice persists; the remaining dynamic pages
+      // (e.g. the card page's store table) read it server-side via getCountry().
       document.cookie = `${COUNTRY_COOKIE}=${c}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
       // Re-render server components (prices, store lists) for the new market.
       router.refresh();

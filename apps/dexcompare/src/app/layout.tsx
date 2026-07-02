@@ -15,11 +15,9 @@ import { PriceAlertModal } from "@/components/PriceAlertModal";
 import { MegaMenuProvider } from "@/components/MegaMenuProvider";
 import { SovrnSnippet } from "@/components/SovrnSnippet";
 import { HilltopAdsLoader } from "@/components/HilltopAdsLoader";
-import { TcgplayerAd } from "@/components/TcgplayerAd";
-import { EbayAd } from "@/components/EbayAd";
+import { FooterAds } from "@/components/FooterAds";
 import { PathGate } from "@/components/PathGate";
-import { getCountry } from "@/lib/get-country";
-import { COUNTRIES } from "@/lib/country";
+import { DEFAULT_COUNTRY } from "@/lib/country";
 import { CONTACT_EMAIL, SITE_NAME, SITE_URL } from "@/lib/site";
 import { IMPACT_SITE_VERIFICATION } from "@/lib/affiliate";
 
@@ -117,10 +115,15 @@ const orgJsonLd = {
   ],
 };
 
+// CRITICAL FOR CACHING: this layout must never read cookies()/headers()
+// (directly or via getCountry()/getCurrentUser()). A dynamic-API read in the
+// root layout opts EVERY route into per-request rendering, silently disabling
+// all the page-level `revalidate` exports across the site. Market and session
+// are resolved client-side instead (CountryProvider reconciles from
+// document.cookie + /api/geo; NavUser/AccountSync fetch /api/me).
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const country = getCountry();
   return (
-    <html lang={COUNTRIES[country].locale} className={`${sora.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
+    <html lang="en" className={`${sora.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
       <head>
         {/* Mark JS as available before first paint so the scroll-reveal CSS only
             hides content for users who can actually see the animation. Non-JS
@@ -139,7 +142,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-screen bg-ink-950">
         <a href="#main-content" className="skip-link">Skip to content</a>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }} />
-        <CountryProvider initial={country}>
+        <CountryProvider initial={DEFAULT_COUNTRY}>
         <MegaMenuProvider>
         <WishlistDrawerProvider>
           <QuickViewProvider>
@@ -154,21 +157,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </QuickViewProvider>
         </WishlistDrawerProvider>
         <PriceAlertModal />
+        {/* Site-wide affiliate banners above the footer — BOTH live partners
+            (TCGplayer Impact + eBay Partner Network) on every page, so no page
+            is left unmonetised. Both are CPC/affiliate: they pay on click-through
+            purchases, so placement-where-relevant beats raw banner count.
+            FooterAds reads the market from the client country context (inside
+            CountryProvider) so the layout stays cookie-free and cacheable. */}
+        <PathGate allow={["/", "/browse", "/card", "/sealed", "/deals", "/market", "/card-value", "/sets", "/restock"]}>
+          <FooterAds />
+        </PathGate>
         </MegaMenuProvider>
         </CountryProvider>
         <SovrnSnippet />
         {/* HilltopAds zone loader — the primary ad network, injected site-wide. */}
         <HilltopAdsLoader />
-        {/* Site-wide affiliate banners above the footer — BOTH live partners
-            (TCGplayer Impact + eBay Partner Network) on every page, so no page
-            is left unmonetised. Both are CPC/affiliate: they pay on click-through
-            purchases, so placement-where-relevant beats raw banner count. */}
-        <PathGate allow={["/", "/browse", "/card", "/sealed", "/deals", "/market", "/card-value", "/sets", "/restock"]}>
-          <div className="container-app flex flex-col items-center gap-3 pb-8">
-            <TcgplayerAd size="leaderboard" country={country} />
-            <EbayAd size="leaderboard" country={country} />
-          </div>
-        </PathGate>
         <footer className="container-app border-t border-ink-800 py-8 text-center text-xs text-slate-500">
           <p className="mb-4">
             <a
