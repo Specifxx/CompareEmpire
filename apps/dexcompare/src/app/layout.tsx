@@ -138,6 +138,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Warm up the image CDN connection so card thumbnails start loading sooner. */}
         <link rel="preconnect" href="https://images.pokemontcg.io" crossOrigin="" />
         <link rel="dns-prefetch" href="https://images.pokemontcg.io" />
+        {/* RSS auto-discovery on every page: feed readers, aggregators and
+            auto-posting services find /feed.xml without guessing. Placed in the
+            head JSX (not metadata.alternates) so page-level `alternates`
+            canonicals can never shadow it. */}
+        <link rel="alternate" type="application/rss+xml" title="DexCompare — Pokémon TCG Blog & Guides" href="/feed.xml" />
       </head>
       <body className="min-h-screen bg-ink-950">
         <a href="#main-content" className="skip-link">Skip to content</a>

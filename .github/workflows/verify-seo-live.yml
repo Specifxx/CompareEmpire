@@ -1,0 +1,86 @@
+name: Verify SEO surfaces on the live sites (manual, read-only)
+
+# End-to-end check that the SEO/ISR work is actually serving in production on
+# BOTH sites (runs on GitHub's runners; the dev container has no egress to the
+# production domains). Verifies:
+#  - the market-neutral homepage copy is live (proves the new DB-dependent
+#    Vercel build succeeded — pages now prerender at build time)
+#  - ISR is really on: a repeat request to the homepage returns a Vercel cache
+#    HIT/STALE instead of per-request MISSes
+#  - /sitemap.xml serves a real <sitemapindex>, /feed.xml serves RSS,
+#    /llms.txt serves the agent site map, robots.txt intact
+#  - RiftCompare: neutral hero live, /card-value linked from the chrome
+
+on:
+  workflow_dispatch:
+
+jobs:
+  dexcompare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Homepage — neutral copy live (new build deployed)
+        run: |
+          set -e
+          BODY=$(curl -fsSL --retry 3 https://dexcompare.app/)
+          echo "$BODY" | grep -q "across Australian, NZ, US and UK stores" \
+            && echo "OK: neutral hero copy live" \
+            || { echo "FAIL: neutral copy missing — new deploy not live?"; exit 1; }
+          echo "$BODY" | grep -q "Where can I buy Pokémon cards online?" \
+            && echo "OK: neutral FAQs live" || { echo "FAIL: neutral FAQs missing"; exit 1; }
+
+      - name: Homepage — ISR cache actually working
+        run: |
+          set -e
+          curl -fsSL -o /dev/null https://dexcompare.app/   # warm
+          sleep 2
+          H=$(curl -fsSL -D - -o /dev/null https://dexcompare.app/ | tr -d '\r')
+          echo "$H" | grep -i "x-vercel-cache" || echo "(no x-vercel-cache header)"
+          echo "$H" | grep -qiE "x-vercel-cache: (HIT|STALE)" \
+            && echo "OK: homepage served from ISR cache" \
+            || { echo "WARN: no cache HIT on repeat request — check again after a few visits"; }
+
+      - name: Sitemap index, RSS, llms.txt, robots
+        run: |
+          set -e
+          curl -fsSL --retry 3 https://dexcompare.app/sitemap.xml | grep -q "<sitemapindex" \
+            && echo "OK: /sitemap.xml is a real sitemap index" || { echo "FAIL: sitemap.xml wrong"; exit 1; }
+          curl -fsSL --retry 3 https://dexcompare.app/feed.xml | grep -q "<rss" \
+            && echo "OK: /feed.xml serves RSS" || { echo "FAIL: feed.xml broken"; exit 1; }
+          curl -fsSL --retry 3 https://dexcompare.app/llms.txt | grep -q "# DexCompare" \
+            && echo "OK: /llms.txt serves" || { echo "FAIL: llms.txt broken (deploy pending?)"; exit 1; }
+          curl -fsSL --retry 3 https://dexcompare.app/robots.txt | grep -q "sitemap" \
+            && echo "OK: robots.txt intact" || { echo "FAIL: robots broken"; exit 1; }
+
+  riftcompare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Homepage — neutral hero live + card-value de-orphaned
+        run: |
+          set -e
+          BODY=$(curl -fsSL --retry 3 https://riftcompare.com/)
+          echo "$BODY" | grep -q "across AU, NZ, US &amp; UK stores" \
+            && echo "OK: neutral hero live" \
+            || { echo "FAIL: neutral hero missing — new deploy not live?"; exit 1; }
+          echo "$BODY" | grep -q 'href="/card-value"' \
+            && echo "OK: /card-value linked from chrome" || { echo "FAIL: card-value still orphaned"; exit 1; }
+
+      - name: Homepage — ISR cache actually working
+        run: |
+          set -e
+          curl -fsSL -o /dev/null https://riftcompare.com/   # warm
+          sleep 2
+          H=$(curl -fsSL -D - -o /dev/null https://riftcompare.com/ | tr -d '\r')
+          echo "$H" | grep -i "x-vercel-cache" || echo "(no x-vercel-cache header)"
+          echo "$H" | grep -qiE "x-vercel-cache: (HIT|STALE)" \
+            && echo "OK: homepage served from ISR cache" \
+            || { echo "WARN: no cache HIT on repeat request"; }
+
+      - name: Sitemap + feeds intact
+        run: |
+          set -e
+          curl -fsSL --retry 3 https://riftcompare.com/sitemap.xml | grep -q "vendetta" \
+            && echo "OK: pre-release set in sitemap" || { echo "FAIL: vendetta missing from sitemap"; exit 1; }
+          curl -fsSL --retry 3 https://riftcompare.com/feed.xml | grep -q "<rss" \
+            && echo "OK: feed.xml intact" || { echo "FAIL: feed broken"; exit 1; }
