@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getMarketWrap, wrapDays } from "@/lib/market-wrap";
+import { getGlobalIndex } from "@/lib/market-index";
 import { COUNTRIES, type Country } from "@/lib/country";
 import { formatMoney } from "@/lib/format";
 import { SITE_URL } from "@/lib/site";
+import { BreadthBar, DeltaChip, DivergingBar, IndexAreaChart, type SeriesPoint } from "@/components/WrapCharts";
 
 // ISR, not force-dynamic: a past day's wrap is immutable and the underlying
 // data is unstable_cache'd — cache the page so the "Read" click is instant.
@@ -51,6 +53,35 @@ export default async function MarketWrapDayPage({ params }: { params: { day: str
   const i = days.indexOf(wrap.day);
   const prev = i > 1 ? days[i - 1] : null; // previous day needs its own predecessor to have a wrap
   const next = i >= 0 && i < days.length - 1 ? days[i + 1] : null;
+
+  // Global index level up to (and including) this wrap's day — the hero chart.
+  // Cached (unstable_cache, 30 min) and gracefully empty while history is young.
+  const indexSeries: SeriesPoint[] = await getGlobalIndex({ kind: "all" })
+    .then((idx) =>
+      idx.points
+        .map((p) => ({ d: p.day.toISOString().slice(0, 10), v: p.cents / 100 }))
+        .filter((p) => p.d <= wrap.day)
+        .slice(-30)
+    )
+    .catch(() => []);
+
+  // Aggregate breadth across all markets with data (matched-pair comparisons).
+  const breadth = wrap.markets.reduce(
+    (acc, m) => {
+      if (m.d1 == null) return acc;
+      acc.rose += m.risers;
+      acc.fell += m.fallers;
+      acc.flat += Math.max(m.paired - m.risers - m.fallers, 0);
+      return acc;
+    },
+    { rose: 0, fell: 0, flat: 0 }
+  );
+
+  // Shared axes so bars are comparable within each chart.
+  const marketScale = Math.max(...wrap.markets.map((m) => Math.abs(m.d1 ?? 0)), 0.1);
+  const moverScale = wrap.insight
+    ? Math.max(...[...wrap.insight.gainers, ...wrap.insight.losers].map((m) => Math.abs(m.pct)), 0.1)
+    : 1;
 
   const articleLd = {
     "@context": "https://schema.org",
@@ -112,6 +143,57 @@ export default async function MarketWrapDayPage({ params }: { params: { day: str
         </div>
       </div>
 
+      {/* Hero chart: the global index into this session */}
+      {indexSeries.length >= 2 && (
+        <section className="mt-8">
+          <div className="card-surface p-4 sm:p-5">
+            <div className="mb-2 flex items-baseline justify-between gap-3">
+              <h2 className="text-sm font-bold uppercase tracking-wide text-slate-400">
+                DexCompare Global Index — last {indexSeries.length} sessions
+              </h2>
+              <DeltaChip pct={wrap.globalD1} />
+            </div>
+            <IndexAreaChart
+              series={indexSeries}
+              id="wrap-index"
+              ariaLabel={`DexCompare Global Index level over the last ${indexSeries.length} sessions, ending ${wrap.day}`}
+            />
+          </div>
+        </section>
+      )}
+
+      {/* Markets at a glance: zero-centred diverging bars on a shared axis */}
+      <section className="mt-8">
+        <h2 className="mb-2 text-xl font-extrabold text-white">Markets at a glance</h2>
+        <div className="card-surface space-y-2.5 p-4">
+          {wrap.markets.map((m) => {
+            const info = COUNTRIES[m.country as Country];
+            return (
+              <div key={m.country} className="flex items-center gap-3">
+                <span className="w-24 shrink-0 text-sm font-semibold text-white sm:w-32">{info.place}</span>
+                <DivergingBar pct={m.d1} scale={marketScale} />
+                <span className="w-20 shrink-0 text-right">
+                  <DeltaChip pct={m.d1} />
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Market breadth */}
+      {breadth.rose + breadth.fell + breadth.flat > 0 && (
+        <section className="mt-8">
+          <h2 className="mb-2 text-xl font-extrabold text-white">Market breadth</h2>
+          <div className="card-surface p-4">
+            <BreadthBar rose={breadth.rose} fell={breadth.fell} flat={breadth.flat} />
+            <p className="mt-2 text-[11px] text-slate-600">
+              Matched-pair card comparisons across all markets with data ({wrap.prevDay} → {wrap.day}).
+            </p>
+          </div>
+        </section>
+      )}
+
       {/* Per-market table */}
       <section className="mt-8">
         <h2 className="mb-2 text-xl font-extrabold text-white">Around the markets</h2>
@@ -168,14 +250,22 @@ export default async function MarketWrapDayPage({ params }: { params: { day: str
           <div className="grid gap-4 sm:grid-cols-2">
             {wrap.insight.gainers.length > 0 && (
               <div className="card-surface p-4">
-                <h3 className="mb-2 text-sm font-bold text-emerald-400">▲ Gainers</h3>
-                <ul className="space-y-2 text-sm">
+                <h3 className="mb-3 text-sm font-bold text-emerald-400">▲ Gainers</h3>
+                <ul className="space-y-2.5 text-sm">
                   {wrap.insight.gainers.map((m) => (
-                    <li key={m.id} className="flex items-center justify-between gap-2">
-                      <Link href={`/card/${m.slug ?? m.id}`} className="min-w-0 truncate text-slate-200 hover:text-brand-400">
-                        {m.name} <span className="text-slate-500">({m.setCode.toUpperCase()})</span>
-                      </Link>
-                      <span className="shrink-0 font-bold text-emerald-400">{pct(m.pct)}</span>
+                    <li key={m.id}>
+                      <div className="mb-1 flex items-center justify-between gap-2">
+                        <Link href={`/card/${m.slug ?? m.id}`} className="min-w-0 truncate text-slate-200 hover:text-brand-400">
+                          {m.name} <span className="text-slate-500">({m.setCode.toUpperCase()})</span>
+                        </Link>
+                        <span className="shrink-0"><DeltaChip pct={m.pct} /></span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <DivergingBar pct={m.pct} scale={moverScale} />
+                        <span className="num shrink-0 text-[11px] text-slate-500">
+                          {formatMoney(m.fromCents, COUNTRIES[wrap.insight!.country as Country].currency)} → {formatMoney(m.toCents, COUNTRIES[wrap.insight!.country as Country].currency)}
+                        </span>
+                      </div>
                     </li>
                   ))}
                 </ul>
@@ -183,14 +273,22 @@ export default async function MarketWrapDayPage({ params }: { params: { day: str
             )}
             {wrap.insight.losers.length > 0 && (
               <div className="card-surface p-4">
-                <h3 className="mb-2 text-sm font-bold text-red-400">▼ Fallers</h3>
-                <ul className="space-y-2 text-sm">
+                <h3 className="mb-3 text-sm font-bold text-red-400">▼ Fallers</h3>
+                <ul className="space-y-2.5 text-sm">
                   {wrap.insight.losers.map((m) => (
-                    <li key={m.id} className="flex items-center justify-between gap-2">
-                      <Link href={`/card/${m.slug ?? m.id}`} className="min-w-0 truncate text-slate-200 hover:text-brand-400">
-                        {m.name} <span className="text-slate-500">({m.setCode.toUpperCase()})</span>
-                      </Link>
-                      <span className="shrink-0 font-bold text-red-400">{pct(m.pct)}</span>
+                    <li key={m.id}>
+                      <div className="mb-1 flex items-center justify-between gap-2">
+                        <Link href={`/card/${m.slug ?? m.id}`} className="min-w-0 truncate text-slate-200 hover:text-brand-400">
+                          {m.name} <span className="text-slate-500">({m.setCode.toUpperCase()})</span>
+                        </Link>
+                        <span className="shrink-0"><DeltaChip pct={m.pct} /></span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <DivergingBar pct={m.pct} scale={moverScale} />
+                        <span className="num shrink-0 text-[11px] text-slate-500">
+                          {formatMoney(m.fromCents, COUNTRIES[wrap.insight!.country as Country].currency)} → {formatMoney(m.toCents, COUNTRIES[wrap.insight!.country as Country].currency)}
+                        </span>
+                      </div>
                     </li>
                   ))}
                 </ul>

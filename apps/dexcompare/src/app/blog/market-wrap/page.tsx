@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { latestWrapDay, wrapDays } from "@/lib/market-wrap";
+import { getGlobalIndex } from "@/lib/market-index";
+import { Sparkline, type SeriesPoint } from "@/components/WrapCharts";
 
 // ISR, not force-dynamic: the wrap data is already unstable_cache'd (30 min)
 // and a new edition only appears once a day (after the 04:30 Sydney price
@@ -24,6 +26,11 @@ export default async function MarketWrapIndex() {
   // Editions = every day with a predecessor, newest first.
   const editions = days.slice(1).reverse();
 
+  // Small index sparkline for the hero card (cached; empty while history is young).
+  const spark: SeriesPoint[] = await getGlobalIndex({ kind: "all" })
+    .then((idx) => idx.points.map((p) => ({ d: p.day.toISOString().slice(0, 10), v: p.cents / 100 })).slice(-30))
+    .catch(() => []);
+
   return (
     <div className="mx-auto max-w-2xl">
       <p className="text-[11px] font-bold uppercase tracking-wide text-brand-400">Daily Market Wrap</p>
@@ -40,9 +47,16 @@ export default async function MarketWrapIndex() {
         <>
           <Link
             href={`/blog/market-wrap/${latest}`}
-            className="card-surface mt-6 flex items-center justify-between gap-3 border-l-2 border-l-brand-500 p-4 transition-colors hover:border-ink-600"
+            className="card-surface mt-6 flex items-center justify-between gap-4 border-l-2 border-l-brand-500 p-4 transition-colors hover:border-ink-600"
           >
-            <span className="font-bold text-white">Today&apos;s edition — {latest}</span>
+            <div className="min-w-0">
+              <span className="font-bold text-white">Today&apos;s edition — {latest}</span>
+              {spark.length >= 2 && (
+                <div className="mt-2 max-w-[220px]">
+                  <Sparkline series={spark} id="wrap-hub-spark" width={220} height={36} />
+                </div>
+              )}
+            </div>
             <span className="shrink-0 text-sm font-semibold text-brand-400">Read →</span>
           </Link>
           {editions.length > 1 && (
