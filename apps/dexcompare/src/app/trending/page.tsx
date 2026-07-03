@@ -3,12 +3,13 @@ import Link from "next/link";
 import { CardTile } from "@/components/CardTile";
 import { AdSlot } from "@/components/AdSlot";
 import { getPopularCards } from "@/lib/trending";
-import { getCountry } from "@/lib/get-country";
-import { COUNTRIES } from "@/lib/country";
+import { COUNTRIES, DEFAULT_COUNTRY } from "@/lib/country";
 import { SITE_URL } from "@/lib/site";
 
-// Per-request: popularity is market-specific and changes continuously.
-export const dynamic = "force-dynamic";
+// ISR: render the market-neutral (AU) baseline and cache it — prices localise
+// client-side (CardTile + CountryProvider), so one cached, CDN-served page works
+// for every market. Revalidate every 30 min so popularity stays fresh.
+export const revalidate = 1800;
 
 export const metadata: Metadata = {
   title: "Trending Pokémon cards — most popular singles right now",
@@ -18,7 +19,7 @@ export const metadata: Metadata = {
 };
 
 export default async function TrendingPage() {
-  const country = getCountry();
+  const country = DEFAULT_COUNTRY;
   const info = COUNTRIES[country];
 
   const cards = await getPopularCards(24, country);

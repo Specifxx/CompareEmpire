@@ -3,11 +3,13 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { FEATURED_RESTOCKS, restockTitleRegex } from "@/lib/restocks";
 import { getSealedGroups, type SealedGroup } from "@/lib/sealed-import";
-import { getCountry } from "@/lib/get-country";
-import { COUNTRIES } from "@/lib/country";
+import { COUNTRIES, DEFAULT_COUNTRY } from "@/lib/country";
 import { formatMoney } from "@/lib/format";
 
-export const dynamic = "force-dynamic";
+// ISR: cache the AU-baseline restock board (prices localise client-side) and
+// revalidate every 5 min — fresh enough for a board whose stock is re-checked
+// roughly every 15 min, without an uncached DB hit on every visit.
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "Pokémon drops & restocks — new releases, preorders and restock alerts",
@@ -61,7 +63,7 @@ function buildDrops(groups: SealedGroup[], todayIso: string): Drop[] {
 }
 
 export default async function DropsIndex() {
-  const country = getCountry();
+  const country = DEFAULT_COUNTRY;
   const info = COUNTRIES[country];
   const todayIso = new Date().toISOString().slice(0, 10);
 

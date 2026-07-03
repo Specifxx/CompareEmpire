@@ -3,13 +3,13 @@ import Link from "next/link";
 import { CardTile } from "@/components/CardTile";
 import { AdSlot } from "@/components/AdSlot";
 import { getTopDeals } from "@/lib/deals";
-import { getCountry } from "@/lib/get-country";
-import { COUNTRIES } from "@/lib/country";
+import { COUNTRIES, DEFAULT_COUNTRY } from "@/lib/country";
 import { formatMoney } from "@/lib/format";
 import { SITE_URL } from "@/lib/site";
 
-// Per-request: deals are computed for the visitor's market.
-export const dynamic = "force-dynamic";
+// ISR: cache the AU-baseline deals render (prices localise client-side), and
+// revalidate every 15 min so the list stays fresh without an uncached DB hit per view.
+export const revalidate = 900;
 
 export const metadata: Metadata = {
   title: "Pokémon card deals — biggest discounts vs market price",
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 };
 
 export default async function DealsPage() {
-  const country = getCountry();
+  const country = DEFAULT_COUNTRY;
   const info = COUNTRIES[country];
   const deals = await getTopDeals(60, country);
 

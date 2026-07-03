@@ -3,14 +3,14 @@ import Link from "next/link";
 import { CardTile } from "@/components/CardTile";
 import { AdSlot } from "@/components/AdSlot";
 import { getValuableCards } from "@/lib/cheapest-cards";
-import { getCountry } from "@/lib/get-country";
-import { COUNTRIES } from "@/lib/country";
+import { COUNTRIES, DEFAULT_COUNTRY } from "@/lib/country";
 import { SITE_URL } from "@/lib/site";
 
 // High-intent lander for "most valuable / most expensive Pokémon cards" — a huge
 // evergreen query the value checker only answered with a small carousel before.
 // Real, live data (the priciest in-stock singles), ranked, with genuine context.
-export const dynamic = "force-dynamic";
+// ISR: cache the AU-baseline render (prices localise client-side), revalidate hourly.
+export const revalidate = 3600;
 
 export function generateMetadata(): Metadata {
   const year = new Date().getFullYear();
@@ -57,7 +57,7 @@ const FAQS = [
 ];
 
 export default async function MostValuablePage() {
-  const country = getCountry();
+  const country = DEFAULT_COUNTRY;
   const info = COUNTRIES[country];
   const cards = await getValuableCards(24, country);
 
