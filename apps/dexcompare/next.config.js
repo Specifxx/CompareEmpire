@@ -56,7 +56,25 @@ const nextConfig = {
   typescript: { ignoreBuildErrors: false },
   eslint: { ignoreDuringBuilds: true },
   async headers() {
-    return [{ source: "/:path*", headers: securityHeaders }];
+    return [
+      // Embeddable price widgets (/embed/*) must be frameable on ANY third-party
+      // site, so they can't carry X-Frame-Options: SAMEORIGIN. Allow cross-origin
+      // framing via CSP frame-ancestors while keeping the other safe defaults
+      // (HSTS, nosniff, referrer policy) — that's the whole point of the widget:
+      // a free, compounding backlink + brand engine embedded on other people's
+      // sites. The catch-all below uses a negative lookahead so /embed/* never
+      // also gets the SAMEORIGIN header.
+      {
+        source: "/embed/:path*",
+        headers: [
+          { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "Content-Security-Policy", value: "frame-ancestors *" },
+        ],
+      },
+      { source: "/((?!embed/).*)", headers: securityHeaders },
+    ];
   },
   async redirects() {
     return [

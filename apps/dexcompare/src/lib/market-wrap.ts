@@ -84,7 +84,10 @@ function fmtPct(pct: number): string {
   return `${pct > 0 ? "+" : ""}${pct.toFixed(2)}%`;
 }
 
-async function computeWrap(day: string): Promise<MarketWrapData | null> {
+// Exported so a standalone script (scripts/post-market-wrap.ts) and the OG-image
+// route can compute a wrap WITHOUT next/cache unstable_cache (which only works
+// inside a Next request). getMarketWrap wraps this with caching for page use.
+export async function computeWrap(day: string): Promise<MarketWrapData | null> {
   const days = await wrapDays();
   const i = days.indexOf(day);
   if (i <= 0) return null; // unknown day, or the very first day (no predecessor)

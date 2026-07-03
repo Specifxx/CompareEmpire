@@ -67,6 +67,7 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
       })),
       { url: `${SITE_URL}/guides`, changeFrequency: "weekly", priority: 0.7 },
       { url: `${SITE_URL}/stores`, changeFrequency: "monthly", priority: 0.5 },
+      { url: `${SITE_URL}/widgets`, changeFrequency: "monthly", priority: 0.5 },
       { url: `${SITE_URL}/blog`, changeFrequency: "weekly", priority: 0.7 },
       { url: `${SITE_URL}/about`, changeFrequency: "monthly", priority: 0.5 },
       { url: `${SITE_URL}/trade`, changeFrequency: "monthly", priority: 0.6 },
