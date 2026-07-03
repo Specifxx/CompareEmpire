@@ -69,7 +69,12 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   return {
     title,
     description,
-    alternates: { canonical: `/card/${card.slug ?? params.id}` },
+    alternates: {
+      canonical: `/card/${card.slug ?? params.id}`,
+      // Machine-readable mirror for AI agents / answer engines (a clean markdown
+      // price sheet). Answer engines increasingly follow rel=alternate markdown.
+      types: { "text/markdown": `/llm/card/${card.slug ?? params.id}` },
+    },
     // A card with no price in ANY market renders a "No prices found yet" shell —
     // thin content at ~8k-page scale. Keep it crawlable (follow) but out of the
     // index until it gains a price; this flips back automatically on the next
