@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { latestWrapDay, wrapDays } from "@/lib/market-wrap";
 
-export const dynamic = "force-dynamic";
+// ISR, not force-dynamic: the wrap data is already unstable_cache'd (30 min)
+// and a new edition only appears once a day (after the 04:30 Sydney price
+// refresh) — per-request rendering just added click lag for nothing.
+export const revalidate = 1800;
 
 export const metadata: Metadata = {
   title: "Daily Market Wrap — how the Pokémon card market moved",

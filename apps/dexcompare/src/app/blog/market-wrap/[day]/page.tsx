@@ -6,7 +6,9 @@ import { COUNTRIES, type Country } from "@/lib/country";
 import { formatMoney } from "@/lib/format";
 import { SITE_URL } from "@/lib/site";
 
-export const dynamic = "force-dynamic";
+// ISR, not force-dynamic: a past day's wrap is immutable and the underlying
+// data is unstable_cache'd — cache the page so the "Read" click is instant.
+export const revalidate = 3600;
 
 const VALID_DAY = /^\d{4}-\d{2}-\d{2}$/;
 

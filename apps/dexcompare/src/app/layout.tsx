@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Sora, Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -14,6 +15,7 @@ import { CountryProvider } from "@/components/CountryProvider";
 import { PriceAlertModal } from "@/components/PriceAlertModal";
 import { MegaMenuProvider } from "@/components/MegaMenuProvider";
 import { SovrnSnippet } from "@/components/SovrnSnippet";
+import { NavProgress } from "@/components/NavProgress";
 import { HilltopAdsLoader } from "@/components/HilltopAdsLoader";
 import { FooterAds } from "@/components/FooterAds";
 import { PathGate } from "@/components/PathGate";
@@ -145,6 +147,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="alternate" type="application/rss+xml" title="DexCompare — Pokémon TCG Blog & Guides" href="/feed.xml" />
       </head>
       <body className="min-h-screen bg-ink-950">
+        {/* Instant navigation feedback: starts on link click, completes on route
+            change. Suspense because it reads useSearchParams. */}
+        <Suspense fallback={null}>
+          <NavProgress />
+        </Suspense>
         <a href="#main-content" className="skip-link">Skip to content</a>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }} />
         <CountryProvider initial={DEFAULT_COUNTRY}>
