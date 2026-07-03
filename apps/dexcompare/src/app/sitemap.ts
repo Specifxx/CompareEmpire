@@ -53,6 +53,8 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
       { url: `${SITE_URL}/trending`, changeFrequency: "daily", priority: 0.8, lastModified: priceDay },
       { url: `${SITE_URL}/market`, changeFrequency: "daily", priority: 0.8, lastModified: priceDay },
       { url: `${SITE_URL}/tools/arbitrage`, changeFrequency: "daily", priority: 0.8, lastModified: priceDay },
+      { url: `${SITE_URL}/tools/net-proceeds`, changeFrequency: "monthly", priority: 0.6 },
+      { url: `${SITE_URL}/tools/grade-ev`, changeFrequency: "monthly", priority: 0.6 },
       { url: `${SITE_URL}/games`, changeFrequency: "weekly", priority: 0.7 },
       { url: `${SITE_URL}/dexdle`, changeFrequency: "daily", priority: 0.8 },
       { url: `${SITE_URL}/games/duel`, changeFrequency: "weekly", priority: 0.6 },

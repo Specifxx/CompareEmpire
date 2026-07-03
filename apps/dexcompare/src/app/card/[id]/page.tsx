@@ -19,6 +19,7 @@ import { ShareButton } from "@/components/ShareButton";
 import { CollectionButton } from "@/components/CollectionButton";
 import { CardViewBeacon } from "@/components/CardViewBeacon";
 import { CardReviews, type ReviewView } from "@/components/CardReviews";
+import { NetProceeds } from "@/components/NetProceeds";
 import { CardTile, type CardTileData } from "@/components/CardTile";
 import { PriceChart, changeOver, type PricePoint } from "@/components/PriceChart";
 import { cardTileSelect } from "@/lib/cards";
@@ -476,6 +477,23 @@ export default async function CardPage({ params }: { params: { id: string } }) {
               currency={info.currency}
               note={`Cheapest ${info.adjective} price (${info.currency}), snapshotted daily`}
             />
+          )}
+
+          {/* Thinking of selling? Net-proceeds — the other half of the price:
+              what you'd actually pocket after fees. Prefilled with the headline
+              price; collapsed so it never gets in the buyer's way. */}
+          {headlineCents != null && (
+            <details className="mt-6 card-surface group">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-4 font-bold text-white [&::-webkit-details-marker]:hidden">
+                <span>Thinking of selling? See what you&apos;d pocket</span>
+                <svg className="h-4 w-4 shrink-0 text-slate-500 transition-transform group-open:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <path d="m6 9 6 6 6-6" />
+                </svg>
+              </summary>
+              <div className="border-t border-ink-700 p-4">
+                <NetProceeds initialPriceCents={headlineCents} />
+              </div>
+            </details>
           )}
 
           {/* Price comparison */}
