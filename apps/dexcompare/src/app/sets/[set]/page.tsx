@@ -23,8 +23,8 @@ export async function generateMetadata({ params }: { params: { set: string } }):
   if (!set) notFound(); // real 404 — metadata resolves before streaming
   // Market-neutral title (no country) so it ranks globally; the page itself is
   // tailored to the visitor's market.
-  const title = `Pokémon ${set.name} Card Prices, Values & Full Card List`;
-  const description = `Every Pokémon ${set.name} card with live prices compared across stores — find the cheapest ${set.name} singles. Full ${set.name} card list and values, updated daily.`;
+  const title = `Pokémon ${set.name} Cards — Cheapest Prices`;
+  const description = `Every Pokémon ${set.name} card compared across stores — cheapest prices, full card list, and values, updated daily.`;
   return {
     title: { absolute: `${title} | DexCompare` },
     description,

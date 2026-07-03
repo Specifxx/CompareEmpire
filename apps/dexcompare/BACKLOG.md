@@ -65,8 +65,16 @@ doorway pages or keyword-stuffed titles; every new page must carry real data + r
    with several sibling ME4 cards similarly stuck. Title rewritten from "{name} ({set}
    {no}) — Pokémon Card Price" to "{name} ({set} {no}) price — compare cheapest
    stores"; description now leads with "See today's cheapest price for…". Applies
-   site-wide to every card page. Still queued for future runs: `/sets/[set]`, `/deals`,
-   `/trending`, `/market`, `/most-valuable`.
+   site-wide to every card page.
+   `/sets/[set]` — DONE (this run): old title "Pokémon {set} Card Prices, Values & Full
+   Card List | DexCompare" ran 66-90+ chars for most sets (well past the ~60-char SERP
+   truncation point) and buried the click hook at the very end. Rewritten to "Pokémon
+   {set} Cards — Cheapest Prices | DexCompare" (52-68 chars for all but the handful of
+   longest promo-set names) — "Cheapest Prices" now lands inside the visible SERP
+   snippet. Description condensed to mention the set name once instead of three times
+   (was inflating length on long set names like "Scarlet & Violet Black Star Promos").
+   Applies to all 173 set pages. Still queued for future runs: `/deals`, `/trending`,
+   `/market`, `/most-valuable`.
 2. **`/sealed-deals` landing page** — sealed products priced below the market/MSRP guide
    (clone the `/deals` logic for sealed groups). Real data only; BreadcrumbList + FAQPage
    JSON-LD; link from nav + `/deals` + `/sealed`.
