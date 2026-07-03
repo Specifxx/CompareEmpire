@@ -14,18 +14,15 @@ export default function robots(): MetadataRoute.Robots {
         ],
       },
     ],
-    // sitemap.ts uses generateSitemaps() (3 child buckets), which Next.js serves
-    // at /sitemap/0.xml, /sitemap/1.xml, /sitemap/2.xml. app/sitemap.xml/route.ts
-    // additionally serves a real <sitemapindex> at the conventional /sitemap.xml.
-    // List the index first, then the children directly (multiple Sitemap: lines
-    // are valid per the protocol; crawlers dedupe) — the children stay listed so
-    // the robots-driven IndexNow workflow keeps fetching flat <urlset> files.
-    sitemap: [
-      `${SITE_URL}/sitemap.xml`,
-      `${SITE_URL}/sitemap/0.xml`,
-      `${SITE_URL}/sitemap/1.xml`,
-      `${SITE_URL}/sitemap/2.xml`,
-    ],
+    // Advertise ONLY the sitemap index (app/sitemap.xml/route.ts serves a real
+    // <sitemapindex> pointing at the three children /sitemap/0.xml, /1.xml,
+    // /2.xml that sitemap.ts generates). Crawlers discover the children THROUGH
+    // the index — that's the standard hierarchy, and it means the children are
+    // not separately "discovered from robots.txt" entries in Search Console
+    // (which can't be manually removed and lingered as scary "Couldn't fetch"
+    // rows). The IndexNow workflow already recurses into the index to collect
+    // child URLs, so it keeps working with just this one line.
+    sitemap: [`${SITE_URL}/sitemap.xml`],
     host: SITE_URL,
   };
 }
