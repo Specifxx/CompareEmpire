@@ -37,6 +37,29 @@ jobs:
     timeout-minutes: 30
     permissions:
       contents: write
+    # An ephemeral Postgres so the production-style `next build` can PRERENDER the
+    # static/ISR pages (trending, deals, most-valuable, restock, the homepage, the
+    # fail-loud sitemap …) — they query Prisma at build time. Real production data
+    # arrives via ISR revalidation after deploy; the build only needs a reachable
+    # schema with one seed row in each fail-loud bucket (a card + a sealed listing).
+    # A build against a dead/fake DB used to pass only while every prerendered page
+    # tolerated a missing DB; the fail-loud sitemap and ISR pages don't, so the
+    # verify build (and Claude's own in-run verification) need a real database.
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/verify
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: verify
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
     steps:
       - name: Check out main (the production branch we improve + push to)
         uses: actions/checkout@v4
@@ -55,6 +78,12 @@ jobs:
           npm install --no-audit --no-fund
           npx prisma generate
           npm install -g @anthropic-ai/claude-code
+
+      - name: Prepare ephemeral verify database (schema + fail-loud seed rows)
+        working-directory: apps/dexcompare
+        run: |
+          npx prisma db push --skip-generate
+          node -e 'const {PrismaClient}=require("@prisma/client");const p=new PrismaClient();(async()=>{await p.card.create({data:{slug:"verify-seed",name:"Verify Seed",setCode:"BASE",setName:"Base Set",collectorNumber:"001/100",domain:"Fury",type:"Unit",rarity:"Rare",lowestPriceCents:1000}});await p.sealedListing.create({data:{groupKey:"BASE|Booster Box",title:"Base Set Booster Box",productType:"Booster Box",setCode:"BASE",retailer:"store",retailerName:"Store",priceCents:20000,url:"https://example.com/box",inStock:true,country:"AU"}});await p.$disconnect();})().catch((e)=>{console.error(e);process.exit(1);})'
 
       - name: Configure git author
         run: |
@@ -137,10 +166,14 @@ jobs:
             echo "::warning::Rebase conflict with concurrent change — skipping this run's push."
             exit 0
           fi
-          # Backstop verify the FINAL tree before it reaches production.
-          # (prisma db push is gated on VERCEL_ENV=production, so this never touches a DB.)
+          # Backstop verify the FINAL tree before it reaches production, against the
+          # ephemeral DB provisioned above. Re-push the schema first in case the
+          # rebase pulled in a migration. (prisma db push is gated on
+          # VERCEL_ENV=production in app code, so this only ever touches the
+          # throwaway CI database, never the real one.)
           ( cd apps/dexcompare && npx tsc --noEmit )
-          ( cd apps/dexcompare && DATABASE_URL="postgresql://u:p@127.0.0.1:5432/none" npx next build )
+          ( cd apps/dexcompare && npx prisma db push --skip-generate )
+          ( cd apps/dexcompare && npx next build )
           # Push, with one rebase+retry if main moved again during verify.
           if ! git push origin HEAD:main; then
             echo "Push rejected — re-syncing and retrying once."
