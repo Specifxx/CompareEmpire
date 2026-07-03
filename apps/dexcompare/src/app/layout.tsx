@@ -10,6 +10,7 @@ import { AccountSync } from "@/components/AccountSync";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { SideNav } from "@/components/SideNav";
 import { QuickViewProvider } from "@/components/QuickView";
+import { SealedQuickViewProvider } from "@/components/SealedQuickView";
 import { WishlistDrawerProvider } from "@/components/WishlistDrawer";
 import { CountryProvider } from "@/components/CountryProvider";
 import { PriceAlertModal } from "@/components/PriceAlertModal";
@@ -158,6 +159,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <MegaMenuProvider>
         <WishlistDrawerProvider>
           <QuickViewProvider>
+          <SealedQuickViewProvider>
             <Navbar />
             {/* Mounted once: merges a signed-in user's saved wishlist + collection
                 with their anonymous local data, then keeps both synced cross-device. */}
@@ -166,6 +168,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <SideNav />
               <main id="main-content" className="min-w-0 flex-1">{children}</main>
             </div>
+          </SealedQuickViewProvider>
           </QuickViewProvider>
         </WishlistDrawerProvider>
         <PriceAlertModal />

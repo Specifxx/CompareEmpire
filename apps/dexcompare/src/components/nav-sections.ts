@@ -45,8 +45,11 @@ export const NAV_SECTIONS: NavSection[] = [
     ],
   },
   {
-    label: "Play & tools",
+    label: "Tools & play",
     links: [
+      { href: "/tools", icon: "🧰", label: "All tools" },
+      { href: "/tools/net-proceeds", icon: "💵", label: "Net proceeds (sell)" },
+      { href: "/tools/grade-ev", icon: "🎯", label: "Should I grade it?" },
       { href: "/deck", icon: "🛠️", label: "Deck builder" },
       { href: "/decks", icon: "🏆", label: "Meta decks" },
       { href: "/proxy", icon: "🖨️", label: "Proxy printer" },

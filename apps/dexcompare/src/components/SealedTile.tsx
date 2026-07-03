@@ -1,17 +1,32 @@
+"use client";
+
 import Link from "next/link";
 import { formatMoney } from "@/lib/format";
 import type { SealedGroup } from "@/lib/sealed-import";
+import { useSealedQuickView } from "./SealedQuickView";
 
 // A single sealed product tile for the /sealed grid, homepage new-arrivals and
-// related rails. Server component (no interactivity) — links to the compare page.
-// Images come from arbitrary store/eBay/TCGplayer CDNs, so a plain <img> (lazy)
-// is used rather than next/image (which would need every host allow-listed).
+// related rails. A plain left-click opens an instant in-page quick view (no
+// navigation = no lag), exactly like the card tiles; the real /sealed/<slug> href
+// is kept for SEO, sharing and middle/ctrl-click (open in new tab). Images come
+// from arbitrary store/eBay/TCGplayer CDNs, so a plain <img> (lazy) is used
+// rather than next/image (which would need every host allow-listed).
 export function SealedTile({ group, currency }: { group: SealedGroup; currency: string }) {
   const g = group;
   const soldOut = g.lowestPriceCents == null;
+  const { open } = useSealedQuickView();
+
+  function onClick(e: React.MouseEvent) {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+    e.preventDefault();
+    open(g, currency);
+  }
+
   return (
     <Link
       href={`/sealed/${g.slug}`}
+      prefetch={false}
+      onClick={onClick}
       className="cv-auto group card-surface relative flex flex-col overflow-hidden transition-colors hover:border-ink-600"
     >
       <div className="relative grid aspect-square w-full place-items-center overflow-hidden bg-ink-950 p-4">

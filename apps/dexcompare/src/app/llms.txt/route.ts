@@ -26,7 +26,10 @@ const SECTIONS: { title: string; links: [string, string][] }[] = [
   {
     title: "Tools",
     links: [
+      ["/tools", "Every free DexCompare tool & calculator in one place."],
       ["/card-value", "Free Pokémon card value checker — live market value plus real store prices."],
+      ["/tools/net-proceeds", "Selling-fee calculator — what you actually pocket after fees, postage & grading."],
+      ["/tools/grade-ev", "Should-I-grade calculator — the expected value of grading a raw card."],
       ["/tools/arbitrage", "Cross-market arbitrage: cards priced lower in one market than another."],
       ["/trade", "Trade calculator — value both sides of a card trade fairly."],
       ["/collection", "Collection tracker — track owned cards and their live value."],
