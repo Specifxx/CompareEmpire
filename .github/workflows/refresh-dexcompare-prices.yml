@@ -87,3 +87,22 @@ jobs:
         if: steps.db.outputs.found == 'true'
         working-directory: apps/dexcompare
         run: npx tsx scripts/verify-data.ts
+
+      # Auto-post today's Market Wrap to socials. Runs LAST, after today's
+      # PriceHistory snapshot is written, so latestWrapDay() resolves the fresh
+      # edition. Best-effort: continue-on-error + the script never throws, so a
+      # socials hiccup can't fail the price pipeline. Posts only to whichever
+      # accounts have secrets set (all optional) — no secrets = a clean no-op.
+      # DATABASE_URL / HISTORY_DATABASE_URL are already on $GITHUB_ENV from the
+      # Resolve step; only the social secrets are declared here.
+      - name: Post Market Wrap to socials
+        if: steps.db.outputs.found == 'true'
+        continue-on-error: true
+        working-directory: apps/dexcompare
+        env:
+          BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE }}
+          BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: npx tsx scripts/post-market-wrap.ts
