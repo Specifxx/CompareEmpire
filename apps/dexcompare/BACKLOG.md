@@ -78,6 +78,12 @@ doorway pages or keyword-stuffed titles; every new page must carry real data + r
 2. **`/sealed-deals` landing page** — sealed products priced below the market/MSRP guide
    (clone the `/deals` logic for sealed groups). Real data only; BreadcrumbList + FAQPage
    JSON-LD; link from nav + `/deals` + `/sealed`.
+   CHECKED (this run) — not shippable as-is: `SealedGroup`/`SealedListing`
+   (`sealed-import.ts`, `schema.prisma`) carry no market/MSRP guide field at all, unlike
+   `Card.marketPriceCents` (real TCGplayer-sourced guide). A sealed "deals" page needs a
+   genuine reference price to compare against — fabricating an MSRP would violate the
+   real-data-only rule, and comparing listings only against each other is just `/sealed`
+   sorted by price, not a "deal". Defer until a real MSRP source is imported per product.
 3. **Sealed "booster box price" intent** — confirm each `/sealed/[slug]` box `<title>`
    reads like "{Set} Booster Box price — cheapest {market}" so it captures the fat
    "[set] booster box price" / "[set] etb price" long-tail across ~500–1000 products.
@@ -89,6 +95,12 @@ doorway pages or keyword-stuffed titles; every new page must carry real data + r
    guide → the specific cards/sets it mentions; card → "more from {set}" / "same rarity";
    `/market` movers → the mover card pages; set → its sealed products; footer/nav hub
    coverage for orphan pages. One surface per run.
+   `set → its sealed products` — DONE (this run): `/sets/[set]` now shows up to 4
+   `SealedTile`s for that set (via `getSealedGroups()` filtered by `setCode`) plus an
+   "All {set} sealed →" link to `/sealed?set={code}`; `/sealed/[slug]` already linked
+   back to the set page, so this closes the loop both ways. Still queued: guide →
+   specific cards/sets, card → "more from {set}"/"same rarity", `/market` movers →
+   card pages, footer/nav orphan-page coverage.
 6. **One new evergreen guide per run**, targeting a real query with real value — e.g.
    "Is a {set} booster box worth it?", "How to price your Pokémon cards", "Spot fake
    {set} cards", per-country buying guides. Hub-and-spoke: link each to ≥5 card/set pages.

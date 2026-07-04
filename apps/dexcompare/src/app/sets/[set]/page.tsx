@@ -4,10 +4,12 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { SetCardGrid } from "@/components/SetCardGrid";
 import { SetCompletion } from "@/components/SetCompletion";
+import { SealedTile } from "@/components/SealedTile";
 import { cardTileSelect } from "@/lib/cards";
-import { pickPrice, DEFAULT_COUNTRY } from "@/lib/country";
+import { pickPrice, DEFAULT_COUNTRY, COUNTRIES } from "@/lib/country";
 import { SETS, setBySlug } from "@/lib/constants";
 import { POKEMON_SETS } from "@/lib/pokemon-sets";
+import { getSealedGroups } from "@/lib/sealed-import";
 import { SITE_URL } from "@/lib/site";
 
 // Rendered on the AU baseline server-side (country-neutral copy); the card tiles
@@ -67,6 +69,13 @@ export default async function SetPage({ params }: { params: { set: string } }) {
   const priced = cards.filter((c) => pickPrice(c, country) != null).length;
 
   const otherSets = SETS.filter((s) => s.slug !== set.slug && !s.comingSoon);
+
+  // Sealed products (booster boxes, ETBs, etc.) for this set — cross-links the
+  // singles database to the sealed-product database, which today only links
+  // the other way (sealed/[slug] already points back to sets/[set]).
+  const sealed = set.comingSoon
+    ? []
+    : (await getSealedGroups(DEFAULT_COUNTRY)).filter((g) => g.setCode === set.code).slice(0, 4);
 
   const breadcrumb = {
     "@context": "https://schema.org",
@@ -165,6 +174,23 @@ export default async function SetPage({ params }: { params: { set: string } }) {
         </div>
       ) : (
         <SetCardGrid cards={cards} />
+      )}
+
+      {/* Sealed products for this set — booster boxes, ETBs, etc. */}
+      {sealed.length > 0 && (
+        <section>
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-lg font-bold text-white">{set.name} sealed products</h2>
+            <Link href={`/sealed?set=${set.code}`} className="text-sm text-brand-400 hover:text-brand-300">
+              All {set.name} sealed →
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+            {sealed.map((g) => (
+              <SealedTile key={g.slug} group={g} currency={COUNTRIES[DEFAULT_COUNTRY].currency} />
+            ))}
+          </div>
+        </section>
       )}
 
       {/* Internal links to the other sets (crawl + UX) */}
