@@ -14,13 +14,21 @@ import { EbayAd } from "@/components/EbayAd";
 import { affiliateUrl, ebaySearchUrl } from "@/lib/affiliate";
 import { aggregateOffer } from "@/lib/structured-data";
 import { SITE_URL } from "@/lib/site";
-import { getCountry } from "@/lib/get-country";
-import { COUNTRIES } from "@/lib/country";
+import { COUNTRIES, DEFAULT_COUNTRY } from "@/lib/country";
 import { POKEMON_SETS } from "@/lib/pokemon-sets";
 import { formatMoney, timeAgo } from "@/lib/format";
 
-// Per-request: prices + stock + market come from the country cookie.
-export const dynamic = "force-dynamic";
+// ISR: render the market-neutral AU baseline (cookie-free) and cache it — prices
+// localize client-side. Keeps these ~900 sealed pages cacheable so Googlebot gets
+// fast CDN responses instead of uncached dynamic SSR that throttles crawl.
+export const revalidate = 3600;
+
+// Prerender nothing at build; each sealed path is generated on first request and
+// ISR-cached. Makes the ISR eligibility explicit and fails the build loudly if a
+// dynamic API (cookies/headers) ever creeps back into the render.
+export function generateStaticParams() {
+  return [] as { slug: string }[];
+}
 
 // Find the group across markets just for metadata (AU is the catalogue baseline).
 async function findAny(slug: string, country: string): Promise<SealedGroup | null> {
@@ -55,7 +63,7 @@ function truncateAtWord(name: string, max: number): string {
 }
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const country = getCountry();
+  const country = DEFAULT_COUNTRY;
   const g =
     (await findAny(params.slug, country)) ??
     (await findAny(params.slug, "AU")) ??
@@ -87,7 +95,7 @@ function matchFeatured(name: string): FeaturedRestock | null {
 }
 
 export default async function SealedComparePage({ params }: { params: { slug: string } }) {
-  const country = getCountry();
+  const country = DEFAULT_COUNTRY;
   const info = COUNTRIES[country];
 
   // Page EXISTENCE must not depend on the visitor's market: the sitemap lists

@@ -200,8 +200,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <NewsletterSignup siteName="DexCompare" />
           <nav className="mb-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-sm">
             <Link href="/browse" className="hover:text-slate-300">Database</Link>
+            <Link href="/sets" className="hover:text-slate-300">Browse by set</Link>
             <Link href="/sealed" className="hover:text-slate-300">Sealed products</Link>
             <Link href="/deals" className="hover:text-slate-300">Deals</Link>
+            <Link href="/trending" className="hover:text-slate-300">Trending</Link>
             <Link href="/most-valuable" className="hover:text-slate-300">Most valuable</Link>
             <Link href="/market" className="hover:text-slate-300">Market index</Link>
             <Link href="/card-value" className="hover:text-slate-300">Card value checker</Link>

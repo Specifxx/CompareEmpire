@@ -5,15 +5,9 @@ import { prisma } from "@/lib/db";
 import { dbHistory } from "@/lib/db-history";
 import { CardImage } from "@/components/CardImage";
 import { DomainBadge, RarityBadge, VariantBadge, OvernumberedBadge, PromoBadge, SignatureBadge } from "@/components/Badge";
-import { isOvernumbered, isSignature, conditionInfo } from "@/lib/constants";
+import { isOvernumbered, isSignature } from "@/lib/constants";
 import { POKEMON_SETS } from "@/lib/pokemon-sets";
-import { getCurrentUser } from "@/lib/auth";
-import { BuyButton } from "@/components/BuyButton";
-import { CardListingForm } from "@/components/CardListingForm";
-import {
-  PlaceBuyOrderForm,
-  SellToBidButton,
-} from "@/components/BuyOrderActions";
+import { CardMarketplace } from "@/components/CardMarketplace";
 import { WishlistButton } from "@/components/WishlistButton";
 import { ShareButton } from "@/components/ShareButton";
 import { CollectionButton } from "@/components/CollectionButton";
@@ -27,8 +21,7 @@ import { formatMoney, timeAgo } from "@/lib/format";
 import { effectiveShippingCents, shippingPolicyUrl } from "@/lib/retailers";
 import { affiliateUrl, ebaySearchUrl } from "@/lib/affiliate";
 import { aggregateOffer } from "@/lib/structured-data";
-import { getCountry } from "@/lib/get-country";
-import { COUNTRIES, pickPrice, marketGuideCents } from "@/lib/country";
+import { COUNTRIES, DEFAULT_COUNTRY, pickPrice, marketGuideCents } from "@/lib/country";
 import { SITE_URL } from "@/lib/site";
 import { EnglishOnlyToggle } from "@/components/EnglishOnlyToggle";
 import { OutboundLink } from "@/components/OutboundLink";
@@ -36,8 +29,21 @@ import { AdSlot } from "@/components/AdSlot";
 import { TcgplayerAd } from "@/components/TcgplayerAd";
 import { EbayAd } from "@/components/EbayAd";
 
-// ISR while AU-only; dynamic per-request once NZ mode is enabled (cookie-driven).
+// Genuine ISR. The server render is market-neutral (AU baseline) and cookie-free
+// — prices localize client-side, and the session-gated marketplace is a client
+// island (CardMarketplace). This is THE indexation fix: the page carried
+// `revalidate` but a session cookie read (getCurrentUser) silently made all ~20k
+// card pages uncacheable dynamic SSR, which throttled Googlebot's crawl and
+// stalled indexation at "Discovered – not crawled".
 export const revalidate = 86400;
+
+// Prerender nothing at build (there are ~20k cards); every path is generated on
+// first request and then ISR-cached (dynamicParams defaults to true). Declaring
+// this makes the route's static/ISR eligibility EXPLICIT: the build now fails
+// loudly if any dynamic API (cookies/headers) ever sneaks back into the render.
+export function generateStaticParams() {
+  return [] as { id: string }[];
+}
 
 // Accept either the slug ("vayne-hunter-sfd-223-221") or the legacy cuid.
 const whereParam = (p: string) => ({ OR: [{ slug: p }, { id: p }] });
@@ -90,7 +96,10 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 }
 
 export default async function CardPage({ params }: { params: { id: string } }) {
-  const country = getCountry();
+  // Market-neutral baseline (AU) so the server render is cookie-free and cacheable
+  // (ISR); prices localize client-side. Googlebot indexes this AU baseline, which
+  // matches the AUD-led metadata above.
+  const country = DEFAULT_COUNTRY;
   const info = COUNTRIES[country];
   const fmt = (cents: number) => formatMoney(cents, info.currency);
   const card = await prisma.card.findFirst({
@@ -163,55 +172,22 @@ export default async function CardPage({ params }: { params: { id: string } }) {
       take: 8,
     }),
     // Other cards of the same Pokémon type from a different set — broadens discovery
-    // without duplicating the "also in this set" section above.
+    // without duplicating the "also in this set" section above. A deterministic
+    // per-card `skip` (from artSeed, ISR-stable) rotates the window so we don't dump
+    // ~18k×8 internal links onto the same 8 globally-cheapest cards — it spreads
+    // internal inbound links across the long tail (a crawl-priority signal).
     prisma.card.findMany({
       where: { type: card.type, id: { not: card.id }, setCode: { not: card.setCode } },
       orderBy: [{ lowestPriceCents: { sort: "asc", nulls: "last" } }],
       select: cardTileSelect(country),
+      skip: card.artSeed % 20,
       take: 8,
     }),
   ]);
-  // CompareEmpire Marketplace: active user listings (asks) + open buy orders
-  // (bids) for THIS card, plus the signed-in viewer so we can gate buy/sell
-  // actions. This is a test-mode, play-money marketplace.
-  const [viewer, listings, buyOrders] = await Promise.all([
-    getCurrentUser(),
-    prisma.listing.findMany({
-      where: { cardId: card.id, status: "ACTIVE", quantity: { gt: 0 } },
-      orderBy: { priceCents: "asc" },
-      select: {
-        id: true,
-        condition: true,
-        isFoil: true,
-        priceCents: true,
-        quantity: true,
-        currency: true,
-        sellerId: true,
-        seller: { select: { displayName: true, sellerName: true } },
-      },
-    }),
-    prisma.buyOrder.findMany({
-      where: { cardId: card.id, status: "OPEN" },
-      orderBy: { maxPriceCents: "desc" },
-      select: {
-        id: true,
-        condition: true,
-        isFoil: true,
-        maxPriceCents: true,
-        quantity: true,
-        quantityFilled: true,
-        buyerId: true,
-        buyer: { select: { displayName: true } },
-      },
-    }),
-  ]);
-  // Only verified sellers may create listings (test-mode marketplace).
-  const viewerAccount = viewer
-    ? await prisma.user.findUnique({
-        where: { id: viewer.id },
-        select: { verifiedSeller: true },
-      })
-    : null;
+  // CompareEmpire Marketplace (test-mode, play-money) moved to a CLIENT island
+  // <CardMarketplace> — it reads the session cookie (getCurrentUser) to gate
+  // buy/sell, which if done here would void `revalidate` and make this page
+  // uncacheable dynamic SSR. See below where the component is rendered.
 
   const history: PricePoint[] = historyRows.map((h) => ({ day: h.day, cents: h.lowestPriceCents }));
   const reviews: ReviewView[] = reviewRows.map((r) => ({ ...r, createdAt: r.createdAt.toISOString() }));
@@ -721,114 +697,11 @@ export default async function CardPage({ params }: { params: { id: string } }) {
             </div>
           )}
 
-          {/* ---- CompareEmpire Marketplace ------------------------------------
-              Community-listed copies of this card (test-mode, play-money). Verified
-              sellers can list; signed-in buyers can buy from their wallet or place a
-              buy order (bid) that escrows funds until a seller fills it. */}
-          <div className="card-surface mt-6 overflow-hidden">
-            <div className="flex items-center justify-between border-b border-ink-700 p-4">
-              <div>
-                <h2 className="font-bold text-white">CompareEmpire Marketplace</h2>
-                <p className="mt-0.5 text-xs text-slate-500">
-                  Buy directly from collectors · test-mode play money
-                </p>
-              </div>
-              <span className="chip bg-brand-500/15 text-brand-400"><span className="num">{listings.length}</span> for sale</span>
-            </div>
+          {/* CompareEmpire Marketplace (test-mode, play-money) — client island so the
+              session-gated buy/sell UI never forces this page dynamic. It loads its
+              own asks/bids/viewer from /api/card/[id]/market on mount. */}
+          <CardMarketplace cardId={card.id} marketPriceCents={card.marketPriceCents} />
 
-            {/* Asks — listings you can buy now */}
-            {listings.length === 0 ? (
-              <div className="p-6 text-center text-sm text-slate-400">
-                No marketplace listings for this card yet.
-                {viewerAccount?.verifiedSeller
-                  ? " Be the first to list one below."
-                  : " Place a buy order below to signal what you'd pay."}
-              </div>
-            ) : (
-              <ul className="divide-y divide-ink-800">
-                {listings.map((l) => {
-                  const c = conditionInfo(l.condition);
-                  const own = viewer?.id === l.sellerId;
-                  const sellerLabel = l.seller.sellerName || l.seller.displayName;
-                  return (
-                    <li key={l.id} className="flex flex-wrap items-center gap-x-3 gap-y-2 p-3 hover:bg-ink-900/50 sm:flex-nowrap sm:p-4">
-                      <div className="min-w-0 flex-1">
-                        <div className="truncate font-semibold text-white">{sellerLabel}</div>
-                        <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-500">
-                          <span className="chip bg-ink-800" style={{ color: c.color }} title={c.full}>{c.label}</span>
-                          {l.isFoil && <span className="chip bg-gold/15 font-semibold text-gold">✦ Foil</span>}
-                          {l.quantity > 1 && <span>{l.quantity} available</span>}
-                        </div>
-                      </div>
-                      <div className="num shrink-0 text-right text-lg font-bold text-accent">
-                        {formatMoney(l.priceCents, l.currency)}
-                      </div>
-                      <div className="order-last w-full basis-full sm:order-none sm:w-auto sm:basis-auto">
-                        <BuyButton
-                          listingId={l.id}
-                          canBuy={!!viewer && !own}
-                          reason={!viewer ? "Sign in to buy" : own ? "Your listing" : undefined}
-                        />
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-
-            {/* Sell — verified sellers list a copy of this exact card */}
-            {viewerAccount?.verifiedSeller && (
-              <div className="border-t border-ink-800 bg-ink-900/40 p-4">
-                <h3 className="mb-2 text-sm font-semibold text-white">List your copy for sale</h3>
-                <CardListingForm cardId={card.id} marketPriceCents={card.marketPriceCents} />
-              </div>
-            )}
-
-            {/* Bids — open buy orders, plus the place-a-buy-order CTA */}
-            <div className="border-t border-ink-800 p-4">
-              <h3 className="mb-3 text-sm font-semibold text-white">
-                Buy orders (bids) <span className="num text-slate-500">({buyOrders.length})</span>
-              </h3>
-              {buyOrders.length > 0 && (
-                <ul className="mb-3 divide-y divide-ink-800 rounded-lg border border-ink-800">
-                  {buyOrders.map((b) => {
-                    const own = viewer?.id === b.buyerId;
-                    const remaining = b.quantity - b.quantityFilled;
-                    return (
-                      <li key={b.id} className="flex flex-wrap items-center gap-x-3 gap-y-2 p-3">
-                        <div className="min-w-0 flex-1">
-                          <div className="truncate text-sm font-semibold text-white">{b.buyer.displayName}</div>
-                          <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-500">
-                            <span className="chip bg-ink-800 text-slate-300">{b.condition === "ANY" ? "Any condition" : b.condition}</span>
-                            {b.isFoil && <span className="chip bg-gold/15 font-semibold text-gold">✦ Foil</span>}
-                            {remaining > 1 && <span>wants {remaining}</span>}
-                          </div>
-                        </div>
-                        <div className="num shrink-0 text-right text-base font-bold text-white">{fmt(b.maxPriceCents)}</div>
-                        <div className="order-last w-full basis-full sm:order-none sm:w-auto sm:basis-auto">
-                          <SellToBidButton
-                            buyOrderId={b.id}
-                            canSell={!!viewer && !own}
-                            reason={!viewer ? "Sign in" : own ? "Your bid" : undefined}
-                          />
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-              <PlaceBuyOrderForm
-                cardId={card.id}
-                marketPriceCents={card.marketPriceCents}
-                signedIn={!!viewer}
-              />
-            </div>
-
-            <p className="border-t border-ink-800 p-3 text-center text-[11px] text-slate-600">
-              The CompareEmpire Marketplace is a test-mode demo using play money — no real
-              payments are processed.
-            </p>
-          </div>
 
           {/* TCGplayer affiliate banner — pays commission on click-through
               purchases, so it gets the prime spot under the price table. */}
