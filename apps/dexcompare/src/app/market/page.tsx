@@ -15,9 +15,9 @@ import { SITE_URL } from "@/lib/site";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: { absolute: "The DexCompare Index — Pokémon Card Market Tracker | DexCompare" },
+  title: { absolute: "DexCompare Index — Pokémon Card Market Tracker" },
   description:
-    "One number for the health of the Pokémon TCG singles market. The DexCompare Index tracks the most valuable cards as a daily base-100 index per market, with a global composite, breadth, movers and sealed supply. Updated daily, free to cite.",
+    "A daily base-100 index for the Pokémon card market — global composite, per-market breakdowns, biggest movers and breadth. Updated daily, free to cite.",
   alternates: { canonical: "/market" },
 };
 

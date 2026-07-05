@@ -73,8 +73,17 @@ doorway pages or keyword-stuffed titles; every new page must carry real data + r
    longest promo-set names) — "Cheapest Prices" now lands inside the visible SERP
    snippet. Description condensed to mention the set name once instead of three times
    (was inflating length on long set names like "Scarlet & Violet Black Star Promos").
-   Applies to all 173 set pages. Still queued for future runs: `/deals`, `/trending`,
-   `/market`, `/most-valuable`.
+   Applies to all 173 set pages.
+   `/market` — DONE (this run): title was 63 chars with the brand name duplicated
+   ("The DexCompare Index — Pokémon Card Market Tracker | DexCompare") and the
+   description ran 239 chars — both past SERP truncation, burying the "free to cite"
+   linkable-asset hook. Trimmed to a 46-char title and 150-char description, keeping
+   the composite/movers/breadth/free-to-cite hooks. `/deals` (54/194) and `/trending`
+   (55/144) titles were checked and are already within the ~60-char budget — only their
+   descriptions run long, which is lower-priority (title truncation kills a snippet's
+   hook; description truncation just loses trailing detail). `/most-valuable` title is
+   fine (56 chars) but its description is 220 chars — candidate for a future run's quick
+   trim.
 2. **`/sealed-deals` landing page** — sealed products priced below the market/MSRP guide
    (clone the `/deals` logic for sealed groups). Real data only; BreadcrumbList + FAQPage
    JSON-LD; link from nav + `/deals` + `/sealed`.
