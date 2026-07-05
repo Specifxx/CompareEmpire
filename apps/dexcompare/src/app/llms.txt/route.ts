@@ -65,12 +65,16 @@ export function GET() {
   }
   lines.push("## Feeds & machine-readable");
   lines.push("");
+  lines.push(`- [llms-full.txt](${abs("/llms-full.txt")}): a single-file markdown snapshot of the market + top cards, for LLMs.`);
   lines.push(`- [feed.xml](${abs("/feed.xml")}): RSS 2.0 feed of the blog and guides.`);
+  lines.push(`- [feed.json](${abs("/feed.json")}): JSON Feed (1.1) of the blog and guides.`);
   lines.push(`- [sitemap.xml](${abs("/sitemap.xml")}): sitemap index (cards, sets, sealed, content).`);
+  lines.push(`- [news-sitemap.xml](${abs("/news-sitemap.xml")}): Google News sitemap of recent blog posts.`);
   lines.push(`- [api/v1/index.json](${abs("/api/v1/index.json")}): the DexCompare Global Index (level, changes, daily series) as JSON.`);
   lines.push(`- [api/v1/card/{slug}/prices.json](${abs("/api/v1/card/base1-4-charizard/prices.json")}): per-market lowest price for any card as JSON.`);
   lines.push(`- [api/v1/openapi.json](${abs("/api/v1/openapi.json")}): OpenAPI 3.1 description of the free API.`);
-  lines.push(`- Every card page has a clean markdown mirror at /llm/card/{slug} (rel=alternate text/markdown).`);
+  lines.push(`- [api/mcp](${abs("/api/mcp")}): Model Context Protocol server (JSON-RPC) exposing get_index + get_card_prices tools to agents.`);
+  lines.push(`- Clean markdown mirrors (rel=alternate text/markdown): /llm/card/{slug}, /llm/blog/{slug}, and /llm/market.`);
   lines.push("");
 
   return new Response(lines.join("\n"), {
