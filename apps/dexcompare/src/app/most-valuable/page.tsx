@@ -17,7 +17,7 @@ export function generateMetadata(): Metadata {
   return {
     title: `Most Valuable Pokémon Cards — Live Prices, Ranked (${year})`,
     description:
-      "The most valuable Pokémon cards in stock right now, ranked by live price across every store we track. See what the chase cards actually cost today — vintage holos, alt arts and Special Illustration Rares — updated daily.",
+      "The most valuable Pokémon cards in stock right now, ranked by live price across every store we track — vintage holos, alt arts, SIRs. Updated daily.",
     keywords: [
       "most valuable pokemon cards",
       "most expensive pokemon cards",

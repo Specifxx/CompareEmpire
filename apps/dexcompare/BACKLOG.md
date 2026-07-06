@@ -81,9 +81,12 @@ doorway pages or keyword-stuffed titles; every new page must carry real data + r
    the composite/movers/breadth/free-to-cite hooks. `/deals` (54/194) and `/trending`
    (55/144) titles were checked and are already within the ~60-char budget — only their
    descriptions run long, which is lower-priority (title truncation kills a snippet's
-   hook; description truncation just loses trailing detail). `/most-valuable` title is
-   fine (56 chars) but its description is 220 chars — candidate for a future run's quick
-   trim.
+   hook; description truncation just loses trailing detail).
+   `/most-valuable` — DONE (this run): title was already fine (56 chars); description
+   trimmed from 220 → 148 chars, keeping the "every store we track" + "updated daily"
+   cues inside the SERP truncation budget instead of losing them mid-sentence. `/deals`
+   and `/trending` descriptions (194/144 chars) are the last remaining description-only
+   trims in this rotation — lower priority than title fixes but still queued.
 2. **`/sealed-deals` landing page** — sealed products priced below the market/MSRP guide
    (clone the `/deals` logic for sealed groups). Real data only; BreadcrumbList + FAQPage
    JSON-LD; link from nav + `/deals` + `/sealed`.
