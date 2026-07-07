@@ -72,7 +72,10 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const isPreorder = PREORDER_RE.test(g.name);
   const cleanName = cleanSealedName(g.name);
   const displayName = truncateAtWord(cleanName, isPreorder ? 34 : 43);
-  const title = isPreorder ? `${displayName} Preorder — Compare Prices` : `${displayName} — Compare Prices`;
+  // "Price" sits directly after the product name (not after "Compare") so the
+  // title reads like the exact long-tail query buyers type — "{set} booster box
+  // price" — instead of burying the keyword after a generic verb.
+  const title = isPreorder ? `${displayName} Preorder Price — Compare` : `${displayName} Price — Compare`;
   const description = isPreorder
     ? `${displayName} preorder — compare live prices across AU, NZ, US & UK stores before it sells out.`
     : `${displayName} price comparison across AU, NZ, US & UK stores — find the cheapest place to buy.`;

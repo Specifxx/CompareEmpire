@@ -96,9 +96,13 @@ doorway pages or keyword-stuffed titles; every new page must carry real data + r
    genuine reference price to compare against — fabricating an MSRP would violate the
    real-data-only rule, and comparing listings only against each other is just `/sealed`
    sorted by price, not a "deal". Defer until a real MSRP source is imported per product.
-3. **Sealed "booster box price" intent** — confirm each `/sealed/[slug]` box `<title>`
-   reads like "{Set} Booster Box price — cheapest {market}" so it captures the fat
-   "[set] booster box price" / "[set] etb price" long-tail across ~500–1000 products.
+3. **Sealed "booster box price" intent** — DONE (this run): `/sealed/[slug]` title was
+   "{name} — Compare Prices", which buries the "price" keyword after a generic verb
+   instead of right after the product name — the exact word order buyers type for
+   "[set] booster box price" / "[set] etb price". Reordered to "{name} Price — Compare"
+   (preorder: "{name} Preorder Price — Compare") — same or shorter length (16/25 char
+   suffix vs the old 17/26), so no title grows past the existing truncation budget;
+   applies to every scraped sealed product (~500–1000 pages).
 4. **Embeddable Index badge (backlink engine).** Add an "Embed this" section on `/market`
    with a copy-paste HTML snippet / small iframe others can drop on their site
    (e.g. "Pokémon singles index 103.2 ▲ · DexCompare") that links back — a natural,
