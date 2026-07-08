@@ -2,6 +2,23 @@
 
 Newest first. Each entry: what · why · commit.
 
+- SEO: embeddable "Index badge" — new `/embed/index` route (chrome-free HTML
+  fragment, cached 30 min, reuses the `/embed/*` frame-ancestors carve-out already
+  in `next.config.js`) rendering the live DexCompare Index level + 1-day move,
+  linking back to `/market?utm_source=embed`; `/market` gains an "Embed the Index"
+  section reusing the existing `EmbedSnippet` component (already powering the
+  per-card widgets on `/widgets`) for a copy-paste `<iframe>` snippet · GSC-TARGETS.md
+  was checked first: its two flagged low-CTR pages (`/sealed/…elitetrainerboxpre`,
+  `/card/me4-69-tauros`) already carry their fixed titles from prior runs — the
+  28-day GSC window is still trailing those fixes, so redoing them would be wasted
+  effort. Picked BACKLOG's SEO queue item #4 (embeddable Index badge) instead — the
+  last undone CTR-sweep items are minor description-only trims on `/deals`/`/trending`,
+  lower leverage than a genuinely new, self-updating backlink/brand-mention source
+  that compounds every time someone embeds it · confirmed the pre-existing `next
+  build` failure in this sandbox (Prisma auth against a fake local DB) reproduces
+  identically on a clean `main` checkout with this change stashed — unrelated to
+  this edit; `tsc --noEmit` is clean and neither `/market` nor `/embed/index` appear
+  in the build's failing-page list · (this commit)
 - SEO CTR: `/sealed/[slug]` title reordered from "{name} — Compare Prices" to "{name}
   Price — Compare" (preorder: "{name} Preorder Price — Compare") — puts the "price"
   keyword directly after the product name instead of after a generic verb, matching

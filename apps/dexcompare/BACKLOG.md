@@ -103,10 +103,14 @@ doorway pages or keyword-stuffed titles; every new page must carry real data + r
    (preorder: "{name} Preorder Price — Compare") — same or shorter length (16/25 char
    suffix vs the old 17/26), so no title grows past the existing truncation budget;
    applies to every scraped sealed product (~500–1000 pages).
-4. **Embeddable Index badge (backlink engine).** Add an "Embed this" section on `/market`
-   with a copy-paste HTML snippet / small iframe others can drop on their site
-   (e.g. "Pokémon singles index 103.2 ▲ · DexCompare") that links back — a natural,
-   scalable backlink generator. This is our best off-page lever; make it genuinely nice.
+4. **Embeddable Index badge (backlink engine).** DONE (this run): new `/embed/index`
+   route (chrome-free HTML, cached 30 min, uses the existing `/embed/*` frame-ancestors
+   carve-out in `next.config.js`) renders the live Index level + 1-day move and links
+   back to `/market?utm_source=embed`; `/market` gained an "Embed the Index" section
+   reusing the existing `EmbedSnippet` component (already used for per-card widgets on
+   `/widgets`). Possible follow-up: add the same badge/snippet block to `/widgets` itself
+   so both entry points cross-promote each other; not done this run to keep the diff
+   scoped to one surface.
 5. **Internal-linking depth (crawl + dwell).** Add contextual cross-links where missing:
    guide → the specific cards/sets it mentions; card → "more from {set}" / "same rarity";
    `/market` movers → the mover card pages; set → its sealed products; footer/nav hub
