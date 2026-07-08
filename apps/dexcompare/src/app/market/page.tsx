@@ -8,6 +8,7 @@ import { getMarketWrap, latestWrapDay } from "@/lib/market-wrap";
 import { getCountry } from "@/lib/get-country";
 import { COUNTRIES, type Country } from "@/lib/country";
 import { MarketSelect } from "@/components/MarketSelect";
+import { EmbedSnippet } from "@/components/EmbedSnippet";
 import { formatMoney } from "@/lib/format";
 import { SITE_URL } from "@/lib/site";
 
@@ -314,6 +315,23 @@ export default async function MarketPage({ searchParams }: { searchParams: { sco
           <Link href="/blog/market-wrap" className="text-brand-400 hover:underline">Daily Market Wrap</Link>{" "}
           publishes the full daily breakdown.
         </p>
+      </section>
+
+      {/* Embeddable badge — a free, self-updating backlink for anyone who cites the Index. */}
+      <section className="mt-8">
+        <h2 className="text-lg font-extrabold text-white">Embed the Index</h2>
+        <p className="mt-1 max-w-2xl text-sm text-slate-400">
+          Drop this live badge on your own site or blog — it shows the current Index level and daily
+          move, updates itself, and links back here. No script, no account, free to use.
+        </p>
+        <div className="mt-3 max-w-sm">
+          <EmbedSnippet
+            title="DexCompare Index badge"
+            src={`${SITE_URL}/embed/index`}
+            width={280}
+            height={90}
+          />
+        </div>
       </section>
     </div>
   );
