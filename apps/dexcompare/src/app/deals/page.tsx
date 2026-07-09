@@ -14,7 +14,7 @@ export const revalidate = 900;
 export const metadata: Metadata = {
   title: "Pokémon card deals — biggest discounts vs market price",
   description:
-    "Pokémon singles selling well below their TCGplayer market price right now, across stores in Australia, New Zealand, the US and the UK. Updated daily — the fastest way to snipe underpriced cards.",
+    "Pokémon singles selling below TCGplayer market price across AU, NZ, US and UK stores. Updated daily — the fastest way to snipe underpriced cards.",
   alternates: { canonical: "/deals" },
 };
 

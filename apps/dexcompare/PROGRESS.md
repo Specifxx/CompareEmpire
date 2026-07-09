@@ -2,6 +2,7 @@
 
 Newest first. Each entry: what · why · commit.
 
+- SEO: CTR title/meta sweep — `/deals` meta description trimmed from 194 → 145 chars ("Pokémon singles selling below TCGplayer market price across AU, NZ, US and UK stores. Updated daily — the fastest way to snipe underpriced cards."), replacing full country names with AU/NZ/US/UK abbreviations to fit inside Google's ~155-char SERP truncation budget · GSC-TARGETS.md's two flagged low-CTR pages (`/sealed/pokemon30thcelebrationelitetrainerboxpre`, `/card/me4-69-tauros`) already received dedicated title/description rewrites in prior runs (2026-07-01, 2026-07-07) via their shared page templates, so re-touching them again this run would be redundant churn without new signal — GSC CTR data lags 1-3 weeks behind a snippet fix as Google re-crawls. Instead picked the next explicitly-queued item in BACKLOG's CTR sweep: `/deals`'s description was the last over-budget description left in the rotation (`/trending`'s 144-char description was already within budget on recount) · (this commit)
 - SEO: embeddable "Index badge" — new `/embed/index` route (chrome-free HTML
   fragment, cached 30 min, reuses the `/embed/*` frame-ancestors carve-out already
   in `next.config.js`) rendering the live DexCompare Index level + 1-day move,

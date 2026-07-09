@@ -87,6 +87,18 @@ doorway pages or keyword-stuffed titles; every new page must carry real data + r
    cues inside the SERP truncation budget instead of losing them mid-sentence. `/deals`
    and `/trending` descriptions (194/144 chars) are the last remaining description-only
    trims in this rotation — lower priority than title fixes but still queued.
+   `/deals` description — DONE (this run): trimmed 194 → 145 chars ("Pokémon singles
+   selling below TCGplayer market price across AU, NZ, US and UK stores. Updated daily —
+   the fastest way to snipe underpriced cards."), swapping full country names for AU/NZ/
+   US/UK abbreviations to fit the ~155-char budget without losing any hook. `/trending`'s
+   144-char description was re-measured this run and is already within budget — nothing
+   left to trim there, which closes out this CTR-sweep rotation. GSC-TARGETS.md's two
+   flagged low-CTR pages (`/sealed/pokemon30thcelebrationelitetrainerboxpre`,
+   `/card/me4-69-tauros`) were checked but already got dedicated title/description fixes
+   via their shared templates on 2026-07-01/07-07 — still showing 0% CTR in the latest
+   28d window, but that's expected lag (Google re-crawls and re-renders snippets over
+   1-3 weeks), not evidence the fix didn't land. Re-check GSC-TARGETS.md fresh each run
+   in case CTR recovers or a genuinely new page surfaces.
 2. **`/sealed-deals` landing page** — sealed products priced below the market/MSRP guide
    (clone the `/deals` logic for sealed groups). Real data only; BreadcrumbList + FAQPage
    JSON-LD; link from nav + `/deals` + `/sealed`.
