@@ -63,6 +63,9 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
       { url: `${SITE_URL}/games/catcher`, changeFrequency: "weekly", priority: 0.6 },
       { url: `${SITE_URL}/games/breaker`, changeFrequency: "weekly", priority: 0.6 },
       { url: `${SITE_URL}/restock`, changeFrequency: "daily", priority: 0.85 },
+      { url: `${SITE_URL}/deck`, changeFrequency: "monthly", priority: 0.6 },
+      { url: `${SITE_URL}/decks`, changeFrequency: "weekly", priority: 0.65 },
+      { url: `${SITE_URL}/forum`, changeFrequency: "daily", priority: 0.6 },
       ...FEATURED_RESTOCKS.map((p) => ({
         url: `${SITE_URL}/restock/${p.slug}`,
         changeFrequency: "hourly" as const,

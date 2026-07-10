@@ -2,6 +2,29 @@
 
 Newest first. Each entry: what · why · commit.
 
+- SEO: internal-linking — `/forum`, `/deck` and `/decks` added to the footer nav
+  (`layout.tsx`) and `sitemap.ts`'s static-routes bucket. Audit found all three had
+  ZERO server-rendered inbound links and ZERO sitemap entries anywhere on the site —
+  their only reference was inside `NavMenu`'s dropdown panel, which only renders
+  `{open && (...)}` after a click (`useState(false)` initial state), so it's absent
+  from the SSR HTML Googlebot actually crawls. All three are real, valuable,
+  independently-indexable pages (deck builder, meta decks list, buy/sell forum board —
+  each with its own canonical + metadata), not thin/doorway content, so this was a
+  genuine crawl/discovery gap rather than intentional exclusion (`/collection` and
+  `/proxy` are correctly `noindex`'d and were left alone) · GSC-TARGETS.md was checked
+  first this run: its two flagged low-CTR pages (`/sealed/pokemon30thcelebrationelitetrainerboxpre`,
+  `/card/me4-69-tauros`) were re-verified against current source — both already carry
+  their fixed titles from prior runs, still trailing the 28-day GSC window, so redoing
+  them would be wasted effort. Picked BACKLOG's SEO queue item #5's last open sub-item
+  (footer/nav orphan-page coverage) instead — also audited "card → more from
+  {set}/same rarity" and "`/market` movers → card pages" while in that section and
+  found both were already implemented (undocumented) via `cheaperInSet`/`sameTypeCards`
+  on `/card/[id]` and `CardTile` on `/market`, so no further work needed there ·
+  confirmed the pre-existing `next build` failure in this sandbox (Prisma auth against
+  a fake local DB, on `/`, `/trending`, `/deals`, `/most-valuable`, `/restock`,
+  `/blog/market-wrap`, sitemap buckets 1/2) reproduces identically on a clean `main`
+  checkout with this change stashed — unrelated to this edit; `tsc --noEmit` is clean
+  and the build compiles successfully · (this commit)
 - SEO: CTR title/meta sweep — `/deals` meta description trimmed from 194 → 145 chars ("Pokémon singles selling below TCGplayer market price across AU, NZ, US and UK stores. Updated daily — the fastest way to snipe underpriced cards."), replacing full country names with AU/NZ/US/UK abbreviations to fit inside Google's ~155-char SERP truncation budget · GSC-TARGETS.md's two flagged low-CTR pages (`/sealed/pokemon30thcelebrationelitetrainerboxpre`, `/card/me4-69-tauros`) already received dedicated title/description rewrites in prior runs (2026-07-01, 2026-07-07) via their shared page templates, so re-touching them again this run would be redundant churn without new signal — GSC CTR data lags 1-3 weeks behind a snippet fix as Google re-crawls. Instead picked the next explicitly-queued item in BACKLOG's CTR sweep: `/deals`'s description was the last over-budget description left in the rotation (`/trending`'s 144-char description was already within budget on recount) · (this commit)
 - SEO: embeddable "Index badge" — new `/embed/index` route (chrome-free HTML
   fragment, cached 30 min, reuses the `/embed/*` frame-ancestors carve-out already

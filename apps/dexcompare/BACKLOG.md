@@ -127,12 +127,39 @@ doorway pages or keyword-stuffed titles; every new page must carry real data + r
    guide → the specific cards/sets it mentions; card → "more from {set}" / "same rarity";
    `/market` movers → the mover card pages; set → its sealed products; footer/nav hub
    coverage for orphan pages. One surface per run.
-   `set → its sealed products` — DONE (this run): `/sets/[set]` now shows up to 4
+   `set → its sealed products` — DONE (prior run): `/sets/[set]` now shows up to 4
    `SealedTile`s for that set (via `getSealedGroups()` filtered by `setCode`) plus an
    "All {set} sealed →" link to `/sealed?set={code}`; `/sealed/[slug]` already linked
-   back to the set page, so this closes the loop both ways. Still queued: guide →
-   specific cards/sets, card → "more from {set}"/"same rarity", `/market` movers →
-   card pages, footer/nav orphan-page coverage.
+   back to the set page, so this closes the loop both ways.
+   `card → "more from {set}"/"same rarity"` and `/market movers → card pages` — audited
+   this run and already DONE (pre-existing, not previously logged): `/card/[id]`
+   queries `cheaperInSet` (other cards in the same set) and `sameTypeCards` (same
+   Pokémon type from a different set, deterministically windowed by `artSeed % 20` so
+   internal links spread across the long tail) and renders both as linked `CardTile`
+   sections; `/market`'s gainers/losers sections already render each mover as a linked
+   `CardTile`. Nothing to do here.
+   `footer/nav orphan-page coverage` — DONE (this run): audited every route under
+   `src/app` against the footer nav, the header `NAV_SECTIONS` menu, and `sitemap.ts`.
+   Found `/forum`, `/deck` and `/decks` had ZERO server-rendered inbound links and ZERO
+   sitemap entries — their only reference anywhere was inside `NavMenu`'s dropdown
+   panel, which is `{open && (...)}`-gated behind `useState(false)`, so it never
+   renders in the initial SSR HTML Googlebot sees (a click-only reveal, not a
+   crawlable link). All three are real, indexable, ISR/dynamic-rendered pages
+   (deck builder, meta decks, buy/sell forum) with their own canonical + metadata —
+   added to the always-server-rendered footer nav in `layout.tsx` and to
+   `sitemap.ts`'s static-routes bucket. (`/tools` and `/tools/arbitrage` were already
+   in the sitemap, just missing from the footer — not touched this run to keep the
+   diff scoped; `/collection` and `/proxy` are intentionally `noindex`'d private pages,
+   correctly left out of both.) Still queued: guide → specific cards/sets it mentions —
+   audited this run too: guides already link out to `/sets`, `/browse`, `/restock/[slug]`
+   and other `/guides/[slug]` articles, but a text scan of all 25 article bodies against
+   the 173-set catalogue found only ~7 unlinked plain-text set-name mentions (e.g. bare
+   "Team Up", "Sword & Shield" inside bold text) and literally zero mentions of specific
+   `/card/[id]` slugs — there's no safe way to link a guide's prose to a *specific* card
+   page without a DB-verified slug (this sandbox has no live DB to confirm one), so that
+   sub-item stays deferred until it can be done against real data; the set-name-only
+   opportunity is real but thin (≈7 links across 25 files) — lower leverage than what
+   was just shipped.
 6. **One new evergreen guide per run**, targeting a real query with real value — e.g.
    "Is a {set} booster box worth it?", "How to price your Pokémon cards", "Spot fake
    {set} cards", per-country buying guides. Hub-and-spoke: link each to ≥5 card/set pages.
