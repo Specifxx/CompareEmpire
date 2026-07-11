@@ -47,6 +47,10 @@ function cleanSealedName(raw: string): string {
   const cleaned = raw
     .replace(/\(\s*pre[\s-]?order[^)]*\)?/gi, "")
     .replace(/[-|]\s*pre[\s-]?order.*$/i, "")
+    // A leading "Pokemon"/"Pokémon TCG:" brand tag is redundant on a Pokémon
+    // card-price site and just eats truncation budget that the set name and
+    // product type need — strip it so the distinguishing words survive.
+    .replace(/^pok[eé]mon\s*(?:tcg|trading\s*card\s*game)?\s*:?\s*/i, "")
     .replace(/\s{2,}/g, " ")
     .trim();
   return cleaned || raw.trim();
@@ -62,6 +66,22 @@ function truncateAtWord(name: string, max: number): string {
   return lastSpace > max * 0.6 ? cut.slice(0, lastSpace) : cut;
 }
 
+// Blind truncation can cut off the classified product type ("Elite Trainer
+// Box", "Booster Box") — the exact term buyers search alongside the set name
+// ("[set] elite trainer box price"). When the cleaned name still contains that
+// type verbatim, truncate the part BEFORE it and always keep the type intact
+// instead of leaving it to chance against the character budget.
+function truncatePreservingType(name: string, productType: string, max: number): string {
+  if (name.length <= max) return name;
+  const idx = name.toLowerCase().indexOf(productType.toLowerCase());
+  if (idx === -1) return truncateAtWord(name, max);
+  const type = name.slice(idx, idx + productType.length);
+  const prefixBudget = max - type.length - 1;
+  if (prefixBudget <= 0) return type;
+  const prefix = truncateAtWord(name.slice(0, idx).trim(), prefixBudget);
+  return prefix ? `${prefix} ${type}` : type;
+}
+
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const country = DEFAULT_COUNTRY;
   const g =
@@ -71,7 +91,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   if (!g) notFound(); // real 404 — metadata resolves before streaming
   const isPreorder = PREORDER_RE.test(g.name);
   const cleanName = cleanSealedName(g.name);
-  const displayName = truncateAtWord(cleanName, isPreorder ? 34 : 43);
+  const displayName = truncatePreservingType(cleanName, g.productType, isPreorder ? 37 : 43);
   // "Price" sits directly after the product name (not after "Compare") so the
   // title reads like the exact long-tail query buyers type — "{set} booster box
   // price" — instead of burying the keyword after a generic verb.

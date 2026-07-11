@@ -99,6 +99,28 @@ doorway pages or keyword-stuffed titles; every new page must carry real data + r
    28d window, but that's expected lag (Google re-crawls and re-renders snippets over
    1-3 weeks), not evidence the fix didn't land. Re-check GSC-TARGETS.md fresh each run
    in case CTR recovers or a genuinely new page surfaces.
+   `/sealed/pokemon30thcelebrationelitetrainerboxpre` — root-caused this run (2026-07-11):
+   GSC-TARGETS.md still flags it at 128 impr / 0.0% CTR, and position actually got WORSE
+   (7.6 → 11.6), despite two prior title rewrites. Dispatched a research agent to find
+   out why a title fix wasn't moving CTR. Root cause found: the raw scraped name
+   ("Pokemon TCG: 30th Celebration Elite Trainer Box…") is 49 chars after stripping
+   preorder noise — over the 34-char preorder truncation budget — and the naive
+   word-boundary truncation was silently dropping "Elite Trainer Box" (the actual
+   product-type keyword) rather than the redundant "Pokemon TCG:" brand prefix. Fixed
+   at the template level (not a one-off): `cleanSealedName()` now strips the leading
+   brand tag, and a new `truncatePreservingType()` always keeps the classified
+   `productType` (already computed at scrape time) intact, truncating the prefix
+   instead. This is a real product-name/template bug that applied to every scraped
+   sealed product with a long name, not just this one page — should lift CTR site-wide
+   on longer sealed titles, not just the flagged one. NOTE: the deeper structural issue
+   the research agent also surfaced — this set ("30th Celebration"/"30th Anniversary")
+   has NO entry in `src/lib/pokemon-sets.ts` (auto-generated from the set-data build
+   script, not hand-editable), so `setCode`/`setName` are null for this product: no set
+   page to link to/from, no "related sealed products" module, and if the one listing
+   ever drops the page can't be resynthesized from a slug and would hard-404. Real fix
+   is adding a real catalogue entry via `scripts/build-pokemon-data.ts`'s data source
+   once that set actually ships — not safely doable by hand-editing the generated file
+   in this sandbox. Re-check GSC-TARGETS.md in a few weeks for this page specifically.
 2. **`/sealed-deals` landing page** — sealed products priced below the market/MSRP guide
    (clone the `/deals` logic for sealed groups). Real data only; BreadcrumbList + FAQPage
    JSON-LD; link from nav + `/deals` + `/sealed`.
