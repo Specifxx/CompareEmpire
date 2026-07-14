@@ -2,6 +2,26 @@
 
 Newest first. Each entry: what · why · commit.
 
+- SEO CTR: homepage (`/`) meta description trimmed from 186 → 138 chars ("Compare live
+  Pokémon card prices across AU, NZ, US and UK stores, plus eBay, and find the cheapest
+  place to buy every card. Updated daily."), replacing full country names with AU/NZ/US/
+  UK abbreviations (matching the `/deals` fix pattern) to fit inside Google's ~155-char
+  SERP truncation budget; title (46 chars) was already fine, untouched · GSC-TARGETS.md
+  was read first this run: its one low-CTR/high-impression entry
+  (`/sealed/pokemon30thcelebrationelitetrainerboxpre`, 81 impr / 0.0% CTR / pos 13.6) has
+  now had three prior dedicated title/description fixes (2026-07-01, 07-07, 07-11) and
+  its position has kept getting WORSE each check (7.6 → 11.6 → 13.6) despite the
+  template-level root-cause fix — PROGRESS.md documents the real blocker as structural
+  (this set has no entry in the auto-generated `pokemon-sets.ts`, so it has no set page/
+  related-products links and can't be resynthesized if delisted), not further fixable via
+  wording, so redoing it again would be wasted effort. Instead acted on the NEW signal in
+  this run's file: `/` newly appeared in the "striking distance" table (rank ~20.4, 40
+  impressions) with a description well past budget — a first-time, concrete, actionable
+  target · confirmed the pre-existing `next build` failure in this sandbox (Prisma auth
+  against a fake local DB, on `/`, `/trending`, `/deals`, `/most-valuable`, `/restock`,
+  `/blog/market-wrap`, sitemap buckets 1/2 — same page list as documented in the prior
+  entry) reproduces identically on a clean `main` checkout with this change stashed —
+  unrelated to this edit; `tsc --noEmit` is clean · (this commit)
 - SEO: internal-linking — `/forum`, `/deck` and `/decks` added to the footer nav
   (`layout.tsx`) and `sitemap.ts`'s static-routes bucket. Audit found all three had
   ZERO server-rendered inbound links and ZERO sitemap entries anywhere on the site —

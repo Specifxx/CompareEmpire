@@ -22,7 +22,7 @@ export const revalidate = 3600;
 export const metadata: Metadata = {
   title: { absolute: "Buy & Compare Pokémon Card Prices | DexCompare" },
   description:
-    "Compare live Pokémon TCG card prices across stores in Australia, New Zealand, the United States and the United Kingdom, and find the cheapest place to buy Pokémon singles. Updated daily.",
+    "Compare live Pokémon card prices across AU, NZ, US and UK stores, plus eBay, and find the cheapest place to buy every card. Updated daily.",
   keywords: [
     "buy Pokémon cards",
     "Pokémon prices",

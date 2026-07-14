@@ -121,6 +121,13 @@ doorway pages or keyword-stuffed titles; every new page must carry real data + r
    is adding a real catalogue entry via `scripts/build-pokemon-data.ts`'s data source
    once that set actually ships — not safely doable by hand-editing the generated file
    in this sandbox. Re-check GSC-TARGETS.md in a few weeks for this page specifically.
+   STATUS (2026-07-14): still flagged, position keeps getting WORSE each check (7.6 →
+   11.6 → 13.6), impressions dropping (128 → 81) — confirms this is the structural
+   ceiling above, not a wording problem; stop re-touching its title/description until
+   the catalogue-entry fix lands. `/` (homepage) — DONE (this run): newly appeared in
+   GSC's "striking distance" table (rank 20.4, 40 impr) with a 186-char description past
+   the SERP budget; trimmed to 138 chars using the same AU/NZ/US/UK-abbreviation pattern
+   as the `/deals` fix. Title (46 chars) was already fine.
 2. **`/sealed-deals` landing page** — sealed products priced below the market/MSRP guide
    (clone the `/deals` logic for sealed groups). Real data only; BreadcrumbList + FAQPage
    JSON-LD; link from nav + `/deals` + `/sealed`.
