@@ -197,6 +197,18 @@ doorway pages or keyword-stuffed titles; every new page must carry real data + r
    deltas) so it never reads as auto-generated thin content.
 8. **OG image coverage** — ensure every indexable template renders a compelling
    `opengraph-image` (SERP + social CTR); add per-type images where the default is generic.
+   `/guides/[slug]` + `/blog/[slug]` — DONE (this run): both templates had no `images`
+   override at all and fell through to the single generic site-wide default (a static
+   purple/lightning-bolt card, off-brand for the current red-accent market-terminal look).
+   Added `src/lib/article-og.tsx` (shared `next/og` `ImageResponse` renderer — brand
+   header, title, excerpt, read time, mirrors the on-brand style already shipped for the
+   Market Wrap OG image) plus a thin `opengraph-image.tsx` in each route folder that reads
+   the article via the existing static `getArticle()` (no DB dependency, so it isn't
+   affected by this sandbox's Prisma-auth build limitation). Still generic/no per-page
+   image: `/sets/[set]`, `/restock/[slug]`, `/decks/[slug]`, `/browse`, `/card-value`,
+   `/most-valuable`, `/sealed` (list) — `/card/[id]` and `/sealed/[slug]` already use the
+   raw product photo (real per-page image, just not a designed card) so are lower priority
+   than the fully-generic ones. Next best target: `/sets/[set]` (173 pages, zero override).
 9. **CWV pass** — audit above-the-fold images on `/sets`, `/sealed`, `/market` for LCP;
    keep CLS locked (explicit dimensions / aspect-ratio). Trim any unused client JS.
 10. **Programmatic depth (careful):** where a template already ranks, deepen it with real

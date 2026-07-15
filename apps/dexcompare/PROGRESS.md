@@ -2,6 +2,33 @@
 
 Newest first. Each entry: what · why · commit.
 
+- SEO: dedicated OG share images for `/guides/[slug]` and `/blog/[slug]` — both
+  templates previously had no `openGraph.images` override and fell through to the
+  single generic site-wide `opengraph-image.tsx` (a static purple/lightning-bolt card,
+  off-brand for the site's current red-accent market-terminal look), so every one of
+  the ~25 guide/blog links shared on social or shown in a rich SERP preview looked
+  identical and didn't say what the article was about. Added
+  `src/lib/article-og.tsx` — a shared `next/og` `ImageResponse` renderer (brand D-mark,
+  red wordmark accent, ink gradient) that reads the article's title + excerpt + read
+  time, mirroring the on-brand style already shipped for the Daily Market Wrap OG
+  image — plus a thin `opengraph-image.tsx` per route folder. Both read the article via
+  the existing static, in-memory `getArticle()` (no DB call), so they're unaffected by
+  this sandbox's known Prisma-auth build limitation · GSC-TARGETS.md was read first
+  this run: its one low-CTR/high-impression page
+  (`/sealed/pokemon30thcelebrationelitetrainerboxpre`) is unchanged from the last check
+  (78 impr / 0.0% CTR / pos 14.0) and BACKLOG.md documents three prior title/description
+  fixes with position getting steadily WORSE (7.6→11.6→13.6→14.0) — confirmed structural
+  (no `pokemon-sets.ts` catalogue entry for this un-shipped set, so no set page/related-
+  products; not fixable by hand-editing the auto-generated catalogue), so redoing wording
+  again would be wasted effort; the `/` striking-distance entry was already fixed last
+  run. Picked BACKLOG SEO queue item #8 (OG image coverage) instead — the CTR-sweep
+  rotation (item #1) is fully done across every major template · confirmed the
+  pre-existing `next build` failure in this sandbox (Prisma auth against a fake local
+  DB, on `/`, `/trending`, `/deals`, `/most-valuable`, `/restock`, `/blog/market-wrap`,
+  sitemap buckets 1/2 — same page list as prior runs) reproduces identically with these
+  new files added — unrelated to this change (compiles successfully; `/guides/[slug]`
+  and `/blog/[slug]` don't appear in the failing-page list); `tsc --noEmit` is clean ·
+  (this commit)
 - SEO CTR: homepage (`/`) meta description trimmed from 186 → 138 chars ("Compare live
   Pokémon card prices across AU, NZ, US and UK stores, plus eBay, and find the cheapest
   place to buy every card. Updated daily."), replacing full country names with AU/NZ/US/
