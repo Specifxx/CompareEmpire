@@ -209,6 +209,12 @@ doorway pages or keyword-stuffed titles; every new page must carry real data + r
    `/most-valuable`, `/sealed` (list) — `/card/[id]` and `/sealed/[slug]` already use the
    raw product photo (real per-page image, just not a designed card) so are lower priority
    than the fully-generic ones. Next best target: `/sets/[set]` (173 pages, zero override).
+   `/sets/[set]` — DONE (this run): added `src/app/sets/[set]/opengraph-image.tsx` — a
+   card with the set name, series, card count and release year, reading only the static
+   `setBySlug()`/`POKEMON_SETS` catalogue (no DB call), so it isn't affected by this
+   sandbox's Prisma-auth build limitation. Covers all 173 set pages. Next best targets:
+   `/restock/[slug]`, `/decks/[slug]`, `/browse`, `/card-value`, `/most-valuable`,
+   `/sealed` (list) — still fully generic.
 9. **CWV pass** — audit above-the-fold images on `/sets`, `/sealed`, `/market` for LCP;
    keep CLS locked (explicit dimensions / aspect-ratio). Trim any unused client JS.
 10. **Programmatic depth (careful):** where a template already ranks, deepen it with real

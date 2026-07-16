@@ -2,6 +2,28 @@
 
 Newest first. Each entry: what · why · commit.
 
+- SEO: dedicated OG share images for `/sets/[set]` — added
+  `src/app/sets/[set]/opengraph-image.tsx`, a `next/og` `ImageResponse` card showing
+  the set name, series, card count, and release year, in the same on-brand red-accent
+  style as the guides/blog/market-wrap OG images shipped in prior runs. All 173 set
+  pages previously fell through to the single generic site-wide default (purple/
+  lightning-bolt card). Reads only the static `setBySlug()`/`POKEMON_SETS` catalogue —
+  no DB call — so it's unaffected by this sandbox's Prisma-auth build limitation ·
+  GSC-TARGETS.md was read first this run: its one low-CTR/high-impression page
+  (`/sealed/pokemon30thcelebrationelitetrainerboxpre`) is unchanged in kind from the
+  last four checks (72 impr / 0.0% CTR / pos 14.8, position still trending worse
+  7.6→11.6→13.6→14.0→14.8) — PROGRESS.md/BACKLOG.md already document this as a
+  structural ceiling (no `pokemon-sets.ts` catalogue entry for this un-shipped set),
+  not a wording problem, so redoing its title/description again would be wasted
+  effort; the `/` striking-distance entry (45 impr, pos 18.7) already got its
+  description-length fix two runs ago and needs no further metadata change. Picked
+  BACKLOG SEO queue item #8's explicitly-named next target (`/sets/[set]` OG image)
+  instead, continuing the OG-coverage rotation · confirmed the pre-existing `next
+  build` failure in this sandbox (Prisma auth against a fake local DB, on `/`,
+  `/trending`, `/deals`, `/most-valuable`, `/restock`, `/blog/market-wrap`, sitemap
+  buckets 1/2 — identical page list to every prior run) reproduces identically with
+  this file added — unrelated to this change (compiles successfully; `/sets/[set]`
+  doesn't appear in the failing-page list); `tsc --noEmit` is clean · (this commit)
 - SEO: dedicated OG share images for `/guides/[slug]` and `/blog/[slug]` — both
   templates previously had no `openGraph.images` override and fell through to the
   single generic site-wide `opengraph-image.tsx` (a static purple/lightning-bolt card,
