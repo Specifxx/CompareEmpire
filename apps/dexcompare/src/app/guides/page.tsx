@@ -31,6 +31,7 @@ const TOPICS: { id: string; label: string; slugs: string[] }[] = [
       "pokemon-card-grading-psa-vs-cgc",
       "pokemon-card-set-symbols-and-collector-numbers-explained",
       "do-pokemon-card-reprints-lower-value",
+      "first-edition-vs-unlimited-pokemon-cards",
     ],
   },
   {

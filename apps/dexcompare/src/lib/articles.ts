@@ -732,6 +732,52 @@ Put together, one Pokémon in one set can exist as: plain, reverse holo, holo, p
 5. **Then [look the exact printing up](/browse)** — the market settles the rest.`,
   },
   {
+    slug: "first-edition-vs-unlimited-pokemon-cards",
+    category: "guide",
+    title: "First Edition, Shadowless & Unlimited Pokémon Cards Explained",
+    excerpt:
+      "What the 1st Edition stamp and Shadowless border actually mean, why they're only a big deal on certain vintage cards, and how to tell the three WOTC print runs apart before you pay a premium.",
+    author: "DexCompare",
+    date: "2026-07-17",
+    readMins: 7,
+    tags: ["vintage", "first edition", "shadowless", "value", "authentication"],
+    body: `Search any vintage Base Set card and you'll see three wildly different prices for what looks like the same picture: "1st Edition", "Shadowless", and plain "Unlimited". They're not condition grades — they're print runs, and telling them apart is worth learning before you pay a vintage premium.
+
+## The three print runs
+
+WOTC printed Pokémon's earliest sets in batches, and each batch left a visible mark:
+
+- **1st Edition.** The very first print run of a set, marked with a small black "1st Edition" emblem near the bottom of the illustration box. WOTC stamped sets this way from Base Set (1999) through the early Neo series, then dropped the practice around 2001 as print volume scaled up to meet demand.
+- **Shadowless.** Unique to Base Set. Early production copies were missing the drop shadow that normally sits to the right and below the artwork's inner border — a printing-plate quirk that got corrected partway through the run. "Shadowless" describes that missing shadow, independent of whether the card is also 1st Edition.
+- **Unlimited.** Every later, uncapped print run. The drop shadow is present, there's no edition stamp, and this is what the overwhelming majority of a set's surviving copies are — including every copy of **Base Set 2**, which only ever existed as an Unlimited reprint.
+
+A single Base Set card can therefore exist as four real combinations: 1st Edition Shadowless, 1st Edition (with shadow), Shadowless Unlimited, and plain Unlimited — each trading at a different level.
+
+## How to spot each without guessing
+
+1. **Find the stamp first.** No "1st Edition" mark near the illustration box = Unlimited, full stop. Don't let a seller's title claim override what's actually printed on the card.
+2. **Check the shadow.** Look at the yellow/coloured border box around the artwork: a soft grey drop shadow along its right and bottom edge means Unlimited-style printing; no shadow at all is the Shadowless tell (Base Set only).
+3. **Cross-reference the set.** Shadowless only exists for Base Set. If a listing claims a "Shadowless Jungle" or "Shadowless Fossil" card, that's a red flag, not a rare find.
+4. **Trust a graded slab's label over a raw seller's claim.** PSA and CGC record edition and Shadowless status directly on the label after physically inspecting the card — see our [grading guide](/guides/pokemon-card-grading-psa-vs-cgc) for how that process works.
+
+## Why it moves the price — and why it sometimes doesn't
+
+Smaller original print runs mean fewer surviving copies, so 1st Edition and Shadowless copies generally command a premium over Unlimited. But **the size of that premium depends entirely on the card**, not the stamp:
+
+- On an iconic chase card — Base Set Charizard being the obvious example — 1st Edition Shadowless can trade at many multiples of the Unlimited price, because collector demand for that specific Pokémon is enormous.
+- On a common or energy card from the same set, the same stamp barely moves the number. Scarcity only becomes value when someone actually wants the card.
+
+That's the misconception worth busting: **"1st Edition" alone doesn't mean "rare" or "valuable"** — plenty of unloved commons got the stamp too. Always check the live price for the *exact* card, not the general reputation of the print run — the [card value checker](/card-value) shows current pricing so you're comparing the real number, not a rumour.
+
+## The authenticity risk
+
+Because 1st Edition and Shadowless copies sell for so much more, they're also the most faked category in the hobby — including genuine Unlimited cards with a counterfeit stamp added on top. Before paying a vintage premium, run the listing through our [fake-spotting checklist](/guides/how-to-spot-fake-pokemon-cards): the stamp itself, the copyright line, and the card back are the three tells that catch a doctored Unlimited card pretending to be 1st Edition.
+
+## The takeaway
+
+1st Edition, Shadowless and Unlimited describe *when* a card was printed, not how good it is. Learn to spot the stamp and the shadow, verify against a graded label or a trusted image when the premium is real money, and always [check the live price](/browse) for the exact print run you're buying — not just the set it came from.`,
+  },
+  {
     slug: "how-to-value-your-pokemon-card-collection",
     category: "guide",
     title: "How to Value Your Pokémon Card Collection",

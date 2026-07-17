@@ -192,6 +192,21 @@ doorway pages or keyword-stuffed titles; every new page must carry real data + r
 6. **One new evergreen guide per run**, targeting a real query with real value — e.g.
    "Is a {set} booster box worth it?", "How to price your Pokémon cards", "Spot fake
    {set} cards", per-country buying guides. Hub-and-spoke: link each to ≥5 card/set pages.
+   "First Edition, Shadowless & Unlimited Pokémon Cards Explained" — DONE (this run,
+   slug: `first-edition-vs-unlimited-pokemon-cards`, added to "Value & grading" topic
+   group). GSC-TARGETS.md's only flagged page this run was
+   `/sealed/pokemon30thcelebrationelitetrainerboxpre` again — already root-caused and
+   flagged "stop re-touching until the catalogue-entry fix lands" (2026-07-14 status:
+   position keeps getting worse on repeat title/description rewrites, confirming it's
+   the structural no-catalogue-entry ceiling, not wording), so no fresh GSC-driven
+   rewrite target existed this run. The last ~5 runs were all meta/OG-tag edits with no
+   new content — "1st edition"/"shadowless" is a real vintage-buyer query referenced in
+   passing across 3 existing articles (investment, spot-fakes, price-history) but never
+   explained on its own; closes that gap. Remaining guide ideas: "Is a {set} booster box
+   worth it?" (per-set, needs care re: thin/near-duplicate content across sets), "Spot
+   fake {set} cards" (per-set variant of the existing general fake-spotting guide — same
+   duplicate-content risk), per-country buying guides (defer per the hreflang note below
+   until GSC shows real non-AU demand).
 7. **Freshness + rich results.** Add `dateModified` + FAQPage/HowTo JSON-LD to guides/blog
    that lack it; keep the Daily Market Wrap substantive (named movers + why, never bare
    deltas) so it never reads as auto-generated thin content.
