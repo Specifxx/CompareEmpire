@@ -230,12 +230,18 @@ doorway pages or keyword-stuffed titles; every new page must carry real data + r
    sandbox's Prisma-auth build limitation. Covers all 173 set pages. Next best targets:
    `/restock/[slug]`, `/decks/[slug]`, `/browse`, `/card-value`, `/most-valuable`,
    `/sealed` (list) — still fully generic.
-   `/restock/[slug]` — DONE (this run): added `src/app/restock/[slug]/opengraph-image.tsx`
+   `/restock/[slug]` — DONE (prior run): added `src/app/restock/[slug]/opengraph-image.tsx`
    — product name, series and an "in stock now?" hook, reading only the static
    `FEATURED_RESTOCKS` config in `src/lib/restocks.ts` (no DB call). Currently only one
    product is configured (`chaos-rising`) but the template scales automatically as more
    are added. Next best targets: `/decks/[slug]`, `/browse`, `/card-value`,
    `/most-valuable`, `/sealed` (list) — still fully generic.
+   `/decks/[slug]` — DONE (this run): added `src/app/decks/[slug]/opengraph-image.tsx` —
+   deck name, tier, legend and live card count, reading only the static `META_DECKS`
+   seed array via `getDeckSeed()` in `src/lib/meta-decks.ts` (no DB call — the deck's
+   priced totals require Prisma but the OG card only needs the static seed fields).
+   Next best targets: `/browse`, `/card-value`, `/most-valuable`, `/sealed` (list) —
+   still fully generic.
 9. **CWV pass** — audit above-the-fold images on `/sets`, `/sealed`, `/market` for LCP;
    keep CLS locked (explicit dimensions / aspect-ratio). Trim any unused client JS.
 10. **Programmatic depth (careful):** where a template already ranks, deepen it with real
