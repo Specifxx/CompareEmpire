@@ -236,12 +236,16 @@ doorway pages or keyword-stuffed titles; every new page must carry real data + r
    product is configured (`chaos-rising`) but the template scales automatically as more
    are added. Next best targets: `/decks/[slug]`, `/browse`, `/card-value`,
    `/most-valuable`, `/sealed` (list) — still fully generic.
-   `/decks/[slug]` — DONE (this run): added `src/app/decks/[slug]/opengraph-image.tsx` —
+   `/decks/[slug]` — DONE (prior run): added `src/app/decks/[slug]/opengraph-image.tsx` —
    deck name, tier, legend and live card count, reading only the static `META_DECKS`
    seed array via `getDeckSeed()` in `src/lib/meta-decks.ts` (no DB call — the deck's
    priced totals require Prisma but the OG card only needs the static seed fields).
-   Next best targets: `/browse`, `/card-value`, `/most-valuable`, `/sealed` (list) —
-   still fully generic.
+   `/browse` — DONE (this run): added `src/app/browse/opengraph-image.tsx` — a "Browse
+   every Pokémon card" headline with the real `POKEMON_SETS.length` set count and the
+   AU/NZ/US/UK markets line; a single static image since `/browse` has no dynamic route
+   segment (query-string filter/search views are already `noindex`/canonical to the
+   base page, so they don't need their own image). Next best targets: `/card-value`,
+   `/most-valuable`, `/sealed` (list) — still fully generic.
 9. **CWV pass** — audit above-the-fold images on `/sets`, `/sealed`, `/market` for LCP;
    keep CLS locked (explicit dimensions / aspect-ratio). Trim any unused client JS.
 10. **Programmatic depth (careful):** where a template already ranks, deepen it with real
