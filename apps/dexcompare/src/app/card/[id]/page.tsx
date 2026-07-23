@@ -48,6 +48,34 @@ export function generateStaticParams() {
 // Accept either the slug ("vayne-hunter-sfd-223-221") or the legacy cuid.
 const whereParam = (p: string) => ({ OR: [{ slug: p }, { id: p }] });
 
+// Truncate at a word boundary (no mid-word cuts — Google elides with "…"
+// itself) and drop any dangling punctuation the cut left behind.
+function truncateAtWord(name: string, max: number): string {
+  const trimmed = name.trim();
+  if (trimmed.length <= max) return trimmed;
+  const cut = trimmed.slice(0, max);
+  const lastSpace = cut.lastIndexOf(" ");
+  const word = lastSpace > max * 0.6 ? cut.slice(0, lastSpace) : cut;
+  return word.replace(/[\s:,&-]+$/, "");
+}
+
+// `setCode` is the internal pokemontcg.io API set ID ("base4", "sv3pt5", …),
+// not a name a buyer recognizes — showing it in a SERP snippet reads as
+// broken/spammy (this is why /card/base4-57-poliwhirl ranked #2.7 for its
+// query yet had 0% CTR over 27 impressions per GSC). Use the real set name
+// instead, truncating/dropping it before the collector number if the full
+// parenthetical would blow the title's ~60-char / description's ~155-char
+// SERP truncation budget.
+function cardSubject(name: string, setName: string, collectorNumber: string, maxLen: number): string {
+  const withNum = `${name} (${setName} ${collectorNumber})`;
+  if (withNum.length <= maxLen) return withNum;
+  const withoutNum = `${name} (${setName})`;
+  if (withoutNum.length <= maxLen) return withoutNum;
+  const setBudget = maxLen - name.length - 3; // "( )" wrapper
+  if (setBudget >= 15) return `${name} (${truncateAtWord(setName, setBudget)})`;
+  return name;
+}
+
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   const card = await prisma.card.findFirst({
     where: whereParam(params.id),
@@ -58,7 +86,8 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   // MARKET-NEUTRAL metadata: Googlebot crawls from US IPs, so cookie-derived
   // copy ("price in the United States") would be what gets indexed for every
   // market — fragmented snippets at 20k-page scale.
-  const title = `${card.name} (${card.setCode} ${card.collectorNumber}) price — compare cheapest stores`;
+  const titleSubject = cardSubject(card.name, card.setName, card.collectorNumber, 26);
+  const title = `${titleSubject} price — compare cheapest stores`;
   // Lead the snippet with a real price where one exists (currency-labelled, so
   // still market-neutral) — a concrete number lifts SERP CTR at 20k-page scale.
   const from =
@@ -67,9 +96,10 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
     card.lowestPriceCentsGb != null ? `from ${formatMoney(card.lowestPriceCentsGb, "GBP")}` :
     card.lowestPriceCentsNz != null ? `from ${formatMoney(card.lowestPriceCentsNz, "NZD")}` :
     null;
+  const descSubject = cardSubject(card.name, card.setName, card.collectorNumber, 36);
   const description = from
-    ? `${card.name} (${card.setCode} ${card.collectorNumber}) ${from} today. Compare live prices across stores in Australia, New Zealand, the US and the UK — updated daily.`
-    : `See today's cheapest price for ${card.name} (${card.setCode} ${card.collectorNumber}) across stores in Australia, New Zealand, the US and the UK — updated live.`;
+    ? `${descSubject} ${from} today. Compare live prices across stores in Australia, New Zealand, the US and the UK — updated daily.`
+    : `See today's cheapest price for ${descSubject} across stores in Australia, New Zealand, the US and the UK — updated live.`;
   const image = card.imageUrl ?? card.imageThumbUrl ?? undefined;
 
   return {

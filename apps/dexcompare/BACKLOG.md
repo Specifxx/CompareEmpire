@@ -38,6 +38,22 @@ Checked-and-skipped or deferred, so iterations don't re-evaluate blindly.
 - Blog article: "Pokémon Cards as an Investment — Honest Take" — DONE (this run).
 - Blog article: "Buying Pokémon Cards Internationally" — DONE (this run).
 
+## Noted this run — not shippable as one change, needs its own scoped pass
+- **`setCode` shown raw in in-page UI** (CardTile, DeckBuilder, QuickView, SearchBar,
+  DeckView, TradeCalculator, WishlistDrawer, ProxyBuilder, CollectionView, CsvTools) all
+  render `card.setCode` directly — the internal pokemontcg.io API set ID ("base4",
+  "sv3pt5", "swsh12pt5gg"), not a human set label. This run fixed the SEO-facing
+  `/card/[id]` title/description (root cause of a GSC anomaly — see PROGRESS.md) by
+  switching to `card.setName` there only. The in-page convention is a much bigger,
+  separate question — it's used consistently as a compact identifier across ~10
+  components and CSV import/export headers, so changing it touches far more surface
+  than one run should. Possible follow-up: a short recognizable label (e.g. a real
+  printed set symbol code, not the API ID) rather than the full name, which is too long
+  for tight UI chips — would need a new mapping/data source, not a drop-in `setName`
+  swap. Do NOT touch `Card.setCode` the column/slug/matching key itself — that's used in
+  URL slugs (`cardSlug()` in `card-url.ts`) and DB lookups; changing its stored value
+  would break ~20k existing indexed URLs.
+
 ## SEO ranking queue (CURRENT PRIORITY — work these first, top-down; one per run; keep useful + human)
 
 Prior queue (v1, items 1–12) shipped — see PROGRESS.md. This is the refreshed

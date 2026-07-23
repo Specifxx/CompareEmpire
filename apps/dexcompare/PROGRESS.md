@@ -2,6 +2,33 @@
 
 Newest first. Each entry: what · why · commit.
 
+- GSC-driven root-cause fix: `/card/[id]` `generateMetadata` was building its title/
+  description from `card.setCode`, which is the internal pokemontcg.io API set ID
+  ("base4", "sv3pt5", "gym1", …) rather than a name a buyer recognizes — it's used as
+  the URL-slug/matching key, not a display label. GSC-TARGETS.md's only flagged page
+  this run was `/card/base4-57-poliwhirl`: ranking at position 2.7 (top 3!) with 27
+  impressions but a genuinely anomalous 0.0% CTR — a great ranking earning zero clicks
+  pointed at the snippet itself, not the ranking. Confirmed the cause: its title
+  rendered as "Poliwhirl (base4 57) price — compare cheapest stores" — "base4" reads as
+  broken/spammy, not as "Base Set 2". `Card.setName` (the real human set name from the
+  scrape) was already selected in this function but never used in the title/description
+  — only `setCode` was. Replaced both with `card.setName`, added `cardSubject()` (tries
+  "name (setName num)", falls back to "name (setName)", then word-boundary-truncates or
+  drops the parenthetical entirely) so the ~60-char title / ~155-char description SERP
+  budgets are never blown even for the longest set names ("Scarlet & Violet Black Star
+  Promos", 34 chars) or card names. This is a template-level fix applying to every card
+  page whose set has one of these non-human internal codes — effectively every vintage
+  set (base1-6, gym1-2, neo1-4, ecard1-3, ex1-16, dp1-7, bw1-11, xy1-12, sm1-12, swsh1-12,
+  sv1-10 — all 173 sets use the API ID, not a printed set symbol) — not just the one
+  flagged card. Scoped to the SEO-facing metadata only; left the in-page UI's `{setCode}
+  · {collectorNumber}` convention (CardTile, DeckBuilder, QuickView, etc.) untouched — a
+  much larger, separate consistency question, not this run's finding · confirmed the
+  pre-existing `next build` failure in this sandbox (fake `DATABASE_URL`, on `/`,
+  `/trending`, `/deals`, `/most-valuable`, `/restock`, `/blog/market-wrap`, sitemap
+  buckets 1/2 — same page list as every prior run) reproduces identically; `/card/[id]`
+  does not appear in the failing-page list and compiles/prerenders cleanly; `tsc
+  --noEmit` is clean · (this commit)
+
 - SEO: dedicated OG share images for `/sets/[set]` — added
   `src/app/sets/[set]/opengraph-image.tsx`, a `next/og` `ImageResponse` card showing
   the set name, series, card count, and release year, in the same on-brand red-accent
