@@ -261,11 +261,17 @@ doorway pages or keyword-stuffed titles; every new page must carry real data + r
    AU/NZ/US/UK markets line; a single static image since `/browse` has no dynamic route
    segment (query-string filter/search views are already `noindex`/canonical to the
    base page, so they don't need their own image).
-   `/card-value` — DONE (this run): added `src/app/card-value/opengraph-image.tsx` —
+   `/card-value` — DONE (prior run): added `src/app/card-value/opengraph-image.tsx` —
    "Pokémon card value checker" headline, current-year "Free Price Guide" kicker
    (mirrors the dynamic year already in the page's `generateMetadata`), and the
-   live-value/real-store-prices hooks. Next best targets: `/most-valuable`, `/sealed`
-   (list) — still fully generic.
+   live-value/real-store-prices hooks.
+   `/most-valuable` and `/sealed` (list) — DONE (this run): added
+   `src/app/most-valuable/opengraph-image.tsx` ("Most valuable Pokémon cards ranked"
+   headline + vintage-holo/alt-art hooks) and `src/app/sealed/opengraph-image.tsx`
+   ("Booster boxes, ETBs & tins" headline + compare-prices hooks) — both static, no DB
+   call, same brand template as every prior OG image in this rotation. This closes out
+   item 8's originally-listed generic-template list; if a future audit finds another
+   template still on the site-wide default, queue it as a fresh sub-item here.
 9. **CWV pass** — audit above-the-fold images on `/sets`, `/sealed`, `/market` for LCP;
    keep CLS locked (explicit dimensions / aspect-ratio). Trim any unused client JS.
 10. **Programmatic depth (careful):** where a template already ranks, deepen it with real

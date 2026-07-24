@@ -2,6 +2,27 @@
 
 Newest first. Each entry: what · why · commit.
 
+- OG image coverage: added `opengraph-image.tsx` for `/most-valuable` and `/sealed`
+  (list) — both previously fell through to the generic site-wide default (off-brand
+  purple/lightning-bolt card), the two remaining fully-generic templates queued in
+  BACKLOG's OG-image sweep. Checked GSC-TARGETS.md first this run: both flagged items
+  (`/card/base4-57-poliwhirl`, 27 impr / 0.0% CTR / pos 2.7; `/` striking-distance at
+  pos 9.9) are identical to what the immediately prior two runs already fixed (setCode
+  → setName title rewrite; homepage description trim) — same numbers, no new signal,
+  so this is Google's normal 1-3 week re-crawl/re-render lag, not evidence the fixes
+  didn't land. No fresh GSC target existed, so fell back to the BACKLOG SEO queue's
+  next explicit undone item. Both new images are static (read only the page's own
+  static config/catalogue, no DB call) so they render independently of this sandbox's
+  Prisma-auth build limitation, and follow the exact brand template already shipped for
+  `/card-value`, `/browse`, `/sets/[set]`, `/restock/[slug]` and `/decks/[slug]`. `tsc
+  --noEmit` clean; `next build` fails on the same known pre-existing page list as every
+  prior run (`/`, `/trending`, `/deals`, `/most-valuable`, `/restock`,
+  `/blog/market-wrap`, sitemap buckets 1/2 — all due to the sandbox's fake
+  `DATABASE_URL`) — `/sealed` is not in that list and the new opengraph-image routes
+  produced no errors of their own. Remaining fully-generic OG-image target after this
+  run: none — the queue item 8 rotation is now complete for all previously-listed
+  templates. · (this commit)
+
 - GSC-driven root-cause fix: `/card/[id]` `generateMetadata` was building its title/
   description from `card.setCode`, which is the internal pokemontcg.io API set ID
   ("base4", "sv3pt5", "gym1", …) rather than a name a buyer recognizes — it's used as
