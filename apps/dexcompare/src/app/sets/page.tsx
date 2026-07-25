@@ -82,7 +82,7 @@ export default function SetsIndex() {
 
       {/* Sets grouped by era */}
       <div className="space-y-10">
-        {grouped.map(({ series, sets: seriesSets }) => (
+        {grouped.map(({ series, sets: seriesSets }, seriesIndex) => (
           <section key={series} id={slugify(series)} aria-labelledby={`hd-${slugify(series)}`}>
             {/* Series header */}
             <div className="mb-4 flex items-baseline gap-3 border-b border-ink-700 pb-2">
@@ -105,7 +105,12 @@ export default function SetsIndex() {
 
             {/* Set tiles */}
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
-              {seriesSets.map((s) => (
+              {seriesSets.map((s, i) => {
+                // Only the first era section is above the fold, and only its
+                // first row (widest grid is xl:grid-cols-6) — eager-load just
+                // those so the LCP logo isn't held back by `loading="lazy"`.
+                const aboveFold = seriesIndex === 0 && i < 6;
+                return (
                 <Link
                   key={s.code}
                   href={`/sets/${s.slug}`}
@@ -117,7 +122,8 @@ export default function SetsIndex() {
                       <img
                         src={s.logo}
                         alt={s.name}
-                        loading="lazy"
+                        loading={aboveFold ? "eager" : "lazy"}
+                        fetchPriority={aboveFold ? "high" : undefined}
                         className="max-h-14 max-w-full object-contain transition-transform group-hover:scale-105"
                       />
                     ) : (
@@ -131,7 +137,8 @@ export default function SetsIndex() {
                     </div>
                   </div>
                 </Link>
-              ))}
+                );
+              })}
             </div>
           </section>
         ))}

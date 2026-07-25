@@ -274,6 +274,18 @@ doorway pages or keyword-stuffed titles; every new page must carry real data + r
    template still on the site-wide default, queue it as a fresh sub-item here.
 9. **CWV pass** — audit above-the-fold images on `/sets`, `/sealed`, `/market` for LCP;
    keep CLS locked (explicit dimensions / aspect-ratio). Trim any unused client JS.
+   `/sets` — DONE (this run): the first era section's grid used `loading="lazy"`
+   unconditionally, including the first (above-the-fold) row — the page's own LCP
+   element was fighting the browser's lazy-load heuristic. Now eager-loads +
+   `fetchPriority="high"`s just the first era's first 6 tiles; rest stay lazy.
+   `/sealed` (`SealedTile.tsx`) — audited, lower priority: also plain `<img
+   loading="lazy">` (next/image intentionally avoided — arbitrary scraped store/eBay/
+   TCGplayer CDN hosts, would need host allow-listing), but its `aspect-square`
+   container already reserves layout so CLS is safe; the lazy-load-on-first-row issue
+   is the same shape as `/sets` if picked up in a future run. `/market` — audited, not
+   applicable: hero is a hand-rolled inline SVG `PriceChart` (no chart library, no
+   above-the-fold image), so no LCP-image or dynamic-import win exists there.
+   "Trim any unused client JS" — not yet audited.
 10. **Programmatic depth (careful):** where a template already ranks, deepen it with real
     on-page value (price history blurb, "X stores from $Y", related products) rather than
     spinning up new thin pages — quality over page count.

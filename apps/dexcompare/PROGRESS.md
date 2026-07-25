@@ -2,6 +2,20 @@
 
 Newest first. Each entry: what · why · commit.
 
+- CWV/LCP: `/sets` index — the first era section's set-logo grid unconditionally used
+  `loading="lazy"` on every tile, including the first row (above the fold, and the
+  page's LCP element on load). Now eager-loads + `fetchPriority="high"`s only the
+  first era's first 6 tiles (matches the widest `xl:grid-cols-6` row); every other
+  tile stays lazy. GSC-TARGETS.md checked first: its one flagged low-CTR page
+  (`/card/base4-57-poliwhirl`, 27 impr / 0.0% CTR / pos 2.7) was already fixed in the
+  immediately prior commit (setCode → setName title rewrite) — same numbers, normal
+  re-crawl lag, not a fresh signal — so fell back to BACKLOG's SEO queue item 9 (CWV
+  pass), which was still fully open. A dedicated Explore pass over `/sets`, `/sealed`,
+  `/market` found `/sets` was the only one with zero above-the-fold prioritization
+  (`/sealed`'s tiles are non-next/image `<img>` too but its container already reserves
+  layout via `aspect-square`; `/market`'s hero is a hand-rolled inline SVG chart, no
+  image/chart-library LCP risk). Pure attribute change, no new imports, no CLS risk
+  (dimensions already constrained by the existing `h-14` container) · (this commit)
 - OG image coverage: added `opengraph-image.tsx` for `/most-valuable` and `/sealed`
   (list) — both previously fell through to the generic site-wide default (off-brand
   purple/lightning-bolt card), the two remaining fully-generic templates queued in
