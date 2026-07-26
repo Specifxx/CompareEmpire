@@ -46,12 +46,17 @@ const PAGE = `<!doctype html>
 </html>`;
 
 export function middleware(_request: NextRequest) {
+  // 200, not 503: a 503 is the "correct" HTTP semantic for a temporary outage,
+  // but this pause is open-ended, not a short maintenance window — Vercel's own
+  // anomaly monitor treats a site-wide 503 as a live incident and pages on it
+  // (a new recurring alert, exactly what this change is trying to eliminate).
+  // The page already carries <meta name="robots" content="noindex" />, which is
+  // what actually controls the SEO/indexing outcome here.
   return new NextResponse(PAGE, {
-    status: 503,
+    status: 200,
     headers: {
       "content-type": "text/html; charset=utf-8",
       "cache-control": "no-store",
-      "retry-after": "86400",
     },
   });
 }
