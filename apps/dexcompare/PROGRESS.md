@@ -2,6 +2,37 @@
 
 Newest first. Each entry: what · why · commit.
 
+- Guides: new evergreen article "How to Avoid Pokémon Card Buying Scams Online"
+  (slug: `how-to-avoid-pokemon-card-buying-scams`) — covers red flags before paying
+  (below-market pricing, stock-photo-only listings, off-platform payment pressure),
+  five scam patterns specific to this hobby (empty-box/toploader-only, "regraded"
+  slabs, condition bait-and-switch, phishing DMs impersonating platform support,
+  the overpayment-refund scam), a payment-method risk ladder (platform buyer
+  protection > PayPal G&S > cash-in-person > bank transfer/gift cards/crypto/F&F),
+  why buying from tracked established stores removes most of the peer-to-peer scam
+  surface (links to `/stores`, `/browse`), and what to do if it's already gone
+  wrong (platform dispute, chargeback, screenshot evidence, report the account).
+  Added to the "Care & safety" topic group on `/guides` alongside the existing
+  fakes/storage guides — deliberately scoped to fraud/non-delivery risk, distinct
+  from the existing "spot fake cards" guide's counterfeit-product focus, so no
+  content overlap · GSC-TARGETS.md was read first this run: its one flagged
+  low-CTR page (`/card/base4-57-poliwhirl`, 27 impr / 0.0% CTR / pos 2.7) is
+  byte-for-byte identical to the number already logged two runs ago when the
+  `setCode`→`setName` title fix shipped for this exact page — confirmed the fix is
+  still live in source (`cardSubject()` in `card/[id]/page.tsx` uses `card.setName`),
+  so this is normal 1-3 week re-crawl lag, not a fresh signal to act on. The
+  "striking distance" entry (`/`, 99 impr, pos 8.6) has also improved since the
+  last few checks (was 20.4 → 11.5 → 10.7) and its title/description are already
+  within budget (44/138 chars) — nothing new to fix. No fresh GSC target existed,
+  so — per the "pick a different surface than the last ~3 runs" instruction (which
+  were CWV `/sets`, OG images `/most-valuable`+`/sealed`, and the `/card/[id]` GSC
+  metadata fix) — picked BACKLOG queue item #6 (new evergreen guide) instead of
+  more metadata/OG work, adding genuine new content rather than another rewrite ·
+  `tsc --noEmit` clean; `next build` fails only on the same known pre-existing
+  page list as every prior run (Prisma auth against this sandbox's fake
+  `DATABASE_URL`, unrelated to this change) — the new guide route
+  (`/guides/how-to-avoid-pokemon-card-buying-scams`) builds and prerenders
+  cleanly, listed among the SSG paths in the build output · (this commit)
 - CWV/LCP: `/sets` index — the first era section's set-logo grid unconditionally used
   `loading="lazy"` on every tile, including the first row (above the fold, and the
   page's LCP element on load). Now eager-loads + `fetchPriority="high"`s only the

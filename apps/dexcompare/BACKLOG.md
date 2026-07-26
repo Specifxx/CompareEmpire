@@ -208,6 +208,14 @@ doorway pages or keyword-stuffed titles; every new page must carry real data + r
 6. **One new evergreen guide per run**, targeting a real query with real value — e.g.
    "Is a {set} booster box worth it?", "How to price your Pokémon cards", "Spot fake
    {set} cards", per-country buying guides. Hub-and-spoke: link each to ≥5 card/set pages.
+   "How to Avoid Pokémon Card Buying Scams Online" — DONE (this run, slug:
+   `how-to-avoid-pokemon-card-buying-scams`, added to "Care & safety" topic group).
+   Covers fraud/non-delivery/payment-scam risk — deliberately scoped away from the
+   existing "spot fake cards" guide's counterfeit-product focus to avoid overlap.
+   GSC-TARGETS.md's only flagged page (`/card/base4-57-poliwhirl`) showed the exact
+   same 27 impr / 0.0% CTR / pos 2.7 already logged two runs ago when its title fix
+   shipped — confirmed still live in source, so no fresh signal; picked this queue
+   item instead since the last 3 runs were all metadata/OG/CWV work on existing pages.
    "First Edition, Shadowless & Unlimited Pokémon Cards Explained" — DONE (this run,
    slug: `first-edition-vs-unlimited-pokemon-cards`, added to "Value & grading" topic
    group). GSC-TARGETS.md's only flagged page this run was

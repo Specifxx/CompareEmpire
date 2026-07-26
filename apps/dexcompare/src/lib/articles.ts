@@ -1515,6 +1515,56 @@ The **cheapest in-stock local store price for the condition you want**, sanity-c
 
 Five numbers, one rule: know what each is measuring, then pay the lowest one that's measuring what you actually want.`,
   },
+  {
+    slug: "how-to-avoid-pokemon-card-buying-scams",
+    category: "guide",
+    title: "How to Avoid Pokémon Card Buying Scams Online",
+    excerpt:
+      "Empty-box listings, fake 'graded' slabs, off-platform payment requests — the scam patterns that target Pokémon card buyers, and the habits that make you a hard target.",
+    author: "DexCompare",
+    date: "2026-07-26",
+    readMins: 6,
+    tags: ["safety", "scams", "buying"],
+    body: `A counterfeit card is one risk when you buy Pokémon cards online — a completely different risk is never receiving a card at all, or receiving one that isn't what the photos showed. Chase cards routinely trade for hundreds of dollars, buyers rarely see the item before paying, and "condition" is whatever the seller says it is. That combination is exactly what scammers look for. None of what follows is exotic; it's the same handful of patterns repeating across eBay, Facebook Marketplace, Depop and Discord trade servers, and they're easy to catch once you know what to look for.
+
+## Red flags before you pay
+
+- **The price is meaningfully below the real market.** This is the single biggest tell. Check the [market price guide and live store prices](/browse) for the card first — if a "mint" chase card is listed 40–60% under everywhere else, it's either a fake, a misdescribed reprint, or the listing was never going to ship.
+- **Zero feedback, or feedback from a suspiciously different category.** A brand-new account, or one with 200 reviews for phone cases suddenly selling a $400 slab, is a pattern seen right before non-delivery scams.
+- **Only stock photos, never the actual item.** A legitimate seller of a specific card can photograph the specific card, front and back, same day. "Stock photo, ships from warehouse" on a supposedly single collectible is a warning sign, not a convenience.
+- **Pressure to move off-platform.** Any message asking to finish the sale over PayPal Friends & Family, bank transfer, gift cards, or crypto instead of the platform's own checkout is trying to route around the one thing that protects you: the platform's dispute process. Legitimate sellers rarely need to insist on this.
+- **An urgency push.** "Three other buyers are messaging me right now" on a common, easily-sourced card is a manufactured reason to skip your own price and seller checks.
+
+## Common scam patterns specific to this hobby
+
+1. **The empty-box / toploader-only scam.** Photos show a real, valuable card; what actually ships is an empty toploader, a bulk common, or nothing. Almost always paired with a demand to pay outside buyer-protected checkout.
+2. **The "regraded" slab.** A cracked-out low grade card resealed in a cloned or genuinely stolen slab shell showing a much higher grade. Cross-check the certification number on the grader's own site (PSA's and CGC's lookup tools are free and public) before paying a graded premium — never trust the number printed on the label alone.
+3. **The bait-and-switch on condition.** Listing photos are of a Near Mint copy; what ships is heavily played, with the difference explained away afterwards as "how it looked to me." Insist on photos of the actual card under real light, not a stock image, before paying for anything described as high-grade.
+4. **Phishing DMs impersonating platform support.** A message claiming to be from eBay, PayPal or TCGplayer "verifying" your account or "confirming" a payment, with a link to a lookalike login page. Real platforms don't ask you to log in through a link inside a chat message — go to the site directly instead of clicking through.
+5. **The overpayment refund scam.** A "buyer" sends a payment (often via a fake or reversible method) for more than the asking price and asks you to refund the difference before the original payment has actually cleared. By the time it bounces, the refund you sent is real money gone.
+
+## Payment methods, safest to riskiest
+
+- **Platform checkout with buyer protection (eBay, most marketplaces).** The safest option by far — if the item never arrives or isn't as described, you have a formal, enforced dispute path.
+- **PayPal Goods & Services.** Protected and refundable if something goes wrong; PayPal Friends & Family is not — it waives your protection and is a common ask from scammers precisely because of that.
+- **Local cash meetups.** Reasonably safe *in person*, at a public location, where you inspect the card before handing over money — treat any "meet" that turns into "just send it first" as a full stop.
+- **Bank transfer, gift cards, crypto, F&F to a stranger.** No recourse if the seller disappears. Fine between people you already trust; a red flag from anyone else.
+
+## Buying from tracked, established stores lowers this risk by default
+
+A lot of this risk is specific to peer-to-peer marketplace listings, where you're trusting an individual you've never dealt with. Buying from an established retailer that ships the card itself — rather than a third-party marketplace listing — removes most of the scam surface above: no anonymous seller, no off-platform payment pressure, and a real business with its own returns process behind the sale. That's part of why [every store DexCompare compares](/stores) is a real, ongoing retailer rather than a marketplace listing, and why the [card price comparison](/browse) is worth checking even when you do buy peer-to-peer — it tells you what the card should cost, which is the first scam check on this whole list.
+
+## If it's already gone wrong
+
+- **Open a case immediately** through the platform's own dispute process (eBay Money Back Guarantee, PayPal's Resolution Centre) rather than trying to negotiate with the seller directly — the clock on these usually starts from the order date, not from when you notice a problem.
+- **If you paid by card**, a chargeback through your bank or card issuer is a second line of defence even when a platform dispute is denied.
+- **Screenshot everything** — the listing, the messages, the tracking number — before a scammer account gets deleted and the evidence disappears with it.
+- **Report the account** to the platform even if you're made whole; it's the only way these listings get taken down before the next buyer sees them.
+
+## The honest summary
+
+Almost every one of these scams is beaten by two habits: know the real price before you pay — that's the [market check](/browse) — and never move money outside a protected payment method for a stranger. Scammers rely on buyers skipping both under time pressure. Slow down, and the pattern is usually obvious.`,
+  },
 ];
 
 export function getArticles(category?: ArticleCategory): Article[] {

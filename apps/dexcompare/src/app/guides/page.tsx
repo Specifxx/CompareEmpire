@@ -50,6 +50,7 @@ const TOPICS: { id: string; label: string; slugs: string[] }[] = [
     slugs: [
       "how-to-store-and-protect-pokemon-cards",
       "how-to-spot-fake-pokemon-cards",
+      "how-to-avoid-pokemon-card-buying-scams",
     ],
   },
   {
