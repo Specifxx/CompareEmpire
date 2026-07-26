@@ -12,8 +12,13 @@ name: DexCompare restock check (every ~15 min)
 # real cadence is ~15–30 min — still vastly better than the daily import.
 
 on:
-  schedule:
-    - cron: "*/15 * * * *"
+  # Scheduled runs DISABLED 2026-07-26 — DexCompare idled to stop burning the
+  # shared Neon compute-hour allowance (was causing daily PrismaClientInitializationError
+  # 500s on RiftCompare's /card/[id]). This was the biggest single driver (every
+  # 15 min = 96 runs/day). Re-enable by uncommenting once the Neon limit is
+  # raised or DexCompare gets its own headroom back.
+  # schedule:
+  #   - cron: "*/15 * * * *"
   workflow_dispatch:
     inputs:
       dexcompare_url:
