@@ -131,20 +131,30 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
     // card/[id]/page.tsx generateMetadata) — submitting noindexed URLs sends
     // Google a mixed signal. A card re-enters the sitemap automatically the
     // day the importer prices it.
-    const cards = await prisma.card.findMany({
-      where: {
-        OR: [
-          { lowestPriceCents: { not: null } },
-          { lowestPriceCentsNz: { not: null } },
-          { lowestPriceCentsUs: { not: null } },
-          { lowestPriceCentsGb: { not: null } },
-        ],
-      },
-      select: { id: true, slug: true, lowestPriceCents: true, imageUrl: true },
-      orderBy: { lowestPriceCents: { sort: "desc", nulls: "last" } },
-    });
-    // Zero priced cards is never a valid production state (it means the DB was
-    // reseeded before the price importer ran) — refuse to publish it.
+    let cards: { id: string; slug: string | null; lowestPriceCents: number | null; imageUrl: string | null }[];
+    try {
+      cards = await prisma.card.findMany({
+        where: {
+          OR: [
+            { lowestPriceCents: { not: null } },
+            { lowestPriceCentsNz: { not: null } },
+            { lowestPriceCentsUs: { not: null } },
+            { lowestPriceCentsGb: { not: null } },
+          ],
+        },
+        select: { id: true, slug: true, lowestPriceCents: true, imageUrl: true },
+        orderBy: { lowestPriceCents: { sort: "desc", nulls: "last" } },
+      });
+    } catch {
+      // DB unreachable (e.g. DexCompare paused, Neon quota exhausted) — every
+      // route is middleware-redirected to the paused page right now anyway, so
+      // an empty child sitemap here is a non-issue, not the "reseeded before
+      // import ran" case the throw below guards against.
+      return [];
+    }
+    // Zero priced cards while the DB IS reachable is never a valid production
+    // state (it means the DB was reseeded before the price importer ran) —
+    // refuse to publish it.
     if (cards.length === 0) {
       throw new Error("sitemap: card bucket resolved to 0 priced cards — refusing to publish an empty sitemap");
     }
@@ -160,8 +170,14 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
 
   // ── Sitemap 2: sealed product pages (~500 URLs) ────────────────────────────
   if (id === 2) {
-    // Same fail-loud policy as bucket 1 — no silent empty-200s.
-    const sealed = await getSealedGroups("AU");
+    // Same fail-loud policy as bucket 1 (see the try/catch there for why DB-
+    // unreachable is handled separately from a genuine empty catalogue).
+    let sealed: Awaited<ReturnType<typeof getSealedGroups>>;
+    try {
+      sealed = await getSealedGroups("AU");
+    } catch {
+      return [];
+    }
     const seenSlugs = new Set<string>();
     const routes: MetadataRoute.Sitemap = [];
     for (const g of sealed) {
