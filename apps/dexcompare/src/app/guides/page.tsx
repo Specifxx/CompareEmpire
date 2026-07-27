@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getArticles } from "@/lib/articles";
 import { ArticleList } from "@/components/ArticleList";
 import type { Article } from "@/lib/articles";
+import { SITE_URL } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Pokémon Card Guides — Buying, Selling, Grading & Storage",
@@ -68,8 +69,37 @@ export default function GuidesPage() {
   const assigned = new Set(TOPICS.flatMap((t) => t.slugs));
   const overflow = all.filter((a) => !assigned.has(a.slug));
 
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      name: "Pokémon Card Guides",
+      url: `${SITE_URL}/guides`,
+      description: "Pokémon TCG guides for collectors: where to buy cards cheapest, how to sell your collection, card conditions and grading, spotting fakes, storage and protection, and rarities explained.",
+      isPartOf: { "@type": "WebSite", name: "DexCompare", url: SITE_URL },
+      mainEntity: {
+        "@type": "ItemList",
+        itemListElement: all.map((a, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          url: `${SITE_URL}/guides/${a.slug}`,
+          name: a.title,
+        })),
+      },
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+        { "@type": "ListItem", position: 2, name: "Guides", item: `${SITE_URL}/guides` },
+      ],
+    },
+  ];
+
   return (
     <div>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <div className="mb-5">
         <h1 className="text-2xl font-extrabold text-white">Buying Guides</h1>
         <p className="mt-1 text-sm text-slate-400">

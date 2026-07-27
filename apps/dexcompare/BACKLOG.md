@@ -234,6 +234,17 @@ doorway pages or keyword-stuffed titles; every new page must carry real data + r
 7. **Freshness + rich results.** Add `dateModified` + FAQPage/HowTo JSON-LD to guides/blog
    that lack it; keep the Daily Market Wrap substantive (named movers + why, never bare
    deltas) so it never reads as auto-generated thin content.
+   `dateModified` on individual articles — already DONE pre-existing (`ArticleView`'s
+   `TechArticle`/`BlogPosting` JSON-LD carries `datePublished`/`dateModified`).
+   `/guides` and `/blog` hub pages — DONE (this run): both index pages had ZERO
+   structured data (audited every list/hub page against the `CollectionPage`+`ItemList`
+   pattern already used on `/sets`, `/browse`, `/sealed`, `/most-valuable`, `/trending`
+   and found these two were the only gaps). Added the same `CollectionPage` + `ItemList`
+   (every guide/post as a `ListItem`) + `BreadcrumbList` JSON-LD. FAQPage/HowTo on
+   individual guide articles themselves is still open — most guides are narrative
+   how-tos, not Q&A, so HowTo (numbered steps) fits better than FAQPage for a few of
+   them (e.g. "how-to-sell-pokemon-cards", "how-to-complete-a-pokemon-tcg-set") — pick
+   one per run rather than force-fitting all of them.
 8. **OG image coverage** — ensure every indexable template renders a compelling
    `opengraph-image` (SERP + social CTR); add per-type images where the default is generic.
    `/guides/[slug]` + `/blog/[slug]` — DONE (this run): both templates had no `images`

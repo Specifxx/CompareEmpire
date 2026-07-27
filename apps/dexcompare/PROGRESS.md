@@ -2,6 +2,19 @@
 
 Newest first. Each entry: what · why · commit.
 
+- SEO: `/guides` and `/blog` index pages gained `CollectionPage` + `ItemList` +
+  `BreadcrumbList` JSON-LD (matching the existing pattern already used on
+  `/sets`, `/browse`, `/sealed`, `/most-valuable`, `/trending`) — audited every
+  list/hub page against this convention and found these two hub pages were the
+  only ones still shipping zero structured data despite listing 18+ guide
+  articles and several blog posts each. Helps Google understand these as
+  genuine content collections (sitelinks-search-box / rich result eligibility)
+  and reinforces the internal link graph to every article. Note: site is
+  currently paused (middleware serves a noindex placeholder for all routes,
+  2026-07-26 owner decision) so this has no live SEO effect yet, but the
+  content/markup will be correct and ready the moment the pause lifts — same
+  rationale the prior run used for shipping a new guide during the pause.
+  · (this commit)
 - Guides: new evergreen article "How to Avoid Pokémon Card Buying Scams Online"
   (slug: `how-to-avoid-pokemon-card-buying-scams`) — covers red flags before paying
   (below-market pricing, stock-photo-only listings, off-platform payment pressure),
