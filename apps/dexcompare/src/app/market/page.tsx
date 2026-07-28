@@ -44,6 +44,25 @@ function Delta({ label, pct }: { label: string; pct: number | null }) {
 
 const MARKET_CODES: Country[] = ["AU", "NZ", "US", "GB"];
 
+const FAQS = [
+  {
+    q: "What is the DexCompare Index?",
+    a: "A base-100 index of the Pokémon singles market: each day we price the most valuable cards in a scope at the cheapest live in-stock store, sum that basket, and rebase the series to 100 at its start. An index of 103 means the basket costs 3% more to buy than it did on day one.",
+  },
+  {
+    q: "How is the Index calculated?",
+    a: "Per card, per day, we record the cheapest live listing (NM/LP condition, in stock, market-guide estimates excluded) across the retailers we track, sum the basket, then rebase to 100. The global composite equal-weights the AU, NZ, US and UK indexes' daily moves, so no single currency dominates.",
+  },
+  {
+    q: "Is the Index free to use or cite?",
+    a: "Yes. Journalists, YouTubers and Discord mods are welcome to quote the Index freely as \"the DexCompare Index\" with a link back to this page. There's also a free, self-updating embeddable badge below if you want it live on your own site.",
+  },
+  {
+    q: "How often does the Index update?",
+    a: "Daily. Our crawler snapshots live store prices once every 24 hours, and the Index, movers and sealed-supply figures on this page all refresh from that same daily snapshot.",
+  },
+];
+
 export default async function MarketPage({ searchParams }: { searchParams: { scope?: string; market?: string } }) {
   const scope = scopeFromParam(searchParams.scope);
   // "Global" (currency-neutral composite of all markets) is the default; a market
@@ -104,12 +123,24 @@ export default async function MarketPage({ searchParams }: { searchParams: { sco
         temporalCoverage: `${startDay}/..`,
       }
     : null;
+  const faqLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    url: `${SITE_URL}/market`,
+    mainEntity: FAQS.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
+  };
 
   return (
     <div className="mx-auto max-w-4xl">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(datasetLd ? [breadcrumbLd, datasetLd] : [breadcrumbLd]) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(datasetLd ? [breadcrumbLd, datasetLd, faqLd] : [breadcrumbLd, faqLd]),
+        }}
       />
 
       <nav className="mb-3 flex items-center gap-1.5 text-xs text-slate-500" aria-label="Breadcrumb">
@@ -315,6 +346,20 @@ export default async function MarketPage({ searchParams }: { searchParams: { sco
           <Link href="/blog/market-wrap" className="text-brand-400 hover:underline">Daily Market Wrap</Link>{" "}
           publishes the full daily breakdown.
         </p>
+      </section>
+
+      {/* FAQ — answers common Index questions and enables FAQPage rich results */}
+      <section className="card-surface mt-8 divide-y divide-ink-700 overflow-hidden">
+        <h2 className="px-6 py-4 text-lg font-extrabold text-white">Frequently asked questions</h2>
+        {FAQS.map((f) => (
+          <details key={f.q} className="group px-6 py-4">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-semibold text-slate-200 hover:text-white">
+              {f.q}
+              <span className="shrink-0 text-slate-500 transition-transform group-open:rotate-180" aria-hidden>▾</span>
+            </summary>
+            <p className="mt-3 text-sm leading-relaxed text-slate-400">{f.a}</p>
+          </details>
+        ))}
       </section>
 
       {/* Embeddable badge — a free, self-updating backlink for anyone who cites the Index. */}

@@ -245,6 +245,26 @@ doorway pages or keyword-stuffed titles; every new page must carry real data + r
    how-tos, not Q&A, so HowTo (numbered steps) fits better than FAQPage for a few of
    them (e.g. "how-to-sell-pokemon-cards", "how-to-complete-a-pokemon-tcg-set") — pick
    one per run rather than force-fitting all of them.
+   `/market` — DONE (this run): added a 4-question FAQ ("What is the Index?", "How is
+   it calculated?", "Is it free to cite?", "How often does it update?") as a visible
+   `<details>` accordion (same pattern as `/stores`/`/browse`/`/sealed`) + `FAQPage`
+   JSON-LD merged into the existing `BreadcrumbList`+`Dataset` script tag. This was the
+   one substantive already-ranking page still missing FAQ coverage; `/decks`,
+   `/decks/[slug]`, `/restock/[slug]` also lack it but have much less real Q&A content
+   to draw from. IMPORTANT CAVEAT for future runs: Google's Aug-2023 rich-results
+   update restricts FAQPage rich snippets to "well-known, authoritative government and
+   health" sites and removed HowTo rich results from Search entirely (Assistant only)
+   — so neither schema type will produce a visible SERP accordion for this site. The
+   JSON-LD is still worth adding (harmless, future-proof, may resurface for other
+   engines/AI answer surfaces), but the actual ranking value going forward comes from
+   the human-visible Q&A *content* matching real query intent, not from the schema
+   itself — don't treat "add FAQPage/HowTo schema" as a CTR lever on its own; treat it
+   as "add genuinely useful on-page Q&A content" and attach the schema as a bonus.
+   Still open for HowTo specifically: given the above, HowTo JSON-LD on
+   "how-to-sell-pokemon-cards"/"how-to-complete-a-pokemon-tcg-set" is now low priority
+   — the numbered-steps content already exists and reads well in prose; adding the
+   schema wrapper has near-zero incremental SEO value. Lower priority than other queue
+   items unless a future Google policy change reinstates HowTo rich results.
 8. **OG image coverage** — ensure every indexable template renders a compelling
    `opengraph-image` (SERP + social CTR); add per-type images where the default is generic.
    `/guides/[slug]` + `/blog/[slug]` — DONE (this run): both templates had no `images`
