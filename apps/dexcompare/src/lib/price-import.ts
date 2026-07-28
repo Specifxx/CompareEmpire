@@ -10,6 +10,7 @@ import { RETAILER_LIST, RetailerInfo } from "./retailers";
 import { isEbayEnabled, isEbayRateLimited, searchEbayLowest, primeEbayBudget, ebaySpentThisRun, ebaySpendable } from "./ebay";
 import { importSealed } from "./sealed-import";
 import { refreshTcgplayerPrices } from "./tcgplayer";
+import { priceField, marketGuideCents } from "./country";
 
 export interface ShopifyVariant { title: string; price: string; available: boolean }
 export interface ShopifyProduct { title: string; handle: string; variants: ShopifyVariant[] }
@@ -992,6 +993,55 @@ export async function importPrices(): Promise<ImportSummary> {
     console.log(`Price history: recorded ${total} points across 4 markets for ${day.toISOString().slice(0, 10)} (purged ${purged.count} old).`);
   } catch (e) {
     console.warn("Price-history snapshot failed:", e);
+  }
+
+  // Precompute "Deals" (cards meaningfully cheaper than their TCGplayer market
+  // guide) so the request path never scans the catalogue — see Deal model comment.
+  // Guard rails match the old runtime computeDeals() exactly: guide must be a
+  // REAL TCGplayer price (never the heuristic estimate), 15%-70% off only
+  // (deeper almost always means a wrong-card match or foreign print), and local
+  // price >= $2 so penny-card noise never tops the list.
+  try {
+    const guided = await prisma.card.findMany({
+      where: { marketPriceSource: "TCGplayer", marketPriceCents: { gt: 0 } },
+      select: {
+        id: true,
+        marketPriceCents: true,
+        lowestPriceCents: true,
+        lowestPriceCentsNz: true,
+        lowestPriceCentsUs: true,
+        lowestPriceCentsGb: true,
+      },
+    });
+    const DEAL_TAKE = 100; // headroom above the largest current consumer (/deals, 60)
+    let dealsWritten = 0;
+    for (const country of ["AU", "NZ", "US", "GB"] as const) {
+      const field = priceField(country);
+      const ranked = guided
+        .map((c) => {
+          const price = c[field];
+          const guide = marketGuideCents(c.marketPriceCents, country);
+          if (price == null || guide == null || price < 200) return null;
+          const pct = 1 - price / guide;
+          if (pct < 0.15 || pct > 0.7) return null;
+          return { cardId: c.id, pct: Math.round(pct * 100), priceCents: price, guideCents: guide };
+        })
+        .filter((d): d is NonNullable<typeof d> => d !== null)
+        // Deepest discount first; ties → the more valuable card (matches the
+        // old in-request sort exactly).
+        .sort((a, b) => b.pct - a.pct || b.priceCents - a.priceCents)
+        .slice(0, DEAL_TAKE);
+      await prisma.deal.deleteMany({ where: { country } });
+      if (ranked.length > 0) {
+        await prisma.deal.createMany({
+          data: ranked.map((d, rank) => ({ ...d, country, rank })),
+        });
+      }
+      dealsWritten += ranked.length;
+    }
+    console.log(`Deals: precomputed ${dealsWritten} rows across 4 markets (from ${guided.length} guided cards).`);
+  } catch (e) {
+    console.warn("Deals precompute failed:", e);
   }
 
   // Also refresh sealed / non-single products (booster boxes, packs, …). Isolated

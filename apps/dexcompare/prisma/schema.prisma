@@ -155,6 +155,7 @@ model Card {
   retailerPrices  RetailerPrice[]
   priceAlerts     PriceAlert[]
   reviews         CardReview[]
+  deals           Deal[]
 
   @@index([setCode, collectorNumber])
   @@index([nameNormalized])
@@ -266,6 +267,28 @@ model ContactMessage {
   createdAt DateTime @default(now())
 
   @@index([createdAt])
+}
+
+// A card whose cheapest LIVE store price sits meaningfully below the TCGplayer
+// market guide, precomputed by the importer once per run. Replaces a runtime
+// full-catalogue scan (the previous computeDeals() read every card with a
+// TCGplayer guide, ~6-12 MB, on every cache miss — the single largest source of
+// this site's Neon egress). Now the request path is a ~100-row indexed read.
+// Recomputed wholesale each import: deleteMany({country}) + createMany.
+model Deal {
+  id         String   @id @default(cuid())
+  cardId     String
+  country    String // AU | NZ | US | GB
+  rank       Int // 0-based, deepest discount first — lets reads ORDER BY rank cheaply
+  pct        Int // % below the market guide, e.g. 38
+  priceCents Int // cheapest live local price
+  guideCents Int // TCGplayer guide converted to the local currency
+  updatedAt  DateTime @default(now())
+
+  card       Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  @@unique([country, rank])
+  @@index([cardId])
 }
 
 // Daily snapshot of a card's lowest live price, for the price-over-time chart
