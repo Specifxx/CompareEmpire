@@ -1,6 +1,5 @@
 import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/db";
-import { dbHistory } from "@/lib/db-history";
 import { SITE_URL } from "@/lib/site";
 import { SETS } from "@/lib/constants";
 import { getArticles } from "@/lib/articles";
@@ -28,32 +27,23 @@ export async function generateSitemaps() {
 }
 
 export default async function sitemap({ id }: { id: number }): Promise<MetadataRoute.Sitemap> {
-  // Honest lastModified for price-bearing pages: the latest snapshot day.
-  // When DB is unavailable (e.g. during the build check) priceDay stays
-  // undefined and lastModified is simply omitted — that's fine.
-  let priceDay: Date | undefined;
-  try {
-    priceDay = (
-      await dbHistory.priceHistory.findFirst({ orderBy: { day: "desc" }, select: { day: true } })
-    )?.day;
-  } catch {
-    /* DB unavailable — priceDay stays undefined */
-  }
+  // No history DB anymore (see the "zero history" decision), so there's no
+  // cheap honest "last price snapshot day" signal to stamp price-bearing pages
+  // with — they simply carry no lastModified rather than a fake one.
 
-  // ── Sitemap 0: static routes + content + sets + market wraps ──────────────
+  // ── Sitemap 0: static routes + content + sets ──────────────────────────────
   if (id === 0) {
     const staticRoutes: MetadataRoute.Sitemap = [
-      { url: `${SITE_URL}/`, changeFrequency: "daily", priority: 1, lastModified: priceDay },
-      { url: `${SITE_URL}/browse`, changeFrequency: "daily", priority: 0.9, lastModified: priceDay },
+      { url: `${SITE_URL}/`, changeFrequency: "daily", priority: 1 },
+      { url: `${SITE_URL}/browse`, changeFrequency: "daily", priority: 0.9 },
       { url: `${SITE_URL}/sets`, changeFrequency: "weekly", priority: 0.85 },
-      { url: `${SITE_URL}/sealed`, changeFrequency: "daily", priority: 0.85, lastModified: priceDay },
-      { url: `${SITE_URL}/deals`, changeFrequency: "daily", priority: 0.85, lastModified: priceDay },
-      { url: `${SITE_URL}/card-value`, changeFrequency: "daily", priority: 0.85, lastModified: priceDay },
-      { url: `${SITE_URL}/most-valuable`, changeFrequency: "daily", priority: 0.8, lastModified: priceDay },
-      { url: `${SITE_URL}/trending`, changeFrequency: "daily", priority: 0.8, lastModified: priceDay },
-      { url: `${SITE_URL}/market`, changeFrequency: "daily", priority: 0.8, lastModified: priceDay },
+      { url: `${SITE_URL}/sealed`, changeFrequency: "daily", priority: 0.85 },
+      { url: `${SITE_URL}/deals`, changeFrequency: "daily", priority: 0.85 },
+      { url: `${SITE_URL}/card-value`, changeFrequency: "daily", priority: 0.85 },
+      { url: `${SITE_URL}/most-valuable`, changeFrequency: "daily", priority: 0.8 },
+      { url: `${SITE_URL}/trending`, changeFrequency: "daily", priority: 0.8 },
       { url: `${SITE_URL}/tools`, changeFrequency: "weekly", priority: 0.7 },
-      { url: `${SITE_URL}/tools/arbitrage`, changeFrequency: "daily", priority: 0.8, lastModified: priceDay },
+      { url: `${SITE_URL}/tools/arbitrage`, changeFrequency: "daily", priority: 0.8 },
       { url: `${SITE_URL}/tools/net-proceeds`, changeFrequency: "monthly", priority: 0.6 },
       { url: `${SITE_URL}/tools/grade-ev`, changeFrequency: "monthly", priority: 0.6 },
       { url: `${SITE_URL}/games`, changeFrequency: "weekly", priority: 0.7 },
@@ -101,19 +91,9 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
       url: `${SITE_URL}/sets/${s.slug}`,
       changeFrequency: "daily" as const,
       priority: 0.85,
-      lastModified: priceDay,
     }));
 
-    // Market Wrap: only the canonical hub. The dated editions are
-    // template-generated (numeric deltas + one machine sentence) — thin,
-    // near-duplicate pages that are a helpful-content risk at ~30 URLs, so they
-    // carry noindex (see blog/market-wrap/[day]/page.tsx) and stay out of the
-    // sitemap. The hub always shows the latest wrap and stays indexable.
-    const wrapRoutes: MetadataRoute.Sitemap = [
-      { url: `${SITE_URL}/blog/market-wrap`, changeFrequency: "daily", priority: 0.8, lastModified: priceDay },
-    ];
-
-    return [...staticRoutes, ...contentRoutes, ...setRoutes, ...wrapRoutes];
+    return [...staticRoutes, ...contentRoutes, ...setRoutes];
   }
 
   // ── Sitemap 1: card singles (~20 k URLs) ──────────────────────────────────
@@ -167,7 +147,6 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
       url: `${SITE_URL}/card/${c.slug ?? c.id}`,
       changeFrequency: "daily" as const,
       priority: c.lowestPriceCents != null ? 0.8 : 0.6,
-      lastModified: priceDay,
       // Image sitemap: surface each card's unique art to image search (absolute URLs only).
       ...(c.imageUrl && c.imageUrl.startsWith("http") ? { images: [c.imageUrl] } : {}),
     }));
@@ -192,7 +171,6 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
         url: `${SITE_URL}/sealed/${g.slug}`,
         changeFrequency: "daily" as const,
         priority: g.lowestPriceCents != null ? 0.75 : 0.55,
-        lastModified: g.lowestPriceCents != null ? priceDay : undefined,
       });
     }
     // Same TEMPORARY downgrade as the card bucket above, same reason.

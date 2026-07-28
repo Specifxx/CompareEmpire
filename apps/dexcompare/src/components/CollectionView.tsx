@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CardImage } from "./CardImage";
 import { useCountry } from "./CountryProvider";
-import { PortfolioChart } from "./PortfolioChart";
 import { CsvTools, type ExportRow } from "./CsvTools";
 import { cardHref } from "@/lib/card-url";
 import { addQty, getCollection, getAllCostBases, setCostBasis, type CostBasis } from "@/lib/collection-client";
@@ -201,9 +200,6 @@ export function CollectionView() {
           price for{stats.unpriced > 0 ? `; ${stats.unpriced} card${stats.unpriced === 1 ? "" : "s"} have no live price right now and aren't valued` : ""}.
         </p>
       )}
-
-      {/* Value over time */}
-      <PortfolioChart holdings={holdings} />
 
       {/* Per-set groups */}
       {groups.map((g) => {

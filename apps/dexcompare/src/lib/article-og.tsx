@@ -3,10 +3,9 @@ import type { Article } from "@/lib/articles";
 // Shared social-share card renderer for /guides/[slug] and /blog/[slug] —
 // both route folders import this so an article gets a real per-page OG image
 // (title + excerpt + read time) instead of falling through to the generic
-// site-wide default. Mirrors the brand header used by the Market Wrap OG image
-// (src/app/blog/market-wrap/[day]/opengraph-image.tsx): red "D" mark, red
-// wordmark accent, ink gradient background — the on-brand pattern, not the
-// older purple/emoji default at src/app/opengraph-image.tsx.
+// site-wide default: red "D" mark, red wordmark accent, ink gradient
+// background — the on-brand pattern, not the older purple/emoji default at
+// src/app/opengraph-image.tsx.
 export const ARTICLE_OG_SIZE = { width: 1200, height: 630 };
 
 function titleSize(title: string): number {

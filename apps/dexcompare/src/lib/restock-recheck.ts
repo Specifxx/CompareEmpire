@@ -1,5 +1,4 @@
 import { prisma } from "./db";
-import { dbHistory } from "./db-history";
 import { FEATURED_RESTOCKS, restockTitleRegex, isHeadlineType } from "./restocks";
 
 // Lightweight, frequent re-check of ONLY the featured products' store listings, so
@@ -50,8 +49,15 @@ function isShopifyProductUrl(url: string): boolean {
   return /\/products\//.test(url) && !/ebay\.|tcgplayer\.com/i.test(url);
 }
 
+// Retention so this append-only log can't grow unbounded — it's low-volume
+// (only featured/headline SKUs, only on a flip) but nothing purged it before.
+const RETENTION_DAYS = 180;
+
 export async function recheckFeaturedRestocks(): Promise<RecheckSummary> {
   const summary: RecheckSummary = { checked: 0, flippedInStock: 0, flippedOutOfStock: 0 };
+
+  const cutoff = new Date(Date.now() - RETENTION_DAYS * 86400_000);
+  await prisma.restockEvent.deleteMany({ where: { inStockAt: { lt: cutoff } } }).catch(() => {});
 
   // The sealed table is small relative to cards, so loading it once and matching
   // by title (authoritative — groupKeys don't carry the product slug) is cheap.
@@ -85,7 +91,7 @@ export async function recheckFeaturedRestocks(): Promise<RecheckSummary> {
 
           if (!wasInStock && nowInStock) {
             // Restocked — open a new event.
-            await dbHistory.restockEvent.create({
+            await prisma.restockEvent.create({
               data: {
                 productSlug: product.slug,
                 market: row.country,
@@ -100,14 +106,14 @@ export async function recheckFeaturedRestocks(): Promise<RecheckSummary> {
             summary.flippedInStock++;
           } else if (wasInStock && !nowInStock) {
             // Sold out — close the most recent open event for this row.
-            const open = await dbHistory.restockEvent.findFirst({
+            const open = await prisma.restockEvent.findFirst({
               where: { productSlug: product.slug, market: row.country, retailer: row.retailer, productType: row.productType, soldOutAt: null },
               orderBy: { inStockAt: "desc" },
               select: { id: true, inStockAt: true },
             });
             if (open) {
               const mins = Math.max(1, Math.round((Date.now() - open.inStockAt.getTime()) / 60000));
-              await dbHistory.restockEvent.update({ where: { id: open.id }, data: { soldOutAt: new Date(), durationMins: mins } });
+              await prisma.restockEvent.update({ where: { id: open.id }, data: { soldOutAt: new Date(), durationMins: mins } });
             }
             summary.flippedOutOfStock++;
           }
@@ -120,7 +126,7 @@ export async function recheckFeaturedRestocks(): Promise<RecheckSummary> {
 
 // Recent restock log entries for a product+market (newest first) — for the page.
 export async function recentRestockEvents(productSlug: string, market: string, take = 12) {
-  return dbHistory.restockEvent.findMany({
+  return prisma.restockEvent.findMany({
     where: { productSlug, market },
     orderBy: { inStockAt: "desc" },
     take,

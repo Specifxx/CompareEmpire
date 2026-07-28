@@ -1,25 +1,15 @@
 import { NextResponse } from "next/server";
-import { dbHistory } from "@/lib/db-history";
 
 export const dynamic = "force-dynamic";
 
-const COUNTRIES = new Set(["AU", "NZ", "US", "GB"]);
-const KINDS = new Set(["single", "sealed", "game"]);
-
-// Click beacon: records one outbound affiliate-link click so we can verify our
-// store/eBay links are actually being used. Always returns 204 (a beacon must never
-// surface an error), and bad input is silently ignored.
-export async function POST(req: Request) {
-  const ok = new NextResponse(null, { status: 204, headers: { "Cache-Control": "no-store" } });
-  try {
-    const body = await req.json().catch(() => null);
-    const retailer = typeof body?.retailer === "string" ? body.retailer.slice(0, 40) : "";
-    if (!retailer) return ok;
-    const country = COUNTRIES.has(body.country) ? body.country : "AU";
-    const kind = KINDS.has(body.kind) ? body.kind : "single";
-    await dbHistory.clickEvent.create({ data: { retailer, country, kind } });
-  } catch {
-    /* never fail a beacon */
-  }
-  return ok;
+// Click beacon — DISABLED. This used to record one row per outbound
+// affiliate-link click (dbHistory.clickEvent.create) so click counts could be
+// verified independently of each partner's dashboard; that write (and the
+// unbounded, never-read ClickEvent table it fed) was pure Neon-egress/storage
+// liability, so it's been switched off as part of the "zero history" cleanup.
+// Kept as a real route (not deleted) purely so any stale cached page — which
+// still calls sendBeacon("/api/click") until its client bundle is reloaded —
+// gets a clean 204 instead of a 404.
+export async function POST() {
+  return new NextResponse(null, { status: 204, headers: { "Cache-Control": "no-store" } });
 }

@@ -1,6 +1,6 @@
 import { prisma } from "./db";
 import { getCheapestCards, getValuableCards } from "./cheapest-cards";
-import { getPopularCards } from "./trending";
+import { getPopularCards } from "./cards";
 import { getNewSealedArrivals, type SealedGroup } from "./sealed-import";
 import { priceField, type Country } from "./country";
 import type { CardTileData } from "@/components/CardTile";

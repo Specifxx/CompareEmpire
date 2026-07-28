@@ -1,9 +1,8 @@
 name: Refresh DexCompare prices (daily)
 
 # Daily live-price refresh for DexCompare: re-scrapes every store feed, updates
-# RetailerPrice + each card's lowest price per market, and records the daily
-# price-history snapshot that powers the card-page trend chart and the homepage
-# "Biggest price movers". The Vercel cron can't do this (the import takes ~an
+# RetailerPrice + each card's lowest price per market, and precomputes Deals
+# (see the Deal model). The Vercel cron can't do this (the import takes ~an
 # hour; serverless functions cap out at minutes), so it runs here on a schedule.
 #
 # Set the repo secret DEXCOMPARE_DATABASE_URL (the Neon pooled URL) to enable the
@@ -34,7 +33,6 @@ jobs:
         env:
           SECRET_URL: ${{ secrets.DEXCOMPARE_DATABASE_URL }}
           INPUT_URL: ${{ inputs.dexcompare_url }}
-          HISTORY_URL: ${{ secrets.HISTORY_DATABASE_URL }}
         run: |
           URL="${INPUT_URL:-$SECRET_URL}"
           if [ -z "$URL" ]; then
@@ -45,10 +43,6 @@ jobs:
             echo "::add-mask::$URL"
             # Secrets can't travel via step outputs; hand it to later steps as an env var.
             echo "DATABASE_URL=$URL" >> "$GITHUB_ENV"
-            if [ -n "$HISTORY_URL" ]; then
-              echo "::add-mask::$HISTORY_URL"
-              echo "HISTORY_DATABASE_URL=$HISTORY_URL" >> "$GITHUB_ENV"
-            fi
             echo "found=true" >> "$GITHUB_OUTPUT"
           fi
 
@@ -85,28 +79,9 @@ jobs:
           npx tsx scripts/import-prices.ts
 
       # Accuracy gate: fail the run if a core data invariant regressed (market
-      # guide leaking into headline prices, a spike of cards priced absurdly below
-      # their TCGplayer guide, or the priced-card count collapsing vs yesterday).
+      # guide leaking into headline prices, or a spike of cards priced absurdly
+      # below their TCGplayer guide).
       - name: Verify data quality
         if: steps.db.outputs.found == 'true'
         working-directory: apps/dexcompare
         run: npx tsx scripts/verify-data.ts
-
-      # Auto-post today's Market Wrap to socials. Runs LAST, after today's
-      # PriceHistory snapshot is written, so latestWrapDay() resolves the fresh
-      # edition. Best-effort: continue-on-error + the script never throws, so a
-      # socials hiccup can't fail the price pipeline. Posts only to whichever
-      # accounts have secrets set (all optional) — no secrets = a clean no-op.
-      # DATABASE_URL / HISTORY_DATABASE_URL are already on $GITHUB_ENV from the
-      # Resolve step; only the social secrets are declared here.
-      - name: Post Market Wrap to socials
-        if: steps.db.outputs.found == 'true'
-        continue-on-error: true
-        working-directory: apps/dexcompare
-        env:
-          BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE }}
-          BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        run: npx tsx scripts/post-market-wrap.ts

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getPopularCards } from "@/lib/trending";
+import { getPopularCards } from "@/lib/cards";
 import { DEFAULT_COUNTRY } from "@/lib/country";
 import { cardDisplayName } from "@/lib/card-name";
 import { SITE_URL, SITE_NAME } from "@/lib/site";

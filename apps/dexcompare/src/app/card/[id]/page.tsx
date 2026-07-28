@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
-import { dbHistory } from "@/lib/db-history";
 import { CardImage } from "@/components/CardImage";
 import { DomainBadge, RarityBadge, VariantBadge, OvernumberedBadge, PromoBadge, SignatureBadge } from "@/components/Badge";
 import { isOvernumbered, isSignature } from "@/lib/constants";
@@ -15,7 +14,6 @@ import { CardViewBeacon } from "@/components/CardViewBeacon";
 import { CardReviews, type ReviewView } from "@/components/CardReviews";
 import { NetProceeds } from "@/components/NetProceeds";
 import { CardTile, type CardTileData } from "@/components/CardTile";
-import { PriceChart, changeOver, type PricePoint } from "@/components/PriceChart";
 import { cardTileSelect } from "@/lib/cards";
 import { formatMoney, timeAgo } from "@/lib/format";
 import { effectiveShippingCents, shippingPolicyUrl } from "@/lib/retailers";
@@ -162,17 +160,9 @@ export default async function CardPage({ params }: { params: { id: string } }) {
 
   if (!card) notFound();
 
-  // Daily cheapest-price snapshots (AU market) for the trend chart, plus every
-  // other printing of this card (same name, different set/number) so collectors
-  // can compare reprints — e.g. Base Set vs Classic Collection.
-  const [historyRows, otherPrints, reviewRows, cheaperInSet, sameTypeCards] = await Promise.all([
-    // Trend history for the VISITOR'S market (each market priced in its own currency).
-    dbHistory.priceHistory.findMany({
-      where: { cardId: card.id, country },
-      orderBy: { day: "asc" },
-      select: { day: true, lowestPriceCents: true },
-      take: 365,
-    }),
+  // Every other printing of this card (same name, different set/number) so
+  // collectors can compare reprints — e.g. Base Set vs Classic Collection.
+  const [otherPrints, reviewRows, cheaperInSet, sameTypeCards] = await Promise.all([
     card.nameNormalized
       ? prisma.card.findMany({
           where: { nameNormalized: card.nameNormalized, id: { not: card.id } },
@@ -219,12 +209,9 @@ export default async function CardPage({ params }: { params: { id: string } }) {
   // buy/sell, which if done here would void `revalidate` and make this page
   // uncacheable dynamic SSR. See below where the component is rendered.
 
-  const history: PricePoint[] = historyRows.map((h) => ({ day: h.day, cents: h.lowestPriceCents }));
   const reviews: ReviewView[] = reviewRows.map((r) => ({ ...r, createdAt: r.createdAt.toISOString() }));
   const reviewCount = reviews.length;
   const ratingAvg = reviewCount ? reviews.reduce((s, r) => s + r.rating, 0) / reviewCount : 0;
-  // Now per-market — the 7-day trend applies to whichever market the visitor is in.
-  const weekChange = changeOver(history, 7);
 
   const lowestPrice = pickPrice(card, country);
 
@@ -424,15 +411,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
                   (otherwise the headline already IS the foil price — no duplicate). */}
               {!headlineIsFoil && cheapestFoil != null && <Metric label="✦ Foil from" value={fmt(cheapestFoil)} highlight />}
               <Metric label="Compared at" value={`${prices.length} ${prices.length === 1 ? "store" : "stores"}`} />
-              {weekChange != null && Math.abs(weekChange) >= 0.05 ? (
-                <Metric
-                  label="7-day trend"
-                  value={`${weekChange > 0 ? "+" : "−"}${Math.abs(weekChange).toFixed(1)}%`}
-                  sentiment={weekChange < 0 ? "positive" : "negative"}
-                />
-              ) : (
-                card.might != null && <Metric label="HP" value={String(card.might)} />
-              )}
+              {card.might != null && <Metric label="HP" value={String(card.might)} />}
               <Metric label="Rarity" value={card.rarity} />
             </div>
 
@@ -479,16 +458,6 @@ export default async function CardPage({ params }: { params: { id: string } }) {
               </div>
             )}
           </div>
-
-          {/* Price-over-time chart from the daily snapshots (the visitor's market). */}
-          {history.length > 0 && (
-            <PriceChart
-              points={history}
-              title="Price trend"
-              currency={info.currency}
-              note={`Cheapest ${info.adjective} price (${info.currency}), snapshotted daily`}
-            />
-          )}
 
           {/* Thinking of selling? Net-proceeds — the other half of the price:
               what you'd actually pocket after fees. Prefilled with the headline

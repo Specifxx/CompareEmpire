@@ -54,23 +54,6 @@ export default function BlogPage() {
           for people spending real money on cardboard.
         </p>
       </div>
-      {/* Automated daily market report — fresh content every day. */}
-      <Link
-        href="/blog/market-wrap"
-        className="card-surface mb-6 flex flex-wrap items-center justify-between gap-3 border-l-2 border-l-brand-500 p-4 transition-colors hover:border-ink-600"
-      >
-        <div className="min-w-0">
-          <div className="flex items-center gap-2 font-bold text-white">
-            Daily Market Wrap
-            <span className="chip bg-brand-500/15 text-[10px] font-bold uppercase tracking-wide text-brand-300">New every day</span>
-          </div>
-          <p className="mt-0.5 text-xs text-slate-400">
-            How the Pokémon singles market moved today — the Global Index, every market&apos;s session, and the
-            cards that drove it. Generated from real store-price snapshots.
-          </p>
-        </div>
-        <span className="shrink-0 text-sm font-semibold text-brand-400">Read today&apos;s →</span>
-      </Link>
 
       <ArticleList articles={articles} basePath="/blog" />
     </div>

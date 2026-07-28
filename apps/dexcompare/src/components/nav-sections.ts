@@ -28,9 +28,7 @@ export const NAV_SECTIONS: NavSection[] = [
     links: [
       { href: "/trending", icon: "🔮", label: "Trending cards" },
       { href: "/most-valuable", icon: "💎", label: "Most valuable cards" },
-      { href: "/market", icon: "📈", label: "DexCompare Index" },
       { href: "/tools/arbitrage", icon: "💱", label: "Arbitrage & eBay deals" },
-      { href: "/blog/market-wrap", icon: "📰", label: "Daily Market Wrap" },
       { href: "/restock", icon: "📅", label: "Drops & restocks" },
     ],
   },

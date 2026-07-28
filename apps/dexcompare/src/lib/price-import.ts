@@ -5,7 +5,6 @@
 
 import { Prisma } from "@prisma/client";
 import { prisma } from "./db";
-import { dbHistory } from "./db-history";
 import { RETAILER_LIST, RetailerInfo } from "./retailers";
 import { isEbayEnabled, isEbayRateLimited, searchEbayLowest, primeEbayBudget, ebaySpentThisRun, ebaySpendable } from "./ebay";
 import { importSealed } from "./sealed-import";
@@ -14,13 +13,6 @@ import { priceField, marketGuideCents } from "./country";
 
 export interface ShopifyVariant { title: string; price: string; available: boolean }
 export interface ShopifyProduct { title: string; handle: string; variants: ShopifyVariant[] }
-
-// Calendar day (date-only) in Australia/Sydney, used as the price-history x-axis
-// bucket so there's exactly one snapshot per card per local day.
-function sydneyDay(d = new Date()): Date {
-  const ymd = new Intl.DateTimeFormat("en-CA", { timeZone: "Australia/Sydney" }).format(d);
-  return new Date(`${ymd}T00:00:00.000Z`);
-}
 
 export interface ImportSummary {
   stores: { name: string; products: number; priced: number; matched: number; unmatched: number }[];
@@ -964,36 +956,6 @@ export async function importPrices(): Promise<ImportSummary> {
   }
   console.log(`Lowest recompute: ${changed} cards changed (no null-reset window).`);
   summary.cardsPriced = lowAu.size;
-
-  // Snapshot today's lowest price per card PER MARKET for the price-over-time
-  // chart. Feeds the card-page trend chart and the homepage "Biggest price movers",
-  // each in the visitor's own market/currency. One point per card per market per
-  // Sydney day; a same-day re-run (e.g. a deploy) replaces it.
-  try {
-    const day = sydneyDay();
-    const byMarket: { country: string; grouped: typeof pricedAu }[] = [
-      { country: "AU", grouped: pricedAu },
-      { country: "NZ", grouped: pricedNz },
-      { country: "US", grouped: pricedUs },
-      { country: "GB", grouped: pricedGb },
-    ];
-    let total = 0;
-    for (const { country, grouped } of byMarket) {
-      const points = grouped
-        .filter((r) => r._min.priceCents != null)
-        .map((r) => ({ cardId: r.cardId, country, day, lowestPriceCents: r._min.priceCents as number }));
-      await dbHistory.priceHistory.deleteMany({ where: { country, day } });
-      if (points.length > 0) await dbHistory.priceHistory.createMany({ data: points });
-      total += points.length;
-    }
-    // Retention: keep ~6 months of snapshots so the table can't grow unbounded
-    // on the size-capped database.
-    const cutoff = new Date(day.getTime() - 180 * 86400_000);
-    const purged = await dbHistory.priceHistory.deleteMany({ where: { day: { lt: cutoff } } });
-    console.log(`Price history: recorded ${total} points across 4 markets for ${day.toISOString().slice(0, 10)} (purged ${purged.count} old).`);
-  } catch (e) {
-    console.warn("Price-history snapshot failed:", e);
-  }
 
   // Precompute "Deals" (cards meaningfully cheaper than their TCGplayer market
   // guide) so the request path never scans the catalogue — see Deal model comment.

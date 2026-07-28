@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { CardTile } from "@/components/CardTile";
 import { AdSlot } from "@/components/AdSlot";
-import { getPopularCards } from "@/lib/trending";
+import { getPopularCards } from "@/lib/cards";
 import { COUNTRIES, DEFAULT_COUNTRY } from "@/lib/country";
 import { SITE_URL } from "@/lib/site";
 
@@ -101,12 +101,6 @@ export default async function TrendingPage() {
             >
               Today&apos;s biggest deals →
             </Link>
-            <Link
-              href="/market"
-              className="rounded-full bg-ink-700 px-3 py-1 text-xs font-medium text-slate-300 hover:bg-ink-600 hover:text-white"
-            >
-              Price movers this week →
-            </Link>
           </div>
         </div>
       </section>
@@ -151,9 +145,6 @@ export default async function TrendingPage() {
           </Link>
           <Link href="/most-valuable" className="rounded bg-ink-800 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-ink-700 hover:text-white">
             Most valuable cards
-          </Link>
-          <Link href="/market" className="rounded bg-ink-800 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-ink-700 hover:text-white">
-            Price movers
           </Link>
           <Link href="/browse" className="rounded bg-ink-800 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-ink-700 hover:text-white">
             Full card database

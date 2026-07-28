@@ -7,12 +7,13 @@
 //      listing — i.e. the market guide never leaked into lowestPriceCents.
 //   B. Store lowest isn't absurdly far below the TCGplayer market guide
 //      (<40% → likely a wrong-card match or foreign print). A spike fails.
-//   C. The priced-card count didn't collapse vs the previous snapshot day
-//      (>50% drop → catastrophic import failure).
+//
+// (Former check C — priced-card count vs the previous day's PriceHistory
+// snapshot — was removed along with the history subsystem; there's no
+// persisted "yesterday's count" to compare against anymore.)
 //
 // Usage: npx tsx scripts/verify-data.ts   (needs DATABASE_URL)
 import { prisma } from "../src/lib/db";
-import { dbHistory } from "../src/lib/db-history";
 import { marketGuideCents } from "../src/lib/country";
 
 const PCT_OF_GUIDE_FLOOR = Number(process.env.VERIFY_GUIDE_FLOOR ?? 0.4); // <40% of guide = suspicious
@@ -25,7 +26,6 @@ const PCT_OF_GUIDE_FLOOR = Number(process.env.VERIFY_GUIDE_FLOOR ?? 0.4); // <40
 // passes, but a true regression (a big spike, e.g. >6% of guided cards) still fails.
 const SUSPICIOUS_CAP = Number(process.env.VERIFY_SUSPICIOUS_CAP ?? 300); // absolute floor (raised from 150 for the larger catalogue)
 const SUSPICIOUS_RATIO = Number(process.env.VERIFY_SUSPICIOUS_RATIO ?? 0.06); // ...or this fraction of guided cards, whichever is larger
-const DROP_FAIL_RATIO = Number(process.env.VERIFY_DROP_RATIO ?? 0.5); // fail if priced count < 50% of previous day
 
 // Same predicate the importer uses to recompute a market's headline lowest price:
 // in-stock, real store (not the market guide), NM/LP or unconditioned.
@@ -74,34 +74,17 @@ async function main() {
   lines.push(`B suspicious (<${Math.round(PCT_OF_GUIDE_FLOOR * 100)}% of TCGplayer guide)          ${bOk ? "PASS" : "FAIL"}  ${suspicious.length}/${guided.length} cards (cap ${suspiciousCap})`);
   if (suspicious.length) console.error("  e.g.", suspicious.slice(0, 8).map((c) => c.name).join(" | "));
 
-  // ── Check C: priced-card count didn't collapse vs the previous day ─────────
-  const days = await dbHistory.priceHistory.findMany({
-    where: { country: "AU" }, distinct: ["day"], orderBy: { day: "desc" }, select: { day: true }, take: 2,
-  });
-  let cOk = true;
-  if (days.length === 2) {
-    const [today, prev] = await Promise.all([
-      dbHistory.priceHistory.count({ where: { country: "AU", day: days[0].day } }),
-      dbHistory.priceHistory.count({ where: { country: "AU", day: days[1].day } }),
-    ]);
-    cOk = prev === 0 || today >= prev * DROP_FAIL_RATIO;
-    if (!cOk) failed = true;
-    lines.push(`C priced-card count vs previous day                ${cOk ? "PASS" : "FAIL"}  ${today} (was ${prev})`);
-  } else {
-    lines.push(`C priced-card count vs previous day                SKIP  (need 2 snapshot days)`);
-  }
-
   console.log("\n── DexCompare data-quality gate ─────────────────────────────");
   for (const l of lines) console.log("  " + l);
   console.log("─────────────────────────────────────────────────────────────");
   console.log(failed ? "RESULT: FAIL — see flagged checks above." : "RESULT: PASS");
 
-  await Promise.all([prisma.$disconnect(), dbHistory.$disconnect()]);
+  await prisma.$disconnect();
   if (failed) process.exit(1);
 }
 
 main().catch(async (e) => {
   console.error("verify-data crashed:", e);
-  await Promise.all([prisma.$disconnect(), dbHistory.$disconnect()]);
+  await prisma.$disconnect();
   process.exit(1);
 });

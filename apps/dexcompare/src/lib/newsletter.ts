@@ -1,7 +1,6 @@
 import { randomUUID } from "crypto";
 import { prisma } from "./db";
-import { getTopMovers, type MoverCard } from "./trending";
-import { latestWrapDay } from "./market-wrap";
+import { getTopDeals, type Deal } from "./deals";
 import { sendNewsletterDigestEmail, isEmailEnabled } from "./email";
 import { formatMoney } from "./format";
 import { currencyOf, normalizeCountry, COUNTRIES, type Country } from "./country";
@@ -13,7 +12,7 @@ export interface NewsletterRunSummary {
   subscribers: number; // total rows in the list
   due: number; // not yet sent this edition
   emails: number; // successfully delivered this run
-  quietMarkets: string[]; // markets skipped for lack of movers
+  quietMarkets: string[]; // markets skipped for lack of deals
 }
 
 // ISO-8601 week key — one digest edition per calendar week, so reruns of the
@@ -29,26 +28,23 @@ export function editionKey(now = new Date()): string {
 
 const utm = (path: string) => `${SITE_URL}${path}?utm_source=newsletter&utm_medium=email&utm_campaign=weekly-digest`;
 
-const signedPct = (pct: number) => `${pct > 0 ? "+" : ""}${Math.round(pct)}%`;
-
 // One card row in a digest section. Same visual language as the price-drop
 // alert rows so the two emails read as one product.
-function moverRow(m: MoverCard, currency: string): string {
-  const color = m.pct > 0 ? "#f08c4a" : "#34d17e";
+function dealRow(d: Deal, currency: string): string {
   return `<tr><td style="padding:10px 0;border-bottom:1px solid #233047">
-    <a href="${utm(cardHref(m.card))}" style="color:#fff;font-weight:700;text-decoration:none;font-size:15px">${m.card.name}</a>
-    <div style="font-size:12px;color:#6b7585;margin-top:2px">${m.card.setCode} · ${m.card.collectorNumber}</div>
-    <div style="margin-top:4px;font-size:14px;color:#b8c0cc">${formatMoney(m.nowCents, currency)}
-      &nbsp;<span style="color:${color};font-weight:700">${signedPct(m.pct)}</span></div>
+    <a href="${utm(cardHref(d.card))}" style="color:#fff;font-weight:700;text-decoration:none;font-size:15px">${d.card.name}</a>
+    <div style="font-size:12px;color:#6b7585;margin-top:2px">${d.card.setCode} · ${d.card.collectorNumber}</div>
+    <div style="margin-top:4px;font-size:14px;color:#b8c0cc">${formatMoney(d.priceCents, currency)}
+      &nbsp;<span style="color:#34d17e;font-weight:700">${d.pct}% off guide</span></div>
   </td></tr>`;
 }
 
-function section(title: string, items: MoverCard[], currency: string, take: number): string {
+function section(title: string, items: Deal[], currency: string, take: number): string {
   if (!items.length) return "";
   return `<tr><td style="padding:14px 32px 0;font-size:13px;font-weight:700;color:#34d17e">${title}</td></tr>
     <tr><td style="padding:0 32px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">${items
       .slice(0, take)
-      .map((m) => moverRow(m, currency))
+      .map((d) => dealRow(d, currency))
       .join("")}</table></td></tr>`;
 }
 
@@ -60,37 +56,23 @@ interface Digest {
 
 // Build one market's digest, or null on a quiet week (house rule: skip rather
 // than send noise).
-function buildDigest(movers: MoverCard[], market: Country, latestWrap: string | null): Digest | null {
-  const risers = movers.filter((m) => m.pct > 0).sort((a, b) => b.pct - a.pct);
-  const fallers = movers.filter((m) => m.pct < 0).sort((a, b) => a.pct - b.pct);
-  if (!risers.length && !fallers.length) return null;
+function buildDigest(deals: Deal[], market: Country): Digest | null {
+  if (!deals.length) return null;
 
   const info = COUNTRIES[market];
   const currency = currencyOf(market);
-  const bits: string[] = [];
-  if (risers[0]) bits.push(`${risers[0].card.name} ${signedPct(risers[0].pct)}`);
-  if (fallers[0]) bits.push(`${fallers[0].card.name} ${signedPct(fallers[0].pct)}`);
-  const subject = bits.length
-    ? `📊 Pokémon TCG this week: ${bits.join(", ")}`
-    : "📊 Your weekly Pokémon TCG Index summary";
-
-  const wrapRow = latestWrap
-    ? `<tr><td style="padding:14px 32px 0;font-size:13px;line-height:1.6;color:#8b95a5">
-         Want the full picture? Read the latest Daily Market Wrap:
-         <a href="${utm(`/blog/market-wrap/${latestWrap}`)}" style="color:#9aa4b2">${latestWrap} edition</a>
-       </td></tr>`
-    : "";
+  const subject = deals[0]
+    ? `📊 Pokémon TCG deal of the week: ${deals[0].card.name} — ${deals[0].pct}% off guide`
+    : "📊 Your weekly Pokémon TCG deals digest";
 
   const inner = `
     <tr><td style="padding:8px 32px 0;font-size:14px;line-height:1.6;color:#b8c0cc">
-      The week's biggest Pokémon card price moves, from live lowest in-stock prices compared across ${info.adjective} stores.
+      This week's biggest gaps between live lowest in-stock prices and the TCGplayer market guide, across ${info.adjective} stores.
     </td></tr>
-    ${section("📈 Up this week", risers, currency, 5)}
-    ${section("📉 Down this week", fallers, currency, 5)}
-    ${wrapRow}
-    <tr><td style="padding:18px 32px 24px"><a href="${utm("/market")}" style="display:inline-block;background:#34d17e;color:#06210f;font-weight:700;text-decoration:none;padding:12px 22px;border-radius:10px">See the live index + all movers</a></td></tr>`;
+    ${section("💰 Best deals this week", deals, currency, 8)}
+    <tr><td style="padding:18px 32px 24px"><a href="${utm("/deals")}" style="display:inline-block;background:#34d17e;color:#06210f;font-weight:700;text-decoration:none;padding:12px 22px;border-radius:10px">See all deals</a></td></tr>`;
 
-  return { subject, heading: "This week on the Pokémon TCG market", inner };
+  return { subject, heading: "This week's best Pokémon TCG deals", inner };
 }
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -112,15 +94,13 @@ export async function runNewsletterDigest(): Promise<NewsletterRunSummary> {
   };
   if (!due.length || !isEmailEnabled()) return summary;
 
-  const latestWrap = await latestWrapDay();
-
   // One digest per market, computed once and reused for every subscriber in it.
   const digests = new Map<Country, Digest | null>();
   for (const sub of due) {
     const market = normalizeCountry(sub.market);
     if (!digests.has(market)) {
-      const movers = await getTopMovers(12, market);
-      digests.set(market, buildDigest(movers, market, latestWrap));
+      const deals = await getTopDeals(12, market);
+      digests.set(market, buildDigest(deals, market));
       if (!digests.get(market)) summary.quietMarkets.push(market);
     }
     const digest = digests.get(market);

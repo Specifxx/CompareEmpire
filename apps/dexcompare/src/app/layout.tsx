@@ -184,7 +184,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             purchases, so placement-where-relevant beats raw banner count.
             FooterAds reads the market from the client country context (inside
             CountryProvider) so the layout stays cookie-free and cacheable. */}
-        <PathGate allow={["/", "/browse", "/card", "/sealed", "/deals", "/market", "/card-value", "/sets", "/restock"]}>
+        <PathGate allow={["/", "/browse", "/card", "/sealed", "/deals", "/card-value", "/sets", "/restock"]}>
           <FooterAds />
         </PathGate>
         </MegaMenuProvider>
@@ -211,7 +211,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Link href="/deals" className="hover:text-slate-300">Deals</Link>
             <Link href="/trending" className="hover:text-slate-300">Trending</Link>
             <Link href="/most-valuable" className="hover:text-slate-300">Most valuable</Link>
-            <Link href="/market" className="hover:text-slate-300">Market index</Link>
             <Link href="/card-value" className="hover:text-slate-300">Card value checker</Link>
             <Link href="/games" className="hover:text-slate-300">Minigames</Link>
             <Link href="/restock" className="hover:text-slate-300">Drops &amp; restocks</Link>

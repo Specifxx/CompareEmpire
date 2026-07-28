@@ -3,16 +3,13 @@
 import type { ReactNode } from "react";
 import { outboundRel } from "@/lib/affiliate";
 
-// An outbound "buy" link that fires a click beacon before navigating, so we can
-// count how many times each store/eBay link is used (verified in our own DB, no
-// dependency on the partner's dashboard — handy for cross-checking eBay Partner
-// Network earnings). The link itself stays a normal direct <a> — keeping eBay's
-// affiliate attribution clean and adding zero redirect latency.
+// An outbound "buy" link. Used to fire a click beacon (/api/click) to count
+// store/eBay link usage in our own DB — that write was pure Neon-egress
+// liability for a number nothing ever read, so it's gone (see api/click/route.ts).
+// retailer/country/kind are kept in the prop signature so every call site
+// (there are many) doesn't need touching; they're currently unused.
 export function OutboundLink({
   href,
-  retailer,
-  country,
-  kind = "single",
   className,
   children,
 }: {
@@ -23,23 +20,8 @@ export function OutboundLink({
   className?: string;
   children: ReactNode;
 }) {
-  function log() {
-    try {
-      const blob = new Blob([JSON.stringify({ retailer, country, kind })], { type: "application/json" });
-      navigator.sendBeacon("/api/click", blob);
-    } catch {
-      /* sendBeacon unsupported or blocked — ignore, never block the click */
-    }
-  }
   return (
-    <a
-      href={href}
-      target="_blank"
-      rel={outboundRel(href)}
-      className={className}
-      onClick={log}
-      onAuxClick={log}
-    >
+    <a href={href} target="_blank" rel={outboundRel(href)} className={className}>
       {children}
     </a>
   );

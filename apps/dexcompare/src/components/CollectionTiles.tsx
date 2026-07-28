@@ -12,7 +12,7 @@ const TILES: Tile[] = [
   { href: "/card-value", title: "Value checker", sub: "What's it worth?", dot: "#ffd23f" },
   { href: "/deals", title: "Deals", sub: "Below market price", dot: "#6ee7b7" },
   { href: "/sealed", title: "Sealed", sub: "Boxes & ETBs", dot: "#c4b5fd" },
-  { href: "/market", title: "Market index", sub: "Price trends", dot: "#f9a8d4" },
+  { href: "/trending", title: "Trending cards", sub: "What's popular", dot: "#f9a8d4" },
 ];
 
 export function CollectionTiles() {

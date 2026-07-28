@@ -86,7 +86,6 @@ jobs:
         working-directory: apps/dexcompare
         env:
           DATABASE_URL: ${{ inputs.dexcompare_url || secrets.DEXCOMPARE_DATABASE_URL }}
-          HISTORY_DATABASE_URL: ${{ secrets.HISTORY_DATABASE_URL }}
           POKEMONTCG_API_KEY: ${{ secrets.POKEMONTCG_API_KEY }}
         run: |
           npm install --no-audit --no-fund
@@ -103,7 +102,6 @@ jobs:
         working-directory: apps/dexcompare
         env:
           DATABASE_URL: ${{ inputs.dexcompare_url || secrets.DEXCOMPARE_DATABASE_URL }}
-          HISTORY_DATABASE_URL: ${{ secrets.HISTORY_DATABASE_URL }}
           EBAY_CLIENT_ID: ${{ secrets.EBAY_CLIENT_ID }}
           EBAY_CLIENT_SECRET: ${{ secrets.EBAY_CLIENT_SECRET }}
           EBAY_AFFILIATE_CAMPAIGN: ${{ secrets.EBAY_AFFILIATE_CAMPAIGN }}

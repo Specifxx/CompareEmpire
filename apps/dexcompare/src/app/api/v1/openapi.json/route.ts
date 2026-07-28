@@ -28,15 +28,6 @@ export function GET() {
           },
         },
       },
-      "/api/v1/index.json": {
-        get: {
-          summary: "The DexCompare Global Index (search-weighted market index)",
-          responses: {
-            "200": { description: "Index level, changes, breadth and the daily series" },
-            "503": { description: "Index temporarily unavailable" },
-          },
-        },
-      },
     },
   };
 

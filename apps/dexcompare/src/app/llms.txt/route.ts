@@ -16,8 +16,7 @@ const SECTIONS: { title: string; links: [string, string][] }[] = [
       ["/sets", "All Pokémon TCG sets — each set page lists every card with live prices."],
       ["/sealed", "Sealed products — booster boxes, ETBs, bundles — with the cheapest live price per product."],
       ["/deals", "Today's best deals: cards priced well below their market guide right now."],
-      ["/market", "The DexCompare market index and daily market stats for Pokémon singles."],
-      ["/trending", "Trending Pokémon cards — the biggest price movers, updated daily."],
+      ["/trending", "Trending Pokémon cards — the most-viewed right now, updated daily."],
       ["/most-valuable", "The most valuable Pokémon cards right now, by live market price."],
       ["/restock", "Restock trackers for hot sealed products — live stock alerts per retailer."],
       ["/stores", "The stores whose public prices DexCompare tracks and compares."],
@@ -40,7 +39,7 @@ const SECTIONS: { title: string; links: [string, string][] }[] = [
     title: "Guides & content",
     links: [
       ["/guides", "Buying guides: grading, fakes, reprints, price history and more."],
-      ["/blog", "News, market analysis and the daily Pokémon market wrap."],
+      ["/blog", "News and market analysis for the Pokémon TCG."],
       ["/games", "Free Pokémon mini-games (Dexdle and more)."],
       ["/about", "What DexCompare is, where prices come from, how often they update."],
     ],
@@ -70,11 +69,10 @@ export function GET() {
   lines.push(`- [feed.json](${abs("/feed.json")}): JSON Feed (1.1) of the blog and guides.`);
   lines.push(`- [sitemap.xml](${abs("/sitemap.xml")}): sitemap index (cards, sets, sealed, content).`);
   lines.push(`- [news-sitemap.xml](${abs("/news-sitemap.xml")}): Google News sitemap of recent blog posts.`);
-  lines.push(`- [api/v1/index.json](${abs("/api/v1/index.json")}): the DexCompare Global Index (level, changes, daily series) as JSON.`);
   lines.push(`- [api/v1/card/{slug}/prices.json](${abs("/api/v1/card/base1-4-charizard/prices.json")}): per-market lowest price for any card as JSON.`);
   lines.push(`- [api/v1/openapi.json](${abs("/api/v1/openapi.json")}): OpenAPI 3.1 description of the free API.`);
-  lines.push(`- [api/mcp](${abs("/api/mcp")}): Model Context Protocol server (JSON-RPC) exposing get_index + get_card_prices tools to agents.`);
-  lines.push(`- Clean markdown mirrors (rel=alternate text/markdown): /llm/card/{slug}, /llm/blog/{slug}, and /llm/market.`);
+  lines.push(`- [api/mcp](${abs("/api/mcp")}): Model Context Protocol server (JSON-RPC) exposing the get_card_prices tool to agents.`);
+  lines.push(`- Clean markdown mirrors (rel=alternate text/markdown): /llm/card/{slug} and /llm/blog/{slug}.`);
   lines.push("");
 
   return new Response(lines.join("\n"), {

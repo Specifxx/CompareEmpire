@@ -1,6 +1,8 @@
 import { Prisma } from "@prisma/client";
+import { prisma } from "./db";
 import { dollarsToCents, normalizeSearch } from "./format";
 import { priceField, type Country } from "./country";
+import type { CardTileData } from "@/components/CardTile";
 
 export interface CardQuery {
   q?: string;
@@ -174,3 +176,16 @@ export function cardTileSelect(country: Country = "AU") {
 
 // Default (Australia) tile select, kept for callers that don't vary by market.
 export const CARD_TILE_SELECT = cardTileSelect("AU");
+
+// Most-viewed priced cards in the visitor's market — "what everyone's looking
+// at". Relocated from the (deleted) trending.ts, which mixed this in with the
+// history-dependent movers query — this one never touched history, just a
+// bounded viewCount-ordered scan.
+export async function getPopularCards(limit: number, country: Country): Promise<CardTileData[]> {
+  return (await prisma.card.findMany({
+    where: { viewCount: { gt: 0 }, [priceField(country)]: { not: null } },
+    orderBy: [{ viewCount: "desc" }],
+    take: limit,
+    select: cardTileSelect(country),
+  })) as CardTileData[];
+}

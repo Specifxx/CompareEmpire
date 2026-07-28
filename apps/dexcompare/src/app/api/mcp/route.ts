@@ -1,7 +1,6 @@
-import { getGlobalIndex, scopeFromParam } from "@/lib/market-index";
 import { prisma } from "@/lib/db";
 import { cardHref } from "@/lib/card-url";
-import { SITE_URL, SITE_NAME } from "@/lib/site";
+import { SITE_URL } from "@/lib/site";
 
 // Minimal Model Context Protocol server (beta) over Streamable HTTP: MCP clients
 // (Claude Desktop, Cursor, agent frameworks) POST JSON-RPC 2.0 messages here to read
@@ -12,16 +11,6 @@ export const dynamic = "force-dynamic";
 const PROTOCOL_VERSION = "2024-11-05";
 
 const TOOLS = [
-  {
-    name: "get_index",
-    description:
-      "Get the DexCompare Global Index (a search-weighted daily market index for Pokémon TCG singles): level (base 100), deltas, breadth and tracked-card stats. Optional scope all|recent.",
-    inputSchema: {
-      type: "object",
-      properties: { scope: { type: "string", enum: ["all", "recent"] } },
-      additionalProperties: false,
-    },
-  },
   {
     name: "get_card_prices",
     description: "Get the lowest live in-stock price per market (AU/NZ/US/GB) for a Pokémon card, by slug or id.",
@@ -34,41 +23,8 @@ const TOOLS = [
   },
 ];
 
-const round2 = (n: number | null): number | null => (n == null ? null : Number(n.toFixed(2)));
 
 async function callTool(name: string, args: Record<string, unknown> | undefined): Promise<unknown> {
-  if (name === "get_index") {
-    const scopeParam = String(args?.scope ?? "").toLowerCase();
-    const scope = scopeParam === "recent" ? scopeFromParam("recent") : scopeFromParam("all");
-    const idx = await getGlobalIndex(scope).catch(() => null);
-    if (!idx || idx.points.length === 0) return { error: "index_unavailable" };
-
-    const pts = idx.points;
-    const first = pts[0];
-    const last = pts[pts.length - 1];
-    // Base-100 normalisation on the first tracked day (mirrors the /market page).
-    const base = first.cents || 1;
-    const level = (last.cents / base) * 100;
-    const pctOver = (a: number, b: number) => (b ? ((a - b) / b) * 100 : null);
-    const at = (daysBack: number) => pts[Math.max(0, pts.length - 1 - daysBack)];
-
-    return {
-      name: `${SITE_NAME} Global Index`,
-      base: 100,
-      startDay: first.day.toISOString().slice(0, 10),
-      latestDay: last.day.toISOString().slice(0, 10),
-      level: Number(level.toFixed(2)),
-      change: {
-        d1: round2(pctOver(last.cents, at(1).cents)),
-        d7: round2(pctOver(last.cents, at(7).cents)),
-        d30: round2(pctOver(last.cents, at(30).cents)),
-        sinceStart: round2(pctOver(last.cents, first.cents)),
-      },
-      breadth: { advancing: idx.risers, declining: idx.fallers, unchanged: idx.flat },
-      trackedCards: idx.trackedCards,
-      source: `${SITE_URL}/market`,
-    };
-  }
   if (name === "get_card_prices") {
     const id = String(args?.id ?? "");
     if (!id) return { error: "missing_id" };
