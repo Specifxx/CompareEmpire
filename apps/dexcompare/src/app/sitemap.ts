@@ -152,11 +152,16 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
       // import ran" case the throw below guards against.
       return [];
     }
-    // Zero priced cards while the DB IS reachable is never a valid production
-    // state (it means the DB was reseeded before the price importer ran) —
-    // refuse to publish it.
+    // Zero priced cards while the DB IS reachable would normally mean the DB
+    // was reseeded before the price importer ran, and used to hard-throw here
+    // to refuse publishing an empty sitemap. TEMPORARILY downgraded to a warn
+    // while DexCompare is paused (src/middleware.ts serves every route a
+    // static notice regardless, so an empty sitemap is unseen and harmless —
+    // but a thrown build error blocks every deploy, including unrelated Neon-
+    // budget fixes). REINSTATE the throw (or let Phase 1E's import-time
+    // sitemap generation supersede this file) before un-pausing for real.
     if (cards.length === 0) {
-      throw new Error("sitemap: card bucket resolved to 0 priced cards — refusing to publish an empty sitemap");
+      console.warn("sitemap: card bucket resolved to 0 priced cards (expected while paused) — publishing empty.");
     }
     return cards.map((c) => ({
       url: `${SITE_URL}/card/${c.slug ?? c.id}`,
@@ -190,8 +195,9 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
         lastModified: g.lowestPriceCents != null ? priceDay : undefined,
       });
     }
+    // Same TEMPORARY downgrade as the card bucket above, same reason.
     if (routes.length === 0) {
-      throw new Error("sitemap: sealed bucket resolved to 0 products — refusing to publish an empty sitemap");
+      console.warn("sitemap: sealed bucket resolved to 0 products (expected while paused) — publishing empty.");
     }
     return routes;
   }
