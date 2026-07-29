@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { RETAILER_LIST } from "@/lib/retailers";
 import { COUNTRIES, type Country } from "@/lib/country";
-import { CONTACT_EMAIL, SITE_URL } from "@/lib/site";
+import { SITE_URL } from "@/lib/site";
 
 export const revalidate = 86400;
 
@@ -73,16 +74,14 @@ export default function StoresPage() {
           </h2>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {m.stores.map((s) => (
-              <a
+              <Link
                 key={s.key}
-                href={s.base}
-                target="_blank"
-                rel="nofollow noopener noreferrer"
+                href={`/stores/${s.key}`}
                 className="card-surface flex flex-col gap-1 p-4 transition-colors hover:border-brand-500"
               >
                 <span className="font-semibold text-white">{s.name}</span>
                 <span className="text-xs text-slate-500">{s.shippingNote}</span>
-              </a>
+              </Link>
             ))}
           </div>
         </section>
@@ -108,12 +107,9 @@ export default function StoresPage() {
           We&apos;re always adding retailers. If there&apos;s a Pokémon store you&apos;d like compared, send us the
           name and website and we&apos;ll look at adding it.
         </p>
-        <a
-          href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent("Request a store for DexCompare")}`}
-          className="btn-primary mt-4 inline-flex"
-        >
-          Request a store →
-        </a>
+        <Link href="/stores/suggest" className="btn-primary mt-4 inline-flex">
+          Suggest a store →
+        </Link>
       </section>
     </div>
   );

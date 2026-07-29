@@ -98,6 +98,14 @@ model Card {
   name            String
   // Lowercased, punctuation-stripped name for apostrophe-tolerant search.
   nameNormalized  String  @default("")
+  // Base-species grouping for the /pokemon/{slug} hubs (P1) — e.g. "Charizard",
+  // "Charizard ex" and "Mega Charizard" all resolve to speciesSlug "charizard".
+  // Computed by lib/pokemon-species.ts at import time; null for non-Pokémon
+  // cards (Trainer/Energy) and anything the name heuristic can't resolve.
+  // Fixed-width columns on the existing row — no storage growth, unlike a
+  // per-card time series.
+  speciesSlug     String?
+  speciesName     String?
   setCode         String // e.g. "OGN"
   setName         String // e.g. "Origins"
   collectorNumber String // e.g. "001/298"
@@ -171,6 +179,7 @@ model Card {
   @@index([rarity])
   @@index([type])
   @@index([hasLivePrice])
+  @@index([speciesSlug])
 }
 
 // A genuine, user-submitted rating + review of a card. No account needed (matches

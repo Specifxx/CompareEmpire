@@ -36,8 +36,6 @@ jobs:
 
       - uses: actions/checkout@v4
         if: steps.db.outputs.found == 'true'
-        with:
-          ref: claude/compareempire-mtg-op-ygo-qbwjs6
 
       - uses: actions/setup-node@v4
         if: steps.db.outputs.found == 'true'

@@ -18,7 +18,7 @@ async function main() {
   const neither = total - hasLivePrice - guideOnly;
   const newSitemapCount = hasLivePrice + guideOnly;
 
-  console.log("── Card sitemap tiering (bucket 1) ────────────────────────");
+  console.log("── Card sitemap tiering (bucket 1) ──────────────────────────");
   console.log(`Total cards:                     ${total}`);
   console.log(`Tier 1 — hasLivePrice:           ${hasLivePrice}  (indexed, priority 0.8)`);
   console.log(`Tier 2 — TCGplayer guide only:   ${guideOnly}  (indexed, priority 0.55)`);
@@ -39,7 +39,7 @@ async function main() {
   const indexableSpecies = speciesGroups.filter((g) => g._count._all >= 2).length;
 
   console.log("");
-  console.log("── Pokemon species hubs (P1, bucket 3) ──────────────────");
+  console.log("── Pokemon species hubs (P1, bucket 3) ──────────────────────");
   console.log(`Cards with speciesSlug set:       ${withSpecies}/${total} (0 = backfill not yet run)`);
   console.log(`Distinct species w/ >=1 priced:   ${speciesGroups.length}`);
   console.log(`Indexable hubs (>=2 priced):      ${indexableSpecies}`);
@@ -47,7 +47,7 @@ async function main() {
   const rarityGroups = await prisma.card.groupBy({ by: ["rarity"], where: { hasLivePrice: true }, _count: { _all: true } });
   const indexableRarities = rarityGroups.filter((g) => g._count._all >= 2).length;
   console.log("");
-  console.log("── Facet hubs (P2, bucket 0) ───────────────────────");
+  console.log("── Facet hubs (P2, bucket 0) ─────────────────────────────────");
   console.log(`Distinct rarities w/ priced cards: ${rarityGroups.length} (${indexableRarities} clear the >=2 threshold)`);
 
   await prisma.$disconnect();

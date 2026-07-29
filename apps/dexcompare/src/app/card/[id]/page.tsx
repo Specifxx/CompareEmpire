@@ -7,6 +7,7 @@ import { DomainBadge, RarityBadge, VariantBadge, OvernumberedBadge, PromoBadge, 
 import { isOvernumbered, isSignature } from "@/lib/constants";
 import { POKEMON_SETS } from "@/lib/pokemon-sets";
 import { CardMarketplace } from "@/components/CardMarketplace";
+import { MARKETPLACE_ENABLED } from "@/lib/flags";
 import { WishlistButton } from "@/components/WishlistButton";
 import { ShareButton } from "@/components/ShareButton";
 import { CollectionButton } from "@/components/CollectionButton";
@@ -14,6 +15,8 @@ import { CardViewBeacon } from "@/components/CardViewBeacon";
 import { CardReviews, type ReviewView } from "@/components/CardReviews";
 import { NetProceeds } from "@/components/NetProceeds";
 import { CardTile, type CardTileData } from "@/components/CardTile";
+import { EmbedSnippet } from "@/components/EmbedSnippet";
+import { WatchPriceButton } from "@/components/WatchPriceButton";
 import { cardTileSelect } from "@/lib/cards";
 import { formatMoney, timeAgo } from "@/lib/format";
 import { effectiveShippingCents, shippingPolicyUrl } from "@/lib/retailers";
@@ -21,6 +24,7 @@ import { affiliateUrl, ebaySearchUrl } from "@/lib/affiliate";
 import { aggregateOffer } from "@/lib/structured-data";
 import { COUNTRIES, DEFAULT_COUNTRY, pickPrice, marketGuideCents } from "@/lib/country";
 import { SITE_URL } from "@/lib/site";
+import { buildAboutCard, buildCardFaqs, cardFinish, type CardFinish } from "@/lib/card-copy";
 import { EnglishOnlyToggle } from "@/components/EnglishOnlyToggle";
 import { OutboundLink } from "@/components/OutboundLink";
 import { AdSlot } from "@/components/AdSlot";
@@ -92,7 +96,11 @@ function cardSubject(name: string, setName: string, collectorNumber: string, max
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   const card = await prisma.card.findFirst({
     where: whereParam(params.id),
-    select: { slug: true, name: true, setName: true, setCode: true, collectorNumber: true, lowestPriceCents: true, lowestPriceCentsUs: true, lowestPriceCentsGb: true, imageUrl: true, imageThumbUrl: true },
+    select: {
+      slug: true, name: true, setName: true, setCode: true, collectorNumber: true,
+      lowestPriceCents: true, lowestPriceCentsUs: true, lowestPriceCentsGb: true,
+      marketPriceSource: true, imageUrl: true, imageThumbUrl: true,
+    },
   });
   if (!card) notFound(); // real 404 — metadata resolves before streaming
 
@@ -123,11 +131,17 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
       // price sheet). Answer engines increasingly follow rel=alternate markdown.
       types: { "text/markdown": `/llm/card/${card.slug ?? params.id}` },
     },
-    // A card with no price in ANY market renders a "No prices found yet" shell —
-    // thin content at ~8k-page scale. Keep it crawlable (follow) but out of the
-    // index until it gains a price; this flips back automatically on the next
-    // crawl once the importer prices it.
-    ...(from ? {} : { robots: { index: false, follow: true } }),
+    // Sitemap/indexability tiering (documented once here — see sitemap.ts's
+    // bucket 1, which mirrors this exactly):
+    //   1. A real live store price (`from`)               → indexed, normal priority
+    //   2. No store price, but a real TCGplayer market guide → indexed, lower priority
+    //      (still a genuine, sourced number — not thin content)
+    //   3. Neither                                          → noindex, follow
+    // A card in tier 3 renders a "No prices found yet" shell — thin content at
+    // ~8k-page scale. It flips back to indexable automatically on the next
+    // crawl/ISR regenerate once the importer prices it or TCGplayer guides it —
+    // no separate promotion job needed.
+    ...(from || card.marketPriceSource === "TCGplayer" ? {} : { robots: { index: false, follow: true } }),
     openGraph: {
       title,
       description,
@@ -177,7 +191,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
 
   // Every other printing of this card (same name, different set/number) so
   // collectors can compare reprints — e.g. Base Set vs Classic Collection.
-  const [otherPrints, reviewRows, cheaperInSet, sameTypeCards] = await Promise.all([
+  const [otherPrints, reviewRows, cheaperInSet, sameDomainCards, sameRarityCards, species] = await Promise.all([
     card.nameNormalized
       ? prisma.card.findMany({
           where: { nameNormalized: card.nameNormalized, id: { not: card.id } },
@@ -206,18 +220,34 @@ export default async function CardPage({ params }: { params: { id: string } }) {
       select: cardTileSelect(country),
       take: 8,
     }),
-    // Other cards of the same Pokémon type from a different set — broadens discovery
-    // without duplicating the "also in this set" section above. A deterministic
-    // per-card `skip` (from artSeed, ISR-stable) rotates the window so we don't dump
-    // ~18k×8 internal links onto the same 8 globally-cheapest cards — it spreads
-    // internal inbound links across the long tail (a crawl-priority signal).
+    // Other cards of the same energy type (domain) from a different set — broadens
+    // discovery without duplicating the "also in this set" section above. A
+    // deterministic per-card `skip` (from artSeed, ISR-stable) rotates the window
+    // so we don't dump ~20k×8 internal links onto the same 8 globally-cheapest
+    // cards — it spreads internal inbound links across the long tail (a
+    // crawl-priority signal).
     prisma.card.findMany({
-      where: { type: card.type, id: { not: card.id }, setCode: { not: card.setCode } },
+      where: { domain: card.domain, id: { not: card.id }, setCode: { not: card.setCode } },
       orderBy: [{ lowestPriceCents: { sort: "asc", nulls: "last" } }],
       select: cardTileSelect(country),
       skip: card.artSeed % 20,
       take: 8,
     }),
+    // Other cards of the same rarity from a different set — same rotation trick.
+    prisma.card.findMany({
+      where: { rarity: card.rarity, id: { not: card.id }, setCode: { not: card.setCode } },
+      orderBy: [{ lowestPriceCents: { sort: "asc", nulls: "last" } }],
+      select: cardTileSelect(country),
+      skip: (card.artSeed + 7) % 20,
+      take: 8,
+    }),
+    // Species hub link (P1). Fetched separately and soft-failed — speciesSlug/
+    // speciesName are new columns; a preview/branch deploy's database may not
+    // have them yet (only a production build runs `prisma db push`), so this
+    // must never break the page's main query. Degrades to "no hub link".
+    prisma.card
+      .findUnique({ where: { id: card.id }, select: { speciesSlug: true, speciesName: true } })
+      .catch(() => null as { speciesSlug: string | null; speciesName: string | null } | null),
   ]);
   // CompareEmpire Marketplace (test-mode, play-money) moved to a CLIENT island
   // <CardMarketplace> — it reads the session cookie (getCurrentUser) to gate
@@ -247,7 +277,14 @@ export default async function CardPage({ params }: { params: { id: string } }) {
   const all = card.retailerPrices.map((p) => {
     const ship = effectiveShippingCents(p.shippingCents); // number | null (null = unknown)
     const isGuide = p.retailer.startsWith("marketguide");
-    return { ...p, ship, delivered: p.priceCents + (ship ?? 0), isGuide, foreign: !isGuide && !!p.title && FOREIGN_RE.test(p.title) };
+    return {
+      ...p,
+      ship,
+      delivered: p.priceCents + (ship ?? 0),
+      isGuide,
+      foreign: !isGuide && !!p.title && FOREIGN_RE.test(p.title),
+      finish: cardFinish(p.title, p.isFoil),
+    };
   });
   const guide = all.filter((p) => p.isGuide).sort((a, b) => a.priceCents - b.priceCents)[0] ?? null;
   const storeRows = all.filter((p) => !p.isGuide).sort((a, b) => a.delivered - b.delivered);
@@ -280,20 +317,21 @@ export default async function CardPage({ params }: { params: { id: string } }) {
 
   const minPrice = (rows: typeof prices) =>
     rows.reduce<number | null>((m, p) => (m == null || p.priceCents < m ? p.priceCents : m), null);
-  const cheapestStandard = minPrice(prices.filter((p) => !p.isFoil));
-  const cheapestFoil = minPrice(prices.filter((p) => p.isFoil));
-  // Headline = cheapest REAL store price. Prefer the STANDARD (non-foil) printing;
-  // fall back to foil, then the recompute. We never want to show a foil price under
-  // a "Standard from" label, so the label below is derived from which one we used.
-  // (NB: many Pokémon chase cards exist ONLY as foil — TCGplayer marks them
-  // foilOnly — so we must NOT null those out; we just label them correctly.)
-  const headlineCents = cheapestStandard ?? cheapestFoil ?? lowestPrice ?? null;
-  const headlineIsFoil = cheapestStandard == null && cheapestFoil != null;
-  const headlineLabel = headlineIsFoil
-    ? "✦ Foil from"
-    : cheapestFoil != null
-    ? "Standard from"
-    : "Cheapest price";
+  // Normal / Holo / Reverse Holo price split (see cardFinish in lib/card-copy —
+  // inferred from listing titles, since the schema only has a binary isFoil).
+  const cheapestNormal = minPrice(prices.filter((p) => p.finish === "Normal"));
+  const cheapestHolo = minPrice(prices.filter((p) => p.finish === "Holo"));
+  const cheapestReverseHolo = minPrice(prices.filter((p) => p.finish === "Reverse Holo"));
+  // Headline = cheapest REAL store price, preferring Normal, then Holo, then
+  // Reverse Holo, then the recompute. Many Pokémon chase cards exist ONLY as a
+  // foil finish (TCGplayer marks them foilOnly) — never null those out, just
+  // label them correctly.
+  const headlineFinish: CardFinish =
+    cheapestNormal != null ? "Normal" : cheapestHolo != null ? "Holo" : cheapestReverseHolo != null ? "Reverse Holo" : "Normal";
+  const headlineCents = cheapestNormal ?? cheapestHolo ?? cheapestReverseHolo ?? lowestPrice ?? null;
+  const finishesAvailable = [cheapestNormal, cheapestHolo, cheapestReverseHolo].filter((v) => v != null).length;
+  const headlineLabel =
+    headlineFinish === "Normal" ? (finishesAvailable > 1 ? "Normal from" : "Cheapest price") : `✦ ${headlineFinish} from`;
 
   // The market-price guide for this market: the imported guide row where one
   // exists (AU), else the card's USD guide converted at an indicative rate.
@@ -302,6 +340,13 @@ export default async function CardPage({ params }: { params: { id: string } }) {
   // rarity/age heuristic — be honest about which it is rather than implying data.
   const guideIsReal = card.marketPriceSource === "TCGplayer";
   const guideSource = guideIsReal ? "TCGplayer" : "rough estimate";
+  // Delta badge: how far the cheapest real store price sits from the TCGplayer
+  // market guide — the history-free substitute for a price chart. Only shown
+  // for a REAL guide (never the seed-time rarity/age estimate).
+  const guideDeltaPct =
+    guideIsReal && guideCents != null && guideCents > 0 && headlineCents != null
+      ? Math.round(((headlineCents - guideCents) / guideCents) * 100)
+      : null;
 
   // Whether this market's comparison includes an eBay listing. The daily eBay
   // quota rotates through the catalogue, so plenty of cards haven't been checked
@@ -369,13 +414,46 @@ export default async function CardPage({ params }: { params: { id: string } }) {
     ],
   };
 
+  // About-this-card prose + FAQ — data-driven and deterministic per card (see
+  // lib/card-copy). Deliberately no trading-range/trend sentence: no per-card
+  // price history exists on this app.
+  const copyInput = {
+    name: card.name, setName: card.setName, setCode: card.setCode, collectorNumber: card.collectorNumber,
+    domain: card.domain, type: card.type, rarity: card.rarity, might: card.might, isPromo: card.isPromo,
+    headlineCents, headlineLabel, storeCount: prices.length, otherPrintingsCount: otherPrints.length,
+    guideCents, guideIsReal, fmt, adjective: info.adjective,
+  };
+  const aboutText = buildAboutCard(card.id, copyInput);
+  const faqs = buildCardFaqs(copyInput);
+  const faqLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
+  };
+
   return (
     <div>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd ? [jsonLd, breadcrumb] : [breadcrumb]) }} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd ? [jsonLd, breadcrumb, faqLd] : [breadcrumb, faqLd]) }}
+      />
       <CardViewBeacon idOrSlug={card.slug ?? card.id} cardId={card.id} />
-      <Link href="/browse" className="mb-4 inline-flex items-center gap-1 text-sm text-slate-400 hover:text-white">
-        ← Back to database
-      </Link>
+      {/* Visible breadcrumb, mirroring the BreadcrumbList JSON-LD above. */}
+      <nav aria-label="Breadcrumb" className="mb-4 text-sm text-slate-400">
+        <ol className="flex flex-wrap items-center gap-1.5">
+          <li><Link href="/" className="hover:text-white">Home</Link></li>
+          <li aria-hidden>/</li>
+          <li><Link href="/browse" className="hover:text-white">Cards</Link></li>
+          {setSlug && (
+            <>
+              <li aria-hidden>/</li>
+              <li><Link href={`/sets/${setSlug}`} className="hover:text-white">{card.setName}</Link></li>
+            </>
+          )}
+          <li aria-hidden>/</li>
+          <li aria-current="page" className="truncate text-slate-300">{card.name}</li>
+        </ol>
+      </nav>
 
       <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
         {/* Card visual */}
@@ -422,9 +500,11 @@ export default async function CardPage({ params }: { params: { id: string } }) {
 
             <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
               <Metric label={headlineLabel} value={headlineCents != null ? fmt(headlineCents) : "—"} highlight />
-              {/* Separate foil metric only when the headline is the STANDARD price
-                  (otherwise the headline already IS the foil price — no duplicate). */}
-              {!headlineIsFoil && cheapestFoil != null && <Metric label="✦ Foil from" value={fmt(cheapestFoil)} highlight />}
+              {/* Separate metrics for the OTHER finishes — never repeat the headline. */}
+              {headlineFinish !== "Holo" && cheapestHolo != null && <Metric label="✦ Holo from" value={fmt(cheapestHolo)} highlight />}
+              {headlineFinish !== "Reverse Holo" && cheapestReverseHolo != null && (
+                <Metric label="✦ Reverse Holo from" value={fmt(cheapestReverseHolo)} highlight />
+              )}
               <Metric label="Compared at" value={`${prices.length} ${prices.length === 1 ? "store" : "stores"}`} />
               {card.might != null && <Metric label="HP" value={String(card.might)} />}
               <Metric label="Rarity" value={card.rarity} />
@@ -462,16 +542,47 @@ export default async function CardPage({ params }: { params: { id: string } }) {
                     {guideIsReal && country !== "US" ? " (USD market price, converted)" : ""}
                     {guideIsReal && card.marketPriceUpdatedAt ? ` · updated ${timeAgo(card.marketPriceUpdatedAt)}` : ""}
                   </span>
+                  {/* History-free substitute for a price-trend chart: how far the
+                      cheapest real store price sits from the TCGplayer guide. */}
+                  {guideDeltaPct != null && (
+                    <span
+                      className={`chip ${
+                        guideDeltaPct < 0 ? "bg-up/15 text-up" : guideDeltaPct > 0 ? "bg-down/15 text-down" : "bg-ink-800 text-slate-300"
+                      }`}
+                    >
+                      {guideDeltaPct === 0
+                        ? "at market guide"
+                        : guideDeltaPct < 0
+                        ? `${Math.abs(guideDeltaPct)}% under market guide`
+                        : `${guideDeltaPct}% over market guide`}
+                    </span>
+                  )}
                 </div>
                 <p className="mt-1 text-xs leading-relaxed text-slate-500">
                   {!guideIsReal
                     ? `We don't have live market data for this card yet, so this is a rough estimate from its rarity and age — treat it as a ballpark only.`
                     : prices.length === 0
                     ? `A guide from recent sales, not a buyable listing — no ${info.adjective} store stocks this card yet.`
-                    : `A guide from recent sales, not a buyable listing. The ${info.adjective} store prices below are what you can actually pay — note the market guide can sometimes be cheaper than any store here (and vice versa).`}
+                    : `A guide from recent sales, not a buyable listing. The ${info.adjective} store prices below are what you can actually pay — note the market guide can sometimes be cheaper than any store here (and vice versa). Conversions are indicative and don't include international shipping.`}
                 </p>
               </div>
             )}
+
+            {/* Watch this price + embed CTA — sit right under the price info they act on. */}
+            <div className="mt-4 grid gap-2 sm:grid-cols-2">
+              <WatchPriceButton cardId={card.id} cardName={card.name} market={country} />
+              <details className="rounded-lg border border-dashed border-ink-600 bg-ink-900/50 p-3">
+                <summary className="cursor-pointer list-none text-center text-sm text-slate-300 [&::-webkit-details-marker]:hidden">
+                  🔗 Embed this price on your site
+                </summary>
+                <div className="mt-3">
+                  <EmbedSnippet
+                    title={card.name}
+                    src={`${SITE_URL}/embed/card/${card.slug ?? card.id}?market=${country}`}
+                  />
+                </div>
+              </details>
+            </div>
           </div>
 
           {/* Thinking of selling? Net-proceeds — the other half of the price:
@@ -602,7 +713,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
                         {i === 0 && prices.length > 1 && (
                           <span className="chip bg-up/15 font-semibold text-up">Best deal</span>
                         )}
-                        {p.isFoil && <span className="chip bg-gold/15 font-semibold text-gold">✦ Foil</span>}
+                        {p.finish !== "Normal" && <span className="chip bg-gold/15 font-semibold text-gold">✦ {p.finish}</span>}
                         {p.condition && <span className="chip bg-ink-800 text-slate-300">{p.condition}</span>}
                         <span className="text-brand-400">● In stock</span>
                         <span>
@@ -691,11 +802,34 @@ export default async function CardPage({ params }: { params: { id: string } }) {
               </div>
             )}
 
+            {/* Accuracy caveat only — the commission disclosure already sits above
+                the price list (AffiliateDisclosure, EPN-compliant wording); repeating
+                it here would be the same disclosure a third time on one page. */}
             <p className="border-t border-ink-800 p-3 text-center text-[11px] text-slate-600">
-              Prices are collected from public store listings and may change. DexCompare
-              may earn a commission on some outbound links.
+              Prices are collected from public store listings and may change.
             </p>
           </div>
+
+          {/* About this card — data-driven prose, one paragraph, varied sentence
+              structure per card (see lib/card-copy) so 20k+ pages don't read
+              identically. No trading-range sentence: no price history exists. */}
+          <section className="card-surface mt-6 p-4">
+            <h2 className="font-bold text-white">About this card</h2>
+            <p className="mt-2 text-sm leading-relaxed text-slate-300">{aboutText}</p>
+          </section>
+
+          {/* Visible FAQ, mirroring the FAQPage JSON-LD above. */}
+          <section className="card-surface mt-6 divide-y divide-ink-800 overflow-hidden">
+            <h2 className="p-4 font-bold text-white">Frequently asked questions</h2>
+            <dl>
+              {faqs.map((f) => (
+                <div key={f.q} className="p-4">
+                  <dt className="font-semibold text-slate-200">{f.q}</dt>
+                  <dd className="mt-1 text-sm leading-relaxed text-slate-400">{f.a}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
 
           {otherMarketPrices.length > 0 && (
             <div className="card-surface mt-6 p-4">
@@ -717,8 +851,10 @@ export default async function CardPage({ params }: { params: { id: string } }) {
 
           {/* CompareEmpire Marketplace (test-mode, play-money) — client island so the
               session-gated buy/sell UI never forces this page dynamic. It loads its
-              own asks/bids/viewer from /api/card/[id]/market on mount. */}
-          <CardMarketplace cardId={card.id} marketPriceCents={card.marketPriceCents} />
+              own asks/bids/viewer from /api/card/[id]/market on mount. Feature-flagged
+              off by default: play-money UI has no place on a real price-comparison
+              page until it's a real, non-demo feature — see lib/flags.ts. */}
+          {MARKETPLACE_ENABLED && <CardMarketplace cardId={card.id} marketPriceCents={card.marketPriceCents} />}
 
 
           {/* TCGplayer affiliate banner — pays commission on click-through
@@ -742,11 +878,18 @@ export default async function CardPage({ params }: { params: { id: string } }) {
           numbers), so collectors can compare which printing is cheapest. */}
       {otherPrints.length > 0 && (
         <section className="mt-8">
-          <div className="mb-4">
-            <h2 className="text-xl font-extrabold text-white">Other printings of {card.name}</h2>
-            <p className="mt-0.5 text-xs text-slate-500">
-              The same card from other sets and promos — sometimes a different printing is far cheaper.
-            </p>
+          <div className="mb-4 flex items-end justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-extrabold text-white">Other printings of {card.name}</h2>
+              <p className="mt-0.5 text-xs text-slate-500">
+                The same card from other sets and promos — sometimes a different printing is far cheaper.
+              </p>
+            </div>
+            {species?.speciesSlug && (
+              <Link href={`/pokemon/${species.speciesSlug}`} className="shrink-0 text-xs font-semibold text-brand-400 hover:underline">
+                Full {species.speciesName ?? card.name} price guide →
+              </Link>
+            )}
           </div>
           <div className="-mx-1 flex gap-4 overflow-x-auto px-1 pb-2">
             {(otherPrints as CardTileData[]).map((c) => (
@@ -784,17 +927,36 @@ export default async function CardPage({ params }: { params: { id: string } }) {
         </section>
       )}
 
-      {/* Other cards of the same type — cross-set discovery. */}
-      {sameTypeCards.length > 0 && (
+      {/* Other cards of the same energy type — cross-set discovery. */}
+      {sameDomainCards.length > 0 && (
         <section className="mt-8">
           <div className="mb-4">
-            <h2 className="text-xl font-extrabold text-white">Other {card.type} cards</h2>
+            <h2 className="text-xl font-extrabold text-white">More {card.domain} cards</h2>
             <p className="mt-0.5 text-xs text-slate-500">
-              More {card.type} singles from across the Pokémon TCG, sorted by cheapest price.
+              More {card.domain}-type singles from across the Pokémon TCG, sorted by cheapest price.
             </p>
           </div>
           <div className="-mx-1 flex gap-4 overflow-x-auto px-1 pb-2">
-            {(sameTypeCards as CardTileData[]).map((c) => (
+            {(sameDomainCards as CardTileData[]).map((c) => (
+              <div key={c.id} className="w-36 shrink-0 sm:w-44">
+                <CardTile card={c} />
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Other cards of the same rarity — cross-set discovery. */}
+      {sameRarityCards.length > 0 && (
+        <section className="mt-8">
+          <div className="mb-4">
+            <h2 className="text-xl font-extrabold text-white">More {card.rarity} cards</h2>
+            <p className="mt-0.5 text-xs text-slate-500">
+              More {card.rarity.toLowerCase()} singles from across the Pokémon TCG, sorted by cheapest price.
+            </p>
+          </div>
+          <div className="-mx-1 flex gap-4 overflow-x-auto px-1 pb-2">
+            {(sameRarityCards as CardTileData[]).map((c) => (
               <div key={c.id} className="w-36 shrink-0 sm:w-44">
                 <CardTile card={c} />
               </div>
