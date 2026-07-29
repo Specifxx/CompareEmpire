@@ -1,0 +1,54 @@
+name: Backfill Pokemon species slugs (manual)
+
+# One-off: applies the new (additive, nullable) Card.speciesSlug/speciesName
+# columns via `prisma db push` if they don't exist yet, then populates them
+# for every existing card via scripts/backfill-species.ts — powers the
+# /pokemon/{slug} hubs (P1 of the RiftCompare parity sprint). Idempotent,
+# safe to re-run. No data loss: only ever adds/updates these two nullable
+# columns, never removes anything.
+
+on:
+  workflow_dispatch:
+    inputs:
+      dexcompare_url:
+        description: "DexCompare Neon DATABASE_URL (optional if the DEXCOMPARE_DATABASE_URL secret is set)"
+        required: false
+        default: ""
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Resolve database URL
+        id: db
+        env:
+          SECRET_URL: ${{ secrets.DEXCOMPARE_DATABASE_URL }}
+          INPUT_URL: ${{ inputs.dexcompare_url }}
+        run: |
+          URL="${INPUT_URL:-$SECRET_URL}"
+          if [ -z "$URL" ]; then
+            echo "No DEXCOMPARE_DATABASE_URL secret and no URL input — nothing to backfill." >> "$GITHUB_STEP_SUMMARY"
+            echo "found=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "::add-mask::$URL"
+            echo "DATABASE_URL=$URL" >> "$GITHUB_ENV"
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.db.outputs.found == 'true'
+
+      - uses: actions/setup-node@v4
+        if: steps.db.outputs.found == 'true'
+        with:
+          node-version: 20
+
+      - name: Sync schema + backfill species
+        if: steps.db.outputs.found == 'true'
+        working-directory: apps/dexcompare
+        run: |
+          npm install --no-audit --no-fund
+          npx prisma generate
+          npx prisma db push --skip-generate --accept-data-loss
+          npx tsx scripts/backfill-species.ts
