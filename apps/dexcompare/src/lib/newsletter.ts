@@ -1,6 +1,7 @@
 import { randomUUID } from "crypto";
 import { prisma } from "./db";
 import { getTopDeals, type Deal } from "./deals";
+import { readIndexSeries, computeIndexStats } from "./market-index";
 import { sendNewsletterDigestEmail, isEmailEnabled } from "./email";
 import { formatMoney } from "./format";
 import { currencyOf, normalizeCountry, COUNTRIES, type Country } from "./country";
@@ -54,22 +55,41 @@ interface Digest {
   inner: string;
 }
 
+// The footer signs subscribers up for "the weekly Index summary" — this is
+// that summary, built from the same bounded IndexSnapshot rows the /market
+// page reads. Returns "" (not null) on no data yet, since the deals section
+// alone is still a valid digest.
+function indexBlurb(stats: ReturnType<typeof computeIndexStats>): string {
+  if (!stats.latest) return "";
+  const changeStr = stats.changePct != null ? `${stats.changePct >= 0 ? "+" : ""}${stats.changePct.toFixed(1)}%` : null;
+  const color = stats.changePct != null && stats.changePct >= 0 ? "#34d17e" : "#f87171";
+  return `
+    <tr><td style="padding:14px 32px 0;font-size:13px;font-weight:700;color:#34d17e">📈 DexCompare Index</td></tr>
+    <tr><td style="padding:6px 32px 0;font-size:14px;line-height:1.6;color:#b8c0cc">
+      The Index is at <strong style="color:#fff">${stats.latest.value.toFixed(1)}</strong>${
+        changeStr ? ` (<span style="color:${color};font-weight:700">${changeStr}</span> since tracking began)` : ""
+      } — a search-weighted basket of the ${stats.latest ? "" : ""}Pokémon cards collectors are watching most.
+      <a href="${utm("/market")}" style="color:#34d17e;font-weight:700;text-decoration:none">See the full breakdown →</a>
+    </td></tr>`;
+}
+
 // Build one market's digest, or null on a quiet week (house rule: skip rather
 // than send noise).
-function buildDigest(deals: Deal[], market: Country): Digest | null {
-  if (!deals.length) return null;
+function buildDigest(deals: Deal[], market: Country, indexHtml: string): Digest | null {
+  if (!deals.length && !indexHtml) return null;
 
   const info = COUNTRIES[market];
   const currency = currencyOf(market);
   const subject = deals[0]
     ? `📊 Pokémon TCG deal of the week: ${deals[0].card.name} — ${deals[0].pct}% off guide`
-    : "📊 Your weekly Pokémon TCG deals digest";
+    : "📊 Your weekly Pokémon TCG Index & deals digest";
 
   const inner = `
     <tr><td style="padding:8px 32px 0;font-size:14px;line-height:1.6;color:#b8c0cc">
       This week's biggest gaps between live lowest in-stock prices and the TCGplayer market guide, across ${info.adjective} stores.
     </td></tr>
     ${section("💰 Best deals this week", deals, currency, 8)}
+    ${indexHtml}
     <tr><td style="padding:18px 32px 24px"><a href="${utm("/deals")}" style="display:inline-block;background:#34d17e;color:#06210f;font-weight:700;text-decoration:none;padding:12px 22px;border-radius:10px">See all deals</a></td></tr>`;
 
   return { subject, heading: "This week's best Pokémon TCG deals", inner };
@@ -94,13 +114,17 @@ export async function runNewsletterDigest(): Promise<NewsletterRunSummary> {
   };
   if (!due.length || !isEmailEnabled()) return summary;
 
+  // Computed ONCE for the whole run (global, market-neutral) — not per
+  // subscriber market. Reads only the bounded IndexSnapshot rows.
+  const globalIndexHtml = indexBlurb(computeIndexStats(await readIndexSeries("GLOBAL", 730)));
+
   // One digest per market, computed once and reused for every subscriber in it.
   const digests = new Map<Country, Digest | null>();
   for (const sub of due) {
     const market = normalizeCountry(sub.market);
     if (!digests.has(market)) {
       const deals = await getTopDeals(12, market);
-      digests.set(market, buildDigest(deals, market));
+      digests.set(market, buildDigest(deals, market, globalIndexHtml));
       if (!digests.get(market)) summary.quietMarkets.push(market);
     }
     const digest = digests.get(market);

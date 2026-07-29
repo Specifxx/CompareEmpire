@@ -87,3 +87,11 @@ jobs:
         if: steps.db.outputs.found == 'true'
         working-directory: apps/dexcompare
         run: npx tsx scripts/verify-data.ts
+
+      # DexCompare Index (P3): snapshot today's basket value for each index
+      # key, using the prices just imported above. Writes ONLY IndexSnapshot
+      # rows — one per key per day (~7 rows/run), never per-card history.
+      - name: Snapshot DexCompare Index
+        if: steps.db.outputs.found == 'true'
+        working-directory: apps/dexcompare
+        run: npx tsx scripts/snapshot-index.ts
