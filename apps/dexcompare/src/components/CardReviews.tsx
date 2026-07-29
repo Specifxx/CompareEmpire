@@ -123,7 +123,12 @@ export function CardReviews({
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-ink-700 p-4">
         <div>
           <h2 className="font-bold text-white">Reviews</h2>
-          {count > 0 ? (
+          {/* Empty state deliberately renders nothing here — "No reviews yet — be
+              the first" as visible copy on every one of ~20k card pages is thin,
+              near-duplicate UGC content at scale. The "Write a review" button
+              still works with zero reviews; it just isn't announced with filler
+              text. */}
+          {count > 0 && (
             <div className="mt-1 flex items-center gap-2 text-sm">
               <Stars value={avg} />
               <span className="font-semibold text-white">{avg.toFixed(1)}</span>
@@ -131,8 +136,6 @@ export function CardReviews({
                 · {count} {count === 1 ? "review" : "reviews"}
               </span>
             </div>
-          ) : (
-            <p className="mt-0.5 text-xs text-slate-500">No reviews yet — be the first to rate {cardName}.</p>
           )}
         </div>
         <button type="button" onClick={() => setOpen((o) => !o)} className="btn-ghost shrink-0">
