@@ -4,11 +4,20 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { ArbSource } from "@/lib/arbitrage";
 
-// Buy-side source picker. Sell is fixed to eBay (the only marketplace we can price a
-// resale on for now), so only the BUY side is selectable. Defaults to every store
-// (cheapest store). Changing it updates the URL so the server re-ranks.
+// Buy-side source picker. The SELL side is fixed per view (TCGplayer on the flip
+// view), so only the BUY side is selectable. Defaults to every tracked retail
+// store. Changing it updates the URL so the server re-ranks.
+//
+// "Stores" here means real retail shops only — the marketplaces we resell INTO
+// (eBay, TCGplayer) are sell venues, so counting them would stop the default
+// selection from matching and mislabel it ("40 sources" instead of
+// "Cheapest store").
+function retailStores(sources: ArbSource[]): ArbSource[] {
+  return sources.filter((s) => !s.isEbay && !s.isTcgplayer);
+}
+
 function buyLabel(selected: string[], sources: ArbSource[]): string {
-  const stores = sources.filter((s) => !s.isEbay);
+  const stores = retailStores(sources);
   if (stores.length > 0 && selected.length === stores.length && stores.every((s) => selected.includes(s.key))) return "Cheapest store";
   if (selected.length === 1) return sources.find((s) => s.key === selected[0])?.name ?? "1 source";
   if (selected.length === sources.length) return "All sources";
@@ -28,6 +37,12 @@ export function ArbitrageFilters({
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
+
+  // Resolve the sell side from the actual `sell` keys so the control can never
+  // drift from what the table is really ranking against.
+  const sellSources = sell.map((k) => sources.find((s) => s.key === k)).filter(Boolean) as ArbSource[];
+  const sellLabel = sellSources.length ? sellSources.map((s) => s.name).join(" + ") : "—";
+  const sellIsEbay = sellSources.length > 0 && sellSources.every((s) => s.isEbay);
 
   function toggle(key: string) {
     const next = buy.includes(key) ? buy.filter((k) => k !== key) : [...buy, key];
@@ -54,7 +69,17 @@ export function ArbitrageFilters({
               {sources.map((s) => (
                 <label key={s.key} className="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-sm hover:bg-ink-800">
                   <input type="checkbox" checked={buy.includes(s.key)} onChange={() => toggle(s.key)} className="accent-brand-500" />
-                  <span className={s.isEbay ? "font-semibold text-sky-300" : "text-slate-200"}>{s.name}</span>
+                  <span
+                    className={
+                      s.isEbay
+                        ? "font-semibold text-sky-300"
+                        : s.isTcgplayer
+                        ? "font-semibold text-brand-200"
+                        : "text-slate-200"
+                    }
+                  >
+                    {s.name}
+                  </span>
                 </label>
               ))}
             </div>
@@ -64,8 +89,17 @@ export function ArbitrageFilters({
       <span className="pb-2 text-lg text-slate-600">→</span>
       <div>
         <div className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Sell on</div>
-        <div className="mt-0.5 flex min-w-[110px] items-center gap-2 rounded-lg border border-sky-500/30 bg-sky-500/10 px-3 py-2 text-sm font-semibold text-sky-300">
-          eBay
+        {/* Reflects the view's ACTUAL sell side rather than a hardcoded label —
+            the flip view sells into TCGplayer, so hardcoding "eBay" here
+            contradicted the SELL column in the table right below it. */}
+        <div
+          className={`mt-0.5 flex min-w-[110px] items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold ${
+            sellIsEbay
+              ? "border border-sky-500/30 bg-sky-500/10 text-sky-300"
+              : "border border-brand-500/30 bg-brand-500/10 text-brand-200"
+          }`}
+        >
+          {sellLabel}
         </div>
       </div>
     </div>
