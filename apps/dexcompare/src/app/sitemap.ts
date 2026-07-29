@@ -6,6 +6,8 @@ import { getArticles } from "@/lib/articles";
 import { FEATURED_RESTOCKS } from "@/lib/restocks";
 import { getSealedGroups } from "@/lib/sealed-import";
 import { indexableSpeciesSlugs } from "@/lib/pokemon-species-data";
+import { FACET_KINDS, listFacetValues, pricedCountForFacet, MIN_PRICED_TO_INDEX_FACET } from "@/lib/card-facets";
+import { RETAILER_LIST } from "@/lib/retailers";
 
 // Hourly revalidation so new card slugs surface in Google within ~1 hour of a
 // price snapshot, down from the previous 24-hour window.
@@ -57,6 +59,8 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
       })),
       { url: `${SITE_URL}/guides`, changeFrequency: "weekly", priority: 0.7 },
       { url: `${SITE_URL}/stores`, changeFrequency: "monthly", priority: 0.5 },
+      { url: `${SITE_URL}/stores/suggest`, changeFrequency: "yearly", priority: 0.3 },
+      { url: `${SITE_URL}/cards`, changeFrequency: "monthly", priority: 0.6 },
       { url: `${SITE_URL}/widgets`, changeFrequency: "monthly", priority: 0.5 },
       { url: `${SITE_URL}/blog`, changeFrequency: "weekly", priority: 0.7 },
       { url: `${SITE_URL}/about`, changeFrequency: "monthly", priority: 0.5 },
@@ -87,7 +91,38 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
       priority: 0.85,
     }));
 
-    return [...staticRoutes, ...contentRoutes, ...setRoutes];
+    // Individual store profile pages — one per configured retailer. Bounded by
+    // RETAILER_LIST size (~86 today), never grows with card catalogue size.
+    const storeRoutes: MetadataRoute.Sitemap = RETAILER_LIST.map((r) => ({
+      url: `${SITE_URL}/stores/${r.key}`,
+      changeFrequency: "daily" as const,
+      priority: 0.5,
+    }));
+
+    // Faceted card hubs (type/rarity/printing/era) — only the ones that clear
+    // MIN_PRICED_TO_INDEX_FACET, mirroring each hub's own generateMetadata.
+    // This is the one DB-dependent part of an otherwise fully static bucket
+    // (routes/content/sets are all file- or constant-derived) — degrade to no
+    // facet routes rather than fail the whole bucket if the DB is briefly
+    // unreachable at build/ISR time.
+    let facetRoutes: MetadataRoute.Sitemap = [];
+    try {
+      const facetGroups = await Promise.all(FACET_KINDS.map((k) => listFacetValues(k)));
+      const facetChecks = await Promise.all(
+        facetGroups.flat().map(async (f) => ({ f, priced: await pricedCountForFacet(f.where) }))
+      );
+      facetRoutes = facetChecks
+        .filter((c) => c.priced >= MIN_PRICED_TO_INDEX_FACET)
+        .map(({ f }) => ({
+          url: `${SITE_URL}/cards/${f.kind}/${f.slug}`,
+          changeFrequency: "daily" as const,
+          priority: 0.65,
+        }));
+    } catch {
+      facetRoutes = [];
+    }
+
+    return [...staticRoutes, ...contentRoutes, ...setRoutes, ...storeRoutes, ...facetRoutes];
   }
 
   // ── Sitemap 1: card singles (~20 k URLs) ──────────────────────────────────
@@ -100,18 +135,20 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
     // good cached copy (and fails the build loudly rather than shipping an
     // empty sitemap).
     //
-    // Only cards priced in AT LEAST ONE market: cards with no price anywhere
-    // render a thin "No prices found yet" shell and carry noindex (see
-    // card/[id]/page.tsx generateMetadata) — submitting noindexed URLs sends
-    // Google a mixed signal. A card re-enters the sitemap automatically the
-    // day the importer prices it. hasLivePrice is a denormalised OR of the
-    // three lowestPriceCents* columns (set by the importer) — one indexed
-    // boolean instead of a 3-column OR scan.
-    let cards: { id: string; slug: string | null; lowestPriceCents: number | null; imageUrl: string | null }[];
+    // Three-tier indexability (documented once here — card/[id]/page.tsx's
+    // generateMetadata mirrors this exactly, so a URL's sitemap presence and
+    // its own <meta robots> always agree):
+    //   1. hasLivePrice (a real live store match)            → indexed, priority 0.8
+    //   2. no live price, but a real TCGplayer market guide  → indexed, priority 0.55
+    //   3. neither                                            → noindex — EXCLUDED here
+    // A card moves between tiers automatically as the importer prices it or
+    // TCGplayer guides it — no separate promotion job needed, this bucket is
+    // just re-queried on every ISR regenerate.
+    let cards: { id: string; slug: string | null; lowestPriceCents: number | null; marketPriceSource: string | null; imageUrl: string | null }[];
     try {
       cards = await prisma.card.findMany({
-        where: { hasLivePrice: true },
-        select: { id: true, slug: true, lowestPriceCents: true, imageUrl: true },
+        where: { OR: [{ hasLivePrice: true }, { marketPriceSource: "TCGplayer" }] },
+        select: { id: true, slug: true, lowestPriceCents: true, marketPriceSource: true, imageUrl: true },
         orderBy: { lowestPriceCents: { sort: "desc", nulls: "last" } },
       });
     } catch {
@@ -129,7 +166,7 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
     return cards.map((c) => ({
       url: `${SITE_URL}/card/${c.slug ?? c.id}`,
       changeFrequency: "daily" as const,
-      priority: c.lowestPriceCents != null ? 0.8 : 0.6,
+      priority: c.lowestPriceCents != null ? 0.8 : c.marketPriceSource === "TCGplayer" ? 0.55 : 0.6,
       // Image sitemap: surface each card's unique art to image search (absolute URLs only).
       ...(c.imageUrl && c.imageUrl.startsWith("http") ? { images: [c.imageUrl] } : {}),
     }));

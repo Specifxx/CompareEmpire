@@ -96,7 +96,11 @@ function cardSubject(name: string, setName: string, collectorNumber: string, max
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   const card = await prisma.card.findFirst({
     where: whereParam(params.id),
-    select: { slug: true, name: true, setName: true, setCode: true, collectorNumber: true, lowestPriceCents: true, lowestPriceCentsUs: true, lowestPriceCentsGb: true, imageUrl: true, imageThumbUrl: true },
+    select: {
+      slug: true, name: true, setName: true, setCode: true, collectorNumber: true,
+      lowestPriceCents: true, lowestPriceCentsUs: true, lowestPriceCentsGb: true,
+      marketPriceSource: true, imageUrl: true, imageThumbUrl: true,
+    },
   });
   if (!card) notFound(); // real 404 — metadata resolves before streaming
 
@@ -127,11 +131,17 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
       // price sheet). Answer engines increasingly follow rel=alternate markdown.
       types: { "text/markdown": `/llm/card/${card.slug ?? params.id}` },
     },
-    // A card with no price in ANY market renders a "No prices found yet" shell —
-    // thin content at ~8k-page scale. Keep it crawlable (follow) but out of the
-    // index until it gains a price; this flips back automatically on the next
-    // crawl once the importer prices it.
-    ...(from ? {} : { robots: { index: false, follow: true } }),
+    // Sitemap/indexability tiering (documented once here — see sitemap.ts's
+    // bucket 1, which mirrors this exactly):
+    //   1. A real live store price (`from`)               → indexed, normal priority
+    //   2. No store price, but a real TCGplayer market guide → indexed, lower priority
+    //      (still a genuine, sourced number — not thin content)
+    //   3. Neither                                          → noindex, follow
+    // A card in tier 3 renders a "No prices found yet" shell — thin content at
+    // ~8k-page scale. It flips back to indexable automatically on the next
+    // crawl/ISR regenerate once the importer prices it or TCGplayer guides it —
+    // no separate promotion job needed.
+    ...(from || card.marketPriceSource === "TCGplayer" ? {} : { robots: { index: false, follow: true } }),
     openGraph: {
       title,
       description,
