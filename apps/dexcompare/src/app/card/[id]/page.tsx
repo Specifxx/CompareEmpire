@@ -168,7 +168,6 @@ export default async function CardPage({ params }: { params: { id: string } }) {
     // Keep the 3 lowestPrice* columns — pickPrice() reads them.
     select: {
       id: true, slug: true, name: true, nameNormalized: true,
-      speciesSlug: true, speciesName: true,
       setCode: true, setName: true, collectorNumber: true,
       domain: true, type: true, rarity: true, variant: true, isPromo: true,
       might: true, energyCost: true, orientation: true, artSeed: true,
@@ -192,7 +191,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
 
   // Every other printing of this card (same name, different set/number) so
   // collectors can compare reprints — e.g. Base Set vs Classic Collection.
-  const [otherPrints, reviewRows, cheaperInSet, sameDomainCards, sameRarityCards] = await Promise.all([
+  const [otherPrints, reviewRows, cheaperInSet, sameDomainCards, sameRarityCards, species] = await Promise.all([
     card.nameNormalized
       ? prisma.card.findMany({
           where: { nameNormalized: card.nameNormalized, id: { not: card.id } },
@@ -242,6 +241,13 @@ export default async function CardPage({ params }: { params: { id: string } }) {
       skip: (card.artSeed + 7) % 20,
       take: 8,
     }),
+    // Species hub link (P1). Fetched separately and soft-failed — speciesSlug/
+    // speciesName are new columns; a preview/branch deploy's database may not
+    // have them yet (only a production build runs `prisma db push`), so this
+    // must never break the page's main query. Degrades to "no hub link".
+    prisma.card
+      .findUnique({ where: { id: card.id }, select: { speciesSlug: true, speciesName: true } })
+      .catch(() => null as { speciesSlug: string | null; speciesName: string | null } | null),
   ]);
   // CompareEmpire Marketplace (test-mode, play-money) moved to a CLIENT island
   // <CardMarketplace> — it reads the session cookie (getCurrentUser) to gate
@@ -879,9 +885,9 @@ export default async function CardPage({ params }: { params: { id: string } }) {
                 The same card from other sets and promos — sometimes a different printing is far cheaper.
               </p>
             </div>
-            {card.speciesSlug && (
-              <Link href={`/pokemon/${card.speciesSlug}`} className="shrink-0 text-xs font-semibold text-brand-400 hover:underline">
-                Full {card.speciesName ?? card.name} price guide →
+            {species?.speciesSlug && (
+              <Link href={`/pokemon/${species.speciesSlug}`} className="shrink-0 text-xs font-semibold text-brand-400 hover:underline">
+                Full {species.speciesName ?? card.name} price guide →
               </Link>
             )}
           </div>
