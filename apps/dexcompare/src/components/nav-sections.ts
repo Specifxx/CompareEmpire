@@ -26,9 +26,10 @@ export const NAV_SECTIONS: NavSection[] = [
   {
     label: "Market",
     links: [
+      { href: "/market", icon: "📈", label: "DexCompare Index" },
       { href: "/trending", icon: "🔮", label: "Trending cards" },
       { href: "/most-valuable", icon: "💎", label: "Most valuable cards" },
-      { href: "/tools/arbitrage", icon: "💱", label: "Arbitrage & eBay deals" },
+      { href: "/tools/arbitrage", icon: "💱", label: "Arbitrage — flip to TCGplayer" },
       { href: "/restock", icon: "📅", label: "Drops & restocks" },
     ],
   },
@@ -53,10 +54,12 @@ export const NAV_SECTIONS: NavSection[] = [
   {
     label: "Learn & help",
     links: [
+      { href: "/learn", icon: "🎓", label: "Learn collecting" },
       { href: "/guides", icon: "📖", label: "Buying guides" },
       { href: "/stores", icon: "🏪", label: "Stores we track" },
       { href: "/blog", icon: "✍️", label: "Blog" },
-      { href: "/contact", icon: "✉️", label: "Contact" },
+      { href: "/support", icon: "🛟", label: "Support" },
+      { href: "/explore-features", icon: "🧭", label: "Explore all features" },
     ],
   },
 ];

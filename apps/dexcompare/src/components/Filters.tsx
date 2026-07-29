@@ -10,7 +10,15 @@ import {
   domainInfo,
   rarityInfo,
 } from "@/lib/constants";
+import { POKEMON_SETS } from "@/lib/pokemon-sets";
 import { useCountry } from "./CountryProvider";
+
+// Set → era ("series"), for grouping the 170+-set filter. SETS (constants.ts)
+// doesn't carry series, but it's derived 1:1 from POKEMON_SETS, which does.
+const SERIES_BY_CODE = new Map(POKEMON_SETS.map((s) => [s.code, s.series]));
+// POKEMON_SETS is newest-first, so the first series encountered while walking
+// SETS in order is the most recent era — that's the one expanded by default.
+const ERA_ORDER = [...new Set(SETS.map((s) => SERIES_BY_CODE.get(s.code) ?? "Other"))];
 
 function toggleCsv(current: string | null, value: string): string {
   const set = new Set(current ? current.split(",").filter(Boolean) : []);
@@ -142,7 +150,7 @@ export function Filters() {
             />
           </Section>
 
-          <Section title="Set" defaultOpen>
+          <Section title="Set" count={sp.get("set")?.split(",").filter(Boolean).length ?? 0} defaultOpen={!!sp.get("set") || setQuery.length > 0}>
             <input
               type="search"
               value={setQuery}
@@ -150,17 +158,30 @@ export function Filters() {
               placeholder={`Search ${SETS.length} sets…`}
               className="input mb-2 w-full text-sm"
             />
-            <div className="flex max-h-64 flex-col gap-1 overflow-y-auto pr-1">
-              {filteredSets.map((s) => (
-                <Check key={s.code} checked={isActive("set", s.code)} onChange={() => update((p) => setCsv(p, "set", s.code))} label={`${s.name} (${s.code.toUpperCase()})`} />
-              ))}
-              {filteredSets.length === 0 && (
-                <span className="px-1 py-2 text-xs text-slate-500">No sets match “{setQuery}”.</span>
-              )}
-            </div>
+            {filteredSets.length === 0 ? (
+              <span className="px-1 py-2 text-xs text-slate-500">No sets match "{setQuery}".</span>
+            ) : (
+              <div className="max-h-72 overflow-y-auto pr-1">
+                {ERA_ORDER.map((era, i) => {
+                  const eraSets = filteredSets.filter((s) => (SERIES_BY_CODE.get(s.code) ?? "Other") === era);
+                  if (eraSets.length === 0) return null;
+                  const selectedInEra = eraSets.filter((s) => isActive("set", s.code)).length;
+                  // Searching or filtering flattens the grouping open — no point
+                  // hiding a match behind a collapsed era while someone's typing.
+                  const forceOpen = setQuery.length > 0 || selectedInEra > 0;
+                  return (
+                    <EraGroup key={era} label={era} count={eraSets.length} selected={selectedInEra} defaultOpen={i === 0 || forceOpen}>
+                      {eraSets.map((s) => (
+                        <Check key={s.code} checked={isActive("set", s.code)} onChange={() => update((p) => setCsv(p, "set", s.code))} label={`${s.name} (${s.code.toUpperCase()})`} />
+                      ))}
+                    </EraGroup>
+                  );
+                })}
+              </div>
+            )}
           </Section>
 
-          <Section title="Energy type">
+          <Section title="Energy type" count={sp.get("domain")?.split(",").filter(Boolean).length ?? 0}>
             <div className="flex flex-col gap-1">
               {DOMAIN_KEYS.map((k) => {
                 const d = domainInfo(k);
@@ -169,7 +190,7 @@ export function Filters() {
             </div>
           </Section>
 
-          <Section title="Rarity">
+          <Section title="Rarity" count={sp.get("rarity")?.split(",").filter(Boolean).length ?? 0}>
             <div className="flex flex-col gap-1">
               {RARITY_KEYS.map((k) => (
                 <Check key={k} checked={isActive("rarity", k)} onChange={() => update((p) => setCsv(p, "rarity", k))} label={k} dot={rarityInfo(k).color} />
@@ -177,7 +198,7 @@ export function Filters() {
             </div>
           </Section>
 
-          <Section title="Card type">
+          <Section title="Card type" count={sp.get("type")?.split(",").filter(Boolean).length ?? 0}>
             <div className="flex flex-col gap-1">
               {CARD_TYPES.map((k) => (
                 <Check key={k} checked={isActive("type", k)} onChange={() => update((p) => setCsv(p, "type", k))} label={k} />
@@ -185,7 +206,12 @@ export function Filters() {
             </div>
           </Section>
 
-          <Section title="Printing" last defaultOpen>
+          <Section
+            title="Printing"
+            last
+            defaultOpen
+            count={[sp.get("variant") === "alt", sp.get("sig") === "1", sp.get("promo") === "1"].filter(Boolean).length}
+          >
             <div className="flex flex-col gap-1">
               <Check checked={sp.get("variant") === "alt"} onChange={() => update((p) => (p.get("variant") === "alt" ? p.delete("variant") : p.set("variant", "alt")))} label="Alternate art" dot="#f5a524" />
               <Check checked={sp.get("sig") === "1"} onChange={() => update((p) => (p.get("sig") === "1" ? p.delete("sig") : p.set("sig", "1")))} label="Signature" dot="#f59e0b" />
@@ -203,23 +229,71 @@ function Section({
   children,
   defaultOpen = false,
   last,
+  count,
 }: {
   title: string;
   children: React.ReactNode;
   defaultOpen?: boolean;
   last?: boolean;
+  count?: number;
 }) {
   const [open, setOpen] = useState(defaultOpen);
+  // defaultOpen can change after mount (e.g. Set section opens itself once a
+  // set filter or search query is active) — react to that without fighting a
+  // user who's deliberately collapsed it back.
+  useEffect(() => {
+    if (defaultOpen) setOpen(true);
+  }, [defaultOpen]);
   return (
     <div className={last ? "" : "border-b border-ink-700"}>
       <button
         onClick={() => setOpen((o) => !o)}
         className="flex w-full items-center justify-between py-3 text-xs font-semibold uppercase tracking-wide text-slate-400 hover:text-slate-200"
       >
-        {title}
+        <span className="flex items-center gap-1.5">
+          {title}
+          {!!count && <span className="rounded-full bg-brand-500/20 px-1.5 py-0.5 text-[10px] font-bold text-brand-300">{count}</span>}
+        </span>
         <Chevron open={open} />
       </button>
       {open && <div className="pb-3">{children}</div>}
+    </div>
+  );
+}
+
+// Nested collapsible for one era's sets within the Set section — keeps 170+
+// sets from being one endless unsearchable-by-eye scroll list.
+function EraGroup({
+  label,
+  count,
+  selected,
+  defaultOpen,
+  children,
+}: {
+  label: string;
+  count: number;
+  selected: number;
+  defaultOpen: boolean;
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+  useEffect(() => {
+    if (defaultOpen) setOpen(true);
+  }, [defaultOpen]);
+  return (
+    <div className="mb-1">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="flex w-full items-center justify-between rounded px-1 py-1.5 text-xs font-semibold text-slate-400 hover:bg-ink-800 hover:text-slate-200"
+      >
+        <span className="flex items-center gap-1.5">
+          {label}
+          <span className="text-slate-600">({count})</span>
+          {selected > 0 && <span className="rounded-full bg-brand-500/20 px-1.5 py-0.5 text-[10px] font-bold text-brand-300">{selected}</span>}
+        </span>
+        <Chevron open={open} />
+      </button>
+      {open && <div className="ml-1 flex flex-col gap-0.5 border-l border-ink-800 pl-2">{children}</div>}
     </div>
   );
 }

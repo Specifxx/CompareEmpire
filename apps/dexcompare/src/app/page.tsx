@@ -151,6 +151,28 @@ export default async function HomePage() {
           </div>
         </section>
 
+        {/* ── How it works ── DexCompare opened straight into card grids with no
+            explanation of what the site does — this is the missing "why". */}
+        <section className="grid gap-3 sm:grid-cols-3">
+          <HowItWorksStep n={1} title="Search" desc="Find any Pokémon card by name, set or collector number." icon="🔍" />
+          <HowItWorksStep n={2} title="Compare every store" desc="See the live price at every store we track, ranked by total delivered cost." icon="⚖️" />
+          <HowItWorksStep n={3} title="Buy for the best price" desc="Click straight through to the cheapest store and buy — no middleman." icon="🛒" />
+        </section>
+
+        {/* ── Partner trust badges ── TCGplayer leads (the sell-side reference
+            price on every card page); eBay stays as an affiliate search partner. */}
+        <section className="card-surface flex flex-wrap items-center justify-center gap-x-8 gap-y-3 px-6 py-4">
+          <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Prices sourced with</span>
+          <span className="text-lg font-extrabold text-white">TCGplayer</span>
+          <span className="text-ink-700" aria-hidden>·</span>
+          <span className="text-lg font-extrabold">
+            <span className="text-[#e53238]">e</span><span className="text-[#0064d2]">b</span><span className="text-[#f5af02]">a</span><span className="text-[#86b817]">y</span>
+          </span>
+          <span className="text-[11px] text-slate-500">
+            DexCompare is an independent price comparison site and eBay Partner Network / TCGplayer affiliate — we earn from qualifying purchases at no extra cost to you.
+          </span>
+        </section>
+
         {/* ── Browse the database (the core) ── */}
         <HomeShoppableGrid cards={featuredGrid} totalCards={totalCards} storeCount={storeCount} adjective="local" />
 
@@ -271,6 +293,20 @@ export default async function HomePage() {
           }}
         />
       </div>
+  );
+}
+
+function HowItWorksStep({ n, title, desc, icon }: { n: number; title: string; desc: string; icon: string }) {
+  return (
+    <div className="card-surface flex items-start gap-3 p-4">
+      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brand-500/15 text-sm font-extrabold text-brand-300">{n}</span>
+      <div className="min-w-0">
+        <div className="flex items-center gap-1.5 font-bold text-white">
+          <span aria-hidden>{icon}</span> {title}
+        </div>
+        <p className="mt-0.5 text-xs leading-relaxed text-slate-400">{desc}</p>
+      </div>
+    </div>
   );
 }
 
