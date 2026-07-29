@@ -12,7 +12,7 @@ const SECTIONS: { title: string; links: [string, string][] }[] = [
   {
     title: "Prices & database",
     links: [
-      ["/browse", "Every Pokémon TCG card with live lowest prices compared across stores (AU/NZ/US/UK)."],
+      ["/browse", "Every Pokémon TCG card with live lowest prices compared across stores (AU/US/UK)."],
       ["/sets", "All Pokémon TCG sets — each set page lists every card with live prices."],
       ["/sealed", "Sealed products — booster boxes, ETBs, bundles — with the cheapest live price per product."],
       ["/deals", "Today's best deals: cards priced well below their market guide right now."],
@@ -38,7 +38,7 @@ const SECTIONS: { title: string; links: [string, string][] }[] = [
   {
     title: "Guides & content",
     links: [
-      ["/guides", "Buying guides: grading, fakes, reprints, price history and more."],
+      ["/guides", "Buying guides: grading, fakes, reprints, condition, vintage and more."],
       ["/blog", "News and market analysis for the Pokémon TCG."],
       ["/about", "What DexCompare is, where prices come from, how often they update."],
     ],
@@ -52,7 +52,7 @@ export function GET() {
   lines.push(
     "> DexCompare (dexcompare.app) is a free, independent price comparison for the Pokémon Trading Card Game: " +
       "20k+ singles and hundreds of sealed products, each with live lowest prices compared across local stores in " +
-      "Australia, New Zealand, the US and the UK (plus eBay AU/US/UK), updated daily."
+      "Australia, the US and the UK (plus eBay AU/US/UK), updated daily."
   );
   lines.push("");
   for (const s of SECTIONS) {

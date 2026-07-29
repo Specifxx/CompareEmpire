@@ -22,7 +22,7 @@ export const revalidate = 3600;
 export const metadata: Metadata = {
   title: { absolute: "Buy & Compare Pokémon Card Prices | DexCompare" },
   description:
-    "Compare live Pokémon card prices across AU, NZ, US and UK stores, plus eBay, and find the cheapest place to buy every card. Updated daily.",
+    "Compare live Pokémon card prices across AU, US and UK stores, plus eBay, and find the cheapest place to buy every card. Updated daily.",
   keywords: [
     "buy Pokémon cards",
     "Pokémon prices",
@@ -38,12 +38,12 @@ export const metadata: Metadata = {
 };
 
 // MARKET-NEUTRAL FAQs: Googlebot crawls from US IPs and this page is cached,
-// so exactly one version is ever indexed/served — copy that names all four
-// markets ranks in all four, and the country names double as keywords.
+// so exactly one version is ever indexed/served — copy that names all three
+// markets ranks in all three, and the country names double as keywords.
 const FAQS: { q: string; a: string }[] = [
   {
     q: "Where can I buy Pokémon cards online?",
-    a: "DexCompare compares live Pokémon prices across a wide range of local stores in Australia, New Zealand, the US and the UK, plus eBay (AU, US and UK), so you can buy Pokémon cards from whichever shop is cheapest. Search any card to see every store's price and click straight through to buy.",
+    a: "DexCompare compares live Pokémon prices across a wide range of local stores in Australia, the US and the UK, plus eBay (AU, US and UK), so you can buy Pokémon cards from whichever shop is cheapest. Search any card to see every store's price and click straight through to buy.",
   },
   {
     q: "How do I find the cheapest Pokémon card prices?",
@@ -59,7 +59,7 @@ const FAQS: { q: string; a: string }[] = [
   },
   {
     q: "Are the Pokémon prices shown in my local currency?",
-    a: "Yes. Prices are shown in the local currency of your selected market — AUD in Australia, NZD in New Zealand, USD in the US and GBP in the UK — so there are no surprise currency conversions.",
+    a: "Yes. Prices are shown in the local currency of your selected market — AUD in Australia, USD in the US and GBP in the UK — so there are no surprise currency conversions.",
   },
 ];
 
@@ -181,10 +181,10 @@ export default async function HomePage() {
 
         {/* ── About + FAQ (SEO) ── */}
         <section className="card-surface p-6">
-          <h2 className="text-xl font-extrabold text-white sm:text-2xl">Pokémon prices in Australia, New Zealand, the US &amp; UK — all in one place</h2>
+          <h2 className="text-xl font-extrabold text-white sm:text-2xl">Pokémon prices in Australia, the US &amp; UK — all in one place</h2>
           <p className="mt-2 max-w-3xl text-sm leading-relaxed text-slate-400">
             DexCompare is a free, independent price-comparison tool for the Pokémon Trading Card Game. We track live prices
-            for every Pokémon card across local stores in Australia, New Zealand, the US and the UK, plus eBay (AU, US and
+            for every Pokémon card across local stores in Australia, the US and the UK, plus eBay (AU, US and
             UK), so you can buy Pokémon cards for less — find the cheapest store for any single, fast.
           </p>
           <div className="mt-6 grid gap-5 sm:grid-cols-2">

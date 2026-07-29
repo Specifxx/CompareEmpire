@@ -85,7 +85,7 @@ None of this is trivia for its own sake. Sellers occasionally list cards with th
 
 Yes, but not in one predictable direction, and not for every card. A new set release changes buyer attention, print supply, and short-term cash flow in the hobby all at once, and older singles respond to whichever of those forces is strongest for that specific card. Some older cards dip because collectors are spending their budget on the new set instead. Others climb because the new set reminds everyone why an older card was scarce or good in the first place. The honest answer is "it depends on the card," but the mechanisms behind that answer are consistent enough to plan around.
 
-If you're trying to time a purchase, the useful move isn't predicting the market perfectly — it's understanding which of the following forces applies to the specific card you want, then watching how it actually behaves using a live source like the [DexCompare Index](/market) rather than guessing from memory of "what usually happens."
+If you're trying to time a purchase, the useful move isn't predicting the market perfectly — it's understanding which of the following forces applies to the specific card you want, then checking how it's actually trading right now against [live store prices](/browse) rather than guessing from memory of "what usually happens."
 
 ## Why older prices tend to soften around a new release
 
@@ -128,54 +128,51 @@ If you're buying an older card specifically because a new set seems to be revivi
   {
     slug: "how-to-track-pokemon-card-price-history-before-you-buy",
     category: "guide",
-    title: "Why Today's Price Isn't Enough: Reading Pokemon Card Price History",
+    title: "Why Today's Price Isn't Enough: Spotting a Real Pokemon Card Deal",
     excerpt:
-      "A low price today could be a real deal or a data error. Here's how to read a card's price history like a collector, not a gambler.",
+      "A low price today could be a real deal or a bad listing. Here's how to tell the difference by comparing across stores, not by trusting one number.",
     author: "DexCompare",
     date: "2026-07-01",
+    updated: "2026-07-29",
     readMins: 5,
-    tags: ["price-history", "buying-guide", "market-trends", "collecting"],
-    body: `## Why a single price snapshot can mislead you
+    tags: ["buying-guide", "market-trends", "collecting", "deals"],
+    body: `## Why a single price can mislead you
 
-If you only ever look at what a card costs right now, you're missing the part of the story that actually tells you whether that number is good, bad, or meaningless. A single listing is one seller's opinion on one day. It might reflect a genuine shift in the card's demand, or it might just be a mispriced listing, a bulk-lot leftover, or a low-grade copy that got lumped in with higher-grade sales data by mistake.
+If you only ever look at what one store charges for a card right now, you're missing the part of the story that actually tells you whether that number is good, bad, or meaningless. A single listing is one seller's opinion on one day. It might reflect a genuine shift in the card's demand, or it might just be a mispriced listing, a bulk-lot leftover, or a low-grade copy priced like a high-grade one by mistake.
 
-Price history fixes this by showing you the shape of the trend, not just the endpoint. A card sitting at a certain price after months of slow, steady decline tells a very different story than a card at that same price after a sudden overnight drop. The number can be identical. The context changes everything about whether you should buy now, wait, or keep scrolling.
+The fix isn't watching a chart — it's never judging a card off one number in isolation. A price only means something once you've checked it against two things: what the same card costs at every other store you track, and what TCGplayer's market guide says it's actually worth. A store sitting well below both of those simultaneously is a real signal. A store that's merely the cheapest of two options tells you almost nothing.
 
-This matters more in the Pokemon TCG than people expect, because so much of the market is driven by reprints, set rotations, tournament results, and content creator hype cycles that spike and fade fast. A chart smooths out the noise from any one seller and shows you what's actually happening across the market.
+This matters more in the Pokemon TCG than people expect, because so much of the market is driven by reprints, set rotations, tournament results, and content creator hype cycles that spike and fade fast. Any one seller can be wrong. A spread across many sellers rarely is.
 
-## How do you tell a real price dip from a data glitch?
+## How do you tell a real deal from a bad listing?
 
 This is the question that actually saves or costs you money, so it's worth being deliberate about it. A handful of checks will filter out most bad reads.
 
-### Look at the trend line, not just the low point
+### Compare it against every store, not just the one you found first
 
-A genuine dip usually has some lead-up: a gradual slide over days or weeks as more copies get listed and sellers compete on price. A glitch tends to look like a single vertical spike down (or up) that doesn't connect to anything before or after it. If the line drops off a cliff for one day and then snaps straight back to the previous range, that's a strong sign the outlier was a data error, a single mispriced listing, or a sale of a damaged or miscategorized copy rather than a market move.
+A genuine deal is cheap relative to the *whole field*, not just cheap compared to the last price you remember. If one store is 40% below every other store tracking the same card, that's either a real find or a red flag — check the [card page on DexCompare](/browse) to see every store's price side by side before you decide which. A price that's only slightly below the pack is normal variation, not a deal.
 
-### Check whether the move matches the card's grade and printing
+### Check whether it matches the card's grade and printing
 
-Price history is only useful if you're comparing like with like. A raw copy, a graded slab, and a specific print run (first edition, unlimited, a particular set reprint) can trade at completely different levels. If a "drop" coincides with a mix of listing types suddenly appearing in the data, you're not looking at a real price change, you're looking at a change in what's being measured. Always confirm you're viewing history for the exact card, set, and condition you actually want, using the [card value checker](/card-value) to pin down specifics before you read too much into a chart.
+A price comparison is only useful if you're comparing like with like. A raw copy, a graded slab, and a specific print run (first edition, unlimited, a particular set reprint) trade at completely different levels. If a "cheap" listing turns out to be a different printing, a lower grade, or a reverse holo mislabeled as a regular rare, you're not looking at a real discount — you're looking at a different item. Always confirm you're comparing the exact card, set, and condition you actually want, using the [card value checker](/card-value) to pin down specifics.
 
 ### Ask why, not just what
 
-Real dips usually have a reason you can name: a new set released that increased supply, a card rotated out of a competitive format, a reprint was announced, or general market-wide softness hit multiple cards at once. If you can't think of any plausible reason for a sudden move and it only affects one listing, treat it as noise until proven otherwise. If the same pattern shows up across a card's history repeatedly, or across other cards in the same set, that's a signal the move is real and structural rather than a one-off.
+Real deals usually have a reason you can name: a store overstocked on a set that's since cooled off, a new set released that pulled attention (and buyers) away from an older card, or a seller pricing to clear inventory ahead of a restock. If you can't think of any plausible reason a store would be underpricing a card and it's the only one doing it, treat it as a listing error until proven otherwise — check the condition and printing again before you buy.
 
-### Give it time before you commit
+### Check it again before you commit to anything expensive
 
-If a price just dropped in the last day or two, resist the urge to treat it as the new floor immediately. Genuine dips tend to hold or continue for at least a few days as the broader market catches up; glitches correct themselves almost immediately. A short waiting period costs you very little and protects you from buying into a number that was never real.
+Prices move daily as stores re-price against fresh stock. For anything meaningful, it costs you nothing to check the card again a day or two later and confirm the price is holding rather than a one-off pricing glitch that gets corrected the moment someone notices.
 
-## What does a healthy long-term price trend actually look like?
+## What our "deal" threshold actually means
 
-Cards that are genuinely appreciating tend to move in a stair-step pattern rather than a straight line: periods of flat or slightly declining prices, punctuated by step-ups tied to real events, rather than one continuous rocket-shaped curve. A chart that's smooth and gradual is usually more trustworthy than one with wild daily swings, because it suggests enough transaction volume for the price to reflect genuine buyer and seller behavior rather than a thin market being moved by one or two trades.
-
-It also helps to zoom out. A card that looks flat over a month might show a clear seasonal pattern over a year, easing around set release windows and firming up around anniversaries or nostalgia-driven demand. Judging a card only on its most recent weeks can make a completely normal cycle look like a trend when it's really just the pattern repeating.
+Rather than asking you to eyeball a spread yourself, our [deals page](/deals) does this comparison automatically: it flags cards where a live store price sits at least 15% below the TCGplayer market guide, and caps it at 70% off, because gaps deeper than that are almost always listing errors rather than real bargains. That 15–70% band is the same "compare against the guide, not against memory" logic above, done for every card we track instead of one at a time.
 
 ## How can you actually monitor this without checking every day?
 
-Nobody wants to manually refresh a listing page every morning hoping to catch a dip. This is really what price history and alerts are built for. Browsing the [DexCompare Index](/market) gives you a sense of where prices for popular cards and sets currently sit relative to their recent range, which is a faster way to spot cards trading unusually low or high than eyeballing individual listings one at a time.
+Nobody wants to manually refresh a listing page every morning hoping to catch a dip. For cards you're actually planning to buy, the useful move is setting up a [wishlist alert](/wishlist) so you get notified when a price actually moves, instead of trying to remember to check back. That way you're reacting to a real, current price rather than guessing based on a single visit from last week. And if you're just trying to see what's currently underpriced across the whole catalogue rather than one card at a time, the [deals page](/deals) rounds up listings worth a second look without you having to build that comparison yourself.
 
-For cards you're actually planning to buy, the more useful move is setting up a [wishlist alert](/wishlist) so you get notified when a price actually moves, instead of trying to remember to check back. That way you're reacting to a real, sustained change rather than guessing based on a single visit. And if you're just trying to see what's currently trading below its recent history across categories, the [deals page](/deals) rounds up listings worth a second look without you having to build that comparison yourself.
-
-None of this guarantees a card only goes up from here. But reading the history instead of the headline number is the difference between buying based on evidence and buying based on a single, possibly misleading, snapshot.`,
+None of this guarantees a card only gets cheaper from here. But comparing the number against the field and the market guide, instead of trusting it on its own, is the difference between buying based on evidence and buying based on a single, possibly misleading, listing.`,
   },
   {
     slug: "do-pokemon-card-reprints-lower-value",
@@ -304,7 +301,7 @@ Honest answer: it depends which product.
 2. Check the spread — if the cheapest in-stock store is near MSRP, take it.
 3. If everything is gouged, set a **[restock alert](/restock)** instead and let the email come to you.
 
-Prices update daily across every store we track in Australia, New Zealand, the US and the UK.`,
+Prices update daily across every store we track in Australia, the US and the UK.`,
   },
   {
     slug: "chaos-rising-restock-playbook",
@@ -344,14 +341,15 @@ Good luck out there — and let the tracker do the refreshing for you.`,
   {
     slug: "where-to-buy-pokemon-cards",
     category: "guide",
-    title: "Where to Buy Pokémon Cards (Australia, NZ, US & UK)",
+    title: "Where to Buy Pokémon Cards (Australia, US & UK)",
     excerpt:
-      "The complete guide to buying Pokémon TCG cards — singles and sealed — in Australia, New Zealand, the United States and the United Kingdom, and how to always find the cheapest price.",
+      "The complete guide to buying Pokémon TCG cards — singles and sealed — in Australia, the United States and the United Kingdom, and how to always find the cheapest price.",
     author: "DexCompare",
     date: "2026-06-10",
+    updated: "2026-07-29",
     readMins: 6,
     tags: ["buying", "stores", "singles", "sealed"],
-    body: `Want to buy **Pokémon TCG** cards but not sure where to start? Whether you're chasing a single grail card, filling out a binder set, or grabbing a sealed booster box, this guide covers exactly **where to buy Pokémon cards** in **Australia, New Zealand, the United States and the United Kingdom** — and how to make sure you never overpay.
+    body: `Want to buy **Pokémon TCG** cards but not sure where to start? Whether you're chasing a single grail card, filling out a binder set, or grabbing a sealed booster box, this guide covers exactly **where to buy Pokémon cards** in **Australia, the United States and the United Kingdom** — and how to make sure you never overpay.
 
 The short version: prices for the same card vary a lot between shops and change daily, so the smartest move is to **[compare every store at once on DexCompare](/browse)** and buy from whichever is cheapest in your country.
 
@@ -359,7 +357,7 @@ The short version: prices for the same card vary a lot between shops and change 
 
 1. **[Search the card database](/browse)** and open the card you want.
 2. Each card shows the **lowest live price across every store we track**, sorted cheapest-first, with a one-click link straight to the shop.
-3. Use the **country switcher** (top of the page) to set your region — prices then show in your local currency (AUD, NZD, USD or GBP), sourced from local stores, so what you see is what you'll actually pay.
+3. Use the **country switcher** (top of the page) to set your region — prices then show in your local currency (AUD, USD or GBP), sourced from local stores, so what you see is what you'll actually pay.
 
 Every card also shows a **market price guide** with its source (TCGplayer's market price). That guide is what the card *trades* for — the live store prices are what you can *actually buy it* for, and the two can differ in either direction.
 
@@ -369,13 +367,6 @@ Australia has a deep spread of Pokémon retailers — dedicated TCG shops, colle
 
 - **Singles:** [browse the card database](/browse) with the country set to **Australia** to see the lowest AUD price across 50+ Australian stores and eBay AU.
 - **Tip:** many AU stores offer free shipping over a threshold — buying a few cards from one shop can beat splitting an order across three.
-
-## 🇳🇿 Buying Pokémon cards in New Zealand
-
-Several Kiwi TCG stores stock Pokémon singles in NZD. Buying locally avoids international shipping and currency surprises.
-
-- Set the country switcher to **New Zealand** and **[browse singles](/browse)** to compare live NZD prices across NZ stores.
-- **Tip:** NZ stock can be thinner than AU/US for chase cards — [wishlist](/wishlist) the ones you want and turn on price-drop alerts so you're ready when they're listed.
 
 ## 🇺🇸 Buying Pokémon cards in the United States
 
@@ -1158,8 +1149,9 @@ If you're buying cards purely as an investment: be honest about which specific c
     category: "blog",
     title: "Buying Pokémon Cards Internationally — What You Need to Know",
     excerpt:
-      "When importing cards saves money, when it costs you extra, how customs works in AU/NZ/US/UK, and how to use the country switcher so you're comparing stores that actually ship to you.",
+      "When importing cards saves money, when it costs you extra, how customs works in AU/US/UK, and how to use the country switcher so you're comparing stores that actually ship to you.",
     author: "DexCompare",
+    updated: "2026-07-29",
     date: "2026-06-28",
     readMins: 7,
     tags: ["buying", "international", "import", "stores", "prices"],
@@ -1169,13 +1161,13 @@ If you're buying cards purely as an investment: be honest about which specific c
 
 Local stores in each market pay their own import and distribution costs, carry inventory in their local currency, and price to the local competitive landscape. A dedicated TCG retailer in Melbourne is competing with other Melbourne shops; they're not competing with a US store that doesn't ship to Australia economically.
 
-The result: for popular modern English cards, US stores almost always have the deepest supply and the lowest floor prices, because the US is the largest TCG market and TCGplayer alone lists millions of singles. Australian, NZ, and UK buyers looking at international options are usually comparing against US sources.
+The result: for popular modern English cards, US stores almost always have the deepest supply and the lowest floor prices, because the US is the largest TCG market and TCGplayer alone lists millions of singles. Australian and UK buyers looking at international options are usually comparing against US sources.
 
 **The gap that matters is the delivered price — card + international shipping + any import duty.** That's what DexCompare is actually showing when you set your country and filter by market.
 
 ## How the DexCompare country switcher works
 
-The **country selector** at the top of every page filters the stores you see to those that ship to your selected country. When you're set to Australia, you see Australian stores (and any international stores that ship to Australia) with prices in AUD. New Zealand shows NZD from NZ stores. US shows USD. UK shows GBP.
+The **country selector** at the top of every page filters the stores you see to those that ship to your selected country. When you're set to Australia, you see Australian stores (and any international stores that ship to Australia) with prices in AUD. US shows USD. UK shows GBP.
 
 This means the comparison you're doing is already "international-aware" — if an overseas store ships to your country at a price that's competitive after postage, it appears in your comparison. If it doesn't, it doesn't.
 
@@ -1186,7 +1178,7 @@ Practical takeaway: **set your country first, then browse.** You'll see the real
 A few scenarios where buying internationally makes sense:
 
 **1. The card isn't stocked locally.**
-For older singles — cards from sets that released a few years ago — local stores in smaller markets (NZ especially) often have thin or no inventory. A US or AU source ships internationally for a modest flat fee, and suddenly the card you've been waiting for is available today.
+For older singles — cards from sets that released a few years ago — local stores in a smaller market can have thin or no inventory. A US or AU source ships internationally for a modest flat fee, and suddenly the card you've been waiting for is available today.
 
 **2. The domestic price is well above the market guide.**
 Every card page shows the market guide price, sourced from TCGplayer's real transaction history. If every local store in your country is, say, 40% above that guide, and a US source ships internationally for $8–12, the maths often work — especially for cards $30+.
@@ -1200,7 +1192,6 @@ International shipping is mostly a fixed cost ($5–15 in most cases for registe
 This is the hidden cost most guides skip.
 
 - **Australia:** Cards are generally zero-rated for GST if the total order value is under AU$1,000 (the low-value import threshold). Above $1,000, the marketplace or seller is supposed to collect GST. In practice, small parcels under the threshold arrive without additional tax the vast majority of the time. Large, high-value purchases may attract GST at the border.
-- **New Zealand:** Similar threshold system; parcels under NZ$1,000 in total value are typically GST-free. The NZ customs authority does spot-check packages.
 - **United States:** Buying internationally *into* the US from, say, a Japanese store is a different scenario — import duties can apply on goods above the de minimis threshold (currently US$800). For most TCG card orders this threshold is rarely reached, but buying high-value sealed product internationally can attract attention.
 - **United Kingdom:** Post-Brexit, all goods imported from outside the UK are subject to VAT (currently 20%) if the consignment value exceeds £135. For card orders — especially sealed Booster Boxes or high-value singles — this is a real cost. A £100 order from a US store can attract £20 in VAT plus Royal Mail's handling fee.
 
@@ -1228,7 +1219,7 @@ Whether you're buying locally or internationally, the number that matters is the
 
 **Card price + postage = delivered price.**
 
-For domestic orders, DexCompare shows postage where stores publish it. For international orders, you need to add international shipping manually (typically US$8–15 from US stores to AU/NZ/UK; check the store's shipping page for your destination).
+For domestic orders, DexCompare shows postage where stores publish it. For international orders, you need to add international shipping manually (typically US$8–15 from US stores to AU/UK; check the store's shipping page for your destination).
 
 The quick calculation: find the card's cheapest domestic store on the [browse page](/browse), note the delivered price, then check whether a cheaper international source — after shipping — still beats it. For high-value singles and multi-card orders, it often does.
 
@@ -1236,7 +1227,7 @@ The quick calculation: find the card's cheapest domestic store on the [browse pa
 
 1. **Set your country** in the DexCompare selector to see the real local comparison first.
 2. **Check if the local delivered price is near the market guide.** If it is, buy locally — simpler, faster, no duty risk.
-3. **If local prices are 20%+ above guide**, look at international options — especially US sources for AU/NZ/UK buyers.
+3. **If local prices are 20%+ above guide**, look at international options — especially US sources for AU/UK buyers.
 4. **Bundle orders** when buying internationally — the shipping cost is mostly fixed, so more cards = better maths.
 5. **Know the duty rules for your country** on high-value orders before you click.
 6. **Stick to English cards** unless you're deliberately collecting Japanese prints.
@@ -1564,6 +1555,424 @@ A lot of this risk is specific to peer-to-peer marketplace listings, where you'r
 ## The honest summary
 
 Almost every one of these scams is beaten by two habits: know the real price before you pay — that's the [market check](/browse) — and never move money outside a protected payment method for a stranger. Scammers rely on buyers skipping both under time pressure. Slow down, and the pattern is usually obvious.`,
+  },
+  {
+    slug: "most-valuable-pokemon-cards-right-now",
+    category: "guide",
+    title: "The Most Valuable Pokémon Cards Right Now — What Actually Drives the Price",
+    excerpt:
+      "Why some Pokémon cards trade for pocket change and others for a house deposit. A framework for judging real value, plus where to check today's actual numbers.",
+    author: "DexCompare",
+    date: "2026-07-27",
+    readMins: 6,
+    tags: ["valuable", "vintage", "chase-cards", "collecting", "value"],
+    body: `"What's the most valuable Pokémon card?" doesn't have one answer — it has a short list of answers that keeps reshuffling as grading pops change, sets get reprinted, and new chase cards launch. What's more useful than a snapshot list is understanding *why* certain cards end up worth thousands while cards that look just as "rare" on the pack wrapper are worth cents. That framework holds up no matter what's currently topping the charts.
+
+## The four things that actually drive value
+
+Every genuinely valuable Pokémon card scores highly on some combination of these — rarely all four, but usually at least two:
+
+- **Scarcity of the exact printing.** Not "rare" as a sticker on the card, but a real, low surviving count of that specific set, number and edition. A 1999 1st Edition Shadowless card is scarce because the print run was small and 27 years of loss, damage and grading submissions have thinned it further. See our [1st Edition vs Unlimited guide](/guides/first-edition-vs-unlimited-pokemon-cards) for how to identify these print runs.
+- **Grade.** A PSA 10 of a genuinely tough-to-grade vintage card can be worth 5–10× a PSA 8 of the exact same card. Population reports matter as much as the card itself — see our [grading guide](/guides/pokemon-card-grading-psa-vs-cgc) for how graders assess this.
+- **Character demand.** Pikachu and Charizard cards consistently out-earn mechanically identical cards of less iconic Pokémon, across every era. This is brand and nostalgia, not game mechanics, and it's remarkably durable across market cycles.
+- **Cultural or competitive significance.** Cards tied to a famous tournament, a promotional one-off (Trophy cards, early Championship prizes), or a defining moment in the game's history carry a story premium beyond their raw scarcity.
+
+## Vintage vs modern: two different value systems
+
+**Vintage (Base Set through Neo, 1998–2003)** value concentrates almost entirely in grade and edition. The card pool is fixed — no more 1999 Base Set cards are being printed — so scarcity only gets tighter over time. This is why vintage grail cards have historically been the most defensible long-term holds in the hobby.
+
+**Modern (Sword & Shield onward)** value concentrates in the top illustration tiers — Special Illustration Rares, Alt Arts, Secret Rares — where print runs are genuinely much smaller than the set's common/uncommon tiers, but not fixed the way vintage is: reprints and additional print waves remain possible for years. Our [rarities guide](/guides/pokemon-card-rarities-explained) breaks down exactly which modern tiers carry this premium.
+
+## Where the numbers actually live
+
+Illustrative examples age fast in this hobby — a card worth $200 today can be $80 or $600 in a year depending on what happens next. Rather than publish a list that goes stale, the honest move is to point you at where the real numbers actually live:
+
+- **[Most valuable cards, ranked live](/most-valuable)** — our running ranking of the priciest cards currently in stock across the stores we track, updated with every price refresh.
+- **[Card value checker](/card-value)** — search any specific card to see its current market guide price and live store prices side by side.
+- **[Browse by set](/sets)** — see a whole set's price spread at once, which is usually the fastest way to spot which cards in a given release actually carry the value.
+
+## Why the list changes constantly
+
+New sets redirect attention (and sometimes reprint mechanics or characters), grading pop reports update as more copies get submitted, and a single high-profile sale can reset what buyers expect to pay for a whole tier of card. That's precisely why "most valuable" is better treated as a live query than a fixed list — check the [live ranking](/most-valuable) rather than trusting a number that was accurate the day it was written.
+
+## The takeaway
+
+Value in this hobby isn't random, even when it looks that way. Scarcity of the exact printing, grade, character demand and cultural weight explain almost every card that's ever traded for real money. Learn to spot those four signals in a card you're looking at, then check the [live data](/card-value) instead of a rumour before you buy or sell anything meaningful.`,
+  },
+  {
+    slug: "how-to-buy-pokemon-sealed-product-for-less",
+    category: "guide",
+    title: "How to Buy Pokémon Sealed Product for Less (Booster Boxes, ETBs & More)",
+    excerpt:
+      "Booster Boxes and ETBs can vary 30–40% in price between stores on the same day. The comparison habits that consistently save real money on sealed product.",
+    author: "DexCompare",
+    date: "2026-07-27",
+    readMins: 6,
+    tags: ["sealed", "booster box", "ETB", "deals", "buying"],
+    body: `Sealed Pokémon product looks like a fixed-price item — an MSRP printed on the shrink wrap, the same box everywhere. In practice, the same Booster Box or Elite Trainer Box routinely trades **30–40% apart between stores on the same day**, and most buyers never see that spread because they check one shop and stop.
+
+## Why sealed prices vary so much
+
+Stores set sealed pricing based on what they paid their distributor, how much stock they're carrying, and how badly they want to move it — not off a shared master price list. A store that over-ordered a set that cooled off will discount heavily to clear shelf space. A store that's low on a hyped set's remaining allocation will often price at a premium simply because they can. Neither price reflects the card game's actual popularity — they reflect that one store's specific inventory position.
+
+This is structurally different from singles pricing, where the TCGplayer market guide gives you an anchor. Sealed product has no equivalent universal reference price — MSRP is a suggestion, not a floor or ceiling, and plenty of sealed product trades meaningfully above or below it depending on hype and supply.
+
+## The comparison habit that actually saves money
+
+1. **Never buy the first price you see.** Open the [sealed products page](/sealed) and search the product — every store we track shows up, cheapest first, in your local currency.
+2. **Check whether the spread is "normal" or "hyped."** A $10–20 spread on a Booster Box is typical. A $40+ spread, especially right after a launch, usually means at least one store is pricing to scalpers rather than to move stock — skip those listings.
+3. **Compare the whole cart, not one item.** If you're buying a Booster Box and an ETB, the cheapest store for each individually might not be cheapest once you add both to one order and one shipping cost. Consolidating into one store's order often beats splitting across the two "cheapest" listings.
+4. **Watch for the post-launch dip.** Sealed prices on non-flagship products (tins, blisters, Collection Boxes) often ease within 4–8 weeks of release as initial hype settles and supply catches up. Booster Boxes of genuinely loved sets are the exception — those can hold or climb instead.
+
+## Timing: when sealed product is cheapest
+
+- **Launch week:** the most expensive window for hyped sets — demand outstrips supply and scalper-adjacent pricing is common. Skip unless you must have it day one.
+- **4–12 weeks post-launch:** usually the sweet spot. Initial hype has settled, distributors have filled reorders, and stores compete harder on price to move remaining stock before the next set arrives.
+- **Restock windows:** when a sold-out product gets a second print wave, prices often normalise sharply — sometimes overnight. The [restock tracker](/restock) watches for exactly this and can email you the moment it happens.
+
+## Don't forget the singles math
+
+If your actual goal is specific cards rather than the sealed experience, run the numbers before buying a box to chase them. A single ultra-rare pulled at roughly 1-in-100+ pack odds costs, on average, far more in packs than [buying that exact card as a single](/browse). Sealed product is genuinely worth buying for the opening experience or as a long-term hold — see [are Booster Boxes worth it?](/blog/are-booster-boxes-worth-it) for the full expected-value breakdown — but it's rarely the cheap way to acquire a specific card.
+
+## The three-tab checklist before any sealed purchase
+
+1. Open the [sealed compare page](/sealed) for the exact product.
+2. Check the spread — if the cheapest in-stock listing is near MSRP, that's usually the buy signal.
+3. If everything's gouged, set a [restock alert](/restock) and let the notification do the waiting for you instead of overpaying out of impatience.`,
+  },
+  {
+    slug: "pokemon-tcg-glossary",
+    category: "guide",
+    title: "Pokémon TCG Glossary — Every Buying & Collecting Term Explained",
+    excerpt:
+      "NM, SIR, PSA, ETB, reverse holo, secret rare — a plain-English glossary of every term you'll hit while buying or selling Pokémon cards, with links to the full guide on anything that needs one.",
+    author: "DexCompare",
+    date: "2026-07-28",
+    readMins: 6,
+    tags: ["glossary", "reference", "beginners", "buying"],
+    body: `Pokémon TCG buying and collecting comes with its own vocabulary, and a lot of it isn't self-explanatory. This is the plain-English reference — short definitions here, with links through to a full guide wherever a term genuinely needs one.
+
+## Rarity & printings
+
+- **Common / Uncommon / Rare** — the base rarity tiers, marked by a circle, diamond or star in the card's bottom corner. See the [full rarities guide](/guides/pokemon-card-rarities-explained).
+- **Holo Rare** — a rare card with a holographic-foil artwork panel.
+- **Reverse Holo** — a common, uncommon or rare where the *frame* is foil instead of the artwork — a separate printing with its own price, not a variant of the plain card.
+- **ex / V / GX** — modern mechanically-special Pokémon with their own card frame; the baseline "chase" tier in current sets.
+- **Full Art / Illustration Rare (IR)** — cards where the artwork covers the whole frame; a real price premium begins here.
+- **Special Illustration Rare (SIR) / Alt Art** — the headline chase tier of most modern sets — alternate scenic artwork, usually the priciest non-secret cards in a release.
+- **Secret Rare** — a card numbered *above* the set's printed total (e.g. \`201/197\`) — gold cards, rainbow cards and special prints live here.
+- **Promo** — cards distributed through events, products or tins, carrying their own numbering (e.g. \`SWSH262\`) rather than a mainline set number.
+
+## Condition & grading
+
+- **NM / LP / MP / HP / DMG** — the five-step raw condition scale, Near Mint down to Damaged. Full breakdown, including price impact, in the [conditions guide](/guides/pokemon-card-conditions-and-grading).
+- **Slab** — a card sealed in tamper-evident plastic by a grading company after authentication and grading.
+- **PSA / CGC / BGS** — the three major third-party grading companies. Compared head-to-head in our [grading guide](/guides/pokemon-card-grading-psa-vs-cgc).
+- **Gem Mint 10** — the top grade on a 1–10 scale, awarded to a card with essentially no visible flaws under grading-standard inspection.
+- **Sub-grades** — CGC and BGS additionally grade centering, edges, corners and surface individually; PSA does not.
+- **Population report** — a grading company's public count of how many copies of a card have received each grade — the closest thing to a real scarcity number for graded cards.
+
+## Print runs & editions
+
+- **1st Edition** — the very first print run of a set, marked with a small stamp; WOTC used this through the early Neo era. Full detail in the [1st Edition guide](/guides/first-edition-vs-unlimited-pokemon-cards).
+- **Shadowless** — a Base Set-only quirk where early copies are missing the drop shadow behind the artwork frame — a separate, sought-after printing from standard Unlimited.
+- **Unlimited** — the standard, uncapped later print run; the overwhelming majority of any set's surviving copies.
+- **Reprint** — a card's exact printing (same set, art, number) reissued in a later product, increasing supply of that specific card. Distinct from new artwork of the same Pokémon, which doesn't compete with the original. Full breakdown: [do reprints kill value?](/guides/do-pokemon-card-reprints-lower-value)
+
+## Sealed product
+
+- **Booster Pack** — the base unit, typically 10 cards.
+- **Booster Box** — 36 packs bundled together, no accessories.
+- **Elite Trainer Box (ETB)** — packs plus sleeves, energy cards and a player's guide, aimed at players and light collectors.
+- **Collection Box / Premium Collection** — accessory-heavy boxed product built around a specific Pokémon, often with an oversized card or pin.
+- Full breakdown of every format: [Pokémon sealed products explained](/guides/pokemon-sealed-products-explained).
+
+## Buying & selling
+
+- **Market price / market guide** — TCGplayer's algorithmic blend of recent real sales for a Near-Mint English card; a reference price, not a store's actual charge.
+- **Delivered price** — card price plus postage — the number that actually matters when comparing stores.
+- **Deal** — on DexCompare, a live store price at least 15% below the market guide (capped at 70% off, since anything deeper is almost always a listing error). See the [live deals page](/deals).
+- **Bulk** — low-value commons and uncommons, typically worth a few cents each and usually sold or bought in lots rather than individually.
+
+## Where to go deeper
+
+This glossary is intentionally short-form — every term links to the full guide where the topic has enough nuance to deserve one. If a term you hit isn't here, the [full guides index](/guides) covers buying, selling, condition, authentication and collection value in depth.`,
+  },
+  {
+    slug: "pokemon-card-sets-and-eras-explained",
+    category: "guide",
+    title: "Pokémon TCG Sets & Eras Explained: From Base Set to Mega Evolution",
+    excerpt:
+      "Base, Neo, EX, Diamond & Pearl, Black & White, XY, Sun & Moon, Sword & Shield, Scarlet & Violet, Mega Evolution — a plain guide to every Pokémon TCG era and why it matters for buying and value.",
+    author: "DexCompare",
+    date: "2026-07-28",
+    readMins: 7,
+    tags: ["sets", "eras", "vintage", "collecting", "buying-guide"],
+    body: `Twenty-seven years of Pokémon TCG releases add up to a genuinely large amount of set history, grouped into broad "eras" (called series) that share art direction, mechanics and, often, a distinct value profile. Knowing roughly where a set sits in this timeline helps you judge whether a card is vintage-scarce, mid-era common, or modern-hyped — three very different pricing stories.
+
+## The eras, in order
+
+- **Base (1998–2000)** — where it all started: Base Set, Jungle, Fossil, Team Rocket, Gym Heroes/Challenge. Home of the most iconic vintage cards in the hobby, including the Base Set Charizard. First Edition and Shadowless print-run distinctions matter most here — see the [1st Edition guide](/guides/first-edition-vs-unlimited-pokemon-cards).
+- **Neo (1999–2001)** — introduced the Johto (Gen II) Pokémon, including the beloved Neo Genesis Lugia. The last era to widely use First Edition stamps.
+- **E-Card / EX (2002–2007)** — the E-Reader-compatible sets, then the long-running EX era with its early "ex" mechanic (lowercase, distinct from modern capital-EX). A relatively overlooked, often affordable window for collectors chasing early-2000s nostalgia.
+- **Diamond & Pearl / Platinum (2007–2009)** — Gen IV-themed sets that introduced LV.X cards, an early precursor to today's oversized mechanically-special cards.
+- **HeartGold & SoulSilver (2010–2011)** — a short, transitional era bridging Platinum and the Black & White design overhaul.
+- **Black & White (2011–2013)** — introduced EX cards (capital, distinct from EX-era lowercase ex) and a cleaner modern card frame that set the template still visible today.
+- **XY (2013–2016)** — home of Mega Evolution mechanics' first appearance in the TCG and a deep, well-loved set list.
+- **Sun & Moon (2016–2019)** — introduced GX cards and the modern full-art tier that current Illustration Rares descend from directly.
+- **Sword & Shield (2019–2022)** — V, VMAX and VSTAR cards, plus the 25th Anniversary Celebrations set — arguably the era that most shaped what "chase card" collecting looks like today.
+- **Scarlet & Violet (2023–2025)** — ex cards (lowercase again, a third distinct use of the term), and the Special Illustration Rare tier that currently dominates modern chase-card value.
+- **Mega Evolution (2025–present)** — the current era, bringing Mega Evolution back as a core mechanic. See our [sets index](/sets) for every release in this era as it grows.
+
+## Why the era matters for buying
+
+**Vintage (Base through Neo):** fixed supply — no more of these are being printed — so value depends almost entirely on grade and edition, and tends to be the most durable long-term. This is also the era with the highest counterfeit risk on high-value cards; always run vintage purchases through the [fake-spotting checklist](/guides/how-to-spot-fake-pokemon-cards).
+
+**Mid-era (E-Card through Black & White):** often the most overlooked window for value-conscious collectors — genuine age and nostalgia, but without vintage-tier scarcity or modern-tier hype driving prices up.
+
+**Modern (XY onward):** value concentrates heavily in the top illustration tiers of each set rather than spreading evenly — a set's headline SIR can be worth 100× its baseline rare. See the [rarities guide](/guides/pokemon-card-rarities-explained) for how to read that gap.
+
+## Finding cards by era
+
+Every set on DexCompare is browsable individually with live pricing — the [full sets index](/sets) lists every release, and each set's page shows every card in it with its cheapest current price across the stores we track. If you're building an era-specific collection, that's the fastest way to see the whole picture at once rather than searching card by card.
+
+## The takeaway
+
+The era a card comes from tells you a lot before you even check its price: vintage means fixed, shrinking supply; mid-era means overlooked value; modern means the rarity tier matters more than the release date. Use that context alongside the [live price data](/browse) rather than assuming "old" automatically means "valuable" — plenty of vintage commons are worth very little, and plenty of brand-new SIRs are worth a great deal.`,
+  },
+  {
+    slug: "vintage-pokemon-cards-buyers-guide",
+    category: "guide",
+    title: "Buying Vintage Pokémon Cards: A Beginner's Guide to WOTC-Era Sets",
+    excerpt:
+      "Base Set through Neo — the print runs, the authentication risks, and the honest buying strategy for getting into vintage Pokémon cards without overpaying or getting burned.",
+    author: "DexCompare",
+    date: "2026-07-29",
+    readMins: 7,
+    tags: ["vintage", "first edition", "shadowless", "authentication", "collecting"],
+    body: `Vintage Pokémon — broadly, the WOTC-published era from Base Set (1998) through Neo (2001) — is where the hobby's biggest values and biggest risks both live. Getting into it deliberately, rather than impulse-buying the first "rare" listing you see, is the difference between building something genuinely valuable and paying a premium for the wrong thing.
+
+## Why vintage is different from every later era
+
+Every vintage card was printed once, in a run that ended decades ago. No amount of new demand adds a single copy back to the pool — it can only shrink further through loss, damage, and cards getting sealed away in grading slabs. That fixed-and-shrinking supply is the entire reason vintage grail cards have historically been the most defensible long-term holds in this hobby: unlike a modern chase card, nobody can announce a reprint that dilutes it.
+
+The tradeoff is that vintage is also the highest-risk category to buy into, because scarcity and age are exactly what counterfeiters target.
+
+## Learn the print runs before you buy anything expensive
+
+Vintage value hinges on which print run a card came from, not just which set:
+
+- **1st Edition** — the small black stamp marking a set's first, smallest print run.
+- **Shadowless** — Base Set only; early copies missing the drop shadow behind the artwork box, a separate print-run signal from the 1st Edition stamp.
+- **Unlimited** — the standard, much larger later run — what most surviving vintage copies actually are.
+
+These aren't cosmetic details — on an iconic card, 1st Edition Shadowless can trade at many multiples of the plain Unlimited price for the identical artwork. Our [full breakdown of the three print runs](/guides/first-edition-vs-unlimited-pokemon-cards) covers exactly how to tell them apart without guessing.
+
+## The authenticity risk is real — plan for it
+
+Because vintage premiums are so large, vintage is the single most faked category in the hobby, including genuine Unlimited cards with a counterfeit 1st Edition stamp added after the fact. Before paying a vintage premium on anything:
+
+1. Run the listing through the [fake-spotting checklist](/guides/how-to-spot-fake-pokemon-cards) — the card back and texture tests catch most fakes in seconds.
+2. For anything genuinely expensive, prefer a **graded slab** over a raw card. PSA and CGC physically inspect and record edition/Shadowless status on the label — see the [grading guide](/guides/pokemon-card-grading-psa-vs-cgc) for how that process works and what it costs.
+3. Treat "trust me" sellers and unusually cheap "mint 1st edition" listings as the two biggest tells something's wrong — cross-check the [live market price](/card-value) before anything looks like a bargain.
+
+## Where value actually concentrates in vintage
+
+Not every vintage card is valuable — most commons and energies from these sets are worth very little raw. Value concentrates in:
+
+- **Iconic characters** — Charizard above all, but also Blastoise, Venusaur, and other Base Set starters and legendaries.
+- **Holo rares**, especially in high grade — vintage holographic printing is notoriously prone to scratches, so a genuinely clean surface is rarer than the print run alone suggests.
+- **Promotional one-offs** — early tournament prizes, Trophy cards and pre-release promos, which combine vintage scarcity with genuine event-driven rarity.
+
+## A sensible way to start
+
+1. **Start with raw commons and mid-tier holos** to learn the print-run tells cheaply, before you're spending real money on identification.
+2. **Buy graded for anything over roughly $150–200** — the slab premium buys certainty on both condition and authenticity in one purchase, which matters enormously at vintage price points.
+3. **Compare before every purchase** — vintage prices vary meaningfully between stores and platforms. [Search the card database](/browse) and check the current market guide price before you commit to any specific listing.
+4. **Be patient on grails.** The genuinely iconic vintage cards rarely go on sale — but pricing between sellers still varies enough that comparing first, every time, saves real money over a collection.
+
+## The takeaway
+
+Vintage Pokémon rewards patience and homework more than any other part of the hobby. Learn the print runs, verify before you pay a premium, and lean on graded slabs once the numbers get serious — the fixed supply means a well-bought vintage card is one of the few things in this hobby that time is actually on your side for.`,
+  },
+  {
+    slug: "common-pokemon-card-buying-mistakes",
+    category: "guide",
+    title: "10 Common Pokémon Card Buying Mistakes (and How to Avoid Them)",
+    excerpt:
+      "The buying mistakes that quietly cost collectors the most money — overpaying for hype, misreading condition, ignoring the printing, and seven more, with the fix for each.",
+    author: "DexCompare",
+    date: "2026-07-29",
+    readMins: 6,
+    tags: ["buying", "beginners", "mistakes", "value"],
+    body: `Most overpaying in this hobby isn't dramatic — it's small, repeated mistakes that add up across a collection. Here are the ten that cost buyers the most, in roughly the order we see them most often.
+
+## 1. Buying packs to "earn" a specific card
+
+A chase card pulled at roughly 1-in-200 pack odds costs, on average, around 200× the pack price to acquire that way. If you want a specific card, [buy the single](/browse) — packs are for the opening experience, not for acquiring a target card cheaply.
+
+## 2. Trusting one store's price
+
+The same card routinely differs 20–50% between stores on the same day. Checking only the first listing you find, or the store you always use out of habit, is a voluntary discount you're giving away. Compare every time on the [card database](/browse).
+
+## 3. Ignoring the collector number and set code
+
+The same Pokémon can appear across dozens of printings with wildly different values. Buying "a Charizard" without confirming the exact set and number (e.g. \`004/102\`) means you might be paying vintage-adjacent attention to a cheap modern reprint, or vice versa. Always [look up the exact printing](/browse) before you commit.
+
+## 4. Overgrading your own cards — or trusting a seller who has
+
+Almost everyone grades their own cards a tier higher than a buyer would. A "near mint" listing that's actually Lightly Played is a routine 15–30% overpay. Learn the five-grade scale in the [conditions guide](/guides/pokemon-card-conditions-and-grading) and check photos under real light before paying NM prices.
+
+## 5. Chasing a reprint panic — in either direction
+
+A reprint announcement alone doesn't automatically tank a card's value, and it doesn't automatically mean "buy before it drops" either. Supply only matters relative to demand, and demand for iconic characters usually keeps up. See [do reprints actually lower value?](/guides/do-pokemon-card-reprints-lower-value) before reacting to a headline.
+
+## 6. Paying market price for a low grade
+
+The market guide price is quoted for Near Mint. Lightly Played is typically 70–85% of that; Moderately Played closer to half. Paying NM prices for a card with visible wear is one of the most common — and most avoidable — overpays in the hobby.
+
+## 7. Skipping the fake checks on a too-good-to-be-true price
+
+If a $150 card is listed at $40 "mint," it is not a lucky find. Run it through the [fake-spotting checklist](/guides/how-to-spot-fake-pokemon-cards) — the price-sanity check alone catches the vast majority of counterfeit and misdescribed listings before you pay anything.
+
+## 8. Not accounting for postage in the "cheapest" price
+
+A $4 card with $12 shipping is a $16 card. The store with the lowest sticker price isn't always the cheapest delivered price, especially for a single low-value card. Compare delivered cost, not listed cost, and consider bundling multiple wants into one store's order to share the shipping.
+
+## 9. Buying sealed product purely for "investment"
+
+Most sealed product's expected value — what the singles inside are statistically worth — sits below the box price shortly after release. Sealed can be a reasonable long-term hold for genuinely loved, unopened sets, but it's rarely the cheap way to acquire specific cards. See [are Booster Boxes worth it?](/blog/are-booster-boxes-worth-it) for the honest maths.
+
+## 10. Buying on impulse instead of watching the price
+
+Prices move daily. Buying the moment you notice a card, instead of tracking it for even a couple of weeks, means you're buying at a random point on the price curve rather than a good one. Add targets to your [wishlist](/wishlist) and let a price-drop alert do the watching instead.
+
+## The pattern behind all ten
+
+Almost every mistake on this list comes down to the same root cause: trusting a single number (one store, one seller's grading, one headline) instead of comparing it against the real, current market. The [card value checker](/card-value) and the [deals page](/deals) exist specifically to make that comparison take seconds instead of guesswork.`,
+  },
+  {
+    slug: "buying-pokemon-cards-for-kids",
+    category: "guide",
+    title: "Buying Pokémon Cards for Kids: A Parent's Guide (Without Overspending)",
+    excerpt:
+      "What to actually buy a kid who's into Pokémon cards, what to skip, and how to avoid the two classic parent traps — paying chase-card prices for bulk, and buying fakes off marketplace listings.",
+    author: "DexCompare",
+    date: "2026-07-29",
+    readMins: 6,
+    tags: ["beginners", "kids", "budget", "buying", "gifts"],
+    body: `Buying Pokémon cards for a kid is different from buying for yourself — the goal is usually fun and a happy reaction, not building long-term value, and the traps that cost parents money are different from the traps that catch adult collectors. Here's what actually works.
+
+## Packs are the right call here — reverse the usual advice
+
+For an adult collector chasing a specific card, [buying the single](/browse) beats opening packs almost every time on pure value. For a kid, that logic mostly doesn't apply: the opening experience *is* the point. A handful of booster packs, a Build & Battle Kit, or a themed Collection Box built around their favourite Pokémon delivers the surprise-and-excitement moment that a single card in a toploader doesn't. Budget it as entertainment, the same way you'd budget a toy, not as an investment.
+
+## What actually lands well with kids
+
+- **Build & Battle Kits / Starter Sets** — a pre-built deck plus a few packs, priced to teach the game. The best entry point for a kid who wants to actually *play*, not just collect.
+- **Tins featuring their favourite Pokémon** — 2–4 packs plus a promo card tied to that specific Pokémon; the promo is usually the actual gift, the packs are a bonus.
+- **A starter binder and some cheap singles** — if they already have a favourite card in mind, a $20–30 spend on the exact singles they want (via the [card database](/browse)) often makes them happier than a random pack pull ever could.
+
+Full breakdown of every sealed format and what's in it: [Pokémon sealed products explained](/guides/pokemon-sealed-products-explained).
+
+## The two classic parent traps
+
+**Trap 1: paying chase-card prices for bulk value.** It's easy to see a "rare holo!!" sticker on a marketplace listing and assume it's worth real money. The overwhelming majority of pulled rares and holos from recent sets are worth very little — often under a dollar. Before paying a premium for "a rare card," [check its actual market value](/card-value) — it takes seconds and saves you from a bad deal on something that looked exciting to a 9-year-old but isn't worth much to anyone else.
+
+**Trap 2: buying fakes off marketplace listings aimed at parents.** Counterfeit "Pokémon card lots" — usually cheap, bulk, foreign-language-adjacent bootlegs — are heavily marketed toward parents searching generic terms like "Pokémon cards for kids" rather than specific card names. They're often low-quality reproductions rather than illegal-but-playable cards. Buy from [real, ongoing retailers](/stores) rather than an anonymous marketplace lot, and if a "huge lot" of cards is priced suspiciously low for the quantity, that's the tell.
+
+## A sensible budget
+
+- **Under $20** — a tin or a couple of booster packs built around their favourite Pokémon. Purely for the opening moment.
+- **$20–50** — a Build & Battle Kit if they want to actually play, or a small themed binder with a handful of real singles if they're leaning collector rather than player.
+- **$50+** — worth pausing on. At this point, ask what they actually want it *for* — playing, collecting a specific Pokémon, or just having "more cards" — because the right purchase differs a lot by answer, and a bigger spend on the wrong format (e.g. a Booster Box for a kid who just wants to complete a binder page) is easy to regret.
+
+## Protecting what they get
+
+Kids handle cards more than adult collectors do, so basic protection matters more, not less. A cheap pack of penny sleeves and a side-loading binder page protects a $2 card just as well as a $200 one, and it's the difference between a card staying nice for years versus getting creased in a backpack within a week. Full setup guide: [How to store and protect Pokémon cards](/guides/how-to-store-and-protect-pokemon-cards).
+
+## The takeaway
+
+For kids, buy for the experience and the specific Pokémon they love, not for value — and spend the two minutes it takes to check whether "the rare one they pulled" is actually worth anything before treating it like a big deal either way. That habit, more than any specific purchase, is what keeps this an affordable hobby for a family instead of an expensive one.`,
+  },
+  {
+    slug: "chaos-rising-two-months-later-was-it-worth-it",
+    category: "blog",
+    title: "Chaos Rising, Two Months Later: Was It Worth the Hype?",
+    excerpt:
+      "Mega Evolution — Chaos Rising sold out in minutes back in May. Two months on, here's how to actually judge whether a hyped set held up, and what it means for the next one.",
+    author: "DexCompare",
+    date: "2026-07-28",
+    readMins: 4,
+    tags: ["chaos rising", "mega evolution", "sealed", "market"],
+    body: `**Mega Evolution — Chaos Rising** released May 22, 2026, and sold out about as fast as any set has this era — big-box allocations gone in minutes, ETBs trading well over MSRP within days. Two months on is exactly the right distance to ask the question that matters more than launch-day hype: did it actually hold up?
+
+## The right way to judge a set after launch, not during it
+
+Launch week tells you almost nothing about a set's real staying power — it tells you how good the marketing and the initial allocation numbers were. The more useful signal shows up 6–10 weeks later, once restocks have had time to land and the initial FOMO has worn off:
+
+- **Did sealed pricing normalise, or is it still holding well above MSRP?** A set that's still commanding a real premium two months out is telling you something different than one that quietly returned to retail the moment a second print wave shipped.
+- **Are the chase singles from the set still moving, or did attention move on to whatever released next?** New sets pull collector budget and attention constantly — a set's SIRs holding steady two months in is a stronger signal than a hot launch week.
+- **Has the set actually gotten easier to find?** "Sold out" at launch is nearly universal for a hyped set. Whether it *stays* hard to find is the real test.
+
+## What this means for the next hyped set
+
+The pattern with genuinely hyped Pokémon releases has been remarkably consistent: launch-week scarcity is close to universal, and it fades for most products within 4–8 weeks as reorders and second print waves land — Booster Boxes of the most-loved sets in an era being the main exception. If you missed a set at launch, the sensible move is rarely "pay the premium anyway" — it's checking the [restock tracker](/restock) and letting a normal-priced restock come to you instead.
+
+## Checking where things actually stand right now
+
+Rather than take our word for the current state of Chaos Rising sealed and singles pricing, the live numbers are the honest answer:
+
+- **[Chaos Rising set page](/sets/chaos-rising)** — every single from the set with its current cheapest price across the stores we track.
+- **[Sealed products compare page](/sealed)** — live Booster Box and ETB pricing, if you're still chasing sealed.
+- **[Restock tracker](/restock)** — free alerts the moment stock reappears anywhere we track, for this set or the next one.
+
+## The takeaway
+
+Sold out at launch is the default state for a hyped modern Pokémon set — it tells you almost nothing on its own. What actually separates a set that was "worth the hype" from one that wasn't is what its prices look like two or three months later, once the noise has settled. Check the real numbers before deciding which category the set you're chasing falls into.`,
+  },
+  {
+    slug: "singles-vs-sealed-where-the-value-is-in-2026",
+    category: "blog",
+    title: "Singles vs Sealed in 2026: Where the Real Value Is Right Now",
+    excerpt:
+      "Sealed product chases hype; singles chase specific cards. A clear-eyed look at which side of the hobby is actually the better buy depending on what you're trying to do.",
+    author: "DexCompare",
+    date: "2026-07-29",
+    readMins: 5,
+    tags: ["singles", "sealed", "value", "market", "buying"],
+    body: `"Should I buy singles or sealed?" gets asked constantly, and the honest answer depends entirely on what you're actually trying to accomplish — the two sides of the hobby reward genuinely different goals, and confusing them is where most regret comes from.
+
+## The case for singles
+
+If your goal is **owning specific cards** — finishing a set, chasing a favourite Pokémon, building a display — singles win on value almost every time. Buying the exact card you want, at a compared price across [every store we track](/browse), is structurally cheaper than gambling on pack odds to pull it. The maths gets more lopsided the rarer the target card is: a chase card at roughly 1-in-200 pack odds costs, on average, around 200× the pack price to "earn" versus simply buying it.
+
+Singles also let you be precise about condition and printing in a way sealed product can't — you choose exactly the grade and edition you want, rather than accepting whatever a pack gives you.
+
+## The case for sealed
+
+If your goal is **the opening experience, or a long-term hold**, sealed does something singles structurally can't: it's unopened, and it stays that way until you decide otherwise. A well-stored, unopened Booster Box of a genuinely loved set has historically been one of the more defensible sealed holds in the hobby — not because ripping it is profitable (it usually isn't), but because *not* opening it preserves scarcity that keeps shrinking as everyone else's copies get cracked.
+
+Sealed is also simply more fun to buy as a gift or a treat-yourself purchase — nobody unwraps a single card with the same anticipation as a pack.
+
+## Where the actual 2026 value sits
+
+Right now, the more interesting value gap isn't singles-vs-sealed in the abstract — it's *timing* within each:
+
+- **Singles on recently-released sets** tend to be at their most expensive in the first few weeks after release, then ease as supply catches up with demand. Patience on a new set's chase cards is close to free money.
+- **Sealed on hyped sets** follows almost the identical pattern — launch-week premiums that compress once restocks land. See our [Chaos Rising two months later check-in](/blog/chaos-rising-two-months-later-was-it-worth-it) for a concrete recent example.
+- **Both singles and sealed on vintage/out-of-print material** move the opposite way — scarcity only tightens over time, so patience works against you there instead of for you.
+
+## A simple decision framework
+
+1. **Want a specific card?** Buy the [single](/browse). Almost always cheaper, always the exact card you want.
+2. **Want the pack-opening experience?** Buy sealed and budget it as entertainment — check the [sealed compare page](/sealed) first, since the same box can vary 30–40% between stores.
+3. **Want to hold something long-term?** Sealed, unopened, from a set people will still want in five years — and stored properly (see the [storage guide](/guides/how-to-store-and-protect-pokemon-cards)).
+4. **Not sure yet?** Default to singles. It's the lower-regret choice in almost every scenario except pure collecting-for-fun.
+
+## The takeaway
+
+Singles and sealed aren't competing for the same job — one is the cheap, precise way to get a specific card, the other is the experience-and-hold play. Knowing which one you're actually trying to do, before you open a tab to buy anything, is worth more than any specific price tip in this article.`,
   },
 ];
 

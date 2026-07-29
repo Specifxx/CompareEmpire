@@ -45,7 +45,7 @@ export const metadata: Metadata = {
     template: "%s — DexCompare",
   },
   description:
-    "The Pokémon TCG card database and price comparison. Browse every card and compare live prices across stores in Australia, New Zealand, the United States and the United Kingdom to find the cheapest place to buy.",
+    "The Pokémon TCG card database and price comparison. Browse every card and compare live prices across stores in Australia, the United States and the United Kingdom to find the cheapest place to buy.",
   applicationName: SITE_NAME,
   keywords: ["Pokémon", "Pokémon TCG", "Pokémon prices", "Pokémon singles", "card prices", "Pokémon card database"],
   // Apple devices don't read the generated icon.tsx — point them at the big PNG.
@@ -59,7 +59,7 @@ export const metadata: Metadata = {
     url: SITE_URL,
     title: "DexCompare — Pokémon Card Database & Price Comparison",
     description:
-      "Compare live Pokémon TCG card prices across stores in Australia, New Zealand, the US and the UK to find the cheapest place to buy.",
+      "Compare live Pokémon TCG card prices across stores in Australia, the US and the UK to find the cheapest place to buy.",
   },
   twitter: { card: "summary_large_image" },
   // Opt into large image thumbnails + full text snippets in Google/Bing results
@@ -93,7 +93,7 @@ const orgJsonLd = {
       url: SITE_URL,
       logo: `${SITE_URL}/icon-512.png`,
       description:
-        "Pokémon TCG card database and live price-comparison across Australia, New Zealand, the US and the UK.",
+        "Pokémon TCG card database and live price-comparison across Australia, the US and the UK.",
       contactPoint: {
         "@type": "ContactPoint",
         contactType: "customer support",
@@ -237,7 +237,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </p>
           <p>
             DexCompare · Pokémon card database &amp; price comparison for Australia,
-            New Zealand, the US and the UK. Prices are sourced from public store
+            the US and the UK. Prices are sourced from public store
             listings and may be out of date — always confirm on the retailer&apos;s
             site. Not affiliated with or endorsed by Nintendo, The Pokémon Company
             or Game Freak.

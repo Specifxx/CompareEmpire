@@ -49,8 +49,8 @@ export default function AboutPage() {
           <h2 className="text-lg font-bold text-white">What DexCompare is</h2>
           <p>
             DexCompare is a Pokémon TCG price-comparison database. We track the live prices of
-            singles, sealed products, and restocks across dozens of retailers in Australia, New
-            Zealand, the United States, and the United Kingdom — and rank them by total delivered
+            singles, sealed products, and restocks across dozens of retailers in Australia, the
+            United States, and the United Kingdom — and rank them by total delivered
             cost so you instantly know the cheapest place to buy.
           </p>
           <p>
@@ -105,12 +105,11 @@ export default function AboutPage() {
         <section className="space-y-3">
           <h2 className="text-lg font-bold text-white">Markets we cover</h2>
           <p>
-            We currently operate four regional markets, each showing prices in local currency
+            We currently operate three regional markets, each showing prices in local currency
             from stores that ship to buyers in that region:
           </p>
           <ul className="list-disc space-y-1 pl-5">
             <li><strong className="text-white">🇦🇺 Australia</strong> — AUD, the most extensively covered market</li>
-            <li><strong className="text-white">🇳🇿 New Zealand</strong> — NZD</li>
             <li><strong className="text-white">🇺🇸 United States</strong> — USD</li>
             <li><strong className="text-white">🇬🇧 United Kingdom</strong> — GBP</li>
           </ul>
