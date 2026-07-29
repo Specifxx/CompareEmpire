@@ -1,0 +1,69 @@
+name: Check DexCompare schema (manual, read-only)
+
+# Read-only schema probe for the production DexCompare database.
+#
+# Why raw SQL instead of Prisma: the scheduled jobs run from this (stale)
+# default branch, whose prisma/schema.prisma predates the zero-history rebuild
+# on `main`. Any Prisma-based check would validate against the wrong schema and
+# mislead. information_schema is the ground truth and needs no client.
+#
+# The specific worry this answers: the daily price refresh runs
+# `prisma db push --skip-generate --accept-data-loss`, and when it runs from a
+# branch whose schema lacks `Card.hasLivePrice` / the `Deal` table, that push can
+# DROP them from production — which would break /browse, /deals and the sitemap
+# on `main`.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Probe schema
+        env:
+          DATABASE_URL: ${{ secrets.DEXCOMPARE_DATABASE_URL }}
+        run: |
+          set -euo pipefail
+          if [ -z "${DATABASE_URL:-}" ]; then
+            echo "No DEXCOMPARE_DATABASE_URL secret set — nothing to check." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client
+
+          q() { psql "$DATABASE_URL" -tAc "$1" 2>/dev/null || echo "ERR"; }
+
+          HAS_LIVE=$(q "select count(*) from information_schema.columns where table_name='Card' and column_name='hasLivePrice';")
+          DEAL_TBL=$(q "select count(*) from information_schema.tables where table_name='Deal';")
+          PH_TBL=$(q "select count(*) from information_schema.tables where table_name='PriceHistory';")
+          CLICK_TBL=$(q "select count(*) from information_schema.tables where table_name='ClickEvent';")
+          CARDS=$(q "select count(*) from \"Card\";")
+          PRICES=$(q "select count(*) from \"RetailerPrice\";")
+          DEALS=$(q "select count(*) from \"Deal\";")
+
+          {
+            echo "### DexCompare production schema probe"
+            echo ""
+            echo "| thing | expected on main | actual |"
+            echo "|---|---|---|"
+            echo "| Card.hasLivePrice column | 1 | $HAS_LIVE |"
+            echo "| Deal table | 1 | $DEAL_TBL |"
+            echo "| PriceHistory table | 0 (deleted) | $PH_TBL |"
+            echo "| ClickEvent table | 0 (deleted) | $CLICK_TBL |"
+            echo ""
+            echo "Row counts — Card: $CARDS · RetailerPrice: $PRICES · Deal: $DEALS"
+            echo ""
+            if [ "$HAS_LIVE" = "1" ] && [ "$DEAL_TBL" = "1" ]; then
+              echo "OK: the columns/tables main's code needs are present."
+            else
+              echo "PROBLEM: main's app code queries Card.hasLivePrice and the Deal table; at least one is MISSING."
+              echo "Most likely cause: a scheduled job ran \`prisma db push --accept-data-loss\` from the stale default branch."
+            fi
+            if [ "$PH_TBL" != "0" ] || [ "$CLICK_TBL" != "0" ]; then
+              echo ""
+              echo "NOTE: PriceHistory/ClickEvent exist again — they were deliberately deleted for the Neon budget, so a stale-branch push has re-created them."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          cat "$GITHUB_STEP_SUMMARY"
