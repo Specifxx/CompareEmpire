@@ -7,12 +7,26 @@
 // Egress-bounded: a few groupBy aggregates rank everything; per-listing detail
 // (urls/names) is fetched only for the page being shown.
 import { prisma } from "./db";
-import type { Country } from "./country";
+import { marketGuideCents, type Country } from "./country";
 import { RETAILERS } from "./retailers";
 import { cardTileSelect } from "./cards";
 import type { CardTileData } from "@/components/CardTile";
 
 export const EBAY_FEE = 0.13; // approx eBay final-value fee
+// TCGplayer seller cost: ~10.25% marketplace commission + ~2.5% payment
+// processing. Applied when TCGplayer is the winning SELL side, the same way the
+// eBay fee is — selling to a tracked retail store has no marketplace fee.
+export const TCGPLAYER_FEE = 0.125;
+
+// TCGplayer is the DEFAULT sell side. Unlike eBay (whose live listings we can
+// only sample within a daily API quota, so coverage rotates through the
+// catalogue), the TCGplayer market price is refreshed for every matched card —
+// so the flip view has far better coverage pointed at TCGplayer.
+//
+// Its rows are always stored country="US" / currency="USD" (see lib/tcgplayer.ts),
+// so for AU/GB viewers they're converted with the same indicative USD_FX rate the
+// market-price guide uses, and labelled as a guide rather than a live local offer.
+export const TCGPLAYER_KEY = "tcgplayer";
 const MIN_BUY_CENTS = 300;
 const MIN_NET_CENTS = 100;
 // Outlier guards. A flip margin this large means the buy and sell aren't the same
@@ -27,18 +41,24 @@ export interface ArbSource {
   key: string;
   name: string;
   isEbay: boolean;
+  // TCGplayer is priced in USD and converted for non-US markets — the UI labels
+  // it as a guide so it's never mistaken for a live local offer.
+  isTcgplayer?: boolean;
 }
 
 // eBay retailer key per market.
 const EBAY_KEY: Record<Country, string | null> = { AU: "ebay", US: "ebay_us", GB: "ebay_uk" };
 
-// All selectable sources for a market: its tracked stores + eBay.
+// All selectable sources for a market: TCGplayer (the default sell side) + its
+// tracked stores + eBay. TCGplayer is available in every market because its rows
+// are converted from USD, unlike eBay which needs a per-market site.
 export function getArbSources(country: Country): ArbSource[] {
   const stores = Object.values(RETAILERS)
     .filter((r) => (r.country ?? "AU") === country)
     .map((r) => ({ key: r.key, name: r.name, isEbay: false }));
   const ek = EBAY_KEY[country];
-  return ek ? [{ key: ek, name: "eBay", isEbay: true }, ...stores] : stores;
+  const tcg: ArbSource = { key: TCGPLAYER_KEY, name: "TCGplayer", isEbay: false, isTcgplayer: true };
+  return ek ? [tcg, { key: ek, name: "eBay", isEbay: true }, ...stores] : [tcg, ...stores];
 }
 
 export interface ArbItem {
@@ -51,6 +71,9 @@ export interface ArbItem {
   sellName: string;
   sellUrl: string;
   sellIsEbay: boolean;
+  // TCGplayer sell side: the figure is its USD market price converted at an
+  // indicative rate, so the UI labels it rather than showing it as a live local offer.
+  sellIsTcgplayer: boolean;
   netCents: number; // sell (less eBay fee if eBay) − buy
   marginPct: number;
 }
@@ -64,13 +87,38 @@ export interface ArbPage {
 }
 
 async function minByCard(country: Country, keys: string[]) {
-  if (!keys.length) return new Map<string, number>();
+  // TCGplayer is handled separately (its rows are US/USD regardless of the
+  // viewer's market) — strip it so it can't be double-counted here.
+  const local = keys.filter((k) => k !== TCGPLAYER_KEY);
+  if (!local.length) return new Map<string, number>();
   const rows = await prisma.retailerPrice.groupBy({
     by: ["cardId"],
-    where: { country, inStock: true, retailer: { in: keys } },
+    where: { country, inStock: true, retailer: { in: local } },
     _min: { priceCents: true },
   });
   return new Map(rows.filter((r) => r._min.priceCents != null).map((r) => [r.cardId, r._min.priceCents!]));
+}
+
+// TCGplayer market prices, converted into the viewer's currency. The rows are
+// always stored country="US"/USD, so this deliberately does NOT filter by the
+// viewer's country — it converts instead, using the same indicative USD_FX rate
+// as the on-card market-price guide (marketGuideCents), so the two never
+// disagree with each other.
+async function tcgplayerMinByCard(country: Country, keys: string[]) {
+  if (!keys.includes(TCGPLAYER_KEY)) return new Map<string, number>();
+  const rows = await prisma.retailerPrice.groupBy({
+    by: ["cardId"],
+    where: { country: "US", inStock: true, retailer: TCGPLAYER_KEY },
+    _min: { priceCents: true },
+  });
+  const out = new Map<string, number>();
+  for (const r of rows) {
+    const usd = r._min.priceCents;
+    if (usd == null) continue;
+    const local = marketGuideCents(usd, country);
+    if (local != null) out.set(r.cardId, local);
+  }
+  return out;
 }
 
 // ── Cheapest-on-eBay deals ───────────────────────────────────────────────────────
@@ -187,41 +235,62 @@ export async function getArbitrage(
     if (!buyKeys.length || !sellKeys.length) return { items: [], total: 0, page, pageSize, pageCount: 1 };
 
     const sellEbayKeys = sellKeys.filter((k) => ebayKeys.has(k));
-    const sellStoreKeys = sellKeys.filter((k) => !ebayKeys.has(k));
+    const sellStoreKeys = sellKeys.filter((k) => !ebayKeys.has(k) && k !== TCGPLAYER_KEY);
 
-    const [buyMin, sellEbayMin, sellStoreMin] = await Promise.all([
+    const [buyMin, sellEbayMin, sellStoreMin, sellTcgMin] = await Promise.all([
       minByCard(country, buyKeys),
       minByCard(country, sellEbayKeys),
       minByCard(country, sellStoreKeys),
+      tcgplayerMinByCard(country, sellKeys),
     ]);
 
-    type Row = { cardId: string; buy: number; sellGross: number; sellIsEbay: boolean; net: number; margin: number };
+    type Row = {
+      cardId: string;
+      buy: number;
+      sellGross: number;
+      sellIsEbay: boolean;
+      sellIsTcg: boolean;
+      net: number;
+      margin: number;
+    };
     const rows: Row[] = [];
     for (const [cardId, buy] of buyMin) {
       if (buy < MIN_BUY_CENTS) continue;
       const eg = sellEbayMin.get(cardId);
       const sg = sellStoreMin.get(cardId);
-      // Best sell by NET (eBay nets less the fee; a store sells at face).
+      const tg = sellTcgMin.get(cardId);
+      // Best sell by NET: eBay and TCGplayer each net less their own marketplace
+      // fee; selling to a tracked store is at face value.
       let sellGross: number | null = null;
       let sellNet: number | null = null;
       let sellIsEbay = false;
+      let sellIsTcg = false;
       if (eg != null) {
-        const net = Math.round(eg * (1 - EBAY_FEE));
         sellGross = eg;
-        sellNet = net;
+        sellNet = Math.round(eg * (1 - EBAY_FEE));
         sellIsEbay = true;
+      }
+      if (tg != null) {
+        const net = Math.round(tg * (1 - TCGPLAYER_FEE));
+        if (sellNet == null || net > sellNet) {
+          sellGross = tg;
+          sellNet = net;
+          sellIsEbay = false;
+          sellIsTcg = true;
+        }
       }
       if (sg != null && (sellNet == null || sg > sellNet)) {
         sellGross = sg;
         sellNet = sg;
         sellIsEbay = false;
+        sellIsTcg = false;
       }
       if (sellGross == null || sellNet == null) continue;
       const net = sellNet - buy;
       if (net < MIN_NET_CENTS) continue;
       const margin = Math.round((net / buy) * 1000) / 10;
       if (margin > MAX_MARGIN_PCT) continue; // absurd flip margin = buy/sell mismatch, drop it
-      rows.push({ cardId, buy, sellGross, sellIsEbay, net, margin });
+      rows.push({ cardId, buy, sellGross, sellIsEbay, sellIsTcg, net, margin });
     }
     rows.sort((a, b) => (opts.sort === "margin" ? b.margin - a.margin || b.net - a.net : b.net - a.net || b.margin - a.margin));
 
@@ -232,8 +301,8 @@ export async function getArbitrage(
     if (!slice.length) return { items: [], total, page: p, pageSize, pageCount };
 
     const ids = slice.map((r) => r.cardId);
-    const sellKeysFor = (isEbay: boolean) => (isEbay ? sellEbayKeys : sellStoreKeys);
-    const [cards, buyListings, sellListings] = await Promise.all([
+    const wantsTcg = sellKeys.includes(TCGPLAYER_KEY);
+    const [cards, buyListings, sellListings, tcgListings] = await Promise.all([
       prisma.card.findMany({ where: { id: { in: ids } }, select: cardTileSelect(country) }),
       prisma.retailerPrice.findMany({
         where: { cardId: { in: ids }, country, inStock: true, retailer: { in: buyKeys } },
@@ -241,23 +310,46 @@ export async function getArbitrage(
         orderBy: { priceCents: "asc" },
       }),
       prisma.retailerPrice.findMany({
-        where: { cardId: { in: ids }, country, inStock: true, retailer: { in: sellKeys } },
+        where: {
+          cardId: { in: ids },
+          country,
+          inStock: true,
+          retailer: { in: [...sellEbayKeys, ...sellStoreKeys] },
+        },
         select: { cardId: true, retailer: true, retailerName: true, priceCents: true, url: true },
         orderBy: { priceCents: "asc" },
       }),
+      // TCGplayer detail rows live under country="US" whatever the viewer's
+      // market is, so they need their own fetch rather than the country-filtered
+      // query above.
+      wantsTcg
+        ? prisma.retailerPrice.findMany({
+            where: { cardId: { in: ids }, country: "US", inStock: true, retailer: TCGPLAYER_KEY },
+            select: { cardId: true, retailer: true, retailerName: true, priceCents: true, url: true },
+            orderBy: { priceCents: "asc" },
+          })
+        : Promise.resolve([] as { cardId: string; retailer: string; retailerName: string; priceCents: number; url: string }[]),
     ]);
     const cardMap = new Map(cards.map((c) => [c.id, c as unknown as CardTileData]));
     const bestBuy = new Map<string, (typeof buyListings)[number]>();
     for (const l of buyListings) if (!bestBuy.has(l.cardId)) bestBuy.set(l.cardId, l);
-    // Cheapest sell listing on the WINNING side (eBay vs store) per card.
-    const bestSell = new Map<string, (typeof sellListings)[number]>();
-    const winnerSide = new Map(slice.map((r) => [r.cardId, r.sellIsEbay]));
+
+    // Cheapest sell listing on the WINNING side per card — three-way now
+    // (TCGplayer / eBay / tracked store), matching whichever side actually won
+    // the net comparison above.
+    type Listing = (typeof buyListings)[number];
+    const bestSell = new Map<string, Listing>();
+    const bestTcg = new Map<string, Listing>();
+    for (const l of tcgListings) if (!bestTcg.has(l.cardId)) bestTcg.set(l.cardId, l);
+    const winner = new Map(slice.map((r) => [r.cardId, r.sellIsTcg ? "tcg" : r.sellIsEbay ? "ebay" : "store"]));
     for (const l of sellListings) {
-      const wantEbay = winnerSide.get(l.cardId);
-      const isEbayRow = ebayKeys.has(l.retailer);
-      if (wantEbay !== isEbayRow) continue;
-      if (!sellKeysFor(!!wantEbay).includes(l.retailer)) continue;
+      const want = winner.get(l.cardId);
+      const side = ebayKeys.has(l.retailer) ? "ebay" : "store";
+      if (want !== side) continue;
       if (!bestSell.has(l.cardId)) bestSell.set(l.cardId, l);
+    }
+    for (const [cardId, l] of bestTcg) {
+      if (winner.get(cardId) === "tcg") bestSell.set(cardId, l);
     }
 
     const items = slice
@@ -270,6 +362,7 @@ export async function getArbitrage(
           card: c,
           buyCents: r.buy, buyStore: b.retailer, buyStoreName: b.retailerName, buyUrl: b.url,
           sellCents: r.sellGross, sellName: s.retailerName, sellUrl: s.url, sellIsEbay: r.sellIsEbay,
+          sellIsTcgplayer: r.sellIsTcg,
           netCents: r.net, marginPct: r.margin,
         };
       })

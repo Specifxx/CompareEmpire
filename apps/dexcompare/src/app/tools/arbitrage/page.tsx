@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getArbitrage, getEbayCheapest, getArbSources, EBAY_FEE, type ArbSort, type DealSort } from "@/lib/arbitrage";
+import { getArbitrage, getEbayCheapest, getArbSources, TCGPLAYER_FEE, type ArbSort, type DealSort } from "@/lib/arbitrage";
 import { getCountry } from "@/lib/get-country";
 import { COUNTRIES } from "@/lib/country";
 import { formatMoney } from "@/lib/format";
@@ -39,8 +39,11 @@ export default async function ArbitragePage({
   const country = getCountry();
   const info = COUNTRIES[country];
   const sources = getArbSources(country);
-  const storeKeys = sources.filter((s) => !s.isEbay).map((s) => s.key);
+  // BUY side = the tracked local retail stores only. TCGplayer and eBay are sell
+  // venues here, so neither belongs in the default buy set.
+  const storeKeys = sources.filter((s) => !s.isEbay && !s.isTcgplayer).map((s) => s.key);
   const ebay = sources.find((s) => s.isEbay);
+  const tcg = sources.find((s) => s.isTcgplayer);
   const view: "flip" | "deals" = searchParams.view === "deals" ? "deals" : "flip";
   const page = Math.max(1, parseInt(searchParams.page ?? "1", 10) || 1);
 
@@ -79,7 +82,7 @@ export default async function ArbitragePage({
           aria-current={view === "flip" ? "page" : undefined}
           className={`flex-1 rounded-md px-3 py-2 text-center text-sm font-bold ${view === "flip" ? "bg-brand-500/20 text-brand-200" : "text-slate-400 hover:text-white"}`}
         >
-          Flip to eBay
+          Flip to TCGplayer
         </Link>
         <Link
           href="/tools/arbitrage?view=deals"
@@ -90,14 +93,20 @@ export default async function ArbitragePage({
         </Link>
       </div>
 
-      {!ebay ? (
+      {view === "deals" ? (
+        !ebay ? (
+          <div className="card-surface grid place-items-center p-12 text-center text-sm text-slate-400">
+            This view isn&apos;t available in {info.place} yet — it&apos;s eBay-based, and eBay doesn&apos;t cover this market.
+          </div>
+        ) : (
+          await DealsView({ country, info, sort: searchParams.sort === "pct" ? "pct" : "saving", page })
+        )
+      ) : !tcg ? (
         <div className="card-surface grid place-items-center p-12 text-center text-sm text-slate-400">
-          These views aren&apos;t available in {info.place} yet — they&apos;re eBay-based, and eBay doesn&apos;t cover this market.
+          The flip view isn&apos;t available in {info.place} yet.
         </div>
-      ) : view === "deals" ? (
-        await DealsView({ country, info, sort: searchParams.sort === "pct" ? "pct" : "saving", page })
       ) : (
-        await FlipView({ country, info, sort: searchParams.sort === "margin" ? "margin" : "profit", page, buy: searchParams.buy, sources, ebayKey: ebay.key, storeKeys })
+        await FlipView({ country, info, sort: searchParams.sort === "margin" ? "margin" : "profit", page, buy: searchParams.buy, sources, sellKey: tcg.key, storeKeys })
       )}
     </div>
   );
@@ -111,7 +120,7 @@ async function FlipView({
   page,
   buy: buyParam,
   sources,
-  ebayKey,
+  sellKey,
   storeKeys,
 }: {
   country: ReturnType<typeof getCountry>;
@@ -120,11 +129,11 @@ async function FlipView({
   page: number;
   buy?: string;
   sources: ReturnType<typeof getArbSources>;
-  ebayKey: string;
+  sellKey: string;
   storeKeys: string[];
 }) {
   const buy = buyParam ? buyParam.split(",").map((s) => s.trim()).filter(Boolean) : storeKeys;
-  const sell = [ebayKey];
+  const sell = [sellKey];
   const data = await getArbitrage(country, { buy, sort, sell, page, pageSize: PAGE_SIZE });
   const href = (p: number) => `/tools/arbitrage?buy=${buy.join(",")}&sort=${sort}&page=${p}`;
   const sortHref = (s: ArbSort) => `/tools/arbitrage?buy=${buy.join(",")}&sort=${s}&page=1`;
@@ -132,12 +141,19 @@ async function FlipView({
   return (
     <>
       <p className="mb-2 max-w-2xl text-sm leading-relaxed text-slate-400">
-        Buy a card cheap from a {info.adjective} store and resell it on <strong className="text-slate-200">eBay</strong> for a
-        profit. Net is after an estimated {Math.round(EBAY_FEE * 100)}% eBay fee; postage and your time aren&apos;t included.
+        Buy a card cheap from a {info.adjective} store and resell it at the{" "}
+        <strong className="text-slate-200">TCGplayer</strong> market price for a profit. Net is after an estimated{" "}
+        {Math.round(TCGPLAYER_FEE * 100)}% TCGplayer seller fee; postage and your time aren&apos;t included.
       </p>
       <p className="mb-4 text-xs text-slate-500">
-        eBay is the only marketplace we can price a resale on right now. Know another store that buys cards?{" "}
-        <Link href="/contact" className="text-brand-400 hover:underline">Email us</Link> and we&apos;ll add it as a sell option.
+        TCGplayer is the default sell side because its market price is refreshed for every card we match, so coverage is
+        far wider than eBay&apos;s (which we can only sample within a daily API quota).
+        {country !== "US" && (
+          <>
+            {" "}TCGplayer prices are USD converted to {info.currency} at an indicative rate — treat them as a valuation
+            guide, not a live {info.adjective} offer.
+          </>
+        )}
       </p>
 
       <div className="card-surface mb-4 flex flex-wrap items-end justify-between gap-4 p-4">
