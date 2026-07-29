@@ -1,0 +1,53 @@
+name: Sitemap coverage report (manual, read-only)
+
+# Diagnostic for the P2 sitemap-tiering change (see apps/dexcompare/src/app/sitemap.ts
+# bucket 1): reports the old vs new indexable card counts, and a sanity check on
+# the P1 species hubs / P2 facet hubs. Read-only — runs NO import and writes
+# nothing to the database. Reads the same DEXCOMPARE_DATABASE_URL secret as the
+# refresh workflow.
+on:
+  workflow_dispatch:
+    inputs:
+      dexcompare_url:
+        description: "DexCompare Neon DATABASE_URL (optional if the DEXCOMPARE_DATABASE_URL secret is set)"
+        required: false
+        default: ""
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Resolve database URL
+        id: db
+        env:
+          SECRET_URL: ${{ secrets.DEXCOMPARE_DATABASE_URL }}
+          INPUT_URL: ${{ inputs.dexcompare_url }}
+        run: |
+          URL="${INPUT_URL:-$SECRET_URL}"
+          if [ -z "$URL" ]; then
+            echo "No DEXCOMPARE_DATABASE_URL secret and no URL input — nothing to report." >> "$GITHUB_STEP_SUMMARY"
+            echo "found=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "::add-mask::$URL"
+            echo "DATABASE_URL=$URL" >> "$GITHUB_ENV"
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.db.outputs.found == 'true'
+        with:
+          ref: claude/compareempire-mtg-op-ygo-qbwjs6
+
+      - uses: actions/setup-node@v4
+        if: steps.db.outputs.found == 'true'
+        with:
+          node-version: 20
+
+      - name: Run sitemap coverage report (read-only)
+        if: steps.db.outputs.found == 'true'
+        working-directory: apps/dexcompare
+        run: |
+          npm install --no-audit --no-fund
+          npx prisma generate
+          npx tsx scripts/sitemap-coverage-report.ts
