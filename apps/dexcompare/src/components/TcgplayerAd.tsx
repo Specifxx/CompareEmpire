@@ -1,4 +1,5 @@
 import { OutboundLink } from "./OutboundLink";
+import { AffiliateDisclosure } from "./AffiliateDisclosure";
 
 // TCGplayer display banners from the approved Impact contract. First-party
 // placements (no ad network): the <a> is the Impact tracking link (commission
@@ -73,25 +74,29 @@ export function TcgplayerAd({
   const desk = ad(size);
   const mid = ad("leaderboard");
   const mob = ad(mobile === "rect" ? "mobileRect" : "mobile");
+  // Disclosure ships with the banner — same adjacency rule as the eBay unit.
   return (
-    <div className={`flex justify-center ${className ?? ""}`}>
-      {size === "billboard" ? (
-        <>
-          <span className="hidden lg:inline-block">
+    <div className={`flex flex-col items-center gap-1 ${className ?? ""}`}>
+      <div className="flex justify-center">
+        {size === "billboard" ? (
+          <>
+            <span className="hidden lg:inline-block">
+              <Banner {...desk} country={country} />
+            </span>
+            <span className="hidden sm:inline-block lg:hidden">
+              <Banner {...mid} country={country} />
+            </span>
+          </>
+        ) : (
+          <span className="hidden sm:inline-block">
             <Banner {...desk} country={country} />
           </span>
-          <span className="hidden sm:inline-block lg:hidden">
-            <Banner {...mid} country={country} />
-          </span>
-        </>
-      ) : (
-        <span className="hidden sm:inline-block">
-          <Banner {...desk} country={country} />
+        )}
+        <span className="sm:hidden">
+          <Banner {...mob} country={country} />
         </span>
-      )}
-      <span className="sm:hidden">
-        <Banner {...mob} country={country} />
-      </span>
+      </div>
+      <AffiliateDisclosure className="max-w-[95vw] text-center" />
     </div>
   );
 }

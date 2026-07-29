@@ -26,6 +26,7 @@ import { OutboundLink } from "@/components/OutboundLink";
 import { AdSlot } from "@/components/AdSlot";
 import { TcgplayerAd } from "@/components/TcgplayerAd";
 import { EbayAd } from "@/components/EbayAd";
+import { AffiliateDisclosure } from "@/components/AffiliateDisclosure";
 
 // Genuine ISR. The server render is market-neutral (AU baseline) and cookie-free
 // — prices localize client-side, and the session-gated marketplace is a client
@@ -510,6 +511,10 @@ export default async function CardPage({ params }: { params: { id: string } }) {
                 )}
               </div>
             </div>
+
+            {/* EPN §I.G: the disclosure sits directly above the store links it
+                covers. A footer-only disclosure was flagged as too far away. */}
+            <AffiliateDisclosure variant="block" className="mx-4 mt-3" />
 
             {prices.length === 0 && outOfStock.length === 0 ? (
               <div className="p-8 text-center text-sm text-slate-400">

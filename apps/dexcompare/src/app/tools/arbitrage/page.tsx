@@ -5,6 +5,7 @@ import { getCountry } from "@/lib/get-country";
 import { COUNTRIES } from "@/lib/country";
 import { formatMoney } from "@/lib/format";
 import { OutboundLink } from "@/components/OutboundLink";
+import { AffiliateDisclosure } from "@/components/AffiliateDisclosure";
 import { ArbitrageFilters } from "@/components/ArbitrageFilters";
 import { CardQuickLink } from "@/components/CardQuickLink";
 import type { CardTileData } from "@/components/CardTile";
@@ -67,6 +68,9 @@ export default async function ArbitragePage({
         </nav>
         <h1 className="font-display text-2xl font-extrabold text-white sm:text-3xl">Arbitrage &amp; eBay Deals</h1>
       </div>
+
+      {/* Every buy/sell figure in the tables below is an affiliate link. */}
+      <AffiliateDisclosure variant="block" className="mb-4" />
 
       {/* Tabs */}
       <div className="mb-4 flex gap-1 rounded-lg border border-ink-700 bg-ink-900 p-1" role="tablist" aria-label="Views">

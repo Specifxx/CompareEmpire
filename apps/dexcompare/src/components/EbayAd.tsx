@@ -1,4 +1,5 @@
 import { OutboundLink } from "./OutboundLink";
+import { AffiliateDisclosure } from "./AffiliateDisclosure";
 import { ebayAffiliateUrl } from "@/lib/affiliate";
 
 // eBay Partner Network banner. eBay retired its hosted display creatives, so
@@ -91,17 +92,23 @@ export function EbayAd({
   const desk = DIMS[size];
   const mid = DIMS.leaderboard;
   const mob = DIMS[mobile === "rect" ? "mobileRect" : "mobile"];
+  // The disclosure ships WITH the banner (EPN §I.G — must be adjacent to the
+  // affiliate link, not just in the page footer), so every placement of this
+  // component is compliant by construction wherever it's dropped in.
   return (
-    <div className={`flex justify-center ${className ?? ""}`}>
-      {size === "billboard" ? (
-        <>
-          <span className="hidden lg:inline-block"><Banner {...desk} country={country} label={label} href={href} /></span>
-          <span className="hidden sm:inline-block lg:hidden"><Banner {...mid} country={country} label={label} href={href} /></span>
-        </>
-      ) : (
-        <span className="hidden sm:inline-block"><Banner {...desk} country={country} label={label} href={href} /></span>
-      )}
-      <span className="sm:hidden"><Banner {...mob} country={country} label={label} href={href} /></span>
+    <div className={`flex flex-col items-center gap-1 ${className ?? ""}`}>
+      <div className="flex justify-center">
+        {size === "billboard" ? (
+          <>
+            <span className="hidden lg:inline-block"><Banner {...desk} country={country} label={label} href={href} /></span>
+            <span className="hidden sm:inline-block lg:hidden"><Banner {...mid} country={country} label={label} href={href} /></span>
+          </>
+        ) : (
+          <span className="hidden sm:inline-block"><Banner {...desk} country={country} label={label} href={href} /></span>
+        )}
+        <span className="sm:hidden"><Banner {...mob} country={country} label={label} href={href} /></span>
+      </div>
+      <AffiliateDisclosure className="max-w-[95vw] text-center" />
     </div>
   );
 }

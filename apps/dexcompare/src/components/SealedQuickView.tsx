@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import type { SealedGroup } from "@/lib/sealed-import";
 import { OutboundLink } from "./OutboundLink";
+import { AffiliateDisclosure } from "./AffiliateDisclosure";
 import { useCountry } from "./CountryProvider";
 import { affiliateUrl, ebaySearchUrl } from "@/lib/affiliate";
 import { formatMoney, timeAgo } from "@/lib/format";
@@ -128,6 +129,8 @@ function SealedQuickViewModal({ group, currency, onClose }: { group: SealedGroup
           {/* Price comparison — every tracked store, cheapest in-stock first */}
           <div className="p-4">
             <div className="mb-1 px-1 text-xs font-semibold uppercase tracking-wide text-slate-400">Price comparison</div>
+            {/* EPN §I.G: disclosure must appear inside the pop-up, by the links. */}
+            <AffiliateDisclosure variant="block" className="mb-2" />
             {listings.length === 0 ? (
               <div className="p-4 text-center text-sm text-slate-400">
                 <p>No store is listing this right now.</p>

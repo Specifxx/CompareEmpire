@@ -11,6 +11,7 @@ import { effectiveShippingCents, shippingPolicyUrl } from "@/lib/retailers";
 import { affiliateUrl, ebaySearchUrl, outboundRel } from "@/lib/affiliate";
 import { OutboundLink } from "./OutboundLink";
 import { EbayAd } from "./EbayAd";
+import { AffiliateDisclosure } from "./AffiliateDisclosure";
 import { useCountry } from "./CountryProvider";
 import { marketGuideCents, type Country } from "@/lib/country";
 
@@ -181,6 +182,9 @@ function QuickViewModal({ card, onClose }: { card: CardTileData; onClose: () => 
 
             <div className="mt-4">
               <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">Price comparison</div>
+              {/* EPN §I.G: the disclosure must be visible inside the pop-up itself,
+                  above the affiliate links — not only in the page footer. */}
+              <AffiliateDisclosure variant="block" className="mb-2" />
               {prices === null ? (
                 <div className="flex items-center gap-2 py-6 text-sm text-slate-500">
                   <span className="h-4 w-4 animate-spin rounded-full border-2 border-ink-600 border-t-brand-400" />
