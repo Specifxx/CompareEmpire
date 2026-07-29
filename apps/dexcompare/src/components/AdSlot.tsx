@@ -1,11 +1,10 @@
 // A single ad placement.
 //
-// Google AdSense has been removed — the site now monetises via HilltopAds, whose
-// MultiTag zone is loaded site-wide from the root layout (see HilltopAdsLoader).
-// HilltopAds serves at the page level (popunder/banner), not as a per-slot fill, so
-// these in-content placements render nothing for now. The component is kept as the
-// placement anchor so a HilltopAds banner zone can drop in here later without
-// editing every page; its props are accepted and ignored.
+// Google AdSense and HilltopAds have both been removed — monetisation is now the
+// first-party TCGplayer + eBay affiliate banners (FooterAds, EbayAd, TcgplayerAd),
+// placed contextually rather than via generic ad-network slots. This component is
+// kept as a placement anchor in case a per-slot network is added later; its props
+// are accepted and ignored, and it renders nothing.
 export function AdSlot(_props: {
   slot?: string;
   label?: string;

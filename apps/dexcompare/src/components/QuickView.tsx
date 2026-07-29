@@ -10,6 +10,7 @@ import { cardHref } from "@/lib/card-url";
 import { effectiveShippingCents, shippingPolicyUrl } from "@/lib/retailers";
 import { affiliateUrl, ebaySearchUrl, outboundRel } from "@/lib/affiliate";
 import { OutboundLink } from "./OutboundLink";
+import { EbayAd } from "./EbayAd";
 import { useCountry } from "./CountryProvider";
 import { marketGuideCents, type Country } from "@/lib/country";
 
@@ -283,6 +284,16 @@ function QuickViewModal({ card, onClose }: { card: CardTileData; onClose: () => 
                 </p>
               )}
             </div>
+
+            {/* Contextual house eBay banner — same placement/pattern as the full card
+                page, sized down (rect, not leaderboard) to fit the modal's narrower
+                right column without overflowing. */}
+            <EbayAd
+              size="rect"
+              country={country}
+              query={`${card.name} ${card.collectorNumber.split("/")[0]}`}
+              className="mt-4"
+            />
           </div>
         </div>
       </div>
