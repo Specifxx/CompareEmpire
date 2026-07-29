@@ -27,4 +27,3 @@ apps/dexcompare/prisma/pokemon-data/
 *.tsbuildinfo
 
 # Auto-improver GSC targets (regenerated each run, never committed)
-apps/dexcompare/GSC-TARGETS.md
