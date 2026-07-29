@@ -11,6 +11,8 @@ import { Logo } from "@/components/Logo";
 import { CountUp } from "@/components/CountUp";
 import { SearchBar } from "@/components/SearchBar";
 import { HomeShoppableGrid } from "@/components/HomeShoppableGrid";
+import { Reveal } from "@/components/Reveal";
+import { SETS, DOMAIN_KEYS, domainInfo } from "@/lib/constants";
 
 // REAL ISR: this page renders a market-NEUTRAL baseline (no cookie/header
 // reads — copy names all four markets, data fetched for the AU baseline) so
@@ -107,7 +109,7 @@ export default async function HomePage() {
                 The Pokémon card <span className="text-brand-400">price database</span>
               </h1>
               <p className="max-w-2xl text-sm text-slate-400 sm:text-base">
-                Search <span className="num text-slate-300">{totalCards.toLocaleString()}</span> cards and compare live prices across Australian, NZ, US and UK stores to find the cheapest place to buy.
+                Search <span className="num text-slate-300">{totalCards.toLocaleString()}</span> cards and compare live prices across Australian, US and UK stores to find the cheapest place to buy.
               </p>
 
               {/* Search — the primary action */}
@@ -158,7 +160,7 @@ export default async function HomePage() {
             <div className="mb-4 flex items-end justify-between gap-3">
               <div className="min-w-0">
                 <h2 className="flex items-center gap-2 text-xl font-extrabold text-white sm:text-2xl">
-                  <span className="h-5 w-1 bg-brand-500" aria-hidden />
+                  <span aria-hidden>🔥</span>
                   Today&apos;s best deals
                 </h2>
                 <p className="mt-1 text-xs text-slate-400">Australian store prices well below the TCGplayer market guide right now.</p>
@@ -178,6 +180,63 @@ export default async function HomePage() {
             </Carousel>
           </section>
         )}
+
+        {/* ── Browse by set ──
+            Ported from RiftCompare's homepage. Beyond matching the look this is
+            a real internal-linking win: it points the site's highest-authority
+            page straight at the set pages, which otherwise only got a link from
+            the nav. Capped at the newest 10 — RiftCompare lists all of its sets
+            because it has a handful; Pokémon has 173, and dumping every one here
+            would bloat the page and dilute the link equity it's meant to pass. */}
+        <section>
+          <div className="mb-4 flex items-end justify-between gap-3">
+            <h2 className="flex items-center gap-2 text-xl font-extrabold text-white sm:text-2xl">
+              <span aria-hidden>🗂️</span>
+              Browse by set
+            </h2>
+            <Link href="/sets" className="btn-ghost shrink-0 text-xs">All {SETS.length} sets →</Link>
+          </div>
+          <Reveal className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+            {SETS.slice(0, 10).map((s) => (
+              <Link
+                key={s.code}
+                href={`/sets/${s.slug}`}
+                className="card-surface flex flex-col gap-1 p-4 transition-all duration-200 hover:-translate-y-1 hover:border-brand-500 hover:shadow-glow"
+              >
+                <span className="text-lg font-bold uppercase text-white">{s.code}</span>
+                <span className="text-xs text-slate-400">{s.name}</span>
+              </Link>
+            ))}
+          </Reveal>
+        </section>
+
+        {/* ── Browse by energy type ──
+            DexCompare's equivalent of RiftCompare's "Browse by domain" chips.
+            RiftCompare links to dedicated /domains/[key] hub pages; DexCompare
+            has no such route, so these point at the pre-filtered browse view —
+            same crawlable internal links, no new pages to build. */}
+        <section>
+          <h2 className="mb-4 flex items-center gap-2 text-xl font-extrabold text-white sm:text-2xl">
+            <span aria-hidden>⚡</span>
+            Browse by energy type
+          </h2>
+          <Reveal className="flex flex-wrap gap-2">
+            {DOMAIN_KEYS.map((k) => {
+              const d = domainInfo(k);
+              return (
+                <Link
+                  key={k}
+                  href={`/browse?domain=${encodeURIComponent(k)}`}
+                  className="chip border border-ink-700 px-3 py-1.5 text-sm transition-all duration-200 hover:-translate-y-0.5 hover:scale-105 hover:border-brand-500"
+                  style={{ color: d.color }}
+                >
+                  <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: d.color }} />
+                  {d.label}
+                </Link>
+              );
+            })}
+          </Reveal>
+        </section>
 
         {/* ── About + FAQ (SEO) ── */}
         <section className="card-surface p-6">

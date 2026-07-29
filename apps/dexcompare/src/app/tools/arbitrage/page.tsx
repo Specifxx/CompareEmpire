@@ -14,11 +14,11 @@ import { SITE_URL } from "@/lib/site";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: { absolute: "Pokémon Arbitrage & eBay Deals | DexCompare" },
+  title: { absolute: "Pokémon Card Arbitrage — Flip to TCGplayer | DexCompare" },
   description:
-    "Live Pokémon flipping arbitrage (buy cheap from a store, sell on eBay) plus the cards eBay is cheapest to buy. Sortable, paginated, updated daily, with direct buy/sell links. Free.",
+    "Find Pokémon cards selling below their TCGplayer market price: buy cheap from a store, resell at market for a profit, ranked by profit and margin with fees included. Plus the cards eBay is cheapest to buy. Updated daily. Free.",
   alternates: { canonical: "/tools/arbitrage" },
-  openGraph: { title: "Pokémon Arbitrage & eBay Deals", url: `${SITE_URL}/tools/arbitrage` },
+  openGraph: { title: "Pokémon Card Arbitrage — Flip to TCGplayer", url: `${SITE_URL}/tools/arbitrage` },
 };
 
 const PAGE_SIZE = 25;
@@ -55,7 +55,7 @@ export default async function ArbitragePage({
           __html: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "WebApplication",
-            name: "Pokémon Arbitrage & eBay Deals",
+            name: "Pokémon Card Arbitrage — Flip to TCGplayer",
             url: `${SITE_URL}/tools/arbitrage`,
             applicationCategory: "UtilityApplication",
             operatingSystem: "Web",
@@ -69,27 +69,27 @@ export default async function ArbitragePage({
           <span>/</span>
           <span className="text-slate-300">Arbitrage</span>
         </nav>
-        <h1 className="font-display text-2xl font-extrabold text-white sm:text-3xl">Arbitrage &amp; eBay Deals</h1>
+        <h1 className="font-display text-2xl font-extrabold text-white sm:text-3xl">💱 Arbitrage &amp; eBay Deals</h1>
       </div>
 
       {/* Every buy/sell figure in the tables below is an affiliate link. */}
       <AffiliateDisclosure variant="block" className="mb-4" />
 
       {/* Tabs */}
-      <div className="mb-4 flex gap-1 rounded-lg border border-ink-700 bg-ink-900 p-1" role="tablist" aria-label="Views">
+      <div className="mb-4 flex gap-1 rounded-xl border border-ink-700 bg-ink-900 p-1" role="tablist" aria-label="Views">
         <Link
           href="/tools/arbitrage"
           aria-current={view === "flip" ? "page" : undefined}
-          className={`flex-1 rounded-md px-3 py-2 text-center text-sm font-bold ${view === "flip" ? "bg-brand-500/20 text-brand-200" : "text-slate-400 hover:text-white"}`}
+          className={`flex-1 rounded-lg px-3 py-2 text-center text-sm font-bold ${view === "flip" ? "bg-brand-500/20 text-brand-200" : "text-slate-400 hover:text-white"}`}
         >
-          Flip to TCGplayer
+          💱 Flip to TCGplayer
         </Link>
         <Link
           href="/tools/arbitrage?view=deals"
           aria-current={view === "deals" ? "page" : undefined}
-          className={`flex-1 rounded-md px-3 py-2 text-center text-sm font-bold ${view === "deals" ? "bg-sky-500/20 text-sky-200" : "text-slate-400 hover:text-white"}`}
+          className={`flex-1 rounded-lg px-3 py-2 text-center text-sm font-bold ${view === "deals" ? "bg-sky-500/20 text-sky-200" : "text-slate-400 hover:text-white"}`}
         >
-          Cheapest on eBay
+          🛒 Cheapest on eBay
         </Link>
       </div>
 
@@ -112,7 +112,7 @@ export default async function ArbitragePage({
   );
 }
 
-// ── Flip view (buy store → sell eBay) ────────────────────────────────────────────
+// ── Flip view (buy store → sell TCGplayer) ────────────────────────────────────────────
 async function FlipView({
   country,
   info,
