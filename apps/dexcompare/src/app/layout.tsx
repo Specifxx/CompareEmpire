@@ -15,7 +15,6 @@ import { WishlistDrawerProvider } from "@/components/WishlistDrawer";
 import { CountryProvider } from "@/components/CountryProvider";
 import { PriceAlertModal } from "@/components/PriceAlertModal";
 import { MegaMenuProvider } from "@/components/MegaMenuProvider";
-import { SovrnSnippet } from "@/components/SovrnSnippet";
 import { NavProgress } from "@/components/NavProgress";
 import { FooterAds } from "@/components/FooterAds";
 import { PathGate } from "@/components/PathGate";
@@ -180,7 +179,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </PathGate>
         </MegaMenuProvider>
         </CountryProvider>
-        <SovrnSnippet />
         <footer className="container-app border-t border-ink-800 py-8 text-center text-xs text-slate-500">
           <p className="mb-4">
             <a

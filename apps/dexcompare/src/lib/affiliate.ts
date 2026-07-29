@@ -78,46 +78,19 @@ export function ebaySearchUrl(query: string, country: string): string {
   return ebayAffiliateUrl(`https://${host}/sch/i.html?_nkw=${encodeURIComponent(query)}`);
 }
 
-// ---- Auto-affiliate network (the long tail of Shopify stores) -----------------
-// eBay, Amazon and TCGplayer pay us DIRECTLY (best rate — no middleman cut), so
-// they're handled above and never touched here. Every OTHER outbound store click
-// (the 50+ Shopify shops we compare) earns nothing unless we route it through a
-// link-monetisation network that has those merchants under one integration.
+// ---- The long tail of Shopify stores -----------------------------------------
+// eBay, Amazon and TCGplayer pay us DIRECTLY (best rate — no middleman cut) and
+// are handled above. Every OTHER outbound store click (the 50+ Shopify shops we
+// compare) currently goes out as a PLAIN link and earns nothing.
 //
-// Sovrn Commerce (formerly VigLink) is the default network: a Skimlinks-style
-// auto-affiliate that converts outbound merchant links on the fly across ~30k
-// merchants, with a lower acceptance bar than Skimlinks. Configure:
-//   AFFILIATE_NETWORK=sovrn                      (default)
-//   AFFILIATE_NETWORK_ID=<your Sovrn API key>    (Sovrn dashboard → "API key")
-// The key is PUBLIC (it ships in the on-page Sovrn snippet), so like the eBay /
-// Amazon ids above it's safe as a code default. `||` so an empty env var still
-// falls back to the live key.
-const AFFILIATE_NETWORK = (process.env.AFFILIATE_NETWORK || "sovrn").toLowerCase();
-export const SOVRN_API_KEY = process.env.AFFILIATE_NETWORK_ID || "c0e2dfd8f16826f988a87c85bd33bcf9";
-const AFFILIATE_NETWORK_ID = SOVRN_API_KEY;
-
-// Hosts that must NEVER be wrapped by the network: our own sites, and the partners
-// we already monetise directly (their direct programs always pay more).
-const NEVER_WRAP = /(?:^|\.)(dexcompare\.app|riftcompare\.com|ebay\.|amazon\.|tcgplayer\.com)$/i;
-
-// Wrap a destination URL in the configured network's redirect. `subId` is passed
-// through as the network's custom-tracking field so earnings are segmentable by
-// store in the network dashboard (complements our own click analytics). Returns
-// null when no network id is set (→ caller falls back to the plain URL).
-function networkUrl(url: string, subId: string): string | null {
-  if (!AFFILIATE_NETWORK_ID) return null;
-  const enc = encodeURIComponent(url);
-  const xcust = encodeURIComponent(subId);
-  switch (AFFILIATE_NETWORK) {
-    case "sovrn":
-    case "viglink":
-      // Sovrn Commerce "Anywhere" redirect (key = your Sovrn API key). cuid is the
-      // custom sub-id so earnings stay segmentable by store in the dashboard.
-      return `https://redirect.viglink.com/?format=go&key=${AFFILIATE_NETWORK_ID}&u=${enc}&cuid=${xcust}`;
-    default:
-      return null;
-  }
-}
+// Sovrn Commerce (VigLink) used to auto-monetise these via a redirect wrapper,
+// and its on-page vglnk.js script was loaded site-wide. Both were removed: the
+// script was broken in production (its api.viglink.com ping was blocked by CORS
+// and its stylesheet by our own CSP), and the owner opted to drop the redirect
+// half with it rather than keep a partial integration.
+//
+// To re-monetise this tail, sign per-store DIRECT programs below — they pay
+// better than any network anyway since there's no revenue share.
 
 // Per-store DIRECT affiliate programs, added as you sign them (Shopify Collabs /
 // Refersion / UpPromote, etc.). A direct program beats the network because there's
@@ -136,9 +109,10 @@ function directProgramUrl(u: URL): string | null {
 
 // Append our affiliate identifier to an outbound product link.
 //   Priority: eBay EPN → Amazon Associates → TCGplayer (Impact) → per-store DIRECT
-//   program → auto-affiliate network (Sovrn) → plain link.
-// `subId` (defaults to the store/retailer key when callers pass it) is used as the
-// network's custom-tracking tag. Safe on any string.
+//   program → plain link.
+// `subId` is retained for call-site compatibility (and as the sub-id hook for any
+// future network/direct program that wants one); it is unused today. Safe on any
+// string.
 export function affiliateUrl(url: string | null | undefined, subId = "dexcompare"): string {
   if (!url) return "#";
   try {
@@ -154,26 +128,25 @@ export function affiliateUrl(url: string | null | undefined, subId = "dexcompare
     if (TCGPLAYER_IMPACT_LINK && /(?:^|\.)tcgplayer\.com$/i.test(u.hostname)) {
       return `${TCGPLAYER_IMPACT_LINK}?u=${encodeURIComponent(url)}`;
     }
-    // A signed direct store program always beats the network — check it first.
+    // A signed direct store program is the only monetisation left for the long
+    // tail now that the Sovrn network wrapper is gone; without one the plain
+    // store URL is returned untouched.
     const direct = directProgramUrl(u);
     if (direct) return direct;
-    // Otherwise auto-monetise via the network (no-op until an id is configured).
-    if ((u.protocol === "https:" || u.protocol === "http:") && !NEVER_WRAP.test(u.hostname)) {
-      const net = networkUrl(url, subId);
-      if (net) return net;
-    }
   } catch {
     /* not an absolute URL — leave it untouched */
   }
   return url;
 }
 
-// rel attribute for outbound merchant anchors. Sovrn's on-page script
-// (vglnk.js) honours "norewrite": links that are already affiliated — eBay EPN
-// (campid), TCGplayer Impact, Amazon (tag), or Sovrn's own server-side
-// redirect — must keep their full-rate direct attribution, so the script is
-// told to leave them alone.
-export function outboundRel(href: string): string {
-  const affiliated = /partner\.tcgplayer\.com|redirect\.viglink\.com|[?&]campid=|[?&]tag=/.test(href);
-  return `nofollow sponsored noopener noreferrer${affiliated ? " norewrite" : ""}`;
+// rel attribute for outbound merchant anchors. "sponsored" is the required
+// machine-readable half of affiliate disclosure (the visible half is
+// <AffiliateDisclosure>); "nofollow" keeps outbound commercial links from
+// passing PageRank.
+//
+// The old "norewrite" token was Sovrn-specific — it told vglnk.js to leave
+// already-affiliated links alone. With Sovrn removed there is no script to
+// instruct, so it's dropped.
+export function outboundRel(_href?: string): string {
+  return "nofollow sponsored noopener noreferrer";
 }
