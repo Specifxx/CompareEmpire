@@ -212,15 +212,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Link href="/trending" className="hover:text-slate-300">Trending</Link>
             <Link href="/most-valuable" className="hover:text-slate-300">Most valuable</Link>
             <Link href="/card-value" className="hover:text-slate-300">Card value checker</Link>
-            <Link href="/games" className="hover:text-slate-300">Minigames</Link>
             <Link href="/restock" className="hover:text-slate-300">Drops &amp; restocks</Link>
             <Link href="/guides" className="hover:text-slate-300">Buying guides</Link>
             <Link href="/stores" className="hover:text-slate-300">Stores we track</Link>
             <Link href="/widgets" className="hover:text-slate-300">Price widget</Link>
             <Link href="/tools/net-proceeds" className="hover:text-slate-300">Selling fees</Link>
             <Link href="/tools/grade-ev" className="hover:text-slate-300">Grade or not</Link>
-            <Link href="/deck" className="hover:text-slate-300">Deck builder</Link>
-            <Link href="/decks" className="hover:text-slate-300">Meta decks</Link>
             <Link href="/forum" className="hover:text-slate-300">Community board</Link>
             <Link href="/blog" className="hover:text-slate-300">Blog</Link>
             <Link href="/trade" className="hover:text-slate-300">Trade calculator</Link>

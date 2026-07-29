@@ -132,7 +132,7 @@ function SealedQuickViewModal({ group, currency, onClose }: { group: SealedGroup
               <div className="p-4 text-center text-sm text-slate-400">
                 <p>No store is listing this right now.</p>
                 <OutboundLink href={ebayHref} retailer="ebay_search" country={country} kind="sealed" className="btn-primary mt-3 inline-flex text-xs">
-                  Search on eBay{country === "NZ" ? " AU" : ""} →
+                  Search on eBay →
                 </OutboundLink>
               </div>
             ) : (
@@ -141,7 +141,7 @@ function SealedQuickViewModal({ group, currency, onClose }: { group: SealedGroup
                   <li className="flex items-center gap-3 py-2.5">
                     <div className="min-w-0 flex-1">
                       <div className="truncate text-sm font-semibold text-white">
-                        eBay{country === "NZ" ? " AU" : ""} <span className="font-normal text-slate-500">(price not available)</span>
+                        eBay <span className="font-normal text-slate-500">(price not available)</span>
                       </div>
                       <div className="text-[11px] text-slate-500">Marketplace · search live listings</div>
                     </div>
@@ -180,7 +180,7 @@ function SealedQuickViewModal({ group, currency, onClose }: { group: SealedGroup
             {hasEbay && (
               <p className="mt-2 border-t border-ink-800 pt-2 text-right text-[11px]">
                 <OutboundLink href={ebayHref} retailer="ebay_search" country={country} kind="sealed" className="font-semibold text-brand-400 hover:underline">
-                  Search eBay{country === "NZ" ? " AU" : ""} for more listings →
+                  Search eBay for more listings →
                 </OutboundLink>
               </p>
             )}

@@ -77,7 +77,7 @@ function cardSubject(name: string, setName: string, collectorNumber: string, max
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   const card = await prisma.card.findFirst({
     where: whereParam(params.id),
-    select: { slug: true, name: true, setName: true, setCode: true, collectorNumber: true, lowestPriceCents: true, lowestPriceCentsNz: true, lowestPriceCentsUs: true, lowestPriceCentsGb: true, imageUrl: true, imageThumbUrl: true },
+    select: { slug: true, name: true, setName: true, setCode: true, collectorNumber: true, lowestPriceCents: true, lowestPriceCentsUs: true, lowestPriceCentsGb: true, imageUrl: true, imageThumbUrl: true },
   });
   if (!card) notFound(); // real 404 — metadata resolves before streaming
 
@@ -92,12 +92,11 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
     card.lowestPriceCents != null ? `from ${formatMoney(card.lowestPriceCents, "AUD")}` :
     card.lowestPriceCentsUs != null ? `from ${formatMoney(card.lowestPriceCentsUs, "USD")}` :
     card.lowestPriceCentsGb != null ? `from ${formatMoney(card.lowestPriceCentsGb, "GBP")}` :
-    card.lowestPriceCentsNz != null ? `from ${formatMoney(card.lowestPriceCentsNz, "NZD")}` :
     null;
   const descSubject = cardSubject(card.name, card.setName, card.collectorNumber, 36);
   const description = from
-    ? `${descSubject} ${from} today. Compare live prices across stores in Australia, New Zealand, the US and the UK — updated daily.`
-    : `See today's cheapest price for ${descSubject} across stores in Australia, New Zealand, the US and the UK — updated live.`;
+    ? `${descSubject} ${from} today. Compare live prices across stores in Australia, the US and the UK — updated daily.`
+    : `See today's cheapest price for ${descSubject} across stores in Australia, the US and the UK — updated live.`;
   const image = card.imageUrl ?? card.imageThumbUrl ?? undefined;
 
   return {
@@ -144,7 +143,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
       might: true, energyCost: true, orientation: true, artSeed: true,
       imageUrl: true, imageThumbUrl: true, blurDataUrl: true,
       marketPriceCents: true, marketPriceSource: true, marketPriceUpdatedAt: true,
-      lowestPriceCents: true, lowestPriceCentsNz: true, lowestPriceCentsUs: true, lowestPriceCentsGb: true,
+      lowestPriceCents: true, lowestPriceCentsUs: true, lowestPriceCentsGb: true,
       // Only the selected market's store listings, and only the fields rendered.
       retailerPrices: {
         where: { country },
@@ -218,7 +217,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
   // Other markets' local store lows — informational only. Each is priced in its own
   // market's currency (never FX-converted), so we present them as "also listed
   // elsewhere", never as a direct saving.
-  const otherMarketPrices = (["AU", "NZ", "US", "GB"] as const)
+  const otherMarketPrices = (["AU", "US", "GB"] as const)
     .filter((c) => c !== country)
     .map((c) => ({ code: c, cents: pickPrice(card, c), label: COUNTRIES[c].label, flag: COUNTRIES[c].flag, currency: COUNTRIES[c].currency }))
     .filter((m) => m.cents != null);
@@ -513,7 +512,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
                   country={country}
                   className="btn-primary mt-4 inline-flex"
                 >
-                  Search this card on eBay{country === "NZ" ? " AU (ships to NZ)" : ""} →
+                  Search this card on eBay →
                 </OutboundLink>
                 <p className="mt-2 text-[11px] text-slate-600">
                   Check the listing is the English print and the condition you want before buying.
@@ -532,7 +531,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
                   country={country}
                   className="btn-ghost mt-3 inline-flex"
                 >
-                  Search this card on eBay{country === "NZ" ? " AU (ships to NZ)" : ""} →
+                  Search this card on eBay →
                 </OutboundLink>
               </div>
             ) : (
@@ -545,7 +544,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
                     <div className="w-5 shrink-0 text-center text-sm font-bold text-slate-500 sm:w-6" aria-hidden>★</div>
                     <div className="min-w-0 flex-1">
                       <div className="truncate font-semibold text-white">
-                        eBay{country === "NZ" ? " AU" : ""}{" "}
+                        eBay{" "}
                         <span className="font-normal text-slate-500">(price not available)</span>
                       </div>
                       <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-500">
@@ -634,7 +633,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
                   country={country}
                   className="text-sm font-semibold text-brand-400 hover:underline"
                 >
-                  Search eBay{country === "NZ" ? " AU" : ""} for more listings →
+                  Search eBay for more listings →
                 </OutboundLink>
               </div>
             )}

@@ -27,7 +27,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
       select: {
         id: true, slug: true, name: true, setCode: true, setName: true, collectorNumber: true,
         rarity: true, imageThumbUrl: true,
-        lowestPriceCents: true, lowestPriceCentsNz: true, lowestPriceCentsUs: true, lowestPriceCentsGb: true,
+        lowestPriceCents: true, lowestPriceCentsUs: true, lowestPriceCentsGb: true,
         retailerPrices: {
           // Exclude the market-guide pseudo-retailer so the "N stores" count is
           // real buyable listings, not inflated by the guide row.
@@ -50,7 +50,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 type EmbedCard = {
   id: string; slug: string | null; name: string; setCode: string; setName: string; collectorNumber: string;
   rarity: string; imageThumbUrl: string | null;
-  lowestPriceCents: number | null; lowestPriceCentsNz: number | null; lowestPriceCentsUs: number | null; lowestPriceCentsGb: number | null;
+  lowestPriceCents: number | null; lowestPriceCentsUs: number | null; lowestPriceCentsGb: number | null;
   retailerPrices: { id: string }[];
 };
 

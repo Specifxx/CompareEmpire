@@ -134,11 +134,9 @@ model Card {
   // Lowest live retailer price across all sources, set by the price importer.
   // Used for "from $X" and catalogue sorting. null = no price found.
   //   lowestPriceCents   = Australia (AUD cents), from AU stores + eBay AU
-  //   lowestPriceCentsNz = New Zealand (NZD cents), from NZ stores (no eBay)
   //   lowestPriceCentsUs = United States (USD cents), from US stores + eBay US
   //   lowestPriceCentsGb = United Kingdom (GBP cents), from UK TCG stores + eBay UK
   lowestPriceCents Int?
-  lowestPriceCentsNz Int?
   lowestPriceCentsUs Int?
   lowestPriceCentsGb Int?
   artSeed         Int       @default(0)
@@ -160,7 +158,6 @@ model Card {
   @@index([setCode, collectorNumber])
   @@index([nameNormalized])
   @@index([lowestPriceCents])
-  @@index([lowestPriceCentsNz])
   @@index([lowestPriceCentsUs])
   @@index([lowestPriceCentsGb])
   @@index([domain])

@@ -12,9 +12,8 @@ async function main() {
   const search = terms.length ? terms : ["Mewtwo VSTAR", "Salamence", "Rayquaza ex", "Charizard"];
 
   const total = await prisma.card.count();
-  const [auP, nzP, usP, gbP] = await Promise.all([
+  const [auP, usP, gbP] = await Promise.all([
     prisma.card.count({ where: { lowestPriceCents: { not: null } } }),
-    prisma.card.count({ where: { lowestPriceCentsNz: { not: null } } }),
     prisma.card.count({ where: { lowestPriceCentsUs: { not: null } } }),
     prisma.card.count({ where: { lowestPriceCentsGb: { not: null } } }),
   ]);
@@ -24,7 +23,7 @@ async function main() {
   const distAuAny = (await prisma.retailerPrice.groupBy({ by: ["cardId"], where: { country: "AU" } })).length;
   const distAuIn = (await prisma.retailerPrice.groupBy({ by: ["cardId"], where: { country: "AU", inStock: true } })).length;
 
-  console.log(`Cards: ${total}  |  priced — AU ${auP}  NZ ${nzP}  US ${usP}  GB ${gbP}`);
+  console.log(`Cards: ${total}  |  priced — AU ${auP}  US ${usP}  GB ${gbP}`);
   console.log(`RetailerPrice rows: ${totalRows}`);
   console.log(`  by country (all):      ${byCountry.map((r) => `${r.country}:${r._count._all}`).join("  ")}`);
   console.log(`  by country (in-stock): ${byCountryIn.map((r) => `${r.country}:${r._count._all}`).join("  ")}`);
@@ -34,7 +33,7 @@ async function main() {
     console.log(`\n===== "${term}" =====`);
     const cards = await prisma.card.findMany({
       where: { name: { contains: term, mode: "insensitive" } },
-      select: { id: true, name: true, setName: true, setCode: true, collectorNumber: true, lowestPriceCents: true, lowestPriceCentsNz: true, lowestPriceCentsUs: true, lowestPriceCentsGb: true },
+      select: { id: true, name: true, setName: true, setCode: true, collectorNumber: true, lowestPriceCents: true, lowestPriceCentsUs: true, lowestPriceCentsGb: true },
       orderBy: [{ searchCount: "desc" }],
       take: 10,
     });
@@ -42,7 +41,7 @@ async function main() {
       const rows = await prisma.retailerPrice.findMany({ where: { cardId: c.id }, select: { retailer: true, retailerName: true, country: true, priceCents: true, condition: true, conditionPrices: true, inStock: true, title: true }, take: 12 });
       const inAu = rows.filter((r) => r.country === "AU").length;
       console.log(`\n  ${c.name} [${c.collectorNumber}] — ${c.setName ?? c.setCode ?? "?"}`);
-      console.log(`    lowest: AU=${c.lowestPriceCents} NZ=${c.lowestPriceCentsNz} US=${c.lowestPriceCentsUs} GB=${c.lowestPriceCentsGb}  | ${rows.length} listings (${inAu} AU)`);
+      console.log(`    lowest: AU=${c.lowestPriceCents} US=${c.lowestPriceCentsUs} GB=${c.lowestPriceCentsGb}  | ${rows.length} listings (${inAu} AU)`);
       for (const r of rows) {
         const cp = r.conditionPrices ? ` grades=${JSON.stringify(r.conditionPrices)}` : "";
         console.log(`      ${r.country} ${r.inStock ? "IN " : "OOS"} ${r.retailer}/${r.retailerName}[${r.condition ?? "-"}] ${r.priceCents}${cp}  "${r.title}"`);

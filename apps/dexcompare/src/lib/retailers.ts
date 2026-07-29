@@ -13,9 +13,9 @@ export interface RetailerInfo {
   shippingFlatCents: number; // estimated postage for a single card
   freeOverCents: number; // order total at/above which shipping is free
   shippingNote: string;
-  // Market the store serves. Omitted = "AU" (the original Australian stores). NZ/US/GB
-  // stores are scraped with ?country=NZ/US/GB and priced in NZD/USD/GBP. eBay runs for AU+US.
-  country?: "AU" | "NZ" | "US" | "GB";
+  // Market the store serves. Omitted = "AU" (the original Australian stores). US/GB
+  // stores are scraped with ?country=US/GB and priced in USD/GBP. eBay runs for AU+US.
+  country?: "AU" | "US" | "GB";
 }
 
 export const RETAILERS: Record<string, RetailerInfo> = {
@@ -316,110 +316,6 @@ export const RETAILERS: Record<string, RetailerInfo> = {
     shippingFlatCents: 200,
     freeOverCents: 5000,
     shippingNote: "est. $2.00 · free over $50",
-  },
-
-  // ---- New Zealand stores (country: "NZ"; prices in NZD; never use eBay) -------
-  // Collections are mostly auto-discovered from each store's Shopify sitemap; a few
-  // explicit handles are given as a fallback. Shipping figures are NZD estimates.
-  cardmasters: {
-    key: "cardmasters",
-    name: "Card Masters",
-    base: "https://cardmasters.co.nz",
-    collections: ["riftbound-league-of-legends-singles"],
-    shippingFlatCents: 350,
-    freeOverCents: 6000,
-    shippingNote: "est. NZ$3.50 · free over NZ$60",
-    country: "NZ",
-  },
-  tcgcollectornz: {
-    key: "tcgcollectornz",
-    name: "TCG Collector NZ",
-    base: "https://tcgcollectornz.com",
-    collections: ["riftbound-all-singles"],
-    shippingFlatCents: 300,
-    freeOverCents: 5000,
-    shippingNote: "est. NZ$3.00 · free over NZ$50",
-    country: "NZ",
-  },
-  cardmerchant: {
-    key: "cardmerchant",
-    name: "Card Merchant NZ",
-    base: "https://cardmerchant.co.nz",
-    collections: ["riftbound-singles"],
-    shippingFlatCents: 250,
-    freeOverCents: 5000,
-    shippingNote: "est. NZ$2.50 · free over NZ$50",
-    country: "NZ",
-  },
-  ironknight: {
-    key: "ironknight",
-    name: "Iron Knight Gaming",
-    base: "https://ironknightgaming.co.nz",
-    collections: ["riftbound-singles-in-stock"],
-    shippingFlatCents: 300,
-    freeOverCents: 5000,
-    shippingNote: "est. NZ$3.00 · free over NZ$50",
-    country: "NZ",
-  },
-  calicokeep: {
-    key: "calicokeep",
-    name: "Calico Keep",
-    base: "https://www.calicokeep.co.nz",
-    collections: ["riftbound-single-in-stock"],
-    shippingFlatCents: 350,
-    freeOverCents: 6000,
-    shippingNote: "est. NZ$3.50 · free over NZ$60",
-    country: "NZ",
-  },
-  cardbotnz: {
-    key: "cardbotnz",
-    name: "Card Bot NZ",
-    base: "https://cardbot.co.nz",
-    collections: ["riftbound-origins-singles"],
-    shippingFlatCents: 200,
-    freeOverCents: 4000,
-    shippingNote: "est. NZ$2.00 · free over NZ$40",
-    country: "NZ",
-  },
-  gamingdna: {
-    key: "gamingdna",
-    name: "Gaming DNA",
-    base: "https://gamingdna.co.nz",
-    collections: ["riftbound-league-of-legends-tcg"],
-    shippingFlatCents: 300,
-    freeOverCents: 5000,
-    shippingNote: "est. NZ$3.00 · free over NZ$50",
-    country: "NZ",
-  },
-  beagames: {
-    key: "beagames",
-    name: "Bea Games",
-    base: "https://www.beadndgames.co.nz",
-    collections: ["riftbound-league-of-legends-singles"],
-    shippingFlatCents: 300,
-    freeOverCents: 5000,
-    shippingNote: "est. NZ$3.00 · free over NZ$50",
-    country: "NZ",
-  },
-  shuffleandcut: {
-    key: "shuffleandcut",
-    name: "Shuffle n Cut Games",
-    base: "https://www.shuffleandcutgames.co.nz",
-    collections: ["riftbound"],
-    shippingFlatCents: 350,
-    freeOverCents: 6000,
-    shippingNote: "est. NZ$3.50 · free over NZ$60",
-    country: "NZ",
-  },
-  gameroost: {
-    key: "gameroost",
-    name: "Game Roost",
-    base: "https://www.gameroost.co.nz",
-    collections: ["riftbound-league-of-legends-tcg-auckland"],
-    shippingFlatCents: 350,
-    freeOverCents: 6000,
-    shippingNote: "est. NZ$3.50 · free over NZ$60",
-    country: "NZ",
   },
 
   // ---- United States stores (country: "US"; prices in USD; uses eBay US) --------
@@ -937,26 +833,6 @@ export const RETAILERS: Record<string, RetailerInfo> = {
     shippingNote: "est. $0.99 · free over $99",
     country: "US",
   },
-  vaulttcgnz: {
-    key: "vaulttcgnz",
-    name: "Vault TCG",
-    base: "https://www.vaulttcg.co.nz",
-    collections: ["pokemon-singles", "pokemon"],
-    shippingFlatCents: 600,
-    freeOverCents: 15000,
-    shippingNote: "est. $6 tracked",
-    country: "NZ",
-  },
-  cerberusgamesnz: {
-    key: "cerberusgamesnz",
-    name: "Cerberus Games",
-    base: "https://cerberusgames.co.nz",
-    collections: ["pokemon-singles", "pokemon"],
-    shippingFlatCents: 700,
-    freeOverCents: 15000,
-    shippingNote: "est. $7 tracked",
-    country: "NZ",
-  },
   chuscards: {
     key: "chuscards",
     name: "Chu's Cards",
@@ -1002,7 +878,7 @@ export const RETAILERS: Record<string, RetailerInfo> = {
 export const RETAILER_LIST = Object.values(RETAILERS);
 
 // The market a store serves (defaults to AU for the original stores).
-export function retailerCountry(retailerKey: string): "AU" | "NZ" | "US" | "GB" {
+export function retailerCountry(retailerKey: string): "AU" | "US" | "GB" {
   return RETAILERS[retailerKey]?.country ?? "AU";
 }
 

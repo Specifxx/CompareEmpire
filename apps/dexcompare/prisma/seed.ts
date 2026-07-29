@@ -92,7 +92,6 @@ function chaseMult(name: string, subtype: string | null): number {
 }
 
 const USD_TO_AUD = 1.55;
-const USD_TO_NZD = 1.68;
 const USD_TO_GBP = 0.82;
 const cents = (n: number, floor = 8) => Math.max(floor, Math.round(n));
 
@@ -246,7 +245,6 @@ async function main() {
     // Real US market price when we have it; otherwise the heuristic estimate.
     const usLow = real ? cents(real.usd) : cents(heuristicUsd * between(0.92, 1.0));
     const auLow = cents(usLow * USD_TO_AUD * between(0.95, 1.08), 10);
-    const nzLow = cents(usLow * USD_TO_NZD * between(0.96, 1.1), 10);
     const gbLow = cents(usLow * USD_TO_GBP * between(0.95, 1.08), 8);
     return {
       externalId: c.externalId,
@@ -271,7 +269,6 @@ async function main() {
       marketPriceSource: real ? "TCGplayer" : "Estimate",
       marketPriceUpdatedAt: new Date(),
       lowestPriceCents: auLow,
-      lowestPriceCentsNz: nzLow,
       lowestPriceCentsUs: usLow,
       lowestPriceCentsGb: gbLow,
       artSeed: Math.floor(rng() * 1_000_000),
@@ -301,17 +298,16 @@ async function main() {
   // to the real product). Live local store prices (scraped by the importer) are usually
   // cheaper and win the per-market lowest-price recompute. AU previously had NO baseline
   // (local stores only), which left ~half the catalogue with "no price" in AU — so AU
-  // now gets the TCGplayer baseline too (international-shipping option), like NZ.
-  const FX: Record<string, number> = { AU: 1.55, NZ: 1.68, US: 1.0, GB: 0.82 };
-  const CUR: Record<string, string> = { AU: "AUD", NZ: "NZD", US: "USD", GB: "GBP" };
-  // Baseline source identity per market. US/NZ use TCGplayer (it ships there as an
-  // international option). AU does NOT — TCGplayer doesn't sensibly ship singles to
-  // Australia — so AU shows a clearly-labelled MARKET GUIDE (an estimate, not a
-  // purchasable store): no outbound buy link, and real local AU stores are the
-  // actual buyable prices that rank above it.
+  // now gets the TCGplayer baseline too (international-shipping option).
+  const FX: Record<string, number> = { AU: 1.55, US: 1.0, GB: 0.82 };
+  const CUR: Record<string, string> = { AU: "AUD", US: "USD", GB: "GBP" };
+  // Baseline source identity per market. US uses TCGplayer (it ships there directly).
+  // AU does NOT — TCGplayer doesn't sensibly ship singles to Australia — so AU shows
+  // a clearly-labelled MARKET GUIDE (an estimate, not a purchasable store): no
+  // outbound buy link, and real local AU stores are the actual buyable prices that
+  // rank above it.
   const BASE: Record<string, { retailer: string; name: string; store: boolean }> = {
     US: { retailer: "tcgplayer_us", name: "TCGplayer", store: true },
-    NZ: { retailer: "tcgplayer_nz", name: "TCGplayer", store: true },
     AU: { retailer: "marketguide_au", name: "Market Price (guide)", store: false },
   };
   for (const c of dbCards) {
@@ -320,7 +316,7 @@ async function main() {
     const tcgUrl = real?.tcgUrl ?? `https://www.tcgplayer.com/search/pokemon/product?q=${q}`;
     const cmUrl = real?.cmUrl ?? `https://www.cardmarket.com/en/Pokemon/Products/Search?searchString=${q}`;
     if (real?.tcgUsd != null) {
-      for (const country of ["US", "NZ", "AU"] as const) {
+      for (const country of ["US", "AU"] as const) {
         const b = BASE[country];
         priceRows.push({ cardId: c.id, retailer: b.retailer, retailerName: b.name, title: b.name, url: b.store ? tcgUrl : "", priceCents: cents(real.tcgUsd * FX[country]), currency: CUR[country], inStock: true, country });
       }

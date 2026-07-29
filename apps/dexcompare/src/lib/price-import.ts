@@ -206,7 +206,7 @@ export async function fetchCollection(store: RetailerInfo, handle: string): Prom
     // country=XX is CRITICAL: Shopify Markets serves a different price per visitor
     // country, and our (US) server was getting US/default prices — e.g. $33 when the
     // real AU price is $45. Forcing the store's market gives the local shopper price
-    // (AUD for AU stores, NZD for NZ stores).
+    // (AUD for AU stores, USD/GBP for US/UK stores).
     const url = `${store.base}/collections/${handle}/products.json?limit=250&page=${page}&country=${cc}&_=${Date.now()}`;
     let data: { products: ShopifyProduct[] };
     try {
@@ -265,7 +265,7 @@ async function verifyCheapestListings(): Promise<number> {
     select: { id: true, cardId: true, priceCents: true, url: true, country: true },
     orderBy: { priceCents: "asc" },
   });
-  // Cheapest in-stock listing per card PER MARKET (AU and NZ are verified separately).
+  // Cheapest in-stock listing per card PER MARKET.
   const cheapest = new Map<string, { id: string; cardId: string; priceCents: number; url: string; country: string }>();
   for (const r of rows) {
     const k = `${r.cardId}|${r.country}`;
@@ -730,7 +730,7 @@ export async function importPrices(): Promise<ImportSummary> {
     const rows = new Map<string, any>();
     const matchedCards = new Set<string>();
     let unmatched = 0;
-    const currency = cc === "NZ" ? "NZD" : cc === "US" ? "USD" : cc === "GB" ? "GBP" : "AUD";
+    const currency = cc === "US" ? "USD" : cc === "GB" ? "GBP" : "AUD";
     for (const p of products) {
       const cardId = resolveCardId(p);
       if (!cardId) { unmatched++; continue; }
@@ -848,8 +848,8 @@ export async function importPrices(): Promise<ImportSummary> {
   // The Pokémon catalogue (20k+ cards) is far larger than the daily Browse quota,
   // so refreshEbayMarkets splits the budget across markets and rotates through the
   // stalest cards — see its doc comment. Runs at most ONCE a day, NEVER on a deploy
-  // (push). NZ is store-only (no eBay). Cards are demand-ordered so the most-wanted
-  // get the "hot" slice of every market's budget.
+  // (push). Cards are demand-ordered so the most-wanted get the "hot" slice of
+  // every market's budget.
   //  - ebayDue:     last eBay refresh was > 20h ago (so it runs ~once a day).
   //  - ebayAllowed: the workflow sets EBAY_REFRESH=false for push/deploy runs.
   const lastEbay = await prisma.retailerPrice.findFirst({
@@ -892,7 +892,6 @@ export async function importPrices(): Promise<ImportSummary> {
   // so the catalogue "from" price never reflects a sold-out listing. (Out-of-stock
   // rows still exist and are shown on the card page, just not used for the headline.)
   //   lowestPriceCents   = cheapest in-stock AU listing (AUD)
-  //   lowestPriceCentsNz = cheapest in-stock NZ listing (NZD)
   //   lowestPriceCentsUs = cheapest in-stock US listing (USD)
   //   lowestPriceCentsGb = cheapest in-stock UK listing (GBP)
   // The headline "from" price defaults to Lightly-Played-and-above (NM/LP) plus the
@@ -908,14 +907,12 @@ export async function importPrices(): Promise<ImportSummary> {
     NOT: { retailer: { startsWith: "marketguide" } },
     OR: [{ condition: { in: ["NM", "LP"] } }, { condition: null }],
   });
-  const [pricedAu, pricedNz, pricedUs, pricedGb] = await Promise.all([
+  const [pricedAu, pricedUs, pricedGb] = await Promise.all([
     prisma.retailerPrice.groupBy({ by: ["cardId"], where: headlineWhere("AU"), _min: { priceCents: true } }),
-    prisma.retailerPrice.groupBy({ by: ["cardId"], where: headlineWhere("NZ"), _min: { priceCents: true } }),
     prisma.retailerPrice.groupBy({ by: ["cardId"], where: headlineWhere("US"), _min: { priceCents: true } }),
     prisma.retailerPrice.groupBy({ by: ["cardId"], where: headlineWhere("GB"), _min: { priceCents: true } }),
   ]);
   const lowAu = new Map(pricedAu.map((r) => [r.cardId, r._min.priceCents ?? null]));
-  const lowNz = new Map(pricedNz.map((r) => [r.cardId, r._min.priceCents ?? null]));
   const lowUs = new Map(pricedUs.map((r) => [r.cardId, r._min.priceCents ?? null]));
   const lowGb = new Map(pricedGb.map((r) => [r.cardId, r._min.priceCents ?? null]));
   // Diff-based update: write each card STRAIGHT to its new lowest only when it
@@ -924,7 +921,7 @@ export async function importPrices(): Promise<ImportSummary> {
   // while the per-card repopulation loop caught up. Now each card transitions
   // old → new atomically and is never transiently null.
   const existing = await prisma.card.findMany({
-    select: { id: true, lowestPriceCents: true, lowestPriceCentsNz: true, lowestPriceCentsUs: true, lowestPriceCentsGb: true },
+    select: { id: true, lowestPriceCents: true, lowestPriceCentsUs: true, lowestPriceCentsGb: true },
   });
   // Only the rows whose lowest actually moved. On the FIRST import this can be the
   // whole catalogue (AU goes null → price for tens of thousands of cards), so run
@@ -934,12 +931,11 @@ export async function importPrices(): Promise<ImportSummary> {
     .map((c) => ({
       id: c.id,
       nAu: lowAu.get(c.id) ?? null,
-      nNz: lowNz.get(c.id) ?? null,
       nUs: lowUs.get(c.id) ?? null,
       nGb: lowGb.get(c.id) ?? null,
       cur: c,
     }))
-    .filter((r) => r.nAu !== r.cur.lowestPriceCents || r.nNz !== r.cur.lowestPriceCentsNz || r.nUs !== r.cur.lowestPriceCentsUs || r.nGb !== r.cur.lowestPriceCentsGb);
+    .filter((r) => r.nAu !== r.cur.lowestPriceCents || r.nUs !== r.cur.lowestPriceCentsUs || r.nGb !== r.cur.lowestPriceCentsGb);
   let changed = 0;
   const UPD = 8;
   for (let i = 0; i < toUpdate.length; i += UPD) {
@@ -947,7 +943,7 @@ export async function importPrices(): Promise<ImportSummary> {
       toUpdate.slice(i, i + UPD).map((r) =>
         prisma.card.update({
           where: { id: r.id },
-          data: { lowestPriceCents: r.nAu, lowestPriceCentsNz: r.nNz, lowestPriceCentsUs: r.nUs, lowestPriceCentsGb: r.nGb },
+          data: { lowestPriceCents: r.nAu, lowestPriceCentsUs: r.nUs, lowestPriceCentsGb: r.nGb },
         })
       )
     );
@@ -970,14 +966,13 @@ export async function importPrices(): Promise<ImportSummary> {
         id: true,
         marketPriceCents: true,
         lowestPriceCents: true,
-        lowestPriceCentsNz: true,
         lowestPriceCentsUs: true,
         lowestPriceCentsGb: true,
       },
     });
     const DEAL_TAKE = 100; // headroom above the largest current consumer (/deals, 60)
     let dealsWritten = 0;
-    for (const country of ["AU", "NZ", "US", "GB"] as const) {
+    for (const country of ["AU", "US", "GB"] as const) {
       const field = priceField(country);
       const ranked = guided
         .map((c) => {
@@ -1001,7 +996,7 @@ export async function importPrices(): Promise<ImportSummary> {
       }
       dealsWritten += ranked.length;
     }
-    console.log(`Deals: precomputed ${dealsWritten} rows across 4 markets (from ${guided.length} guided cards).`);
+    console.log(`Deals: precomputed ${dealsWritten} rows across 3 markets (from ${guided.length} guided cards).`);
   } catch (e) {
     console.warn("Deals precompute failed:", e);
   }

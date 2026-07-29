@@ -20,7 +20,7 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
       select: {
         id: true, slug: true, name: true, setName: true, setCode: true, collectorNumber: true,
         rarity: true,
-        lowestPriceCents: true, lowestPriceCentsNz: true, lowestPriceCentsUs: true, lowestPriceCentsGb: true,
+        lowestPriceCents: true, lowestPriceCentsUs: true, lowestPriceCentsGb: true,
       },
     })
     .catch(() => null);
@@ -35,7 +35,6 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
     "",
     "## Lowest price by market",
     line("Australia (AUD)", card.lowestPriceCents, "AUD"),
-    line("New Zealand (NZD)", card.lowestPriceCentsNz, "NZD"),
     line("United States (USD)", card.lowestPriceCentsUs, "USD"),
     line("United Kingdom (GBP)", card.lowestPriceCentsGb, "GBP"),
     "",

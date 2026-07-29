@@ -30,7 +30,7 @@ export function generateStaticParams() {
 export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
   const p = getFeaturedRestock(params.slug);
   if (!p) notFound(); // real 404 — metadata resolves before streaming
-  const title = `${p.shortName} restock tracker — in stock now? (AU/NZ/US/UK)`;
+  const title = `${p.shortName} restock tracker — in stock now? (AU/US/UK)`;
   const description = `Is ${p.name} back in stock? Live stock across the stores we track, a restock log, and a free email alert the moment a Booster Box or ETB restocks.`;
   return {
     title,
@@ -225,7 +225,7 @@ export default async function RestockTrackerPage({ params }: { params: { slug: s
             <p className="font-semibold text-white">No {info.adjective} store we track is listing this yet.</p>
             <p className="mt-1">Set an alert above, or grab one on eBay&apos;s secondary market now:</p>
             <OutboundLink href={ebayHref} retailer="ebay_search" country={country} kind="sealed" className="btn-primary mt-3 inline-flex">
-              Search {product.shortName} on eBay{country === "NZ" ? " AU" : ""} →
+              Search {product.shortName} on eBay →
             </OutboundLink>
           </div>
         ) : (
@@ -279,7 +279,7 @@ export default async function RestockTrackerPage({ params }: { params: { slug: s
         <div className="flex flex-wrap items-center justify-between gap-2 border-t border-ink-800 bg-ink-900/40 px-4 py-3 text-xs text-slate-400">
           <span>Can&apos;t wait? eBay almost always has it (at a premium).</span>
           <OutboundLink href={ebayHref} retailer="ebay_search" country={country} kind="sealed" className="shrink-0 font-semibold text-brand-400 hover:underline">
-            Search eBay{country === "NZ" ? " AU" : ""} →
+            Search eBay →
           </OutboundLink>
         </div>
       </section>

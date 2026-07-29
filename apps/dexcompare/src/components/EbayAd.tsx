@@ -18,18 +18,16 @@ const DIMS: Record<Variant, { w: number; h: number }> = {
   mobileRect: { w: 300, h: 250 },
 };
 
-// dexcompare market codes → eBay domain (NZ has no eBay; eBay AU ships there).
+// dexcompare market codes → eBay domain.
 const EBAY_DOMAIN: Record<string, string> = {
   AU: "www.ebay.com.au",
-  NZ: "www.ebay.com.au",
   US: "www.ebay.com",
   GB: "www.ebay.co.uk",
 };
 
 function tagline(country: string, contextual: boolean): string {
-  if (contextual) return country === "NZ" ? "New, used & graded — ships to NZ" : "New, used & graded listings";
+  if (contextual) return "New, used & graded listings";
   if (country === "US") return "Millions of Pokémon listings";
-  if (country === "NZ") return "Ships to New Zealand";
   if (country === "GB") return "Buy from UK & global sellers";
   return "Buy from AU & global sellers";
 }

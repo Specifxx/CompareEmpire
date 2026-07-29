@@ -40,7 +40,6 @@ const SECTIONS: { title: string; links: [string, string][] }[] = [
     links: [
       ["/guides", "Buying guides: grading, fakes, reprints, price history and more."],
       ["/blog", "News and market analysis for the Pokémon TCG."],
-      ["/games", "Free Pokémon mini-games (Dexdle and more)."],
       ["/about", "What DexCompare is, where prices come from, how often they update."],
     ],
   },

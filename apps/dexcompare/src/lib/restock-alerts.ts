@@ -41,7 +41,7 @@ async function inStockHeadlineItems(re: RegExp, market: Country): Promise<Restoc
 // (type, store, price, buy link) — and mark them notified. When nothing major is
 // in stock, clear notifiedAt so the same subscriber gets the NEXT restock too.
 export async function runRestockAlerts(): Promise<RestockRunSummary> {
-  const MARKETS: Country[] = ["AU", "NZ", "US", "GB"];
+  const MARKETS: Country[] = ["AU", "US", "GB"];
   const summary: RestockRunSummary = { products: 0, emailsSent: 0, rearmed: 0 };
 
   for (const product of FEATURED_RESTOCKS) {

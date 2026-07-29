@@ -15,7 +15,7 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
       where: whereParam(params.id),
       select: {
         id: true, slug: true, name: true, setName: true, setCode: true, collectorNumber: true, imageUrl: true,
-        lowestPriceCents: true, lowestPriceCentsNz: true, lowestPriceCentsUs: true, lowestPriceCentsGb: true,
+        lowestPriceCents: true, lowestPriceCentsUs: true, lowestPriceCentsGb: true,
       },
     })
     .catch(() => null);
@@ -35,7 +35,6 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
     },
     prices: {
       AU: { lowestCents: card.lowestPriceCents, currency: "AUD" },
-      NZ: { lowestCents: card.lowestPriceCentsNz, currency: "NZD" },
       US: { lowestCents: card.lowestPriceCentsUs, currency: "USD" },
       GB: { lowestCents: card.lowestPriceCentsGb, currency: "GBP" },
     },

@@ -13,7 +13,7 @@ const PROTOCOL_VERSION = "2024-11-05";
 const TOOLS = [
   {
     name: "get_card_prices",
-    description: "Get the lowest live in-stock price per market (AU/NZ/US/GB) for a Pokémon card, by slug or id.",
+    description: "Get the lowest live in-stock price per market (AU/US/GB) for a Pokémon card, by slug or id.",
     inputSchema: {
       type: "object",
       properties: { id: { type: "string", description: "Card slug or id" } },
@@ -33,7 +33,7 @@ async function callTool(name: string, args: Record<string, unknown> | undefined)
         where: { OR: [{ slug: id }, { id }] },
         select: {
           id: true, slug: true, name: true, setName: true, setCode: true, collectorNumber: true,
-          lowestPriceCents: true, lowestPriceCentsNz: true, lowestPriceCentsUs: true, lowestPriceCentsGb: true,
+          lowestPriceCents: true, lowestPriceCentsUs: true, lowestPriceCentsGb: true,
         },
       })
       .catch(() => null);
@@ -42,7 +42,6 @@ async function callTool(name: string, args: Record<string, unknown> | undefined)
       card: { name: card.name, set: card.setName, setCode: card.setCode, collectorNumber: card.collectorNumber, url: `${SITE_URL}${cardHref(card)}` },
       prices: {
         AU: { lowestCents: card.lowestPriceCents, currency: "AUD" },
-        NZ: { lowestCents: card.lowestPriceCentsNz, currency: "NZD" },
         US: { lowestCents: card.lowestPriceCentsUs, currency: "USD" },
         GB: { lowestCents: card.lowestPriceCentsGb, currency: "GBP" },
       },

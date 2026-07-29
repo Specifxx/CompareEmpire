@@ -194,7 +194,7 @@ function QuickViewModal({ card, onClose }: { card: CardTileData; onClose: () => 
                     country={country}
                     className="btn-primary mt-3 inline-flex text-xs"
                   >
-                    Search this card on eBay{country === "NZ" ? " AU" : ""} →
+                    Search this card on eBay →
                   </OutboundLink>
                 </div>
               ) : (
@@ -205,7 +205,7 @@ function QuickViewModal({ card, onClose }: { card: CardTileData; onClose: () => 
                     <li className="flex items-center gap-3 py-2">
                       <div className="min-w-0 flex-1">
                         <div className="truncate text-sm font-semibold text-white">
-                          eBay{country === "NZ" ? " AU" : ""}{" "}
+                          eBay{" "}
                           <span className="font-normal text-slate-500">(price not available)</span>
                         </div>
                         <div className="flex items-center gap-1.5 text-[11px] text-slate-500">
@@ -278,7 +278,7 @@ function QuickViewModal({ card, onClose }: { card: CardTileData; onClose: () => 
                     country={country}
                     className="font-semibold text-brand-400 hover:underline"
                   >
-                    Search eBay{country === "NZ" ? " AU" : ""} for more listings →
+                    Search eBay for more listings →
                   </OutboundLink>
                 </p>
               )}

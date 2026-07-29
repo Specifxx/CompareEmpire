@@ -8,11 +8,11 @@ export const revalidate = 86400;
 export const metadata: Metadata = {
   title: "Stores we track — every Pokémon retailer in the comparison",
   description:
-    "The full list of Pokémon TCG stores DexCompare compares prices across, by market (Australia, New Zealand, the US and the UK). Don't see your store? Request it.",
+    "The full list of Pokémon TCG stores DexCompare compares prices across, by market (Australia, the US and the UK). Don't see your store? Request it.",
   alternates: { canonical: "/stores" },
 };
 
-const MARKETS: Country[] = ["AU", "NZ", "US", "GB"];
+const MARKETS: Country[] = ["AU", "US", "GB"];
 
 const FAQS = [
   {
@@ -25,7 +25,7 @@ const FAQS = [
   },
   {
     q: "Which countries does DexCompare cover?",
-    a: "DexCompare currently covers Australia, New Zealand, the United States, and the United Kingdom. Each market shows prices in its local currency (AUD, NZD, USD, GBP) from retailers that actually ship to buyers in that region. Switch markets using the country selector in the navigation.",
+    a: "DexCompare currently covers Australia, the United States, and the United Kingdom. Each market shows prices in its local currency (AUD, USD, GBP) from retailers that actually ship to buyers in that region. Switch markets using the country selector in the navigation.",
   },
   {
     q: "Can I trust the prices shown on DexCompare?",

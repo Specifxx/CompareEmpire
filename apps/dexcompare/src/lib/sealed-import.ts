@@ -310,7 +310,7 @@ export interface SealedGroup {
   listings: SealedListingRow[];
 }
 
-const SEALED_MARKETS = new Set(["AU", "NZ", "US", "GB"]);
+const SEALED_MARKETS = new Set(["AU", "US", "GB"]);
 
 // URL-safe identity for a sealed group (groupKey can contain "|", spaces, …).
 export function sealedSlug(groupKey: string): string {

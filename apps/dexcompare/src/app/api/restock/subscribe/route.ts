@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 const schema = z.object({
   email: z.string().trim().toLowerCase().email().max(200),
   productSlug: z.string().min(1).max(80),
-  market: z.enum(["AU", "NZ", "US", "GB"]).default("AU"),
+  market: z.enum(["AU", "US", "GB"]).default("AU"),
 });
 
 // Subscribe an email to a featured product's restock alert. No account needed —

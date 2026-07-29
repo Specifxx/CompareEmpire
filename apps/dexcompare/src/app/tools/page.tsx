@@ -7,7 +7,7 @@ export const revalidate = 86400;
 export const metadata: Metadata = {
   title: { absolute: "Free Pokémon TCG Tools & Calculators | DexCompare" },
   description:
-    "Every free DexCompare tool in one place: selling-fee (net proceeds) calculator, should-I-grade EV calculator, cross-market arbitrage, card value checker, trade calculator, collection tracker, deck builder and proxy printer.",
+    "Every free DexCompare tool in one place: selling-fee (net proceeds) calculator, should-I-grade EV calculator, cross-market arbitrage, card value checker, trade calculator, collection tracker and proxy printer.",
   alternates: { canonical: "/tools" },
   keywords: [
     "pokemon card tools",
@@ -102,20 +102,8 @@ const GROUPS: ToolGroup[] = [
     ],
   },
   {
-    label: "Decks & printing",
+    label: "Printing",
     tools: [
-      {
-        href: "/deck",
-        icon: "🛠️",
-        title: "Deck builder",
-        desc: "Build a deck and price every card across stores as you go.",
-      },
-      {
-        href: "/decks",
-        icon: "🏆",
-        title: "Meta decks",
-        desc: "Browse the current competitive decks with a full cost-to-build per deck.",
-      },
       {
         href: "/proxy",
         icon: "🖨️",

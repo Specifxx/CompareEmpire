@@ -32,7 +32,7 @@ export const MARKETPLACE_FEES: MarketplaceFee[] = [
     feePct: 0.132, // ~13.25% final value fee (category-dependent)
     fixedCents: 30, // ~$0.30 per order
     note: "≈13.25% final value fee + a fixed per-order fee, charged on item + postage.",
-    markets: ["AU", "NZ", "US", "GB"],
+    markets: ["AU", "US", "GB"],
   },
   {
     key: "tcgplayer",
@@ -56,7 +56,7 @@ export const MARKETPLACE_FEES: MarketplaceFee[] = [
     feePct: 0,
     fixedCents: 0,
     note: "Local pickup, a buylist or cash — no marketplace fee, but usually a lower price.",
-    markets: ["AU", "NZ", "US", "GB"],
+    markets: ["AU", "US", "GB"],
   },
 ];
 

@@ -1,9 +1,11 @@
-// Country / market selection. Australia is the global default; New Zealand, the
-// United States and the United Kingdom are also supported. This module is PURE
-// (no next/headers) so it's safe to import from both server and client
-// components. The server-side cookie + geo reader lives in get-country.ts.
+// Country / market selection. Australia is the global default; the United
+// States and the United Kingdom are also supported (New Zealand was dropped —
+// its store coverage was thin and every market multiplies per-card storage +
+// egress). This module is PURE (no next/headers) so it's safe to import from
+// both server and client components. The server-side cookie + geo reader
+// lives in get-country.ts.
 
-export type Country = "AU" | "NZ" | "US" | "GB";
+export type Country = "AU" | "US" | "GB";
 
 export interface CountryInfo {
   code: Country;
@@ -17,13 +19,12 @@ export interface CountryInfo {
 
 export const COUNTRIES: Record<Country, CountryInfo> = {
   AU: { code: "AU", label: "Australia", adjective: "Australian", place: "Australia", flag: "🇦🇺", currency: "AUD", locale: "en-AU" },
-  NZ: { code: "NZ", label: "New Zealand", adjective: "New Zealand", place: "New Zealand", flag: "🇳🇿", currency: "NZD", locale: "en-NZ" },
   US: { code: "US", label: "United States", adjective: "US", place: "the United States", flag: "🇺🇸", currency: "USD", locale: "en-US" },
   GB: { code: "GB", label: "United Kingdom", adjective: "UK", place: "the United Kingdom", flag: "🇬🇧", currency: "GBP", locale: "en-GB" },
 };
 
 // Order shown in the switcher.
-export const COUNTRY_LIST: CountryInfo[] = [COUNTRIES.AU, COUNTRIES.NZ, COUNTRIES.US, COUNTRIES.GB];
+export const COUNTRY_LIST: CountryInfo[] = [COUNTRIES.AU, COUNTRIES.US, COUNTRIES.GB];
 export const DEFAULT_COUNTRY: Country = "AU";
 export const COUNTRY_COOKIE = "country";
 
@@ -31,7 +32,7 @@ export const COUNTRY_COOKIE = "country";
 // quickly if a market's data needs work, without code surgery.)
 export const INTL_ENABLED = process.env.NEXT_PUBLIC_INTL_DISABLED !== "true";
 
-const VALID = new Set<Country>(["AU", "NZ", "US", "GB"]);
+const VALID = new Set<Country>(["AU", "US", "GB"]);
 
 // Coerce any cookie/geo/query value to a supported Country (defaults to AU). Accepts
 // ISO country codes from the geo header too (e.g. "US", "GB"); anything else → AU.
@@ -41,11 +42,9 @@ export function normalizeCountry(v: string | undefined | null): Country {
 }
 
 // The Card column holding the lowest price for this market.
-export type PriceField = "lowestPriceCents" | "lowestPriceCentsNz" | "lowestPriceCentsUs" | "lowestPriceCentsGb";
+export type PriceField = "lowestPriceCents" | "lowestPriceCentsUs" | "lowestPriceCentsGb";
 export function priceField(country: Country): PriceField {
-  return country === "NZ"
-    ? "lowestPriceCentsNz"
-    : country === "US"
+  return country === "US"
     ? "lowestPriceCentsUs"
     : country === "GB"
     ? "lowestPriceCentsGb"
@@ -56,13 +55,11 @@ export function priceField(country: Country): PriceField {
 export function pickPrice(
   card: {
     lowestPriceCents: number | null;
-    lowestPriceCentsNz?: number | null;
     lowestPriceCentsUs?: number | null;
     lowestPriceCentsGb?: number | null;
   },
   country: Country
 ): number | null {
-  if (country === "NZ") return card.lowestPriceCentsNz ?? null;
   if (country === "US") return card.lowestPriceCentsUs ?? null;
   if (country === "GB") return card.lowestPriceCentsGb ?? null;
   return card.lowestPriceCents;
@@ -76,7 +73,7 @@ export function currencyOf(country: Country): string {
 // (Card.marketPriceCents is stored in USD cents). Mirrors the rates the seeder
 // uses for its baselines. Never used for real store prices — those are always
 // quoted in their own market's currency by the source.
-export const USD_FX: Record<Country, number> = { AU: 1.55, NZ: 1.68, US: 1.0, GB: 0.82 };
+export const USD_FX: Record<Country, number> = { AU: 1.55, US: 1.0, GB: 0.82 };
 
 // The market-price guide (USD cents) converted for display in a market. Returns
 // null when there's no guide. This is a labelled reference, NOT a buyable price —
@@ -93,7 +90,6 @@ export function marketGuideCents(usdCents: number | null | undefined, country: C
 export function priceOrGuide(
   card: {
     lowestPriceCents: number | null;
-    lowestPriceCentsNz?: number | null;
     lowestPriceCentsUs?: number | null;
     lowestPriceCentsGb?: number | null;
     marketPriceCents?: number | null;

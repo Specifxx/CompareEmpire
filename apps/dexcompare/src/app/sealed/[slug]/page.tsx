@@ -97,8 +97,8 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   // price" — instead of burying the keyword after a generic verb.
   const title = isPreorder ? `${displayName} Preorder Price — Compare` : `${displayName} Price — Compare`;
   const description = isPreorder
-    ? `${displayName} preorder — compare live prices across AU, NZ, US & UK stores before it sells out.`
-    : `${displayName} price comparison across AU, NZ, US & UK stores — find the cheapest place to buy.`;
+    ? `${displayName} preorder — compare live prices across AU, US & UK stores before it sells out.`
+    : `${displayName} price comparison across AU, US & UK stores — find the cheapest place to buy.`;
   return {
     title,
     description,
@@ -263,7 +263,7 @@ export default async function SealedComparePage({ params }: { params: { slug: st
             <p className="font-semibold text-white">No {priceInfo.adjective} store is listing this right now.</p>
             <p className="mt-1">Try eBay&apos;s secondary market:</p>
             <OutboundLink href={ebayHref} retailer="ebay_search" country={country} kind="sealed" className="btn-primary mt-3 inline-flex">
-              Search on eBay{country === "NZ" ? " AU" : ""} →
+              Search on eBay →
             </OutboundLink>
           </div>
         ) : (
@@ -274,7 +274,7 @@ export default async function SealedComparePage({ params }: { params: { slug: st
               <li className="flex flex-wrap items-center gap-x-3 gap-y-2 px-3 py-3 sm:flex-nowrap sm:px-4">
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-sm font-semibold text-white">
-                    eBay{country === "NZ" ? " AU" : ""}{" "}
+                    eBay{" "}
                     <span className="font-normal text-slate-500">(price not available)</span>
                   </div>
                   <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-slate-500">
@@ -324,7 +324,7 @@ export default async function SealedComparePage({ params }: { params: { slug: st
         {hasEbay && (
           <div className="flex items-center justify-end border-t border-ink-800 px-4 py-2.5 text-xs">
             <OutboundLink href={ebayHref} retailer="ebay_search" country={country} kind="sealed" className="font-semibold text-brand-400 hover:underline">
-              Search eBay{country === "NZ" ? " AU" : ""} for more listings →
+              Search eBay for more listings →
             </OutboundLink>
           </div>
         )}

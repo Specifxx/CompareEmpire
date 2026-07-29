@@ -154,7 +154,6 @@ export function cardTileSelect(country: Country = "AU") {
     imageUrl: true,
     imageThumbUrl: true,
     lowestPriceCents: true,
-    lowestPriceCentsNz: true,
     lowestPriceCentsGb: true,
     lowestPriceCentsUs: true,
     // Market-price guide (USD cents) + its source, shown as a labelled fallback on

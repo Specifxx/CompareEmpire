@@ -156,7 +156,7 @@ export function ProxyBuilder({ initialList }: { initialList?: string }) {
         {seeding ? (
           <p className="mt-4 text-sm text-slate-500">Loading deck…</p>
         ) : cards.length === 0 ? (
-          <p className="mt-4 text-sm text-slate-500">No cards yet — search above to add some, or open the <a href="/deck" className="text-brand-400 hover:underline">Deck Builder</a> and hit “Proxy sheet”.</p>
+          <p className="mt-4 text-sm text-slate-500">No cards yet — search above to add some.</p>
         ) : (
           <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
             {cards.map((c) => (

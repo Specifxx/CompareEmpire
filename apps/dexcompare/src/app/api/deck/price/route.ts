@@ -19,7 +19,6 @@ const cardSelect = {
   imageThumbUrl: true,
   imageUrl: true,
   lowestPriceCents: true,
-  lowestPriceCentsNz: true,
   lowestPriceCentsUs: true,
   lowestPriceCentsGb: true,
 } as const;
@@ -34,7 +33,6 @@ type DeckCard = {
   imageThumbUrl: string | null;
   imageUrl: string | null;
   lowestPriceCents: number | null;
-  lowestPriceCentsNz: number | null;
   lowestPriceCentsUs: number | null;
   lowestPriceCentsGb: number | null;
 };

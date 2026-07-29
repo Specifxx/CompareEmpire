@@ -33,7 +33,6 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
       orientation: true,
       artSeed: true,
       lowestPriceCents: true,
-      lowestPriceCentsNz: true,
       lowestPriceCentsGb: true,
       lowestPriceCentsUs: true,
       retailerPrices: {

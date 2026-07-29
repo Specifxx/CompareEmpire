@@ -3,15 +3,15 @@ import { PrismaClient } from "@prisma/client";
 // ─── DATA-EGRESS RULES (read before adding queries) ────────────────────────────
 // Neon's free tier has a 5 GB/month NETWORK TRANSFER allowance, and we have
 // killed two databases by violating it. Both incidents had the same shape: a
-// per-request query pulling an unbounded dataset (the games pool, then the
-// whole sealed table). The rules:
+// per-request query pulling an unbounded dataset (the mini-games' card pool —
+// since removed — then the whole sealed table). The rules:
 //
 //   1. Per-REQUEST queries must be per-entity scoped (one card, one page of
 //      rows) — never a whole table.
 //   2. Anything that genuinely needs a big dataset must go through a
-//      globalThis TTL memo (see lib/dexdle.ts getGamePool, lib/sealed-import.ts
-//      getSealedGroups). NOT unstable_cache: it silently no-ops above 2 MB and
-//      every request then hits the database.
+//      globalThis TTL memo (see lib/sealed-import.ts getSealedGroups). NOT
+//      unstable_cache: it silently no-ops above 2 MB and every request then
+//      hits the database.
 //   3. Always `select` only the fields you use, and `take` a cap when the row
 //      count is unbounded.
 //   4. Whole-table reads belong in workflows/scripts (daily refresh, seeds),

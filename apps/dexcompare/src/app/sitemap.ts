@@ -46,15 +46,7 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
       { url: `${SITE_URL}/tools/arbitrage`, changeFrequency: "daily", priority: 0.8 },
       { url: `${SITE_URL}/tools/net-proceeds`, changeFrequency: "monthly", priority: 0.6 },
       { url: `${SITE_URL}/tools/grade-ev`, changeFrequency: "monthly", priority: 0.6 },
-      { url: `${SITE_URL}/games`, changeFrequency: "weekly", priority: 0.7 },
-      { url: `${SITE_URL}/dexdle`, changeFrequency: "daily", priority: 0.8 },
-      { url: `${SITE_URL}/games/duel`, changeFrequency: "weekly", priority: 0.6 },
-      { url: `${SITE_URL}/games/rip`, changeFrequency: "weekly", priority: 0.6 },
-      { url: `${SITE_URL}/games/catcher`, changeFrequency: "weekly", priority: 0.6 },
-      { url: `${SITE_URL}/games/breaker`, changeFrequency: "weekly", priority: 0.6 },
       { url: `${SITE_URL}/restock`, changeFrequency: "daily", priority: 0.85 },
-      { url: `${SITE_URL}/deck`, changeFrequency: "monthly", priority: 0.6 },
-      { url: `${SITE_URL}/decks`, changeFrequency: "weekly", priority: 0.65 },
       { url: `${SITE_URL}/forum`, changeFrequency: "daily", priority: 0.6 },
       ...FEATURED_RESTOCKS.map((p) => ({
         url: `${SITE_URL}/restock/${p.slug}`,
@@ -117,7 +109,6 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
         where: {
           OR: [
             { lowestPriceCents: { not: null } },
-            { lowestPriceCentsNz: { not: null } },
             { lowestPriceCentsUs: { not: null } },
             { lowestPriceCentsGb: { not: null } },
           ],

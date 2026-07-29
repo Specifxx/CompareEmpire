@@ -37,7 +37,6 @@ export async function runPriceAlerts(): Promise<AlertRunSummary> {
           setCode: true,
           collectorNumber: true,
           lowestPriceCents: true,
-          lowestPriceCentsNz: true,
           lowestPriceCentsUs: true,
           lowestPriceCentsGb: true,
         },
