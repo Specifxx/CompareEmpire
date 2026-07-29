@@ -45,10 +45,36 @@ export function generateMetadata({ searchParams }: { searchParams: CardQuery }):
   return {
     title: "Browse the Pokémon card database",
     description:
-      "Search and filter every Pokémon TCG card and compare live prices across stores in Australia, New Zealand, the US and the UK to find the cheapest place to buy.",
+      "Search and filter every Pokémon TCG card and compare live prices across stores in Australia, the US and the UK to find the cheapest place to buy.",
     alternates: { canonical: "/browse" },
     ...(isFiltered || page > 1 ? { robots: { index: false, follow: true } } : {}),
   };
+}
+
+// This is the site's only true `force-dynamic` catalogue page — every request hits
+// Postgres fresh, with no ISR cache to fall back on if Neon hiccups (a cold start,
+// a brief connection-pool blip). Every other page on the site now degrades to an
+// empty/fallback state on a DB error instead of crashing (see the /, /deals,
+// /trending, /most-valuable and /restock fixes) — /browse was the one page still
+// missing that, so a transient blip took the whole page down to the root error
+// boundary instead of just showing a friendly retry. One quick retry first, since
+// Neon cold-start failures typically succeed a few hundred ms later.
+async function loadCards(where: ReturnType<typeof buildCardWhere>, orderBy: ReturnType<typeof buildCardOrderBy>, select: ReturnType<typeof cardTileSelect>, skip: number, take: number) {
+  const attempt = () =>
+    Promise.all([
+      prisma.card.count({ where }),
+      prisma.card.findMany({ where, orderBy, select, skip, take }),
+    ]);
+  try {
+    return { ok: true as const, data: await attempt() };
+  } catch {
+    try {
+      return { ok: true as const, data: await attempt() };
+    } catch (err) {
+      console.error("browse: card query failed twice", err);
+      return { ok: false as const, data: null };
+    }
+  }
 }
 
 export default async function BrowsePage({ searchParams }: { searchParams: CardQuery }) {
@@ -58,16 +84,9 @@ export default async function BrowsePage({ searchParams }: { searchParams: CardQ
   const size = parsePageSize(searchParams.size);
   const page = parsePageNum(searchParams.page);
 
-  const [total, cards] = await Promise.all([
-    prisma.card.count({ where }),
-    prisma.card.findMany({
-      where,
-      orderBy,
-      select: cardTileSelect(country),
-      skip: (page - 1) * size,
-      take: size,
-    }),
-  ]);
+  const result = await loadCards(where, orderBy, cardTileSelect(country), (page - 1) * size, size);
+  const dbError = !result.ok;
+  const [total, cards] = result.ok ? result.data : [0, []];
   const totalPages = Math.max(1, Math.ceil(total / size));
 
   // Structured data only on the canonical, unfiltered first page (filtered/search
@@ -135,12 +154,18 @@ export default async function BrowsePage({ searchParams }: { searchParams: CardQ
         <AdSlot format="horizontal" height={90} className="mb-4" />
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <p className="text-sm text-slate-400">
-            <span className="font-semibold text-white">{total.toLocaleString()}</span>{" "}
-            {total === 1 ? "card" : "cards"}
-            {searchParams.q && (
-              <> for <span className="text-brand-400">"{searchParams.q}"</span></>
+            {dbError ? (
+              "Card count unavailable right now"
+            ) : (
+              <>
+                <span className="font-semibold text-white">{total.toLocaleString()}</span>{" "}
+                {total === 1 ? "card" : "cards"}
+                {searchParams.q && (
+                  <> for <span className="text-brand-400">"{searchParams.q}"</span></>
+                )}
+                {total > 0 && <span className="text-slate-600"> · page {page} of {totalPages}</span>}
+              </>
             )}
-            {total > 0 && <span className="text-slate-600"> · page {page} of {totalPages}</span>}
           </p>
           <div className="flex items-center gap-3">
             <PageSizeSelect size={size} />
@@ -152,7 +177,15 @@ export default async function BrowsePage({ searchParams }: { searchParams: CardQ
 
         <BrowseHint />
 
-        {cards.length === 0 ? (
+        {dbError ? (
+          <div className="card-surface grid place-items-center p-16 text-center">
+            <p className="text-lg font-semibold text-white">Having trouble loading the database</p>
+            <p className="mt-1 text-sm text-slate-400">
+              This is usually temporary — refresh in a moment and it should be back.
+            </p>
+            <Link href="/browse" className="btn-primary mt-4">Try again</Link>
+          </div>
+        ) : cards.length === 0 ? (
           <div className="card-surface grid place-items-center p-16 text-center">
             <p className="text-lg font-semibold text-white">
               {total > 0 ? "Nothing on this page" : "No cards found"}
