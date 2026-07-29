@@ -1,0 +1,47 @@
+name: Diagnose /browse on the live site (manual, read-only)
+
+# One-off diagnostic: the user reported /browse crashing to the "Something went
+# wrong" error boundary in production, after a fix was pushed (commit a4918fd)
+# that should have made it degrade gracefully on a DB error instead of crashing.
+# The dev sandbox can't reach dexcompare.app at all (network policy), so this
+# checks the actual live response from GitHub's runners: status code, whether
+# the crash boundary text is present, the x-vercel-id header (to see which
+# deployment served the request), and a few filter-combo variants.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check /browse and variants
+        run: |
+          set +e
+          check() {
+            local path="$1"
+            echo "=== $path ==="
+            local out
+            out=$(curl -s -D - -o /tmp/body.html --max-time 20 "https://dexcompare.app${path}")
+            local code
+            code=$(echo "$out" | head -1)
+            echo "status line: $code"
+            echo "$out" | grep -i "^x-vercel-id\|^x-vercel-cache\|^age:\|^date:"
+            if grep -q "Something went wrong" /tmp/body.html; then
+              echo "RESULT: CRASH BOUNDARY (Something went wrong)"
+            elif grep -q "Having trouble loading the database\|Card count unavailable" /tmp/body.html; then
+              echo "RESULT: GRACEFUL DB-ERROR FALLBACK (the new fix's message)"
+            elif grep -qo 'href="/card/[a-z0-9-]*"' /tmp/body.html; then
+              echo "RESULT: OK — real card grid rendered ($(grep -o 'href="/card/' /tmp/body.html | wc -l) card links)"
+            else
+              echo "RESULT: UNRECOGNIZED — dumping first 2000 chars of body"
+              head -c 2000 /tmp/body.html
+            fi
+            echo
+          }
+          check "/browse"
+          check "/browse?rarity=Rare"
+          check "/browse?min=1&max=50&sort=price_asc"
+          echo "=== response headers only, HEAD-style info for / (compare deploy id) ==="
+          curl -s -D - -o /dev/null --max-time 20 "https://dexcompare.app/" | grep -i "^x-vercel-id\|^x-vercel-cache\|^date:"
