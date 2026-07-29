@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getArbitrage, getEbayCheapest, getArbSources, TCGPLAYER_FEE, type ArbSort, type DealSort } from "@/lib/arbitrage";
+import { getArbitrage, getArbSources, TCGPLAYER_FEE, type ArbSort } from "@/lib/arbitrage";
 import { getCountry } from "@/lib/get-country";
 import { COUNTRIES } from "@/lib/country";
 import { formatMoney } from "@/lib/format";
@@ -16,7 +16,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: { absolute: "Pokémon Card Arbitrage — Flip to TCGplayer | DexCompare" },
   description:
-    "Find Pokémon cards selling below their TCGplayer market price: buy cheap from a store, resell at market for a profit, ranked by profit and margin with fees included. Plus the cards eBay is cheapest to buy. Updated daily. Free.",
+    "Find Pokémon cards selling below their TCGplayer market price: buy cheap from a store, resell at market for a profit, ranked by profit and margin with fees included. Updated daily. Free.",
   alternates: { canonical: "/tools/arbitrage" },
   openGraph: { title: "Pokémon Card Arbitrage — Flip to TCGplayer", url: `${SITE_URL}/tools/arbitrage` },
 };
@@ -26,25 +26,25 @@ const FLIP_SORTS: { key: ArbSort; label: string }[] = [
   { key: "profit", label: "Most profit" },
   { key: "margin", label: "Best margin" },
 ];
-const DEAL_SORTS: { key: DealSort; label: string }[] = [
-  { key: "saving", label: "Biggest saving" },
-  { key: "pct", label: "Best % off" },
-];
 
+// The "🛒 Cheapest on eBay" view was retired: it read real live eBay Browse
+// API data, and this app's eBay quota is committed to TCGplayer-flip pricing
+// only now (TCGplayer's market price is refreshed for every matched card, so
+// it needs no per-card API call). A card with no eBay match in the price
+// table already offers a plain, no-quota EPN search link — that's the eBay
+// surface this tool leans on now, not a live "cheapest on eBay" scan.
 export default async function ArbitragePage({
   searchParams,
 }: {
-  searchParams: { sort?: string; page?: string; buy?: string; view?: string };
+  searchParams: { sort?: string; page?: string; buy?: string };
 }) {
   const country = getCountry();
   const info = COUNTRIES[country];
   const sources = getArbSources(country);
-  // BUY side = the tracked local retail stores only. TCGplayer and eBay are sell
-  // venues here, so neither belongs in the default buy set.
+  // BUY side = the tracked local retail stores only. TCGplayer is the sell
+  // venue here, so it doesn't belong in the default buy set.
   const storeKeys = sources.filter((s) => !s.isEbay && !s.isTcgplayer).map((s) => s.key);
-  const ebay = sources.find((s) => s.isEbay);
   const tcg = sources.find((s) => s.isTcgplayer);
-  const view: "flip" | "deals" = searchParams.view === "deals" ? "deals" : "flip";
   const page = Math.max(1, parseInt(searchParams.page ?? "1", 10) || 1);
 
   return (
@@ -69,41 +69,17 @@ export default async function ArbitragePage({
           <span>/</span>
           <span className="text-slate-300">Arbitrage</span>
         </nav>
-        <h1 className="font-display text-2xl font-extrabold text-white sm:text-3xl">💱 Arbitrage &amp; eBay Deals</h1>
+        <h1 className="font-display text-2xl font-extrabold text-white sm:text-3xl">💱 Arbitrage — Flip to TCGplayer</h1>
       </div>
 
-      {/* Every buy/sell figure in the tables below is an affiliate link. */}
+      {/* Every buy figure in the table below is an affiliate link. The sell side
+          (TCGplayer's market price) is a reference valuation, not a live quote —
+          see the caveat paragraph below; it's never sourced from eBay. */}
       <AffiliateDisclosure variant="block" className="mb-4" />
 
-      {/* Tabs */}
-      <div className="mb-4 flex gap-1 rounded-xl border border-ink-700 bg-ink-900 p-1" role="tablist" aria-label="Views">
-        <Link
-          href="/tools/arbitrage"
-          aria-current={view === "flip" ? "page" : undefined}
-          className={`flex-1 rounded-lg px-3 py-2 text-center text-sm font-bold ${view === "flip" ? "bg-brand-500/20 text-brand-200" : "text-slate-400 hover:text-white"}`}
-        >
-          💱 Flip to TCGplayer
-        </Link>
-        <Link
-          href="/tools/arbitrage?view=deals"
-          aria-current={view === "deals" ? "page" : undefined}
-          className={`flex-1 rounded-lg px-3 py-2 text-center text-sm font-bold ${view === "deals" ? "bg-sky-500/20 text-sky-200" : "text-slate-400 hover:text-white"}`}
-        >
-          🛒 Cheapest on eBay
-        </Link>
-      </div>
-
-      {view === "deals" ? (
-        !ebay ? (
-          <div className="card-surface grid place-items-center p-12 text-center text-sm text-slate-400">
-            This view isn&apos;t available in {info.place} yet — it&apos;s eBay-based, and eBay doesn&apos;t cover this market.
-          </div>
-        ) : (
-          await DealsView({ country, info, sort: searchParams.sort === "pct" ? "pct" : "saving", page })
-        )
-      ) : !tcg ? (
+      {!tcg ? (
         <div className="card-surface grid place-items-center p-12 text-center text-sm text-slate-400">
-          The flip view isn&apos;t available in {info.place} yet.
+          This tool isn&apos;t available in {info.place} yet.
         </div>
       ) : (
         await FlipView({ country, info, sort: searchParams.sort === "margin" ? "margin" : "profit", page, buy: searchParams.buy, sources, sellKey: tcg.key, storeKeys })
@@ -187,10 +163,10 @@ async function FlipView({
                       <div className="truncate text-[10px] text-slate-500" title={it.buyStoreName}>{it.buyStoreName}</div>
                     </td>
                     <td className="px-2 py-2 text-right">
-                      <OutboundLink href={it.sellUrl} retailer="ebay_arb" country={country} className="num font-semibold text-slate-200 hover:text-brand-400">
+                      <OutboundLink href={it.sellUrl} retailer={sellKey} country={country} className="num font-semibold text-slate-200 hover:text-brand-400">
                         {formatMoney(it.sellCents, info.currency)}
                       </OutboundLink>
-                      <div className="text-[10px] text-sky-400">{it.sellName}</div>
+                      <div className="text-[10px] text-slate-400">{it.sellName}</div>
                     </td>
                     <td className="num px-2 py-2 text-right font-bold text-up">+{formatMoney(it.netCents, info.currency)}</td>
                     <td className="num px-4 py-2 text-right font-semibold text-up">{it.marginPct}%</td>
@@ -200,81 +176,6 @@ async function FlipView({
             </table>
           </div>
           <Pager total={data.total} page={data.page} pageCount={data.pageCount} hrefFor={href} unit="opportunities" />
-        </>
-      )}
-    </>
-  );
-}
-
-// ── Deals view (cards eBay is cheapest to buy) ───────────────────────────────────
-async function DealsView({
-  country,
-  info,
-  sort,
-  page,
-}: {
-  country: ReturnType<typeof getCountry>;
-  info: (typeof COUNTRIES)[keyof typeof COUNTRIES];
-  sort: DealSort;
-  page: number;
-}) {
-  const data = await getEbayCheapest(country, sort, page, PAGE_SIZE);
-  const href = (p: number) => `/tools/arbitrage?view=deals&sort=${sort}&page=${p}`;
-  const sortHref = (s: DealSort) => `/tools/arbitrage?view=deals&sort=${s}&page=1`;
-
-  return (
-    <>
-      <p className="mb-4 max-w-2xl text-sm leading-relaxed text-slate-400">
-        Cards where <strong className="text-slate-200">eBay is the cheapest place to buy</strong> — its price beats every{" "}
-        {info.adjective} store we track. Grab the deal on eBay, or open the card to compare every option.
-      </p>
-
-      <div className="card-surface mb-4 flex flex-wrap items-center justify-end gap-4 p-4">
-        <SortTabs sorts={DEAL_SORTS} active={sort} hrefFor={sortHref} />
-      </div>
-
-      {data.items.length === 0 ? (
-        <Empty>No cards are cheaper on eBay than in stores right now in {info.place}.</Empty>
-      ) : (
-        <>
-          <div className="card-surface overflow-x-auto">
-            <table className="w-full min-w-[640px] text-sm">
-              <thead>
-                <tr className="border-b border-ink-700 text-left text-[10px] uppercase tracking-wide text-slate-500">
-                  <th className="px-4 py-2.5 font-semibold">Card</th>
-                  <th className="px-2 py-2.5 text-right font-semibold">eBay</th>
-                  <th className="px-2 py-2.5 text-right font-semibold">Cheapest store</th>
-                  <th className="px-4 py-2.5 text-right font-semibold">You save</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-ink-800">
-                {data.items.map((it) => (
-                  <tr key={it.card.id} className="hover:bg-ink-900/50">
-                    <CardCell card={it.card} />
-                    <td className="px-2 py-2 text-right">
-                      <OutboundLink href={it.ebayUrl} retailer="ebay_deal" country={country} className="num font-semibold text-sky-300 hover:text-sky-200">
-                        {formatMoney(it.ebayCents, info.currency)}
-                      </OutboundLink>
-                      <div className="text-[10px] text-sky-400">on eBay →</div>
-                    </td>
-                    <td className="px-2 py-2 text-right">
-                      <div className="num text-slate-300">{formatMoney(it.storeCents, info.currency)}</div>
-                      <div className="truncate text-[10px] text-slate-500" title={it.storeName}>{it.storeName}</div>
-                    </td>
-                    <td className="px-4 py-2 text-right">
-                      <span className="num font-bold text-up">{formatMoney(it.savingCents, info.currency)}</span>
-                      <span className="num ml-1 text-[11px] font-semibold text-up">({it.savingPct}%)</span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <Pager total={data.total} page={data.page} pageCount={data.pageCount} hrefFor={href} unit="deals" />
-          <p className="mt-3 text-[11px] leading-relaxed text-slate-600">
-            eBay / store are the cheapest current in-stock prices. eBay postage isn&apos;t included; thin or one-off listings
-            can mislead — open the card to see every option before buying.
-          </p>
         </>
       )}
     </>

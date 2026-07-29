@@ -29,11 +29,9 @@ export const TCGPLAYER_FEE = 0.125;
 export const TCGPLAYER_KEY = "tcgplayer";
 const MIN_BUY_CENTS = 300;
 const MIN_NET_CENTS = 100;
-// Outlier guards. A flip margin this large means the buy and sell aren't the same
+// Outlier guard. A flip margin this large means the buy and sell aren't the same
 // product (a mismatched/mispriced listing) — bad data, not a real opportunity.
-// Likewise a ≥80% "cheaper on eBay" saving is almost always a wrong listing.
 const MAX_MARGIN_PCT = 300;
-const MAX_DEAL_PCT = 80;
 
 export type ArbSort = "profit" | "margin";
 
@@ -119,104 +117,6 @@ async function tcgplayerMinByCard(country: Country, keys: string[]) {
     if (local != null) out.set(r.cardId, local);
   }
   return out;
-}
-
-// ── Cheapest-on-eBay deals ───────────────────────────────────────────────────────
-// Cards where eBay is the cheapest place to BUY — its price beats every tracked
-// store. A buyer's view (the inverse of the flipper arbitrage): grab it on eBay.
-export type DealSort = "saving" | "pct";
-
-export interface EbayDeal {
-  card: CardTileData; // full tile data so the row can open the QuickView popup
-  ebayCents: number;
-  ebayUrl: string;
-  storeCents: number; // cheapest store price (what you'd otherwise pay)
-  storeName: string;
-  savingCents: number; // storeCents − ebayCents
-  savingPct: number;
-}
-
-export interface EbayDealPage {
-  items: EbayDeal[];
-  total: number;
-  page: number;
-  pageSize: number;
-  pageCount: number;
-}
-
-const DEAL_MIN_SAVING_CENTS = 50;
-const DEAL_MIN_PRICE_CENTS = 100;
-
-export async function getEbayCheapest(country: Country, sort: DealSort, page = 1, pageSize = 25): Promise<EbayDealPage> {
-  try {
-    const sources = getArbSources(country);
-    const ebayKeys = sources.filter((s) => s.isEbay).map((s) => s.key);
-    const storeKeys = sources.filter((s) => !s.isEbay).map((s) => s.key);
-    if (!ebayKeys.length) return { items: [], total: 0, page, pageSize, pageCount: 1 };
-
-    const [ebayMin, storeMin] = await Promise.all([minByCard(country, ebayKeys), minByCard(country, storeKeys)]);
-
-    type Row = { cardId: string; ebay: number; store: number; saving: number; pct: number };
-    const rows: Row[] = [];
-    for (const [cardId, ebay] of ebayMin) {
-      const store = storeMin.get(cardId);
-      if (store == null || ebay >= store) continue; // eBay must actually be cheapest
-      if (ebay < DEAL_MIN_PRICE_CENTS) continue;
-      const saving = store - ebay;
-      if (saving < DEAL_MIN_SAVING_CENTS) continue;
-      const pct = Math.round((saving / store) * 1000) / 10;
-      if (pct >= MAX_DEAL_PCT) continue; // ≥80% cheaper = mismatched/junk listing, not a deal
-      rows.push({ cardId, ebay, store, saving, pct });
-    }
-    rows.sort((a, b) => (sort === "pct" ? b.pct - a.pct || b.saving - a.saving : b.saving - a.saving || b.pct - a.pct));
-
-    const total = rows.length;
-    const pageCount = Math.max(1, Math.ceil(total / pageSize));
-    const p = Math.min(Math.max(1, page), pageCount);
-    const slice = rows.slice((p - 1) * pageSize, p * pageSize);
-    if (!slice.length) return { items: [], total, page: p, pageSize, pageCount };
-
-    const ids = slice.map((r) => r.cardId);
-    const [cards, ebayListings, storeListings] = await Promise.all([
-      prisma.card.findMany({
-        where: { id: { in: ids } },
-        select: { id: true, name: true, slug: true, setCode: true, collectorNumber: true, imageThumbUrl: true },
-      }),
-      prisma.retailerPrice.findMany({
-        where: { cardId: { in: ids }, country, inStock: true, retailer: { in: ebayKeys } },
-        select: { cardId: true, priceCents: true, url: true },
-        orderBy: { priceCents: "asc" },
-      }),
-      prisma.retailerPrice.findMany({
-        where: { cardId: { in: ids }, country, inStock: true, retailer: { in: storeKeys } },
-        select: { cardId: true, retailerName: true, priceCents: true },
-        orderBy: { priceCents: "asc" },
-      }),
-    ]);
-    const cardMap = new Map(cards.map((c) => [c.id, c as unknown as CardTileData]));
-    const bestEbay = new Map<string, (typeof ebayListings)[number]>();
-    for (const l of ebayListings) if (!bestEbay.has(l.cardId)) bestEbay.set(l.cardId, l);
-    const bestStore = new Map<string, (typeof storeListings)[number]>();
-    for (const l of storeListings) if (!bestStore.has(l.cardId)) bestStore.set(l.cardId, l);
-
-    const items = slice
-      .map((r): EbayDeal | null => {
-        const c = cardMap.get(r.cardId);
-        const e = bestEbay.get(r.cardId);
-        const s = bestStore.get(r.cardId);
-        if (!c || !e || !s) return null;
-        return {
-          card: c,
-          ebayCents: r.ebay, ebayUrl: e.url, storeCents: r.store, storeName: s.retailerName,
-          savingCents: r.saving, savingPct: r.pct,
-        };
-      })
-      .filter((x): x is EbayDeal => x !== null);
-
-    return { items, total, page: p, pageSize, pageCount };
-  } catch {
-    return { items: [], total: 0, page, pageSize, pageCount: 1 };
-  }
 }
 
 export async function getArbitrage(

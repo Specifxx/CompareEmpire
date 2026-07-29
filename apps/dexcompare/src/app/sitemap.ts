@@ -50,6 +50,9 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
       { url: `${SITE_URL}/tools/arbitrage`, changeFrequency: "daily", priority: 0.8 },
       { url: `${SITE_URL}/tools/net-proceeds`, changeFrequency: "monthly", priority: 0.6 },
       { url: `${SITE_URL}/tools/grade-ev`, changeFrequency: "monthly", priority: 0.6 },
+      { url: `${SITE_URL}/tools/box-ev`, changeFrequency: "weekly", priority: 0.7 },
+      { url: `${SITE_URL}/bulk-pricer`, changeFrequency: "monthly", priority: 0.65 },
+      { url: `${SITE_URL}/tools/best-basket`, changeFrequency: "monthly", priority: 0.5 },
       { url: `${SITE_URL}/restock`, changeFrequency: "daily", priority: 0.85 },
       { url: `${SITE_URL}/forum`, changeFrequency: "daily", priority: 0.6 },
       ...FEATURED_RESTOCKS.map((p) => ({
