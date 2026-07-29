@@ -1,4 +1,5 @@
 import { OutboundLink } from "./OutboundLink";
+import { AffiliateDisclosure } from "./AffiliateDisclosure";
 import { affiliateUrl, ebaySearchUrl } from "@/lib/affiliate";
 
 // Trust strip: the partner programs DexCompare is APPROVED for — shown as a
@@ -52,6 +53,10 @@ export function Partners({ country }: { country: string }) {
           </OutboundLink>
         </div>
       </div>
+      {/* Both wordmarks above are affiliate-tagged links, so this strip needs its
+          own disclosure — presented as a trust badge it otherwise reads as a
+          neutral endorsement rather than advertising (EPN §I.G). */}
+      <AffiliateDisclosure className="mt-3" />
     </section>
   );
 }

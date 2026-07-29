@@ -35,7 +35,9 @@ export function AffiliateDisclosure({
       </p>
     );
   }
+  // slate-400, not slate-500/600: a disclosure that is technically present but
+  // visually washed out (below WCAG AA contrast) isn't "clear and prominent".
   return (
-    <p className={`text-[11px] leading-snug text-slate-500 ${className}`}>{TEXT}</p>
+    <p className={`text-[11px] leading-snug text-slate-400 ${className}`}>{TEXT}</p>
   );
 }
