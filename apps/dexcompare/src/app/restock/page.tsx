@@ -67,9 +67,13 @@ export default async function DropsIndex() {
   const info = COUNTRIES[country];
   const todayIso = new Date().toISOString().slice(0, 10);
 
+  // Never let a DB hiccup fail this prerender outright — an empty list
+  // (retried on the next ISR revalidation) beats taking the whole build down.
   const [groups, sealedTitles] = await Promise.all([
-    getSealedGroups(country),
-    prisma.sealedListing.findMany({ where: { country, inStock: true }, select: { title: true } }),
+    getSealedGroups(country).catch(() => []),
+    prisma.sealedListing
+      .findMany({ where: { country, inStock: true }, select: { title: true } })
+      .catch(() => []),
   ]);
   const drops = buildDrops(groups, todayIso);
 

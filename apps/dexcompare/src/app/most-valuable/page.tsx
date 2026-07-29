@@ -59,7 +59,9 @@ const FAQS = [
 export default async function MostValuablePage() {
   const country = DEFAULT_COUNTRY;
   const info = COUNTRIES[country];
-  const cards = await getValuableCards(24, country);
+  // Never let a DB hiccup fail this prerender outright — an empty list
+  // (retried on the next ISR revalidation) beats taking the whole build down.
+  const cards = await getValuableCards(24, country).catch(() => []);
 
   const faqLd = {
     "@context": "https://schema.org",

@@ -66,9 +66,22 @@ const FAQS: { q: string; a: string }[] = [
 export default async function HomePage() {
   // AU-baseline data on the cached render; client tiles re-price to the
   // visitor's market after hydration (all four price columns ship with each card).
+  // Never let a DB hiccup fail this prerender outright — an empty homepage
+  // render (retried on the next ISR revalidation) beats taking the whole
+  // build down, the exact failure mode that broke production before.
   const [{ totalCards, inStockUnits, storeCount, featuredGrid }, deals] = await Promise.all([
-    getHomeData(DEFAULT_COUNTRY),
-    getTopDeals(12, DEFAULT_COUNTRY),
+    getHomeData(DEFAULT_COUNTRY).catch(() => ({
+      totalCards: 0,
+      pricedCards: 0,
+      inStockUnits: 0,
+      cheapestCards: [],
+      valuableCards: [],
+      storeCount: 0,
+      popularCards: [],
+      featuredGrid: [],
+      newSealed: [],
+    })),
+    getTopDeals(12, DEFAULT_COUNTRY).catch(() => []),
   ]);
 
   return (

@@ -21,7 +21,9 @@ export const metadata: Metadata = {
 export default async function DealsPage() {
   const country = DEFAULT_COUNTRY;
   const info = COUNTRIES[country];
-  const deals = await getTopDeals(60, country);
+  // Never let a DB hiccup fail this prerender outright — an empty deals list
+  // (retried on the next ISR revalidation) beats taking the whole build down.
+  const deals = await getTopDeals(60, country).catch(() => []);
 
   const faqs = [
     {

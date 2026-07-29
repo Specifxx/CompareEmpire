@@ -22,7 +22,9 @@ export default async function TrendingPage() {
   const country = DEFAULT_COUNTRY;
   const info = COUNTRIES[country];
 
-  const cards = await getPopularCards(24, country);
+  // Never let a DB hiccup fail this prerender outright — an empty list
+  // (retried on the next ISR revalidation) beats taking the whole build down.
+  const cards = await getPopularCards(24, country).catch(() => []);
 
   const faqs = [
     {
