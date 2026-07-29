@@ -35,12 +35,26 @@ import { EbayAd } from "@/components/EbayAd";
 // stalled indexation at "Discovered – not crawled".
 export const revalidate = 86400;
 
-// Prerender nothing at build (there are ~20k cards); every path is generated on
-// first request and then ISR-cached (dynamicParams defaults to true). Declaring
-// this makes the route's static/ISR eligibility EXPLICIT: the build now fails
-// loudly if any dynamic API (cookies/headers) ever sneaks back into the render.
-export function generateStaticParams() {
-  return [] as { id: string }[];
+// Prewarm only the most-searched priced cards (fixed head — NEVER scale this
+// with catalog size; at ~20k cards a full prewarm is 20k renders per deploy).
+// The long tail is generated on first request and then ISR-cached
+// (dynamicParams defaults to true). Declaring this export at all — even
+// returning [] on failure — makes the route's static/ISR eligibility
+// EXPLICIT: the build fails loudly if any dynamic API (cookies/headers) ever
+// sneaks back into the render, and the build sandbox has no DATABASE_URL, so
+// degrade to on-demand-only rather than failing.
+export async function generateStaticParams() {
+  try {
+    const cards = await prisma.card.findMany({
+      where: { hasLivePrice: true },
+      orderBy: [{ searchCount: "desc" }, { viewCount: "desc" }],
+      take: 200,
+      select: { slug: true, id: true },
+    });
+    return cards.map((c) => ({ id: c.slug ?? c.id }));
+  } catch {
+    return [];
+  }
 }
 
 // Accept either the slug ("vayne-hunter-sfd-223-221") or the legacy cuid.
@@ -133,9 +147,10 @@ export default async function CardPage({ params }: { params: { id: string } }) {
     where: whereParam(params.id),
     // Select ONLY the columns this page + <CardImage> use (was `include`, which
     // pulled every column — description/flavorText/tags/etc. — for the card AND
-    // every price row on every request). Per-request egress reduction; this page
-    // is dynamic (reads the country cookie) so it can't be cached, making the
-    // payload the lever. Keep the 4 lowestPrice* columns — pickPrice() reads them.
+    // every price row on every request). This page is ISR-cached (revalidate
+    // above), so the payload only matters once per card per 24h — still worth
+    // trimming, since it's the highest-volume query on the site at ~20k pages.
+    // Keep the 3 lowestPrice* columns — pickPrice() reads them.
     select: {
       id: true, slug: true, name: true, nameNormalized: true,
       setCode: true, setName: true, collectorNumber: true,

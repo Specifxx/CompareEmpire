@@ -943,7 +943,12 @@ export async function importPrices(): Promise<ImportSummary> {
       toUpdate.slice(i, i + UPD).map((r) =>
         prisma.card.update({
           where: { id: r.id },
-          data: { lowestPriceCents: r.nAu, lowestPriceCentsUs: r.nUs, lowestPriceCentsGb: r.nGb },
+          data: {
+            lowestPriceCents: r.nAu,
+            lowestPriceCentsUs: r.nUs,
+            lowestPriceCentsGb: r.nGb,
+            hasLivePrice: r.nAu != null || r.nUs != null || r.nGb != null,
+          },
         })
       )
     );

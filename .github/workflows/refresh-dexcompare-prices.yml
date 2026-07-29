@@ -10,12 +10,14 @@ name: Refresh DexCompare prices (daily)
 # the URL as an input instead.
 
 on:
-  # Scheduled runs DISABLED 2026-07-26 — DexCompare idled to stop burning the
-  # shared Neon compute-hour allowance (was causing daily PrismaClientInitializationError
-  # 500s on RiftCompare's /card/[id]). Re-enable by uncommenting once the Neon
-  # limit is raised or DexCompare gets its own headroom back.
-  # schedule:
-  #   - cron: "30 18 * * *" # 04:30 Sydney (AEST) daily, before the AU morning
+  # Re-enabled 2026-07-28 as part of the Neon-budget rebuild: DexCompare now
+  # runs on its own dedicated Neon project (no longer sharing/competing with
+  # RiftCompare's), and the whole point of the rebuild (precomputed Deals, no
+  # history, capped/indexed queries) is that this daily run stays comfortably
+  # inside that project's own free-tier allowance. Watch the consumption
+  # watchdog for the first week to confirm.
+  schedule:
+    - cron: "30 18 * * *" # 04:30 Sydney (AEST) daily, before the AU morning
   workflow_dispatch:
     inputs:
       dexcompare_url:

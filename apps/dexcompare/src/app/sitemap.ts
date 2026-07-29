@@ -102,17 +102,13 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
     // render a thin "No prices found yet" shell and carry noindex (see
     // card/[id]/page.tsx generateMetadata) — submitting noindexed URLs sends
     // Google a mixed signal. A card re-enters the sitemap automatically the
-    // day the importer prices it.
+    // day the importer prices it. hasLivePrice is a denormalised OR of the
+    // three lowestPriceCents* columns (set by the importer) — one indexed
+    // boolean instead of a 3-column OR scan.
     let cards: { id: string; slug: string | null; lowestPriceCents: number | null; imageUrl: string | null }[];
     try {
       cards = await prisma.card.findMany({
-        where: {
-          OR: [
-            { lowestPriceCents: { not: null } },
-            { lowestPriceCentsUs: { not: null } },
-            { lowestPriceCentsGb: { not: null } },
-          ],
-        },
+        where: { hasLivePrice: true },
         select: { id: true, slug: true, lowestPriceCents: true, imageUrl: true },
         orderBy: { lowestPriceCents: { sort: "desc", nulls: "last" } },
       });
@@ -123,16 +119,10 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
       // import ran" case the throw below guards against.
       return [];
     }
-    // Zero priced cards while the DB IS reachable would normally mean the DB
-    // was reseeded before the price importer ran, and used to hard-throw here
-    // to refuse publishing an empty sitemap. TEMPORARILY downgraded to a warn
-    // while DexCompare is paused (src/middleware.ts serves every route a
-    // static notice regardless, so an empty sitemap is unseen and harmless —
-    // but a thrown build error blocks every deploy, including unrelated Neon-
-    // budget fixes). REINSTATE the throw (or let Phase 1E's import-time
-    // sitemap generation supersede this file) before un-pausing for real.
+    // Zero priced cards while the DB IS reachable means the DB was reseeded
+    // before the price importer ran — refuse to publish it.
     if (cards.length === 0) {
-      console.warn("sitemap: card bucket resolved to 0 priced cards (expected while paused) — publishing empty.");
+      throw new Error("sitemap: card bucket resolved to 0 priced cards — refusing to publish an empty sitemap");
     }
     return cards.map((c) => ({
       url: `${SITE_URL}/card/${c.slug ?? c.id}`,
@@ -164,9 +154,8 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
         priority: g.lowestPriceCents != null ? 0.75 : 0.55,
       });
     }
-    // Same TEMPORARY downgrade as the card bucket above, same reason.
     if (routes.length === 0) {
-      console.warn("sitemap: sealed bucket resolved to 0 products (expected while paused) — publishing empty.");
+      throw new Error("sitemap: sealed bucket resolved to 0 products — refusing to publish an empty sitemap");
     }
     return routes;
   }

@@ -14,7 +14,8 @@ import { SITE_URL } from "@/lib/site";
 
 // Rendered on the AU baseline server-side (country-neutral copy); the card tiles
 // localise each visitor's price client-side from the three price columns in the
-// card data. (The root layout reads the country cookie, so pages render per request.)
+// card data. (The root layout is cookie-free, so this is genuine ISR — a stale
+// comment here previously claimed otherwise and nearly misled a rebuild.)
 export const revalidate = 86400;
 
 export async function generateMetadata({ params }: { params: { set: string } }): Promise<Metadata> {
@@ -61,10 +62,13 @@ export default async function SetPage({ params }: { params: { set: string } }) {
 
   const country = DEFAULT_COUNTRY; // AU baseline; client tiles localise the price
 
+  // No real Pokémon set exceeds a few hundred cards — this cap is defence-in-depth
+  // (egress rule: no unbounded reads), not an expected truncation.
   const cards = await prisma.card.findMany({
     where: { setCode: set.code },
     orderBy: [{ collectorNumber: "asc" }],
     select: cardTileSelect(country),
+    take: 400,
   });
   const priced = cards.filter((c) => pickPrice(c, country) != null).length;
 

@@ -145,6 +145,13 @@ model Card {
   // homepage clicks) is kept for general "trending" use.
   viewCount       Int       @default(0)
   searchCount     Int       @default(0)
+  // Denormalised OR of the three lowestPriceCents* columns, set by the importer
+  // after every price recompute. A card without ANY live price renders a thin
+  // "no prices found yet" shell — this flag lets the sitemap/browse/sets pages
+  // and generateStaticParams filter it out with one indexed boolean instead of
+  // a 3-column OR on every read. A flag, not a delete: rows stay searchable and
+  // keep their canonical URL, and a card re-enters automatically once priced.
+  hasLivePrice    Boolean   @default(false)
   lastViewedAt    DateTime?
   createdAt       DateTime  @default(now())
 
@@ -163,6 +170,7 @@ model Card {
   @@index([domain])
   @@index([rarity])
   @@index([type])
+  @@index([hasLivePrice])
 }
 
 // A genuine, user-submitted rating + review of a card. No account needed (matches

@@ -38,12 +38,6 @@ const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-displ
 // `display: "optional"` keeps the zero-CLS guarantee (metric-matched fallback).
 const jetbrainsMono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono", display: "optional" });
 
-// DexCompare is paused (see middleware.ts, which serves a single "paused" page
-// for every route). Nothing should be statically prerendered against the DB
-// anymore — force-dynamic here cascades to every page in the tree, so `next
-// build` never touches Prisma, regardless of Neon reachability.
-export const dynamic = "force-dynamic";
-
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {

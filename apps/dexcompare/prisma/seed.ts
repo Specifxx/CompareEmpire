@@ -271,6 +271,11 @@ async function main() {
       lowestPriceCents: auLow,
       lowestPriceCentsUs: usLow,
       lowestPriceCentsGb: gbLow,
+      // Every card gets a baseline guide price at seed time (real or heuristic),
+      // so this is trivially true here — the first real price-import run
+      // recomputes lowestPriceCents* from actual store listings only and
+      // corrects hasLivePrice down accordingly (see price-import.ts).
+      hasLivePrice: true,
       artSeed: Math.floor(rng() * 1_000_000),
     };
   });
@@ -340,6 +345,13 @@ async function main() {
   const { POKEMON_SETS } = await import("../src/lib/pokemon-sets");
   // eBay omitted here too — real sealed eBay rows (key "ebay") come from importSealed().
   const sealedRetailers = [
+    // AU baseline guide (not a real store — same "Market Price (guide)" pattern as
+    // the card baseline above). Without this, a FRESH seed has zero AU sealed rows
+    // until the real importSealed() scrape has run at least once, which fails the
+    // sitemap's AU sealed bucket (see the fail-loud check in src/app/sitemap.ts) on
+    // a brand-new database's first build. Real AU stores overtake this baseline via
+    // the daily import, same as marketguide_au does for singles.
+    { key: "marketguide_au", name: "Market Price (guide)", country: "AU", currency: "AUD" },
     { key: "tcgplayer", name: "TCGplayer", country: "US", currency: "USD" },
     { key: "trollandtoad", name: "Troll and Toad", country: "US", currency: "USD" },
     // UK MODE sealed sources
