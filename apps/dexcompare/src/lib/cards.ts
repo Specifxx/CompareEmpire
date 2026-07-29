@@ -2,7 +2,12 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "./db";
 import { dollarsToCents, normalizeSearch } from "./format";
 import { priceField, type Country } from "./country";
+import { PAGE_SIZES } from "./constants";
 import type { CardTileData } from "@/components/CardTile";
+
+// Re-exported for existing server-side callers — the canonical definition lives
+// in constants.ts (a client-safe module), see the comment there.
+export { PAGE_SIZES };
 
 export interface CardQuery {
   q?: string;
@@ -24,7 +29,6 @@ export interface CardQuery {
 export const CARD_PAGE_SIZE = 36; // legacy (infinite-scroll API)
 
 // Paginated browse: user-selectable page size, default 10.
-export const PAGE_SIZES = [10, 20, 50, 100] as const;
 export function parsePageSize(v?: string): number {
   const n = parseInt(v ?? "", 10);
   // Default 100 (user feedback: 10 felt like a static list, not a database).

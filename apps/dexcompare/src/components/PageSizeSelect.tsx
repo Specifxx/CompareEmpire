@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTransition } from "react";
-import { PAGE_SIZES } from "@/lib/cards";
+import { PAGE_SIZES } from "@/lib/constants";
 
 // Lets the user choose how many cards to show per page (10/20/50/100). Changing
 // it resets to page 1.

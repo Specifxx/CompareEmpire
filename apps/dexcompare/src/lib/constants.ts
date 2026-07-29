@@ -136,3 +136,10 @@ export function isOvernumbered(collectorNumber: string): boolean {
 export function conditionInfo(key: string): ConditionInfo {
   return CONDITIONS[key] ?? CONDITIONS.NM;
 }
+
+// Browse page size options. Lives here (not lib/cards.ts) because this module is
+// client-safe — lib/cards.ts imports the Prisma client at module scope, so a
+// client component importing anything from it at all drags PrismaClient into the
+// browser bundle, which throws immediately on load ("PrismaClient is unable to
+// run in this browser environment"). See lib/card-url.ts for the same pattern.
+export const PAGE_SIZES = [10, 20, 50, 100] as const;
