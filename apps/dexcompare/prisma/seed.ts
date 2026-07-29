@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { normalizeSearch } from "../src/lib/format";
+import { speciesOf } from "../src/lib/pokemon-species";
 
 const prisma = new PrismaClient();
 
@@ -246,11 +247,14 @@ async function main() {
     const usLow = real ? cents(real.usd) : cents(heuristicUsd * between(0.92, 1.0));
     const auLow = cents(usLow * USD_TO_AUD * between(0.95, 1.08), 10);
     const gbLow = cents(usLow * USD_TO_GBP * between(0.95, 1.08), 8);
+    const sp = speciesOf(c.name, c.type);
     return {
       externalId: c.externalId,
       slug: `${c.externalId}-${normalizeSearch(c.name).replace(/\s+/g, "-")}`.toLowerCase().slice(0, 80),
       name: c.name,
       nameNormalized: normalizeSearch(c.name),
+      speciesSlug: sp?.slug ?? null,
+      speciesName: sp?.name ?? null,
       setCode: c.setCode,
       setName: c.setName,
       collectorNumber: c.collectorNumber,

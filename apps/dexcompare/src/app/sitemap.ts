@@ -5,6 +5,7 @@ import { SETS } from "@/lib/constants";
 import { getArticles } from "@/lib/articles";
 import { FEATURED_RESTOCKS } from "@/lib/restocks";
 import { getSealedGroups } from "@/lib/sealed-import";
+import { indexableSpeciesSlugs } from "@/lib/pokemon-species-data";
 
 // Hourly revalidation so new card slugs surface in Google within ~1 hour of a
 // price snapshot, down from the previous 24-hour window.
@@ -21,9 +22,10 @@ export const revalidate = 3600;
  *   0 → static routes + guides + blog + sets + market wraps  (stable, low churn)
  *   1 → card singles pages          (~20 k URLs, daily price updates)
  *   2 → sealed product pages        (~500 URLs, daily price updates)
+ *   3 → Pokémon species hubs        (/pokemon/{slug} — grows with catalog coverage)
  */
 export async function generateSitemaps() {
-  return [{ id: 0 }, { id: 1 }, { id: 2 }];
+  return [{ id: 0 }, { id: 1 }, { id: 2 }, { id: 3 }];
 }
 
 export default async function sitemap({ id }: { id: number }): Promise<MetadataRoute.Sitemap> {
@@ -158,6 +160,23 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
       throw new Error("sitemap: sealed bucket resolved to 0 products — refusing to publish an empty sitemap");
     }
     return routes;
+  }
+
+  // ── Sitemap 3: Pokémon species hubs (/pokemon/{slug}) ─────────────────────
+  if (id === 3) {
+    let slugs: string[];
+    try {
+      slugs = await indexableSpeciesSlugs();
+    } catch {
+      return [];
+    }
+    // Unlike buckets 1/2, an empty result here is a legitimate early state (no
+    // species has cleared MIN_PRICED_PRINTINGS_TO_INDEX yet) — don't throw.
+    return slugs.map((slug) => ({
+      url: `${SITE_URL}/pokemon/${slug}`,
+      changeFrequency: "daily" as const,
+      priority: 0.75,
+    }));
   }
 
   return [];

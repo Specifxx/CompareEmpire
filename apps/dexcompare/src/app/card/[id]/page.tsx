@@ -158,6 +158,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
     // Keep the 3 lowestPrice* columns — pickPrice() reads them.
     select: {
       id: true, slug: true, name: true, nameNormalized: true,
+      speciesSlug: true, speciesName: true,
       setCode: true, setName: true, collectorNumber: true,
       domain: true, type: true, rarity: true, variant: true, isPromo: true,
       might: true, energyCost: true, orientation: true, artSeed: true,
@@ -861,11 +862,18 @@ export default async function CardPage({ params }: { params: { id: string } }) {
           numbers), so collectors can compare which printing is cheapest. */}
       {otherPrints.length > 0 && (
         <section className="mt-8">
-          <div className="mb-4">
-            <h2 className="text-xl font-extrabold text-white">Other printings of {card.name}</h2>
-            <p className="mt-0.5 text-xs text-slate-500">
-              The same card from other sets and promos — sometimes a different printing is far cheaper.
-            </p>
+          <div className="mb-4 flex items-end justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-extrabold text-white">Other printings of {card.name}</h2>
+              <p className="mt-0.5 text-xs text-slate-500">
+                The same card from other sets and promos — sometimes a different printing is far cheaper.
+              </p>
+            </div>
+            {card.speciesSlug && (
+              <Link href={`/pokemon/${card.speciesSlug}`} className="shrink-0 text-xs font-semibold text-brand-400 hover:underline">
+                Full {card.speciesName ?? card.name} price guide →
+              </Link>
+            )}
           </div>
           <div className="-mx-1 flex gap-4 overflow-x-auto px-1 pb-2">
             {(otherPrints as CardTileData[]).map((c) => (

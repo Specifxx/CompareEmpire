@@ -28,6 +28,7 @@
  */
 import { readFileSync } from "node:fs";
 import { PrismaClient } from "@prisma/client";
+import { speciesOf } from "../src/lib/pokemon-species";
 
 const prisma = new PrismaClient();
 
@@ -64,6 +65,7 @@ async function main() {
   let created = 0;
   let updated = 0;
   for (const c of cards) {
+    const sp = speciesOf(c.name, c.type);
     const data = {
       name: c.name,
       setCode: c.setCode,
@@ -79,6 +81,8 @@ async function main() {
       flavorText: c.flavorText ?? null,
       marketPriceCents: Math.round((c.marketPriceAud ?? 0) * 100),
       artSeed: Math.floor(Math.random() * 1_000_000),
+      speciesSlug: sp?.slug ?? null,
+      speciesName: sp?.name ?? null,
     };
 
     const existing = await prisma.card.findFirst({
