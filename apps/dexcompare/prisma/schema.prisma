@@ -292,25 +292,6 @@ model Deal {
   @@index([cardId])
 }
 
-// The DexCompare Index (P3) — a search-weighted basket of up to 500 cards,
-// snapshotted ONCE PER KEY PER DAY. This is the one place this app persists
-// anything resembling a time series, and it's deliberately fixed-width: one
-// row per (key, day) — global + AU/US/GB + 3 era sub-indices = ~7 rows/day,
-// ~2,500/year, NEVER growing with catalog size. No per-card history is
-// stored anywhere — the constituent table is recomputed live from current
-// Card prices at render time; only the aggregate basket value is persisted.
-model IndexSnapshot {
-  id               String   @id @default(cuid())
-  key              String   // "GLOBAL" | "AU" | "US" | "GB" | "ERA_VINTAGE" | "ERA_MODERN" | "ERA_CURRENT"
-  day              DateTime // UTC midnight of the snapshot day
-  basketCents      Int      // raw sum(price * weight) at snapshot time, USD cents
-  constituentCount Int
-  createdAt        DateTime @default(now())
-
-  @@unique([key, day])
-  @@index([key, day])
-}
-
 // A wishlist price-drop subscription. No account needed — keyed by email, created
 // from the wishlist pop-up. The daily cron (/api/cron/price-alerts) compares each
 // card's current lowest price in the subscriber's market against lastPriceCents

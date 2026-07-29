@@ -35,7 +35,6 @@ const GROUPS: Group[] = [
   {
     label: "Market data",
     features: [
-      { href: "/market", icon: "📈", title: "DexCompare Index", desc: "A search-weighted index of the Pokémon TCG market, tracked daily." },
       { href: "/tools/arbitrage", icon: "💱", title: "Arbitrage — flip to TCGplayer", desc: "Cards priced well below TCGplayer's market price." },
       { href: "/tools/box-ev", icon: "📦", title: "Booster box EV calculator", desc: "Is it worth opening a box, or buying singles instead?" },
       { href: "/restock", icon: "📅", title: "Drops & restocks", desc: "Track sold-out products and get alerted when they're back." },

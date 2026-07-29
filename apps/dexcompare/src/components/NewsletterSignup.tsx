@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 // Footer email capture (user feedback: visible signup, no wishlist required).
-// The list feeds the weekly Index-summary email.
+// The list feeds the weekly deals-digest email.
 export function NewsletterSignup({ siteName }: { siteName: string }) {
   // Footer renders OUTSIDE CountryProvider — read the market cookie directly.
   const country = typeof document !== "undefined" ? /(?:^|; )country=(\w+)/.exec(document.cookie)?.[1] ?? "AU" : "AU";
@@ -33,7 +33,7 @@ export function NewsletterSignup({ siteName }: { siteName: string }) {
       ) : (
         <>
           <span className="w-full text-sm font-semibold text-slate-300">
-            📬 Get the weekly {siteName} Index summary in your inbox
+            📬 Get the week&apos;s best {siteName} deals in your inbox
           </span>
           <input
             type="email"

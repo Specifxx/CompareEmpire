@@ -77,7 +77,7 @@ export function NewsletterUnsubscribeClient({ token }: { token: string }) {
         <>
           <h1 className="font-display text-xl font-bold text-white">Unsubscribe from the weekly summary</h1>
           <p className="mt-2 text-sm leading-relaxed text-slate-300">
-            Stop the weekly Index summary for <strong className="text-white">{state.email}</strong>? Any
+            Stop the weekly deals digest for <strong className="text-white">{state.email}</strong>? Any
             wishlist price-drop or restock alerts you have are separate and won&apos;t be affected.
           </p>
           <button onClick={confirm} disabled={working} className="btn-primary mt-4 w-full">

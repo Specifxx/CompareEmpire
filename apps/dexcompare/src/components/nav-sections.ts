@@ -26,7 +26,6 @@ export const NAV_SECTIONS: NavSection[] = [
   {
     label: "Market",
     links: [
-      { href: "/market", icon: "📈", label: "DexCompare Index" },
       { href: "/trending", icon: "🔮", label: "Trending cards" },
       { href: "/most-valuable", icon: "💎", label: "Most valuable cards" },
       { href: "/tools/arbitrage", icon: "💱", label: "Arbitrage — flip to TCGplayer" },
