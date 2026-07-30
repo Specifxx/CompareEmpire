@@ -74,7 +74,7 @@ export function BulkPricerView() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "dexcompare-bulk-prices.csv";
+    a.download = "opcompare-bulk-prices.csv";
     a.click();
     URL.revokeObjectURL(url);
   }
