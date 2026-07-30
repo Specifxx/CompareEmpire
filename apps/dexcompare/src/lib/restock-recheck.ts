@@ -1,5 +1,5 @@
 import { prisma } from "./db";
-import { FEATURED_RESTOCKS, restockTitleRegex, isHeadlineType } from "./restocks";
+import { FEATURED_RESTOCKS, isHeadlineType } from "./restocks";
 import { pingUrlNow } from "./indexnow";
 
 // Lightweight, frequent re-check of ONLY the featured products' store listings, so
@@ -54,22 +54,35 @@ function isShopifyProductUrl(url: string): boolean {
 // (only featured/headline SKUs, only on a flip) but nothing purged it before.
 const RETENTION_DAYS = 180;
 
+// Hard ceiling on rows pulled (and therefore HTTP-polled) per re-check cycle.
+// A handful of featured products × the stores that list them is a few dozen rows;
+// this only ever bites if FEATURED_RESTOCKS grows a very loose matcher.
+const MAX_RECHECK_ROWS = 300;
+
 export async function recheckFeaturedRestocks(): Promise<RecheckSummary> {
   const summary: RecheckSummary = { checked: 0, flippedInStock: 0, flippedOutOfStock: 0 };
 
   const cutoff = new Date(Date.now() - RETENTION_DAYS * 86400_000);
   await prisma.restockEvent.deleteMany({ where: { inStockAt: { lt: cutoff } } }).catch(() => {});
 
-  // The sealed table is small relative to cards, so loading it once and matching
-  // by title (authoritative — groupKeys don't carry the product slug) is cheap.
+  // SCOPED + CAPPED: only the featured products' rows (SealedListing.productSlug
+  // is precomputed by the importer, indexed) and only Shopify product pages we
+  // can actually poll. This used to read the ENTIRE SealedListing table with no
+  // take, every 15 minutes, to keep a few dozen rows — pure Neon egress.
   const sealed = await prisma.sealedListing.findMany({
-    select: { id: true, title: true, productType: true, retailer: true, retailerName: true, priceCents: true, url: true, inStock: true, country: true },
+    where: {
+      productSlug: { in: FEATURED_RESTOCKS.map((p) => p.slug) },
+      url: { contains: "/products/" },
+    },
+    select: { id: true, title: true, productType: true, retailer: true, retailerName: true, priceCents: true, url: true, inStock: true, country: true, productSlug: true },
+    orderBy: { lastSeen: "asc" }, // stalest first, so a cap can never starve a row
+    take: MAX_RECHECK_ROWS,
   });
 
   for (const product of FEATURED_RESTOCKS) {
-    const re = restockTitleRegex(product);
-    // Match by title and limit to Shopify product pages we can actually poll.
-    const rows = sealed.filter((r) => re.test(r.title) && isShopifyProductUrl(r.url));
+    // Belt-and-braces on the URL shape (excludes eBay/TCGplayer rows the
+    // `/products/` filter can't rule out on its own).
+    const rows = sealed.filter((r) => r.productSlug === product.slug && isShopifyProductUrl(r.url));
 
     // Bounded concurrency so a single re-check stays quick.
     const CONC = 8;

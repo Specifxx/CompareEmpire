@@ -28,11 +28,15 @@ export interface CardQuery {
 
 export const CARD_PAGE_SIZE = 36; // legacy (infinite-scroll API)
 
-// Paginated browse: user-selectable page size, default 10.
+// Paginated browse: user-selectable page size.
 export function parsePageSize(v?: string): number {
   const n = parseInt(v ?? "", 10);
-  // Default 100 (user feedback: 10 felt like a static list, not a database).
-  return (PAGE_SIZES as readonly number[]).includes(n) ? n : 100;
+  // Default 20, down from 100. The 100 default came from feedback that 10 "felt
+  // like a static list, not a database" — 20 still reads as a real catalogue while
+  // transferring a fifth of the bytes on the site's highest-traffic page (each tile
+  // is ~400 B, and /browse is force-dynamic, so this is paid on EVERY request
+  // including every crawler hit). Users who want denser pages can still pick 50/100.
+  return (PAGE_SIZES as readonly number[]).includes(n) ? n : 20;
 }
 export function parsePageNum(v?: string): number {
   const n = parseInt(v ?? "", 10);

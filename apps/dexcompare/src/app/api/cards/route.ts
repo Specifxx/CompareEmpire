@@ -21,7 +21,10 @@ export async function GET(req: Request) {
   // cookie). Returns the cards in the requested order, no caching (per-user).
   const idsParam = url.searchParams.get("ids");
   if (idsParam !== null) {
-    const ids = idsParam.split(",").filter(Boolean).slice(0, 500);
+    // Capped at 100 (was 500). This response is Cache-Control: no-store and the
+    // wishlist page calls it on every load, so 500 tiles × ~400 B = ~200 KB of
+    // uncacheable transfer per visit. A wishlist beyond 100 cards paginates.
+    const ids = idsParam.split(",").filter(Boolean).slice(0, 100);
     if (!ids.length) return NextResponse.json({ cards: [] }, { headers: { "Cache-Control": "no-store" } });
     const found = await prisma.card.findMany({ where: { id: { in: ids } }, select });
     const order = new Map(ids.map((id, i) => [id, i]));

@@ -84,17 +84,49 @@ export interface ArbPage {
   pageCount: number;
 }
 
+// Bounded TTL memo for the ranking aggregates below.
+//
+// Each aggregate is a groupBy over RetailerPrice returning up to one row per priced
+// card (~20k × ~40 B ≈ 900 KB), and getArbitrage fires up to four of them. The route
+// is force-dynamic, so every request — including every crawler hit on every
+// ?buy=/?sort=/?page= permutation — used to re-run the full set.
+//
+// The cache key includes the source list, which is user-supplied CSV and therefore
+// unbounded, so this is capped and evicts oldest-first: an attacker cycling source
+// combinations can cost cache misses but cannot grow this map without limit.
+// (globalThis so it survives module re-evaluation, per the pattern in home-data.ts.)
+type ArbMemo = Map<string, { at: number; data: Map<string, number> }>;
+const arbMemo: ArbMemo = ((globalThis as unknown as { __arbMemo?: ArbMemo }).__arbMemo ??= new Map());
+const ARB_TTL_MS = 30 * 60_000; // prices only move on the daily import
+const ARB_MEMO_MAX = 64;
+
+async function memoAgg(key: string, compute: () => Promise<Map<string, number>>): Promise<Map<string, number>> {
+  const hit = arbMemo.get(key);
+  if (hit && Date.now() - hit.at < ARB_TTL_MS) return hit.data;
+  const data = await compute();
+  if (arbMemo.size >= ARB_MEMO_MAX) {
+    // Map preserves insertion order, so the first key is the oldest inserted.
+    const oldest = arbMemo.keys().next().value;
+    if (oldest !== undefined) arbMemo.delete(oldest);
+  }
+  arbMemo.set(key, { at: Date.now(), data });
+  return data;
+}
+
 async function minByCard(country: Country, keys: string[]) {
   // TCGplayer is handled separately (its rows are US/USD regardless of the
   // viewer's market) — strip it so it can't be double-counted here.
   const local = keys.filter((k) => k !== TCGPLAYER_KEY);
   if (!local.length) return new Map<string, number>();
-  const rows = await prisma.retailerPrice.groupBy({
-    by: ["cardId"],
-    where: { country, inStock: true, retailer: { in: local } },
-    _min: { priceCents: true },
+  // Sorted so ?buy=a,b and ?buy=b,a share one cache entry.
+  return memoAgg(`min|${country}|${[...local].sort().join(",")}`, async () => {
+    const rows = await prisma.retailerPrice.groupBy({
+      by: ["cardId"],
+      where: { country, inStock: true, retailer: { in: local } },
+      _min: { priceCents: true },
+    });
+    return new Map(rows.filter((r) => r._min.priceCents != null).map((r) => [r.cardId, r._min.priceCents!]));
   });
-  return new Map(rows.filter((r) => r._min.priceCents != null).map((r) => [r.cardId, r._min.priceCents!]));
 }
 
 // TCGplayer market prices, converted into the viewer's currency. The rows are
@@ -104,19 +136,21 @@ async function minByCard(country: Country, keys: string[]) {
 // disagree with each other.
 async function tcgplayerMinByCard(country: Country, keys: string[]) {
   if (!keys.includes(TCGPLAYER_KEY)) return new Map<string, number>();
-  const rows = await prisma.retailerPrice.groupBy({
-    by: ["cardId"],
-    where: { country: "US", inStock: true, retailer: TCGPLAYER_KEY },
-    _min: { priceCents: true },
+  return memoAgg(`tcg|${country}`, async () => {
+    const rows = await prisma.retailerPrice.groupBy({
+      by: ["cardId"],
+      where: { country: "US", inStock: true, retailer: TCGPLAYER_KEY },
+      _min: { priceCents: true },
+    });
+    const out = new Map<string, number>();
+    for (const r of rows) {
+      const usd = r._min.priceCents;
+      if (usd == null) continue;
+      const local = marketGuideCents(usd, country);
+      if (local != null) out.set(r.cardId, local);
+    }
+    return out;
   });
-  const out = new Map<string, number>();
-  for (const r of rows) {
-    const usd = r._min.priceCents;
-    if (usd == null) continue;
-    const local = marketGuideCents(usd, country);
-    if (local != null) out.set(r.cardId, local);
-  }
-  return out;
 }
 
 export async function getArbitrage(

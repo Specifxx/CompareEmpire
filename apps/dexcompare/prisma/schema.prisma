@@ -171,6 +171,9 @@ model Card {
   deals           Deal[]
 
   @@index([setCode, collectorNumber])
+  // Standalone: the composite above can't serve a collectorNumber-only lookup
+  // (its leading column is setCode), which otherwise sequential-scans the table.
+  @@index([collectorNumber])
   @@index([nameNormalized])
   @@index([lowestPriceCents])
   @@index([lowestPriceCentsUs])
@@ -180,6 +183,12 @@ model Card {
   @@index([type])
   @@index([hasLivePrice])
   @@index([speciesSlug])
+  // Popularity ordering (trending / eBay prioritisation) and market-guide reads.
+  @@index([searchCount])
+  @@index([viewCount])
+  @@index([marketPriceSource])
+  @@index([marketPriceCents])
+  @@index([isPromo])
 }
 
 // A genuine, user-submitted rating + review of a card. No account needed (matches
@@ -447,6 +456,11 @@ model RetailerPrice {
   @@index([retailer])
   @@index([priceCents])
   @@index([cardId, country, inStock])
+  // Staleness sweeps (delete rows not seen since <date>).
+  @@index([lastSeen])
+  // Per-store and per-market coverage reads — both column orders are used.
+  @@index([retailer, country, inStock])
+  @@index([country, inStock, retailer])
 }
 
 // Sealed / non-single Riftbound products (booster boxes, packs, Proving Grounds,
@@ -467,10 +481,18 @@ model SealedListing {
   // Market: "AU" (Australian stores, AUD) or "NZ" (NZ stores, NZD).
   country      String   @default("AU")
   lastSeen     DateTime @default(now())
+  // PRECOMPUTED at import time: the FeaturedRestock.slug (src/lib/restocks.ts)
+  // whose title matcher this listing satisfies, or null for everything else.
+  // The /restock trackers used to pull a whole market's sealed table on every
+  // request and re-run the matcher regexes in JS (~1 MB of Neon transfer per
+  // request); with this column they read only their own handful of rows.
+  productSlug  String?
 
   @@index([groupKey])
   @@index([retailer])
   @@index([country])
+  @@index([country, inStock])
+  @@index([productSlug, country])
 }
 
 // A test-mode marketplace order placed through the CSFloat-style storefront

@@ -6,6 +6,7 @@ import { prisma } from "./db";
 import { RETAILER_LIST } from "./retailers";
 import { fetchTcgplayerSealed, tcgProductUrl, tcgImageUrl } from "./tcgplayer";
 import { POKEMON_SETS } from "./pokemon-sets";
+import { FEATURED_RESTOCKS, restockTitleRegex } from "./restocks";
 
 const UA = {
   "User-Agent":
@@ -110,6 +111,24 @@ export function classifySealed(title: string): string {
   return "Sealed";
 }
 
+// COMPUTE ONCE, AT IMPORT TIME: which featured restock tracker (if any) a sealed
+// listing belongs to. The /restock pages used to read a whole market's sealed
+// table per request and run these same regexes in JS; storing the answer on the
+// row turns that into an indexed read of a handful of rows.
+//
+// The matchers are the single source of truth in src/lib/restocks.ts — imported,
+// never duplicated. Compiled once per process (RegExp construction per title
+// across thousands of listings is pure waste).
+const FEATURED_MATCHERS: { slug: string; re: RegExp }[] = FEATURED_RESTOCKS.map((p) => ({
+  slug: p.slug,
+  re: restockTitleRegex(p),
+}));
+
+export function featuredRestockSlug(title: string): string | null {
+  for (const m of FEATURED_MATCHERS) if (m.re.test(title)) return m.slug;
+  return null;
+}
+
 // Map a TCGplayer setName to our Pokémon set code via the catalogue (null for
 // cross-set products we can't place). detectSetMeta handles the fuzzy matching.
 function setCodeFromSetName(setName: string): string | null {
@@ -163,6 +182,7 @@ export async function importSealed(): Promise<number> {
           imageUrl: p.images?.[0]?.src ?? null,
           country: cc,
           inStock,
+          productSlug: featuredRestockSlug(title),
         });
       }
     }
@@ -230,6 +250,7 @@ export async function refreshTcgplayerSealed(): Promise<number> {
       imageUrl: tcgImageUrl(p.productId),
       country: "US",
       inStock: true,
+      productSlug: featuredRestockSlug(title),
     });
   }
   await prisma.sealedListing.deleteMany({ where: { retailer: "tcgplayer" } });
@@ -241,12 +262,32 @@ export async function refreshTcgplayerSealed(): Promise<number> {
 // Delete stored sealed rows whose title should now be excluded — independent of
 // scraping, so stale data gets cleaned even when a store didn't refresh.
 export async function cleanupStaleSealed(): Promise<number> {
-  const rows = await prisma.sealedListing.findMany({ select: { id: true, title: true, retailer: true } });
+  const rows = await prisma.sealedListing.findMany({ select: { id: true, title: true, retailer: true, productSlug: true } });
   const ids = rows
     // TCGplayer rows come from the official sealed catalogue — never title-filter them.
     .filter((r) => r.retailer !== "tcgplayer" && (!SEALED_TITLE.test(r.title) || SEALED_EXCLUDE.test(r.title) || !isPokémonSealed(r.title)))
     .map((r) => r.id);
   if (ids.length) await prisma.sealedListing.deleteMany({ where: { id: { in: ids } } });
+
+  // Reconcile the precomputed productSlug for rows this run didn't rewrite (a
+  // store whose scrape failed keeps its old rows) and for anything imported
+  // before the column existed / before a new FEATURED_RESTOCKS entry was added.
+  // Runs at import time only, off the request path, and writes one grouped
+  // update per slug rather than a row-at-a-time loop.
+  const dead = new Set(ids);
+  const wanted = new Map<string | null, string[]>();
+  for (const r of rows) {
+    if (dead.has(r.id)) continue;
+    const slug = featuredRestockSlug(r.title);
+    if (slug === r.productSlug) continue;
+    const arr = wanted.get(slug) ?? [];
+    arr.push(r.id);
+    wanted.set(slug, arr);
+  }
+  for (const [slug, staleIds] of wanted) {
+    await prisma.sealedListing.updateMany({ where: { id: { in: staleIds } }, data: { productSlug: slug } });
+  }
+
   return ids.length;
 }
 

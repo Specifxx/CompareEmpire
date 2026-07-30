@@ -18,6 +18,49 @@ import { SITE_URL } from "@/lib/site";
 // comment here previously claimed otherwise and nearly misled a rebuild.)
 export const revalidate = 86400;
 
+// How many cards the grid renders. Was 400 — no set page needs 400
+// server-rendered tiles (that's ~4× the payload and ~4× the row read for a grid
+// nobody scrolls to the bottom of). The full set stays one click away via
+// /browse?set=<code>, and the copy below reports the REAL total from a cheap
+// count() so a truncated grid never misstates the set size.
+const GRID_LIMIT = 100;
+
+// Fixed prewarm head — NEVER scale this with the catalogue (173 sets today).
+// The rest are generated on first request and then ISR-cached (dynamicParams
+// defaults to true).
+const PREWARM_SETS = 24;
+
+// THE cache fix for this route: without `generateStaticParams` Next 14 never
+// registers a dynamic route for ISR, so `revalidate` above was a silent no-op
+// and every single request re-rendered this page against Postgres (it appeared
+// in neither `routes` nor `dynamicRoutes` in .next/prerender-manifest.json).
+// Declaring it — even when it returns [] — makes the route's ISR eligibility
+// explicit, and the build then fails loudly if a dynamic API (cookies/headers/
+// searchParams) ever creeps into the render. Mirrors card/[id].
+//
+// Params come from the DB (busiest sets first) rather than the static SETS list
+// on purpose: it prewarms the sets that actually get traffic, AND it means a
+// build with an unreachable database prerenders NOTHING instead of failing on
+// the first page whose queries throw — the catch below returns [] and every set
+// page is then generated on demand.
+export async function generateStaticParams() {
+  try {
+    const busiest = await prisma.card.groupBy({
+      by: ["setCode"],
+      where: { hasLivePrice: true },
+      _count: { setCode: true },
+      orderBy: { _count: { setCode: "desc" } },
+      take: PREWARM_SETS,
+    });
+    return busiest.flatMap((g) => {
+      const slug = SETS.find((s) => s.code === g.setCode)?.slug;
+      return slug ? [{ set: slug }] : [];
+    });
+  } catch {
+    return [];
+  }
+}
+
 export async function generateMetadata({ params }: { params: { set: string } }): Promise<Metadata> {
   const set = setBySlug(params.set);
   // The whole site renders dynamically (the layout reads the country cookie), so
@@ -62,14 +105,19 @@ export default async function SetPage({ params }: { params: { set: string } }) {
 
   const country = DEFAULT_COUNTRY; // AU baseline; client tiles localise the price
 
-  // No real Pokémon set exceeds a few hundred cards — this cap is defence-in-depth
-  // (egress rule: no unbounded reads), not an expected truncation.
-  const cards = await prisma.card.findMany({
-    where: { setCode: set.code },
-    orderBy: [{ collectorNumber: "asc" }],
-    select: cardTileSelect(country),
-    take: 400,
-  });
+  // First GRID_LIMIT cards by collector number + the real set size. The count is
+  // an index-only aggregate (cheap) and keeps the copy/FAQ honest when the grid
+  // is truncated.
+  const [cards, totalCards] = await Promise.all([
+    prisma.card.findMany({
+      where: { setCode: set.code },
+      orderBy: [{ collectorNumber: "asc" }],
+      select: cardTileSelect(country),
+      take: GRID_LIMIT,
+    }),
+    prisma.card.count({ where: { setCode: set.code } }),
+  ]);
+  const truncated = totalCards > cards.length;
   const priced = cards.filter((c) => pickPrice(c, country) != null).length;
 
   const otherSets = SETS.filter((s) => s.slug !== set.slug && !s.comingSoon);

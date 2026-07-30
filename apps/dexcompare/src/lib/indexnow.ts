@@ -87,8 +87,20 @@ export async function pingUrlNow(path: string, opts: { force?: boolean } = {}): 
 export async function pingAfterPriceRefresh(opts: { force?: boolean } = {}): Promise<number> {
   const hubs = ["/", "/browse", "/deals", "/card-value", "/most-valuable", "/trending", "/sealed", "/stores"];
   const sets = SETS.filter((s) => !s.comingSoon).map((s) => `/sets/${s.slug}`);
+  // Only pages worth submitting, and only as many as IndexNow will actually accept.
+  // This previously read ALL ~20k cards with no `where` and no `take` (~1.2 MB) to
+  // build a >20,000-URL payload — but IndexNow caps a submission at 10,000 URLs, so
+  // the request was rejected and that transfer bought nothing. Cards with no live
+  // price are noindex anyway (see the tiering in sitemap.ts), so submitting them
+  // would be asking Bing to crawl pages we tell it not to index.
+  const INDEXNOW_CARD_CAP = Number(process.env.INDEXNOW_CARD_CAP) || 5000;
   const cards = await prisma.card
-    .findMany({ select: { id: true, slug: true }, orderBy: { searchCount: "desc" } })
+    .findMany({
+      where: { hasLivePrice: true },
+      select: { id: true, slug: true },
+      orderBy: { searchCount: "desc" },
+      take: INDEXNOW_CARD_CAP,
+    })
     .then((rows) => rows.map((c) => `/card/${c.slug ?? c.id}`))
     .catch(() => [] as string[]);
   return pingIndexNow([...hubs, ...sets, ...cards], opts);

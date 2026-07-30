@@ -20,7 +20,10 @@ export default async function ForumPage() {
     prisma.forumPost.findMany({
       where: { status: "OPEN", market },
       orderBy: { createdAt: "desc" },
-      take: 200,
+      // 60, down from 200. force-dynamic + every column (including `body` and the
+      // `items` JSON) meant ~200 KB of transfer per request; the board shows a
+      // reverse-chronological feed, so the tail was rendered and never read.
+      take: 60,
       include: { _count: { select: { comments: true } } },
     }),
     getCurrentUser(),

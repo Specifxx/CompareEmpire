@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
+import { redirect, notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import { SITE_NAME } from "@/lib/site";
+import { MARKETPLACE_ENABLED } from "@/lib/flags";
 import { SellForm, type SellCard } from "@/components/SellForm";
 
 export const dynamic = "force-dynamic";
@@ -13,6 +14,12 @@ export const metadata = { robots: { index: false } };
 // List a Pokémon card for sale on the CompareEmpire Marketplace. Selling is
 // limited to verified sellers (test-mode play-money marketplace).
 export default async function SellPage() {
+  // The marketplace is off (see lib/flags.ts). Leaving this route reachable while
+  // it's disabled meant a force-dynamic page that preloads 2,000 cards INCLUDING
+  // blurDataUrl (a base64 data URI) — ~1.6 MB of Neon transfer per view, for a
+  // play-money feature nobody can currently use. Gate it with the same flag.
+  if (!MARKETPLACE_ENABLED) notFound();
+
   const user = await getCurrentUser();
   if (!user) redirect("/login?next=/sell");
 

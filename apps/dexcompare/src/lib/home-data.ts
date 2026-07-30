@@ -3,6 +3,7 @@ import { getCheapestCards, getValuableCards } from "./cheapest-cards";
 import { getPopularCards } from "./cards";
 import { getNewSealedArrivals, type SealedGroup } from "./sealed-import";
 import { priceField, type Country } from "./country";
+import { RETAILER_LIST } from "./retailers";
 import type { CardTileData } from "@/components/CardTile";
 
 // The homepage's whole query stack, cached per market. The page is per-request
@@ -31,14 +32,19 @@ const GRID_SIZE = 15;
 
 async function computeHomeData(country: Country): Promise<HomeData> {
   const field = priceField(country);
-  const [totalCards, pricedCards, inStockUnits, cheapestCards, valuableCards, storeGroups, popularCards, newSealed] =
+  // How many stores we track in this market is a property of our CONFIG, not of the
+  // price table — so it needs no query at all. This used to be a groupBy scanning
+  // every RetailerPrice row (~68k) on the homepage's critical path purely to read
+  // `.length` off the result.
+  const storeCount = RETAILER_LIST.filter((r) => (r.country ?? "AU") === country).length;
+
+  const [totalCards, pricedCards, inStockUnits, cheapestCards, valuableCards, popularCards, newSealed] =
     await Promise.all([
       prisma.card.count(),
       prisma.card.count({ where: { [field]: { not: null } } }),
       prisma.retailerPrice.count({ where: { country, inStock: true, NOT: { retailer: { startsWith: "marketguide" } } } }),
       getCheapestCards(12, country),
       getValuableCards(12, country),
-      prisma.retailerPrice.groupBy({ by: ["retailer"], where: { country, NOT: { retailer: { startsWith: "ebay" } } } }),
       // Popular cards lead the homepage featured grid (valuable/cheapest backfill).
       getPopularCards(GRID_SIZE, country),
       getNewSealedArrivals(country, 12),
@@ -63,7 +69,7 @@ async function computeHomeData(country: Country): Promise<HomeData> {
     inStockUnits,
     cheapestCards,
     valuableCards,
-    storeCount: storeGroups.length,
+    storeCount,
     popularCards,
     featuredGrid,
     // The homepage tiles never render per-store listings, and Date fields

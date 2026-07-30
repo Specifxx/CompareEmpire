@@ -1,15 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
-import { FEATURED_RESTOCKS, restockTitleRegex } from "@/lib/restocks";
+import { FEATURED_RESTOCKS } from "@/lib/restocks";
 import { getSealedGroups, type SealedGroup } from "@/lib/sealed-import";
 import { COUNTRIES, DEFAULT_COUNTRY } from "@/lib/country";
 import { formatMoney } from "@/lib/format";
 
-// ISR: cache the AU-baseline restock board (prices localise client-side) and
-// revalidate every 5 min — fresh enough for a board whose stock is re-checked
-// roughly every 15 min, without an uncached DB hit on every visit.
-export const revalidate = 300;
+// ISR: cache the AU-baseline restock board (prices localise client-side).
+// 1 hour, not 5 min: the drop data underneath only changes when the daily
+// importer runs, so a 5-minute window bought nothing but up to 288 DB-backed
+// regenerations a day (Neon transfer). Live per-store stock lives on the
+// individual /restock/<slug> trackers, which are force-dynamic.
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Pokémon drops & restocks — new releases, preorders and restock alerts",
@@ -69,20 +71,26 @@ export default async function DropsIndex() {
 
   // Never let a DB hiccup fail this prerender outright — an empty list
   // (retried on the next ISR revalidation) beats taking the whole build down.
-  const [groups, sealedTitles] = await Promise.all([
+  //
+  // In-stock flag per featured restock tracker: one aggregate over the
+  // precomputed SealedListing.productSlug (index [productSlug, country]),
+  // returning at most one tiny row per tracker. This used to stream the title of
+  // every in-stock sealed listing in the market just to re-run the tracker
+  // regexes in JS.
+  const [groups, liveCounts] = await Promise.all([
     getSealedGroups(country).catch(() => []),
     prisma.sealedListing
-      .findMany({ where: { country, inStock: true }, select: { title: true } })
-      .catch(() => []),
+      .groupBy({
+        by: ["productSlug"],
+        where: { country, inStock: true, productSlug: { in: FEATURED_RESTOCKS.map((p) => p.slug) } },
+        _count: { _all: true },
+      })
+      .catch(() => [] as { productSlug: string | null; _count: { _all: number } }[]),
   ]);
   const drops = buildDrops(groups, todayIso);
 
-  // In-stock flag per featured restock tracker for the visitor's market.
   const liveSlugs = new Set(
-    FEATURED_RESTOCKS.filter((p) => {
-      const re = restockTitleRegex(p);
-      return sealedTitles.some((s) => re.test(s.title));
-    }).map((p) => p.slug)
+    liveCounts.filter((g) => g.productSlug != null && g._count._all > 0).map((g) => g.productSlug as string)
   );
 
   return (

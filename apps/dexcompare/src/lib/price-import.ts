@@ -249,10 +249,30 @@ function bestVariantPrice(variants: ShopifyVariant[]): { priceCents: number } | 
 // product page (a card showed $33 when the product page was $45), so we confirm the
 // one price we actually display per card. Updates the row if it has drifted.
 async function verifyCheapestListings(): Promise<number> {
+  // Confirming the WHOLE catalogue (~68k listings) took ~14h and corrected ~0.02%
+  // of prices, because the collection feed is already country-priced (country=XX) —
+  // the very drift this pass guarded against. So only re-confirm the cheapest
+  // listing for the most-wanted cards (the ones users actually open), capped by
+  // CONFIRM_CAP. The rest keep their feed price, which is already correct.
+  //
+  // The demand query runs FIRST and constrains the listing read. It used to be the
+  // other way around: every in-stock store listing (~45k rows × ~160 B ≈ 7 MB, the
+  // `url` column alone being ~85 B of it) was pulled across the wire and then ~97%
+  // of it discarded by this same filter. Same result, ~30x less transfer.
+  const CONFIRM_CAP = Number(process.env.CONFIRM_CAP) || 1500;
+  const demand = await prisma.card.findMany({
+    orderBy: [{ searchCount: "desc" }, { viewCount: "desc" }],
+    take: CONFIRM_CAP,
+    select: { id: true },
+  });
+  if (demand.length === 0) return 0;
+
   const rows = await prisma.retailerPrice.findMany({
-    // Skip eBay (verified live by its own import) and the non-buyable baseline rows
-    // (market guide / TCGplayer / Cardmarket references aren't Shopify product pages).
+    // Only the demand head, and skip the non-buyable baseline rows (market guide /
+    // TCGplayer / Cardmarket references aren't Shopify product pages). eBay rows are
+    // excluded too — DexCompare no longer writes any, but historical rows may remain.
     where: {
+      cardId: { in: demand.map((c) => c.id) },
       inStock: true,
       NOT: [
         { retailer: { startsWith: "ebay" } },
@@ -270,19 +290,7 @@ async function verifyCheapestListings(): Promise<number> {
     const k = `${r.cardId}|${r.country}`;
     if (!cheapest.has(k)) cheapest.set(k, r);
   }
-  // Confirming the WHOLE catalogue (~68k listings) took ~14h and corrected ~0.02%
-  // of prices, because the collection feed is already country-priced (country=XX) —
-  // the very drift this pass guarded against. So only re-confirm the cheapest
-  // listing for the most-wanted cards (the ones users actually open), capped by
-  // CONFIRM_CAP. The rest keep their feed price, which is already correct.
-  const CONFIRM_CAP = Number(process.env.CONFIRM_CAP) || 1500;
-  const demand = await prisma.card.findMany({
-    orderBy: [{ searchCount: "desc" }, { viewCount: "desc" }],
-    take: CONFIRM_CAP,
-    select: { id: true },
-  });
-  const wanted = new Set(demand.map((c) => c.id));
-  const targets = Array.from(cheapest.values()).filter((t) => wanted.has(t.cardId));
+  const targets = Array.from(cheapest.values());
 
   // Fetch a product's authoritative price. Uses the CLEAN product.json URL (no
   // cache-bust query param — that returned a stale/blocked response from the runner;

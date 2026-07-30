@@ -9,9 +9,16 @@ import { indexableSpeciesSlugs } from "@/lib/pokemon-species-data";
 import { FACET_KINDS, listFacetValues, pricedCountForFacet, MIN_PRICED_TO_INDEX_FACET } from "@/lib/card-facets";
 import { RETAILER_LIST } from "@/lib/retailers";
 
-// Hourly revalidation so new card slugs surface in Google within ~1 hour of a
-// price snapshot, down from the previous 24-hour window.
-export const revalidate = 3600;
+// Daily revalidation, deliberately NOT hourly.
+//
+// Bucket 1 is the largest cached read on the site (~20k rows × ~165 B ≈ 3.3 MB per
+// regenerate). At revalidate=3600 a once-an-hour bot fetch alone cost ~79 MB/day of
+// Neon transfer — a material share of a 5 GB/month allowance that has now been
+// exhausted twice. Hourly bought nothing real either: prices only change when the
+// daily importer runs, and /card/[id] itself is cached for 24h, so a sitemap
+// lastmod could never be more than a day ahead of the page it points at.
+// This one line is a ~24x reduction on the biggest cached read.
+export const revalidate = 86400;
 
 /**
  * Three child sitemaps — one per content bucket.

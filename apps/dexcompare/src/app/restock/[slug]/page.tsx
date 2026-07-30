@@ -5,7 +5,6 @@ import { prisma } from "@/lib/db";
 import {
   getFeaturedRestock,
   getFeaturedRestockSlugs,
-  restockTitleRegex,
   isHeadlineType,
   rrpFor,
 } from "@/lib/restocks";
@@ -53,11 +52,15 @@ export default async function RestockTrackerPage({ params }: { params: { slug: s
 
   const country = getCountry();
   const info = COUNTRIES[country];
-  const re = restockTitleRegex(product);
 
-  const [sealedRows, events, waiting] = await Promise.all([
+  // This route is force-dynamic, so this query runs on EVERY request (and the
+  // sitemap advertises these pages as hourly). It reads ONLY this product's rows
+  // via the precomputed SealedListing.productSlug + @@index([productSlug, country])
+  // — it used to pull the whole market's sealed table (~1 MB/request of Neon
+  // transfer) and narrow it to these same rows with a regex in JS.
+  const [all, events, waiting] = await Promise.all([
     prisma.sealedListing.findMany({
-      where: { country },
+      where: { country, productSlug: product.slug },
       select: { id: true, title: true, productType: true, retailer: true, retailerName: true, priceCents: true, url: true, inStock: true, lastSeen: true },
       orderBy: { priceCents: "asc" },
     }),
@@ -65,7 +68,6 @@ export default async function RestockTrackerPage({ params }: { params: { slug: s
     prisma.restockAlert.count({ where: { productSlug: product.slug, market: country } }),
   ]);
 
-  const all = sealedRows.filter((r) => re.test(r.title));
   const stores = all.filter((r) => !r.retailer.startsWith("ebay"));
   const ebayRows = all.filter((r) => r.retailer.startsWith("ebay"));
 
