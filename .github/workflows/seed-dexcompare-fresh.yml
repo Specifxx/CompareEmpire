@@ -1,0 +1,66 @@
+name: Seed DexCompare database (manual, DESTRUCTIVE)
+
+# Full seed for a FRESH/empty DexCompare Neon database: pushes the schema, then
+# runs prisma/seed.ts (catalogue + baseline guide prices + sealed listings).
+#
+# DESTRUCTIVE: seed.ts TRUNCATEs RetailerPrice and deletes Card/Deal/SealedListing/
+# User rows before inserting. It must never fire by accident, so it requires the
+# `confirm` input to be typed exactly as SEED. There is no schedule trigger.
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type SEED to confirm you want to wipe and re-seed the target database"
+        required: true
+        default: ""
+      dexcompare_url:
+        description: "DexCompare Neon DATABASE_URL (optional if the DEXCOMPARE_DATABASE_URL secret is set)"
+        required: false
+        default: ""
+
+jobs:
+  seed:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check confirmation
+        run: |
+          if [ "${{ inputs.confirm }}" != "SEED" ]; then
+            echo "::error::Refusing to run — the confirm input must be exactly SEED (got something else)."
+            exit 1
+          fi
+
+      - name: Resolve database URL
+        id: db
+        env:
+          SECRET_URL: ${{ secrets.DEXCOMPARE_DATABASE_URL }}
+          INPUT_URL: ${{ inputs.dexcompare_url }}
+        run: |
+          URL="${INPUT_URL:-$SECRET_URL}"
+          if [ -z "$URL" ]; then
+            echo "::error::No DEXCOMPARE_DATABASE_URL secret and no URL input."
+            exit 1
+          fi
+          echo "::add-mask::$URL"
+          echo "DATABASE_URL=$URL" >> "$GITHUB_ENV"
+
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Push schema and seed
+        working-directory: apps/dexcompare
+        env:
+          # Optional: raises the pokemontcg.io rate limit so more cards get a REAL
+          # TCGplayer guide price instead of the rarity heuristic. Seed works without it.
+          POKEMONTCG_API_KEY: ${{ secrets.POKEMONTCG_API_KEY }}
+        run: |
+          npm install --no-audit --no-fund
+          npx prisma generate
+          npx prisma db push --skip-generate --accept-data-loss
+          npx tsx prisma/seed.ts
+
+      - name: Verify data quality
+        working-directory: apps/dexcompare
+        run: npx tsx scripts/verify-data.ts
