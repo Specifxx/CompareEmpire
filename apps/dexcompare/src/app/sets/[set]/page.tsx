@@ -6,7 +6,7 @@ import { SetCardGrid } from "@/components/SetCardGrid";
 import { SetCompletion } from "@/components/SetCompletion";
 import { SealedTile } from "@/components/SealedTile";
 import { cardTileSelect } from "@/lib/cards";
-import { pickPrice, DEFAULT_COUNTRY, COUNTRIES } from "@/lib/country";
+import { priceField, DEFAULT_COUNTRY, COUNTRIES } from "@/lib/country";
 import { SETS, setBySlug } from "@/lib/constants";
 import { POKEMON_SETS } from "@/lib/pokemon-sets";
 import { getSealedGroups } from "@/lib/sealed-import";
@@ -108,7 +108,7 @@ export default async function SetPage({ params }: { params: { set: string } }) {
   // First GRID_LIMIT cards by collector number + the real set size. The count is
   // an index-only aggregate (cheap) and keeps the copy/FAQ honest when the grid
   // is truncated.
-  const [cards, totalCards] = await Promise.all([
+  const [cards, totalCards, priced] = await Promise.all([
     prisma.card.findMany({
       where: { setCode: set.code },
       orderBy: [{ collectorNumber: "asc" }],
@@ -116,9 +116,12 @@ export default async function SetPage({ params }: { params: { set: string } }) {
       take: GRID_LIMIT,
     }),
     prisma.card.count({ where: { setCode: set.code } }),
+    // Priced across the WHOLE set (was counted over the fetched page only, which
+    // undercounted as soon as the grid truncated). AU baseline column, matching
+    // pickPrice(card, DEFAULT_COUNTRY).
+    prisma.card.count({ where: { setCode: set.code, [priceField(country)]: { not: null } } }),
   ]);
   const truncated = totalCards > cards.length;
-  const priced = cards.filter((c) => pickPrice(c, country) != null).length;
 
   const otherSets = SETS.filter((s) => s.slug !== set.slug && !s.comingSoon);
 
@@ -161,7 +164,7 @@ export default async function SetPage({ params }: { params: { set: string } }) {
     : [
         {
           q: `How many cards are in Pokémon ${set.name}?`,
-          a: `Pokémon ${set.name} has ${cards.length} cards in our database${priced > 0 ? `, and ${priced} of them have live store prices right now` : ""}. Click any card to compare prices across stores and find the cheapest place to buy.`,
+          a: `Pokémon ${set.name} has ${totalCards} cards in our database${priced > 0 ? `, and ${priced} of them have live store prices right now` : ""}. Click any card to compare prices across stores and find the cheapest place to buy.`,
         },
         {
           q: `Where can I buy ${set.name} singles cheapest?`,
@@ -207,7 +210,7 @@ export default async function SetPage({ params }: { params: { set: string } }) {
           {set.comingSoon ? (
             <>Pokémon <strong className="text-slate-200">{set.name}</strong>{released && meta ? <> releases on {released} as part of the {meta.series} series</> : <> isn&apos;t out yet</>}. This page will list every {set.name} card with live prices the moment it releases — check back soon.</>
           ) : (
-            <>Browse all {cards.length} Pokémon <strong className="text-slate-200">{set.name}</strong> cards{released && meta ? <> from the <strong className="text-slate-200">{meta.series}</strong> series (released {released})</> : null} and compare live prices across stores to find the cheapest singles. {priced.toLocaleString()} cards are priced right now, updated daily — switch your country at the top to see local prices.</>
+            <>Browse all {totalCards} Pokémon <strong className="text-slate-200">{set.name}</strong> cards{released && meta ? <> from the <strong className="text-slate-200">{meta.series}</strong> series (released {released})</> : null} and compare live prices across stores to find the cheapest singles. {priced.toLocaleString()} cards are priced right now, updated daily — switch your country at the top to see local prices.</>
           )}
         </p>
       </div>
@@ -225,7 +228,20 @@ export default async function SetPage({ params }: { params: { set: string } }) {
           </div>
         </div>
       ) : (
-        <SetCardGrid cards={cards} />
+        <div>
+          <SetCardGrid cards={cards} />
+          {/* The grid renders the first GRID_LIMIT cards by collector number; be
+              explicit about it and hand the rest to /browse (which paginates)
+              rather than server-rendering hundreds of tiles nobody scrolls to. */}
+          {truncated && (
+            <p className="mt-4 text-center text-sm text-slate-400">
+              Showing the first {cards.length} of {totalCards} {set.name} cards.{" "}
+              <Link href={`/browse?set=${set.code}`} className="text-brand-400 hover:underline">
+                Browse every {set.name} card →
+              </Link>
+            </p>
+          )}
+        </div>
       )}
 
       {/* Sealed products for this set — booster boxes, ETBs, etc. */}
