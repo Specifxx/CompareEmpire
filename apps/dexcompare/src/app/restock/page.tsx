@@ -16,7 +16,7 @@ export const revalidate = 3600;
 export const metadata: Metadata = {
   title: "Pokémon drops & restocks — new releases, preorders and restock alerts",
   description:
-    "Every new and upcoming Pokémon TCG release with the cheapest live preorder/stock across stores in Australia, New Zealand, the US and the UK — plus free restock alerts for sold-out sets.",
+    "Every new and upcoming Pokémon TCG release with the cheapest live preorder/stock across stores in Australia, the US and the UK — plus free restock alerts for sold-out sets.",
   alternates: { canonical: "/restock" },
 };
 

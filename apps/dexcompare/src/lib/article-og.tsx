@@ -91,7 +91,7 @@ export function articleOgElement(article: Article | undefined, kicker: "Guide" |
       {/* Footer: read time + url */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div style={{ fontSize: 24, color: "#64748b", display: "flex" }}>
-          {article ? `${article.readMins} min read · ${article.author}` : "Live Pokémon card prices across AU · NZ · US · UK"}
+          {article ? `${article.readMins} min read · ${article.author}` : "Live Pokémon card prices across AU · US · UK"}
         </div>
         <div style={{ fontSize: 24, color: "#64748b", display: "flex" }}>dexcompare.app</div>
       </div>

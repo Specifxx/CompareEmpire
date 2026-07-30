@@ -43,7 +43,7 @@ const GROUPS: ToolGroup[] = [
         href: "/card-value",
         icon: "💰",
         title: "Card value checker",
-        desc: "Look up any Pokémon card's live market value plus the cheapest real store price across AU, NZ, US & UK.",
+        desc: "Look up any Pokémon card's live market value plus the cheapest real store price across AU, US & UK.",
       },
       {
         href: "/tools/arbitrage",

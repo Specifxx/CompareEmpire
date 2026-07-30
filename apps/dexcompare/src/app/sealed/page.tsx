@@ -30,7 +30,7 @@ export function generateMetadata({ searchParams }: { searchParams: SealedParams 
   return {
     title: "Pokémon booster packs, boxes & ETBs — compare sealed prices",
     description:
-      "Browse the full Pokémon sealed-product database — booster packs, booster boxes, elite trainer boxes, bundles, collection boxes and tins — and compare live prices across stores in Australia, New Zealand, the US and the UK to find the cheapest place to buy.",
+      "Browse the full Pokémon sealed-product database — booster packs, booster boxes, elite trainer boxes, bundles, collection boxes and tins — and compare live prices across stores in Australia, the US and the UK to find the cheapest place to buy.",
     alternates: { canonical: "/sealed" },
     ...(isFilteredParams(searchParams) ? { robots: { index: false, follow: true } } : {}),
   };

@@ -4,9 +4,14 @@ import { useEffect, useRef, useState } from "react";
 import { COUNTRY_LIST, INTL_ENABLED } from "@/lib/country";
 import { useCountry } from "./CountryProvider";
 
-// Market chooser: 🇦🇺 Australia (default) / 🇳🇿 New Zealand. Switching reloads
-// prices + store lists for the chosen country and persists via cookie. Hidden while
-// NZ mode is in development (the site is AU-only then).
+// Market chooser: 🇦🇺 Australia (default) / 🇺🇸 United States / 🇬🇧 United Kingdom.
+// (New Zealand was dropped — see the note in lib/country.ts.)
+//
+// Switching persists the choice in a cookie and updates every client-localised
+// price. Note that most pages are ISR-cached and deliberately do NOT read that
+// cookie server-side — so anything market-specific beyond a price column has to
+// be localised in a client component (see DealsRail/DealsGrid), not re-fetched.
+// Hidden entirely when INTL_ENABLED is off.
 export function CountrySwitcher({ className = "" }: { className?: string }) {
   const { country, setCountry } = useCountry();
   const [open, setOpen] = useState(false);

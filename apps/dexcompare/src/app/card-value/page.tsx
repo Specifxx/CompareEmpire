@@ -21,7 +21,7 @@ export function generateMetadata(): Metadata {
   return {
     title: `Pokémon Card Value Checker — Free Price Guide (${year})`,
     description:
-      "Check what your Pokémon cards are worth, free: search any card to see its live market value plus real store prices in Australia, New Zealand, the US and the UK. Vintage Base Set to the newest Mega Evolution chases — updated daily.",
+      "Check what your Pokémon cards are worth, free: search any card to see its live market value plus real store prices in Australia, the US and the UK. Vintage Base Set to the newest Mega Evolution chases — updated daily.",
     keywords: [
       "pokemon card value",
       "pokemon card value checker",
@@ -51,7 +51,7 @@ const FAQS = [
   },
   {
     q: "Is this Pokémon card value checker free?",
-    a: "Completely free, no account or signup. Values refresh daily from TCGplayer market data and live prices across the stores we track in Australia, New Zealand, the US and the UK.",
+    a: "Completely free, no account or signup. Values refresh daily from TCGplayer market data and live prices across the stores we track in Australia, the US and the UK.",
   },
 ];
 
@@ -192,7 +192,7 @@ export default async function CardValuePage() {
               operatingSystem: "Web",
               offers: { "@type": "Offer", price: "0", priceCurrency: info.currency },
               description:
-                "Free Pokémon card value checker: search any card for its live market value and real store prices across AU, NZ, US and UK.",
+                "Free Pokémon card value checker: search any card for its live market value and real store prices across AU, US and UK.",
             },
           ]),
         }}

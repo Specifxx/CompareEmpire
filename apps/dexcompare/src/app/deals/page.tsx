@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CardTile } from "@/components/CardTile";
+import { DealsGrid } from "@/components/DealsGrid";
 import { AdSlot } from "@/components/AdSlot";
-import { getTopDeals } from "@/lib/deals";
-import { COUNTRIES, DEFAULT_COUNTRY } from "@/lib/country";
+import { getTopDeals, type Deal } from "@/lib/deals";
+import { COUNTRY_LIST, DEFAULT_COUNTRY, type Country } from "@/lib/country";
 import { formatMoney } from "@/lib/format";
 import { SITE_URL } from "@/lib/site";
 
@@ -14,29 +14,43 @@ export const revalidate = 900;
 export const metadata: Metadata = {
   title: "Pokémon card deals — biggest discounts vs market price",
   description:
-    "Pokémon singles selling below TCGplayer market price across AU, NZ, US and UK stores. Updated daily — the fastest way to snipe underpriced cards.",
+    "Pokémon singles selling below TCGplayer market price across AU, US and UK stores. Updated daily — the fastest way to snipe underpriced cards.",
   alternates: { canonical: "/deals" },
 };
 
 export default async function DealsPage() {
-  const country = DEFAULT_COUNTRY;
-  const info = COUNTRIES[country];
+  // Fetched for EVERY market so the client island can render the visitor's region
+  // (the cached HTML can't vary by cookie). Each is a take-capped read of the
+  // precomputed Deal table, cached per market.
   // Never let a DB hiccup fail this prerender outright — an empty deals list
   // (retried on the next ISR revalidation) beats taking the whole build down.
-  const deals = await getTopDeals(60, country).catch(() => []);
+  const dealLists = await Promise.all(
+    COUNTRY_LIST.map((c) => getTopDeals(60, c.code).catch(() => [] as Deal[]))
+  );
+  const dealsByMarket: Partial<Record<Country, Deal[]>> = {};
+  COUNTRY_LIST.forEach((c, i) => {
+    dealsByMarket[c.code] = dealLists[i] ?? [];
+  });
+  const marketNames = COUNTRY_LIST.map((c) => c.adjective).join(", ").replace(/, ([^,]*)$/, " and $1");
+  // The ItemList below is structured data, and this page is cached as ONE document,
+  // so it must describe what a cookie-less crawler actually renders: <DealsGrid>
+  // falls back to the DEFAULT market when there's no country cookie, so list that
+  // market's deals. (The grid is a client component but has no useSearchParams, so
+  // it still server-renders into the cached HTML — the crawler does see the cards.)
+  const crawlerDeals = dealsByMarket[DEFAULT_COUNTRY] ?? [];
 
   const faqs = [
     {
       q: "What counts as a deal on DexCompare?",
-      a: `A deal is a live ${info.adjective} store price at least 15% below the card's TCGplayer market guide. We cap deals at 70% off — deeper gaps are almost always listing errors, not real bargains.`,
+      a: `A deal is a live store price in your selected market (${marketNames}) at least 15% below the card's TCGplayer market guide. We cap deals at 70% off — deeper gaps are almost always listing errors, not real bargains.`,
     },
     {
       q: "How often do the deals update?",
       a: "Every price import — typically daily. Newly underpriced listings appear at the next refresh, and sold-out ones drop off automatically.",
     },
     {
-      q: `Are the prices shown in ${info.currency}?`,
-      a: `Yes. Store prices are the live ${info.adjective} prices in ${info.currency}; the market guide is TCGplayer's market price converted at an indicative rate for comparison only.`,
+      q: "Are the prices shown in my local currency?",
+      a: "Yes. Store prices are the live prices for your selected market in that market's currency — AUD in Australia, USD in the US and GBP in the UK; the market guide is TCGplayer's market price converted at an indicative rate for comparison only.",
     },
   ];
 
@@ -46,9 +60,9 @@ export default async function DealsPage() {
         <div className="relative border-l-2 border-brand-500 bg-ink-900 px-6 py-8">
           <h1 className="text-2xl font-extrabold text-white sm:text-3xl">Today&apos;s best Pokémon deals</h1>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-300">
-            Cards listed by {info.adjective} stores <strong className="text-white">well below their TCGplayer
+            Cards listed by {marketNames} stores <strong className="text-white">well below their TCGplayer
             market price</strong> right now. Every deal shows the live store price next to the market guide —
-            click through and snipe it before someone else does.
+            click through and snipe it before someone else does. Use the region switcher to change market.
           </p>
           <p className="mt-2 text-xs text-slate-500">
             We only count real market guides (TCGplayer) and cap discounts at 70% — deeper than that is
@@ -59,28 +73,7 @@ export default async function DealsPage() {
 
       <AdSlot format="horizontal" height={90} />
 
-      {deals.length === 0 ? (
-        <div className="card-surface grid place-items-center p-16 text-center">
-          <p className="text-lg font-semibold text-white">No standout deals in {info.place} right now</p>
-          <p className="mt-1 text-sm text-slate-400">
-            Deals appear when a store undercuts the market guide by 15% or more — check back after the next
-            price refresh, or browse the cheapest cards instead.
-          </p>
-          <Link href="/browse?priced=1&sort=price_asc" className="btn-primary mt-4">Browse cheapest cards</Link>
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-          {deals.map((d) => (
-            <div key={d.card.id}>
-              <div className="mb-1.5 flex items-center justify-between px-1 text-xs font-bold">
-                <span className="num text-up">−{d.pct}% vs market</span>
-                <span className="num text-slate-500 line-through">{formatMoney(d.guideCents, info.currency)}</span>
-              </div>
-              <CardTile card={d.card} />
-            </div>
-          ))}
-        </div>
-      )}
+      <DealsGrid dealsByMarket={dealsByMarket} />
 
       {/* Contextual FAQ — visible content backing the FAQPage structured data. */}
       <section className="card-surface p-6">
@@ -96,7 +89,7 @@ export default async function DealsPage() {
       </section>
 
       <p className="text-center text-[11px] text-slate-600">
-        Market guide is TCGplayer&apos;s market price converted to {info.currency} at an indicative rate.
+        Market guide is TCGplayer&apos;s market price converted to your market&apos;s currency at an indicative rate.
         Always confirm price and condition on the store&apos;s site before buying.
       </p>
 
@@ -121,12 +114,12 @@ export default async function DealsPage() {
                 { "@type": "ListItem", position: 2, name: "Deals", item: `${SITE_URL}/deals` },
               ],
             },
-            ...(deals.length
+            ...(crawlerDeals.length
               ? [
                   {
                     "@context": "https://schema.org",
                     "@type": "ItemList",
-                    itemListElement: deals.map((d, i) => ({
+                    itemListElement: crawlerDeals.map((d, i) => ({
                       "@type": "ListItem",
                       position: i + 1,
                       url: `${SITE_URL}/card/${d.card.slug ?? d.card.id}`,

@@ -317,7 +317,7 @@ Prices update daily across every store we track in Australia, the US and the UK.
 
 ## 1. Stop camping the big-box stores
 
-Everyone is refreshing the same three giant retailers. Meanwhile, the **specialist TCG shops — the ones we track across Australia, NZ, the US and the UK — receive their own allocations** and often list them with zero fanfare. That's where MSRP copies keep appearing.
+Everyone is refreshing the same three giant retailers. Meanwhile, the **specialist TCG shops — the ones we track across Australia, the US and the UK — receive their own allocations** and often list them with zero fanfare. That's where MSRP copies keep appearing.
 
 The **[Chaos Rising restock tracker](/restock/chaos-rising)** watches those stores continuously and shows, on one page: which stores have Booster Boxes or ETBs in stock *right now*, at what price, plus a log of every restock we've caught and how fast it sold out.
 
@@ -439,7 +439,7 @@ Packs and boxes are for the *opening experience* (which is genuinely fun — bud
 
 ## Where DexCompare fits
 
-We track every English card across AU, NZ, US and UK stores, refresh prices daily, and show the **market price guide with its source** next to the **real cheapest store**. Add your targets to the [wishlist](/wishlist), let the price-drop emails come to you, and build the collection you actually want — at prices you chose, not prices that happened to you.`,
+We track every English card across AU, US and UK stores, refresh prices daily, and show the **market price guide with its source** next to the **real cheapest store**. Add your targets to the [wishlist](/wishlist), let the price-drop emails come to you, and build the collection you actually want — at prices you chose, not prices that happened to you.`,
   },
   {
     slug: "pokemon-card-conditions-and-grading",

@@ -75,7 +75,7 @@ export default function Image() {
         {/* Footer: url */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ fontSize: 24, color: "#64748b", display: "flex" }}>
-            AU · NZ · US · UK, every store we track
+            AU · US · UK, every store we track
           </div>
           <div style={{ fontSize: 24, color: "#64748b", display: "flex" }}>dexcompare.app</div>
         </div>

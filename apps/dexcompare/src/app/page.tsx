@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Suspense, type ReactNode } from "react";
-import { CardTile } from "@/components/CardTile";
+import { Suspense } from "react";
 import { CountryHeroToggle } from "@/components/CountryHeroToggle";
 import { getHomeData } from "@/lib/home-data";
-import { getTopDeals } from "@/lib/deals";
-import { formatMoney } from "@/lib/format";
-import { DEFAULT_COUNTRY } from "@/lib/country";
+import { getTopDeals, type Deal } from "@/lib/deals";
+import { DealsRail } from "@/components/DealsRail";
+import { COUNTRY_LIST, DEFAULT_COUNTRY, type Country } from "@/lib/country";
 import { Logo } from "@/components/Logo";
 import { CountUp } from "@/components/CountUp";
 import { SearchBar } from "@/components/SearchBar";
@@ -70,14 +69,22 @@ export default async function HomePage() {
   // Never let a DB hiccup fail this prerender outright — an empty homepage
   // render (retried on the next ISR revalidation) beats taking the whole
   // build down, the exact failure mode that broke production before.
-  const [{ totalCards, inStockUnits, storeCount }, deals] = await Promise.all([
+  // Deals are fetched for EVERY market, not just the AU baseline: the cached HTML
+  // can't vary by cookie, so the client island picks the active region's list. Each
+  // call is a take-capped read of the precomputed ~400-row Deal table, cached per
+  // market — three of them cost far less than one catalogue scan.
+  const [{ totalCards, inStockUnits, storeCount }, ...dealLists] = await Promise.all([
     getHomeData(DEFAULT_COUNTRY).catch(() => ({
       totalCards: 0,
       inStockUnits: 0,
       storeCount: 0,
     })),
-    getTopDeals(12, DEFAULT_COUNTRY).catch(() => []),
+    ...COUNTRY_LIST.map((c) => getTopDeals(12, c.code).catch(() => [] as Deal[])),
   ]);
+  const dealsByMarket: Partial<Record<Country, Deal[]>> = {};
+  COUNTRY_LIST.forEach((c, i) => {
+    dealsByMarket[c.code] = dealLists[i] ?? [];
+  });
 
   return (
       <div className="flex flex-col gap-10">
@@ -166,32 +173,12 @@ export default async function HomePage() {
           </span>
         </section>
 
-        {/* ── One highlight: today's best deals ── */}
-        {deals.length >= 4 && (
-          <section>
-            <div className="mb-4 flex items-end justify-between gap-3">
-              <div className="min-w-0">
-                <h2 className="flex items-center gap-2 text-xl font-extrabold text-white sm:text-2xl">
-                  <span aria-hidden>🔥</span>
-                  Today&apos;s best deals
-                </h2>
-                <p className="mt-1 text-xs text-slate-400">Australian store prices well below the TCGplayer market guide right now.</p>
-              </div>
-              <Link href="/deals" className="btn-ghost shrink-0 text-xs">All deals →</Link>
-            </div>
-            <Carousel>
-              {deals.map((d) => (
-                <div key={d.card.id} className="w-36 shrink-0 snap-start sm:w-44">
-                  <div className="mb-1.5 flex items-center justify-between px-1 text-xs font-bold">
-                    <span className="num text-up">−{d.pct}%</span>
-                    <span className="num text-slate-500 line-through">{formatMoney(d.guideCents, "AUD")}</span>
-                  </div>
-                  <CardTile card={d.card} />
-                </div>
-              ))}
-            </Carousel>
-          </section>
-        )}
+        {/* ── One highlight: today's best deals ──
+            Client island: it holds every market's deal list and renders the one
+            matching the visitor's region, because a deal is a per-market
+            SELECTION (which cards, what %, which converted guide) and not
+            something CardTile can re-derive from a price column. */}
+        <DealsRail dealsByMarket={dealsByMarket} />
 
         {/* ── Browse by set ──
             Ported from RiftCompare's homepage. Beyond matching the look this is
@@ -307,14 +294,5 @@ function Stat({ value, label }: { value: number; label: string }) {
       <span className="num font-extrabold text-slate-200"><CountUp value={value} /></span>{" "}
       <span className="uppercase tracking-wide">{label}</span>
     </span>
-  );
-}
-
-// Horizontal snap carousel with faded scroll edges.
-function Carousel({ children }: { children: ReactNode }) {
-  return (
-    <div className="edge-fade snap-x-mandatory -mx-1 flex gap-4 overflow-x-auto px-1 pb-2">
-      {children}
-    </div>
   );
 }

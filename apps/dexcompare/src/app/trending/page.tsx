@@ -3,7 +3,7 @@ import Link from "next/link";
 import { CardTile } from "@/components/CardTile";
 import { AdSlot } from "@/components/AdSlot";
 import { getPopularCards } from "@/lib/cards";
-import { COUNTRIES, DEFAULT_COUNTRY } from "@/lib/country";
+import { DEFAULT_COUNTRY } from "@/lib/country";
 import { SITE_URL } from "@/lib/site";
 
 // ISR: render the market-neutral (AU) baseline and cache it — prices localise
@@ -20,7 +20,6 @@ export const metadata: Metadata = {
 
 export default async function TrendingPage() {
   const country = DEFAULT_COUNTRY;
-  const info = COUNTRIES[country];
 
   // Never let a DB hiccup fail this prerender outright — an empty list
   // (retried on the next ISR revalidation) beats taking the whole build down.
@@ -40,8 +39,11 @@ export default async function TrendingPage() {
       a: "View counts are recorded in real time whenever a card page is opened. The ranking here refreshes every few hours, so cards riding a wave of fresh interest rise quickly.",
     },
     {
-      q: `Are prices shown in ${info.currency}?`,
-      a: `Yes — all prices are in ${info.currency} from ${info.adjective} stores. Switch your market in the top-right corner to see trending cards for Australia, New Zealand, the US, or the UK.`,
+      q: "Are prices shown in my local currency?",
+      // Market-NEUTRAL: this page is cached as one document, so the visible copy
+      // and its structured data must read correctly for every market. (It also
+      // used to advertise New Zealand, which is no longer a supported market.)
+      a: "Yes — prices are shown in your selected market's currency (AUD in Australia, USD in the US, GBP in the UK) from stores that ship to that market. Switch market with the region selector in the top-right corner.",
     },
   ];
 
@@ -92,7 +94,7 @@ export default async function TrendingPage() {
             Trending Pokémon cards — what collectors are watching
           </h1>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-300">
-            The {info.adjective} Pokémon singles with the most eyes on them right now. Based on
+            The Pokémon singles with the most eyes on them right now. Based on
             real card views across DexCompare — updated continuously. Popularity often moves before
             prices do.
           </p>
@@ -171,8 +173,8 @@ export default async function TrendingPage() {
       </section>
 
       <p className="text-center text-[11px] text-slate-600">
-        Popularity is based on DexCompare page views in the {info.adjective} market. Prices are
-        live store listings in {info.currency}.
+        Popularity is based on DexCompare page views. Prices are live store listings in your
+        selected market&apos;s currency.
       </p>
 
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd ? [breadcrumb, faqLd, itemListLd] : [breadcrumb, faqLd]) }} />
