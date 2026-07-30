@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/db";
 import { POKEMON_SETS } from "@/lib/pokemon-sets";
 import { DEFAULT_COUNTRY } from "@/lib/country";
@@ -6,7 +7,27 @@ import { formatMoney, dollarsToCents } from "@/lib/format";
 import { PULL_RATE_SETS, pullRateSetForSeries } from "@/lib/box-ev";
 import { SITE_URL } from "@/lib/site";
 
-export const revalidate = 86400;
+// Deliberately NO `export const revalidate`: this page reads `searchParams`
+// (?set=/?cost=), which is a dynamic API in Next 14, so Next never registers it
+// for ISR and a `revalidate` here would be a silent lie — the exact pattern that
+// let several routes pay a per-request Postgres cost while looking cached.
+//
+// The page is genuinely per-request (it's a calculator over a free-text cost), so
+// instead of faking a page cache we cache the only thing that touches the DB, keyed
+// by set code — a bounded key space (eligibleSets), unlike ?cost=.
+const avgPricesForSet = (setCode: string, rarities: string[]) =>
+  unstable_cache(
+    async () => {
+      const rows = await prisma.card.groupBy({
+        by: ["rarity"],
+        where: { setCode, rarity: { in: rarities }, lowestPriceCents: { not: null } },
+        _avg: { lowestPriceCents: true },
+      });
+      return rows.map((r) => [r.rarity, r._avg.lowestPriceCents] as const);
+    },
+    ["box-ev-avg", setCode],
+    { revalidate: 86400 }
+  )();
 
 // `cost` is a free-text number the visitor types, so ?cost= has unbounded
 // cardinality — a classic crawl trap. Any set/cost permutation is noindexed
@@ -35,12 +56,7 @@ export default async function BoxEvPage({ searchParams }: { searchParams: { set?
 
   if (set && pullSet) {
     const rarities = [...new Set(pullSet.rates.map((r) => r.rarity))];
-    const rows = await prisma.card.groupBy({
-      by: ["rarity"],
-      where: { setCode: set.code, rarity: { in: rarities }, lowestPriceCents: { not: null } },
-      _avg: { lowestPriceCents: true },
-    });
-    const avgByRarity = new Map(rows.map((r) => [r.rarity, r._avg.lowestPriceCents]));
+    const avgByRarity = new Map(await avgPricesForSet(set.code, rarities));
 
     breakdown = pullSet.rates
       .filter((r) => avgByRarity.has(r.rarity))

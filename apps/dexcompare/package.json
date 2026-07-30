@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && tsx scripts/check-isr-leaks.ts && next build",
+    "build": "prisma generate && next build && tsx scripts/check-isr-leaks.ts --strict",
     "start": "next start",
     "import:prices": "tsx scripts/import-prices.ts",
     "lint": "next lint",
