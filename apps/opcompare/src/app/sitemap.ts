@@ -14,26 +14,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // snapshot — when their content really last changed. Evergreen pages carry no
   // date at all; stamping everything "today" teaches Google to distrust the
   // sitemap's dates (a route into "Crawled - currently not indexed").
-  let priceDay: Date | undefined;
-  try {
-    priceDay = (
-      await prisma.priceHistory.findFirst({ orderBy: { day: "desc" }, select: { day: true } })
-    )?.day;
-  } catch {
-    /* fenced below anyway */
-  }
+  // The per-card history table is gone (it grew with catalogue x market x day
+  // for a feature that only read the last two days), so there is no honest
+  // "last price snapshot" date. Price-bearing pages now carry no lastModified
+  // rather than a fabricated one.
 
   const staticRoutes: MetadataRoute.Sitemap = [
-    { url: `${SITE_URL}/`, changeFrequency: "daily", priority: 1, lastModified: priceDay },
-    { url: `${SITE_URL}/browse`, changeFrequency: "daily", priority: 0.9, lastModified: priceDay },
+    { url: `${SITE_URL}/`, changeFrequency: "daily", priority: 1 },
+    { url: `${SITE_URL}/browse`, changeFrequency: "daily", priority: 0.9 },
     // Sealed-product database — high-intent ("<set> booster box price") landers.
-    { url: `${SITE_URL}/sealed`, changeFrequency: "daily", priority: 0.85, lastModified: priceDay },
+    { url: `${SITE_URL}/sealed`, changeFrequency: "daily", priority: 0.85 },
     // Deals — biggest discounts vs the market guide; refreshes with every import.
-    { url: `${SITE_URL}/deals`, changeFrequency: "daily", priority: 0.85, lastModified: priceDay },
+    { url: `${SITE_URL}/deals`, changeFrequency: "daily", priority: 0.85 },
     // Card value checker — targets the "MTG card value/worth" query family.
-    { url: `${SITE_URL}/card-value`, changeFrequency: "daily", priority: 0.85, lastModified: priceDay },
-    { url: `${SITE_URL}/market`, changeFrequency: "daily", priority: 0.8, lastModified: priceDay },
-    { url: `${SITE_URL}/blog/market-wrap`, changeFrequency: "daily", priority: 0.8, lastModified: priceDay },
+    { url: `${SITE_URL}/card-value`, changeFrequency: "daily", priority: 0.85 },
+    { url: `${SITE_URL}/market`, changeFrequency: "daily", priority: 0.8 },
     { url: `${SITE_URL}/games`, changeFrequency: "weekly", priority: 0.6 },
     { url: `${SITE_URL}/games/duel`, changeFrequency: "weekly", priority: 0.5 },
     { url: `${SITE_URL}/games/rip`, changeFrequency: "weekly", priority: 0.5 },
@@ -89,16 +84,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     url: `${SITE_URL}/sets/${s.slug}`,
     changeFrequency: "daily",
     priority: 0.85,
-    lastModified: priceDay,
   }));
 
   const cardRoutes: MetadataRoute.Sitemap = cards.map((c) => ({
     url: `${SITE_URL}/card/${c.slug ?? c.id}`,
     changeFrequency: "daily",
     // Priced cards (the ones people search for) rank slightly higher; their
-    // prices refresh with every snapshot, so that day is their real lastmod.
     priority: c.lowestPriceCents != null ? 0.8 : 0.5,
-    lastModified: c.lowestPriceCents != null ? priceDay : undefined,
   }));
 
   // Sealed compare pages (dedupe by slug — same product can recur across markets).
@@ -111,7 +103,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${SITE_URL}/sealed/${g.slug}`,
       changeFrequency: "daily",
       priority: g.lowestPriceCents != null ? 0.75 : 0.55,
-      lastModified: g.lowestPriceCents != null ? priceDay : undefined,
     });
   }
 

@@ -22,6 +22,7 @@ export interface CardImageData {
 interface Props {
   card: CardImageData;
   isFoil?: boolean;
+  priority?: boolean; // LCP hint: the card page's hero image should not lazy-load
   full?: boolean; // use full-res image instead of the thumbnail
   className?: string;
 }
@@ -39,7 +40,7 @@ function PromoStamp() {
 // Renders the real card image over a blurred backdrop. Falls back to the
 // self-contained generated SVG art when no image is available OR when the image
 // fails to load (so unverified/410'd CDN URLs never show a broken-image icon).
-export function CardImage({ card, isFoil = false, full = false, className }: Props) {
+export function CardImage({ card, isFoil = false, full = false, priority = false, className }: Props) {
   const [failed, setFailed] = useState(false);
   const src = full
     ? card.imageUrl ?? card.imageThumbUrl
@@ -81,7 +82,8 @@ export function CardImage({ card, isFoil = false, full = false, className }: Pro
       <img
         src={src}
         alt={card.name}
-        loading="lazy"
+        loading={priority ? "eager" : "lazy"}
+        fetchPriority={priority ? "high" : undefined}
         decoding="async"
         onError={() => setFailed(true)}
         className={`relative z-10 h-full w-full ${isLandscape ? "object-contain" : "object-cover"}`}

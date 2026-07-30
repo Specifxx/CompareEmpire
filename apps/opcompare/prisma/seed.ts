@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcryptjs";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { characterOf } from "../src/lib/op-characters";
 import { normalizeSearch } from "../src/lib/format";
 import { POKEMON_SETS } from "../src/lib/pokemon-sets";
 import { enrichFromTcgplayer, buildCatalog } from "./tcgplayer-enrich.mjs";
@@ -101,23 +101,11 @@ async function main() {
   };
 
   console.log("Resetting data…");
-  await prisma.order.deleteMany();
-  await prisma.buyOrder.deleteMany();
-  await prisma.listing.deleteMany();
   await prisma.$executeRawUnsafe('TRUNCATE TABLE "RetailerPrice"');
-  await prisma.priceHistory.deleteMany();
+  await prisma.deal.deleteMany();
   await prisma.sealedListing.deleteMany();
   await prisma.card.deleteMany();
-  await prisma.user.deleteMany();
 
-  const passwordHash = await bcrypt.hash("password123", 10);
-  await prisma.user.create({ data: { email: "demo@opcompare.app", passwordHash, displayName: "OPCollector", balanceCents: 50000, isAdmin: true } });
-  const ADMIN_HASH = process.env.ADMIN_PASSWORD_HASH || "$2a$10$O5fONAak2jY/zGCVkbhp/.sIxGuqmGfYU0DxNgOpf8sTC64qQFxum";
-  await prisma.user.upsert({
-    where: { email: "compareempire" },
-    update: { passwordHash: ADMIN_HASH, isAdmin: true, verifiedSeller: true, displayName: "CompareEmpire", sellerName: "CompareEmpire Marketplace", emailVerified: new Date() },
-    create: { email: "compareempire", passwordHash: ADMIN_HASH, displayName: "CompareEmpire", sellerName: "CompareEmpire Marketplace", isAdmin: true, verifiedSeller: true, emailVerified: new Date() },
-  });
 
   type Built = CardX & { usdRef: number };
   const built: Built[] = cards.map((c) => ({
@@ -127,11 +115,14 @@ async function main() {
 
   const cardRows = built.map((c) => {
     const info = infoOf(c);
+    const ch = characterOf(c.name, c.type);
     return {
       externalId: c.externalId,
       slug: `${c.externalId}-${normalizeSearch(c.name).replace(/\s+/g, "-")}`.toLowerCase().slice(0, 80),
       name: c.name,
       nameNormalized: normalizeSearch(c.name),
+      characterSlug: ch?.slug ?? null,
+      characterName: ch?.name ?? null,
       setCode: c.setCode,
       setName: c.setName,
       collectorNumber: c.collectorNumber,
@@ -217,8 +208,6 @@ async function main() {
       }
     }
   }
-  for (let i = 0; i < histRows.length; i += 5000) await prisma.priceHistory.createMany({ data: histRows.slice(i, i + 5000), skipDuplicates: true });
-  console.log(`Recorded ${histRows.length} price-history points across ${topCards.length} cards.`);
 
   // ---- sealed products (booster boxes, starter decks) ------------------------
   const sealedRetailers = [

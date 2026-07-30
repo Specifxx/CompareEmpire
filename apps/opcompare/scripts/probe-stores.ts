@@ -15,7 +15,7 @@ import { prisma } from "../src/lib/db";
 import { RETAILER_LIST, retailerCountry, type RetailerInfo } from "../src/lib/retailers";
 import {
   buildPokemonResolver,
-  discoverPokémonCollections,
+  discoverOnePieceCollections,
   fetchCollection,
   type MatchCard,
 } from "../src/lib/price-import";
@@ -49,7 +49,7 @@ async function probeStore(
   try {
     // Mirror the importer EXACTLY: discovery is authoritative; only fall back to
     // configured handles (filtered to Pokémon) if the sitemap yields nothing.
-    let handles = await discoverPokémonCollections(store.base);
+    let handles = await discoverOnePieceCollections(store.base);
     if (!handles.length) {
       handles = (store.collections ?? []).filter((h) => /pok[eé]mon|pkmn/i.test(h));
       rep.fromFallback = handles.length > 0;

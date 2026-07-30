@@ -16,7 +16,9 @@ import { marketGuideCents } from "../src/lib/country";
 
 const PCT_OF_GUIDE_FLOOR = Number(process.env.VERIFY_GUIDE_FLOOR ?? 0.4); // <40% of guide = suspicious
 const SUSPICIOUS_CAP = Number(process.env.VERIFY_SUSPICIOUS_CAP ?? 150); // fail if more than this many are suspicious
-const DROP_FAIL_RATIO = Number(process.env.VERIFY_DROP_RATIO ?? 0.5); // fail if priced count < 50% of previous day
+// Below this share of the catalogue carrying a live price, assume the import
+// or the store matching broke rather than that the market emptied out.
+const PRICED_SHARE_FLOOR = 0.05;
 
 // Same predicate the importer uses to recompute a market's headline lowest price:
 // in-stock, real store (not the market guide), NM/LP or unconditioned.
@@ -63,22 +65,23 @@ async function main() {
   lines.push(`B suspicious (<${Math.round(PCT_OF_GUIDE_FLOOR * 100)}% of TCGplayer guide)          ${bOk ? "PASS" : "FAIL"}  ${suspicious.length} cards (cap ${SUSPICIOUS_CAP})`);
   if (suspicious.length) console.error("  e.g.", suspicious.slice(0, 8).map((c) => c.name).join(" | "));
 
-  // ── Check C: priced-card count didn't collapse vs the previous day ─────────
-  const days = await prisma.priceHistory.findMany({
-    where: { country: "AU" }, distinct: ["day"], orderBy: { day: "desc" }, select: { day: true }, take: 2,
-  });
-  let cOk = true;
-  if (days.length === 2) {
-    const [today, prev] = await Promise.all([
-      prisma.priceHistory.count({ where: { country: "AU", day: days[0].day } }),
-      prisma.priceHistory.count({ where: { country: "AU", day: days[1].day } }),
-    ]);
-    cOk = prev === 0 || today >= prev * DROP_FAIL_RATIO;
-    if (!cOk) failed = true;
-    lines.push(`C priced-card count vs previous day                ${cOk ? "PASS" : "FAIL"}  ${today} (was ${prev})`);
-  } else {
-    lines.push(`C priced-card count vs previous day                SKIP  (need 2 snapshot days)`);
-  }
+  // ── Check C: the catalogue still has a sane share of priced cards ─────────
+  // This used to compare today's priced-card count against yesterday's, read
+  // from the per-card PriceHistory table. That table is gone (it grew with
+  // catalogue x market x day to serve a two-day lookback), so the equivalent
+  // history-free guard is an absolute floor: if an importer run breaks matching,
+  // hasLivePrice collapses toward zero and this fails without needing a
+  // stored baseline.
+  const [pricedCount, totalCount] = await Promise.all([
+    prisma.card.count({ where: { hasLivePrice: true } }),
+    prisma.card.count(),
+  ]);
+  const pricedShare = totalCount > 0 ? pricedCount / totalCount : 0;
+  const cOk = totalCount === 0 || pricedShare >= PRICED_SHARE_FLOOR;
+  if (!cOk) failed = true;
+  lines.push(
+    `C priced-card share of catalogue                   ${cOk ? "PASS" : "FAIL"}  ${pricedCount}/${totalCount} (${(pricedShare * 100).toFixed(1)}%, floor ${(PRICED_SHARE_FLOOR * 100).toFixed(0)}%)`
+  );
 
   console.log("\n── DexCompare data-quality gate ─────────────────────────────");
   for (const l of lines) console.log("  " + l);

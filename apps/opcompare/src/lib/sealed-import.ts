@@ -4,7 +4,6 @@
 // singles importer (price-import.ts) deliberately skips these; this complements it.
 import { prisma } from "./db";
 import { RETAILER_LIST } from "./retailers";
-import { isEbayEnabled, isEbayRateLimited, searchEbaySealed, primeEbayBudget } from "./ebay";
 import { fetchTcgplayerSealed, tcgProductUrl, tcgImageUrl } from "./tcgplayer";
 import { POKEMON_SETS } from "./pokemon-sets";
 
@@ -181,40 +180,8 @@ export async function importSealed(): Promise<number> {
   // eBay is AU-only, so we seed/search against the AU groups.
   // Deploys (push) set EBAY_REFRESH=false so they never spend eBay quota; only
   // scheduled / manual runs search eBay (and even then, within the live budget).
-  if (isEbayEnabled() && process.env.EBAY_REFRESH !== "false") {
-    await primeEbayBudget(); // respect the live daily quota for sealed searches too
-    const groups = await getSealedGroups("AU");
-    // Search eBay AU for every sealed group we track so each compare page has a
-    // resale price point. Limit to the higher-value SKUs (boxes/ETBs/cases/etc.)
-    // so we don't burn quota on single packs that barely differ from RRP.
-    const searchList = groups
-      .filter((g) => g.productType !== "Booster Pack" && g.productType !== "Sealed")
-      .map((g) => ({ groupKey: g.groupKey, setCode: g.setCode, name: g.name, productType: g.productType, imageUrl: g.imageUrl }));
-    const ebayRows: any[] = [];
-    for (const g of searchList) {
-      if (isEbayRateLimited()) break;
-      const r = await searchEbaySealed(g.name, g.productType, g.setCode);
-      if (!r) continue;
-      ebayRows.push({
-        groupKey: g.groupKey,
-        title: r.title,
-        productType: g.productType,
-        setCode: g.setCode,
-        retailer: "ebay",
-        retailerName: "eBay",
-        priceCents: r.priceCents,
-        url: r.url,
-        imageUrl: r.imageUrl ?? g.imageUrl,
-        country: "AU", // eBay is AU-only
-        inStock: true,
-      });
-    }
-    if (ebayRows.length > 0) {
-      await prisma.sealedListing.deleteMany({ where: { retailer: "ebay" } });
-      await prisma.sealedListing.createMany({ data: ebayRows });
-      count += ebayRows.length;
-    }
-  }
+  // eBay sealed sourcing removed with the rest of the eBay API usage —
+  // OPCompare links to eBay via plain EPN search URLs only.
 
   // TCGplayer's official sealed catalogue (US market prices) — adds products the
   // store scrape misses (booster cases, elite trainer boxes, collection boxes,

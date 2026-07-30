@@ -8,38 +8,48 @@ export const NAV_SECTIONS: NavSection[] = [
     label: "Shop prices",
     links: [
       { href: "/browse", icon: "🃏", label: "Card database" },
+      { href: "/sets", icon: "🗂️", label: "Browse by set" },
       { href: "/sealed", icon: "📦", label: "Sealed" },
       { href: "/deals", icon: "🔥", label: "Deals" },
       { href: "/card-value", icon: "💰", label: "Value checker" },
     ],
   },
   {
-    label: "Market",
+    label: "Discover",
     links: [
-      { href: "/market", icon: "📈", label: "Market Index" },
-      { href: "/blog/market-wrap", icon: "📰", label: "Daily Market Wrap" },
+      { href: "/cards", icon: "🧭", label: "By colour, type & rarity" },
+      { href: "/characters", icon: "🏴‍☠️", label: "Character price guides" },
       { href: "/restock", icon: "📅", label: "Drops & restocks" },
     ],
   },
   {
-    label: "Play & tools",
+    label: "Tools",
     links: [
-      { href: "/deck", icon: "🛠️", label: "Deck builder" },
-      { href: "/decks", icon: "🏆", label: "Meta decks" },
+      { href: "/tools", icon: "🧰", label: "All tools" },
+      { href: "/bulk-pricer", icon: "📋", label: "Bulk pricer" },
+      { href: "/tools/best-basket", icon: "🧺", label: "Best basket" },
+      { href: "/tools/arbitrage", icon: "💱", label: "Arbitrage" },
+      { href: "/tools/net-proceeds", icon: "💵", label: "Net proceeds (sell)" },
       { href: "/proxy", icon: "🖨️", label: "Proxy printer" },
-      { href: "/games", icon: "🕹️", label: "Minigames" },
       { href: "/trade", icon: "⚖️", label: "Trade calculator" },
+    ],
+  },
+  {
+    label: "My stuff",
+    links: [
       { href: "/wishlist", icon: "❤️", label: "Wishlist" },
       { href: "/collection", icon: "📚", label: "Collection" },
-      { href: "/forum", icon: "💬", label: "Community" },
     ],
   },
   {
     label: "Learn & help",
     links: [
+      { href: "/learn", icon: "🎓", label: "Learn collecting" },
       { href: "/guides", icon: "📖", label: "Buying guides" },
+      { href: "/stores", icon: "🏪", label: "Stores we track" },
       { href: "/blog", icon: "✍️", label: "Blog" },
-      { href: "/contact", icon: "✉️", label: "Contact" },
+      { href: "/support", icon: "🛟", label: "Support" },
+      { href: "/explore-features", icon: "🧭", label: "Explore all features" },
     ],
   },
 ];

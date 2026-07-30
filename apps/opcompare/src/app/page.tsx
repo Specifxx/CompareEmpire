@@ -5,7 +5,6 @@ import { CountryHeroToggle } from "@/components/CountryHeroToggle";
 import { HotRightNow } from "@/components/HotRightNow";
 import { Partners } from "@/components/Partners";
 import { TcgplayerAd } from "@/components/TcgplayerAd";
-import { getTopMovers } from "@/lib/trending";
 import { getHomeData } from "@/lib/home-data";
 import { getTopDeals } from "@/lib/deals";
 import { formatMoney } from "@/lib/format";
@@ -72,8 +71,8 @@ export default async function HomePage() {
   const info = COUNTRIES[country];
   const ebay = ebayLabel(country);
   const faqs = faqsFor(info, ebay);
-  const [{ totalCards, pricedCards, inStockUnits, cheapestCards, valuableCards, storeCount, popularCards, newSealed }, movers, deals] =
-    await Promise.all([getHomeData(country), getTopMovers(12, country), getTopDeals(12, country)]);
+  const [{ totalCards, pricedCards, inStockUnits, cheapestCards, valuableCards, storeCount, popularCards, newSealed }, deals] =
+    await Promise.all([getHomeData(country), getTopDeals(12, country)]);
 
   return (
     <div className="flex flex-col gap-10">
@@ -181,32 +180,6 @@ export default async function HomePage() {
 
       <div className="reveal"><RecentlyViewed /></div>
 
-      {movers.length > 0 && (
-        <section className="reveal">
-          <div className="mb-4 flex items-end justify-between gap-3">
-            <div>
-              <h2 className="text-xl font-extrabold text-white">Biggest price movers</h2>
-              <p className="mt-0.5 text-xs text-slate-500">
-                The sharpest rises and falls in the cheapest {info.adjective} price over the last week.
-              </p>
-            </div>
-          </div>
-          <div className="-mx-1 flex gap-4 overflow-x-auto px-1 pb-2">
-            {movers.map((m) => (
-              <div key={m.card.id} className="w-36 shrink-0 sm:w-44">
-                <div
-                  className={`mb-1.5 text-center text-xs font-bold ${
-                    m.pct > 0 ? "text-emerald-400" : "text-red-400"
-                  }`}
-                >
-                  {m.pct > 0 ? "▲" : "▼"} {Math.abs(m.pct).toFixed(1)}% this week
-                </div>
-                <CardTile card={m.card} />
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
 
       <section className="reveal">
         <div className="mb-4 flex items-end justify-between gap-3">
