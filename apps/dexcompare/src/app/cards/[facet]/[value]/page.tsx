@@ -11,18 +11,26 @@ import { resolveFacet, FACET_LABELS, MIN_PRICED_TO_INDEX_FACET, type FacetKind }
 
 export const revalidate = 86400;
 
-export async function generateMetadata({ params }: { params: { facet: string; value: string } }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+  searchParams,
+}: {
+  params: { facet: string; value: string };
+  searchParams: { page?: string; size?: string };
+}): Promise<Metadata> {
   const facet = await resolveFacet(params.facet, params.value);
   if (!facet) notFound();
   const kindLabel = FACET_LABELS[facet.kind as FacetKind];
   const title = `${facet.label} Pokémon Cards — Prices & Full List`;
   const description = `Browse every ${facet.label} Pokémon card DexCompare tracks — compare live prices across stores and find the cheapest ${facet.label.toLowerCase()} singles.`;
   const priced = await prisma.card.count({ where: { ...facet.where, hasLivePrice: true } });
+  // Only page 1 claims the canonical (same rule as /browse).
+  const isPermutation = parsePageNum(searchParams.page) > 1 || Boolean(searchParams.size);
   return {
     title,
     description,
     alternates: { canonical: `/cards/${params.facet}/${params.value}` },
-    ...(priced < MIN_PRICED_TO_INDEX_FACET ? { robots: { index: false, follow: true } } : {}),
+    ...(priced < MIN_PRICED_TO_INDEX_FACET || isPermutation ? { robots: { index: false, follow: true } } : {}),
     openGraph: { title, description, url: `${SITE_URL}/cards/${params.facet}/${params.value}`, ...(kindLabel ? {} : {}) },
   };
 }

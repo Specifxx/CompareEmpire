@@ -45,6 +45,42 @@ export async function pingIndexNow(paths: string[], opts: { force?: boolean } = 
   }
 }
 
+// ── Real-time single-URL submission ────────────────────────────────────────
+// For DISCRETE content events — a tracked product flipping back in stock, a
+// page going live — where "this one URL changed, recrawl it now" is the true
+// signal and there's nothing to batch with.
+//
+// Deliberately NOT used for the daily price refresh: that changes thousands of
+// card pages at once, and IndexNow is explicitly designed to take those as one
+// batched request (protocol cap 10k URLs/call). Firing thousands of individual
+// POSTs instead would be slower, would look like abuse of the endpoint, and
+// would ask Bing to re-crawl the whole catalogue URL-by-URL — the opposite of
+// the crawl-budget discipline the rest of this file exists to protect. Batch
+// stays batch; only genuinely one-off changes stream.
+//
+// Dedupe: the same URL is never resubmitted inside DEDUPE_TTL_MS. Restock
+// re-checks run every ~15 minutes and a product can flap in and out of stock,
+// so without this a single flapping SKU could ping on every cycle. The cache
+// is per-process (serverless instances don't share it), which is the right
+// trade-off here: worst case a URL is submitted once per warm instance rather
+// than once globally — still bounded, and no external store to maintain.
+const DEDUPE_TTL_MS = 60 * 60 * 1000; // 1h
+const recentlySubmitted = new Map<string, number>();
+
+export async function pingUrlNow(path: string, opts: { force?: boolean } = {}): Promise<boolean> {
+  const now = Date.now();
+  // Opportunistically drop expired entries so the map can't grow unbounded in
+  // a long-lived instance.
+  for (const [key, at] of recentlySubmitted) {
+    if (now - at > DEDUPE_TTL_MS) recentlySubmitted.delete(key);
+  }
+  const last = recentlySubmitted.get(path);
+  if (last != null && now - last < DEDUPE_TTL_MS) return false; // debounced
+  const submitted = await pingIndexNow([path], opts);
+  if (submitted > 0) recentlySubmitted.set(path, now);
+  return submitted > 0;
+}
+
 // After the daily price refresh: every priced page has genuinely new content
 // (prices ARE the content), so resubmit the hubs, the set pages and all card
 // pages. Card list comes from the DB; failures degrade to just the hubs.

@@ -8,13 +8,20 @@ import { SITE_URL } from "@/lib/site";
 
 export const revalidate = 86400;
 
-export const metadata: Metadata = {
-  title: "Booster Box EV Calculator — Is It Worth Opening? | DexCompare",
-  description:
-    "Is it worth opening a Pokémon booster box? Estimate expected value from community pull-rate data and today's live card prices, per set.",
-  alternates: { canonical: "/tools/box-ev" },
-  openGraph: { title: "Booster Box EV Calculator", url: `${SITE_URL}/tools/box-ev` },
-};
+// `cost` is a free-text number the visitor types, so ?cost= has unbounded
+// cardinality — a classic crawl trap. Any set/cost permutation is noindexed
+// and canonicalised back to the bare calculator.
+export function generateMetadata({ searchParams }: { searchParams: { set?: string; cost?: string } }): Metadata {
+  const isPermutation = Boolean(searchParams.set || searchParams.cost);
+  return {
+    title: "Booster Box EV Calculator — Is It Worth Opening? | DexCompare",
+    description:
+      "Is it worth opening a Pokémon booster box? Estimate expected value from community pull-rate data and today's live card prices, per set.",
+    alternates: { canonical: "/tools/box-ev" },
+    ...(isPermutation ? { robots: { index: false, follow: true } } : {}),
+    openGraph: { title: "Booster Box EV Calculator", url: `${SITE_URL}/tools/box-ev` },
+  };
+}
 
 const eligibleSets = POKEMON_SETS.filter((s) => pullRateSetForSeries(s.series));
 

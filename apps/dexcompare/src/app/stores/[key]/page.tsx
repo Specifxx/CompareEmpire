@@ -10,15 +10,25 @@ import { SITE_URL } from "@/lib/site";
 
 export const revalidate = 86400;
 
-export async function generateMetadata({ params }: { params: { key: string } }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+  searchParams,
+}: {
+  params: { key: string };
+  searchParams: { page?: string; size?: string };
+}): Promise<Metadata> {
   const store = RETAILERS[params.key];
   if (!store) notFound();
   const title = `${store.name} — Pokémon Card Prices & Store Profile`;
   const description = `Is ${store.name} cheaper? See how many Pokémon cards ${store.name} currently has at the lowest tracked price, its shipping policy, and every in-stock listing DexCompare compares.`;
+  // Only page 1 claims the canonical; deeper pages and page-size permutations
+  // are noindex,follow so they don't compete with it (same rule as /browse).
+  const isPermutation = parsePageNum(searchParams.page) > 1 || Boolean(searchParams.size);
   return {
     title,
     description,
     alternates: { canonical: `/stores/${params.key}` },
+    ...(isPermutation ? { robots: { index: false, follow: true } } : {}),
     openGraph: { title, description, url: `${SITE_URL}/stores/${params.key}` },
   };
 }

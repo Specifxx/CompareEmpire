@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getArbitrage, getArbSources, TCGPLAYER_FEE, type ArbSort } from "@/lib/arbitrage";
+import { parsePageNum } from "@/lib/cards";
 import { getCountry } from "@/lib/get-country";
 import { COUNTRIES } from "@/lib/country";
 import { formatMoney } from "@/lib/format";
@@ -13,13 +14,26 @@ import { SITE_URL } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: { absolute: "Pokémon Card Arbitrage — Flip to TCGplayer | DexCompare" },
-  description:
-    "Find Pokémon cards selling below their TCGplayer market price: buy cheap from a store, resell at market for a profit, ranked by profit and margin with fees included. Updated daily. Free.",
-  alternates: { canonical: "/tools/arbitrage" },
-  openGraph: { title: "Pokémon Card Arbitrage — Flip to TCGplayer", url: `${SITE_URL}/tools/arbitrage` },
-};
+// Sorted/paginated/store-filtered views are query-string permutations of one
+// page — and `buy` is a CSV of store keys, so the combination space is
+// effectively unbounded. Keep every permutation out of the index (canonical
+// always points at the bare path) so crawl budget goes to real content.
+// Same pattern as /browse and /sealed.
+export function generateMetadata({
+  searchParams,
+}: {
+  searchParams: { sort?: string; page?: string; buy?: string };
+}): Metadata {
+  const isPermutation = Boolean(searchParams.buy || searchParams.sort) || parsePageNum(searchParams.page) > 1;
+  return {
+    title: { absolute: "Pokémon Card Arbitrage — Flip to TCGplayer | DexCompare" },
+    description:
+      "Find Pokémon cards selling below their TCGplayer market price: buy cheap from a store, resell at market for a profit, ranked by profit and margin with fees included. Updated daily. Free.",
+    alternates: { canonical: "/tools/arbitrage" },
+    ...(isPermutation ? { robots: { index: false, follow: true } } : {}),
+    openGraph: { title: "Pokémon Card Arbitrage — Flip to TCGplayer", url: `${SITE_URL}/tools/arbitrage` },
+  };
+}
 
 const PAGE_SIZE = 25;
 const FLIP_SORTS: { key: ArbSort; label: string }[] = [

@@ -1,5 +1,6 @@
 import { prisma } from "./db";
 import { FEATURED_RESTOCKS, restockTitleRegex, isHeadlineType } from "./restocks";
+import { pingUrlNow } from "./indexnow";
 
 // Lightweight, frequent re-check of ONLY the featured products' store listings, so
 // the tracker + restock alerts are near-real-time (the full nightly import is far
@@ -104,6 +105,11 @@ export async function recheckFeaturedRestocks(): Promise<RecheckSummary> {
               },
             });
             summary.flippedInStock++;
+            // Real-time IndexNow ping: a sold-out product coming back is a
+            // genuine, discrete content change on exactly one page, and it's
+            // time-critical (restocks sell out in minutes). Deduped for an
+            // hour per URL so a flapping SKU can't ping every 15-min cycle.
+            void pingUrlNow(`/restock/${product.slug}`);
           } else if (wasInStock && !nowInStock) {
             // Sold out — close the most recent open event for this row.
             const open = await prisma.restockEvent.findFirst({

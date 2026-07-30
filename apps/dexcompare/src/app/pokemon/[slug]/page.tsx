@@ -30,9 +30,22 @@ async function resolveSpecies(slug: string) {
   return speciesStats(slug, DEFAULT_COUNTRY);
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+  searchParams,
+}: {
+  params: { slug: string };
+  searchParams: Query;
+}): Promise<Metadata> {
   const species = await resolveSpecies(params.slug);
   if (!species) notFound();
+  // Filter/sort/page permutations all canonicalise to the bare hub — noindex
+  // them so the hub itself is the only indexable version (same rule as
+  // /browse). Without this, a species with many printings multiplies into
+  // hundreds of near-duplicate set × era × rarity × sort × page URLs.
+  const isPermutation =
+    Boolean(searchParams.set || searchParams.era || searchParams.rarity || searchParams.sort || searchParams.size) ||
+    parsePageNum(searchParams.page) > 1;
 
   const title = `${species.name} Card Prices — Every Printing Compared`;
   const description =
@@ -46,8 +59,11 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     alternates: { canonical: `/pokemon/${species.slug}` },
     // Thin hubs (too few priced printings yet) stay crawlable but out of the
     // index until the importer prices enough of them — no separate promotion
-    // job needed, this just re-evaluates on every ISR regenerate.
-    ...(species.pricedCount < MIN_PRICED_PRINTINGS_TO_INDEX ? { robots: { index: false, follow: true } } : {}),
+    // job needed, this just re-evaluates on every ISR regenerate. Filtered
+    // permutations are noindexed for a different reason (duplication), above.
+    ...(species.pricedCount < MIN_PRICED_PRINTINGS_TO_INDEX || isPermutation
+      ? { robots: { index: false, follow: true } }
+      : {}),
     openGraph: { title, description, url: `${SITE_URL}/pokemon/${species.slug}` },
   };
 }
