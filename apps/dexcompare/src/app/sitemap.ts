@@ -165,16 +165,29 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
         orderBy: { lowestPriceCents: { sort: "desc", nulls: "last" } },
       });
     } catch {
-      // DB unreachable (e.g. DexCompare paused, Neon quota exhausted) — every
-      // route is middleware-redirected to the paused page right now anyway, so
-      // an empty child sitemap here is a non-issue, not the "reseeded before
-      // import ran" case the throw below guards against.
+      // DB unreachable (e.g. Neon transfer allowance exhausted) — an empty child
+      // sitemap is the right degradation here; never fail the build over it.
       return [];
     }
-    // Zero priced cards while the DB IS reachable means the DB was reseeded
-    // before the price importer ran — refuse to publish it.
+    // Zero priced cards while the DB IS reachable means the catalogue was seeded
+    // but the price importer hasn't run yet.
+    //
+    // This used to `throw`, which turned a transient DATA state into a hard
+    // BUILD failure: Next prerenders this route, so the throw aborted
+    // `next build` and blocked every Vercel deploy — including the very deploys
+    // carrying the fix. That trade is backwards. An unpriced catalogue costs a
+    // thin sitemap for a few hours (Google retains already-discovered URLs);
+    // a failed build costs the entire site.
+    //
+    // So: loud in the build log, but the deploy proceeds. The next importer run
+    // fills this bucket and the daily ISR regenerate publishes it.
     if (cards.length === 0) {
-      throw new Error("sitemap: card bucket resolved to 0 priced cards — refusing to publish an empty sitemap");
+      console.error(
+        "[sitemap] card bucket resolved to 0 indexable cards — the DB is reachable but no card " +
+          "has a live price or a TCGplayer guide yet. Publishing an empty bucket; run the price " +
+          "importer (scripts/import-prices.ts) to populate it."
+      );
+      return [];
     }
     return cards.map((c) => ({
       url: `${SITE_URL}/card/${c.slug ?? c.id}`,
@@ -206,8 +219,14 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
         priority: g.lowestPriceCents != null ? 0.75 : 0.55,
       });
     }
+    // Same reasoning as bucket 1: loud, but never fail the build. This route is
+    // prerendered, so throwing here would abort `next build` and block deploys
+    // whenever a sealed scrape happened to come back empty.
     if (routes.length === 0) {
-      throw new Error("sitemap: sealed bucket resolved to 0 products — refusing to publish an empty sitemap");
+      console.error(
+        "[sitemap] sealed bucket resolved to 0 products — publishing an empty bucket. " +
+          "Run the sealed importer (scripts/import-sealed.ts) to populate it."
+      );
     }
     return routes;
   }

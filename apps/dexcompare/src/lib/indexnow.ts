@@ -87,13 +87,20 @@ export async function pingUrlNow(path: string, opts: { force?: boolean } = {}): 
 export async function pingAfterPriceRefresh(opts: { force?: boolean } = {}): Promise<number> {
   const hubs = ["/", "/browse", "/deals", "/card-value", "/most-valuable", "/trending", "/sealed", "/stores"];
   const sets = SETS.filter((s) => !s.comingSoon).map((s) => `/sets/${s.slug}`);
-  // Only pages worth submitting, and only as many as IndexNow will actually accept.
+  // Only pages worth submitting, and deliberately far fewer than IndexNow's own
+  // 10,000-URL ceiling.
+  //
   // This previously read ALL ~20k cards with no `where` and no `take` (~1.2 MB) to
-  // build a >20,000-URL payload — but IndexNow caps a submission at 10,000 URLs, so
-  // the request was rejected and that transfer bought nothing. Cards with no live
-  // price are noindex anyway (see the tiering in sitemap.ts), so submitting them
-  // would be asking Bing to crawl pages we tell it not to index.
-  const INDEXNOW_CARD_CAP = Number(process.env.INDEXNOW_CARD_CAP) || 5000;
+  // build a >20,000-URL payload that IndexNow rejected outright — so the transfer
+  // bought nothing at all. Cards with no live price are noindex anyway (see the
+  // tiering in sitemap.ts), so submitting them asks Bing to crawl pages we tell it
+  // not to index — which costs us crawl budget AND the DB egress of serving it.
+  //
+  // 1,000 is the demand head, ordered by searchCount: the pages whose prices
+  // actually changed and that anyone actually looks for. Submitting the long tail
+  // daily never earned its keep — IndexNow is a "this changed, come look" signal,
+  // not a substitute for the sitemap, which still lists every indexable card.
+  const INDEXNOW_CARD_CAP = Number(process.env.INDEXNOW_CARD_CAP) || 1000;
   const cards = await prisma.card
     .findMany({
       where: { hasLivePrice: true },
