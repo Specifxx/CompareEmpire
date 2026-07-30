@@ -152,8 +152,19 @@ async function loadRealPrices(setIds: string[]): Promise<Map<string, RealPrice>>
   const map = new Map<string, RealPrice>();
   try {
     await fetchJson("https://api.pokemontcg.io/v2/sets?pageSize=1");
-  } catch {
-    console.warn("pokemontcg.io unreachable — using heuristic prices for all cards.");
+  } catch (e) {
+    // Loud, with the real reason: without this API the seed inserts ZERO baseline
+    // RetailerPrice rows, so no card gets a headline price or hasLivePrice, and the
+    // catalogue lands unpriced. That's a materially different outcome from "a few
+    // cards fell back to the heuristic", so it must never be a one-line warning.
+    console.warn("╔══════════════════════════════════════════════════════════════════════╗");
+    console.warn("║ pokemontcg.io is UNREACHABLE — no baseline prices will be inserted.  ║");
+    console.warn("╚══════════════════════════════════════════════════════════════════════╝");
+    console.warn(`  reason: ${e instanceof Error ? e.message : String(e)}`);
+    console.warn("  Every card still gets an ESTIMATE guide price (marketPriceSource=Estimate),");
+    console.warn("  but no headline/buyable price and hasLivePrice=false until the daily");
+    console.warn("  store scrape (scripts/import-prices.ts) runs and fills in real listings.");
+    console.warn("  If this persists, check for an outage or set POKEMONTCG_API_KEY.");
     return map;
   }
   let idx = 0, sets = 0;
@@ -243,10 +254,24 @@ async function main() {
   const cardRows = cards.map((c) => {
     const real = realPrices.get(c.externalId);
     const heuristicUsd = refUsd(c.rarity) * ageMult(c.releaseDate) * chaseMult(c.name, c.subtype);
-    // Real US market price when we have it; otherwise the heuristic estimate.
-    const usLow = real ? cents(real.usd) : cents(heuristicUsd * between(0.92, 1.0));
-    const auLow = cents(usLow * USD_TO_AUD * between(0.95, 1.08), 10);
-    const gbLow = cents(usLow * USD_TO_GBP * between(0.95, 1.08), 8);
+    // Guide/estimate figure, always present. Shown as a market guide, clearly
+    // labelled via marketPriceSource — it is NOT a headline "buy it here" price.
+    const guideUsd = real ? cents(real.usd) : cents(heuristicUsd * between(0.92, 1.0));
+    // A headline lowest price may only be set for a market where this seed
+    // actually inserts a REAL (buyable, non-marketguide) RetailerPrice row below,
+    // because that's exactly the predicate the importer and verify-data.ts use to
+    // recompute/validate headlines (see headlineWhere() — it excludes
+    // "marketguide*"). Claiming a headline with no listing behind it both breaks
+    // the data-quality gate and, worse, marks the whole catalogue indexable when
+    // most of it has nothing to buy — which is how a crawl of 20k priceless pages
+    // burned through a Neon transfer allowance.
+    //   US → real tcgplayer_us row (a real store, ships US)  → headline allowed
+    //   GB → real cardmarket_gb row (a real store)           → headline allowed
+    //   AU → only ever a "marketguide_au" guide row here     → NO headline; real
+    //        AU store prices arrive from the daily store scrape (price-import.ts)
+    const usLow = real?.tcgUsd != null ? guideUsd : null;
+    const gbLow = real?.cmUsd != null ? cents(guideUsd * USD_TO_GBP * between(0.95, 1.08), 8) : null;
+    const auLow = null;
     const sp = speciesOf(c.name, c.type);
     return {
       externalId: c.externalId,
@@ -267,7 +292,7 @@ async function main() {
       description: c.artist ? `Illustrated by ${c.artist}` : null,
       imageUrl: c.imageUrl,
       imageThumbUrl: c.imageThumbUrl,
-      marketPriceCents: usLow,
+      marketPriceCents: guideUsd,
       // Surface WHERE the guide number came from. Real API price = TCGplayer's
       // market price (via pokemontcg.io); otherwise our rarity/age heuristic.
       marketPriceSource: real ? "TCGplayer" : "Estimate",
@@ -275,11 +300,11 @@ async function main() {
       lowestPriceCents: auLow,
       lowestPriceCentsUs: usLow,
       lowestPriceCentsGb: gbLow,
-      // Every card gets a baseline guide price at seed time (real or heuristic),
-      // so this is trivially true here — the first real price-import run
-      // recomputes lowestPriceCents* from actual store listings only and
-      // corrects hasLivePrice down accordingly (see price-import.ts).
-      hasLivePrice: true,
+      // Only true where a real buyable listing was actually inserted. The daily
+      // price import recomputes this from live store listings (price-import.ts),
+      // so it corrects UP as stores are scraped — starting honest-and-narrow
+      // keeps the sitemap and the indexable surface proportional to real data.
+      hasLivePrice: usLow != null || gbLow != null,
       artSeed: Math.floor(rng() * 1_000_000),
     };
   });
