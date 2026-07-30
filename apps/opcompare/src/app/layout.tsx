@@ -18,6 +18,7 @@ import { EbayAd } from "@/components/EbayAd";
 import { getCountry } from "@/lib/get-country";
 import { CONTACT_EMAIL, SITE_NAME, SITE_URL } from "@/lib/site";
 import { IMPACT_SITE_VERIFICATION } from "@/lib/affiliate";
+import { AffiliateDisclosure } from "@/components/AffiliateDisclosure";
 
 // Body: Sora (modern, energetic, readable). Headings: Space Grotesk (distinctive,
 // gives the brand more life). Exposed as CSS vars wired into Tailwind.
@@ -173,6 +174,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </a>
             .
           </p>
+          {/* Site-wide affiliate disclosure. Required on EVERY page, not just
+              the ones with a price table: outbound store links, the partner
+              banners above and the card pages are all affiliate-tagged. Card
+              pages additionally render this immediately above the store links
+              themselves (EPN participation requirements ask for the disclosure
+              to be adjacent to the links, not only in a footer). */}
+          <AffiliateDisclosure variant="block" className="mx-auto max-w-3xl" />
           <p>
             OPCompare · One Piece Card Game card database &amp; price comparison for
             Australia, New Zealand, the US and the UK. Prices are sourced from public

@@ -124,6 +124,14 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* How it works — the homepage opened straight into card grids with no
+          explanation of what the site actually does for a first-time visitor. */}
+      <section className="reveal grid gap-3 sm:grid-cols-3">
+        <HowItWorksStep n={1} icon="🔍" title="Search" desc="Find any One Piece card by name, set or card number." />
+        <HowItWorksStep n={2} icon="⚖️" title="Compare every store" desc="See the live price at every store we track, ranked by total delivered cost." />
+        <HowItWorksStep n={3} icon="🛒" title="Buy for the best price" desc="Click straight through to the cheapest store — no middleman, no markup." />
+      </section>
+
       <div className="reveal"><HotRightNow /></div>
 
       {/* Official partner programs — credibility strip (approved affiliates). */}
@@ -316,6 +324,20 @@ export default async function HomePage() {
           }),
         }}
       />
+    </div>
+  );
+}
+
+function HowItWorksStep({ n, icon, title, desc }: { n: number; icon: string; title: string; desc: string }) {
+  return (
+    <div className="card-surface flex items-start gap-3 p-4">
+      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brand-500/15 text-sm font-extrabold text-brand-300">{n}</span>
+      <div className="min-w-0">
+        <div className="flex items-center gap-1.5 font-bold text-white">
+          <span aria-hidden>{icon}</span> {title}
+        </div>
+        <p className="mt-0.5 text-xs leading-relaxed text-slate-400">{desc}</p>
+      </div>
     </div>
   );
 }

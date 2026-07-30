@@ -4,10 +4,8 @@
 // §I.G) and by regional advertising-disclosure law: the disclosure must be
 // "clear and prominent" and immediately visible wherever an affiliate link is
 // — not only in a page footer, and specifically including inside pop-ups/modals.
-// A 2026 EPN compliance review flagged this site for (a) a disclosure sitting
-// too far from the eBay links and (b) no disclosure at all inside the card
-// quick-view pop-up, so every affiliate surface now renders one of these
-// inline. TCGplayer (via Impact) is covered by the same wording.
+// Every affiliate surface renders one of these inline, and the root layout
+// renders one in the footer so no page is ever without it. TCGplayer (via Impact) is covered by the same wording.
 //
 // Keep the eBay Partner Network named explicitly — EPN's own guidance gives
 // "As an eBay Partner Network Affiliate, I earn from qualifying purchases." as

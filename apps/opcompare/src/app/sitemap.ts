@@ -30,6 +30,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/stores`, changeFrequency: "monthly", priority: 0.5 },
     { url: `${SITE_URL}/stores/suggest`, changeFrequency: "yearly", priority: 0.3 },
     { url: `${SITE_URL}/widgets`, changeFrequency: "monthly", priority: 0.5 },
+    { url: `${SITE_URL}/tools`, changeFrequency: "weekly", priority: 0.7 },
+    { url: `${SITE_URL}/tools/arbitrage`, changeFrequency: "daily", priority: 0.8 },
+    { url: `${SITE_URL}/tools/best-basket`, changeFrequency: "monthly", priority: 0.5 },
+    { url: `${SITE_URL}/tools/net-proceeds`, changeFrequency: "monthly", priority: 0.6 },
+    { url: `${SITE_URL}/tools/grade-ev`, changeFrequency: "monthly", priority: 0.6 },
+    { url: `${SITE_URL}/bulk-pricer`, changeFrequency: "monthly", priority: 0.65 },
+    { url: `${SITE_URL}/learn`, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${SITE_URL}/support`, changeFrequency: "monthly", priority: 0.5 },
+    { url: `${SITE_URL}/explore-features`, changeFrequency: "monthly", priority: 0.6 },
     // Sealed-product database — high-intent ("<set> booster box price") landers.
     { url: `${SITE_URL}/sealed`, changeFrequency: "daily", priority: 0.85 },
     // Deals — biggest discounts vs the market guide; refreshes with every import.

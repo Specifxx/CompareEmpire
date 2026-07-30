@@ -10,6 +10,13 @@ import {
   domainInfo,
   rarityInfo,
 } from "@/lib/constants";
+import { POKEMON_SETS } from "@/lib/pokemon-sets";
+
+// Set -> series ("era"), for grouping the set filter. SETS omits series but is
+// derived 1:1 from POKEMON_SETS, which carries it. POKEMON_SETS is newest-first,
+// so the first series encountered is the most recent — that one opens by default.
+const SERIES_BY_CODE = new Map(POKEMON_SETS.map((s) => [s.code, s.series]));
+const ERA_ORDER = [...new Set(SETS.map((s) => SERIES_BY_CODE.get(s.code) ?? "Other"))];
 
 function toggleCsv(current: string | null, value: string): string {
   const set = new Set(current ? current.split(",").filter(Boolean) : []);
@@ -140,7 +147,7 @@ export function Filters() {
             />
           </Section>
 
-          <Section title="Set" defaultOpen>
+          <Section title="Set" count={sp.get("set")?.split(",").filter(Boolean).length ?? 0} defaultOpen={!!sp.get("set") || setQuery.length > 0}>
             <input
               type="search"
               value={setQuery}
@@ -148,14 +155,27 @@ export function Filters() {
               placeholder={`Search ${SETS.length} sets…`}
               className="input mb-2 w-full text-sm"
             />
-            <div className="flex max-h-64 flex-col gap-1 overflow-y-auto pr-1">
-              {filteredSets.map((s) => (
-                <Check key={s.code} checked={isActive("set", s.code)} onChange={() => update((p) => setCsv(p, "set", s.code))} label={`${s.name} (${s.code.toUpperCase()})`} />
-              ))}
-              {filteredSets.length === 0 && (
-                <span className="px-1 py-2 text-xs text-slate-500">No sets match “{setQuery}”.</span>
-              )}
-            </div>
+            {filteredSets.length === 0 ? (
+              <span className="px-1 py-2 text-xs text-slate-500">No sets match &ldquo;{setQuery}&rdquo;.</span>
+            ) : (
+              <div className="max-h-72 overflow-y-auto pr-1">
+                {ERA_ORDER.map((era, i) => {
+                  const eraSets = filteredSets.filter((x) => (SERIES_BY_CODE.get(x.code) ?? "Other") === era);
+                  if (eraSets.length === 0) return null;
+                  const selectedInEra = eraSets.filter((x) => isActive("set", x.code)).length;
+                  // Searching, or having a selection inside a group, forces it open —
+                  // no hiding a match behind a collapsed header while someone types.
+                  const forceOpen = setQuery.length > 0 || selectedInEra > 0;
+                  return (
+                    <EraGroup key={era} label={era} count={eraSets.length} selected={selectedInEra} defaultOpen={i === 0 || forceOpen}>
+                      {eraSets.map((x) => (
+                        <Check key={x.code} checked={isActive("set", x.code)} onChange={() => update((pp) => setCsv(pp, "set", x.code))} label={`${x.name} (${x.code.toUpperCase()})`} />
+                      ))}
+                    </EraGroup>
+                  );
+                })}
+              </div>
+            )}
           </Section>
 
           <Section title="Color">
@@ -167,7 +187,7 @@ export function Filters() {
             </div>
           </Section>
 
-          <Section title="Rarity">
+          <Section title="Rarity" count={sp.get("rarity")?.split(",").filter(Boolean).length ?? 0}>
             <div className="flex flex-col gap-1">
               {RARITY_KEYS.map((k) => (
                 <Check key={k} checked={isActive("rarity", k)} onChange={() => update((p) => setCsv(p, "rarity", k))} label={k} dot={rarityInfo(k).color} />
@@ -175,7 +195,7 @@ export function Filters() {
             </div>
           </Section>
 
-          <Section title="Card type">
+          <Section title="Card type" count={sp.get("type")?.split(",").filter(Boolean).length ?? 0}>
             <div className="flex flex-col gap-1">
               {CARD_TYPES.map((k) => (
                 <Check key={k} checked={isActive("type", k)} onChange={() => update((p) => setCsv(p, "type", k))} label={k} />
@@ -201,20 +221,30 @@ function Section({
   children,
   defaultOpen = false,
   last,
+  count,
 }: {
   title: string;
   children: React.ReactNode;
   defaultOpen?: boolean;
   last?: boolean;
+  count?: number;
 }) {
   const [open, setOpen] = useState(defaultOpen);
+  // defaultOpen can flip after mount (the Set group opens itself once a set is
+  // selected or a search is typed) without fighting a deliberate collapse.
+  useEffect(() => {
+    if (defaultOpen) setOpen(true);
+  }, [defaultOpen]);
   return (
     <div className={last ? "" : "border-b border-ink-700"}>
       <button
         onClick={() => setOpen((o) => !o)}
         className="flex w-full items-center justify-between py-3 text-xs font-semibold uppercase tracking-wide text-slate-400 hover:text-slate-200"
       >
-        {title}
+        <span className="flex items-center gap-1.5">
+          {title}
+          {!!count && <span className="rounded-full bg-brand-500/20 px-1.5 py-0.5 text-[10px] font-bold text-brand-300">{count}</span>}
+        </span>
         <Chevron open={open} />
       </button>
       {open && <div className="pb-3">{children}</div>}
@@ -241,5 +271,42 @@ function Check({
       {dot && <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: dot }} />}
       <span className="truncate">{label}</span>
     </label>
+  );
+}
+
+// Nested collapsible for one era's sets inside the Set section — keeps a long
+// set list from being one undifferentiated scroll.
+function EraGroup({
+  label,
+  count,
+  selected,
+  defaultOpen,
+  children,
+}: {
+  label: string;
+  count: number;
+  selected: number;
+  defaultOpen: boolean;
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+  useEffect(() => {
+    if (defaultOpen) setOpen(true);
+  }, [defaultOpen]);
+  return (
+    <div className="mb-1">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="flex w-full items-center justify-between rounded px-1 py-1.5 text-xs font-semibold text-slate-400 hover:bg-ink-800 hover:text-slate-200"
+      >
+        <span className="flex items-center gap-1.5">
+          {label}
+          <span className="text-slate-600">({count})</span>
+          {selected > 0 && <span className="rounded-full bg-brand-500/20 px-1.5 py-0.5 text-[10px] font-bold text-brand-300">{selected}</span>}
+        </span>
+        <Chevron open={open} />
+      </button>
+      {open && <div className="ml-1 flex flex-col gap-0.5 border-l border-ink-800 pl-2">{children}</div>}
+    </div>
   );
 }
