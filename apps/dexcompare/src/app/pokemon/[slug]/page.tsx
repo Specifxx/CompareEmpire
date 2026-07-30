@@ -15,7 +15,7 @@ import {
   popularSpecies,
   MIN_PRICED_PRINTINGS_TO_INDEX,
 } from "@/lib/pokemon-species-data";
-import { SpeciesPrintings } from "./SpeciesPrintings";
+import { SpeciesPrintings, SpeciesPrintingsView } from "./SpeciesPrintings";
 
 export const revalidate = 86400;
 
@@ -246,14 +246,22 @@ export default async function SpeciesPage({ params }: { params: { slug: string }
         </section>
       )}
 
-      {/* Filters + grid + pagination. The server renders the unfiltered,
-          default-sorted first page (that's what gets indexed and cached); the
-          island re-reads the URL for ?set=/?era=/?rarity=/?sort=/?page= and
-          fetches the matching slice. useSearchParams() needs a Suspense
-          boundary for the route to stay statically renderable. */}
+      {/* Filters + grid + pagination. useSearchParams() bails the island out of
+          prerendering, so the FALLBACK is what lands in the cached HTML — it has
+          to be the real unfiltered default view (that's what gets indexed), not a
+          spinner. The island hydrates over it with identical markup and only
+          changes anything once the URL carries a filter/sort/page. */}
       <Suspense
         fallback={
-          <div className="card-surface grid place-items-center p-12 text-center text-sm text-slate-400">Loading printings…</div>
+          <SpeciesPrintingsView
+            slug={species.slug}
+            speciesName={species.name}
+            eras={eras}
+            rarities={species.rarities}
+            cards={printings as CardTileData[]}
+            total={totalMatching}
+            query={{ page: 1, size }}
+          />
         }
       >
         <SpeciesPrintings

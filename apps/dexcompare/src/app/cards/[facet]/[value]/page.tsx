@@ -16,7 +16,7 @@ import {
   MIN_PRICED_TO_INDEX_FACET,
   type FacetKind,
 } from "@/lib/card-facets";
-import { FacetCardGrid } from "./FacetCardGrid";
+import { FacetCardGrid, FacetCardGridView } from "./FacetCardGrid";
 
 export const revalidate = 86400;
 
@@ -175,12 +175,22 @@ export default async function FacetPage({ params }: { params: { facet: string; v
         </p>
       </div>
 
-      {/* Grid + pagination. Page 1 is server-rendered (and cached); the island
-          takes over when the URL carries ?page=/?size=. useSearchParams() needs a
-          Suspense boundary for the route to stay statically renderable. */}
+      {/* Grid + pagination. useSearchParams() bails the island out of
+          prerendering, so the FALLBACK is what lands in the cached HTML — it has
+          to be the real page-1 grid, not a spinner. The island hydrates over it
+          with identical markup and only changes anything if the URL carries
+          ?page=/?size=. */}
       <Suspense
         fallback={
-          <div className="card-surface grid place-items-center p-16 text-center text-sm text-slate-400">Loading cards…</div>
+          <FacetCardGridView
+            facet={params.facet}
+            value={params.value}
+            label={facet.label}
+            cards={cards as CardTileData[]}
+            total={total}
+            page={1}
+            size={size}
+          />
         }
       >
         <FacetCardGrid

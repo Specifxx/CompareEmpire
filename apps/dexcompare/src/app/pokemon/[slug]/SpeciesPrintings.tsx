@@ -6,20 +6,26 @@ import { useSearchParams } from "next/navigation";
 import { CardTile, type CardTileData } from "@/components/CardTile";
 import { PAGE_SIZES } from "@/lib/constants";
 
-// The filter/sort/paginate section of a species hub, as a CLIENT island.
+// The filter/sort/paginate section of a species hub.
 //
-// Why: the page declared `export const revalidate` but destructured
-// `searchParams` (set/era/rarity/sort/page/size) — a dynamic API in Next 14 — so
-// the hub was never registered for ISR and every request re-queried Postgres. The
-// server now renders the unfiltered default view, which is the only indexable one
-// and the only one Googlebot asks for, and that render is cacheable. Filter/sort
-// state is read from the URL here and the matching slice is fetched from the
-// CDN-cached /pokemon/[slug]/printings endpoint.
+// Why it's split into a presentational view + a hook wrapper:
+// the page declared `export const revalidate` but destructured `searchParams`
+// (set/era/rarity/sort/page/size) — a dynamic API in Next 14 — so the hub was never
+// registered for ISR and every request re-queried Postgres. Filter state therefore
+// has to be read on the client. But `useSearchParams()` makes Next bail the
+// component out of prerendering (BAILOUT_TO_CLIENT_SIDE_RENDERING) and render the
+// Suspense FALLBACK into the static HTML — so the fallback has to BE the default
+// view, otherwise the cached, crawled HTML would be a spinner instead of the
+// printings grid this page exists to show.
 //
-// The chips are still real <Link>s to the same ?set=/?era=/?rarity=/?sort=/?page=
-// URLs, so nothing about the links, history or shareable URLs changes.
+// <SpeciesPrintingsView> is hook-free markup (the server page renders it as the
+// fallback = the indexable default view), and <SpeciesPrintings> is the island that
+// hydrates over it, reads the chips' query params from the URL and fetches the
+// matching slice from the CDN-cached /pokemon/[slug]/printings endpoint. The chips
+// are still ordinary <Link>s to the same URLs, so nothing about links, history or
+// sharing changes.
 
-const DEFAULT_SIZE = 100;
+export const SPECIES_PAGE_SIZE = 100; // == parsePageSize(undefined)
 
 const SORTS = [
   { key: "relevance", label: "Relevance" },
@@ -34,92 +40,52 @@ function parsePage(v: string | null): number {
 }
 function parseSize(v: string | null): number {
   const n = parseInt(v ?? "", 10);
-  return (PAGE_SIZES as readonly number[]).includes(n) ? n : DEFAULT_SIZE;
+  return (PAGE_SIZES as readonly number[]).includes(n) ? n : SPECIES_PAGE_SIZE;
 }
 
-export function SpeciesPrintings({
-  slug,
-  speciesName,
-  eras,
-  rarities,
-  initialCards,
-  initialTotal,
-}: {
+interface Query {
+  set?: string;
+  era?: string;
+  rarity?: string;
+  sort?: string;
+  page: number;
+  size: number;
+}
+
+interface ViewProps {
   slug: string;
   speciesName: string;
   eras: string[];
   rarities: string[];
-  initialCards: CardTileData[];
-  initialTotal: number;
-}) {
-  const sp = useSearchParams();
-  const set = sp.get("set") ?? undefined;
-  const era = sp.get("era") ?? undefined;
-  const rarity = sp.get("rarity") ?? undefined;
-  const sort = sp.get("sort") ?? undefined;
-  const page = parsePage(sp.get("page"));
-  const size = parseSize(sp.get("size"));
+  cards: CardTileData[];
+  total: number;
+  query: Query;
+  status?: "ok" | "loading" | "failed";
+}
 
-  // What the server rendered: no filters, default sort, page 1, default size.
-  const isDefaultView = !set && !era && !rarity && !sort && page === 1 && size === DEFAULT_SIZE;
-
-  const [cards, setCards] = useState<CardTileData[]>(initialCards);
-  const [total, setTotal] = useState(initialTotal);
-  const [loading, setLoading] = useState(false);
-  const [failed, setFailed] = useState(false);
-
-  useEffect(() => {
-    if (isDefaultView) {
-      setCards(initialCards);
-      setTotal(initialTotal);
-      setFailed(false);
-      return;
-    }
-    const qs = new URLSearchParams();
-    if (set) qs.set("set", set);
-    if (era) qs.set("era", era);
-    if (rarity) qs.set("rarity", rarity);
-    if (sort) qs.set("sort", sort);
-    qs.set("page", String(page));
-    qs.set("size", String(size));
-
-    let cancelled = false;
-    setLoading(true);
-    setFailed(false);
-    fetch(`/pokemon/${encodeURIComponent(slug)}/printings?${qs.toString()}`)
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
-      .then((data: { cards: CardTileData[]; total: number }) => {
-        if (cancelled) return;
-        setCards(data.cards ?? []);
-        setTotal(data.total ?? 0);
-      })
-      .catch(() => {
-        if (!cancelled) setFailed(true);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [isDefaultView, set, era, rarity, sort, page, size, slug, initialCards, initialTotal]);
-
-  // The cached <head> can't vary its robots tag per query string any more (that's
-  // exactly what made this route dynamic), so keep the old "filtered permutations
-  // are noindex,follow" rule here. The canonical in the cached head already points
-  // at the bare hub for every permutation.
-  useEffect(() => {
-    if (isDefaultView) return;
-    const tag = document.createElement("meta");
-    tag.name = "robots";
-    tag.content = "noindex,follow";
-    document.head.appendChild(tag);
-    return () => tag.remove();
-  }, [isDefaultView]);
+export function SpeciesPrintingsView({
+  slug,
+  speciesName,
+  eras,
+  rarities,
+  cards,
+  total,
+  query,
+  status = "ok",
+}: ViewProps) {
+  const { set, era, rarity, sort, page, size } = query;
 
   // Same URL shape as before: merge overrides into the current query string.
-  const qsFor = (overrides: Record<string, string | undefined>) => {
-    const merged: Record<string, string | undefined> = { set, era, rarity, sort, page: page > 1 ? String(page) : undefined, size: size === DEFAULT_SIZE ? undefined : String(size), ...overrides };
+  const qs = (overrides: Record<string, string | undefined>) => {
+    const merged: Record<string, string | undefined> = {
+      set,
+      era,
+      rarity,
+      sort,
+      page: page > 1 ? String(page) : undefined,
+      size: size === SPECIES_PAGE_SIZE ? undefined : String(size),
+      ...overrides,
+    };
     const usp = new URLSearchParams();
     for (const [k, v] of Object.entries(merged)) if (v) usp.set(k, v);
     const s = usp.toString();
@@ -136,12 +102,13 @@ export function SpeciesPrintings({
         </h2>
       </div>
 
-      {/* Crawlable filter/sort links (no JS required to follow them) */}
+      {/* Filter/sort links — real <a href>s, so they stay crawlable and work
+          without JS (each one is a normal navigation to a cached page). */}
       <div className="mb-4 flex flex-wrap gap-2">
         {SORTS.map((s) => (
           <Link
             key={s.key}
-            href={`/pokemon/${slug}${qsFor({ sort: s.key === "relevance" ? undefined : s.key, page: undefined })}`}
+            href={`/pokemon/${slug}${qs({ sort: s.key === "relevance" ? undefined : s.key, page: undefined })}`}
             className={`chip border px-3 py-1 text-xs ${
               (sort ?? "relevance") === s.key
                 ? "border-brand-500 bg-brand-500/10 text-brand-300"
@@ -158,7 +125,7 @@ export function SpeciesPrintings({
           {eras.map((e) => (
             <Link
               key={e}
-              href={`/pokemon/${slug}${qsFor({ era: era === e ? undefined : e, page: undefined })}`}
+              href={`/pokemon/${slug}${qs({ era: era === e ? undefined : e, page: undefined })}`}
               className={`chip border px-2.5 py-1 text-xs ${
                 era === e ? "border-brand-500 bg-brand-500/10 text-brand-300" : "border-ink-700 text-slate-400 hover:border-brand-500"
               }`}
@@ -174,7 +141,7 @@ export function SpeciesPrintings({
           {rarities.map((r) => (
             <Link
               key={r}
-              href={`/pokemon/${slug}${qsFor({ rarity: rarity === r ? undefined : r, page: undefined })}`}
+              href={`/pokemon/${slug}${qs({ rarity: rarity === r ? undefined : r, page: undefined })}`}
               className={`chip border px-2.5 py-1 text-xs ${
                 rarity === r ? "border-brand-500 bg-brand-500/10 text-brand-300" : "border-ink-700 text-slate-400 hover:border-brand-500"
               }`}
@@ -185,9 +152,9 @@ export function SpeciesPrintings({
         </div>
       )}
 
-      {loading ? (
+      {status === "loading" ? (
         <div className="card-surface grid place-items-center p-12 text-center text-sm text-slate-400">Loading printings…</div>
-      ) : failed ? (
+      ) : status === "failed" ? (
         <div className="card-surface grid place-items-center p-12 text-center text-sm text-slate-400">
           <div>
             <p>Couldn&apos;t load these printings.</p>
@@ -216,7 +183,7 @@ export function SpeciesPrintings({
       {totalPages > 1 && (
         <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
           {page > 1 && (
-            <Link href={`/pokemon/${slug}${qsFor({ page: String(page - 1) })}`} className="btn-ghost text-sm">
+            <Link href={`/pokemon/${slug}${qs({ page: String(page - 1) })}`} className="btn-ghost text-sm">
               ← Previous
             </Link>
           )}
@@ -224,12 +191,105 @@ export function SpeciesPrintings({
             Page {page} of {totalPages}
           </span>
           {page < totalPages && (
-            <Link href={`/pokemon/${slug}${qsFor({ page: String(page + 1) })}`} className="btn-ghost text-sm">
+            <Link href={`/pokemon/${slug}${qs({ page: String(page + 1) })}`} className="btn-ghost text-sm">
               Next →
             </Link>
           )}
         </div>
       )}
     </section>
+  );
+}
+
+export function SpeciesPrintings({
+  slug,
+  speciesName,
+  eras,
+  rarities,
+  initialCards,
+  initialTotal,
+}: {
+  slug: string;
+  speciesName: string;
+  eras: string[];
+  rarities: string[];
+  initialCards: CardTileData[];
+  initialTotal: number;
+}) {
+  const sp = useSearchParams();
+  const query: Query = {
+    set: sp.get("set") ?? undefined,
+    era: sp.get("era") ?? undefined,
+    rarity: sp.get("rarity") ?? undefined,
+    sort: sp.get("sort") ?? undefined,
+    page: parsePage(sp.get("page")),
+    size: parseSize(sp.get("size")),
+  };
+  // Exactly what the server rendered (and cached): no filters, default sort, page 1.
+  const isDefaultView =
+    !query.set && !query.era && !query.rarity && !query.sort && query.page === 1 && query.size === SPECIES_PAGE_SIZE;
+
+  const [cards, setCards] = useState<CardTileData[]>(initialCards);
+  const [total, setTotal] = useState(initialTotal);
+  const [status, setStatus] = useState<"ok" | "loading" | "failed">("ok");
+
+  const { set, era, rarity, sort, page, size } = query;
+  useEffect(() => {
+    if (isDefaultView) {
+      setCards(initialCards);
+      setTotal(initialTotal);
+      setStatus("ok");
+      return;
+    }
+    const qs = new URLSearchParams();
+    if (set) qs.set("set", set);
+    if (era) qs.set("era", era);
+    if (rarity) qs.set("rarity", rarity);
+    if (sort) qs.set("sort", sort);
+    qs.set("page", String(page));
+    qs.set("size", String(size));
+
+    let cancelled = false;
+    setStatus("loading");
+    fetch(`/pokemon/${encodeURIComponent(slug)}/printings?${qs.toString()}`)
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      .then((data: { cards: CardTileData[]; total: number }) => {
+        if (cancelled) return;
+        setCards(data.cards ?? []);
+        setTotal(data.total ?? 0);
+        setStatus("ok");
+      })
+      .catch(() => {
+        if (!cancelled) setStatus("failed");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [isDefaultView, set, era, rarity, sort, page, size, slug, initialCards, initialTotal]);
+
+  // The cached <head> can't vary its robots tag per query string any more (that
+  // read is exactly what made this route dynamic), so keep the old "filtered
+  // permutations are noindex,follow" rule here. The canonical in the cached head
+  // already points at the bare hub for every permutation.
+  useEffect(() => {
+    if (isDefaultView) return;
+    const tag = document.createElement("meta");
+    tag.name = "robots";
+    tag.content = "noindex,follow";
+    document.head.appendChild(tag);
+    return () => tag.remove();
+  }, [isDefaultView]);
+
+  return (
+    <SpeciesPrintingsView
+      slug={slug}
+      speciesName={speciesName}
+      eras={eras}
+      rarities={rarities}
+      cards={cards}
+      total={total}
+      query={query}
+      status={status}
+    />
   );
 }

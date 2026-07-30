@@ -6,18 +6,23 @@ import { useSearchParams } from "next/navigation";
 import { CardTile, type CardTileData } from "@/components/CardTile";
 import { PAGE_SIZES } from "@/lib/constants";
 
-// The paginated card grid for /cards/[facet]/[value], as a CLIENT island.
+// The paginated card grid for /cards/[facet]/[value].
 //
-// Why: the page declared `export const revalidate` but destructured
-// `searchParams` (page/size) — a dynamic API in Next 14 — so it was never
-// registered for ISR and every request ran four Postgres queries. The server now
-// renders page 1 (the only indexable view, and the only one Googlebot requests)
-// and that render is cacheable; ?page=/?size= are read from the URL here and the
-// slice comes from the CDN-cached /cards/[facet]/[value]/list endpoint.
+// Why it's split into a presentational view + a hook wrapper:
+// the page declared `export const revalidate` but destructured `searchParams`
+// (page/size) — a dynamic API in Next 14 — so it was never registered for ISR and
+// every request ran four Postgres queries. Pagination therefore has to be read on
+// the client. But `useSearchParams()` makes Next bail the component out of
+// prerendering (BAILOUT_TO_CLIENT_SIDE_RENDERING) and put the Suspense FALLBACK in
+// the static HTML — so the fallback has to BE the page-1 grid, or the cached,
+// crawled HTML would be a spinner.
 //
-// The URLs themselves are unchanged, so existing links/bookmarks still work.
+// <FacetCardGridView> is therefore hook-free markup the server page renders as the
+// fallback (that's the indexable page-1 HTML), and <FacetCardGrid> is the island
+// that hydrates over it, reads ?page=/?size= and fetches deeper slices from the
+// CDN-cached /cards/[facet]/[value]/list endpoint. URLs are unchanged.
 
-const DEFAULT_SIZE = 100;
+export const FACET_PAGE_SIZE = 100; // == parsePageSize(undefined)
 
 function parsePage(v: string | null): number {
   const n = parseInt(v ?? "", 10);
@@ -25,77 +30,29 @@ function parsePage(v: string | null): number {
 }
 function parseSize(v: string | null): number {
   const n = parseInt(v ?? "", 10);
-  return (PAGE_SIZES as readonly number[]).includes(n) ? n : DEFAULT_SIZE;
+  return (PAGE_SIZES as readonly number[]).includes(n) ? n : FACET_PAGE_SIZE;
 }
 
-export function FacetCardGrid({
-  facet,
-  value,
-  label,
-  initialCards,
-  total,
-}: {
+interface ViewProps {
   facet: string;
   value: string;
   label: string;
-  initialCards: CardTileData[];
+  cards: CardTileData[];
   total: number;
-}) {
-  const sp = useSearchParams();
-  const page = parsePage(sp.get("page"));
-  const size = parseSize(sp.get("size"));
-  const isDefaultView = page === 1 && size === DEFAULT_SIZE;
+  page: number;
+  size: number;
+  status?: "ok" | "loading" | "failed";
+}
 
-  const [cards, setCards] = useState<CardTileData[]>(initialCards);
-  const [loading, setLoading] = useState(false);
-  const [failed, setFailed] = useState(false);
-
-  useEffect(() => {
-    if (isDefaultView) {
-      setCards(initialCards);
-      setFailed(false);
-      return;
-    }
-    let cancelled = false;
-    setLoading(true);
-    setFailed(false);
-    fetch(`/cards/${encodeURIComponent(facet)}/${encodeURIComponent(value)}/list?page=${page}&size=${size}`)
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
-      .then((data: { cards: CardTileData[] }) => {
-        if (!cancelled) setCards(data.cards ?? []);
-      })
-      .catch(() => {
-        if (!cancelled) setFailed(true);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [isDefaultView, page, size, facet, value, initialCards]);
-
-  // The cached <head> can't vary its robots tag per query string any more (that's
-  // what forced dynamic rendering). Keep the old rule — only page 1 competes in
-  // the index — by tagging permutations here; the canonical already points at
-  // page 1 regardless.
-  useEffect(() => {
-    if (isDefaultView) return;
-    const tag = document.createElement("meta");
-    tag.name = "robots";
-    tag.content = "noindex,follow";
-    document.head.appendChild(tag);
-    return () => tag.remove();
-  }, [isDefaultView]);
-
+export function FacetCardGridView({ facet, value, label, cards, total, page, size, status = "ok" }: ViewProps) {
   const totalPages = Math.max(1, Math.ceil(total / size));
-  const href = (p: number) => `/cards/${facet}/${value}?page=${p}${size === DEFAULT_SIZE ? "" : `&size=${size}`}`;
+  const href = (p: number) => `/cards/${facet}/${value}?page=${p}${size === FACET_PAGE_SIZE ? "" : `&size=${size}`}`;
 
   return (
     <>
-      {loading ? (
+      {status === "loading" ? (
         <div className="card-surface grid place-items-center p-16 text-center text-sm text-slate-400">Loading page {page}…</div>
-      ) : failed ? (
+      ) : status === "failed" ? (
         <div className="card-surface grid place-items-center p-16 text-center text-sm text-slate-400">
           <p>
             Couldn&apos;t load page {page}.{" "}
@@ -134,5 +91,76 @@ export function FacetCardGrid({
         </div>
       )}
     </>
+  );
+}
+
+export function FacetCardGrid({
+  facet,
+  value,
+  label,
+  initialCards,
+  total,
+}: {
+  facet: string;
+  value: string;
+  label: string;
+  initialCards: CardTileData[];
+  total: number;
+}) {
+  const sp = useSearchParams();
+  const page = parsePage(sp.get("page"));
+  const size = parseSize(sp.get("size"));
+  const isDefaultView = page === 1 && size === FACET_PAGE_SIZE;
+
+  const [cards, setCards] = useState<CardTileData[]>(initialCards);
+  const [status, setStatus] = useState<"ok" | "loading" | "failed">("ok");
+
+  useEffect(() => {
+    if (isDefaultView) {
+      setCards(initialCards);
+      setStatus("ok");
+      return;
+    }
+    let cancelled = false;
+    setStatus("loading");
+    fetch(`/cards/${encodeURIComponent(facet)}/${encodeURIComponent(value)}/list?page=${page}&size=${size}`)
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      .then((data: { cards: CardTileData[] }) => {
+        if (cancelled) return;
+        setCards(data.cards ?? []);
+        setStatus("ok");
+      })
+      .catch(() => {
+        if (!cancelled) setStatus("failed");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [isDefaultView, page, size, facet, value, initialCards]);
+
+  // The cached <head> can't vary its robots tag per query string any more (that
+  // read is what forced dynamic rendering). Keep the old rule — only page 1
+  // competes in the index — by tagging permutations here; the canonical already
+  // points at page 1 either way.
+  useEffect(() => {
+    if (isDefaultView) return;
+    const tag = document.createElement("meta");
+    tag.name = "robots";
+    tag.content = "noindex,follow";
+    document.head.appendChild(tag);
+    return () => tag.remove();
+  }, [isDefaultView]);
+
+  return (
+    <FacetCardGridView
+      facet={facet}
+      value={value}
+      label={label}
+      cards={cards}
+      total={total}
+      page={page}
+      size={size}
+      status={status}
+    />
   );
 }

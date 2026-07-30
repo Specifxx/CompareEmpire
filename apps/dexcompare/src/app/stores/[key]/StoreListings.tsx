@@ -9,20 +9,25 @@ import { formatMoney } from "@/lib/format";
 // PrismaClient) never reaches the browser bundle.
 import type { StoreListingRow } from "@/lib/store-stats";
 
-// The in-stock listing table for /stores/[key], as a CLIENT island.
+// The in-stock listing table for /stores/[key].
 //
-// Why: the page declared `export const revalidate` but destructured
-// `searchParams` (page/size) — a dynamic API in Next 14 — so it was never
-// registered for ISR and every request re-read Postgres. The server now renders
-// the default view (page 1, default page size), which is the only indexable one
-// and the only one Googlebot ever asks for, and that render is cacheable. Page
-// changes are read from the URL here instead, and the slice is fetched from the
-// CDN-cached /stores/[key]/listings endpoint.
+// Why it's split into a presentational view + a hook wrapper:
+// the page declared `export const revalidate` but destructured `searchParams`
+// (page/size) — a dynamic API in Next 14 — so it was never registered for ISR and
+// every request re-ran storeStats() against Postgres. Pagination therefore has to
+// be read on the client instead. But `useSearchParams()` makes Next bail the
+// component out of prerendering entirely (BAILOUT_TO_CLIENT_SIDE_RENDERING) and
+// render the Suspense FALLBACK into the static HTML — so the fallback has to BE
+// the default view, or Googlebot would index a spinner.
 //
-// URLs are unchanged (?page=N, ?size=N), so existing links and bookmarks still
-// land on the same content.
+// So: <StoreListingsView> is a plain props-in/markup-out component (no hooks) the
+// server page renders as the Suspense fallback — that's the page-1 HTML that gets
+// cached and crawled. <StoreListings> is the client island that hydrates over it,
+// re-reads ?page=/?size= from the URL and fetches that slice from the CDN-cached
+// /stores/[key]/listings endpoint. Same URLs as before, so existing links and
+// bookmarks are unaffected.
 
-const DEFAULT_SIZE = 100;
+export const STORE_PAGE_SIZE = 100; // == parsePageSize(undefined)
 
 function parsePage(v: string | null): number {
   const n = parseInt(v ?? "", 10);
@@ -30,82 +35,42 @@ function parsePage(v: string | null): number {
 }
 function parseSize(v: string | null): number {
   const n = parseInt(v ?? "", 10);
-  return (PAGE_SIZES as readonly number[]).includes(n) ? n : DEFAULT_SIZE;
+  return (PAGE_SIZES as readonly number[]).includes(n) ? n : STORE_PAGE_SIZE;
 }
 
-export function StoreListings({
-  storeKey,
-  storeName,
-  currency,
-  initialRows,
-  totalRows,
-}: {
+interface ViewProps {
   storeKey: string;
   storeName: string;
   currency: string;
-  initialRows: StoreListingRow[];
+  rows: StoreListingRow[];
   totalRows: number;
-}) {
-  const sp = useSearchParams();
-  const page = parsePage(sp.get("page"));
-  const size = parseSize(sp.get("size"));
-  // The server-rendered slice — anything else has to be fetched.
-  const isDefaultView = page === 1 && size === DEFAULT_SIZE;
+  page: number;
+  size: number;
+  status?: "ok" | "loading" | "failed";
+}
 
-  const [rows, setRows] = useState<StoreListingRow[]>(initialRows);
-  const [loading, setLoading] = useState(false);
-  const [failed, setFailed] = useState(false);
-
-  useEffect(() => {
-    if (isDefaultView) {
-      setRows(initialRows);
-      setFailed(false);
-      return;
-    }
-    let cancelled = false;
-    setLoading(true);
-    setFailed(false);
-    fetch(`/stores/${encodeURIComponent(storeKey)}/listings?page=${page}&size=${size}`)
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
-      .then((data: { rows: StoreListingRow[] }) => {
-        if (!cancelled) setRows(data.rows ?? []);
-      })
-      .catch(() => {
-        if (!cancelled) setFailed(true);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [isDefaultView, page, size, storeKey, initialRows]);
-
-  // The page's cached <head> canonicalises to /stores/[key] and can no longer
-  // vary its robots tag per query string (that's what made it dynamic). Keep the
-  // old "permutations are noindex,follow" rule by tagging them here — the
-  // canonical already points at page 1 either way.
-  useEffect(() => {
-    if (isDefaultView) return;
-    const tag = document.createElement("meta");
-    tag.name = "robots";
-    tag.content = "noindex,follow";
-    document.head.appendChild(tag);
-    return () => tag.remove();
-  }, [isDefaultView]);
-
+export function StoreListingsView({
+  storeKey,
+  storeName,
+  currency,
+  rows,
+  totalRows,
+  page,
+  size,
+  status = "ok",
+}: ViewProps) {
   const fmt = (cents: number) => formatMoney(cents, currency);
   const totalPages = Math.max(1, Math.ceil(totalRows / size));
-  const href = (p: number) => `/stores/${storeKey}?page=${p}${size === DEFAULT_SIZE ? "" : `&size=${size}`}`;
+  const href = (p: number) => `/stores/${storeKey}?page=${p}${size === STORE_PAGE_SIZE ? "" : `&size=${size}`}`;
 
   return (
     <section>
       <h2 className="mb-3 text-lg font-bold text-white">
         In-stock at {storeName} <span className="text-slate-500">({totalRows})</span>
       </h2>
-      {loading ? (
+      {status === "loading" ? (
         <div className="card-surface p-8 text-center text-sm text-slate-400">Loading page {page}…</div>
-      ) : failed ? (
+      ) : status === "failed" ? (
         <div className="card-surface p-8 text-center text-sm text-slate-400">
           Couldn&apos;t load page {page}.{" "}
           <Link href={`/stores/${storeKey}`} className="text-brand-400 hover:underline">
@@ -156,5 +121,76 @@ export function StoreListings({
         </div>
       )}
     </section>
+  );
+}
+
+export function StoreListings({
+  storeKey,
+  storeName,
+  currency,
+  initialRows,
+  totalRows,
+}: {
+  storeKey: string;
+  storeName: string;
+  currency: string;
+  initialRows: StoreListingRow[];
+  totalRows: number;
+}) {
+  const sp = useSearchParams();
+  const page = parsePage(sp.get("page"));
+  const size = parseSize(sp.get("size"));
+  // The server-rendered (and cached) slice — anything else has to be fetched.
+  const isDefaultView = page === 1 && size === STORE_PAGE_SIZE;
+
+  const [rows, setRows] = useState<StoreListingRow[]>(initialRows);
+  const [status, setStatus] = useState<"ok" | "loading" | "failed">("ok");
+
+  useEffect(() => {
+    if (isDefaultView) {
+      setRows(initialRows);
+      setStatus("ok");
+      return;
+    }
+    let cancelled = false;
+    setStatus("loading");
+    fetch(`/stores/${encodeURIComponent(storeKey)}/listings?page=${page}&size=${size}`)
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      .then((data: { rows: StoreListingRow[] }) => {
+        if (cancelled) return;
+        setRows(data.rows ?? []);
+        setStatus("ok");
+      })
+      .catch(() => {
+        if (!cancelled) setStatus("failed");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [isDefaultView, page, size, storeKey, initialRows]);
+
+  // The page's cached <head> canonicalises to /stores/[key] and can no longer vary
+  // its robots tag per query string (that read is what made it dynamic). Keep the
+  // old "only page 1 competes in the index" rule by tagging permutations here.
+  useEffect(() => {
+    if (isDefaultView) return;
+    const tag = document.createElement("meta");
+    tag.name = "robots";
+    tag.content = "noindex,follow";
+    document.head.appendChild(tag);
+    return () => tag.remove();
+  }, [isDefaultView]);
+
+  return (
+    <StoreListingsView
+      storeKey={storeKey}
+      storeName={storeName}
+      currency={currency}
+      rows={rows}
+      totalRows={totalRows}
+      page={page}
+      size={size}
+      status={status}
+    />
   );
 }

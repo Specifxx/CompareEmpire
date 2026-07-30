@@ -9,7 +9,7 @@ import { formatMoney } from "@/lib/format";
 import { storeStats } from "@/lib/store-stats";
 import { parsePageSize } from "@/lib/cards";
 import { SITE_URL } from "@/lib/site";
-import { StoreListings } from "./StoreListings";
+import { StoreListings, StoreListingsView } from "./StoreListings";
 
 export const revalidate = 86400;
 
@@ -156,12 +156,22 @@ export default async function StorePage({ params }: { params: { key: string } })
         )}
       </div>
 
-      {/* In-stock listings. Page 1 is server-rendered (and cached); the island
-          takes over when the URL carries ?page=/?size= — useSearchParams() needs
-          a Suspense boundary for the route to stay statically renderable. */}
+      {/* In-stock listings. useSearchParams() bails the island out of
+          prerendering, so the FALLBACK is what lands in the cached HTML — it has
+          to be the real page-1 view, not a spinner. The island hydrates over it
+          with identical markup and only changes anything if the URL carries
+          ?page=/?size=. */}
       <Suspense
         fallback={
-          <div className="card-surface p-8 text-center text-sm text-slate-400">Loading listings…</div>
+          <StoreListingsView
+            storeKey={params.key}
+            storeName={store.name}
+            currency={COUNTRIES[country].currency}
+            rows={pageRows}
+            totalRows={stats.rows.length}
+            page={1}
+            size={size}
+          />
         }
       >
         <StoreListings
