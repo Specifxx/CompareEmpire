@@ -1,39 +1,69 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
+import { prisma } from "@/lib/db";
 import { RETAILERS, shippingPolicyUrl, retailerCountry } from "@/lib/retailers";
 import { COUNTRIES } from "@/lib/country";
 import { formatMoney } from "@/lib/format";
 import { storeStats } from "@/lib/store-stats";
-import { parsePageNum, parsePageSize } from "@/lib/cards";
+import { parsePageSize } from "@/lib/cards";
 import { SITE_URL } from "@/lib/site";
+import { StoreListings } from "./StoreListings";
 
 export const revalidate = 86400;
 
-export async function generateMetadata({
-  params,
-  searchParams,
-}: {
-  params: { key: string };
-  searchParams: { page?: string; size?: string };
-}): Promise<Metadata> {
+// Fixed prewarm head — the busiest stores only. Everything else is generated on
+// first request and then ISR-cached (dynamicParams defaults to true).
+const PREWARM_STORES = 8;
+
+// THE cache fix for this route (with the searchParams removal below): without
+// `generateStaticParams` Next 14 never registers a dynamic route for ISR, so
+// `revalidate` above was a silent no-op — this path appeared in neither `routes`
+// nor `dynamicRoutes` in .next/prerender-manifest.json and every request re-ran
+// storeStats() (a 4k-row read) against Postgres. Mirrors card/[id].
+//
+// Derived from the DB (stores with the most tracked in-stock listings) rather
+// than the static RETAILERS map on purpose: it prewarms the stores that matter,
+// AND a build with an unreachable database prerenders nothing instead of failing
+// inside a page whose queries throw — the catch returns [] and every store page
+// is then generated on demand.
+export async function generateStaticParams() {
+  try {
+    const busiest = await prisma.retailerPrice.groupBy({
+      by: ["retailer"],
+      where: { inStock: true, NOT: { retailer: { startsWith: "marketguide" } } },
+      _count: { retailer: true },
+      orderBy: { _count: { retailer: "desc" } },
+      take: PREWARM_STORES,
+    });
+    return busiest.filter((g) => RETAILERS[g.retailer]).map((g) => ({ key: g.retailer }));
+  } catch {
+    return [];
+  }
+}
+
+// NOTE: no `searchParams` here or in the page below. Reading it is a dynamic API
+// in Next 14 and silently voids `revalidate` for the whole route. Pagination now
+// lives in the <StoreListings> client island.
+export async function generateMetadata({ params }: { params: { key: string } }): Promise<Metadata> {
   const store = RETAILERS[params.key];
   if (!store) notFound();
   const title = `${store.name} — Pokémon Card Prices & Store Profile`;
   const description = `Is ${store.name} cheaper? See how many Pokémon cards ${store.name} currently has at the lowest tracked price, its shipping policy, and every in-stock listing DexCompare compares.`;
-  // Only page 1 claims the canonical; deeper pages and page-size permutations
-  // are noindex,follow so they don't compete with it (same rule as /browse).
-  const isPermutation = parsePageNum(searchParams.page) > 1 || Boolean(searchParams.size);
   return {
     title,
     description,
+    // Page 1 is the only server-rendered (and only indexable) view; the canonical
+    // points here from every ?page=/?size= permutation, and the island adds
+    // noindex,follow client-side on those — preserving the old rule that only
+    // page 1 competes in the index (same rule as /browse).
     alternates: { canonical: `/stores/${params.key}` },
-    ...(isPermutation ? { robots: { index: false, follow: true } } : {}),
     openGraph: { title, description, url: `${SITE_URL}/stores/${params.key}` },
   };
 }
 
-export default async function StorePage({ params, searchParams }: { params: { key: string }; searchParams: { page?: string; size?: string } }) {
+export default async function StorePage({ params }: { params: { key: string } }) {
   const store = RETAILERS[params.key];
   if (!store) notFound();
 
@@ -41,10 +71,10 @@ export default async function StorePage({ params, searchParams }: { params: { ke
   const fmt = (cents: number) => formatMoney(cents, COUNTRIES[country].currency);
   const stats = await storeStats(params.key, country);
 
-  const page = parsePageNum(searchParams.page);
-  const size = parsePageSize(searchParams.size);
-  const totalPages = Math.max(1, Math.ceil(stats.rows.length / size));
-  const pageRows = stats.rows.slice((page - 1) * size, (page - 1) * size + size);
+  // Default view only (page 1, default page size) — searchParams-free, so this
+  // render is cacheable. Other pages are fetched client-side.
+  const size = parsePageSize(undefined);
+  const pageRows = stats.rows.slice(0, size);
   const policyUrl = shippingPolicyUrl(params.key);
 
   const breadcrumb = {
@@ -126,43 +156,22 @@ export default async function StorePage({ params, searchParams }: { params: { ke
         )}
       </div>
 
-      {/* In-stock listings, paginated */}
-      <section>
-        <h2 className="mb-3 text-lg font-bold text-white">
-          In-stock at {store.name} <span className="text-slate-500">({stats.totalInStock})</span>
-        </h2>
-        {pageRows.length === 0 ? (
-          <div className="card-surface p-8 text-center text-sm text-slate-400">No in-stock listings tracked right now.</div>
-        ) : (
-          <div className="card-surface overflow-hidden">
-            <ul className="divide-y divide-ink-800">
-              {pageRows.map((r) => (
-                <li key={r.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 p-3">
-                  <div className="min-w-0 flex-1">
-                    <Link href={`/card/${r.cardSlug ?? r.cardId}`} className="truncate font-semibold text-white hover:underline">
-                      {r.cardName}
-                    </Link>
-                    <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-500">
-                      <span>{r.setName} · {r.collectorNumber}</span>
-                      {r.isFoil && <span className="chip bg-gold/15 font-semibold text-gold">✦</span>}
-                      {r.condition && <span className="chip bg-ink-800 text-slate-300">{r.condition}</span>}
-                      {r.isCheapestHere && <span className="chip bg-up/15 font-semibold text-up">Cheapest here</span>}
-                    </div>
-                  </div>
-                  <div className="num shrink-0 text-lg font-bold text-white">{fmt(r.priceCents)}</div>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-        {totalPages > 1 && (
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-            {page > 1 && <Link href={`/stores/${params.key}?page=${page - 1}`} className="btn-ghost text-sm">← Previous</Link>}
-            <span className="text-sm text-slate-500">Page {page} of {totalPages}</span>
-            {page < totalPages && <Link href={`/stores/${params.key}?page=${page + 1}`} className="btn-ghost text-sm">Next →</Link>}
-          </div>
-        )}
-      </section>
+      {/* In-stock listings. Page 1 is server-rendered (and cached); the island
+          takes over when the URL carries ?page=/?size= — useSearchParams() needs
+          a Suspense boundary for the route to stay statically renderable. */}
+      <Suspense
+        fallback={
+          <div className="card-surface p-8 text-center text-sm text-slate-400">Loading listings…</div>
+        }
+      >
+        <StoreListings
+          storeKey={params.key}
+          storeName={store.name}
+          currency={COUNTRIES[country].currency}
+          initialRows={pageRows}
+          totalRows={stats.rows.length}
+        />
+      </Suspense>
 
       <div className="text-sm text-slate-500">
         <Link href="/stores" className="text-brand-400 hover:underline">← All stores</Link>

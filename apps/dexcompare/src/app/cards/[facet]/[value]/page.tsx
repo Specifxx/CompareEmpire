@@ -1,22 +1,61 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { prisma } from "@/lib/db";
-import { CardTile, type CardTileData } from "@/components/CardTile";
-import { cardTileSelect, parsePageNum, parsePageSize } from "@/lib/cards";
+import { type CardTileData } from "@/components/CardTile";
+import { cardTileSelect, parsePageSize } from "@/lib/cards";
 import { DEFAULT_COUNTRY } from "@/lib/country";
 import { formatMoney } from "@/lib/format";
 import { SITE_URL } from "@/lib/site";
-import { resolveFacet, FACET_LABELS, MIN_PRICED_TO_INDEX_FACET, type FacetKind } from "@/lib/card-facets";
+import {
+  resolveFacet,
+  listFacetValues,
+  FACET_KINDS,
+  FACET_LABELS,
+  MIN_PRICED_TO_INDEX_FACET,
+  type FacetKind,
+} from "@/lib/card-facets";
+import { FacetCardGrid } from "./FacetCardGrid";
 
 export const revalidate = 86400;
 
+// Fixed prewarm head per facet kind (≤ 4 × this many renders per deploy) — never
+// scale it with the catalogue. Everything else is generated on first request and
+// then ISR-cached (dynamicParams defaults to true).
+const PREWARM_PER_KIND = 6;
+
+// THE cache fix for this route (with the searchParams removal below): without
+// `generateStaticParams` Next 14 never registers a dynamic route for ISR, so
+// `revalidate` above was a silent no-op — this path appeared in neither `routes`
+// nor `dynamicRoutes` in .next/prerender-manifest.json, and every request paid
+// four Postgres queries. Mirrors card/[id].
+//
+// The DB probe comes first deliberately: most facet slugs are derived from static
+// config, so without it a build with an unreachable database would emit params
+// and then fail inside the page render. Probe → throw → catch → [] → nothing is
+// prerendered and every hub is generated on demand instead.
+export async function generateStaticParams() {
+  try {
+    await prisma.card.count({ where: { hasLivePrice: true } });
+    const groups = await Promise.all(FACET_KINDS.map((kind) => listFacetValues(kind)));
+    // No popularity signal exists for facet values, so this is just a bounded
+    // head per kind; the long tail warms itself on first request.
+    return FACET_KINDS.flatMap((kind, i) =>
+      groups[i].slice(0, PREWARM_PER_KIND).map((v) => ({ facet: kind as string, value: v.slug }))
+    );
+  } catch {
+    return [];
+  }
+}
+
+// NOTE: no `searchParams` here or in the page below — reading it is a dynamic API
+// in Next 14 and silently voids `revalidate` for the whole route. Pagination
+// lives in the <FacetCardGrid> client island.
 export async function generateMetadata({
   params,
-  searchParams,
 }: {
   params: { facet: string; value: string };
-  searchParams: { page?: string; size?: string };
 }): Promise<Metadata> {
   const facet = await resolveFacet(params.facet, params.value);
   if (!facet) notFound();
@@ -24,24 +63,19 @@ export async function generateMetadata({
   const title = `${facet.label} Pokémon Cards — Prices & Full List`;
   const description = `Browse every ${facet.label} Pokémon card DexCompare tracks — compare live prices across stores and find the cheapest ${facet.label.toLowerCase()} singles.`;
   const priced = await prisma.card.count({ where: { ...facet.where, hasLivePrice: true } });
-  // Only page 1 claims the canonical (same rule as /browse).
-  const isPermutation = parsePageNum(searchParams.page) > 1 || Boolean(searchParams.size);
   return {
     title,
     description,
+    // Page 1 is the only server-rendered (and only indexable) view. Thin hubs stay
+    // noindex here; ?page=/?size= permutations canonicalise here and are tagged
+    // noindex,follow by the island (same rule as /browse).
     alternates: { canonical: `/cards/${params.facet}/${params.value}` },
-    ...(priced < MIN_PRICED_TO_INDEX_FACET || isPermutation ? { robots: { index: false, follow: true } } : {}),
+    ...(priced < MIN_PRICED_TO_INDEX_FACET ? { robots: { index: false, follow: true } } : {}),
     openGraph: { title, description, url: `${SITE_URL}/cards/${params.facet}/${params.value}`, ...(kindLabel ? {} : {}) },
   };
 }
 
-export default async function FacetPage({
-  params,
-  searchParams,
-}: {
-  params: { facet: string; value: string };
-  searchParams: { page?: string; size?: string };
-}) {
+export default async function FacetPage({ params }: { params: { facet: string; value: string } }) {
   const facet = await resolveFacet(params.facet, params.value);
   if (!facet) notFound();
   const kindLabel = FACET_LABELS[facet.kind as FacetKind];
@@ -49,15 +83,15 @@ export default async function FacetPage({
   const country = DEFAULT_COUNTRY;
   const fmt = (cents: number) => formatMoney(cents, "AUD");
 
-  const page = parsePageNum(searchParams.page);
-  const size = parsePageSize(searchParams.size);
+  // Default view only (page 1, default page size) — searchParams-free, so this
+  // render is cacheable. Deeper pages are fetched by the island.
+  const size = parsePageSize(undefined);
 
   const [cards, total, priced, cheapest] = await Promise.all([
     prisma.card.findMany({
       where: facet.where,
       orderBy: [{ lowestPriceCents: { sort: "desc", nulls: "last" } }],
       select: cardTileSelect(country),
-      skip: (page - 1) * size,
       take: size,
     }),
     prisma.card.count({ where: facet.where }),
@@ -68,7 +102,6 @@ export default async function FacetPage({
       select: { lowestPriceCents: true },
     }),
   ]);
-  const totalPages = Math.max(1, Math.ceil(total / size));
 
   const breadcrumb = {
     "@context": "https://schema.org",
@@ -142,29 +175,22 @@ export default async function FacetPage({
         </p>
       </div>
 
-      {cards.length === 0 ? (
-        <div className="card-surface grid place-items-center p-16 text-center text-slate-400">
-          <p className="text-lg font-semibold text-white">No {facet.label} cards match this page</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5">
-          {(cards as CardTileData[]).map((c) => (
-            <CardTile key={c.id} card={c} />
-          ))}
-        </div>
-      )}
-
-      {totalPages > 1 && (
-        <div className="flex flex-wrap items-center justify-center gap-2">
-          {page > 1 && (
-            <Link href={`/cards/${params.facet}/${params.value}?page=${page - 1}`} className="btn-ghost text-sm">← Previous</Link>
-          )}
-          <span className="text-sm text-slate-500">Page {page} of {totalPages}</span>
-          {page < totalPages && (
-            <Link href={`/cards/${params.facet}/${params.value}?page=${page + 1}`} className="btn-ghost text-sm">Next →</Link>
-          )}
-        </div>
-      )}
+      {/* Grid + pagination. Page 1 is server-rendered (and cached); the island
+          takes over when the URL carries ?page=/?size=. useSearchParams() needs a
+          Suspense boundary for the route to stay statically renderable. */}
+      <Suspense
+        fallback={
+          <div className="card-surface grid place-items-center p-16 text-center text-sm text-slate-400">Loading cards…</div>
+        }
+      >
+        <FacetCardGrid
+          facet={params.facet}
+          value={params.value}
+          label={facet.label}
+          initialCards={cards as CardTileData[]}
+          total={total}
+        />
+      </Suspense>
 
       <section className="card-surface p-6">
         <h2 className="text-lg font-extrabold text-white">{facet.label} — FAQ</h2>

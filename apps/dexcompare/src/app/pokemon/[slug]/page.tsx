@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { prisma } from "@/lib/db";
 import { CardTile, type CardTileData } from "@/components/CardTile";
-import { cardTileSelect, parsePageNum, parsePageSize } from "@/lib/cards";
+import { cardTileSelect, parsePageSize } from "@/lib/cards";
 import { POKEMON_SETS } from "@/lib/pokemon-sets";
 import { DEFAULT_COUNTRY } from "@/lib/country";
 import { formatMoney } from "@/lib/format";
@@ -14,38 +15,48 @@ import {
   popularSpecies,
   MIN_PRICED_PRINTINGS_TO_INDEX,
 } from "@/lib/pokemon-species-data";
+import { SpeciesPrintings } from "./SpeciesPrintings";
 
 export const revalidate = 86400;
 
-interface Query {
-  set?: string;
-  era?: string;
-  rarity?: string;
-  sort?: string;
-  page?: string;
-  size?: string;
+// Fixed prewarm head — the most-searched species only. NEVER scale this with the
+// number of species; the long tail is generated on first request and then
+// ISR-cached (dynamicParams defaults to true).
+const PREWARM_SPECIES = 100;
+
+// THE cache fix for this route (with the searchParams removal below): without
+// `generateStaticParams` Next 14 never registers a dynamic route for ISR, so
+// `revalidate` above was a silent no-op — this path appeared in neither `routes`
+// nor `dynamicRoutes` in .next/prerender-manifest.json and every request paid a
+// full species render against Postgres. Mirrors card/[id].
+//
+// try/catch → [] so a build with an unreachable database still exits 0 (it just
+// prerenders nothing and generates each hub on demand).
+export async function generateStaticParams() {
+  try {
+    const busiest = await prisma.card.groupBy({
+      by: ["speciesSlug"],
+      where: { speciesSlug: { not: null }, hasLivePrice: true },
+      _count: { speciesSlug: true },
+      orderBy: { _count: { speciesSlug: "desc" } },
+      take: PREWARM_SPECIES,
+    });
+    return busiest.flatMap((g) => (g.speciesSlug ? [{ slug: g.speciesSlug }] : []));
+  } catch {
+    return [];
+  }
 }
 
 async function resolveSpecies(slug: string) {
   return speciesStats(slug, DEFAULT_COUNTRY);
 }
 
-export async function generateMetadata({
-  params,
-  searchParams,
-}: {
-  params: { slug: string };
-  searchParams: Query;
-}): Promise<Metadata> {
+// NOTE: no `searchParams` here or in the page below — reading it is a dynamic API
+// in Next 14 and silently voids `revalidate` for the whole route. The
+// filter/sort/paginate UI is the <SpeciesPrintings> client island.
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const species = await resolveSpecies(params.slug);
   if (!species) notFound();
-  // Filter/sort/page permutations all canonicalise to the bare hub — noindex
-  // them so the hub itself is the only indexable version (same rule as
-  // /browse). Without this, a species with many printings multiplies into
-  // hundreds of near-duplicate set × era × rarity × sort × page URLs.
-  const isPermutation =
-    Boolean(searchParams.set || searchParams.era || searchParams.rarity || searchParams.sort || searchParams.size) ||
-    parsePageNum(searchParams.page) > 1;
 
   const title = `${species.name} Card Prices — Every Printing Compared`;
   const description =
@@ -56,26 +67,23 @@ export async function generateMetadata({
   return {
     title,
     description,
+    // Filter/sort/page permutations all canonicalise to the bare hub, so the hub
+    // is the only version that competes in the index — without that, a species
+    // with many printings multiplies into hundreds of near-duplicate
+    // set × era × rarity × sort × page URLs. The permutation-specific
+    // noindex,follow is now applied client-side by <SpeciesPrintings> (the head
+    // is cached and can't vary per query string — reading searchParams here is
+    // what made the whole route dynamic).
     alternates: { canonical: `/pokemon/${species.slug}` },
     // Thin hubs (too few priced printings yet) stay crawlable but out of the
     // index until the importer prices enough of them — no separate promotion
-    // job needed, this just re-evaluates on every ISR regenerate. Filtered
-    // permutations are noindexed for a different reason (duplication), above.
-    ...(species.pricedCount < MIN_PRICED_PRINTINGS_TO_INDEX || isPermutation
-      ? { robots: { index: false, follow: true } }
-      : {}),
+    // job needed, this just re-evaluates on every ISR regenerate.
+    ...(species.pricedCount < MIN_PRICED_PRINTINGS_TO_INDEX ? { robots: { index: false, follow: true } } : {}),
     openGraph: { title, description, url: `${SITE_URL}/pokemon/${species.slug}` },
   };
 }
 
-const SORTS = [
-  { key: "relevance", label: "Relevance" },
-  { key: "price_desc", label: "Price: high → low" },
-  { key: "price_asc", label: "Price: low → high" },
-  { key: "number", label: "Set, then number" },
-] as const;
-
-export default async function SpeciesPage({ params, searchParams }: { params: { slug: string }; searchParams: Query }) {
+export default async function SpeciesPage({ params }: { params: { slug: string } }) {
   const species = await resolveSpecies(params.slug);
   if (!species) notFound();
 
@@ -88,41 +96,26 @@ export default async function SpeciesPage({ params, searchParams }: { params: { 
   const setsForSpecies = POKEMON_SETS.filter((s) => species.setCodes.includes(s.code));
   const eras = [...new Set(setsForSpecies.map((s) => s.series))];
 
-  // ---- Filters --------------------------------------------------------------
-  const where: Record<string, unknown> = { speciesSlug: species.slug };
-  if (searchParams.set) where.setCode = { in: searchParams.set.split(",").filter(Boolean) };
-  if (searchParams.rarity) where.rarity = { in: searchParams.rarity.split(",").filter(Boolean) };
-  if (searchParams.era) {
-    const eraCodes = setsForSpecies.filter((s) => searchParams.era!.split(",").includes(s.series)).map((s) => s.code);
-    where.setCode = where.setCode ? { in: eraCodes.filter((c) => (where.setCode as { in: string[] }).in.includes(c)) } : { in: eraCodes };
-  }
-
-  // ---- Sort -------------------------------------------------------------
-  // Default "relevance": price descending is a practical proxy for "chase
-  // cards and popular sets first" — the printings collectors search for are
-  // overwhelmingly the expensive ones. Real per-search-term relevance would
-  // need query-log data this app doesn't have.
-  const orderBy =
-    searchParams.sort === "price_asc"
-      ? [{ lowestPriceCents: { sort: "asc", nulls: "last" } }]
-      : searchParams.sort === "number"
-      ? [{ setCode: "asc" }, { collectorNumber: "asc" }]
-      : [{ lowestPriceCents: { sort: "desc", nulls: "last" } }];
-
-  const size = parsePageSize(searchParams.size);
-  const page = parsePageNum(searchParams.page);
-
-  const [printings, totalMatching] = await Promise.all([
-    prisma.card.findMany({
-      where,
-      orderBy: orderBy as never,
-      select: cardTileSelect(country),
-      skip: (page - 1) * size,
-      take: size,
-    }),
-    prisma.card.count({ where: where as never }),
-  ]);
-  const totalPages = Math.max(1, Math.ceil(totalMatching / size));
+  // ---- Default (searchParams-free, cacheable) view --------------------------
+  // Unfiltered, default-sorted page 1 — the only indexable view and the only one
+  // Googlebot ever requests. Filters/sort/pagination happen in the client island
+  // against /pokemon/[slug]/printings; reading searchParams here would put the
+  // whole route back on per-request SSR.
+  //
+  // Default "relevance": price descending is a practical proxy for "chase cards
+  // and popular sets first" — the printings collectors search for are
+  // overwhelmingly the expensive ones. Real per-search-term relevance would need
+  // query-log data this app doesn't have.
+  const size = parsePageSize(undefined);
+  const printings = await prisma.card.findMany({
+    where: { speciesSlug: species.slug },
+    orderBy: [{ lowestPriceCents: { sort: "desc", nulls: "last" } }] as never,
+    select: cardTileSelect(country),
+    take: size,
+  });
+  // Unfiltered total — species.printingCount is already the count of every
+  // printing of this species (no extra query needed).
+  const totalMatching = species.printingCount;
 
   const breadcrumb = {
     "@context": "https://schema.org",
@@ -178,14 +171,6 @@ export default async function SpeciesPage({ params, searchParams }: { params: { 
     "@context": "https://schema.org",
     "@type": "FAQPage",
     mainEntity: faqs.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
-  };
-
-  const qs = (overrides: Record<string, string | undefined>) => {
-    const merged = { ...searchParams, ...overrides };
-    const usp = new URLSearchParams();
-    for (const [k, v] of Object.entries(merged)) if (v) usp.set(k, v);
-    const s = usp.toString();
-    return s ? `?${s}` : "";
   };
 
   return (
@@ -261,89 +246,25 @@ export default async function SpeciesPage({ params, searchParams }: { params: { 
         </section>
       )}
 
-      {/* Filters: set, era, rarity */}
-      <section>
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-lg font-bold text-white">
-            All {species.name} printings <span className="text-slate-500">({totalMatching})</span>
-          </h2>
-        </div>
-
-        {/* Server-rendered filter/sort links (no client JS required, crawlable) */}
-        <div className="mb-4 flex flex-wrap gap-2">
-          {SORTS.map((s) => (
-            <Link
-              key={s.key}
-              href={`/pokemon/${species.slug}${qs({ sort: s.key === "relevance" ? undefined : s.key, page: undefined })}`}
-              className={`chip border px-3 py-1 text-xs ${
-                (searchParams.sort ?? "relevance") === s.key ? "border-brand-500 bg-brand-500/10 text-brand-300" : "border-ink-700 text-slate-400 hover:border-brand-500"
-              }`}
-            >
-              {s.label}
-            </Link>
-          ))}
-        </div>
-        {eras.length > 1 && (
-          <div className="mb-2 flex flex-wrap gap-2">
-            <span className="self-center text-[11px] font-semibold uppercase tracking-wide text-slate-500">Era</span>
-            {eras.map((era) => (
-              <Link
-                key={era}
-                href={`/pokemon/${species.slug}${qs({ era: searchParams.era === era ? undefined : era, page: undefined })}`}
-                className={`chip border px-2.5 py-1 text-xs ${
-                  searchParams.era === era ? "border-brand-500 bg-brand-500/10 text-brand-300" : "border-ink-700 text-slate-400 hover:border-brand-500"
-                }`}
-              >
-                {era}
-              </Link>
-            ))}
-          </div>
-        )}
-        {species.rarities.length > 1 && (
-          <div className="mb-6 flex flex-wrap gap-2">
-            <span className="self-center text-[11px] font-semibold uppercase tracking-wide text-slate-500">Rarity</span>
-            {species.rarities.map((r) => (
-              <Link
-                key={r}
-                href={`/pokemon/${species.slug}${qs({ rarity: searchParams.rarity === r ? undefined : r, page: undefined })}`}
-                className={`chip border px-2.5 py-1 text-xs ${
-                  searchParams.rarity === r ? "border-brand-500 bg-brand-500/10 text-brand-300" : "border-ink-700 text-slate-400 hover:border-brand-500"
-                }`}
-              >
-                {r}
-              </Link>
-            ))}
-          </div>
-        )}
-
-        {printings.length === 0 ? (
-          <div className="card-surface grid place-items-center p-12 text-center text-slate-400">
-            <div>
-              <p className="text-lg font-semibold text-white">No printings match these filters</p>
-              <Link href={`/pokemon/${species.slug}`} className="btn-ghost mt-3">Clear filters</Link>
-            </div>
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5">
-            {(printings as CardTileData[]).map((c) => (
-              <CardTile key={c.id} card={c} />
-            ))}
-          </div>
-        )}
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
-            {page > 1 && (
-              <Link href={`/pokemon/${species.slug}${qs({ page: String(page - 1) })}`} className="btn-ghost text-sm">← Previous</Link>
-            )}
-            <span className="text-sm text-slate-500">Page {page} of {totalPages}</span>
-            {page < totalPages && (
-              <Link href={`/pokemon/${species.slug}${qs({ page: String(page + 1) })}`} className="btn-ghost text-sm">Next →</Link>
-            )}
-          </div>
-        )}
-      </section>
+      {/* Filters + grid + pagination. The server renders the unfiltered,
+          default-sorted first page (that's what gets indexed and cached); the
+          island re-reads the URL for ?set=/?era=/?rarity=/?sort=/?page= and
+          fetches the matching slice. useSearchParams() needs a Suspense
+          boundary for the route to stay statically renderable. */}
+      <Suspense
+        fallback={
+          <div className="card-surface grid place-items-center p-12 text-center text-sm text-slate-400">Loading printings…</div>
+        }
+      >
+        <SpeciesPrintings
+          slug={species.slug}
+          speciesName={species.name}
+          eras={eras}
+          rarities={species.rarities}
+          initialCards={printings as CardTileData[]}
+          initialTotal={totalMatching}
+        />
+      </Suspense>
 
       {/* Sibling species nav — crawl depth + discovery */}
       {siblings.length > 0 && (
