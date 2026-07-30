@@ -1,0 +1,29 @@
+name: Neon status check + wake (DexCompare, manual)
+
+# Uses NEON_API_KEY to find the DexCompare project by its endpoint hostname,
+# print its real state, and try to wake it via the API if it's merely idle
+# (normal free-tier auto-suspend). If the endpoint is administratively
+# disabled (limit exceeded), this only reports it — that needs console.neon.tech.
+on:
+  workflow_dispatch:
+    inputs:
+      target_host_fragment:
+        description: "Substring of the Neon endpoint hostname to match"
+        required: false
+        default: "ep-polished-forest-ay6vxl7o"
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Query Neon API
+        working-directory: apps/dexcompare
+        env:
+          NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+          TARGET_HOST_FRAGMENT: ${{ inputs.target_host_fragment }}
+        run: npx tsx scripts/neon-status-check.ts
