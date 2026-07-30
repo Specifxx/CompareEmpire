@@ -56,27 +56,20 @@ jobs:
         with:
           node-version: 20
 
-      # eBay sourcing is ON for DexCompare (set the EBAY_CLIENT_ID/SECRET secrets).
-      # The eBay app quota is SHARED with RiftCompare; both importers read the live
-      # remaining-call count from eBay's Analytics API before spending and always
-      # stop EBAY_QUOTA_RESERVE calls short, so the two sites self-coordinate and
-      # can never exhaust the daily quota between them. DexCompare splits its run
-      # budget across AU/US/GB (weights via EBAY_MARKET_WEIGHTS) and rotates
-      # through the stalest cards — see src/lib/price-import.ts.
+      # DexCompare makes ZERO eBay API calls — that Browse quota belongs to
+      # RiftCompare. EBAY_CLIENT_ID/SECRET are deliberately NOT passed here, so
+      # this job cannot spend the quota even if code regressed. Only
+      # EBAY_AFFILIATE_CAMPAIGN is provided: it just tags plain EPN search URLs
+      # (src/lib/affiliate.ts) and calls no API.
       - name: Import live prices
         if: steps.db.outputs.found == 'true'
         working-directory: apps/dexcompare
         env:
-          EBAY_CLIENT_ID: ${{ secrets.EBAY_CLIENT_ID }}
-          EBAY_CLIENT_SECRET: ${{ secrets.EBAY_CLIENT_SECRET }}
           EBAY_AFFILIATE_CAMPAIGN: ${{ secrets.EBAY_AFFILIATE_CAMPAIGN }}
         run: |
           npm install --no-audit --no-fund
           npx prisma generate
-          # Additive schema sync (new columns/tables, e.g. PriceAlert, ClickEvent,
-          # Card.marketPriceSource, PriceHistory.country) so the import can write
-          # them. --accept-data-loss allows the PriceHistory unique-index swap
-          # ([cardId,day] → [cardId,country,day]); no rows are dropped.
+          # Additive schema sync (new columns/tables) so the import can write them.
           npx prisma db push --skip-generate --accept-data-loss
           npx tsx scripts/import-prices.ts
 

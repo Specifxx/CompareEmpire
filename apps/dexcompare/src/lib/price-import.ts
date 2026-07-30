@@ -6,7 +6,6 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "./db";
 import { RETAILER_LIST, RetailerInfo } from "./retailers";
-import { isEbayEnabled, isEbayRateLimited, searchEbayLowest, primeEbayBudget, ebaySpentThisRun, ebaySpendable } from "./ebay";
 import { importSealed } from "./sealed-import";
 import { refreshTcgplayerPrices } from "./tcgplayer";
 import { priceField, marketGuideCents } from "./country";
@@ -346,171 +345,16 @@ async function verifyCheapestListings(): Promise<number> {
   return corrected;
 }
 
-// How the daily eBay budget is split across marketplaces, as percentage weights.
-// Override via EBAY_MARKET_WEIGHTS, e.g. "AU:50,US:30,GB:20". The catalogue
-// (20k+ cards) is far bigger than the daily budget, so without an explicit split
-// the first market ate every call and the others never ran.
-function ebayMarketWeights(): Record<string, number> {
-  const def: Record<string, number> = { AU: 40, US: 35, GB: 25 };
-  const raw = process.env.EBAY_MARKET_WEIGHTS;
-  if (!raw) return def;
-  const out: Record<string, number> = {};
-  for (const part of raw.split(",")) {
-    const [cc, w] = part.split(":").map((s) => s.trim());
-    const n = Number(w);
-    if (cc && Number.isFinite(n) && n > 0) out[cc.toUpperCase()] = n;
-  }
-  return Object.keys(out).length ? out : def;
-}
-
-// A search whose listing dates from before this is "stale" and due a refresh.
-const EBAY_STALE_MS = (Number(process.env.EBAY_STALE_HOURS) || 72) * 60 * 60 * 1000;
-// eBay rows not re-confirmed within this window are dead weight (the listing has
-// almost certainly ended) — pruned so an ancient price can't sit in the comparison.
-const EBAY_ROW_TTL_MS = (Number(process.env.EBAY_ROW_TTL_DAYS) || 21) * 24 * 60 * 60 * 1000;
-// Share of each market's budget always spent on the TOP-demand cards (most
-// searched/viewed, even if fresh) so chase cards stay near-daily fresh. With the
-// API limit capped at the default 5k/day (the limit-increase was declined), we
-// concentrate the budget on demand — the long tail that doesn't get an API price
-// is covered by the on-card eBay affiliate search row. Override via EBAY_HOT_SHARE.
-const EBAY_HOT_SHARE = Math.min(0.9, Math.max(0, Number(process.env.EBAY_HOT_SHARE ?? 0.6)));
 // Non-eBay store rows not re-confirmed within this window are orphans from a store
 // that has stopped responding (dead domain / broken sitemap). A live store has all
 // its rows recreated with a fresh lastSeen every run, so only dead-store rows ever
 // go stale — pruned, but ONLY on a healthy run (see the guard below).
 const STORE_ROW_TTL_MS = (Number(process.env.STORE_ROW_TTL_DAYS) || 21) * 24 * 60 * 60 * 1000;
 
-// Refresh eBay prices for the AU, US and GB markets. Returns the total rows
-// written. The catalogue is much larger than the daily call budget, so:
-//   • the run's budget (live quota minus reserve) is SPLIT across markets by
-//     weight — every market gets coverage every day;
-//   • within a market, a hot slice goes to the top-demand cards and the rest to
-//     the stalest cards first, so coverage rotates through the whole catalogue
-//     over successive days instead of re-searching the same head every night;
-//   • results are upserted PER CARD (delete that card's row, insert the new one):
-//     cards not reached today keep yesterday's price instead of being wiped, and
-//     a searched card with no valid listing today loses its old row (correct —
-//     the listing is gone). Rows unconfirmed for EBAY_ROW_TTL_DAYS are pruned.
-// Promos are matched by promo-wording in the listing title (they share base numbers).
-export async function refreshEbayMarkets(
-  cards: { id: string; name: string; setCode: string; collectorNumber: string; isPromo: boolean }[]
-): Promise<number> {
-  // Each market has its own retailer key so eBay AU + US rows for the same card never
-  // collide on the unique [cardId, retailer, condition, isFoil] key.
-  const MARKETS = [
-    { country: "AU", marketplace: "EBAY_AU", currency: "AUD", retailer: "ebay" },
-    { country: "US", marketplace: "EBAY_US", currency: "USD", retailer: "ebay_us" },
-    { country: "GB", marketplace: "EBAY_GB", currency: "GBP", retailer: "ebay_uk" },
-  ];
-  // Check the live quota and set a spend budget (leaves a reserve) so this can never
-  // exhaust eBay's daily limit, however many times the importer runs. If eBay has
-  // granted a higher limit (growth check), the bigger budget flows through here.
-  await primeEbayBudget();
-  const totalBudget = ebaySpendable();
-  const weights = ebayMarketWeights();
-  const weightSum = MARKETS.reduce((s, m) => s + (weights[m.country] ?? 0), 0) || 1;
-
-  const now = Date.now();
-  let written = 0;
-
-  for (const mkt of MARKETS) {
-    if (isEbayRateLimited()) break;
-    const marketBudget = Math.floor((totalBudget * (weights[mkt.country] ?? 0)) / weightSum);
-    if (marketBudget <= 0) continue;
-
-    // When this market's existing rows were last confirmed, per card.
-    const existing = await prisma.retailerPrice.findMany({
-      where: { retailer: mkt.retailer },
-      select: { cardId: true, lastSeen: true },
-    });
-    const lastSeen = new Map(existing.map((r) => [r.cardId, r.lastSeen.getTime()]));
-
-    // Hot slice: the head of the demand-ordered list, always refreshed. Rotation
-    // slice: the stalest (or never-searched) cards next, still in demand order.
-    const hotCount = Math.floor(marketBudget * EBAY_HOT_SHARE);
-    const hot = cards.slice(0, hotCount);
-    const hotIds = new Set(hot.map((c) => c.id));
-    const stale = cards.filter((c) => !hotIds.has(c.id) && (lastSeen.get(c.id) ?? 0) < now - EBAY_STALE_MS);
-    const fresh = cards.filter((c) => !hotIds.has(c.id) && (lastSeen.get(c.id) ?? 0) >= now - EBAY_STALE_MS);
-    // Stalest first within the rotation slice so the tail genuinely cycles.
-    stale.sort((a, b) => (lastSeen.get(a.id) ?? 0) - (lastSeen.get(b.id) ?? 0));
-    const queue = [...hot, ...stale, ...fresh].slice(0, marketBudget);
-
-    console.log(
-      `eBay ${mkt.country}: budget ${marketBudget} of ${totalBudget} calls — ${hot.length} hot + ${Math.min(stale.length, Math.max(0, marketBudget - hot.length))} stale-rotation cards (of ${cards.length} total).`
-    );
-
-    // Search + write in chunks so a crash/rate-limit mid-market keeps the progress
-    // made so far (the old buffer-whole-market approach lost everything).
-    const CHUNK = 200;
-    const spentBefore = ebaySpentThisRun();
-    for (let i = 0; i < queue.length; i += CHUNK) {
-      if (isEbayRateLimited() || ebaySpentThisRun() - spentBefore >= marketBudget) break;
-      const chunk = queue.slice(i, i + CHUNK);
-      const searchedIds: string[] = [];
-      const rows: Prisma.RetailerPriceCreateManyInput[] = [];
-      for (const c of chunk) {
-        if (isEbayRateLimited() || ebaySpentThisRun() - spentBefore >= marketBudget) break;
-        const [rawNum, total] = c.collectorNumber.split("/");
-        const outcome = await searchEbayLowest({
-          name: c.name,
-          setCode: c.setCode,
-          number: rawNum.replace(/\*/g, ""),
-          total: total ?? "",
-          isSignature: c.collectorNumber.includes("*"),
-          isPromo: c.isPromo,
-          marketplace: mkt.marketplace,
-        });
-        // Only a COMPLETED search (ok) counts the card as "searched". A failed
-        // call (network/429/budget) must NOT delete the card's existing row — that
-        // would wipe a good price on a transient hiccup.
-        if (!outcome.ok) continue;
-        searchedIds.push(c.id);
-        const r = outcome.result;
-        if (!r) continue; // searched, genuinely no listing → its stale row is cleared
-        rows.push({
-          cardId: c.id,
-          retailer: mkt.retailer,
-          retailerName: "eBay",
-          title: r.title,
-          url: r.url,
-          condition: r.condition ?? null,
-          isFoil: /foil/i.test(r.title),
-          priceCents: r.priceCents,
-          shippingCents: r.shippingCents,
-          currency: mkt.currency,
-          country: mkt.country,
-          inStock: true,
-          lastSeen: new Date(),
-        });
-      }
-      if (searchedIds.length) {
-        // Replace ONLY the searched cards' rows: a fresh result supersedes the old
-        // row; a searched card with no result today drops its dead row. Everything
-        // not reached today keeps its existing price.
-        await prisma.retailerPrice.deleteMany({
-          where: { retailer: mkt.retailer, cardId: { in: searchedIds } },
-        });
-        if (rows.length) {
-          await prisma.retailerPrice.createMany({ data: rows });
-          written += rows.length;
-        }
-      }
-    }
-
-    // Prune rows so old they can't still be live listings. Skip when we couldn't
-    // actually search (rate-limited before this market) so a quota outage never
-    // silently empties a market.
-    if (ebaySpentThisRun() > spentBefore) {
-      const pruned = await prisma.retailerPrice.deleteMany({
-        where: { retailer: mkt.retailer, lastSeen: { lt: new Date(now - EBAY_ROW_TTL_MS) } },
-      });
-      if (pruned.count) console.log(`eBay ${mkt.country}: pruned ${pruned.count} rows unconfirmed for ${Math.round(EBAY_ROW_TTL_MS / 86400000)}+ days.`);
-    }
-  }
-  console.log(`eBay singles: spent ${ebaySpentThisRun()} Browse calls this run.`);
-  return written;
-}
+// NOTE: refreshEbayMarkets() was removed here. DexCompare makes ZERO eBay API
+// calls — the Browse quota belongs to RiftCompare — and this function was both
+// the sole consumer of it and an unbounded read of the whole 20k-card catalogue.
+// eBay remains on the site as plain EPN-tagged search links (src/lib/affiliate.ts).
 
 // A card as needed for title→card matching.
 export interface MatchCard { id: string; name: string; setName: string | null; collectorNumber: string }
@@ -844,33 +688,11 @@ export async function importPrices(): Promise<ImportSummary> {
   const corrected = await verifyCheapestListings();
   if (corrected) console.log(`Verified cheapest listings — corrected ${corrected} stale prices.`);
 
-  // ---- eBay AU + US + GB (optional; only when EBAY_CLIENT_ID/SECRET are set) ----
-  // The Pokémon catalogue (20k+ cards) is far larger than the daily Browse quota,
-  // so refreshEbayMarkets splits the budget across markets and rotates through the
-  // stalest cards — see its doc comment. Runs at most ONCE a day, NEVER on a deploy
-  // (push). Cards are demand-ordered so the most-wanted get the "hot" slice of
-  // every market's budget.
-  //  - ebayDue:     last eBay refresh was > 20h ago (so it runs ~once a day).
-  //  - ebayAllowed: the workflow sets EBAY_REFRESH=false for push/deploy runs.
-  const lastEbay = await prisma.retailerPrice.findFirst({
-    where: { retailer: { startsWith: "ebay" } },
-    orderBy: { lastSeen: "desc" },
-    select: { lastSeen: true },
-  });
-  const ebayDue = !lastEbay || Date.now() - lastEbay.lastSeen.getTime() > 20 * 60 * 60 * 1000;
-  const ebayAllowed = process.env.EBAY_REFRESH !== "false";
-  if (isEbayEnabled() && ebayDue && ebayAllowed) {
-    const ebayCards = await prisma.card.findMany({
-      orderBy: [
-        { searchCount: "desc" },
-        { viewCount: "desc" },
-        { lowestPriceCents: { sort: "desc", nulls: "last" } },
-      ],
-      select: { id: true, name: true, setCode: true, collectorNumber: true, isPromo: true },
-    });
-    const n = await refreshEbayMarkets(ebayCards);
-    summary.stores.push({ name: "eBay (AU+US+GB)", products: ebayCards.length, priced: n, matched: n, unmatched: 0 });
-  }
+  // NOTE: DexCompare deliberately makes ZERO eBay API calls. The eBay Browse
+  // quota belongs to RiftCompare, and this importer used to spend it here via
+  // refreshEbayMarkets() — which also read the entire 20k-card catalogue with an
+  // unbounded findMany on every run. eBay remains present on the site purely as
+  // plain EPN-tagged *search links* (src/lib/affiliate.ts), which need no API.
 
   // ---- TCGplayer (US market price) ---------------------------------------------
   // TCGplayer is the dominant US marketplace. We add its MARKET price (not the

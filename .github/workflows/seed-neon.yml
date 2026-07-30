@@ -93,8 +93,9 @@ jobs:
           npx tsx prisma/seed.ts
 
       # Layer REAL local store prices + product URLs on top of the seed: scrape the
-      # AU/NZ/US Pokémon Shopify stores (and eBay, if EBAY_* secrets are set) and
-      # recompute each card's lowest price per market. Runs here on GitHub's open
+      # AU/NZ/US Pokémon Shopify stores and recompute each card's lowest price per
+      # market. No eBay API credentials are passed — DexCompare makes zero eBay API
+      # calls; that Browse quota belongs to RiftCompare. Runs here on GitHub's open
       # internet (the dev container can't reach these stores or Neon). Non-fatal:
       # the seed still stands if a scrape hiccups.
       - name: Import live prices (DexCompare)
@@ -102,8 +103,6 @@ jobs:
         working-directory: apps/dexcompare
         env:
           DATABASE_URL: ${{ inputs.dexcompare_url || secrets.DEXCOMPARE_DATABASE_URL }}
-          EBAY_CLIENT_ID: ${{ secrets.EBAY_CLIENT_ID }}
-          EBAY_CLIENT_SECRET: ${{ secrets.EBAY_CLIENT_SECRET }}
           EBAY_AFFILIATE_CAMPAIGN: ${{ secrets.EBAY_AFFILIATE_CAMPAIGN }}
         run: |
           npx prisma generate
