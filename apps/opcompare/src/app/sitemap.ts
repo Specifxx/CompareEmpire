@@ -5,6 +5,9 @@ import { SETS } from "@/lib/constants";
 import { getArticles } from "@/lib/articles";
 import { FEATURED_RESTOCKS } from "@/lib/restocks";
 import { getSealedGroups } from "@/lib/sealed-import";
+import { indexableCharacterSlugs } from "@/lib/op-character-data";
+import { FACET_KINDS, listFacetValues, pricedCountForFacet, MIN_PRICED_TO_INDEX_FACET } from "@/lib/card-facets";
+import { RETAILER_LIST } from "@/lib/retailers";
 
 // Regenerate at most once per day — the card set is stable.
 export const revalidate = 86400;
@@ -22,6 +25,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: `${SITE_URL}/`, changeFrequency: "daily", priority: 1 },
     { url: `${SITE_URL}/browse`, changeFrequency: "daily", priority: 0.9 },
+    { url: `${SITE_URL}/cards`, changeFrequency: "monthly", priority: 0.6 },
+    { url: `${SITE_URL}/characters`, changeFrequency: "weekly", priority: 0.7 },
+    { url: `${SITE_URL}/stores`, changeFrequency: "monthly", priority: 0.5 },
+    { url: `${SITE_URL}/stores/suggest`, changeFrequency: "yearly", priority: 0.3 },
+    { url: `${SITE_URL}/widgets`, changeFrequency: "monthly", priority: 0.5 },
     // Sealed-product database — high-intent ("<set> booster box price") landers.
     { url: `${SITE_URL}/sealed`, changeFrequency: "daily", priority: 0.85 },
     // Deals — biggest discounts vs the market guide; refreshes with every import.
@@ -54,8 +62,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // case Google sees static routes until the next daily revalidate.
   try {
     const [cards, sealed] = await Promise.all([
+      // Three-tier indexability, mirroring card/[id]'s generateMetadata so a
+      // URL's sitemap presence and its own <meta robots> always agree:
+      //   1. hasLivePrice                    -> indexed, priority 0.8
+      //   2. TCGplayer market guide only     -> indexed, priority 0.55
+      //   3. neither                         -> noindex, EXCLUDED here
       prisma.card.findMany({
-        select: { id: true, slug: true, lowestPriceCents: true },
+        where: { OR: [{ hasLivePrice: true }, { marketPriceSource: "TCGplayer" }] },
+        select: { id: true, slug: true, lowestPriceCents: true, marketPriceSource: true },
         orderBy: { lowestPriceCents: { sort: "desc", nulls: "last" } },
       }),
       // Sealed compare pages — slugs come from the AU catalogue baseline (the
@@ -90,7 +104,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     url: `${SITE_URL}/card/${c.slug ?? c.id}`,
     changeFrequency: "daily",
     // Priced cards (the ones people search for) rank slightly higher; their
-    priority: c.lowestPriceCents != null ? 0.8 : 0.5,
+    priority: c.lowestPriceCents != null ? 0.8 : c.marketPriceSource === "TCGplayer" ? 0.55 : 0.5,
   }));
 
   // Sealed compare pages (dedupe by slug — same product can recur across markets).
@@ -106,7 +120,42 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     });
   }
 
-  return [...staticRoutes, ...guideRoutes, ...setRoutes, ...sealedRoutes, ...cardRoutes];
+  // Character hubs — only those clearing the priced-printing threshold, so a
+  // hub that is still thin stays out of the index (its own page carries the
+  // matching noindex, and it re-enters automatically once priced).
+  const characterRoutes: MetadataRoute.Sitemap = (await indexableCharacterSlugs().catch(() => [])).map((slug) => ({
+    url: `${SITE_URL}/character/${slug}`,
+    changeFrequency: "daily" as const,
+    priority: 0.75,
+  }));
+
+  // Individual store profile pages — bounded by the retailer list, never by
+  // catalogue size.
+  const storeRoutes: MetadataRoute.Sitemap = RETAILER_LIST.map((r) => ({
+    url: `${SITE_URL}/stores/${r.key}`,
+    changeFrequency: "daily" as const,
+    priority: 0.5,
+  }));
+
+  // Faceted hubs (type / rarity / printing / era), same indexability rule as
+  // each hub's own generateMetadata.
+  let facetRoutes: MetadataRoute.Sitemap = [];
+  try {
+    const groups = await Promise.all(FACET_KINDS.map((k) => listFacetValues(k)));
+    const checked = await Promise.all(
+      groups.flat().map(async (f) => ({ f, priced: await pricedCountForFacet(f.where) }))
+    );
+    facetRoutes = checked
+      .filter((c) => c.priced >= MIN_PRICED_TO_INDEX_FACET)
+      .map(({ f }) => ({ url: `${SITE_URL}/cards/${f.kind}/${f.slug}`, changeFrequency: "daily" as const, priority: 0.65 }));
+  } catch {
+    facetRoutes = [];
+  }
+
+  return [
+    ...staticRoutes, ...guideRoutes, ...setRoutes, ...sealedRoutes, ...cardRoutes,
+    ...characterRoutes, ...storeRoutes, ...facetRoutes,
+  ];
   } catch (e) {
     console.error("sitemap: dynamic section failed, serving static routes:", e);
     return staticRoutes;
