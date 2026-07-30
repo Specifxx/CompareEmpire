@@ -10,7 +10,6 @@ import { DEFAULT_COUNTRY } from "@/lib/country";
 import { Logo } from "@/components/Logo";
 import { CountUp } from "@/components/CountUp";
 import { SearchBar } from "@/components/SearchBar";
-import { HomeShoppableGrid } from "@/components/HomeShoppableGrid";
 import { Reveal } from "@/components/Reveal";
 import { SETS, DOMAIN_KEYS, domainInfo } from "@/lib/constants";
 
@@ -71,17 +70,11 @@ export default async function HomePage() {
   // Never let a DB hiccup fail this prerender outright — an empty homepage
   // render (retried on the next ISR revalidation) beats taking the whole
   // build down, the exact failure mode that broke production before.
-  const [{ totalCards, inStockUnits, storeCount, featuredGrid }, deals] = await Promise.all([
+  const [{ totalCards, inStockUnits, storeCount }, deals] = await Promise.all([
     getHomeData(DEFAULT_COUNTRY).catch(() => ({
       totalCards: 0,
-      pricedCards: 0,
       inStockUnits: 0,
-      cheapestCards: [],
-      valuableCards: [],
       storeCount: 0,
-      popularCards: [],
-      featuredGrid: [],
-      newSealed: [],
     })),
     getTopDeals(12, DEFAULT_COUNTRY).catch(() => []),
   ]);
@@ -172,9 +165,6 @@ export default async function HomePage() {
             DexCompare is an independent price comparison site and eBay Partner Network / TCGplayer affiliate — we earn from qualifying purchases at no extra cost to you.
           </span>
         </section>
-
-        {/* ── Browse the database (the core) ── */}
-        <HomeShoppableGrid cards={featuredGrid} totalCards={totalCards} storeCount={storeCount} adjective="local" />
 
         {/* ── One highlight: today's best deals ── */}
         {deals.length >= 4 && (
