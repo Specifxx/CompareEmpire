@@ -1,0 +1,21 @@
+name: Probe dead AU stores (DexCompare, manual, read-only)
+
+# Diagnoses the 15 AU store integrations that returned 0 products in the last
+# import: is the domain actually reachable from CI's network (the same network
+# the real importer uses), and does it have a discoverable Pokémon collection.
+# Writes NOTHING — no database access, no imports.
+on:
+  workflow_dispatch: {}
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Probe stores
+        working-directory: apps/dexcompare
+        run: npx tsx scripts/probe-dead-stores.ts
