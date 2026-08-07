@@ -9,7 +9,7 @@ import { HeroStats } from "@/components/HeroStats";
 import { Partners } from "@/components/Partners";
 import { COUNTRY_LIST, type Country } from "@/lib/country";
 import { Logo } from "@/components/Logo";
-import { SearchBar } from "@/components/SearchBar";
+import { SearchBar, SearchBarFallback } from "@/components/SearchBar";
 import { Reveal } from "@/components/Reveal";
 import { SETS, DOMAIN_KEYS, domainInfo } from "@/lib/constants";
 
@@ -115,7 +115,14 @@ export default async function HomePage() {
 
               {/* Search — the primary action */}
               <div className="w-full max-w-2xl">
-                <Suspense fallback={<div className="input" />}>
+                {/* This is the site's single most important search box (the hero,
+                    the primary conversion path on the highest-traffic page), and
+                    it's flagged here for the same reason it was fixed everywhere
+                    else this session: SearchBar calls useSearchParams(), so this
+                    Suspense boundary's FALLBACK — not the real component — is
+                    what lands in the cached/ISR HTML every first-paint visitor
+                    and every crawler sees. */}
+                <Suspense fallback={<SearchBarFallback maxWidthClassName="" />}>
                   <SearchBar />
                 </Suspense>
               </div>
