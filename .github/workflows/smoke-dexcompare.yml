@@ -10,6 +10,14 @@ name: Smoke test DexCompare (live site)
 
 on:
   workflow_dispatch:
+  # Weekly, not manual-only: this is the check that would have caught the
+  # Partners trust-strip regression (a real component silently replaced by a
+  # non-clickable, non-compliant duplicate) and the newsletter/price-alert
+  # crons going unwired — both went unnoticed for an unknown stretch because
+  # nothing ran this outside a manual trigger. Monday, well after the daily
+  # price import (18:30 UTC) so the data-gate job sees a settled database.
+  schedule:
+    - cron: "0 22 * * 1"
 
 jobs:
   smoke:
