@@ -6,6 +6,7 @@ import { getHomeData } from "@/lib/home-data";
 import { getTopDeals, type Deal } from "@/lib/deals";
 import { DealsRail } from "@/components/DealsRail";
 import { HeroStats } from "@/components/HeroStats";
+import { Partners } from "@/components/Partners";
 import { COUNTRY_LIST, type Country } from "@/lib/country";
 import { Logo } from "@/components/Logo";
 import { SearchBar } from "@/components/SearchBar";
@@ -158,19 +159,15 @@ export default async function HomePage() {
           <HowItWorksStep n={3} title="Buy for the best price" desc="Click straight through to the cheapest store and buy — no middleman." icon="🛒" />
         </section>
 
-        {/* ── Partner trust badges ── TCGplayer leads (the sell-side reference
-            price on every card page); eBay stays as an affiliate search partner. */}
-        <section className="card-surface flex flex-wrap items-center justify-center gap-x-8 gap-y-3 px-6 py-4">
-          <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Prices sourced with</span>
-          <span className="text-lg font-extrabold text-white">TCGplayer</span>
-          <span className="text-ink-700" aria-hidden>·</span>
-          <span className="text-lg font-extrabold">
-            <span className="text-[#e53238]">e</span><span className="text-[#0064d2]">b</span><span className="text-[#f5af02]">a</span><span className="text-[#86b817]">y</span>
-          </span>
-          <span className="text-[11px] text-slate-500">
-            DexCompare is an independent price comparison site and eBay Partner Network / TCGplayer affiliate — we earn from qualifying purchases at no extra cost to you.
-          </span>
-        </section>
+        {/* ── Partner trust badges ──
+            This used to be a hand-rolled strip of plain <span> wordmarks — not
+            even clickable, and using ad-hoc disclosure text instead of the
+            dedicated <AffiliateDisclosure> component. That's what silently
+            replaced the real <Partners> component at some point (caught by the
+            live smoke test's "Official partners" check, which had gone red).
+            <Partners> is real clickable outbound links to both approved
+            programs, with the actual EPN-compliant disclosure. */}
+        <Partners />
 
         {/* ── One highlight: today's best deals ──
             Client island: it holds every market's deal list and renders the one

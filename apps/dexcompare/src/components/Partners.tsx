@@ -1,13 +1,25 @@
+"use client";
+
 import { OutboundLink } from "./OutboundLink";
 import { AffiliateDisclosure } from "./AffiliateDisclosure";
 import { affiliateUrl, ebaySearchUrl } from "@/lib/affiliate";
+import { useCountry } from "./CountryProvider";
 
 // Trust strip: the partner programs DexCompare is APPROVED for — shown as a
 // credibility signal. Framing stays honest ("approved affiliate partners"):
 // these are real, approved programs (eBay Partner Network; TCGplayer via
 // Impact), not a corporate endorsement, and the copy never claims more.
 // Wordmarks are styled text — no third-party logo assets are copied.
-export function Partners({ country }: { country: string }) {
+//
+// Client component reading the market from CountryProvider (not a server-passed
+// prop) so the eBay search link stays correct for the visitor's actual market on
+// a page that's ISR-cached and cookie-free — the same pattern as DealsRail/
+// HeroStats. This component went missing from the homepage entirely at some
+// point (caught by scripts/smoke test's "Official partners" check); re-added
+// here rather than restored verbatim, since the old server-prop signature would
+// have baked in the AU baseline for every visitor regardless of chosen market.
+export function Partners() {
+  const { country } = useCountry();
   const ebayHref = ebaySearchUrl("pokemon cards", country);
   const tcgHref = affiliateUrl("https://www.tcgplayer.com/search/pokemon/product");
   return (
