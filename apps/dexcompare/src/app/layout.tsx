@@ -180,40 +180,53 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </MegaMenuProvider>
         </CountryProvider>
         <footer className="container-app border-t border-ink-800 py-8 text-center text-xs text-slate-500">
-          <p className="mb-4">
-            <a
-              href="https://buymeacoffee.com/riftcompare"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-full bg-[#FFDD00] px-4 py-1.5 text-sm font-semibold text-[#0b0e14] transition hover:opacity-90"
-            >
-              ☕ Buy me a coffee
-            </a>
-          </p>
           <NewsletterSignup siteName="DexCompare" />
-          <nav className="mb-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-sm">
-            <Link href="/browse" className="hover:text-slate-300">Database</Link>
-            <Link href="/sets" className="hover:text-slate-300">Browse by set</Link>
-            <Link href="/sealed" className="hover:text-slate-300">Sealed products</Link>
-            <Link href="/deals" className="hover:text-slate-300">Deals</Link>
-            <Link href="/trending" className="hover:text-slate-300">Trending</Link>
-            <Link href="/most-valuable" className="hover:text-slate-300">Most valuable</Link>
-            <Link href="/card-value" className="hover:text-slate-300">Card value checker</Link>
-            <Link href="/restock" className="hover:text-slate-300">Drops &amp; restocks</Link>
-            <Link href="/guides" className="hover:text-slate-300">Buying guides</Link>
-            <Link href="/stores" className="hover:text-slate-300">Stores we track</Link>
-            <Link href="/widgets" className="hover:text-slate-300">Price widget</Link>
-            <Link href="/tools/net-proceeds" className="hover:text-slate-300">Selling fees</Link>
-            <Link href="/tools/grade-ev" className="hover:text-slate-300">Grade or not</Link>
-            <Link href="/forum" className="hover:text-slate-300">Community board</Link>
-            <Link href="/blog" className="hover:text-slate-300">Blog</Link>
-            <Link href="/trade" className="hover:text-slate-300">Trade calculator</Link>
-            <Link href="/wishlist" className="hover:text-slate-300">Wishlist</Link>
-            <Link href="/about" className="hover:text-slate-300">About</Link>
-            <Link href="/contact" className="hover:text-slate-300">Contact</Link>
-            <Link href="/privacy" className="hover:text-slate-300">Privacy</Link>
-            <a href={`mailto:${CONTACT_EMAIL}`} className="text-gold hover:underline">{CONTACT_EMAIL}</a>
-          </nav>
+          {/* Grouped instead of one 20-link wall: a visitor scanning the footer for
+              "is this a real, findable site" should be able to tell what's here at
+              a glance, not parse an undifferentiated row. Community board is
+              deliberately left out of this footer — see the comment on that
+              section further down. */}
+          <div className="mb-3 grid grid-cols-2 gap-x-6 gap-y-4 text-left sm:grid-cols-4">
+            <div>
+              <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-slate-600">Shop prices</div>
+              <nav className="flex flex-col gap-1 text-sm">
+                <Link href="/browse" className="hover:text-slate-300">Card database</Link>
+                <Link href="/sets" className="hover:text-slate-300">Browse by set</Link>
+                <Link href="/sealed" className="hover:text-slate-300">Sealed products</Link>
+                <Link href="/deals" className="hover:text-slate-300">Deals</Link>
+                <Link href="/card-value" className="hover:text-slate-300">Card value checker</Link>
+              </nav>
+            </div>
+            <div>
+              <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-slate-600">Market</div>
+              <nav className="flex flex-col gap-1 text-sm">
+                <Link href="/trending" className="hover:text-slate-300">Trending</Link>
+                <Link href="/most-valuable" className="hover:text-slate-300">Most valuable</Link>
+                <Link href="/restock" className="hover:text-slate-300">Drops &amp; restocks</Link>
+                <Link href="/stores" className="hover:text-slate-300">Stores we track</Link>
+                <Link href="/widgets" className="hover:text-slate-300">Price widget</Link>
+              </nav>
+            </div>
+            <div>
+              <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-slate-600">Tools &amp; help</div>
+              <nav className="flex flex-col gap-1 text-sm">
+                <Link href="/tools/net-proceeds" className="hover:text-slate-300">Selling fees</Link>
+                <Link href="/tools/grade-ev" className="hover:text-slate-300">Grade or not</Link>
+                <Link href="/guides" className="hover:text-slate-300">Buying guides</Link>
+                <Link href="/blog" className="hover:text-slate-300">Blog</Link>
+                <Link href="/wishlist" className="hover:text-slate-300">Wishlist</Link>
+              </nav>
+            </div>
+            <div>
+              <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-slate-600">Site</div>
+              <nav className="flex flex-col gap-1 text-sm">
+                <Link href="/about" className="hover:text-slate-300">About</Link>
+                <Link href="/contact" className="hover:text-slate-300">Contact</Link>
+                <Link href="/privacy" className="hover:text-slate-300">Privacy</Link>
+                <a href={`mailto:${CONTACT_EMAIL}`} className="text-gold hover:underline">{CONTACT_EMAIL}</a>
+              </nav>
+            </div>
+          </div>
           {/* Cross-promotion: our sister site for the Riftbound TCG. */}
           <p className="mb-2">
             Also collect <strong className="font-semibold text-slate-400">Riftbound</strong> (the League of

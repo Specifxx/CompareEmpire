@@ -76,15 +76,6 @@ export const RETAILERS: Record<string, RetailerInfo> = {
     freeOverCents: 3000,
     shippingNote: "est. $1.50 · free over $30",
   },
-  steelcity: {
-    key: "steelcity",
-    name: "Steel City Games",
-    base: "https://www.steelcitygames.com.au",
-    collections: ["riftbound-singles"],
-    shippingFlatCents: 200,
-    freeOverCents: 5000,
-    shippingNote: "est. $2.00 · free over $50",
-  },
   cardbot: {
     key: "cardbot",
     name: "Cardbot",
@@ -118,7 +109,14 @@ export const RETAILERS: Record<string, RetailerInfo> = {
     key: "vaultgames",
     name: "Vault Games",
     base: "https://vaultgames.com.au",
-    collections: [],
+    // Fallback only (auto-discovery from the sitemap runs first — see
+    // discoverPokémonCollections in price-import.ts). This store returned 0
+    // products in every import because it had NO fallback at all: on any day
+    // discovery is blocked (bot protection, a timeout, a sitemap hiccup), there
+    // was nothing to fall back to. Confirmed live via a real fetch from CI
+    // (see scripts/probe-dead-stores.ts) — these two collections cover its
+    // current in-stock Pokémon singles.
+    collections: ["pokemon-in-stock", "pokemon-trading-card-game"],
     shippingFlatCents: 200,
     freeOverCents: 5000,
     shippingNote: "est. $2.00 · free over $50",
@@ -179,15 +177,6 @@ export const RETAILERS: Record<string, RetailerInfo> = {
     freeOverCents: 5000,
     shippingNote: "est. $2.50 · free over $50",
   },
-  chimera: {
-    key: "chimera",
-    name: "Chimera Gaming",
-    base: "https://chimeragaming.com.au",
-    collections: [],
-    shippingFlatCents: 200,
-    freeOverCents: 5000,
-    shippingNote: "est. $2.00 · free over $50",
-  },
   gamescapital: {
     key: "gamescapital",
     name: "The Games Capital",
@@ -205,33 +194,6 @@ export const RETAILERS: Record<string, RetailerInfo> = {
     shippingFlatCents: 300,
     freeOverCents: 6000,
     shippingNote: "est. $3.00 · free over $60",
-  },
-  bantertoys: {
-    key: "bantertoys",
-    name: "Banter Toys & Collectables",
-    base: "https://bantertoys.com.au",
-    collections: [],
-    shippingFlatCents: 250,
-    freeOverCents: 5000,
-    shippingNote: "est. $2.50 · free over $50",
-  },
-  kingofcards: {
-    key: "kingofcards",
-    name: "King of Cards",
-    base: "https://kingofcards.com.au",
-    collections: [],
-    shippingFlatCents: 200,
-    freeOverCents: 5000,
-    shippingNote: "est. $2.00 · free over $50",
-  },
-  skyfoxes: {
-    key: "skyfoxes",
-    name: "Sky Foxes Cards",
-    base: "https://skyfoxescards.com.au",
-    collections: [],
-    shippingFlatCents: 200,
-    freeOverCents: 5000,
-    shippingNote: "est. $2.00 · free over $50",
   },
   // More local Australian Pokémon singles stores (Shopify; collections auto-discovered
   // from each store's sitemap). Adds real AU buyable coverage so the AU market isn't
@@ -280,15 +242,6 @@ export const RETAILERS: Record<string, RetailerInfo> = {
     shippingFlatCents: 250,
     freeOverCents: 5000,
     shippingNote: "est. $2.50 · free over $50",
-  },
-  tabletopgaminghub: {
-    key: "tabletopgaminghub",
-    name: "Tabletop Gaming Hub",
-    base: "https://tabletopgaminghub.com.au",
-    collections: ["pokemon-singles-instock", "pokemon-singles"],
-    shippingFlatCents: 200,
-    freeOverCents: 5000,
-    shippingNote: "est. $2.00 · free over $50",
   },
   irresistibleforce: {
     key: "irresistibleforce",
@@ -426,7 +379,15 @@ export const RETAILERS: Record<string, RetailerInfo> = {
     key: "kanzengames",
     name: "KanZenGames",
     base: "https://kanzengames.com",
-    collections: ["riftbound-tcg-singles-all"],
+    // Was "riftbound-tcg-singles-all" — a copy-paste leftover from RiftCompare's
+    // retailer config for the SAME store. price-import.ts's fallback path
+    // filters configured collections down to ones matching /pok[eé]mon|pkmn/i,
+    // so a Riftbound-only handle here was silently discarded whenever
+    // auto-discovery failed, producing 0 products with no error. This store
+    // genuinely carries Pokémon (confirmed live via scripts/probe-dead-stores.ts,
+    // 17 real Pokémon collections found) — English-singles handles only, skipping
+    // its eBay-reseller and time-limited prerelease collections.
+    collections: ["pokemon-singles-all", "pokemon-tcg", "pokemon-singles-instock"],
     shippingFlatCents: 150,
     freeOverCents: 5000,
     shippingNote: "est. US$1.50 · free over US$50",
@@ -462,16 +423,6 @@ export const RETAILERS: Record<string, RetailerInfo> = {
     shippingFlatCents: 150,
     freeOverCents: 5000,
     shippingNote: "est. US$1.50 · free over US$50",
-    country: "US",
-  },
-  jrwhobby: {
-    key: "jrwhobby",
-    name: "JRW Hobby Station",
-    base: "https://jrwhobbystation.myshopify.com",
-    collections: ["pokemon-singles"],
-    shippingFlatCents: 150,
-    freeOverCents: 4000,
-    shippingNote: "est. US$1.50 · free over US$40",
     country: "US",
   },
   pegasusgames: {
@@ -751,15 +702,6 @@ export const RETAILERS: Record<string, RetailerInfo> = {
   // Collections are auto-discovered from each store's sitemap at import time, so a
   // best-guess handle here is only a fallback. Any store that returns no products
   // on the next live scrape is logged in the import summary and can be pruned.
-  kingdomofgeek: {
-    key: "kingdomofgeek",
-    name: "Kingdom of Geek",
-    base: "https://kingdomofgeek.com.au",
-    collections: ["pokemon-singles", "pokemon"],
-    shippingFlatCents: 550,
-    freeOverCents: 15000,
-    shippingNote: "est. $5.50 tracked",
-  },
   gapgames: {
     key: "gapgames",
     name: "GAP Games",
@@ -778,42 +720,6 @@ export const RETAILERS: Record<string, RetailerInfo> = {
     freeOverCents: 9900,
     shippingNote: "est. $5.95 tracked",
   },
-  epictcg: {
-    key: "epictcg",
-    name: "Epic TCG",
-    base: "https://epictcg.com.au",
-    collections: ["pokemon-singles", "pokemon"],
-    shippingFlatCents: 450,
-    freeOverCents: 10000,
-    shippingNote: "est. $4.50 tracked",
-  },
-  timelesscollectables: {
-    key: "timelesscollectables",
-    name: "Timeless Collectables",
-    base: "https://timelesscollectables.com.au",
-    collections: ["pokemon-singles", "pokemon"],
-    shippingFlatCents: 500,
-    freeOverCents: 12000,
-    shippingNote: "est. $5.00 tracked",
-  },
-  goodgrieftcg: {
-    key: "goodgrieftcg",
-    name: "Good Grief TCG",
-    base: "https://goodgrieftcg.com.au",
-    collections: ["pokemon-singles", "pokemon"],
-    shippingFlatCents: 450,
-    freeOverCents: 10000,
-    shippingNote: "est. $4.50 tracked",
-  },
-  nextlevelgames: {
-    key: "nextlevelgames",
-    name: "Next Level Games",
-    base: "https://nextlevelgames.com.au",
-    collections: ["pokemon-singles", "pokemon"],
-    shippingFlatCents: 550,
-    freeOverCents: 15000,
-    shippingNote: "est. $5.50 tracked",
-  },
   gameforce: {
     key: "gameforce",
     name: "GameForce",
@@ -822,56 +728,6 @@ export const RETAILERS: Record<string, RetailerInfo> = {
     shippingFlatCents: 595,
     freeOverCents: 15000,
     shippingNote: "est. $5.95 tracked",
-  },
-  collectorscache: {
-    key: "collectorscache",
-    name: "Collector's Cache",
-    base: "https://collectorscache.com",
-    collections: ["pokemon-singles", "pokemon"],
-    shippingFlatCents: 99,
-    freeOverCents: 9900,
-    shippingNote: "est. $0.99 · free over $99",
-    country: "US",
-  },
-  chuscards: {
-    key: "chuscards",
-    name: "Chu's Cards",
-    base: "https://chuscards.com",
-    collections: ["pokemon-singles", "pokemon"],
-    shippingFlatCents: 120,
-    freeOverCents: 3000,
-    shippingNote: "est. £1.20 · free over £30",
-    country: "GB",
-  },
-  hillscards: {
-    key: "hillscards",
-    name: "Hills Cards",
-    base: "https://www.hillscards.co.uk",
-    collections: ["pokemon-singles", "pokemon"],
-    shippingFlatCents: 150,
-    freeOverCents: 3000,
-    shippingNote: "est. £1.50 · free over £30",
-    country: "GB",
-  },
-  pristinepokemon: {
-    key: "pristinepokemon",
-    name: "Pristine Pokemon",
-    base: "https://pristinepokemon.co.uk",
-    collections: ["pokemon-singles", "pokemon"],
-    shippingFlatCents: 130,
-    freeOverCents: 2500,
-    shippingNote: "est. £1.30 · free over £25",
-    country: "GB",
-  },
-  eternalcardboard: {
-    key: "eternalcardboard",
-    name: "Eternal Cardboard",
-    base: "https://eternalcardboard.com",
-    collections: ["pokemon-singles", "pokemon"],
-    shippingFlatCents: 99,
-    freeOverCents: 9900,
-    shippingNote: "est. $0.99 · free over $99",
-    country: "US",
   },
 };
 
