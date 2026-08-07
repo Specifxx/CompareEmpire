@@ -10,6 +10,39 @@ import type { CardTileData } from "./CardTile";
 
 type Result = CardTileData;
 
+// Static shell for the <Suspense> boundary that wraps <SearchBar/> everywhere it's
+// used. SearchBar calls useSearchParams(), which forces Next to bail out of static
+// rendering and bake the Suspense FALLBACK into the prerendered/ISR-cached HTML
+// instead of the real search box — so whatever this renders is what every
+// first-paint visitor and every crawler actually sees on cached pages (see commit
+// fd2ce9e, which fixed the same pattern on /pokemon, /cards and /stores). A bare
+// empty <div className="input"/> fallback showed no icon and no placeholder text,
+// i.e. a box that doesn't read as a search bar at all. This mirrors the real
+// SearchBar's markup exactly (minus the handlers, which only matter once
+// hydrated) so the cached HTML looks and reads the same as the live component.
+export function SearchBarFallback({ maxWidthClassName = "max-w-xl" }: { maxWidthClassName?: string }) {
+  return (
+    <div className={`relative ${maxWidthClassName}`}>
+      <svg
+        className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+      >
+        <circle cx="11" cy="11" r="7" />
+        <path d="m21 21-4.3-4.3" />
+      </svg>
+      <input
+        placeholder="Search Pokémon, cards, sets…"
+        aria-label="Search Pokémon cards"
+        className="input pl-9"
+        readOnly
+      />
+    </div>
+  );
+}
+
 // Search with a live preview dropdown (debounced + abortable so typing stays
 // snappy). Submitting still does a real navigation to the results page.
 // Arrow keys navigate the dropdown; Enter opens the highlighted result.

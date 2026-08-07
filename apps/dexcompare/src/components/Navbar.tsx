@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { SearchBar } from "./SearchBar";
+import { SearchBar, SearchBarFallback } from "./SearchBar";
 import { NavWishlistButton } from "./NavWishlistButton";
 import { MobileNav } from "./MobileNav";
 import { NavLauncherButton } from "./NavLauncherButton";
@@ -30,7 +30,7 @@ export function Navbar() {
 
         {/* Search — inline on desktop; on smaller screens it gets its own full-width row below */}
         <div className="hidden flex-1 lg:block">
-          <Suspense fallback={<div className="input max-w-xl" />}>
+          <Suspense fallback={<SearchBarFallback />}>
             <SearchBar />
           </Suspense>
         </div>
@@ -58,7 +58,7 @@ export function Navbar() {
         {/* Search gets its own full-width row below the lg breakpoint (so it's
             never cramped on phones/tablets). */}
         <div className="pb-3 lg:hidden">
-          <Suspense fallback={<div className="input" />}>
+          <Suspense fallback={<SearchBarFallback maxWidthClassName="" />}>
             <SearchBar />
           </Suspense>
         </div>

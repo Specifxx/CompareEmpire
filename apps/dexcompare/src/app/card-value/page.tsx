@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { SearchBar } from "@/components/SearchBar";
+import { SearchBar, SearchBarFallback } from "@/components/SearchBar";
 import { CardTile } from "@/components/CardTile";
 import { getValuableCards } from "@/lib/cheapest-cards";
 import { getCountry } from "@/lib/get-country";
@@ -75,7 +75,7 @@ export default async function CardValuePage() {
             market value plus real {info.adjective} store prices, free, updated daily.
           </p>
           <div className="mx-auto mt-6 max-w-xl">
-            <Suspense fallback={<div className="input" />}>
+            <Suspense fallback={<SearchBarFallback maxWidthClassName="" />}>
               <SearchBar />
             </Suspense>
           </div>

@@ -7,7 +7,7 @@ import { useMegaMenu } from "./MegaMenuProvider";
 import { NAV_SECTIONS } from "./nav-sections";
 import { POKEMON_SETS } from "@/lib/pokemon-sets";
 import { Logo } from "./Logo";
-import { SearchBar } from "./SearchBar";
+import { SearchBar, SearchBarFallback } from "./SearchBar";
 
 // Market Terminal: one sharp accent (brand red) on every section. Flat, no glow.
 
@@ -105,7 +105,11 @@ export function CinematicNavMenu() {
 
             {/* Search front-and-centre */}
             <div className="mx-auto mt-6 max-w-2xl">
-              <Suspense fallback={<div className="input" />}>
+              {/* This menu stays mounted at all times (see comment above) and only
+                  toggles visibility via CSS, so this Suspense boundary is present
+                  — and its fallback gets rendered — in every page's static/ISR
+                  HTML, not just while the menu is open. */}
+              <Suspense fallback={<SearchBarFallback maxWidthClassName="" />}>
                 <SearchBar />
               </Suspense>
             </div>

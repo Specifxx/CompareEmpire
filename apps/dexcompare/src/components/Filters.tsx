@@ -11,6 +11,7 @@ import {
   rarityInfo,
 } from "@/lib/constants";
 import { POKEMON_SETS } from "@/lib/pokemon-sets";
+import { normalizeSearch } from "@/lib/format";
 import { useCountry } from "./CountryProvider";
 
 // Set → era ("series"), for grouping the 170+-set filter. SETS (constants.ts)
@@ -58,7 +59,16 @@ export function Filters() {
   const filteredSets = useMemo(() => {
     const q = setQuery.trim().toLowerCase();
     if (!q) return SETS;
-    return SETS.filter((s) => s.name.toLowerCase().includes(q) || s.code.toLowerCase().includes(q));
+    // Accent-folded compare too: several sets are literally named "Pokémon ___"
+    // (GO, Rumble, Futsal Collection) and almost no one types the "é" — a plain
+    // substring match on the raw name would silently return nothing for "pokemon".
+    const qNorm = normalizeSearch(q);
+    return SETS.filter(
+      (s) =>
+        s.name.toLowerCase().includes(q) ||
+        s.code.toLowerCase().includes(q) ||
+        (qNorm && normalizeSearch(s.name).includes(qNorm))
+    );
   }, [setQuery]);
 
   function update(mutate: (p: URLSearchParams) => void) {

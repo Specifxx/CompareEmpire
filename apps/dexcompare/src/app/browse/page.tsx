@@ -89,6 +89,44 @@ export default async function BrowsePage({ searchParams }: { searchParams: CardQ
   const [total, cards] = result.ok ? result.data : [0, []];
   const totalPages = Math.max(1, Math.ceil(total / size));
 
+  // Facet filters (everything except the search box and sort order) — split out
+  // so the empty state can tell "your search found nothing" apart from "these
+  // checkboxes found nothing" and offer the right way out of each.
+  const hasFacetFilters = Boolean(
+    searchParams.domain ||
+      searchParams.rarity ||
+      searchParams.type ||
+      searchParams.set ||
+      searchParams.variant ||
+      searchParams.sig ||
+      searchParams.promo ||
+      searchParams.priced ||
+      searchParams.min ||
+      searchParams.max
+  );
+  // Same query, page reset to 1 — for when the filters/search DID match cards but
+  // the requested page is past the end (stale bookmark, hand-edited ?page=, or the
+  // result count shrank since the page was loaded). Used to be a plain "Reset"
+  // link to bare /browse, which threw away any search term or filters the visitor
+  // had deliberately set just to fix a page number — a real dead end.
+  const hrefResetPage = (() => {
+    const sp = new URLSearchParams();
+    for (const [k, v] of Object.entries(searchParams)) {
+      if (k !== "page" && v) sp.set(k, String(v));
+    }
+    const qs = sp.toString();
+    return qs ? `/browse?${qs}` : "/browse";
+  })();
+  // Drop facet filters but keep the search term — mirrors ActiveFilters' "Clear
+  // all" so the two "reset" affordances on this page behave the same way.
+  const hrefClearFilters = (() => {
+    const sp = new URLSearchParams();
+    if (searchParams.q) sp.set("q", searchParams.q);
+    if (searchParams.sort) sp.set("sort", searchParams.sort);
+    const qs = sp.toString();
+    return qs ? `/browse?${qs}` : "/browse";
+  })();
+
   // Structured data only on the canonical, unfiltered first page (filtered/search
   // permutations are noindex — see generateMetadata).
   const isFiltered = Boolean(
@@ -186,14 +224,31 @@ export default async function BrowsePage({ searchParams }: { searchParams: CardQ
             <Link href="/browse" className="btn-primary mt-4">Try again</Link>
           </div>
         ) : cards.length === 0 ? (
-          <div className="card-surface grid place-items-center p-16 text-center">
+          <div className="card-surface grid place-items-center gap-1 p-16 text-center">
             <p className="text-lg font-semibold text-white">
               {total > 0 ? "Nothing on this page" : "No cards found"}
             </p>
-            <p className="mt-1 text-sm text-slate-400">
-              {total > 0 ? "Try an earlier page." : "Try adjusting your filters or search."}
+            <p className="mt-1 max-w-sm text-sm text-slate-400">
+              {total > 0 ? (
+                `Page ${page} is past the last page of results (${totalPages}).`
+              ) : searchParams.q ? (
+                <>No cards match &ldquo;{searchParams.q}&rdquo;. Check the spelling, try fewer words, or browse by set instead.</>
+              ) : (
+                "This combination of filters doesn't match any cards."
+              )}
             </p>
-            <Link href="/browse" className="btn-primary mt-4">Reset</Link>
+            <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
+              {total > 0 ? (
+                <Link href={hrefResetPage} className="btn-primary">Back to page 1</Link>
+              ) : hasFacetFilters ? (
+                <Link href={hrefClearFilters} className="btn-primary">Clear filters</Link>
+              ) : (
+                <Link href="/browse" className="btn-primary">Reset</Link>
+              )}
+              {total === 0 && searchParams.q && (
+                <Link href="/sets" className="btn-ghost">Browse by set</Link>
+              )}
+            </div>
           </div>
         ) : (
           <>

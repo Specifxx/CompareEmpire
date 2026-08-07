@@ -2,6 +2,8 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTransition } from "react";
+import { currencySymbol } from "@/lib/format";
+import { useCountry } from "./CountryProvider";
 
 const CSV_KEYS = ["domain", "rarity", "type", "set"];
 
@@ -11,6 +13,7 @@ export function ActiveFilters() {
   const router = useRouter();
   const params = useSearchParams();
   const [, startTransition] = useTransition();
+  const { currency } = useCountry();
 
   const chips: { key: string; value: string; label: string }[] = [];
   for (const key of CSV_KEYS) {
@@ -23,7 +26,10 @@ export function ActiveFilters() {
   if (params.get("priced") === "1") chips.push({ key: "priced", value: "", label: "Has price" });
   const min = params.get("min");
   const max = params.get("max");
-  if (min || max) chips.push({ key: "price", value: "", label: `$${min ?? "0"}–${max ?? "∞"}` });
+  // Match the currency symbol shown next to the Price filter's own inputs
+  // (Filters.tsx's "Price (AUD/USD/GBP)" section) — a bare "$" here read as USD
+  // even when the min/max were entered against the AU or GB market.
+  if (min || max) chips.push({ key: "price", value: "", label: `${currencySymbol(currency)}${min ?? "0"}–${max ?? "∞"}` });
 
   if (chips.length === 0) return null;
 
