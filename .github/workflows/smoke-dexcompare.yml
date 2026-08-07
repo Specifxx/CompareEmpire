@@ -86,7 +86,12 @@ jobs:
           # child instead of the index.
           curl -fsSL --retry 3 https://dexcompare.app/sitemap.xml | grep -q "<sitemapindex" && echo "OK: sitemap index serves" || { echo "FAIL: sitemap index broken"; exit 1; }
           curl -fsSL --retry 3 https://dexcompare.app/sitemap/2.xml | grep -q "/sealed" && echo "OK: sealed sitemap includes sealed URLs" || { echo "FAIL: sitemap/2.xml missing sealed routes"; exit 1; }
-          curl -fsSL --retry 3 https://dexcompare.app/ads.txt | grep -q "pub-" && echo "OK: ads.txt serves" || { echo "FAIL: ads.txt broken"; exit 1; }
+          # NOT checking for a Google AdSense "pub-" line — this site deliberately
+          # carries no third-party ad network (see public/ads.txt's own comment:
+          # monetisation is first-party affiliate only, TCGplayer + eBay). A
+          # "pub-" check would only ever pass if that changed. Just confirm the
+          # route actually serves.
+          curl -fsSL --retry 3 https://dexcompare.app/ads.txt | grep -qi "affiliate\|first-party\|no third-party" && echo "OK: ads.txt serves" || { echo "FAIL: ads.txt missing or unexpectedly changed"; exit 1; }
           curl -fsSL --retry 3 https://dexcompare.app/robots.txt | grep -qi "sitemap" && echo "OK: robots.txt serves" || { echo "FAIL: robots broken"; exit 1; }
 
   # Accuracy CI against the live DB (read-only checks: guide-leak, suspicious
