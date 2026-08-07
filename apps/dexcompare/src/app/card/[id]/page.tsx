@@ -119,7 +119,11 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   const descSubject = cardSubject(card.name, card.setName, card.collectorNumber, 36);
   const description = from
     ? `${descSubject} ${from} today. Compare live prices across stores in Australia, the US and the UK — updated daily.`
-    : `See today's cheapest price for ${descSubject} across stores in Australia, the US and the UK — updated live.`;
+    // No store price to lead with (this card is guide-only or unpriced) — don't
+    // claim "today's cheapest price" when there isn't one, and don't say "live"
+    // for a pipeline that only runs once a day (see the cadence note above
+    // generateStaticParams). "Track" + "checked daily" is honest either way.
+    : `Track ${descSubject} across stores in Australia, the US and the UK — checked daily.`;
   const image = card.imageUrl ?? card.imageThumbUrl ?? undefined;
 
   return {
@@ -277,9 +281,21 @@ export default async function CardPage({ params }: { params: { id: string } }) {
   const all = card.retailerPrices.map((p) => {
     const ship = effectiveShippingCents(p.shippingCents); // number | null (null = unknown)
     const isGuide = p.retailer.startsWith("marketguide");
+    // The bare-brand retailerName ("GAP Games") means nothing to a first-time
+    // visitor deciding whether to click through to an unfamiliar site — show the
+    // actual destination domain too, so a skeptical buyer can size it up (or
+    // recognise it) before leaving DexCompare. Best-effort: a malformed stored
+    // URL just omits the domain rather than breaking the row.
+    let host: string | null = null;
+    try {
+      host = new URL(p.url).hostname.replace(/^www\./i, "");
+    } catch {
+      /* leave host null — row still renders without it */
+    }
     return {
       ...p,
       ship,
+      host,
       delivered: p.priceCents + (ship ?? 0),
       isGuide,
       foreign: !isGuide && !!p.title && FOREIGN_RE.test(p.title),
@@ -315,23 +331,42 @@ export default async function CardPage({ params }: { params: { id: string } }) {
   }
   const hasSpectrum = byGrade.size > 0;
 
-  const minPrice = (rows: typeof prices) =>
-    rows.reduce<number | null>((m, p) => (m == null || p.priceCents < m ? p.priceCents : m), null);
+  // Returns the winning ROW (not just its price) so the headline metrics below can
+  // also surface that row's condition — the importer records whatever condition a
+  // store's cheapest in-stock copy actually is (see conditionRank in price-import.ts),
+  // which for a thinly-stocked store can be played or damaged, not Near Mint.
+  const cheapestRowOf = (rows: typeof prices, finish: CardFinish) =>
+    rows
+      .filter((p) => p.finish === finish)
+      .reduce<(typeof rows)[number] | null>((best, p) => (best == null || p.priceCents < best.priceCents ? p : best), null);
   // Normal / Holo / Reverse Holo price split (see cardFinish in lib/card-copy —
   // inferred from listing titles, since the schema only has a binary isFoil).
-  const cheapestNormal = minPrice(prices.filter((p) => p.finish === "Normal"));
-  const cheapestHolo = minPrice(prices.filter((p) => p.finish === "Holo"));
-  const cheapestReverseHolo = minPrice(prices.filter((p) => p.finish === "Reverse Holo"));
+  const cheapestNormalRow = cheapestRowOf(prices, "Normal");
+  const cheapestHoloRow = cheapestRowOf(prices, "Holo");
+  const cheapestReverseHoloRow = cheapestRowOf(prices, "Reverse Holo");
+  const cheapestNormal = cheapestNormalRow?.priceCents ?? null;
+  const cheapestHolo = cheapestHoloRow?.priceCents ?? null;
+  const cheapestReverseHolo = cheapestReverseHoloRow?.priceCents ?? null;
   // Headline = cheapest REAL store price, preferring Normal, then Holo, then
   // Reverse Holo, then the recompute. Many Pokémon chase cards exist ONLY as a
   // foil finish (TCGplayer marks them foilOnly) — never null those out, just
   // label them correctly.
   const headlineFinish: CardFinish =
     cheapestNormal != null ? "Normal" : cheapestHolo != null ? "Holo" : cheapestReverseHolo != null ? "Reverse Holo" : "Normal";
+  const headlineRow = cheapestNormalRow ?? cheapestHoloRow ?? cheapestReverseHoloRow ?? null;
   const headlineCents = cheapestNormal ?? cheapestHolo ?? cheapestReverseHolo ?? lowestPrice ?? null;
   const finishesAvailable = [cheapestNormal, cheapestHolo, cheapestReverseHolo].filter((v) => v != null).length;
   const headlineLabel =
     headlineFinish === "Normal" ? (finishesAvailable > 1 ? "Normal from" : "Cheapest price") : `✦ ${headlineFinish} from`;
+  // The big headline number is the first thing a skimming visitor reads — if the
+  // cheapest listing behind it isn't Near Mint, say so right there rather than
+  // leaving it to the per-row condition chip further down the page, which a
+  // visitor who bounces after the headline would never see.
+  const CONDITION_NAMES: Record<string, string> = {
+    NM: "Near Mint", LP: "Lightly Played", MP: "Moderately Played", HP: "Heavily Played", DMG: "Damaged",
+  };
+  const conditionCaveat = (row: { condition: string | null } | null) =>
+    row?.condition && row.condition !== "NM" ? `${CONDITION_NAMES[row.condition] ?? row.condition} — not Near Mint` : null;
 
   // The market-price guide for this market: the imported guide row where one
   // exists (AU), else the card's USD guide converted at an indicative rate.
@@ -499,11 +534,18 @@ export default async function CardPage({ params }: { params: { id: string } }) {
             </div>
 
             <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <Metric label={headlineLabel} value={headlineCents != null ? fmt(headlineCents) : "—"} highlight />
+              <Metric
+                label={headlineLabel}
+                value={headlineCents != null ? fmt(headlineCents) : "—"}
+                highlight
+                note={conditionCaveat(headlineRow)}
+              />
               {/* Separate metrics for the OTHER finishes — never repeat the headline. */}
-              {headlineFinish !== "Holo" && cheapestHolo != null && <Metric label="✦ Holo from" value={fmt(cheapestHolo)} highlight />}
+              {headlineFinish !== "Holo" && cheapestHolo != null && (
+                <Metric label="✦ Holo from" value={fmt(cheapestHolo)} highlight note={conditionCaveat(cheapestHoloRow)} />
+              )}
               {headlineFinish !== "Reverse Holo" && cheapestReverseHolo != null && (
-                <Metric label="✦ Reverse Holo from" value={fmt(cheapestReverseHolo)} highlight />
+                <Metric label="✦ Reverse Holo from" value={fmt(cheapestReverseHolo)} highlight note={conditionCaveat(cheapestReverseHoloRow)} />
               )}
               <Metric label="Compared at" value={`${prices.length} ${prices.length === 1 ? "store" : "stores"}`} />
               {card.might != null && <Metric label="HP" value={String(card.might)} />}
@@ -609,9 +651,12 @@ export default async function CardPage({ params }: { params: { id: string } }) {
                 <h2 className="font-bold text-white">
                   Price comparison <span className="num text-slate-500">({prices.length})</span>
                 </h2>
-                {storeRows.length > 1 && storeRows[storeRows.length - 1].delivered > storeRows[0].delivered && (
+                {/* prices, not storeRows — storeRows also holds out-of-stock listings
+                    sorted into the same delivered-price order, so comparing its first/last
+                    entries could quote a "saving" against a price nobody can actually pay. */}
+                {prices.length > 1 && prices[prices.length - 1].delivered > prices[0].delivered && (
                   <span className="rounded-full bg-brand/15 px-2.5 py-0.5 text-xs font-semibold text-brand-400">
-                    Save <span className="num">{fmt(storeRows[storeRows.length - 1].delivered - storeRows[0].delivered)}</span> delivered vs the priciest seller
+                    Save <span className="num">{fmt(prices[prices.length - 1].delivered - prices[0].delivered)}</span> delivered vs the priciest seller
                   </span>
                 )}
               </div>
@@ -708,7 +753,12 @@ export default async function CardPage({ params }: { params: { id: string } }) {
                   >
                     <div className="num w-5 shrink-0 text-center text-sm font-bold text-slate-500 sm:w-6">{i + 1}</div>
                     <div className="min-w-0 flex-1">
-                      <div className="truncate font-semibold text-white">{p.retailerName}</div>
+                      <div className="truncate font-semibold text-white">
+                        {p.retailerName}
+                        {/* The destination domain, so a visitor can size up an
+                            unfamiliar store name before clicking through to it. */}
+                        {p.host && <span className="ml-1.5 font-normal text-slate-500">({p.host})</span>}
+                      </div>
                       <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-500">
                         {i === 0 && prices.length > 1 && (
                           <span className="chip bg-up/15 font-semibold text-up">Best deal</span>
@@ -966,17 +1016,21 @@ export default async function CardPage({ params }: { params: { id: string } }) {
       )}
 
       {/* Mobile sticky buy bar — the cheapest delivered in-stock store, one tap to buy.
-          Desktop keeps the full table; phones get a persistent CTA without scrolling. */}
-      {storeRows.length > 0 && (
+          Desktop keeps the full table; phones get a persistent CTA without scrolling.
+          Must read from `prices` (in-stock only), not `storeRows` (which also holds
+          out-of-stock rows in the same delivered-price order) — otherwise the one CTA
+          every mobile visitor sees could point at a store that can't actually sell the
+          card right now, which is the worst possible first impression. */}
+      {prices.length > 0 && (
         <div className="fixed inset-x-0 bottom-0 z-40 border-t border-ink-700 bg-ink-950/95 px-4 py-2.5 backdrop-blur lg:hidden">
           <div className="mx-auto flex max-w-3xl items-center justify-between gap-3">
             <div className="min-w-0">
-              <div className="truncate text-[11px] text-slate-400">Cheapest delivered · {storeRows[0].retailerName}</div>
-              <div className="num text-base font-extrabold text-accent">{fmt(storeRows[0].delivered)}</div>
+              <div className="truncate text-[11px] text-slate-400">Cheapest delivered · {prices[0].retailerName}</div>
+              <div className="num text-base font-extrabold text-accent">{fmt(prices[0].delivered)}</div>
             </div>
             <OutboundLink
-              href={affiliateUrl(storeRows[0].url)}
-              retailer={storeRows[0].retailer}
+              href={affiliateUrl(prices[0].url)}
+              retailer={prices[0].retailer}
               country={country}
               className="btn-primary shrink-0"
             >
@@ -994,11 +1048,14 @@ function Metric({
   value,
   highlight,
   sentiment,
+  note,
 }: {
   label: string;
   value: string;
   highlight?: boolean;
   sentiment?: "positive" | "negative";
+  /** Short caveat shown under the value, e.g. a non-Near-Mint condition warning. */
+  note?: string | null;
 }) {
   const bg =
     sentiment === "positive"
@@ -1018,6 +1075,7 @@ function Metric({
     <div className={`rounded-lg p-3 ${bg}`}>
       <div className="text-[11px] uppercase tracking-wide text-slate-500">{label}</div>
       <div className={`num text-lg font-bold ${valueColor}`}>{value}</div>
+      {note && <div className="mt-0.5 text-[10px] font-semibold leading-tight text-amber-400">{note}</div>}
     </div>
   );
 }
