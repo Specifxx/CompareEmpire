@@ -78,7 +78,14 @@ jobs:
         run: |
           set -e
           curl -fsSL --retry 3 https://dexcompare.app/sets >/dev/null && echo "OK: /sets serves"
-          curl -fsSL --retry 3 https://dexcompare.app/sitemap.xml | grep -q "/sealed" && echo "OK: sitemap includes sealed" || { echo "FAIL: sitemap missing sealed routes"; exit 1; }
+          # /sitemap.xml is the INDEX (a <sitemapindex> of numbered children —
+          # see the comment in src/app/sitemap.ts), so it never contains a literal
+          # page URL like "/sealed" itself — this check always failed once it got
+          # this far, unnoticed because the homepage check above used to fail
+          # first. Sealed products are bucket 2 (/sitemap/2.xml); check the real
+          # child instead of the index.
+          curl -fsSL --retry 3 https://dexcompare.app/sitemap.xml | grep -q "<sitemapindex" && echo "OK: sitemap index serves" || { echo "FAIL: sitemap index broken"; exit 1; }
+          curl -fsSL --retry 3 https://dexcompare.app/sitemap/2.xml | grep -q "/sealed" && echo "OK: sealed sitemap includes sealed URLs" || { echo "FAIL: sitemap/2.xml missing sealed routes"; exit 1; }
           curl -fsSL --retry 3 https://dexcompare.app/ads.txt | grep -q "pub-" && echo "OK: ads.txt serves" || { echo "FAIL: ads.txt broken"; exit 1; }
           curl -fsSL --retry 3 https://dexcompare.app/robots.txt | grep -qi "sitemap" && echo "OK: robots.txt serves" || { echo "FAIL: robots broken"; exit 1; }
 
