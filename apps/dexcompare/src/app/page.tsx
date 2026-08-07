@@ -5,9 +5,9 @@ import { CountryHeroToggle } from "@/components/CountryHeroToggle";
 import { getHomeData } from "@/lib/home-data";
 import { getTopDeals, type Deal } from "@/lib/deals";
 import { DealsRail } from "@/components/DealsRail";
-import { COUNTRY_LIST, DEFAULT_COUNTRY, type Country } from "@/lib/country";
+import { HeroStats } from "@/components/HeroStats";
+import { COUNTRY_LIST, type Country } from "@/lib/country";
 import { Logo } from "@/components/Logo";
-import { CountUp } from "@/components/CountUp";
 import { SearchBar } from "@/components/SearchBar";
 import { Reveal } from "@/components/Reveal";
 import { SETS, DOMAIN_KEYS, domainInfo } from "@/lib/constants";
@@ -64,8 +64,8 @@ const FAQS: { q: string; a: string }[] = [
 ];
 
 export default async function HomePage() {
-  // AU-baseline data on the cached render; client tiles re-price to the
-  // visitor's market after hydration (all four price columns ship with each card).
+  // Market-neutral cached render: every market's numbers ship in the payload and
+  // client islands (HeroStats, DealsRail, CardTile) pick the visitor's.
   // Never let a DB hiccup fail this prerender outright — an empty homepage
   // render (retried on the next ISR revalidation) beats taking the whole
   // build down, the exact failure mode that broke production before.
@@ -73,11 +73,11 @@ export default async function HomePage() {
   // can't vary by cookie, so the client island picks the active region's list. Each
   // call is a take-capped read of the precomputed ~400-row Deal table, cached per
   // market — three of them cost far less than one catalogue scan.
-  const [{ totalCards, inStockUnits, storeCount }, ...dealLists] = await Promise.all([
-    getHomeData(DEFAULT_COUNTRY).catch(() => ({
+  const [{ totalCards, inStockByMarket, storeCountByMarket }, ...dealLists] = await Promise.all([
+    getHomeData().catch(() => ({
       totalCards: 0,
-      inStockUnits: 0,
-      storeCount: 0,
+      inStockByMarket: { AU: 0, US: 0, GB: 0 },
+      storeCountByMarket: { AU: 0, US: 0, GB: 0 },
     })),
     ...COUNTRY_LIST.map((c) => getTopDeals(12, c.code).catch(() => [] as Deal[])),
   ]);
@@ -139,14 +139,13 @@ export default async function HomePage() {
 
               <CountryHeroToggle />
 
-              {/* Thin credibility stats */}
-              <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1 text-xs text-slate-400">
-                <Stat value={totalCards} label="cards" />
-                <span className="text-ink-700" aria-hidden>·</span>
-                <Stat value={inStockUnits} label="in-stock listings" />
-                <span className="text-ink-700" aria-hidden>·</span>
-                <Stat value={storeCount} label="AU stores" />
-              </div>
+              {/* Thin credibility stats — client island so the listing count and
+                  the store count/label follow the visitor's chosen market. */}
+              <HeroStats
+                totalCards={totalCards}
+                inStockByMarket={inStockByMarket}
+                storeCountByMarket={storeCountByMarket}
+              />
             </div>
           </div>
         </section>
@@ -288,11 +287,3 @@ function HowItWorksStep({ n, title, desc, icon }: { n: number; title: string; de
 }
 
 // Thin live stat: real number always in the DOM (SEO), animated on scroll.
-function Stat({ value, label }: { value: number; label: string }) {
-  return (
-    <span>
-      <span className="num font-extrabold text-slate-200"><CountUp value={value} /></span>{" "}
-      <span className="uppercase tracking-wide">{label}</span>
-    </span>
-  );
-}
