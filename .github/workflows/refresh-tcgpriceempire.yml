@@ -9,8 +9,10 @@ name: Refresh TCGPriceEmpire catalogue (daily)
 # a manual run to one game (pokemon | magic | yugioh | onepiece | riftbound).
 
 on:
-  schedule:
-    - cron: "0 17 * * *" # 17:00 UTC daily — clear of the 18:00/18:30 sister-site runs
+  # Scheduled runs PAUSED 2026-08-16 — TCGPriceEmpire Actions paused
+  # indefinitely per request. Re-enable by uncommenting the schedule below.
+  # schedule:
+  #   - cron: "0 17 * * *" # 17:00 UTC daily — clear of the 18:00/18:30 sister-site runs
   workflow_dispatch:
     inputs:
       database_url:
