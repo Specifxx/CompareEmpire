@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { POKEMON_SETS } from "@/lib/pokemon-sets";
+import { ONE_PIECE_SETS } from "@/lib/one-piece-sets";
 
 export const metadata: Metadata = {
   title: "All One Piece Card Game Sets",
@@ -11,11 +11,11 @@ export const metadata: Metadata = {
 const PER_PAGE = 24;
 
 export default function SetsIndex({ searchParams }: { searchParams: { page?: string } }) {
-  const total = POKEMON_SETS.length;
+  const total = ONE_PIECE_SETS.length;
   const pages = Math.ceil(total / PER_PAGE);
   const page = Math.min(Math.max(1, parseInt(searchParams.page ?? "1", 10) || 1), pages);
   const start = (page - 1) * PER_PAGE;
-  const slice = POKEMON_SETS.slice(start, start + PER_PAGE);
+  const slice = ONE_PIECE_SETS.slice(start, start + PER_PAGE);
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-8">

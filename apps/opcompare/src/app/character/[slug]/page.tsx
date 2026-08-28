@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { CardTile, type CardTileData } from "@/components/CardTile";
 import { cardTileSelect, parsePageNum, parsePageSize } from "@/lib/cards";
-import { POKEMON_SETS } from "@/lib/pokemon-sets";
+import { ONE_PIECE_SETS } from "@/lib/one-piece-sets";
 import { DEFAULT_COUNTRY } from "@/lib/country";
 import { formatMoney } from "@/lib/format";
 import { SITE_URL } from "@/lib/site";
@@ -85,7 +85,7 @@ export default async function CharacterPage({ params, searchParams }: { params: 
   const [notable, siblings] = await Promise.all([notablePrintings(character.slug, country), popularCharacters(24)]);
 
   // Sets this character appears in, with era ("series") metadata for the era filter.
-  const setsForCharacter = POKEMON_SETS.filter((s) => character.setCodes.includes(s.code));
+  const setsForCharacter = ONE_PIECE_SETS.filter((s) => character.setCodes.includes(s.code));
   const eras = [...new Set(setsForCharacter.map((s) => s.series))];
 
   // ---- Filters --------------------------------------------------------------

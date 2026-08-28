@@ -123,7 +123,7 @@ function networkUrl(url: string, subId: string): string | null {
 // Refersion / UpPromote, etc.). A direct program beats the network because there's
 // no revenue share, so these are checked BEFORE the network fallback. Use the
 // /api/click leaderboard to prioritise which stores to sign first. Example:
-//   "cherrycollectables.com.au": (u) => { u.searchParams.set("ref", "dexcompare"); return u.toString(); },
+//   "cherrycollectables.com.au": (u) => { u.searchParams.set("ref", "opcompare"); return u.toString(); },
 const DIRECT_PROGRAMS: Record<string, (u: URL) => string> = {
   // add approved programs here — they override the network automatically
 };

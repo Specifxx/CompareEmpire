@@ -1,4 +1,4 @@
-// DexCompare — Pokémon TCG price-comparison database schema.
+// OPCompare — One Piece Card Game price-comparison database schema.
 // Enums are represented as Strings because the original SQLite MVP connector did
 // not support native enums; allowed values are validated in app code.
 
@@ -13,8 +13,8 @@ datasource db {
 
 model Card {
   id              String    @id @default(cuid())
-  externalId      String?   @unique // RiftScribe id, e.g. "ogn-001-298"
-  slug            String?   @unique // human-readable URL, e.g. "vayne-hunter-sfd-223s-221"
+  externalId      String?   @unique // apitcg.com id, e.g. "OP01-025"
+  slug            String?   @unique // human-readable URL, e.g. "roronoa-zoro-op01-025"
   name            String
   // Lowercased, punctuation-stripped name for apostrophe-tolerant search.
   nameNormalized  String  @default("")
@@ -24,14 +24,14 @@ model Card {
   // time. Fixed-width columns on the existing row: no storage growth.
   characterSlug   String?
   characterName   String?
-  setCode         String // e.g. "OGN"
-  setName         String // e.g. "Origins"
-  collectorNumber String // e.g. "001/298"
-  // One of the Riftbound domains: Fury, Calm, Mind, Body, Chaos, Order, Colorless
+  setCode         String // e.g. "OP01"
+  setName         String // e.g. "Romance Dawn"
+  collectorNumber String // e.g. "OP01-025"
+  // The card's color: Red, Green, Blue, Purple, Black, Yellow, or Multicolor
   domain          String
-  // Unit, Spell, Gear, Rune, Battlefield, Legend
+  // Leader, Character, Event, Stage
   type            String
-  // Common, Uncommon, Rare, Epic, Showcase
+  // Leader, Common, Uncommon, Rare, Super Rare, Secret Rare, Special
   rarity          String
   // Alt-art / variant suffix from the card number, e.g. "a" for 112a. null = base art.
   variant         String?
@@ -44,7 +44,7 @@ model Card {
   tags            String? // comma-separated keyword tags
   description     String?
   flavorText      String?
-  // Real card images (RiftScribe CDN). Falls back to generated SVG art if null.
+  // Real card images (apitcg.com / LimitlessTCG CDN). Falls back to generated SVG art if null.
   imageUrl        String? // full-resolution
   imageThumbUrl   String? // smaller webp for grids
   blurDataUrl     String? // tiny base64 placeholder
@@ -218,15 +218,15 @@ model RetailerPrice {
   @@index([cardId, country, inStock])
 }
 
-// Sealed / non-single Riftbound products (booster boxes, packs, Proving Grounds,
+// Sealed / non-single One Piece products (booster boxes, starter decks,
 // bundles, …). One row per store listing; the /sealed page groups by groupKey to
 // show the cheapest price per product across stores.
 model SealedListing {
   id           String   @id @default(cuid())
   groupKey     String // normalised product identity for cross-store grouping
   title        String
-  productType  String // "Booster Box", "Booster Pack", "Bundle", "Proving Grounds", …
-  setCode      String? // OGN/SFD/UNL/OGS/VEN if detectable
+  productType  String // "Booster Box", "Starter Deck", "Bundle", …
+  setCode      String? // OP01/EB01/ST01/PRB01 if detectable
   retailer     String
   retailerName String
   priceCents   Int

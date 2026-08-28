@@ -10,12 +10,12 @@ import {
   domainInfo,
   rarityInfo,
 } from "@/lib/constants";
-import { POKEMON_SETS } from "@/lib/pokemon-sets";
+import { ONE_PIECE_SETS } from "@/lib/one-piece-sets";
 
 // Set -> series ("era"), for grouping the set filter. SETS omits series but is
-// derived 1:1 from POKEMON_SETS, which carries it. POKEMON_SETS is newest-first,
+// derived 1:1 from ONE_PIECE_SETS, which carries it. ONE_PIECE_SETS is newest-first,
 // so the first series encountered is the most recent — that one opens by default.
-const SERIES_BY_CODE = new Map(POKEMON_SETS.map((s) => [s.code, s.series]));
+const SERIES_BY_CODE = new Map(ONE_PIECE_SETS.map((s) => [s.code, s.series]));
 const ERA_ORDER = [...new Set(SETS.map((s) => SERIES_BY_CODE.get(s.code) ?? "Other"))];
 
 function toggleCsv(current: string | null, value: string): string {

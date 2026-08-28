@@ -1,12 +1,12 @@
 // The One Piece Card Game set catalogue used across OPCompare, newest first.
-export interface PokemonSet {
+export interface OnePieceSet {
   code: string; name: string; slug: string; series: string;
   releaseDate: string; total: number; logo: string | null; symbol: string | null;
 }
-const S = (code: string, name: string, slug: string, series: string, releaseDate: string, total: number): PokemonSet =>
+const S = (code: string, name: string, slug: string, series: string, releaseDate: string, total: number): OnePieceSet =>
   ({ code, name, slug, series, releaseDate, total, logo: null, symbol: null });
 
-export const POKEMON_SETS: PokemonSet[] = [
+export const ONE_PIECE_SETS: OnePieceSet[] = [
   S("OP11", "A Fist of Divine Speed", "a-fist-of-divine-speed", "Booster", "2025/05/30", 120),
   S("OP10", "Royal Blood", "royal-blood", "Booster", "2025/02/21", 119),
   S("EB02", "Anime 25th Collection", "anime-25th-collection", "Extra Booster", "2025/02/28", 80),

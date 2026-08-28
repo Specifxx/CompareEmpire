@@ -83,7 +83,7 @@ async function main() {
     `C priced-card share of catalogue                   ${cOk ? "PASS" : "FAIL"}  ${pricedCount}/${totalCount} (${(pricedShare * 100).toFixed(1)}%, floor ${(PRICED_SHARE_FLOOR * 100).toFixed(0)}%)`
   );
 
-  console.log("\n── DexCompare data-quality gate ─────────────────────────────");
+  console.log("\n── OPCompare data-quality gate ─────────────────────────────");
   for (const l of lines) console.log("  " + l);
   console.log("─────────────────────────────────────────────────────────────");
   console.log(failed ? "RESULT: FAIL — see flagged checks above." : "RESULT: PASS");

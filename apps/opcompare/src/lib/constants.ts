@@ -36,9 +36,9 @@ export const DOMAIN_KEYS = Object.keys(DOMAINS) as DomainKey[];
 export const CARD_TYPES = ["Leader", "Character", "Event", "Stage"] as const;
 export type CardType = (typeof CARD_TYPES)[number];
 
-import { POKEMON_SETS } from "./pokemon-sets";
+import { ONE_PIECE_SETS } from "./one-piece-sets";
 export interface SetInfo { code: string; name: string; slug: string; comingSoon?: boolean }
-export const SETS: SetInfo[] = POKEMON_SETS.map((s) => ({ code: s.code, name: s.name, slug: s.slug }));
+export const SETS: SetInfo[] = ONE_PIECE_SETS.map((s) => ({ code: s.code, name: s.name, slug: s.slug }));
 export const setBySlug = (slug: string): SetInfo | undefined => SETS.find((s) => s.slug === slug);
 export const setByCode = (code: string): SetInfo | undefined => SETS.find((s) => s.code === code);
 

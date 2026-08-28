@@ -13,7 +13,7 @@ import { RecentlyViewed } from "@/components/RecentlyViewed";
 import { getCountry } from "@/lib/get-country";
 import { COUNTRIES, type CountryInfo } from "@/lib/country";
 import { SETS, domainInfo, DOMAIN_KEYS } from "@/lib/constants";
-import { POKEMON_SETS } from "@/lib/pokemon-sets";
+import { ONE_PIECE_SETS } from "@/lib/one-piece-sets";
 import { Logo } from "@/components/Logo";
 import { ScrollReveal } from "@/components/ScrollReveal";
 
@@ -256,7 +256,7 @@ export default async function HomePage() {
           <Link href="/sets" className="btn-ghost text-xs shrink-0">View all {SETS.length} sets →</Link>
         </div>
         <div className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-2">
-          {POKEMON_SETS.slice(0, 24).map((s) => (
+          {ONE_PIECE_SETS.slice(0, 24).map((s) => (
             <Link
               key={s.code}
               href={`/sets/${s.slug}`}

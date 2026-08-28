@@ -15,7 +15,7 @@ import { EbayAd } from "@/components/EbayAd";
 import { affiliateUrl, ebaySearchUrl } from "@/lib/affiliate";
 import { getCountry } from "@/lib/get-country";
 import { COUNTRIES } from "@/lib/country";
-import { POKEMON_SETS } from "@/lib/pokemon-sets";
+import { ONE_PIECE_SETS } from "@/lib/one-piece-sets";
 import { formatMoney, timeAgo } from "@/lib/format";
 
 // Per-request: prices + stock + market come from the country cookie.
@@ -67,7 +67,7 @@ export default async function SealedComparePage({ params }: { params: { slug: st
   if (!group) notFound();
 
   const featured = matchFeatured(group.name);
-  const setMeta = group.setCode ? POKEMON_SETS.find((s) => s.code === group.setCode) ?? null : null;
+  const setMeta = group.setCode ? ONE_PIECE_SETS.find((s) => s.code === group.setCode) ?? null : null;
 
   // Related sealed products from the same set (other types), boxes/ETBs first.
   const related = group.setCode

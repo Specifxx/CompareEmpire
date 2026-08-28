@@ -15,7 +15,7 @@
 // they're addressable later if/when the importer captures that data.
 import { Prisma } from "@prisma/client";
 import { prisma } from "./db";
-import { POKEMON_SETS } from "./pokemon-sets";
+import { ONE_PIECE_SETS } from "./one-piece-sets";
 import { characterSlugify } from "./op-characters";
 
 export type FacetKind = "type" | "rarity" | "printing" | "era";
@@ -47,10 +47,10 @@ export async function resolveFacet(kind: string, slug: string): Promise<FacetVal
     return { kind: "rarity", slug, label: match.rarity, where: { rarity: match.rarity } };
   }
   if (kind === "era") {
-    const series = [...new Set(POKEMON_SETS.map((s) => s.series))];
+    const series = [...new Set(ONE_PIECE_SETS.map((s) => s.series))];
     const match = series.find((s) => characterSlugify(s) === slug);
     if (!match) return null;
-    const setCodes = POKEMON_SETS.filter((s) => s.series === match).map((s) => s.code);
+    const setCodes = ONE_PIECE_SETS.filter((s) => s.series === match).map((s) => s.code);
     return { kind: "era", slug, label: match, where: { setCode: { in: setCodes } } };
   }
   return null;
@@ -84,12 +84,12 @@ export async function listFacetValues(kind: FacetKind): Promise<FacetValue[]> {
     }
   }
   if (kind === "era") {
-    const series = [...new Set(POKEMON_SETS.map((s) => s.series))];
+    const series = [...new Set(ONE_PIECE_SETS.map((s) => s.series))];
     return series.map((s) => ({
       kind,
       slug: characterSlugify(s),
       label: s,
-      where: { setCode: { in: POKEMON_SETS.filter((set) => set.series === s).map((set) => set.code) } },
+      where: { setCode: { in: ONE_PIECE_SETS.filter((set) => set.series === s).map((set) => set.code) } },
     }));
   }
   return [];

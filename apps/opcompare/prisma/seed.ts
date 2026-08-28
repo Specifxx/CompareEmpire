@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { characterOf } from "../src/lib/op-characters";
 import { normalizeSearch } from "../src/lib/format";
-import { POKEMON_SETS } from "../src/lib/pokemon-sets";
+import { ONE_PIECE_SETS } from "../src/lib/one-piece-sets";
 import { enrichFromTcgplayer, buildCatalog } from "./tcgplayer-enrich.mjs";
 import { importStores } from "./store-import.mjs";
 
@@ -223,7 +223,7 @@ async function main() {
     { type: "Starter Deck", usd: [900, 1600] as [number, number] },
   ];
   const sealedRows: any[] = [];
-  const sealedSets = POKEMON_SETS.filter((s) => s.code.startsWith("OP") || s.code.startsWith("EB") || s.code.startsWith("PRB")).slice(0, 30);
+  const sealedSets = ONE_PIECE_SETS.filter((s) => s.code.startsWith("OP") || s.code.startsWith("EB") || s.code.startsWith("PRB")).slice(0, 30);
   for (const s of sealedSets) {
     for (const p of PRODUCTS) {
       const baseUsd = between(p.usd[0], p.usd[1]);

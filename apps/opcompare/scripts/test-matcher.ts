@@ -1,36 +1,45 @@
-// Quick offline test for the Pokémon title→card matcher (no DB / network needed):
+// Quick offline test for the One Piece title→card matcher (no DB / network needed):
 //   npx tsx scripts/test-matcher.ts
-import { buildPokemonResolver, MatchCard } from "../src/lib/price-import";
+import { buildCardResolver, MatchCard } from "../src/lib/price-import";
 
 const cards: MatchCard[] = [
-  { id: "charizard-obf", name: "Charizard ex", setName: "Obsidian Flames", collectorNumber: "125/197" },
-  { id: "charizard-obf-sir", name: "Charizard ex", setName: "Obsidian Flames", collectorNumber: "223/197" },
-  { id: "pikachu-svbase", name: "Pikachu", setName: "Scarlet & Violet Base Set", collectorNumber: "58/198" },
-  { id: "mewtwo-pgo", name: "Mewtwo VSTAR", setName: "Pokémon GO", collectorNumber: "31/78" },
-  { id: "umbreon-evs", name: "Umbreon VMAX", setName: "Evolving Skies", collectorNumber: "215/203" },
-  { id: "research-brs", name: "Professor's Research", setName: "Brilliant Stars", collectorNumber: "147/172" },
-  // Cross-set number collision: another set sized 197 with the same number 125.
-  { id: "decoy-other", name: "Magnezone", setName: "Paradox Rift", collectorNumber: "125/182" },
-  { id: "rayquaza-pgo", name: "Rayquaza", setName: "Pokémon GO", collectorNumber: "32/78" },
+  { id: "luffy-op01", name: "Monkey D. Luffy", setName: "Romance Dawn", collectorNumber: "OP01-001" },
+  { id: "law-op01", name: "Trafalgar Law", setName: "Romance Dawn", collectorNumber: "OP01-002" },
+  { id: "zoro-op01", name: "Roronoa Zoro", setName: "Romance Dawn", collectorNumber: "OP01-025" },
+  { id: "nami-op01", name: "Nami", setName: "Romance Dawn", collectorNumber: "OP01-016" },
+  { id: "jinbe-op01", name: "Jinbe", setName: "Romance Dawn", collectorNumber: "OP01-013" },
+  // Ace has TWO real printings — regression test for the old TOK_STOP bug that
+  // stripped "ace" as noise (leftover from Pokémon's "Ace Spec Trainer" term),
+  // which broke matching for every listing mentioning this character.
+  { id: "ace-op02", name: "Portgas D. Ace", setName: "Paramount War", collectorNumber: "OP02-013" },
+  { id: "ace-prb01", name: "Portgas D. Ace", setName: "Premium Booster -The Best-", collectorNumber: "PRB01-025" },
+  // Cross-set number collision: same number (013) in a different set.
+  { id: "decoy-op03", name: "Nico Robin", setName: "Pillars of Strength", collectorNumber: "OP03-013" },
 ];
 
-const resolve = buildPokemonResolver(cards);
+const resolve = buildCardResolver(cards);
 
 const cases: [string, string | null][] = [
-  ["Charizard ex - Obsidian Flames - 125/197 - Double Rare (Near Mint)", "charizard-obf"],
-  ["Charizard ex (223/197) Obsidian Flames Special Illustration Rare", "charizard-obf-sir"],
-  ["Pikachu 058/198 - Scarlet & Violet Base Set - Common", "pikachu-svbase"],
-  ["Mewtwo VSTAR 031/078 Pokemon GO Holo", "mewtwo-pgo"],
-  ["Umbreon VMAX Alt Art - 215/203 - Evolving Skies", "umbreon-evs"],
-  ["Professor's Research (Full Art) - Brilliant Stars 147/172", "research-brs"],
-  // No collector number in the title → must use name + set name.
-  ["Umbreon VMAX - Evolving Skies (Alternate Art Secret)", "umbreon-evs"],
+  ["Monkey D. Luffy OP01-001 Leader Romance Dawn", "luffy-op01"],
+  ["Trafalgar Law (OP01-002) Romance Dawn Leader", "law-op01"],
+  ["Roronoa Zoro OP01-025 Super Rare Parallel", "zoro-op01"],
+  ["Nami OP01-016 Rare NM", "nami-op01"],
+  // Set code + number, no spelled-out set name at all.
+  ["Jinbe OP01-013 SR", "jinbe-op01"],
+  // The exact collision this fix targets: "Ace" must not be stripped as noise,
+  // and the two printings must disambiguate by set code.
+  ["Portgas D. Ace OP02-013 Super Rare Paramount War", "ace-op02"],
+  ["Portgas D. Ace PRB01-025 Special Premium Booster", "ace-prb01"],
+  // No recognisable set-code prefix in the title → falls back to name + set name.
+  ["Portgas D. Ace - Paramount War - Parallel Art", "ace-op02"],
+  // Bare number only, no set code: must require BOTH set name and full name.
+  ["Nico Robin 013 Pillars of Strength Rare", "decoy-op03"],
   // Multi-card listing must NOT match a single card.
-  ["Charizard ex Obsidian Flames 125/197 PLAYSET x4", null],
-  // Wrong set name should not steal a same-numbered card.
-  ["Some Random Card 125/182 Paradox Rift", "decoy-other"],
+  ["Monkey D. Luffy OP01-001 PLAYSET x4", null],
+  // Sealed product must NOT match a single card even though it has a number in it.
+  ["One Piece OP01 Romance Dawn Booster Box", null],
   // Unknown card → null.
-  ["Snorlax 999/999 Made Up Set", null],
+  ["Some Random Card OP99-999 Made Up Set", null],
 ];
 
 let pass = 0;

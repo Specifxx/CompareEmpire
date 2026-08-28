@@ -1,6 +1,6 @@
-// TCGplayer enrichment (built on apps/dexcompare/src/lib/tcgplayer.ts).
+// TCGplayer enrichment (built on the sibling DexCompare/RiftCompare apps' tcgplayer.ts).
 //
-// dexcompare's outbound links work because every store row carries a REAL
+// OPCompare's outbound links work because every store row carries a REAL
 // product-page URL, so a click lands on the EXACT card — not a guessed search
 // page that 404s. This module reproduces that for the TCG sites using
 // TCGplayer's public search API (the same endpoint the website uses, no key).

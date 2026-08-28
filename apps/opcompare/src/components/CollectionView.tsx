@@ -8,7 +8,7 @@ import { CsvTools, type ExportRow } from "./CsvTools";
 import { cardHref } from "@/lib/card-url";
 import { addQty, getCollection, getAllCostBases, setCostBasis, type CostBasis } from "@/lib/collection-client";
 import { dollarsToCents } from "@/lib/format";
-import { POKEMON_SETS } from "@/lib/pokemon-sets";
+import { ONE_PIECE_SETS } from "@/lib/one-piece-sets";
 import type { CardTileData } from "./CardTile";
 
 // /collection — the portfolio tracker. Reads the localStorage collection + cost
@@ -130,7 +130,7 @@ export function CollectionView() {
     }
     return Array.from(bySet.values())
       .map((g) => {
-        const meta = POKEMON_SETS.find((s) => s.code === g.setCode);
+        const meta = ONE_PIECE_SETS.find((s) => s.code === g.setCode);
         const subtotal = g.cards.reduce((s, c) => s + (price(c) ?? 0) * (qtys[c.id] ?? 0), 0);
         return { ...g, total: meta?.total ?? 0, logo: meta?.logo ?? null, slug: meta?.slug ?? null, subtotal };
       })

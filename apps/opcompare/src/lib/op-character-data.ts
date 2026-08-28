@@ -1,7 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "./db";
 import { cardTileSelect } from "./cards";
-import { POKEMON_SETS } from "./pokemon-sets";
+import { ONE_PIECE_SETS } from "./one-piece-sets";
 import { priceField, pickPrice, type Country } from "./country";
 import type { CardTileData } from "@/components/CardTile";
 
@@ -76,7 +76,7 @@ export async function notablePrintings(slug: string, country: Country): Promise<
   ]);
 
   const setCodes = new Set(setCodesRows.map((r) => r.setCode));
-  const setsForCharacter = POKEMON_SETS.filter((s) => setCodes.has(s.code) && s.releaseDate);
+  const setsForCharacter = ONE_PIECE_SETS.filter((s) => setCodes.has(s.code) && s.releaseDate);
   const byDate = [...setsForCharacter].sort((a, b) => a.releaseDate.localeCompare(b.releaseDate));
   const newestSet = byDate[byDate.length - 1] ?? null;
   const oldestSet = byDate[0] ?? null;

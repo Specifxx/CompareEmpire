@@ -5,7 +5,7 @@ import { prisma } from "@/lib/db";
 import { CardImage } from "@/components/CardImage";
 import { DomainBadge, RarityBadge, VariantBadge, OvernumberedBadge, PromoBadge, SignatureBadge } from "@/components/Badge";
 import { isOvernumbered, isSignature } from "@/lib/constants";
-import { POKEMON_SETS } from "@/lib/pokemon-sets";
+import { ONE_PIECE_SETS } from "@/lib/one-piece-sets";
 import { WishlistButton } from "@/components/WishlistButton";
 import { ShareButton } from "@/components/ShareButton";
 import { CollectionButton } from "@/components/CollectionButton";
@@ -74,7 +74,7 @@ function truncateAtWord(name: string, max: number): string {
   return word.replace(/[\s:,&-]+$/, "");
 }
 
-// `setCode` is the internal pokemontcg.io API set ID ("base4", "sv3pt5", …),
+// `setCode` is the internal apitcg.com set code ("OP01", "ST01", …),
 // not a name a buyer recognizes — showing it in a SERP snippet reads as
 // broken/spammy (this is why /card/base4-57-poliwhirl ranked #2.7 for its
 // query yet had 0% CTR over 27 impressions per GSC). Use the real set name
@@ -397,7 +397,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
   };
 
   // Breadcrumb so Google shows Home › Database › Set › Card in the SERP.
-  const setSlug = POKEMON_SETS.find((s) => s.code === card.setCode)?.slug;
+  const setSlug = ONE_PIECE_SETS.find((s) => s.code === card.setCode)?.slug;
   const breadcrumb = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -473,7 +473,7 @@ export default async function CardPage({ params }: { params: { id: string } }) {
             <div className="mt-3 flex items-start justify-between gap-3">
               <div className="flex items-start gap-3">
                 {(() => {
-                  const logo = POKEMON_SETS.find((s) => s.code === card.setCode)?.logo;
+                  const logo = ONE_PIECE_SETS.find((s) => s.code === card.setCode)?.logo;
                   return logo ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={logo} alt={card.setName} width={88} height={36} className="mt-1 h-9 w-auto max-w-[88px] object-contain" />

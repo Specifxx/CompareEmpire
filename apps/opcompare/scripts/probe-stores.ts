@@ -1,20 +1,20 @@
 // READ-ONLY validation probe for the configured retailers. For each store it runs
-// the EXACT production code path — auto-discover Pokémon collections from the store's
+// the EXACT production code path — auto-discover One Piece collections from the store's
 // sitemap, fetch the collection feeds, and resolve every listing title to one of our
-// cards with the same buildPokemonResolver the importer uses — then reports how many
+// cards with the same buildCardResolver the importer uses — then reports how many
 // products it found, how many matched a card, how many are in stock, and a few sample
 // matches (title → card @ price) so the matches can be eyeballed for correctness.
 //
 // No database writes. Runs on CI (needs DATABASE_URL + open network), mirroring the
 // import which can't run from the dev container. This is how we validate a new store
-// is real, is Shopify, sells Pokémon singles, and matches our catalogue BEFORE we
+// is real, is Shopify, sells One Piece singles, and matches our catalogue BEFORE we
 // trust its prices.
 //
 //   DATABASE_URL=... npx tsx scripts/probe-stores.ts [US|GB|AU|NZ|all|key1,key2,...]
 import { prisma } from "../src/lib/db";
 import { RETAILER_LIST, retailerCountry, type RetailerInfo } from "../src/lib/retailers";
 import {
-  buildPokemonResolver,
+  buildCardResolver,
   discoverOnePieceCollections,
   fetchCollection,
   type MatchCard,
@@ -48,7 +48,7 @@ async function probeStore(
   };
   try {
     // Mirror the importer EXACTLY: discovery is authoritative; only fall back to
-    // configured handles (filtered to Pokémon) if the sitemap yields nothing.
+    // configured handles (filtered to One Piece) if the sitemap yields nothing.
     let handles = await discoverOnePieceCollections(store.base);
     if (!handles.length) {
       handles = (store.collections ?? []).filter((h) => /pok[eé]mon|pkmn/i.test(h));
@@ -104,7 +104,7 @@ async function main() {
 
   const cards = await prisma.card.findMany({ select: { id: true, name: true, setName: true, collectorNumber: true } });
   console.log(`Loaded ${cards.length} cards for matching.\n`);
-  const resolve = buildPokemonResolver(cards as MatchCard[]);
+  const resolve = buildCardResolver(cards as MatchCard[]);
   const nameById = new Map(cards.map((c) => [c.id, { name: c.name, num: c.collectorNumber }]));
 
   // Concurrency pool so the probe finishes quickly without hammering any one store.
@@ -134,7 +134,7 @@ async function main() {
   }
   for (const [cc, list] of byCountry) {
     const ok = list.filter((r) => r.matched > 0);
-    console.log(`\n--- ${cc}: ${ok.length}/${list.length} stores return Pokémon matches ---`);
+    console.log(`\n--- ${cc}: ${ok.length}/${list.length} stores return One Piece matches ---`);
     for (const r of list) {
       const flag = r.matched >= 100 ? "✓✓" : r.matched > 0 ? "✓ " : r.error ? "ER" : "✗ ";
       console.log(`  ${flag} ${String(r.matched).padStart(6)} matched  ${String(r.inStockMatched).padStart(6)} in stock  ${r.key}${r.error ? "  (" + r.error + ")" : ""}`);

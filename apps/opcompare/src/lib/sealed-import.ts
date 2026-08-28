@@ -5,7 +5,7 @@
 import { prisma } from "./db";
 import { RETAILER_LIST } from "./retailers";
 import { fetchTcgplayerSealed, tcgProductUrl, tcgImageUrl } from "./tcgplayer";
-import { POKEMON_SETS } from "./pokemon-sets";
+import { ONE_PIECE_SETS } from "./one-piece-sets";
 
 const UA = {
   "User-Agent":
@@ -17,22 +17,23 @@ interface ShopifyImg { src?: string }
 interface ShopifyVar { price: string; available: boolean }
 interface ShopifyProd { title: string; handle: string; variants: ShopifyVar[]; images?: ShopifyImg[] }
 
-// A sealed product must be identifiably POKÉMON. Other games slip in when a store
+// A sealed product must be identifiably ONE PIECE. Other games slip in when a store
 // files them under a shared/mismatched collection, so we require an explicit
-// One Piece marker: the word "One Piece", or a detected One Piece set name in the title.
-const POKEMON_HINT = /pok[eé]mon|\bpkmn\b/i;
+// One Piece marker: the words "One Piece"/"OPCG", or a detected One Piece set name
+// in the title.
+const ONE_PIECE_HINT = /one[-\s_]?piece|\bopcg\b/i;
 
 function isOnePieceSealed(title: string): boolean {
-  return POKEMON_HINT.test(title) || detectSetMeta(title) != null;
+  return ONE_PIECE_HINT.test(title) || detectSetMeta(title) != null;
 }
 
 // A sealed product title looks like one of these (One Piece sealed lines).
 const SEALED_TITLE =
   /booster\s*box|booster\s*display|display\s*box|display\s*case|booster\s*bundle|booster\s*pack|\bpack\b|elite\s*trainer\s*box|\betb\b|premium\s*collection|collection\s*box|\bcollection\b|build\s*&?\s*and?\s*battle|\bbundle\b|gift\s*box|sleeved\s*booster|blister|\bcase\b|\btin\b|\bsealed\b/i;
 // …but never these. Singles / accessories / graded slabs / bulk / non-English slip
-// through otherwise. A collector number ("/198") is a tell-tale single-card sign.
+// through otherwise. A collector number ("OP01-025") is a tell-tale single-card sign.
 const SEALED_EXCLUDE =
-  /\bsingle\b|playmat|deck\s*box|sleeves?\b|binder|toploader|top\s*loader|dice|counter|\btoken\b|coin\b|\/\d{2,3}\b|\bpsa\b|\bcgc\b|\bbgs\b|graded|chinese|japanese|korean|simplified|traditional|\bbulk\s+(?:lot|cards|commons?|singles?)\b|\bopened\b|live\s*break|\bticket\b|\b(?:nm|lp|mp|hp|dmg)\b|near\s*mint|lightly\s*played/i;
+  /\bsingle\b|playmat|deck\s*box|sleeves?\b|binder|toploader|top\s*loader|dice|counter|\btoken\b|coin\b|\b(?:OP|EB|ST|PRB|P)\d{0,2}[\s-]+\d{2,3}\b|\bpsa\b|\bcgc\b|\bbgs\b|graded|chinese|japanese|korean|simplified|traditional|\bbulk\s+(?:lot|cards|commons?|singles?)\b|\bopened\b|live\s*break|\bticket\b|\b(?:nm|lp|mp|hp|dmg)\b|near\s*mint|lightly\s*played/i;
 
 async function fetchJson(url: string): Promise<any | null> {
   try {
@@ -289,7 +290,7 @@ export function sealedSlug(groupKey: string): string {
 let SETS_BY_LEN: { code: string; name: string; releaseDate: string; rx: RegExp }[] | null = null;
 function setsByLen() {
   if (!SETS_BY_LEN) {
-    SETS_BY_LEN = POKEMON_SETS.filter((s) => s.name && s.name.length >= 4)
+    SETS_BY_LEN = ONE_PIECE_SETS.filter((s) => s.name && s.name.length >= 4)
       .map((s) => ({ code: s.code, name: s.name, releaseDate: s.releaseDate, rx: new RegExp(`\\b${s.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s*")}\\b`, "i") }))
       .sort((a, b) => b.name.length - a.name.length);
   }

@@ -18,7 +18,7 @@ const DIMS: Record<Variant, { w: number; h: number }> = {
   mobileRect: { w: 300, h: 250 },
 };
 
-// dexcompare market codes → eBay domain (NZ has no eBay; eBay AU ships there).
+// market codes → eBay domain (NZ has no eBay; eBay AU ships there).
 const EBAY_DOMAIN: Record<string, string> = {
   AU: "www.ebay.com.au",
   NZ: "www.ebay.com.au",

@@ -7,18 +7,17 @@
 // real price. Market price is the number TCGplayer itself headlines.
 //
 // Data comes from TCGplayer's public search API (the same endpoint the website
-// uses). Products are matched to our cards by collector number + set, reusing
-// the importer's exact numKey/setFromTotal logic so a Signature/alt-art print is
-// never collapsed onto its base card.
+// uses). Products are matched to our cards by collector number + set, so a
+// parallel/alt-art print is never collapsed onto its base card.
 import { prisma } from "@/lib/db";
 import type { Prisma } from "@prisma/client";
 
 const SEARCH_URL = "https://mp-search-api.tcgplayer.com/v1/search/request?q=&isList=false";
-const PRODUCT_LINE = "pokemon";
+const PRODUCT_LINE = "one-piece-card-game";
 const PAGE_SIZE = 50;
 
 // Mirror of price-import.ts numKey: strip leading zeros, lowercase any letter
-// prefix/suffix (One Piece promos like "SWSH262"/"SVP 044" keep their alpha prefix
+// prefix/suffix (One Piece promos like "P-001"/"P047" keep their alpha prefix
 // as part of the identity), and mark a "*" print with a trailing "s".
 function numKey(seg: string): string {
   const cleaned = seg.trim().toLowerCase().replace(/\s+/g, "");
@@ -28,8 +27,8 @@ function numKey(seg: string): string {
 }
 
 // Normalised set name for cross-catalogue matching. TCGplayer prefixes set names
-// with the series code ("SV03: Obsidian Flames"); our names come from
-// pokemontcg.io ("Obsidian Flames"). Lowercase, fold "&"→"and", strip everything
+// with the series code ("OP-09: Emperors in the New World"); our names come from
+// apitcg.com ("Emperors in the New World"). Lowercase, fold "&"→"and", strip everything
 // but letters/digits/spaces, collapse whitespace — then one side containing the
 // other counts as the same set (the collector number must ALSO match, so a name
 // overlap alone can never mis-match a card).
@@ -117,8 +116,8 @@ export async function fetchTcgplayerProducts(): Promise<TcgProduct[]> {
   return out.filter((p) => !p.sealed);
 }
 
-// Fetch the SEALED product catalogue (booster boxes/cases, packs, Champion Decks,
-// Nexus Night promo packs, Pre-Rift kits, …) — a separate product type from cards.
+// Fetch the SEALED product catalogue (booster boxes/cases, packs, starter decks,
+// promo packs, …) — a separate product type from cards.
 export async function fetchTcgplayerSealed(): Promise<TcgProduct[]> {
   const PT = ["Sealed Products"];
   const first = await fetchPage(0, PT);
@@ -138,7 +137,7 @@ export async function fetchTcgplayerSealed(): Promise<TcgProduct[]> {
 }
 
 export function tcgProductUrl(p: TcgProduct): string {
-  const slug = `${p.productLineUrlName ?? "pokemon"}-${p.setUrlName ?? ""}-${p.productUrlName ?? ""}`
+  const slug = `${p.productLineUrlName ?? PRODUCT_LINE}-${p.setUrlName ?? ""}-${p.productUrlName ?? ""}`
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
@@ -163,20 +162,21 @@ export type TcgMatchResult = {
 // decides). Exported separately so a dry-run can inspect the match quality.
 //
 // Matching: collector number is the primary identity (numKey, letter-aware), with
-// the SET confirmed by name overlap and — when both sides print one — an equal
-// "/total" denominator. Ambiguous products (number matching multiple cards whose
-// set names all overlap) are skipped rather than guessed.
+// the SET confirmed by name overlap. Ambiguous products (number matching multiple
+// cards whose set names all overlap) are skipped rather than guessed.
 export async function buildTcgplayerRows(products?: TcgProduct[]): Promise<TcgMatchResult> {
   const items = products ?? (await fetchTcgplayerProducts());
   const cards = await prisma.card.findMany({ select: { id: true, collectorNumber: true, setName: true } });
   // numKey → candidate cards (the same number recurs across sets; the set-name
-  // overlap picks the right one).
+  // overlap picks the right one). Our own collectorNumber is "SETCODE-NUM" (e.g.
+  // "OP01-025"), never a Pokémon-style "num/total" fraction — pull the number out
+  // from after the last dash.
   const byNum = new Map<string, { id: string; setNorm: string; total: string | null }[]>();
   for (const c of cards) {
-    const [num, total] = c.collectorNumber.split("/");
+    const num = c.collectorNumber.includes("-") ? c.collectorNumber.split("-").pop()! : c.collectorNumber;
     const k = numKey(num);
     const list = byNum.get(k) ?? [];
-    list.push({ id: c.id, setNorm: normSetName(c.setName), total: total?.trim() || null });
+    list.push({ id: c.id, setNorm: normSetName(c.setName), total: null });
     byNum.set(k, list);
   }
 

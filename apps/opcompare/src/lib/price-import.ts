@@ -28,45 +28,15 @@ export interface ImportSummary {
   cardsPriced: number;
 }
 
-const SET_FROM_TITLE: [RegExp, string][] = [
-  [/proving\s*grounds|\bOGS\b/i, "OGS"],
-  [/spirit\s*forged|\bSFD\b/i, "SFD"],
-  [/unleashed|\bUNL\b/i, "UNL"],
-  [/vendetta|vengeance|\bVEN\b/i, "VEN"],
-  [/origins|\bOGN\b/i, "OGN"],
-];
-
-// Set/condition/qualifier tokens to strip when isolating the card name.
-const STOP =
-  /\b(riftbound|proving\s*grounds|spirit\s*forged|unleashed|vengeance|origins|showcase|signature|overnumbered|alternate\s*art|alt\s*art|foil|holo(foil)?|near mint|lightly played|moderately played|heavily played|damaged|main set|the game|tcg|single)\b/gi;
-
-function numKey(seg: string): string {
-  const m = seg.match(/^0*(\d+)([a-z]*)/i);
-  const base = m ? m[1] + m[2].toLowerCase() : seg.toLowerCase();
-  // A "*" marks a Signature print (e.g. "223*/221"), a DIFFERENT card from the
-  // plain overnumbered "223/221" — keep their keys distinct so listings don't mix.
-  return seg.includes("*") ? `${base}s` : base;
-}
-function nameKey(s: string): string {
-  return s.toLowerCase().replace(/[^a-z0-9]/g, "");
-}
-function cleanProductName(title: string): string {
-  return title
-    .replace(/\([^)]*\)/g, " ")
-    .replace(/\[[^\]]*\]/g, " ")
-    .replace(STOP, " ");
-}
-
 // Word tokens for One Piece name/set matching. Strips only generic noise (condition,
-// grading, rarity/finish words, "pokemon/card/single", numbers) — NOT set-name words
-// (e.g. "obsidian", "flames"), since those are what disambiguate same-numbered cards.
+// grading, rarity/finish words, "one piece/card/single", numbers) — NOT set-name words
+// (e.g. "romance", "dawn"), since those are what disambiguate same-numbered cards.
 const TOK_STOP = new Set([
-  "pokemon", "pokémon", "card", "cards", "single", "singles", "tcg", "the", "a", "an",
-  "of", "and", "nm", "near", "mint", "lightly", "moderately", "heavily", "played",
-  "lp", "mp", "hp", "dmg", "damaged", "holo", "holofoil", "reverse", "foil", "non",
-  "rare", "common", "uncommon", "promo", "full", "alt", "alternate", "art", "secret",
-  "rainbow", "hyper", "amazing", "radiant", "english", "japanese", "jpn", "eng",
-  "graded", "psa", "bgs", "cgc", "ace", "trainer", "gallery", "pkmn", "genuine",
+  "one", "piece", "onepiece", "opcg", "op", "card", "cards", "single", "singles", "tcg",
+  "the", "a", "an", "of", "and", "nm", "near", "mint", "lightly", "moderately", "heavily",
+  "played", "lp", "mp", "hp", "dmg", "damaged", "foil", "non", "rare", "common", "uncommon",
+  "promo", "full", "alt", "alternate", "art", "secret", "special", "leader", "parallel",
+  "manga", "english", "japanese", "jpn", "eng", "graded", "psa", "bgs", "cgc", "genuine",
 ]);
 function tokenize(s: string): string[] {
   return s
@@ -75,17 +45,6 @@ function tokenize(s: string): string[] {
     .trim()
     .split(" ")
     .filter((w) => w.length > 1 && !TOK_STOP.has(w) && !/^\d+$/.test(w));
-}
-// Parse a collector number from any store title format, e.g.:
-//   "(299*/298)", "(053/219)", "OGN-128/298", "[OGN - 213/298]", "239*/221"
-// Keys are normalised via numKey so "039" and "39" compare equal (the leading-zero
-// bug that previously mis-assigned base cards to their alt-art printings).
-function parseNumber(title: string): { setCode: string | null; key: string; total: string } | null {
-  const pref = title.match(/\b([A-Za-z]{2,4})\s*-\s*(\d+)([a-z*]*)\s*\/\s*(\d+)/);
-  if (pref) return { setCode: pref[1].toUpperCase(), key: numKey(pref[2] + pref[3]), total: pref[4] };
-  const bare = title.match(/(\d+)([a-z*]*)\s*\/\s*(\d+)/);
-  if (bare) return { setCode: null, key: numKey(bare[1] + bare[2]), total: bare[3] };
-  return null;
 }
 
 // Multi-card listings (playsets, lots, bundles) carry a SET price, not a per-card
@@ -98,20 +57,16 @@ export const MULTI_CARD =
 
 // NOT a single card: sealed products (boxes/packs/tins/collections/decks), accessories
 // (sleeves/binders/toploaders/playmats), and merch (Funko/plush/figures). A broad
-// "pokemon" collection mixes these in with singles, and they often carry a number-like
-// token that the resolver would otherwise mis-assign to a real card (e.g. a "Darkrai V
-// Star Premium Collection" box → the Darkrai card, a "Funko POP Espeon" → the Espeon
-// card). Phrases are specific so they don't reject real card names: "Aaron's Collection"
-// survives (only "premium/figure/elite … collection" is rejected); "Tinkaton" survives
-// (\btin\b is word-bounded); "Battle VIP Pass" survives (only "battle deck" is rejected).
+// a broad card-game collection mixes these in with singles, and they often carry a
+// number-like token that the resolver would otherwise mis-assign to a real card (e.g.
+// a "One Piece Premium Card Collection" box, a "Funko POP Luffy" figure). Phrases are
+// specific so they don't reject real card names: "Aaron's Collection" survives (only
+// "premium/figure/elite … collection" is rejected); "Tinkaton"-style names survive
+// (\btin\b is word-bounded); "Battle VIP Pass" survives (only "battle deck" is rejected);
+// singles from the real set "Premium Booster -The Best-" survive ("booster" alone is
+// NOT rejected, only "booster box/pack/case" — a bare set-name mention isn't sealed).
 export const NON_CARD =
-  /\b(funko|pop!?\s*(?:vinyl|games)|plush|action\s*figure|portfolio|binder|sleeves?|toploaders?|top\s?loader|playmat|deck\s?box|card\s?case|storage\s*(?:box|case)|booster|\betb\b|elite\s*trainer|premium\s*collection|super[\s-]*premium|figure\s*collection|special\s*collection|collection\s*box|gift\s*(?:box|set)|\btin\b|\bbox\b|display|blister|battle\s*deck|theme\s*deck|starter\s*(?:deck|set)|build[\s&-]*battle|precon|pin\s*(?:badge|collection)|keychain|key\s?ring|lanyard|poster|sticker|\bmug\b|mouse\s?pad|booster\s*pack)\b/i;
-
-// A promo printing shares the base card's collector number, so a listing is only a
-// promo when its title says so. These markers route a listing to the promo card and
-// keep it out of the base card's price.
-export const PROMO_HINT = /\bpromo\b|promotional|pre-?release|gg\s*ez|organi[sz]ed\s*play|nexus\s*night|judge\s*promo/i;
-const PROMO_WORDS = /\b(promo|promotional|pre-?release|gg\s*ez|organi[sz]ed\s*play|nexus\s*night|judge)\b/gi;
+  /\b(funko|pop!?\s*(?:vinyl|games)|plush|action\s*figure|portfolio|binder|sleeves?|toploaders?|top\s?loader|playmat|deck\s?box|card\s?case|storage\s*(?:box|case)|booster\s*(?:box|pack|case)|premium\s*collection|super[\s-]*premium|figure\s*collection|special\s*collection|collection\s*box|gift\s*(?:box|set)|\btin\b|\bbox\b|display|blister|battle\s*deck|theme\s*deck|starter\s*(?:deck|set)|precon|pin\s*(?:badge|collection)|keychain|key\s?ring|lanyard|poster|sticker|\bmug\b|mouse\s?pad)\b/i;
 
 // Many TCG stores list a card with condition variants (Near Mint, Lightly Played,
 // …). Picking the absolute cheapest variant records a played/damaged copy's price,
@@ -198,7 +153,7 @@ export async function discoverOnePieceCollections(base: string): Promise<string[
       const h = m[1];
       // Require a One Piece signal in the handle, and skip sealed/accessory
       // collections and image URLs. "singles" alone qualifies a One Piece-named store.
-      if (/pok[eé]mon|pkmn/i.test(h) && !NON_SINGLE.test(h) && !/\.(jpe?g|png|gif|webp|svg)$/i.test(h)) {
+      if (/one[-_]?piece|\bopcg\b|(?:^|[-_])op(?:cg)?(?:[-_]|$)/i.test(h) && !NON_SINGLE.test(h) && !/\.(jpe?g|png|gif|webp|svg)$/i.test(h)) {
         handles.add(h);
       }
     }
@@ -353,33 +308,6 @@ async function verifyCheapestListings(): Promise<number> {
   return corrected;
 }
 
-// How the daily eBay budget is split across marketplaces, as percentage weights.
-// Override via EBAY_MARKET_WEIGHTS, e.g. "AU:50,US:30,GB:20". The catalogue
-// (20k+ cards) is far bigger than the daily budget, so without an explicit split
-// the first market ate every call and the others never ran.
-function ebayMarketWeights(): Record<string, number> {
-  const def: Record<string, number> = { AU: 40, US: 35, GB: 25 };
-  const raw = process.env.EBAY_MARKET_WEIGHTS;
-  if (!raw) return def;
-  const out: Record<string, number> = {};
-  for (const part of raw.split(",")) {
-    const [cc, w] = part.split(":").map((s) => s.trim());
-    const n = Number(w);
-    if (cc && Number.isFinite(n) && n > 0) out[cc.toUpperCase()] = n;
-  }
-  return Object.keys(out).length ? out : def;
-}
-
-// A search whose listing dates from before this is "stale" and due a refresh.
-const EBAY_STALE_MS = (Number(process.env.EBAY_STALE_HOURS) || 72) * 60 * 60 * 1000;
-// eBay rows not re-confirmed within this window are dead weight (the listing has
-// almost certainly ended) — pruned so an ancient price can't sit in the comparison.
-const EBAY_ROW_TTL_MS = (Number(process.env.EBAY_ROW_TTL_DAYS) || 21) * 24 * 60 * 60 * 1000;
-// Share of each market's budget always spent on the TOP-demand cards (even if
-// fresh), so chase cards stay near-daily fresh while the rest of the budget
-// rotates through the stale long tail.
-const EBAY_HOT_SHARE = Math.min(0.9, Math.max(0, Number(process.env.EBAY_HOT_SHARE ?? 0.25)));
-
 // eBay singles sourcing removed: OPCompare uses no eBay API at all. eBay
 // remains a destination via plain EPN-tagged SEARCH links (lib/affiliate.ts),
 // which need no API key and no daily quota.
@@ -392,34 +320,35 @@ export interface MatchCard { id: string; name: string; setName: string | null; c
 // set name ("Obsidian Flames"); the set CODE almost never appears. So we match on
 // number + name, using the set name to disambiguate when several cards share a number
 // (rare cross-set collisions on equal set sizes). Pure + exported so it's unit-tested.
-export function buildPokemonResolver(cards: MatchCard[]): (title: string) => string | null {
-  interface IdxCard { id: string; nameToks: string[]; setToks: string[]; total: number }
-  const byKey = new Map<string, IdxCard[]>(); // "num/total"
-  const byNum = new Map<number, IdxCard[]>(); // num
+export function buildCardResolver(cards: MatchCard[]): (title: string) => string | null {
+  interface IdxCard { id: string; nameToks: string[]; setToks: string[]; setCode: string | null }
+  const byKey = new Map<string, IdxCard[]>(); // "SETCODE-NUM", e.g. "OP01-25"
+  const byNum = new Map<number, IdxCard[]>(); // NUM alone (no recognisable set code in the title)
   const byName = new Map<string, IdxCard[]>(); // primary name token
   const push = (m: Map<any, IdxCard[]>, k: any, v: IdxCard) => {
     const arr = m.get(k);
     if (arr) arr.push(v);
     else m.set(k, [v]);
   };
-  const cardNum = (cn: string): { num: number; total: number } | null => {
-    const m = cn.match(/(\d+)\s*\/\s*(\d+)/);
-    if (m) return { num: parseInt(m[1], 10), total: parseInt(m[2], 10) };
+  // Our own collectorNumber is always "SETCODE-NUM" (e.g. "OP01-025", "P-001"),
+  // never Pokémon's bare "num/total" — pull the set code and the number out of it.
+  const cardNum = (cn: string): { num: number; setCode: string | null } | null => {
+    const m = cn.match(/^([A-Za-z]+\d*)-(\d+)/);
+    if (m) return { num: parseInt(m[2], 10), setCode: m[1].toUpperCase() };
     const m2 = cn.match(/(\d+)/);
-    return m2 ? { num: parseInt(m2[1], 10), total: 0 } : null;
+    return m2 ? { num: parseInt(m2[1], 10), setCode: null } : null;
   };
-  // Generic set-name words shared across many sets ("Legendary Collection",
-  // "Radiant Collection", "Classic Collection", "EX Deoxys"…). Excluded from set
-  // matching so a single common word like "collection" or "ex" can't link a listing
-  // to the wrong set (a Radiant Collection listing was matching Legendary Collection).
-  const SET_GENERIC = new Set(["collection", "set", "ex", "gx", "series", "edition", "tcg"]);
+  // Generic set-name words shared across many sets ("Starter Deck", "Booster Pack"…).
+  // Excluded from set matching so a single common word can't link a listing to the
+  // wrong set.
+  const SET_GENERIC = new Set(["collection", "set", "series", "edition", "tcg", "starter", "booster", "deck"]);
   for (const c of cards) {
     const nameToks = tokenize(c.name);
     if (!nameToks.length) continue;
     const d = cardNum(c.collectorNumber);
-    const ic: IdxCard = { id: c.id, nameToks, setToks: tokenize(c.setName || "").filter((s) => !SET_GENERIC.has(s)), total: d?.total ?? 0 };
+    const ic: IdxCard = { id: c.id, nameToks, setToks: tokenize(c.setName || "").filter((s) => !SET_GENERIC.has(s)), setCode: d?.setCode ?? null };
     if (d) {
-      if (d.total) push(byKey, `${d.num}/${d.total}`, ic);
+      if (d.setCode) push(byKey, `${d.setCode}-${d.num}`, ic);
       push(byNum, d.num, ic);
     }
     push(byName, nameToks[0], ic);
@@ -439,51 +368,33 @@ export function buildPokemonResolver(cards: MatchCard[]): (title: string) => str
     const fullNameOk = (c: IdxCard) => c.nameToks.every((x) => ptokset.has(x));
     const setOk = (c: IdxCard) => c.setToks.some((s) => ptokset.has(s));
 
-    // Celebrations / Classic Collection reprints reuse the ORIGINAL card's number in
-    // store titles (e.g. "Charizard 4/102 [Celebrations: Classic Collection]"), which
-    // would otherwise match — and mis-price — the genuine vintage Base Set card. Route
-    // such listings strictly to the reprint card by name + reprint set; if we don't
-    // hold that reprint, don't match at all (never pollute the original).
-    if (/classic collection|celebration/i.test(t)) {
-      for (const tok of ptoks) {
-        const cands = byName.get(tok);
-        if (!cands) continue;
-        const hit = cands.find((c) => fullNameOk(c) && /celebration|classic/.test(c.setToks.join(" ")));
+    // 1) SETCODE-NUMBER in the listing title, e.g. "OP01-025", "OP01 025" — the most
+    // precise signal a One Piece listing can carry, since the set code alone already
+    // identifies the set (unlike Pokémon's bare n/total). Still never assign on the
+    // number alone — the name must also appear in the title.
+    const withSet = t.match(/\b((?:OP|EB|ST|PRB|P)\d{0,2})[\s-]+(\d{2,3})\b/i);
+    if (withSet) {
+      const setCode = withSet[1].toUpperCase();
+      const num = parseInt(withSet[2], 10);
+      const exact = byKey.get(`${setCode}-${num}`);
+      if (exact && exact.length) {
+        const hit = exact.find((c) => fullNameOk(c)) ?? exact.find((c) => nameOk(c));
         if (hit) return hit.id;
       }
-      return null;
     }
 
-    const m = t.match(/(\d+)\s*\/\s*(\d+)/);
-    if (m) {
-      const num = parseInt(m[1], 10);
-      const total = parseInt(m[2], 10);
-      // 1) exact number + set size: the most precise key — BUT the card name must also
-      // appear in the title. Many different cards share a number across sets (e.g.
-      // "N 96/108" vs "Salamence ex 96/108", "Tarountula 079/078" vs "Mewtwo VSTAR
-      // 79/78"), so never assign on number alone — that recorded a wrong card's price.
-      const exact = byKey.get(`${num}/${total}`);
-      if (exact && exact.length) {
-        const hit =
-          exact.find((c) => setOk(c) && fullNameOk(c)) ??
-          exact.find((c) => setOk(c) && nameOk(c)) ??
-          exact.find(fullNameOk) ??
-          exact.find(nameOk);
-        if (hit) return hit.id;
-      }
-      // 2) same number (set size differs/omitted): require the name to line up. The
-      // set-name match is trusted across totals; the name-only fallback additionally
-      // requires the printed TOTAL to be compatible, so a wrong-set listing whose title
-      // happens to contain a same-numbered card's name can't grab it (e.g. a
-      // "Rocket's Admin (CLB) (031/032) … Blastoise" listing was matching Blastoise
-      // 31/149 — total 32 vs 149 are different sets).
-      const totalOk = (c: IdxCard) => c.total <= 0 || total <= 0 || c.total === total || Math.abs(c.total - total) <= 5;
+    // 2) a bare 2-3 digit card number with no recognisable set-code prefix: require
+    // BOTH the set name and the full card name to line up before trusting it — a
+    // standalone number is otherwise far too common across the catalogue to trust
+    // alone (many different cards share a number across sets).
+    const bareNum = t.match(/\b(\d{2,3})\b/);
+    if (bareNum) {
+      const num = parseInt(bareNum[1], 10);
       const same = byNum.get(num);
       if (same && same.length) {
         const hit =
           same.find((c) => setOk(c) && fullNameOk(c)) ??
-          same.find((c) => setOk(c) && nameOk(c)) ??
-          same.find((c) => fullNameOk(c) && totalOk(c));
+          same.find((c) => setOk(c) && nameOk(c));
         if (hit) return hit.id;
       }
     }
@@ -503,7 +414,7 @@ export async function importPrices(): Promise<ImportSummary> {
   const cards = await prisma.card.findMany({
     select: { id: true, name: true, setName: true, collectorNumber: true },
   });
-  const resolve = buildPokemonResolver(cards);
+  const resolve = buildCardResolver(cards);
   const resolveCardId = (p: ShopifyProduct): string | null => resolve(p.title);
 
   const summary: ImportSummary = { stores: [], totalMatched: 0, totalUnmatched: 0, cardsPriced: 0 };
@@ -522,7 +433,7 @@ export async function importPrices(): Promise<ImportSummary> {
     // Only fall back to handles configured in retailers.ts if discovery finds nothing,
     // and never scrape a non-One Piece (e.g. legacy "riftbound") handle.
     let handles = await discoverOnePieceCollections(store.base);
-    if (!handles.length) handles = (store.collections ?? []).filter((h) => /pok[eé]mon|pkmn/i.test(h));
+    if (!handles.length) handles = (store.collections ?? []).filter((h) => /one[-_]?piece|\bopcg\b|(?:^|[-_])op(?:cg)?(?:[-_]|$)/i.test(h));
 
     const products: ShopifyProduct[] = [];
     const seen = new Set<string>();
