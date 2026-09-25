@@ -47,14 +47,17 @@ export const SUBSIDIARIES: Subsidiary[] = [
   {
     key: "dexcompare",
     name: "DexCompare",
-    vertical: "Pokémon TCG",
-    tagline: "Every Pokémon card & sealed product, priced across TCGplayer, Troll and Toad, UK stores & more.",
-    url: "http://localhost:3003",
+    vertical: "Pokémon TCG sealed",
+    tagline: "Pokémon booster boxes, ETBs & sealed product — stock and prices compared across independent stores.",
+    url: "https://dexcompare.com",
     db: "dexcompare",
-    accent: "#ee1515",
+    accent: "#e3350d",
     status: "live",
-    region: "AU · NZ · US · UK",
+    region: "AU · US · UK · CA · NZ · EU · SG",
     emoji: "🔴",
+    // Rebuilt as apps/dexcompare-sealed with a different schema: the hub's
+    // Card/RetailerPrice counts don't apply to it, so it's linked, not queried.
+    external: true,
   },
   {
     key: "mtgcompare",

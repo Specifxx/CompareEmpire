@@ -1,0 +1,97 @@
+name: DexCompare sealed import
+
+# Reads every store in apps/dexcompare-sealed/src/data/stores.json, replaces the
+# current listings in the DexCompare database, emails restock alerts, then asks
+# the live site to re-render its cached pages. Twice a day. No eBay API calls:
+# no eBay credentials are passed to this job at all.
+#
+# Secrets (Settings → Secrets and variables → Actions):
+#   DEXCOMPARE_SEALED_DATABASE_URL   required. Neon DIRECT connection string
+#                                    (the host WITHOUT "-pooler").
+#   DEXCOMPARE_REVALIDATE_SECRET     optional. Same value as REVALIDATE_SECRET in
+#                                    Vercel; without it pages refresh within 24h.
+#   RESEND_API_KEY, DEXCOMPARE_EMAIL_FROM   optional. Restock alert emails.
+# Variable (same page, "Variables" tab):
+#   DEXCOMPARE_SITE_URL              e.g. https://dexcompare.com
+#
+# A NEW secret name on purpose: the paused workflows from the old singles app
+# (refresh-dexcompare-prices.yml, seed-dexcompare-fresh.yml, …) read
+# DEXCOMPARE_DATABASE_URL and some of them reset the database they point at.
+
+on:
+  schedule:
+    # 20:47 UTC ≈ early morning in Australia/NZ; 08:47 UTC ≈ Europe's morning.
+    - cron: "47 20 * * *"
+    - cron: "47 8 * * *"
+  workflow_dispatch:
+    inputs:
+      only:
+        description: "Only these stores or markets, comma-separated (e.g. AU or pokebox,cherry). Blank = all."
+        required: false
+        default: ""
+
+concurrency:
+  group: dexcompare-sealed-import
+  cancel-in-progress: false
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: apps/dexcompare-sealed
+    steps:
+      - name: Check the database secret
+        id: db
+        working-directory: .
+        env:
+          URL: ${{ secrets.DEXCOMPARE_SEALED_DATABASE_URL }}
+        run: |
+          if [ -z "$URL" ]; then
+            echo "DEXCOMPARE_SEALED_DATABASE_URL is not set — nothing to import into." >> "$GITHUB_STEP_SUMMARY"
+            echo "found=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.db.outputs.found == 'true'
+
+      - uses: actions/setup-node@v4
+        if: steps.db.outputs.found == 'true'
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: apps/dexcompare-sealed/package-lock.json
+
+      - name: Install
+        if: steps.db.outputs.found == 'true'
+        run: npm ci --no-audit --no-fund
+
+      - name: Sync the schema
+        if: steps.db.outputs.found == 'true'
+        env:
+          DATABASE_URL: ${{ secrets.DEXCOMPARE_SEALED_DATABASE_URL }}
+        # No --accept-data-loss: a schema change that would drop data fails
+        # here, loudly, instead of quietly deleting it.
+        run: npx prisma db push --skip-generate && npx prisma generate
+
+      - name: Import
+        if: steps.db.outputs.found == 'true'
+        env:
+          DATABASE_URL: ${{ secrets.DEXCOMPARE_SEALED_DATABASE_URL }}
+          REVALIDATE_SECRET: ${{ secrets.DEXCOMPARE_REVALIDATE_SECRET }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          EMAIL_FROM: ${{ secrets.DEXCOMPARE_EMAIL_FROM }}
+          NEXT_PUBLIC_SITE_URL: ${{ vars.DEXCOMPARE_SITE_URL || 'https://dexcompare.com' }}
+          ONLY: ${{ inputs.only }}
+        # Three stores at a time: Shopify throttles by IP across all of its
+        # storefronts, and a runner reading ten at once gets 429s from stores
+        # it has barely touched.
+        run: |
+          if [ -n "$ONLY" ]; then
+            npx tsx scripts/import.ts --concurrency 3 --only "$ONLY"
+          else
+            npx tsx scripts/import.ts --concurrency 3
+          fi
