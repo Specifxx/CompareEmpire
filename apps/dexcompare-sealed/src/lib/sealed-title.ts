@@ -379,7 +379,7 @@ export function cleanName(title: string): string {
     .replace(/^\s*(?:tcg|ptcg)\s*[:\-–—|]\s*/i, "")
     // A leading set code or series name: "(SV4.5) …", "ME02 - …", "Scarlet & Violet - …".
     .replace(/^\s*[([]?\s*(?:me|sv|swsh|sm|xy)\s*-?\s*\d{1,2}(?:\.\d|pt\d)?\s*[)\]]?\s*[:\-–—|]?\s*/i, "")
-    .replace(/^\s*(?:scarlet\s*(?:&|and)\s*violet|sword\s*(?:&|and)\s*shield|sun\s*(?:&|and)\s*moon|mega\s*evolution|xy)\s*(?:\d{1,2}(?:\.\d)?)?\s*[:\-–—|]\s*/i, "")
+    .replace(/^\s*(?:scarlet\s*(?:&|and)\s*violet|sword\s*(?:&|and)\s*shield|sun\s*(?:&|and)\s*moon|mega\s*evolution|xy)\s*(?:(?:me|sv|swsh|sm|xy)?\s*-?\s*\d{1,2}(?:\.\d)?)?\s*[:\-–—|]\s*/i, "")
     .replace(/\s*[([]\s*(?:english|eng|en|sealed|new)\s*[)\]]\s*/gi, " ")
     .replace(/\s*[([][^)\]]*(?:pre-?order|release|ships?|eta|limit|arriv)[^)\]]*[)\]]\s*/gi, " ")
     .replace(/\s*[-–—|:]\s*(?:english|sealed|pre-?order|new)\s*$/i, "")

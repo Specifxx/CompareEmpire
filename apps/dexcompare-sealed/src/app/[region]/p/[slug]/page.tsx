@@ -99,7 +99,7 @@ export default async function ProductPage({ params }: { params: { region: Region
         ]}
       />
 
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
         <div className="card relative flex aspect-square items-center justify-center overflow-hidden bg-raised lg:sticky lg:top-24">
           {p.imageUrl ? (
             <img src={thumb(p.imageUrl, 900)!} alt={p.name} className="absolute inset-0 h-full w-full object-contain p-8" />

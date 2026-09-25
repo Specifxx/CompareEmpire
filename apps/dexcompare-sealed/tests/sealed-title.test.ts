@@ -179,3 +179,9 @@ test("store filler and English-edition markers don't split a product", () => {
   assert.equal(key("Pokémon Collezione Coppia Mega Charizard (ITA)"), "REJECT:foreign");
   assert.equal(key("Pokémon Lata Mega Charizard ex"), "REJECT:foreign");
 });
+
+test("a series name followed by a set code is also dropped from names", () => {
+  const id = identify("Mega Evolution ME03: Perfect Order Checklane - Makuhita");
+  assert.ok(isIdentity(id));
+  assert.equal(id.name, "Perfect Order Checklane - Makuhita");
+});
