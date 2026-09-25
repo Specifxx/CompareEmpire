@@ -49,7 +49,7 @@ export const SUBSIDIARIES: Subsidiary[] = [
     name: "DexCompare",
     vertical: "Pokémon TCG sealed",
     tagline: "Pokémon booster boxes, ETBs & sealed product — stock and prices compared across independent stores.",
-    url: "https://dexcompare.com",
+    url: "https://dexcompare.app",
     db: "dexcompare",
     accent: "#e3350d",
     status: "live",

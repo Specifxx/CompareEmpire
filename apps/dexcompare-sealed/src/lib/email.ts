@@ -3,7 +3,7 @@
 // state untouched, so nothing is lost while email isn't configured.
 import { SITE_NAME, SITE_URL } from "./site";
 
-const FROM = process.env.EMAIL_FROM || `${SITE_NAME} <alerts@dexcompare.com>`;
+const FROM = process.env.EMAIL_FROM || `${SITE_NAME} <alerts@dexcompare.app>`;
 
 export function emailEnabled(): boolean {
   return !!process.env.RESEND_API_KEY;

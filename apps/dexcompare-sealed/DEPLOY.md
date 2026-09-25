@@ -32,9 +32,9 @@ Repo **Specifxx/CompareEmpire** → Settings → Secrets and variables → Actio
 | `DEXCOMPARE_SEALED_DATABASE_URL` | the Neon **direct** string |
 | `DEXCOMPARE_REVALIDATE_SECRET` | a long random string — generate with `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`. Keep it for step 4. |
 | `RESEND_API_KEY` | optional now; needed for restock emails (step 6) |
-| `DEXCOMPARE_EMAIL_FROM` | optional; e.g. `DexCompare <alerts@dexcompare.com>` |
+| `DEXCOMPARE_EMAIL_FROM` | optional; e.g. `DexCompare <alerts@dexcompare.app>` |
 
-**Variables** tab: `DEXCOMPARE_SITE_URL` = `https://dexcompare.com`.
+**Variables** tab: `DEXCOMPARE_SITE_URL` = `https://dexcompare.app`.
 
 > Use the new secret name. The old singles app's paused workflows read
 > `DEXCOMPARE_DATABASE_URL`, and some of them reset the database they point at.
@@ -64,7 +64,7 @@ In the existing **dexcompare** project (or a new one importing
    | Name | Value |
    | --- | --- |
    | `DATABASE_URL` | the Neon **pooled** string |
-   | `NEXT_PUBLIC_SITE_URL` | `https://dexcompare.com` |
+   | `NEXT_PUBLIC_SITE_URL` | `https://dexcompare.app` |
    | `REVALIDATE_SECRET` | the same value as `DEXCOMPARE_REVALIDATE_SECRET` |
    | `RESEND_API_KEY`, `EMAIL_FROM` | optional — confirmation email on first alert signup |
 
@@ -87,34 +87,36 @@ Step for that one deploy.
 
 Vercel project → Settings → **Domains**:
 
-1. Add `dexcompare.com` and `www.dexcompare.com` (follow Vercel's DNS
-   instructions at your registrar). Make `dexcompare.com` the primary.
-2. Add `dexcompare.app` and set it to **Redirect to `dexcompare.com`
-   (308 permanent)**; the same for `www.dexcompare.app`.
+1. Add `dexcompare.app` and make it the primary. The old DexCompare project
+   may already have it; if so, just confirm it's attached to this project.
+2. Add `www.dexcompare.app` set to **Redirect to `dexcompare.app`
+   (308 permanent)**.
+3. Follow Vercel's DNS instructions at your registrar if it shows any.
+   `.app` domains are HTTPS-only (HSTS-preloaded), which Vercel handles.
 
 Old URLs like `/sealed`, `/sets/<set>` and `/stores` redirect to the Australian
 pages; old single-card pages return 404 so Google drops them.
 
 ## 6. Restock emails (Resend)
 
-1. [resend.com](https://resend.com) → Domains → add `dexcompare.com`, add the
+1. [resend.com](https://resend.com) → Domains → add `dexcompare.app`, add the
    DNS records it shows, wait for "Verified".
 2. API Keys → create one with "Sending access" → put it in GitHub
    (`RESEND_API_KEY`) and Vercel (`RESEND_API_KEY`), with
-   `EMAIL_FROM` / `DEXCOMPARE_EMAIL_FROM` = `DexCompare <alerts@dexcompare.com>`.
+   `EMAIL_FROM` / `DEXCOMPARE_EMAIL_FROM` = `DexCompare <alerts@dexcompare.app>`.
 
 Until this is done, signups are saved and nothing is lost: alerts that come
 due simply wait, and go out on the first import after the key is set.
 
 ## 7. Search Console
 
-Add the `dexcompare.com` property (DNS verification, or set
+Add the `dexcompare.app` property (DNS verification, or set
 `GOOGLE_SITE_VERIFICATION` in Vercel to the HTML-tag token and redeploy), then
-submit `https://dexcompare.com/sitemap.xml`.
+submit `https://dexcompare.app/sitemap.xml`.
 
 ## Checking it works
 
-- `https://dexcompare.com/au` shows products, "Last checked" a few minutes/hours ago.
+- `https://dexcompare.app/au` shows products, "Last checked" a few minutes/hours ago.
 - A product page lists stores with *In stock* / *Sold out* and "checked … ago".
 - Sign up for an alert on a sold-out product → a row appears in Neon's
   `RestockAlert` table (Neon → Tables).
