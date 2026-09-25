@@ -126,8 +126,35 @@ const OTHER_GAME =
 // Not English. CJK script anywhere, a language word, or a bracketed language
 // code ("(JP)", "[DE]"). Bare two-letter codes are only trusted in brackets or
 // after a dash at the end — "IT" and "ES" are also English words.
-const FOREIGN =
-  /[\u3040-\u30ff\u3400-\u9fff\uac00-\ud7af\u0e00-\u0e7f]|\b(japanese|japan|jpn|korean|kor|chinese|chn|chs|cht|simplified|traditional|mandarin|cantonese|jp|kr|cn|thai|indonesian|german|deutsch|deutsche|french|francais|italian|italiano|spanish|espanol|portuguese|portugues|dutch|nederlands|polish|polski|asia|asian)\b|[([](?:jp|jpn|kr|kor|cn|sc|tc|th|id|de|ger|fr|fra|it|ita|es|spa|pt|nl|pl)[)\]]|\s-\s*(?:jp|jpn|kr|cn|de|fr|it|es|pt|nl|pl)\s*$/i;
+const FOREIGN = new RegExp(
+  [
+    // CJK / Thai script anywhere.
+    "[\\u3040-\\u30ff\\u3400-\\u9fff\\uac00-\\ud7af\\u0e00-\\u0e7f]",
+    // The language named in English, French, German, Italian, Spanish or Dutch
+    // (EU stores name the edition in their own language: "Japonais",
+    // "Koreanisch", "Vereinfachtes Chinesisch", "giapponese").
+    "\\b(?:japanese|japan|jpn|jap|japonais|japonaise|japanisch|japanische[nrs]?|giapponese|japones|japons|japans|japanse" +
+      "|korean|kor|coreen|coreenne|koreanisch|koreanische[nrs]?|coreano|koreaans" +
+      "|chinese|chn|chs|cht|chinois|chinoise|chinesisch|chinesische[nrs]?|cinese|chino|chinees|vereinfacht\\w*|simplified|traditional|traditionnel|mandarin|cantonese" +
+      "|thai|indonesian|indonesisch" +
+      "|german|deutsch\\w*|allemand|tedesco|aleman|duits" +
+      "|french|francais|francaise|franzosisch\\w*|francese|frances|frans|vf" +
+      "|italian|italiano|italiana|italienisch\\w*|italien|italiaans" +
+      "|spanish|espanol|castellano|spanisch\\w*|espagnol|spagnolo|spaans" +
+      "|portuguese|portugues|dutch|nederlands|niederlandisch\\w*|polish|polski|asia|asian|jp|kr|cn)\\b",
+    // A language code in brackets, or after a dash at the end: "(JAP)", "[DE]", "- FR".
+    "[(\\[]\\s*(?:jp|jpn|jap|kr|kor|cn|sc|tc|th|id|de|ger|dt|fr|fra|it|ita|es|spa|pt|nl|pl)\\s*[)\\]]",
+    "\\s-\\s*(?:jp|jpn|jap|kr|cn|de|fr|it|es|pt|nl|pl)\\s*$",
+    // Japanese set codes (English sets are "SV4.5", never "SV4a"): SV2A, SV11B, M6A, S12a.
+    "\\b(?:sv|s|m|sm)\\d{1,2}[a-z]\\b",
+    // Asia-only product lines.
+    "\\bslim\\b|\\bgem\\s*packs?\\b|\\bmid-?\\s*autumn\\b",
+    // Other languages' product words: a German "Kollektion", a French "coffret",
+    // an Italian "buste" is that language's edition, whatever set name it quotes.
+    "\\b(?:kollektion|sammelkartenspiel|kampf\\s*-?\\s*deck|kampfdeck|karten|sammlung|sammelkoffer|koffer|coffret|dresseur|boite|buste|bustine|mazzo|collezione|coppia|scatola|destino|ita|sobres?|caja|lata|mazo|coleccion|verzameldoos)\\b",
+  ].join("|"),
+  "i",
+);
 
 // Singles, slabs and anything that isn't a factory-sealed product.
 const NOT_SEALED =
@@ -270,7 +297,9 @@ const NOISE = new Set(
     "dated in stock instock limited edition series sv swsh sm xy me promo promos exclusive au us uk nz ca eu sg australian " +
     "version ver wave restock item items collection collections premium special tin tins blister blisters booster boosters " +
     "pack packs deck decks kit display factory retail genuine authentic sale free shipping ship ships only each piece pcs " +
-    "includes including contains featuring feat ft tcgp store online available now coming soon assorted random varies various design designs styles style choice two three four bundle"
+    "includes including contains featuring feat ft tcgp store online available now coming soon assorted random varies various design designs styles style choice two three four bundle " +
+    // English-edition markers in several languages, and store filler.
+    "english anglais englisch ingles inglese engels single x1 1x pick choose your or at br"
   ).split(" "),
 );
 // Kept: they distinguish real products (mini tin ≠ tin, checklane ≠ 3-pack,

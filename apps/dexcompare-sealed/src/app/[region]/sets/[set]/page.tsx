@@ -1,11 +1,12 @@
 import { notFound } from "next/navigation";
+import { cache } from "react";
 import type { Metadata } from "next";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { ProductGrid } from "@/components/ProductCard";
 import { Empty, Section } from "@/components/Section";
 import { productsBySet } from "@/lib/data";
 import { formatRelease, isPreorderSet } from "@/lib/release";
-import { REGIONS, type Region } from "@/lib/regions";
+import { REGIONS, type Market, type Region } from "@/lib/regions";
 import { pageMeta, regionAlternates } from "@/lib/seo";
 import { SET_BY_SLUG } from "@/lib/sets";
 
@@ -15,16 +16,20 @@ export function generateStaticParams() {
   return [];
 }
 
-export function generateMetadata({ params }: { params: { region: Region; set: string } }): Metadata {
+const getProducts = cache((market: Market, setCode: string) => productsBySet(market, setCode));
+
+export async function generateMetadata({ params }: { params: { region: Region; set: string } }): Promise<Metadata> {
   const r = REGIONS[params.region];
   const s = SET_BY_SLUG.get(params.set);
   if (!r || !s) return {};
+  const products = await getProducts(r.market, s.code);
   return pageMeta({
     title: `${s.name} booster box, ETB & sealed prices in ${r.name}`,
     description: `Compare ${s.name} booster boxes, Elite Trainer Boxes, bundles and more across ${r.adjective} stores — who has it in stock and the cheapest price in ${r.currency}.`,
     path: `/${r.region}/sets/${s.slug}`,
     alternates: regionAlternates(r.region, `/sets/${s.slug}`),
     image: s.logo,
+    noindex: products.length === 0,
   });
 }
 
@@ -32,7 +37,7 @@ export default async function SetPage({ params }: { params: { region: Region; se
   const r = REGIONS[params.region];
   const s = SET_BY_SLUG.get(params.set);
   if (!s) notFound();
-  const products = await productsBySet(r.market, s.code);
+  const products = await getProducts(r.market, s.code);
   const pre = isPreorderSet(s.code);
   const open = products.filter((p) => p.inStockStores > 0);
   return (

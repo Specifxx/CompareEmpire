@@ -55,9 +55,17 @@ export function sortCards(cards: ProductCardData[]): ProductCardData[] {
   });
 }
 
-/** Every product any store in the market lists (the browse page's data set). */
+/**
+ * Worth a page in the index / a tile on the browse page: something you can buy
+ * now, or something at least two stores carry (so there's a comparison to make).
+ * A one-store, sold-out listing is still a product page (for restock alerts),
+ * reachable from its set and store — just not in the browse grid or sitemap.
+ */
+export const COMPARABLE = { OR: [{ inStockStores: { gt: 0 } }, { listedStores: { gte: 2 } }] };
+
+/** The browse page's data set: every comparable product in the market. */
 export async function marketProducts(market: Market): Promise<ProductCardData[]> {
-  const rows = await prisma.productStat.findMany({ where: { market, listedStores: { gt: 0 } }, select: cardSelect });
+  const rows = await prisma.productStat.findMany({ where: { market, ...COMPARABLE }, select: cardSelect });
   return rows.map(toCard);
 }
 
@@ -275,10 +283,21 @@ export async function relatedProducts(market: Market, setCode: string, excludeSl
   return sortCards(rows.map(toCard)).slice(0, take);
 }
 
+/** Which product types each market lists (sitemap: no links to empty type pages). */
+export async function typesByMarket(): Promise<Map<string, Set<string>>> {
+  // GROUP BY in SQL: Prisma's `distinct` dedupes client-side after fetching every row.
+  const rows = await prisma.$queryRaw<{ market: string; productType: string }[]>`
+    SELECT s."market", p."productType" FROM "ProductStat" s JOIN "Product" p ON p."id" = s."productId"
+    WHERE s."listedStores" > 0 GROUP BY 1, 2`;
+  const out = new Map<string, Set<string>>();
+  for (const r of rows) (out.get(r.market) ?? out.set(r.market, new Set()).get(r.market)!).add(r.productType);
+  return out;
+}
+
 /** Everything the sitemap lists: products with a store listing, per market. */
 export async function sitemapEntries(): Promise<{ market: string; slug: string }[]> {
   const rows = await prisma.productStat.findMany({
-    where: { listedStores: { gt: 0 } },
+    where: COMPARABLE,
     select: { market: true, product: { select: { slug: true } } },
   });
   return rows.map((r) => ({ market: r.market, slug: r.product.slug }));

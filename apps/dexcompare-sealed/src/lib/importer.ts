@@ -54,11 +54,23 @@ export interface StoreRead {
 
 const MAX_PAGES = 8; // per collection: 2,000 products
 const OFFER_TTL_DAYS = 14; // an offer not re-read for this long is deleted
-const LOW_OUTLIER = 0.4; // in-stock price below 40% of its product's market median is a mislisting
+// An in-stock price below 25% of the product's IN-STOCK median in that market
+// is a mislisting (a pack filed as a box, a deposit variant). Not tighter: for
+// out-of-print sets, one store selling old stock at the original price next to
+// others asking collector prices is real, and it's the deal people want.
+const LOW_OUTLIER = 0.25;
+
+// A variant that is several of the product ("Display (10)", "Case of 6",
+// "3 x", "Booster Box" on a pack listing) — stores sell singles and multiples
+// as options of one listing, and the multiple's price is not the product's.
+const MULTI_VARIANT = /\bdisplays?\b|\bcases?\b|\bbox\s*of\b|\bsets?\s*of\b|\bbundle\b|\blot\b|\bbooster\s*box\b|\b(?:[2-9]|[1-9]\d)\s*x\b|\bx\s*(?:[2-9]|[1-9]\d)\b|\b(?:[2-9]|[1-9]\d)\s*(?:packs?|tins?|boxes|units?|pcs|pieces)\b|\bfull\s*(?:set|case)\b|\ball\s*\d/i;
 
 /** Pick the price a product lists at: the cheapest orderable variant at or above the floor. */
 export function priceOf(p: FeedProduct, floor: number): { priceCents: number; inStock: boolean } | null {
-  const priced = p.variants.filter((v) => v.priceCents > 0);
+  // With several options, drop the multi-unit ones. A single variant is the
+  // product itself, whatever its (often "Default Title") name says.
+  const single = p.variants.length > 1 ? p.variants.filter((v) => !v.title || !MULTI_VARIANT.test(v.title)) : p.variants;
+  const priced = single.filter((v) => v.priceCents > 0);
   if (!priced.length) return null;
   const avail = priced.filter((v) => v.available);
   const inStock = avail.length > 0;
@@ -160,6 +172,7 @@ export function dropLowOutliers(reads: StoreRead[]): number {
   const prices = new Map<string, number[]>();
   for (const r of reads)
     for (const row of r.rows) {
+      if (!row.inStock) continue; // sold-out asks aren't a market
       const k = `${r.store.market}|${row.identity.groupKey}`;
       (prices.get(k) ?? prices.set(k, []).get(k)!).push(row.priceCents);
     }
@@ -173,7 +186,7 @@ export function dropLowOutliers(reads: StoreRead[]): number {
   for (const r of reads) {
     r.rows = r.rows.filter((row) => {
       const m = median.get(`${r.store.market}|${row.identity.groupKey}`);
-      if (m != null && row.priceCents < m * LOW_OUTLIER) {
+      if (m != null && row.inStock && row.priceCents < m * LOW_OUTLIER) {
         dropped++;
         console.warn(`  outlier dropped: ${r.store.key} "${row.title}" ${row.priceCents} vs median ${m}`);
         return false;

@@ -19,6 +19,18 @@ test("price: cheapest AVAILABLE variant, never a sub-floor deposit variant", () 
   assert.equal(priceOf(prod("c", "x", [[500, true]]), 10500), null);
 });
 
+test("price: a multi-unit option is never the product's price", () => {
+  const tin = prod("t", "Pokemon 30th Celebration Mini Tin", []);
+  tin.variants = [
+    { priceCents: 2995, available: false, title: "Single Tin" },
+    { priceCents: 27999, available: true, title: "Display (10 Tins)" },
+  ];
+  assert.deepEqual(priceOf(tin, 600), { priceCents: 2995, inStock: false });
+  const one = prod("o", "Pokemon Surging Sparks Booster Box", []);
+  one.variants = [{ priceCents: 26995, available: true, title: "Default Title" }];
+  assert.deepEqual(priceOf(one, 10500), { priceCents: 26995, inStock: true });
+});
+
 test("a store keeps its best listing per product: in stock beats cheaper-but-sold-out", () => {
   const rows = rowsFromReads(store, [
     {
@@ -52,11 +64,14 @@ test("in-stock listings far below the market median are dropped", () => {
     products: 1,
     rediscovered: false,
     ms: 0,
-    rows: rowsFromReads({ ...store, key }, [{ handle: "pokemon", ok: true, products: [prod("p", "Pokemon Surging Sparks Booster Box", [[price, true]])] }]),
+    rows: rowsFromReads({ ...store, key }, [{ handle: "pokemon", ok: true, products: [prod("p", "Pokemon Charizard Ultra-Premium Collection", [[price, true]])] }]),
   });
-  const reads = [mk("a", 26995), mk("b", 27995), mk("c", 28995), mk("d", 10995)];
+  // A$89.95 against A$600+ for the same UPC: a mislisting. A$299.95 is a big
+  // discount, but stores do sell old stock at old prices, so it stays.
+  const reads = [mk("a", 59995), mk("b", 61995), mk("c", 64995), mk("d", 8995), mk("e", 29995)];
   assert.equal(dropLowOutliers(reads), 1);
   assert.equal(reads[3].rows.length, 0);
+  assert.equal(reads[4].rows.length, 1);
 });
 
 test("stock states: stale rows are unknown and never the headline", () => {

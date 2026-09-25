@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { sitemapEntries } from "@/lib/data";
+import { setCounts, sitemapEntries, typesByMarket } from "@/lib/data";
 import { REGION_LIST, regionOfMarket } from "@/lib/regions";
 import { PRODUCT_TYPES } from "@/lib/sealed-title";
 import { SETS } from "@/lib/sets";
@@ -21,8 +21,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     out.push({ url: `${base}/sealed`, changeFrequency: "daily", priority: 0.8 });
     out.push({ url: `${base}/sets`, changeFrequency: "weekly", priority: 0.6 });
     out.push({ url: `${base}/stores`, changeFrequency: "weekly", priority: 0.5 });
-    for (const t of PRODUCT_TYPES) out.push({ url: `${base}/type/${t.slug}`, changeFrequency: "daily", priority: 0.7 });
-    for (const s of SETS.slice(0, 40)) out.push({ url: `${base}/sets/${s.slug}`, changeFrequency: "daily", priority: 0.6 });
+  }
+  // Type and set pages only where the region's stores list something.
+  try {
+    const types = await typesByMarket();
+    for (const r of REGION_LIST) {
+      for (const t of PRODUCT_TYPES) {
+        if (types.get(r.market)?.has(t.label)) out.push({ url: `${SITE_URL}/${r.region}/type/${t.slug}`, changeFrequency: "daily", priority: 0.7 });
+      }
+      const counts = await setCounts(r.market);
+      for (const s of SETS) if (counts.has(s.code)) out.push({ url: `${SITE_URL}/${r.region}/sets/${s.slug}`, changeFrequency: "daily", priority: 0.6 });
+    }
+  } catch (e) {
+    console.warn("sitemap: set list unavailable:", (e as Error).message);
   }
   for (const s of STORES) {
     const r = regionOfMarket(s.market);

@@ -10,6 +10,7 @@ import { decodeEntities } from "./sealed-title";
 export interface FeedVariant {
   priceCents: number;
   available: boolean;
+  title?: string; // Shopify variant title: "Default Title", "Single Tin", "Display (10)", …
 }
 
 export interface FeedProduct {
@@ -32,6 +33,7 @@ export interface CollectionRead {
 interface ShopifyVariantRaw {
   price?: string;
   available?: boolean;
+  title?: string;
 }
 interface ShopifyProductRaw {
   handle: string;
@@ -68,7 +70,7 @@ export async function readShopifyCollection(
         url: `${base}/products/${p.handle}`,
         imageUrl: p.images?.[0]?.src ?? null,
         variants: (p.variants ?? [])
-          .map((v) => ({ priceCents: Math.round(parseFloat(v.price ?? "0") * 100), available: v.available === true }))
+          .map((v) => ({ priceCents: Math.round(parseFloat(v.price ?? "0") * 100), available: v.available === true, title: v.title }))
           .filter((v) => Number.isFinite(v.priceCents) && v.priceCents > 0),
         currency: null,
       });

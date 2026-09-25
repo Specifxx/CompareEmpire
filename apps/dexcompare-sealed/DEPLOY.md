@@ -44,7 +44,8 @@ Repo **Specifxx/CompareEmpire** → Settings → Secrets and variables → Actio
 1. Merge the `claude/peaceful-euler-bplz47` branch into `main`. GitHub only
    runs **scheduled** workflows from the default branch.
 2. Actions → **DexCompare sealed import** → **Run workflow** (branch `main`,
-   leave "only" blank). The first run creates the tables and reads every store.
+   leave "only" blank). The first run creates the tables and reads every store
+   (about 20 minutes).
    The job summary shows stores read, offers per region, and any store that
    failed (its rows are simply kept until the next run).
 3. After that it runs by itself at 20:47 and 08:47 UTC.
@@ -76,7 +77,11 @@ In the existing **dexcompare** project (or a new one importing
 
 The old app's Vercel crons (price alerts, newsletter) disappear with this
 deploy: the new `vercel.json` defines none. Its `ignoreCommand` skips builds
-for pushes that don't touch `apps/dexcompare-sealed`.
+for pushes that don't touch `apps/dexcompare-sealed` (every production build
+empties the page cache, so unrelated pushes shouldn't trigger one). If a
+deploy shows **"Canceled by Ignored Build Step"** when you wanted it, push any
+change under `apps/dexcompare-sealed`, or clear Settings → Git → Ignored Build
+Step for that one deploy.
 
 ## 5. Domains
 
@@ -119,10 +124,11 @@ submit `https://dexcompare.com/sitemap.xml`.
 
 ## Costs and limits to know
 
-- **GitHub Actions**: a full import takes roughly 15–25 minutes (≈250 stores,
-  three at a time). Twice a day is about 1,000–1,500 minutes a month — inside
-  the 2,000 free minutes of a private repo, but it's the biggest user of them.
-  Change the two `cron:` lines in `.github/workflows/dexcompare-sealed-import.yml`
-  to run once a day if you need the minutes back.
+- **GitHub Actions**: a full import of the 344 stores took 18 minutes in
+  testing (three stores at a time, to stay under Shopify's rate limits).
+  `Specifxx/CompareEmpire` is a public repository, so standard runner minutes
+  are free. If the repo is ever made private, twice a day is ~2,000+ minutes a
+  month — change the two `cron:` lines in
+  `.github/workflows/dexcompare-sealed-import.yml` to one.
 - **No eBay API**: eBay appears only as tagged search links (campaign
   5339155912). Nothing here can spend Rift Compare's eBay quota.

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { ProductCardData } from "@/lib/data";
+import { expandCard, type CompactCard } from "@/lib/compact";
 import { PRODUCT_TYPES, typeRank } from "@/lib/sealed-title";
 import { SETS } from "@/lib/sets";
 import type { Region } from "@/lib/regions";
@@ -18,7 +19,8 @@ function norm(s: string): string {
 // be shared, but they're read AFTER hydration, not through useSearchParams: the
 // cached HTML then always holds the full, unfiltered list for crawlers,
 // instead of a loading fallback.
-export function BrowseGrid({ products, region }: { products: ProductCardData[]; region: Region }) {
+export function BrowseGrid({ rows, region }: { rows: CompactCard[]; region: Region }) {
+  const products = useMemo(() => rows.map(expandCard), [rows]);
   const [q, setQ] = useState("");
   const [type, setType] = useState("");
   const [set, setSet] = useState("");

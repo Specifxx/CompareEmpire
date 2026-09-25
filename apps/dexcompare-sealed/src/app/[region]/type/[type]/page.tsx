@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { cache } from "react";
 import type { Metadata } from "next";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { ProductGrid } from "@/components/ProductCard";
 import { Empty, Section } from "@/components/Section";
 import { productsByType } from "@/lib/data";
 import { money } from "@/lib/format";
-import { REGIONS, type Region } from "@/lib/regions";
+import { REGIONS, type Market, type Region } from "@/lib/regions";
 import { PRODUCT_TYPES, TYPE_BY_SLUG } from "@/lib/sealed-title";
 import { pageMeta, regionAlternates } from "@/lib/seo";
 
@@ -36,15 +37,19 @@ const ABOUT: Record<string, string> = {
   "booster-bundle-cases": "A sealed case of booster bundles.",
 };
 
-export function generateMetadata({ params }: { params: { region: Region; type: string } }): Metadata {
+const getProducts = cache((market: Market, typeLabel: string) => productsByType(market, typeLabel));
+
+export async function generateMetadata({ params }: { params: { region: Region; type: string } }): Promise<Metadata> {
   const r = REGIONS[params.region];
   const t = TYPE_BY_SLUG.get(params.type);
   if (!r || !t) return {};
+  const products = await getProducts(r.market, t.label);
   return pageMeta({
     title: `Pokémon ${t.plural} — prices & stock in ${r.name}`,
     description: `Every Pokémon TCG ${t.label.toLowerCase()} ${r.adjective} stores list, with who has it in stock and the cheapest price in ${r.currency}. Restock alerts included.`,
     path: `/${r.region}/type/${t.slug}`,
     alternates: regionAlternates(r.region, `/type/${t.slug}`),
+    noindex: products.length === 0,
   });
 }
 
@@ -52,7 +57,7 @@ export default async function TypePage({ params }: { params: { region: Region; t
   const r = REGIONS[params.region];
   const t = TYPE_BY_SLUG.get(params.type);
   if (!t) notFound();
-  const products = await productsByType(r.market, t.label);
+  const products = await getProducts(r.market, t.label);
   const open = products.filter((p) => p.inStockStores > 0);
   const sold = products.filter((p) => p.inStockStores === 0);
   return (

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { BrowseGrid } from "@/components/BrowseGrid";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { marketProducts, sortCards } from "@/lib/data";
+import { compactCard } from "@/lib/compact";
 import { REGIONS, type Region } from "@/lib/regions";
 import { pageMeta, regionAlternates } from "@/lib/seo";
 import { storesInMarket } from "@/lib/stores";
@@ -31,7 +32,7 @@ export default async function SealedPage({ params }: { params: { region: Region 
         exclude shipping.
       </p>
       <div className="mt-6">
-        <BrowseGrid products={products} region={r.region} />
+        <BrowseGrid rows={products.map(compactCard)} region={r.region} />
       </div>
     </div>
   );

@@ -54,7 +54,7 @@ export const SETS: PokemonSet[] = [
   {"code":"swsh12pt5","name":"Crown Zenith","slug":"crown-zenith","series":"Sword & Shield","releaseDate":"2023-01-20","logo":"https://images.pokemontcg.io/swsh12pt5/logo.png"},
   {"code":"swsh12","name":"Silver Tempest","slug":"silver-tempest","series":"Sword & Shield","releaseDate":"2022-11-11","logo":"https://images.pokemontcg.io/swsh12/logo.png"},
   {"code":"swsh11","name":"Lost Origin","slug":"lost-origin","series":"Sword & Shield","releaseDate":"2022-09-09","logo":"https://images.pokemontcg.io/swsh11/logo.png"},
-  {"code":"pgo","name":"Pokémon GO","slug":"pok-mon-go","series":"Sword & Shield","releaseDate":"2022-07-01","logo":"https://images.pokemontcg.io/pgo/logo.png"},
+  {"code":"pgo","name":"Pokémon GO","slug":"pokemon-go","series":"Sword & Shield","releaseDate":"2022-07-01","logo":"https://images.pokemontcg.io/pgo/logo.png"},
   {"code":"swsh10","name":"Astral Radiance","slug":"astral-radiance","series":"Sword & Shield","releaseDate":"2022-05-27","logo":"https://images.pokemontcg.io/swsh10/logo.png"},
   {"code":"swsh9","name":"Brilliant Stars","slug":"brilliant-stars","series":"Sword & Shield","releaseDate":"2022-02-25","logo":"https://images.pokemontcg.io/swsh9/logo.png"},
   {"code":"swsh8","name":"Fusion Strike","slug":"fusion-strike","series":"Sword & Shield","releaseDate":"2021-11-12","logo":"https://images.pokemontcg.io/swsh8/logo.png"},

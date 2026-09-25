@@ -46,8 +46,9 @@ export async function generateMetadata({ params }: { params: { region: Region; s
     path: `/${r.region}/p/${p.slug}`,
     alternates: regionAlternates(r.region, `/p/${p.slug}`),
     image: p.imageUrl,
-    // A region no store lists it in is a thin page: keep it for alerts, out of the index.
-    noindex: p.offers.length === 0,
+    // Thin pages stay out of the index but keep working for alerts: nothing to
+    // compare (one store, sold out) or nothing listed in this region at all.
+    noindex: open.length === 0 && p.offers.length < 2,
   });
 }
 

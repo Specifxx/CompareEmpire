@@ -147,3 +147,35 @@ test("collection names drop the series prefix stores add", () => {
   assert.ok(isIdentity(c));
   assert.equal(c.name, "Paldean Fates Tech Sticker Blister Collection");
 });
+
+test("EU stores' other-language editions are refused (titles from the 2026-09-25 probe)", () => {
+  for (const t of [
+    "Display Black Bolt - SV11B - Japonais",
+    "Display Pokémon 151 - SV2A - Japonais",
+    "Pokémon: White Flare (sv11W) Booster / Display (Koreanisch)",
+    "Pokémon: Pikachu V-Union Box (Vereinfachtes Chinesisch)",
+    "Pokémon: 30th Celebration (30th C) Booster / Display (Vereinfachtes Chinesisch)",
+    "Pokemon ex Kampf Deck - Ampharos ex - Deutsches Sammelkartenspiel",
+    "Pokémon Mega-Glurak X-ex Ultra-Premium-Kollektion",
+    "151 Display 20 Buste (JAP)",
+    // An English edition, but titled in Italian: its set can't be read, so it's
+    // refused rather than guessed.
+    "Avventure Insieme: Blister da 3 Buste Scrafty (ENG)",
+    "151: Journey Slim Booster",
+    "Pokemon Surging Sparks Elite Trainer Box VF",
+  ]) {
+    assert.equal(key(t), "REJECT:foreign", t);
+  }
+  // English editions in the same shops still pass.
+  assert.equal(key("Pokémon: Pitch Black Booster Bundle (Englisch)"), "me5|booster-bundle");
+  assert.equal(key("Paradox Rift Booster Pack"), "sv4|booster-pack");
+  assert.equal(key("Pokemon Surging Sparks Display (EN)"), "sv8|booster-box");
+});
+
+test("store filler and English-edition markers don't split a product", () => {
+  assert.equal(key("Pokemon Mega Charizard Tin (Englisch)"), key("Pokémon TCG: Mega Charizard Tin"));
+  assert.equal(key("Mega Charizard Tin - Single"), key("Mega Charizard Tin"));
+  assert.equal(key("Pokemon Mega Charizard Tin - Anglais"), key("Mega Charizard Tin"));
+  assert.equal(key("Pokémon Collezione Coppia Mega Charizard (ITA)"), "REJECT:foreign");
+  assert.equal(key("Pokémon Lata Mega Charizard ex"), "REJECT:foreign");
+});
