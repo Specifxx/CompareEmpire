@@ -8,7 +8,7 @@ Tailwind), tuned to its vertical.
 | --- | --- | --- | --- |
 | **CompareEmpire** (hub) | `apps/hub` | 3000 | Tracks all subsidiaries with live counts |
 | **CameraCompare** | `apps/cameracompare` | 3002 | Cameras, across **AU · US · UK** |
-| **DexCompare** | `apps/dexcompare` | 3003 | Pokémon TCG — **all 20,324 cards** across 173 sets, markets **AU · NZ · US · UK** |
+| **DexCompare** | `apps/dexcompare-sealed` | 3003 | Pokémon TCG **sealed only** — booster boxes, ETBs, bundles, collections, tins — stock & prices across independent stores in **AU · US · UK · CA · NZ · EU · SG**. See [its README](apps/dexcompare-sealed/README.md) and [deploy guide](apps/dexcompare-sealed/DEPLOY.md). |
 | **CarCompare** | `apps/carcompare` | 3004 | New cars (72 models, 18 makes), across **AU · US · UK** |
 | **PhoneCompare** | `apps/phonecompare` | 3005 | Smartphones (33 models, 9 brands), across **AU · US · UK** |
 | **LaptopCompare** | `apps/laptopcompare` | 3006 | Laptops (32 models, 10 brands), across **AU · US · UK** |
@@ -72,6 +72,11 @@ npm run dev                  # or run one: npm run dev:phonecompare
 ```
 
 ### DexCompare data
+
+> **Retired.** DexCompare was rebuilt as a sealed-only site in
+> `apps/dexcompare-sealed` (no singles, no price history, no eBay API). The
+> section below describes the old singles app in `apps/dexcompare`, which is
+> kept for reference and no longer deployed.
 
 The exhaustive Pokémon catalogue is built from the open
 [`PokemonTCG/pokemon-tcg-data`](https://github.com/PokemonTCG/pokemon-tcg-data)

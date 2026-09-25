@@ -6,7 +6,7 @@ The monorepo deploys as separate Vercel projects from one repo. Current sites:
 | --- | --- | --- |
 | compareempire (hub) | `apps/hub` | — (reads the others) |
 | cameracompare | `apps/cameracompare` | `cameracompare` |
-| dexcompare | `apps/dexcompare` | `dexcompare` |
+| dexcompare | `apps/dexcompare-sealed` | its own Neon project — see [apps/dexcompare-sealed/DEPLOY.md](apps/dexcompare-sealed/DEPLOY.md) |
 | carcompare | `apps/carcompare` | `carcompare` |
 | phonecompare | `apps/phonecompare` | `phonecompare` |
 | laptopcompare | `apps/laptopcompare` | `laptopcompare` |
