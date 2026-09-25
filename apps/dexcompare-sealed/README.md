@@ -3,7 +3,7 @@
 Pokémon TCG **sealed product** — booster boxes, Elite Trainer Boxes, booster
 bundles, collections, tins, blisters, decks and packs — compared across
 independent stores in seven regions (AU, US, UK, CA, NZ, EU, SG), with live
-stock and restock alerts.
+stock.
 
 This replaces the old singles-focused DexCompare in `apps/dexcompare` (20k
 cards, price history, eBay Browse API, marketplace, forum). That app is left in
@@ -17,14 +17,12 @@ place untouched; nothing deploys from it once the Vercel project points here.
   (in stock, set not yet released), *Sold out*, or *Not checked recently* (the
   store couldn't be read for 72h). The headline "from" price is only ever an
   orderable listing. (Ported from Rift Compare's `sealed-offers.ts`.)
-- **Restock alerts** by email, no account: sign up on any product; one email
-  when a store in your region has it again, re-armed when it sells out.
 - **Earns** through eBay Partner Network *search links* on every product page.
   There are **no eBay API calls** anywhere, and no eBay credentials.
 
 ## What this site does not store
 
-No price history, no stock history, no event log, no accounts. Every table is
+No price history, no stock history, no event log, no accounts, no emails. Every table is
 current state only (`prisma/schema.prisma`):
 
 | Table | Holds |
@@ -33,7 +31,6 @@ current state only (`prisma/schema.prisma`):
 | `Offer` | each store's current listing of a product |
 | `ProductStat` | per product × region: cheapest open price, stores in stock (recomputed each import) |
 | `StoreStat` | per store: listings, in stock, last successful read |
-| `RestockAlert` | email + product + region, and whether we've emailed for the current restock |
 
 ## How it works
 
@@ -46,7 +43,6 @@ GitHub Actions (twice a day)               Vercel (Next.js 14, ISR)
        │    identify() every title          ← POST /api/revalidate
        │    replaces that store's offers
        │    recomputes ProductStat
-       ├─ src/lib/restock-alerts.ts (Resend)
        └─ POST /api/revalidate
 ```
 

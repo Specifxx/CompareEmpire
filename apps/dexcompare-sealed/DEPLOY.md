@@ -31,8 +31,6 @@ Repo **Specifxx/CompareEmpire** → Settings → Secrets and variables → Actio
 | --- | --- |
 | `DEXCOMPARE_SEALED_DATABASE_URL` | the Neon **direct** string |
 | `DEXCOMPARE_REVALIDATE_SECRET` | a long random string — generate with `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`. Keep it for step 4. |
-| `RESEND_API_KEY` | optional now; needed for restock emails (step 6) |
-| `DEXCOMPARE_EMAIL_FROM` | optional; e.g. `DexCompare <alerts@dexcompare.app>` |
 
 **Variables** tab: `DEXCOMPARE_SITE_URL` = `https://dexcompare.app`.
 
@@ -66,11 +64,10 @@ In the existing **dexcompare** project (or a new one importing
    | `DATABASE_URL` | the Neon **pooled** string |
    | `NEXT_PUBLIC_SITE_URL` | `https://dexcompare.app` |
    | `REVALIDATE_SECRET` | the same value as `DEXCOMPARE_REVALIDATE_SECRET` |
-   | `RESEND_API_KEY`, `EMAIL_FROM` | optional — confirmation email on first alert signup |
 
    **Delete** the old app's variables: the old `DATABASE_URL` (a dead Neon
    project), `EBAY_CLIENT_ID`, `EBAY_CLIENT_SECRET`, `ANTHROPIC_API_KEY`,
-   `GEMINI_API_KEY`, `AUTH_SECRET`, `CRON_SECRET`, `NEXT_PUBLIC_HILLTOPADS_SRC`, …
+   `GEMINI_API_KEY`, `RESEND_API_KEY`, `EMAIL_FROM`, `AUTH_SECRET`, `CRON_SECRET`, `NEXT_PUBLIC_HILLTOPADS_SRC`, …
    None are used any more.
 4. Deployments → **Redeploy** the latest `main` commit (untick "use existing
    build cache"). The build does not need the database to be filled.
@@ -97,18 +94,7 @@ Vercel project → Settings → **Domains**:
 Old URLs like `/sealed`, `/sets/<set>` and `/stores` redirect to the Australian
 pages; old single-card pages return 404 so Google drops them.
 
-## 6. Restock emails (Resend)
-
-1. [resend.com](https://resend.com) → Domains → add `dexcompare.app`, add the
-   DNS records it shows, wait for "Verified".
-2. API Keys → create one with "Sending access" → put it in GitHub
-   (`RESEND_API_KEY`) and Vercel (`RESEND_API_KEY`), with
-   `EMAIL_FROM` / `DEXCOMPARE_EMAIL_FROM` = `DexCompare <alerts@dexcompare.app>`.
-
-Until this is done, signups are saved and nothing is lost: alerts that come
-due simply wait, and go out on the first import after the key is set.
-
-## 7. Search Console
+## 6. Search Console
 
 Add the `dexcompare.app` property (DNS verification, or set
 `GOOGLE_SITE_VERIFICATION` in Vercel to the HTML-tag token and redeploy), then
@@ -118,8 +104,6 @@ submit `https://dexcompare.app/sitemap.xml`.
 
 - `https://dexcompare.app/au` shows products, "Last checked" a few minutes/hours ago.
 - A product page lists stores with *In stock* / *Sold out* and "checked … ago".
-- Sign up for an alert on a sold-out product → a row appears in Neon's
-  `RestockAlert` table (Neon → Tables).
 - Neon → Monitoring → **Network transfer**: expect a small fraction of the
   5 GB allowance; each import reads well under 10 MB, and each page render
   reads only its own product or region.

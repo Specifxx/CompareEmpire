@@ -1,8 +1,8 @@
 name: DexCompare sealed import
 
 # Reads every store in apps/dexcompare-sealed/src/data/stores.json, replaces the
-# current listings in the DexCompare database, emails restock alerts, then asks
-# the live site to re-render its cached pages. Twice a day. No eBay API calls:
+# current listings in the DexCompare database, then asks the live site to
+# re-render its cached pages. Twice a day. No eBay API calls:
 # no eBay credentials are passed to this job at all.
 #
 # Secrets (Settings → Secrets and variables → Actions):
@@ -10,7 +10,6 @@ name: DexCompare sealed import
 #                                    (the host WITHOUT "-pooler").
 #   DEXCOMPARE_REVALIDATE_SECRET     optional. Same value as REVALIDATE_SECRET in
 #                                    Vercel; without it pages refresh within 24h.
-#   RESEND_API_KEY, DEXCOMPARE_EMAIL_FROM   optional. Restock alert emails.
 # Variable (same page, "Variables" tab):
 #   DEXCOMPARE_SITE_URL              e.g. https://dexcompare.app
 #
@@ -82,8 +81,6 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DEXCOMPARE_SEALED_DATABASE_URL }}
           REVALIDATE_SECRET: ${{ secrets.DEXCOMPARE_REVALIDATE_SECRET }}
-          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
-          EMAIL_FROM: ${{ secrets.DEXCOMPARE_EMAIL_FROM }}
           NEXT_PUBLIC_SITE_URL: ${{ vars.DEXCOMPARE_SITE_URL || 'https://dexcompare.app' }}
           ONLY: ${{ inputs.only }}
         # Three stores at a time: Shopify throttles by IP across all of its

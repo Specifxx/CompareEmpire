@@ -20,7 +20,7 @@ export function generateMetadata({ params }: { params: { region: Region } }): Me
   const n = storesInMarket(r.market).length;
   return pageMeta({
     title: `Pokémon sealed prices & stock in ${r.name}`,
-    description: `Compare Pokémon TCG booster boxes, Elite Trainer Boxes, bundles and collections across ${n} ${r.adjective} stores. Live stock, prices in ${r.currency}, and restock alerts.`,
+    description: `Compare Pokémon TCG booster boxes, Elite Trainer Boxes, bundles and collections across ${n} ${r.adjective} stores. Live stock and prices in ${r.currency}.`,
     path: `/${r.region}`,
     alternates: regionAlternates(r.region, ""),
   });
@@ -48,7 +48,7 @@ export default async function RegionHome({ params }: { params: { region: Region 
           </h1>
           <p className="mt-4 max-w-2xl text-lg leading-8 text-muted">
             Booster boxes, Elite Trainer Boxes, bundles and collections compared across {plural(storeCount, `${r.adjective} store`)}.
-            Stock is checked twice a day — set an alert and we&rsquo;ll email you when something restocks.
+            Stock and prices are checked twice a day.
           </p>
           <div className="mt-7 max-w-2xl">
             <SearchBox region={r.region} size="lg" />
@@ -154,7 +154,7 @@ export default async function RegionHome({ params }: { params: { region: Region 
           {[
             { n: "1", t: "We read the stores", d: `Twice a day we read the sealed Pokémon listings of ${plural(storeCount, `${r.adjective} store`)} — their own prices, in ${r.currency}.` },
             { n: "2", t: "You see who has it", d: "Every product lists every store: in stock or sold out, and when we last checked. The cheapest in-stock price comes first." },
-            { n: "3", t: "Restocks come to you", d: "Sold out everywhere? Leave your email on the product and we’ll tell you when any store has it again. No account needed." },
+            { n: "3", t: "You buy from the store", d: "Click through to the store's own page and buy there. We don't sell anything and no store pays to rank higher." },
           ].map((s) => (
             <div key={s.n} className="card p-6">
               <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-soft font-display font-extrabold text-brand">{s.n}</div>

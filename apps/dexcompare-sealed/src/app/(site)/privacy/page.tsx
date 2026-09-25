@@ -12,13 +12,7 @@ export default function Privacy() {
     <div className="page max-w-3xl py-12">
       <h1 className="font-display text-4xl font-extrabold tracking-tight">Privacy</h1>
       <div className="prose-dex mt-6">
-        <p>DexCompare has no accounts and sets no advertising cookies. Here is everything we collect.</p>
-        <h2>Restock alerts</h2>
-        <p>
-          If you ask to be told when a product is back in stock, we store your email address, the product and region you chose, and when
-          we last emailed you about it. We use it only to send those alerts, through our email provider (Resend). Every email has a
-          one-click unsubscribe link that deletes all of your alerts. We never sell or share your address.
-        </p>
+        <p>DexCompare has no accounts, doesn&rsquo;t ask for your email, and sets no advertising cookies. Here is everything we collect.</p>
         <h2>Analytics</h2>
         <p>We use Vercel Web Analytics to count page views. It doesn&rsquo;t use cookies and doesn&rsquo;t identify you across sites.</p>
         <h2>Links to stores and eBay</h2>

@@ -277,10 +277,10 @@ async function writeOffers(reads: StoreRead[], ids: Map<string, string>, now: Da
     where: { OR: [{ store: { notIn: registered } }, { lastSeen: { lt: new Date(now.getTime() - OFFER_TTL_DAYS * 86400_000) } }] },
   });
   if (gone.count) console.log(`offers: pruned ${gone.count} stale or orphaned`);
-  // A product no store has listed for OFFER_TTL_DAYS and nobody is watching:
-  // its page would only say "not listed anywhere". It comes back (same slug) if
-  // a store lists it again. Also clears products a classifier change re-keyed.
-  const dead = await prisma.product.deleteMany({ where: { offers: { none: {} }, alerts: { none: {} } } });
+  // A product no store has listed for OFFER_TTL_DAYS: its page would only say
+  // "not listed anywhere". It comes back (same slug) if a store lists it again.
+  // Also clears products a classifier change re-keyed.
+  const dead = await prisma.product.deleteMany({ where: { offers: { none: {} } } });
   if (dead.count) console.log(`products: removed ${dead.count} no store lists`);
   return written;
 }

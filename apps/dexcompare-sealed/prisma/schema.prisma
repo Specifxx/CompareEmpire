@@ -1,9 +1,9 @@
 // DexCompare (sealed) — Pokémon TCG sealed products compared across stores.
 //
 // DELIBERATELY NO HISTORY. Every table holds the CURRENT state only: the latest
-// read of each store's listings, the per-market summary derived from them, and
-// who asked to be told about a restock. There is no price-history, no
-// restock-event log and no first-seen table. That keeps the database small and
+// read of each store's listings and the per-market summary derived from them.
+// There is no price history, no stock history and no first-seen table, and no
+// user data at all (no accounts, no emails). That keeps the database small and
 // flat (a few thousand rows, not millions), which is what keeps it inside
 // Neon's free tier. See README.md, "What this site does not store".
 
@@ -18,8 +18,8 @@ datasource db {
 
 // One sealed product, e.g. "Surging Sparks Elite Trainer Box". Market-agnostic:
 // the same product exists in every region, and each region's offers hang off it.
-// Rows are kept when every store sells out, so a product's URL keeps working
-// (and its restock alerts keep their target) between restocks.
+// Rows are kept while any store still lists the product (in stock or sold out),
+// so its URL keeps working between restocks.
 model Product {
   id          String   @id @default(cuid())
   // Identity from the title classifier (src/lib/sealed-title.ts): "<set>|<type>"
@@ -34,7 +34,6 @@ model Product {
 
   offers Offer[]
   stats  ProductStat[]
-  alerts RestockAlert[]
 
   @@index([setCode])
   @@index([productType])
@@ -92,26 +91,4 @@ model StoreStat {
   updatedAt  DateTime  @updatedAt
 
   @@index([market])
-}
-
-// "Email me when this is back in stock" — no account needed. notifiedAt is set
-// when we email for the CURRENT in-stock window and cleared once the product is
-// sold out everywhere in that market again, so the subscriber hears about the
-// next restock too. State, not a log.
-model RestockAlert {
-  id         String    @id @default(cuid())
-  email      String // lowercased + trimmed
-  productId  String
-  market     String
-  // Per-email secret shared by all of an address's alerts: one unsubscribe link
-  // removes everything for that address.
-  token      String
-  notifiedAt DateTime?
-  createdAt  DateTime  @default(now())
-
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-
-  @@unique([email, productId, market])
-  @@index([productId, market])
-  @@index([token])
 }

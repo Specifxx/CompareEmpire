@@ -18,7 +18,7 @@ export default function About() {
         <p>
           DexCompare compares Pokémon TCG <b>sealed product</b> — booster boxes, Elite Trainer Boxes, booster bundles, collections,
           tins, blisters and packs — across {STORES.length} independent stores in {REGION_LIST.length} regions. It does one job: show you
-          who has something in stock, who is cheapest, and tell you when a sold-out product comes back.
+          who has something in stock and who is cheapest.
         </p>
 
         <h2>Where the prices come from</h2>
@@ -49,8 +49,8 @@ export default function About() {
 
         <h2>What we don&rsquo;t keep</h2>
         <p>
-          DexCompare keeps no price history and no stock history — only what each store lists right now. For restock alerts we keep your
-          email address and the products you asked about, nothing else. See <Link href="/privacy">privacy</Link>.
+          DexCompare keeps no price history and no stock history — only what each store lists right now — and no data about you: no
+          accounts, no emails. See <Link href="/privacy">privacy</Link>.
         </p>
 
         <h2>How DexCompare makes money</h2>

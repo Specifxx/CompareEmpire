@@ -2,7 +2,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 import type { Metadata } from "next";
-import { AlertForm } from "@/components/AlertForm";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { OfferTable } from "@/components/OfferTable";
 import { ProductGrid } from "@/components/ProductCard";
@@ -38,16 +37,16 @@ export async function generateMetadata({ params }: { params: { region: Region; s
   const open = p.offers.filter((o) => offerStock(o) === "open");
   const cheapest = open[0];
   const desc = cheapest
-    ? `${p.name}: in stock at ${plural(open.length, `${r.adjective} store`)}, from ${money(cheapest.priceCents, r.market)}. Compare every store's price and stock, and get restock alerts.`
-    : `${p.name}: compare price and stock across ${r.adjective} stores, and get an email when it's back in stock.`;
+    ? `${p.name}: in stock at ${plural(open.length, `${r.adjective} store`)}, from ${money(cheapest.priceCents, r.market)}. Compare every store's price and stock.`
+    : `${p.name}: compare price and stock across ${r.adjective} stores.`;
   return pageMeta({
     title: `${p.name} — price & stock in ${r.name}`,
     description: desc,
     path: `/${r.region}/p/${p.slug}`,
     alternates: regionAlternates(r.region, `/p/${p.slug}`),
     image: p.imageUrl,
-    // Thin pages stay out of the index but keep working for alerts: nothing to
-    // compare (one store, sold out) or nothing listed in this region at all.
+    // Thin pages stay reachable but out of the index: nothing to compare (one
+    // store, sold out) or nothing listed in this region at all.
     noindex: open.length === 0 && p.offers.length < 2,
   });
 }
@@ -160,12 +159,8 @@ export default async function ProductPage({ params }: { params: { region: Region
                       : `No ${r.adjective} store we track lists this yet`}
                   </span>
                 </div>
-                <p className="mt-3 text-sm text-muted">Leave your email and we&rsquo;ll tell you when it&rsquo;s back.</p>
               </div>
             )}
-            <div className="mt-4">
-              <AlertForm productId={p.id} market={r.market} regionName={r.name} inStock={!!best} compact={!best} />
-            </div>
           </div>
 
           {r.ebayHost && (
@@ -190,7 +185,7 @@ export default async function ProductPage({ params }: { params: { region: Region
           <OfferTable offers={p.offers} market={r.market} preorder={pre} />
         ) : (
           <div className="card px-6 py-8 text-muted">
-            None of the {r.adjective} stores we track list {p.name} right now. Set an alert above and we&rsquo;ll email you when one does.
+            None of the {r.adjective} stores we track list {p.name} right now.
           </div>
         )}
         <p className="mt-3 text-xs leading-5 text-faint">

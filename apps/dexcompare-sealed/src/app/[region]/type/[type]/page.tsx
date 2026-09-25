@@ -46,7 +46,7 @@ export async function generateMetadata({ params }: { params: { region: Region; t
   const products = await getProducts(r.market, t.label);
   return pageMeta({
     title: `Pokémon ${t.plural} — prices & stock in ${r.name}`,
-    description: `Every Pokémon TCG ${t.label.toLowerCase()} ${r.adjective} stores list, with who has it in stock and the cheapest price in ${r.currency}. Restock alerts included.`,
+    description: `Every Pokémon TCG ${t.label.toLowerCase()} ${r.adjective} stores list, with who has it in stock and the cheapest price in ${r.currency}.`,
     path: `/${r.region}/type/${t.slug}`,
     alternates: regionAlternates(r.region, `/type/${t.slug}`),
     noindex: products.length === 0,
@@ -85,7 +85,7 @@ export default async function TypePage({ params }: { params: { region: Region; t
         {open.length ? <ProductGrid products={open} region={r.region} eager={4} /> : <Empty>Nothing of this type is in stock in {r.name} right now.</Empty>}
       </Section>
       {sold.length > 0 && (
-        <Section title="Sold out everywhere" kicker="Set an alert on any of these">
+        <Section title="Sold out everywhere" kicker="Listed, but no store has them right now">
           <ProductGrid products={sold.slice(0, 48)} region={r.region} />
         </Section>
       )}

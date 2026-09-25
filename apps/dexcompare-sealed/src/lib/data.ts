@@ -58,7 +58,7 @@ export function sortCards(cards: ProductCardData[]): ProductCardData[] {
 /**
  * Worth a page in the index / a tile on the browse page: something you can buy
  * now, or something at least two stores carry (so there's a comparison to make).
- * A one-store, sold-out listing is still a product page (for restock alerts),
+ * A one-store, sold-out listing still has a product page,
  * reachable from its set and store — just not in the browse grid or sitemap.
  */
 export const COMPARABLE = { OR: [{ inStockStores: { gt: 0 } }, { listedStores: { gte: 2 } }] };
