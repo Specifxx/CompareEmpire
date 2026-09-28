@@ -17,8 +17,26 @@ place untouched; nothing deploys from it once the Vercel project points here.
   (in stock, set not yet released), *Sold out*, or *Not checked recently* (the
   store couldn't be read for 72h). The headline "from" price is only ever an
   orderable listing. (Ported from Rift Compare's `sealed-offers.ts`.)
-- **Earns** through eBay Partner Network *search links* on every product page.
-  There are **no eBay API calls** anywhere, and no eBay credentials.
+- **Earns** through affiliate links, and only two kinds (`src/lib/affiliate.ts`):
+  - **eBay Partner Network** *search links* (Buy It Now, the region's eBay
+    site; NZ uses ebay.com.au, SG ebay.com). There are **no eBay API calls**
+    anywhere, and no eBay credentials.
+  - **TCGplayer via Impact**: every tcgplayer.com link is wrapped in the
+    partner deep link at render time; the database only holds plain URLs.
+    TCGplayer is a US marketplace: in the US its offer is compared with the
+    stores and ranked by price and stock like any store (badged
+    "Marketplace", never counted as a store); in other regions it appears only
+    in the product page's Marketplaces panel, labelled US$, and never in the
+    region's ranking, "from" price or JSON-LD.
+
+  Both carry a sub-id, `dex-<region>-<placement>` (EPN `customid`, Impact
+  `sharedid`), so the networks' reports say which surface earned. Placements:
+  `product-best`, `product-marketplace`, `product-soldout`, `product-table`,
+  `set-banner`, `type-banner`, `browse-empty`, `region-home`, `store-page`.
+  Store links go out untouched. Every group of affiliate links carries its own
+  disclosure, and every outbound buy link (`src/components/OutboundLink.tsx`)
+  records a Vercel `buy_click` event with `retailer` and `placement` — see
+  DEPLOY.md, "Click events".
 
 ## What this site does not store
 
@@ -29,7 +47,7 @@ current state only (`prisma/schema.prisma`):
 | --- | --- |
 | `Product` | one row per sealed product (market-agnostic) |
 | `Offer` | each store's current listing of a product |
-| `ProductStat` | per product × region: cheapest open price, stores in stock (recomputed each import) |
+| `ProductStat` | per product × region: cheapest open price (TCGplayer's included), independent stores in stock and listing it (never TCGplayer), and whether TCGplayer has it (`marketplaceOpen`) — recomputed each import |
 | `StoreStat` | per store: listings, in stock, last successful read |
 
 ## How it works

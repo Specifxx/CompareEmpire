@@ -83,14 +83,21 @@ export function typeRank(label: string): number {
 }
 
 // Rough units-per-USD, used ONLY to scale the per-type price floors into each
-// market's currency. Never used to show a price: every price on the site is
-// the store's own, in the store's own currency.
+// market's currency, and to size up a marketplace ask against other markets'
+// prices (roughUsdCents, the importer's placeholder check). Never used to show
+// a price: every price on the site is the store's own, in the store's own
+// currency.
 const FLOOR_FX: Record<string, number> = { AU: 1.5, NZ: 1.65, US: 1, UK: 0.78, CA: 1.37, EU: 0.9, SG: 1.3 };
 
 export function floorCents(type: TypeKey, market: string): number {
   const t = TYPE_BY_KEY.get(type);
   if (!t) return 0;
   return Math.round(t.floorUsdCents * (FLOOR_FX[market] ?? 1));
+}
+
+/** A price in a market's currency, very roughly in US cents. For comparisons only, never for display. */
+export function roughUsdCents(cents: number, market: string): number {
+  return cents / (FLOOR_FX[market] ?? 1);
 }
 
 // ── normalisation ────────────────────────────────────────────────────────────
@@ -168,9 +175,17 @@ const ACCESSORY =
 const BINDER = /\bbinder\b/i;
 
 // Store-made multiples ("3x Elite Trainer Box", "Booster Pack x5", "set of 4",
-// "combo"): priced for several units, so never comparable with one.
+// "combo"): priced for several units, so never comparable with one. TCGplayer
+// names them "[Set of 10]", "[Bundle of 2]" and "4 Mini Tins".
 const MULTIPLE =
-  /^\s*[2-9]\d?\s*x\b|\bx\s*[2-9]\d?\s*\)?\s*$|[([]\s*[2-9]\d?\s*x\s*[)\]]|[([]\s*x\s*[2-9]\d?\s*[)\]]|\bset\s*of\s*[2-9]|\blots?\s*of\b|\bbundle\s*deal\b|\bcombo\b|\bbulk\b|\bjob\s*lot\b|\bart\s*(?:bundle|set)\b/i;
+  /^\s*[2-9]\d?\s*x\b|\bx\s*[2-9]\d?\s*\)?\s*$|[([]\s*[2-9]\d?\s*x\s*[)\]]|[([]\s*x\s*[2-9]\d?\s*[)\]]|\b(?:set|bundle)\s*of\s*(?:[2-9]|[1-9]\d)|\b(?:[2-9]|1\d)\s*-?\s*(?:pack\s*)?(?:mini\s*)?tins\b|\btins\s*-?\s*(?:[2-9]|1\d)\s*-?\s*packs?\b|\blots?\s*of\b|\bbundle\s*deal\b|\bcombo\b|\bbulk\b|\bjob\s*lot\b|\bart\s*(?:bundle|set)\b/i;
+
+// A retailer's own edition or bundle of a set product ("Elite Trainer Box and
+// Pokeball (Sam's Club)", "Costco 2-Pack Trainer Box and Booster Bundle",
+// "(Dollar General Exclusive)"). A set product's identity is only set + type,
+// so without this it would be filed as the plain product at the bundle's price.
+const RETAIL_EDITION =
+  /\bcostco\b|\bsam'?s\s*club\b|\bdollar\s*general\b|\bwalmart\b|\btarget\b|\bgamestop\b|\bbest\s*buy\b|\bmeijer\b|\bwalgreens\b|\bkmart\b|\bretail\s*exclusive\b/i;
 
 // ── set detection ────────────────────────────────────────────────────────────
 
@@ -192,7 +207,7 @@ function nameRe(name: string): string {
 }
 
 const GENERIC_TAIL =
-  "(?=(?:\\s*(?:me|sv|swsh|sm)\\s*-?\\s*0?1\\b)?\\s*(?:[:|-]\\s*)?(?:base\\b|booster|elite|etb|trainer|build|sleeved|blister|checklane|two|three|\\d\\s*-?\\s*pack|packs?\\b|display|bundle|case|premium|collection|tin|mini|ultra|\\(|\\[|$))";
+  "(?=(?:\\s*(?:me|sv|swsh|sm)\\s*-?\\s*0?1\\b)?\\s*(?:[:|-]\\s*)?(?:base\\b|booster|elite|etb|trainer|build|sleeved|blister|checklane|two|three|\\d\\s*-?\\s*pack|packs?\\b|display|bundle|case|premium|collection|tin|mini|ultra|pokemon\\s*center\\s*(?:elite|etb)|\\(|\\[|$))";
 
 let MATCHERS: { specific: SetMatcher[]; generic: SetMatcher[] } | null = null;
 
@@ -242,7 +257,18 @@ export function classify(title: string): TypeKey | null {
 
   // Wholesale displays of small products (10 tins, 24 sleeved packs, …). Real
   // products, but priced per display, and rarely stocked by more than one store.
-  if (/\b(?:sleeved|blister|tin|tins|build\s*(?:&|and|n)?\s*battle|collection|checklane)\b[^|]*\b(?:display|case)\b/.test(t) && !etb && !bundle && !/booster\s*box/.test(t)) {
+  if (/\b(?:sleeved|blister|tin|tins|build\s*(?:&|and|n)?\s*battle|collection|checklane|decks?|pre-?release)\b[^|]*\b(?:display|case)\b/.test(t) && !etb && !bundle && !/booster\s*box/.test(t)) {
+    return null;
+  }
+  // A display of booster bundles, a case of those displays, a distributor's
+  // master carton: none is the set's bundle or its standard case.
+  if (/booster\s*bundles?\s*display|\bdisplay\s*(?:of\s*)?booster\s*bundles?|\bcartons?\b/.test(t)) return null;
+  // Two products in one listing ("Elite Trainer Box and Booster Bundle").
+  if (etb && bundle && !caseWord) return null;
+
+  // Promotional and miniature packs (Fun Packs, Mini Packs, McDonald's and
+  // cereal-box packs, POP Series): a few cards each, not the set's booster pack.
+  if (/\bfun\s*packs?\b|\bmini\s*(?:booster\s*)?packs?\b|\bpromo\s*(?:booster\s*)?packs?\b|\bpop\s*series\b|\bmcdonald'?s\b|\bgeneral\s*mills\b/.test(t)) {
     return null;
   }
 
@@ -250,13 +276,16 @@ export function classify(title: string): TypeKey | null {
   // set's real booster box, so they can't share its price.
   if (/\bhalf\s*(?:booster\s*)?(?:box|display)\b|\benhanced\s*(?:booster\s*)?(?:box|display)\b/.test(t)) return null;
 
+  // "Elite Trainer Box Plus" (more packs, a different price) and cases of
+  // Pokémon Center ETBs are not the plain ETB or its case.
+  const etbVariant = /\bplus\b/.test(t) ? "plus" : /pokemon\s*center|\bpc\b/.test(t) ? "pc" : null;
   if (caseWord) {
-    if (etb) return "etb-case";
+    if (etb) return etbVariant ? null : "etb-case";
     if (bundle) return "booster-bundle-case";
     if (box || /\bdisplay\b|booster\s*case/.test(t)) return "booster-box-case";
     return null;
   }
-  if (etb) return /pokemon\s*center|\bpc\b/.test(t) ? "pc-etb" : "etb";
+  if (etb) return etbVariant === "plus" ? null : etbVariant === "pc" ? "pc-etb" : "etb";
   if (box) return "booster-box";
   if (bundle) return "booster-bundle";
   if (/build\s*(?:&|and|n)?\s*battle\s*stadium/.test(t)) return "build-battle-stadium";
@@ -268,7 +297,8 @@ export function classify(title: string): TypeKey | null {
   if (/\bcollections?\b/.test(t)) return "collection";
   // "Sleeved Blister" is a sleeved booster on a blister card, not a 3-pack.
   if (/\bsleeved\b/.test(t)) return "sleeved-booster";
-  if (/\bblisters?\b|\bcheck\s*-?\s*lane\b|\b[23]\s*-?\s*(?:booster\s*)?packs?\b|\b(?:two|three)\s*-?\s*(?:booster\s*)?packs?\b/.test(t)) return "blister";
+  // ("Base Set 2 Booster Pack" is a pack of the set Base Set 2.)
+  if (/\bblisters?\b|\bcheck\s*-?\s*lane\b|(?<!\b(?:set|series)\s)\b[23]\s*-?\s*(?:booster\s*)?packs?\b|\b(?:two|three)\s*-?\s*(?:booster\s*)?packs?\b/.test(t)) return "blister";
   if (/battle\s*deck|league\s*battle|theme\s*deck|starter\s*deck|trainer\s*kit|battle\s*academy|world\s*championships?\s*deck|\bdecks?\b/.test(t)) return "deck";
   if (
     /\bcollections?\b|\bex\s*box\b|\bv\s*box\b|\bvmax\s*box\b|\bvstar\s*box\b|\bgx\s*box\b|premium\s*box|special\s*box|surprise\s*box|\bcalendar\b|trainer'?s\s*toolkit|gift\s*box|\bchest\b/.test(
@@ -305,6 +335,25 @@ const NOISE = new Set(
 // Kept: they distinguish real products (mini tin ≠ tin, checklane ≠ 3-pack,
 // super-premium ≠ premium, ex ≠ V).
 const KEEP_SHORT = new Set(["ex", "v", "gx", "mega", "mini", "super"]);
+
+// "Special Collection" is usually just a name: stores list the Morpeko V-UNION
+// Special Collection as "V-Union Box - Morpeko" too, so "special" is noise. But
+// these Pokémon were sold as BOTH a Special and a Premium Collection, at
+// different prices (TCGplayer lists both of each), so for them "Special
+// Collection" is part of the identity. Keys are the rest of the signature.
+const SPECIAL_AND_PREMIUM = new Set(["charizard-ex", "kleavor-vstar", "lucario-vstar", "pikachu-vmax"]);
+
+// Mega Charizard Y and Mega Mewtwo Y are different products from their X
+// forms. "y" marks the Y form only in a Charizard or Mewtwo title that names no
+// X ("Mega Charizard X & Y Tin", "X/Y", "(X & Y Assorted)" are the assorted
+// listing), since a lone "y" is also the Spanish "and" ("Cyrus y Klara") and
+// the "X & Y" series. X stays unmarked: a lone "x" is also a quantity, a collab
+// ("Re-Ment x Pokémon") or "Lv.X". ("XY Furious Fists … Mega Charizard Y" says
+// "xy", not "x", so it is still Y.)
+function megaY(t: string): boolean {
+  return /\b(?:charizard|mewtwo|glurak)\b/.test(t) && /\by\b/.test(t) && !/\bx\b/.test(t) && !/\b(?:assorted|random)\b/.test(t);
+}
+
 // Words that describe a KIND of product rather than which one it is. A title
 // whose only remaining words are these ("Pokémon Mini Tin", "Poster
 // Collection") could be any of a dozen products, so without a set it is too
@@ -313,12 +362,28 @@ const DESCRIPTORS = new Set(
   (
     "ex v gx vmax vstar mega mini super ultra stacking figure figures poster pin pins binder sticker stickers tech " +
     "surprise accessory pouch checklane holiday advent calendar toolkit trainer trainers gift chest battle league " +
-    "academy starter theme kit portfolio lunch"
+    "academy starter theme kit portfolio lunch special 1pack 2pack y"
   ).split(" "),
 );
 
-function signatureTokens(title: string, set: PokemonSet | null): string[] {
+function signatureTokens(title: string, set: PokemonSet | null, type: TypeKey): string[] {
   let t = normalizeTitle(title).toLowerCase();
+  // Markers read from the whole title, before its punctuation goes.
+  const markers: string[] = [];
+  // A blister's pack count when it isn't the usual three: a single-pack, a
+  // 2-pack and a 3-pack blister of the same Pokémon are three products. Both
+  // word orders: "Single Pack Blister [Wooper]" and "Blister Pack - Single
+  // Booster - Wooper", "2 Pack Blister" and "Two-Booster Blister". A checklane
+  // is a single pack by definition and has its own token.
+  if (type === "blister") {
+    if (!/check\s*-?\s*lane/.test(t) && /\b(?:single|one|1)\s*-?\s*(?:booster\s*)?(?:pack\s*)?blister|\bsingle\s*-?\s*(?:booster|pack)s?\b|\b(?:1|one)\s*-?\s*booster\b/.test(t)) {
+      markers.push("1pack");
+    } else if (/\b(?:two|2)\s*-?\s*(?:booster\s*)?packs?\b|\b(?:two|2)\s*-?\s*boosters?\b/.test(t)) {
+      markers.push("2pack");
+    }
+  }
+  if (megaY(t)) markers.push("y");
+  const special = /\bspecial\s+collection\b/.test(t);
   if (set) {
     const m = matchers();
     const own = [...m.specific, ...m.generic].find((x) => x.set.code === set.code);
@@ -328,18 +393,21 @@ function signatureTokens(title: string, set: PokemonSet | null): string[] {
   t = t
     .replace(/scarlet\s*(?:&|and)\s*violet|sword\s*(?:&|and)\s*shield|sun\s*(?:&|and)\s*moon|mega\s*evolution/g, " ")
     .replace(/check\s*-?\s*lane/g, "checklane")
+    // A numbered series is its own product: "First Partner Illustration Collection (Series 2)".
+    .replace(/\bseries\s*-?\s*(\d{1,2})\b/g, " series$1 ")
     // Set codes stores prefix titles with: "ME02", "SV4.5", "SWSH12.5", "(SV8)".
     .replace(/\b(?:me|sv|swsh|sm|xy|s)\s*-?\s*\d{1,2}(?:\.\d|pt\d|a)?\b/g, " ")
     .replace(/\b(?:release|releases|releasing|ships?|shipping|limit|max|eta|due|arriving)\b[^)\]]*[)\]]/g, " ")
     .replace(/[^a-z0-9]+/g, " ");
-  const out = new Set<string>();
+  const words = new Set<string>();
   for (const w of t.split(" ")) {
     if (!w || NOISE.has(w)) continue;
     if (/^\d+$/.test(w) && !/^(?:19|20)\d\d$/.test(w)) continue; // counts, not identity; keep years
     if (w.length < 2 && !KEEP_SHORT.has(w)) continue;
-    out.add(w);
+    words.add(w);
   }
-  return [...out].sort();
+  if (special && SPECIAL_AND_PREMIUM.has([...words].sort().join("-"))) markers.push("special");
+  return [...new Set([...words, ...markers])].sort();
 }
 
 export interface SealedIdentity {
@@ -356,6 +424,7 @@ export type Rejection =
   | "not-sealed"
   | "accessory"
   | "multiple"
+  | "retail-edition"
   | "not-pokemon"
   | "unclassified"
   | "no-set"
@@ -381,7 +450,10 @@ export function cleanName(title: string): string {
     .replace(/^\s*[([]?\s*(?:me|sv|swsh|sm|xy)\s*-?\s*\d{1,2}(?:\.\d|pt\d)?\s*[)\]]?\s*[:\-–—|]?\s*/i, "")
     .replace(/^\s*(?:scarlet\s*(?:&|and)\s*violet|sword\s*(?:&|and)\s*shield|sun\s*(?:&|and)\s*moon|mega\s*evolution|xy)\s*(?:(?:me|sv|swsh|sm|xy)?\s*-?\s*\d{1,2}(?:\.\d)?)?\s*[:\-–—|]\s*/i, "")
     .replace(/\s*[([]\s*(?:english|eng|en|sealed|new)\s*[)\]]\s*/gi, " ")
-    .replace(/\s*[([][^)\]]*(?:pre-?order|release|ships?|eta|limit|arriv)[^)\]]*[)\]]\s*/gi, " ")
+    // Bracketed store notes: "(Pre-Order)", "(Ships 12/9)", "[Limit 2]", "(One Per Customer)".
+    // Whole words only: "[Unlimited Edition]", "(Metal Coin)" and
+    // "(World Championships 2023)" are part of the name.
+    .replace(/\s*[([][^)\]]*(?:\bpre[-\s]?orders?|\breleas|\bships?\b|\beta\b|\blimit|\barriv|\bper\s*(?:customer|household|order|person)\b)[^)\]]*[)\]]\s*/gi, " ")
     .replace(/\s*[-–—|:]\s*(?:english|sealed|pre-?order|new)\s*$/i, "")
     .replace(/\*+[^*]*\*+/g, " ")
     .replace(/\bpre-?order\b[:\s-]*/gi, " ")
@@ -420,6 +492,7 @@ export function identify(title: string, opts: { strict?: boolean } = {}): Sealed
 
   if (info.kind === "set") {
     if (!set) return "no-set";
+    if (RETAIL_EDITION.test(t)) return "retail-edition";
     return {
       groupKey: `${set.code}|${type}`,
       type,
@@ -430,7 +503,7 @@ export function identify(title: string, opts: { strict?: boolean } = {}): Sealed
     };
   }
 
-  const tokens = signatureTokens(t, set);
+  const tokens = signatureTokens(t, set, type);
   if (!set && !tokens.some((w) => !DESCRIPTORS.has(w))) return "vague";
   const name = cleanName(title);
   return {

@@ -15,10 +15,13 @@ export function Footer() {
             Pokémon TCG sealed product — booster boxes, Elite Trainer Boxes, bundles, collections and tins — compared across
             independent stores, with live stock.
           </p>
-          <p className="mt-3 text-xs leading-5 text-faint">
-            Prices are each store&rsquo;s own, in its own currency, and exclude shipping. eBay links are affiliate links: we may
-            earn a commission at no cost to you. DexCompare is not affiliated with Nintendo, Creatures, GAME FREAK or The Pokémon
-            Company.
+          <p className="mt-3 text-xs leading-5 text-muted">
+            Prices are each store&rsquo;s (or TCGplayer seller&rsquo;s) own, in its own currency, and exclude shipping. Links to eBay and TCGplayer are affiliate
+            links: we may earn a commission at no cost to you. Store links are plain links.{" "}
+            <Link href="/about#money" className="underline underline-offset-2 hover:text-ink">
+              How we make money
+            </Link>
+            . DexCompare is not affiliated with Nintendo, Creatures, GAME FREAK or The Pokémon Company.
           </p>
         </div>
         <div>

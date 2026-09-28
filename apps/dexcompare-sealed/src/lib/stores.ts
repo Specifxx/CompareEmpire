@@ -13,7 +13,7 @@ export interface StoreConfig {
   name: string;
   base: string; // https origin, no trailing slash
   market: Market;
-  platform: "shopify" | "woocommerce";
+  platform: "shopify" | "woocommerce" | "tcgplayer";
   // ISO country sent as Shopify's ?country= so a Markets-enabled store prices
   // in its own currency (see shopifyMeta in feeds.ts). The shop's home country
   // from /meta.json; for EU stores it is the store's own eurozone country.
@@ -24,8 +24,31 @@ export interface StoreConfig {
   collections: string[];
 }
 
+// The independent stores: what every "N stores" claim, the store directory and
+// the sitemap count. Marketplaces are not stores and are never in this list.
 export const STORES: StoreConfig[] = (raw as StoreConfig[]).slice().sort((a, b) => a.name.localeCompare(b.name));
-export const STORE_BY_KEY = new Map(STORES.map((s) => [s.key, s]));
+
+// TCGplayer: a US marketplace read through its public search API
+// (src/lib/tcgplayer.ts). Its offers live in the US market alongside the
+// stores' and rank on the same terms (price, then stock); its links are
+// affiliate-tagged at render time (src/lib/affiliate.ts).
+export const TCGPLAYER: StoreConfig = {
+  key: "tcgplayer",
+  name: "TCGplayer",
+  base: "https://www.tcgplayer.com",
+  market: "US",
+  platform: "tcgplayer",
+  country: "US",
+  collections: [],
+};
+
+/** Everything the importer reads: the stores, then the marketplaces. */
+export const SOURCES: StoreConfig[] = [...STORES, TCGPLAYER];
+export const STORE_BY_KEY = new Map(SOURCES.map((s) => [s.key, s]));
+
+export function isMarketplace(s: Pick<StoreConfig, "platform">): boolean {
+  return s.platform === "tcgplayer";
+}
 
 export function storesInMarket(market: string): StoreConfig[] {
   return STORES.filter((s) => s.market === market);

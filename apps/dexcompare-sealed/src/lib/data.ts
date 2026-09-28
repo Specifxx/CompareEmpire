@@ -5,7 +5,8 @@ import { prisma } from "./db";
 import { SET_BY_CODE, SETS } from "./sets";
 import { typeRank } from "./sealed-title";
 import { rankOffers } from "./sealed-offers";
-import { STORE_BY_KEY } from "./stores";
+import { isMarketplace, STORE_BY_KEY, storeHost, TCGPLAYER } from "./stores";
+import { cardOpen } from "./compact";
 import type { Market } from "./regions";
 
 export interface ProductCardData {
@@ -14,9 +15,10 @@ export interface ProductCardData {
   productType: string;
   setCode: string | null;
   imageUrl: string | null;
-  lowestPriceCents: number | null;
-  inStockStores: number;
-  listedStores: number;
+  lowestPriceCents: number | null; // cheapest open offer, a marketplace's included
+  inStockStores: number; // independent stores only
+  listedStores: number; // independent stores only
+  marketplaceOpen: boolean; // TCGplayer (US) has it: buyable even with no store in stock
   releaseDate: string | null;
 }
 
@@ -24,6 +26,7 @@ const cardSelect = {
   lowestPriceCents: true,
   inStockStores: true,
   listedStores: true,
+  marketplaceOpen: true,
   product: { select: { slug: true, name: true, productType: true, setCode: true, imageUrl: true } },
 } as const;
 
@@ -31,6 +34,7 @@ type CardRow = {
   lowestPriceCents: number | null;
   inStockStores: number;
   listedStores: number;
+  marketplaceOpen: boolean;
   product: { slug: string; name: string; productType: string; setCode: string | null; imageUrl: string | null };
 };
 
@@ -40,6 +44,7 @@ function toCard(r: CardRow): ProductCardData {
     lowestPriceCents: r.lowestPriceCents,
     inStockStores: r.inStockStores,
     listedStores: r.listedStores,
+    marketplaceOpen: r.marketplaceOpen,
     releaseDate: r.product.setCode ? SET_BY_CODE.get(r.product.setCode)?.releaseDate ?? null : null,
   };
 }
@@ -47,21 +52,30 @@ function toCard(r: CardRow): ProductCardData {
 /** In stock first (cheapest first), then sold out by type and name. */
 export function sortCards(cards: ProductCardData[]): ProductCardData[] {
   return [...cards].sort((a, b) => {
-    const ai = a.inStockStores > 0 ? 0 : 1;
-    const bi = b.inStockStores > 0 ? 0 : 1;
+    const ai = cardOpen(a) ? 0 : 1;
+    const bi = cardOpen(b) ? 0 : 1;
     if (ai !== bi) return ai - bi;
     if (ai === 0) return (a.lowestPriceCents ?? 0) - (b.lowestPriceCents ?? 0);
     return typeRank(a.productType) - typeRank(b.productType) || a.name.localeCompare(b.name);
   });
 }
 
+// Buyable now: a store has it in stock, or TCGplayer does (ProductStat's
+// store counts never include TCGplayer; marketplaceOpen says it has it).
+const OPEN = { OR: [{ inStockStores: { gt: 0 } }, { marketplaceOpen: true }] };
+
+// A ProductStat row exists only for a product something in that market lists
+// (a store or TCGplayer), so "listed in the region" needs no filter of its own:
+// listedStores is 0 for a product only TCGplayer lists.
+
 /**
  * Worth a page in the index / a tile on the browse page: something you can buy
- * now, or something at least two stores carry (so there's a comparison to make).
- * A one-store, sold-out listing still has a product page,
- * reachable from its set and store — just not in the browse grid or sitemap.
+ * now (at a store or on TCGplayer), or something at least two stores carry (so
+ * there's a comparison to make). A one-store, sold-out listing still has a
+ * product page, reachable from its set and store — just not in the browse grid
+ * or sitemap.
  */
-export const COMPARABLE = { OR: [{ inStockStores: { gt: 0 } }, { listedStores: { gte: 2 } }] };
+export const COMPARABLE = { OR: [...OPEN.OR, { listedStores: { gte: 2 } }] };
 
 /** The browse page's data set: every comparable product in the market. */
 export async function marketProducts(market: Market): Promise<ProductCardData[]> {
@@ -71,7 +85,7 @@ export async function marketProducts(market: Market): Promise<ProductCardData[]>
 
 export async function productsByType(market: Market, typeLabel: string): Promise<ProductCardData[]> {
   const rows = await prisma.productStat.findMany({
-    where: { market, listedStores: { gt: 0 }, product: { productType: typeLabel } },
+    where: { market, product: { productType: typeLabel } },
     select: cardSelect,
   });
   return sortCards(rows.map(toCard));
@@ -79,7 +93,7 @@ export async function productsByType(market: Market, typeLabel: string): Promise
 
 export async function productsBySet(market: Market, setCode: string): Promise<ProductCardData[]> {
   const rows = await prisma.productStat.findMany({
-    where: { market, listedStores: { gt: 0 }, product: { setCode } },
+    where: { market, product: { setCode } },
     select: cardSelect,
   });
   return rows.map(toCard).sort((a, b) => typeRank(a.productType) - typeRank(b.productType) || a.name.localeCompare(b.name));
@@ -88,7 +102,7 @@ export async function productsBySet(market: Market, setCode: string): Promise<Pr
 /** The cheapest in-stock products of some types — for the region home page rails. */
 export async function cheapestInStock(market: Market, typeLabels: string[], take: number): Promise<ProductCardData[]> {
   const rows = await prisma.productStat.findMany({
-    where: { market, inStockStores: { gt: 0 }, product: { productType: { in: typeLabels } } },
+    where: { market, ...OPEN, product: { productType: { in: typeLabels } } },
     orderBy: { lowestPriceCents: "asc" },
     take: take * 4,
     select: cardSelect,
@@ -115,7 +129,7 @@ export async function homeRails(market: Market, today = new Date().toISOString()
   const inStockOfType = async (type: string) =>
     (
       await prisma.productStat.findMany({
-        where: { market, inStockStores: { gt: 0 }, product: { productType: type, OR: [{ setCode: null }, { setCode: { notIn: upcoming } }] } },
+        where: { market, ...OPEN, product: { productType: type, OR: [{ setCode: null }, { setCode: { notIn: upcoming } }] } },
         take: 150,
         select: cardSelect,
       })
@@ -127,10 +141,10 @@ export async function homeRails(market: Market, today = new Date().toISOString()
     inStockOfType("Booster Box"),
     inStockOfType("Elite Trainer Box"),
     upcoming.length
-      ? prisma.productStat.findMany({ where: { market, inStockStores: { gt: 0 }, product: { setCode: { in: upcoming } } }, take: 60, select: cardSelect })
+      ? prisma.productStat.findMany({ where: { market, ...OPEN, product: { setCode: { in: upcoming } } }, take: 60, select: cardSelect })
       : Promise.resolve([]),
     prisma.productStat.findMany({
-      where: { market, listedStores: { gt: 0 }, product: { setCode: { in: recentCodes }, productType: { in: HEADLINE_TYPES } } },
+      where: { market, product: { setCode: { in: recentCodes }, productType: { in: HEADLINE_TYPES } } },
       select: cardSelect,
     }),
   ]);
@@ -147,21 +161,25 @@ export interface RegionOverview {
   lastChecked: Date | null;
 }
 
+// StoreStat has a row for TCGplayer too (the importer reads it like a store);
+// store counts and "last checked" are about the stores.
+const STORES_ONLY = { store: { not: TCGPLAYER.key } };
+
 export async function regionOverview(market: Market): Promise<RegionOverview> {
   const [products, inStock, stores] = await Promise.all([
-    prisma.productStat.count({ where: { market, listedStores: { gt: 0 } } }),
-    prisma.productStat.count({ where: { market, inStockStores: { gt: 0 } } }),
-    prisma.storeStat.aggregate({ where: { market, listed: { gt: 0 } }, _count: { _all: true }, _max: { lastOkAt: true } }),
+    prisma.productStat.count({ where: { market } }),
+    prisma.productStat.count({ where: { market, ...OPEN } }),
+    prisma.storeStat.aggregate({ where: { market, listed: { gt: 0 }, ...STORES_ONLY }, _count: { _all: true }, _max: { lastOkAt: true } }),
   ]);
-  const read = await prisma.storeStat.count({ where: { market } });
+  const read = await prisma.storeStat.count({ where: { market, ...STORES_ONLY } });
   return { products, inStock, stores: stores._count._all, storesRead: read, lastChecked: stores._max.lastOkAt ?? null };
 }
 
 export async function allRegionOverviews(): Promise<Record<string, { products: number; inStock: number; stores: number }>> {
   const [listed, open, stores] = await Promise.all([
-    prisma.productStat.groupBy({ by: ["market"], where: { listedStores: { gt: 0 } }, _count: { _all: true } }),
-    prisma.productStat.groupBy({ by: ["market"], where: { inStockStores: { gt: 0 } }, _count: { _all: true } }),
-    prisma.storeStat.groupBy({ by: ["market"], where: { listed: { gt: 0 } }, _count: { _all: true } }),
+    prisma.productStat.groupBy({ by: ["market"], _count: { _all: true } }),
+    prisma.productStat.groupBy({ by: ["market"], where: OPEN, _count: { _all: true } }),
+    prisma.storeStat.groupBy({ by: ["market"], where: { listed: { gt: 0 }, ...STORES_ONLY }, _count: { _all: true } }),
   ]);
   const out: Record<string, { products: number; inStock: number; stores: number }> = {};
   for (const r of listed) (out[r.market] ??= { products: 0, inStock: 0, stores: 0 }).products = r._count._all;
@@ -179,6 +197,17 @@ export interface OfferView {
   priceCents: number;
   inStock: boolean;
   lastSeen: string;
+  /** A marketplace (TCGplayer), not a store: ranked like one, never counted as one. */
+  marketplace: boolean;
+}
+
+/** A product's TCGplayer offer, in US cents. Shown outside the US as a US marketplace only. */
+export interface UsMarketplaceOffer {
+  title: string; // TCGplayer's own product name: a clean eBay search
+  url: string;
+  priceCents: number;
+  inStock: boolean;
+  lastSeen: string;
 }
 
 export interface ProductPageData {
@@ -189,7 +218,14 @@ export interface ProductPageData {
   setCode: string | null;
   imageUrl: string | null;
   offers: OfferView[];
-  stats: { market: string; lowestPriceCents: number | null; inStockStores: number; listedStores: number }[];
+  stats: { market: string; lowestPriceCents: number | null; inStockStores: number; listedStores: number; marketplaceOpen: boolean }[];
+  /**
+   * Outside the US only: the product's TCGplayer offer, priced in US$. NEVER
+   * merged into `offers` — a region only compares prices in its own currency,
+   * so this stays out of the ranking, the headline price and the JSON-LD. In
+   * the US it is null because TCGplayer is already one of `offers`.
+   */
+  usMarketplace: UsMarketplaceOffer | null;
 }
 
 export async function productPage(slug: string, market: Market): Promise<ProductPageData | null> {
@@ -207,7 +243,7 @@ export async function productPage(slug: string, market: Market): Promise<Product
         take: 80,
         select: { store: true, title: true, url: true, priceCents: true, inStock: true, lastSeen: true },
       },
-      stats: { select: { market: true, lowestPriceCents: true, inStockStores: true, listedStores: true } },
+      stats: { select: { market: true, lowestPriceCents: true, inStockStores: true, listedStores: true, marketplaceOpen: true } },
     },
   });
   if (!p) return null;
@@ -217,16 +253,25 @@ export async function productPage(slug: string, market: Market): Promise<Product
       return {
         store: o.store,
         storeName: s?.name ?? o.store,
-        storeHost: s ? s.base.replace(/^https?:\/\/(www\.)?/, "") : "",
+        storeHost: s ? storeHost(s) : "",
         title: o.title,
         url: o.url,
         priceCents: o.priceCents,
         inStock: o.inStock,
         lastSeen: o.lastSeen.toISOString(),
+        marketplace: !!s && isMarketplace(s),
       };
     }),
   );
-  return { ...p, offers };
+  // One row by its unique key, five columns: the cheapest read a page can make.
+  const tcg =
+    market === TCGPLAYER.market
+      ? null
+      : await prisma.offer.findUnique({
+          where: { productId_store: { productId: p.id, store: TCGPLAYER.key } },
+          select: { title: true, url: true, priceCents: true, inStock: true, lastSeen: true },
+        });
+  return { ...p, offers, usMarketplace: tcg ? { ...tcg, lastSeen: tcg.lastSeen.toISOString() } : null };
 }
 
 export async function storeOffers(store: string) {
@@ -256,18 +301,18 @@ export async function storeStat(store: string) {
   return prisma.storeStat.findUnique({ where: { store }, select: { listed: true, inStock: true, lastOkAt: true, lastError: true } });
 }
 
-/** Per set: how many products the market lists and how many are in stock. */
+/** Per set: how many products the market lists and how many are in stock (at a store or on TCGplayer). */
 export async function setCounts(market: Market): Promise<Map<string, { products: number; inStock: number }>> {
   const rows = await prisma.productStat.findMany({
-    where: { market, listedStores: { gt: 0 }, product: { setCode: { not: null } } },
-    select: { inStockStores: true, product: { select: { setCode: true } } },
+    where: { market, product: { setCode: { not: null } } },
+    select: { inStockStores: true, marketplaceOpen: true, product: { select: { setCode: true } } },
   });
   const out = new Map<string, { products: number; inStock: number }>();
   for (const r of rows) {
     const code = r.product.setCode!;
     const c = out.get(code) ?? { products: 0, inStock: 0 };
     c.products++;
-    if (r.inStockStores > 0) c.inStock++;
+    if (r.inStockStores > 0 || r.marketplaceOpen) c.inStock++;
     out.set(code, c);
   }
   return out;
@@ -276,7 +321,7 @@ export async function setCounts(market: Market): Promise<Map<string, { products:
 /** Other products from the same set in this market (product page, "more from"). */
 export async function relatedProducts(market: Market, setCode: string, excludeSlug: string, take = 8): Promise<ProductCardData[]> {
   const rows = await prisma.productStat.findMany({
-    where: { market, listedStores: { gt: 0 }, product: { setCode, slug: { not: excludeSlug } } },
+    where: { market, product: { setCode, slug: { not: excludeSlug } } },
     take: 40,
     select: cardSelect,
   });
@@ -287,14 +332,13 @@ export async function relatedProducts(market: Market, setCode: string, excludeSl
 export async function typesByMarket(): Promise<Map<string, Set<string>>> {
   // GROUP BY in SQL: Prisma's `distinct` dedupes client-side after fetching every row.
   const rows = await prisma.$queryRaw<{ market: string; productType: string }[]>`
-    SELECT s."market", p."productType" FROM "ProductStat" s JOIN "Product" p ON p."id" = s."productId"
-    WHERE s."listedStores" > 0 GROUP BY 1, 2`;
+    SELECT s."market", p."productType" FROM "ProductStat" s JOIN "Product" p ON p."id" = s."productId" GROUP BY 1, 2`;
   const out = new Map<string, Set<string>>();
   for (const r of rows) (out.get(r.market) ?? out.set(r.market, new Set()).get(r.market)!).add(r.productType);
   return out;
 }
 
-/** Everything the sitemap lists: products with a store listing, per market. */
+/** Everything the sitemap lists: comparable products (COMPARABLE), per market. */
 export async function sitemapEntries(): Promise<{ market: string; slug: string }[]> {
   const rows = await prisma.productStat.findMany({
     where: COMPARABLE,

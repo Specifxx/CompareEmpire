@@ -3,8 +3,9 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Ago } from "@/components/Ago";
+import { OutboundLink } from "@/components/OutboundLink";
 import { StockPill } from "@/components/StockPill";
-import { REL_STORE } from "@/lib/affiliate";
+import { REL_STORE, storeRetailer } from "@/lib/affiliate";
 import { storeOffers, storeStat } from "@/lib/data";
 import { money, timeAgo } from "@/lib/format";
 import { thumb } from "@/lib/images";
@@ -12,7 +13,7 @@ import { REGIONS, regionOfMarket, type Region } from "@/lib/regions";
 import { offerStock, offerStockLabel } from "@/lib/sealed-offers";
 import { isPreorderSet } from "@/lib/release";
 import { pageMeta } from "@/lib/seo";
-import { STORE_BY_KEY, storeHost } from "@/lib/stores";
+import { isMarketplace, STORE_BY_KEY, storeHost } from "@/lib/stores";
 
 export const revalidate = 86400;
 
@@ -20,8 +21,15 @@ export function generateStaticParams() {
   return [];
 }
 
+// Independent stores only. TCGplayer is in STORE_BY_KEY (the importer reads it)
+// but is a marketplace, not a store: it has no store page.
+function storeFor(key: string) {
+  const s = STORE_BY_KEY.get(key);
+  return s && !isMarketplace(s) ? s : null;
+}
+
 export function generateMetadata({ params }: { params: { region: Region; store: string } }): Metadata {
-  const s = STORE_BY_KEY.get(params.store);
+  const s = storeFor(params.store);
   const r = s ? regionOfMarket(s.market) : null;
   if (!s || !r) return {};
   return pageMeta({
@@ -32,7 +40,7 @@ export function generateMetadata({ params }: { params: { region: Region; store: 
 }
 
 export default async function StorePage({ params }: { params: { region: Region; store: string } }) {
-  const s = STORE_BY_KEY.get(params.store);
+  const s = storeFor(params.store);
   if (!s) notFound();
   const r = regionOfMarket(s.market)!;
   // A store belongs to one region; any other region's URL for it is a duplicate.
@@ -54,9 +62,9 @@ export default async function StorePage({ params }: { params: { region: Region; 
             {st?.lastOkAt ? <Ago iso={st.lastOkAt.toISOString()} initial={timeAgo(st.lastOkAt)} /> : "not yet"}
           </p>
         </div>
-        <a href={s.base} target="_blank" rel={REL_STORE} className="btn-ghost shrink-0">
-          Visit {storeHost(s)} ↗
-        </a>
+        <OutboundLink href={s.base} rel={REL_STORE} retailer={storeRetailer(s.name, s.market)} placement="store-page" className="btn-ghost shrink-0">
+          Visit {storeHost(s)} <span aria-hidden="true">↗</span>
+        </OutboundLink>
       </div>
       {offers.length ? (
         <div className="card mt-6 overflow-hidden">
@@ -70,15 +78,18 @@ export default async function StorePage({ params }: { params: { region: Region; 
                     {o.product.imageUrl && <img src={thumb(o.product.imageUrl, 120)!} alt="" loading="lazy" className="h-full w-full object-contain p-1" />}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <Link href={`/${r.region}/p/${o.product.slug}`} className="line-clamp-1 font-semibold hover:text-brand">
+                    <Link href={`/${r.region}/p/${o.product.slug}`} className="line-clamp-2 font-semibold hover:text-brand sm:line-clamp-1">
                       {o.product.name}
                     </Link>
                     <div className="text-xs text-faint">{o.product.productType}</div>
                   </div>
-                  <StockPill state={state} preorder={pre}>
-                    {offerStockLabel(state, pre)}
-                  </StockPill>
-                  <div className={`tabular w-24 text-right font-display font-bold ${state === "open" ? "" : "text-faint"}`}>{money(o.priceCents, s.market)}</div>
+                  {/* Stacked on phones, so the name keeps the row's width. */}
+                  <div className="flex shrink-0 flex-col items-end gap-1 sm:flex-row sm:items-center sm:gap-4">
+                    <StockPill state={state} preorder={pre}>
+                      {offerStockLabel(state, pre)}
+                    </StockPill>
+                    <div className={`tabular text-right font-display font-bold sm:w-24 ${state === "open" ? "" : "text-faint"}`}>{money(o.priceCents, s.market)}</div>
+                  </div>
                 </li>
               );
             })}

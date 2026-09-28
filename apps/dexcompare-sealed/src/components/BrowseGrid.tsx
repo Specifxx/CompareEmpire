@@ -2,10 +2,11 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { ProductCardData } from "@/lib/data";
-import { expandCard, type CompactCard } from "@/lib/compact";
+import { cardOpen, expandCard, type CompactCard } from "@/lib/compact";
 import { PRODUCT_TYPES, typeRank } from "@/lib/sealed-title";
 import { SETS } from "@/lib/sets";
 import type { Region } from "@/lib/regions";
+import { MarketplaceSearch } from "./Marketplaces";
 import { ProductCard } from "./ProductCard";
 
 type Sort = "relevance" | "price-asc" | "price-desc" | "newest" | "stores";
@@ -66,28 +67,29 @@ export function BrowseGrid({ rows, region }: { rows: CompactCard[]; region: Regi
     let list = products.filter((p) => {
       if (typeLabel && p.productType !== typeLabel) return false;
       if (set && SETS.find((s) => s.slug === set)?.code !== p.setCode) return false;
-      if (inStock && p.inStockStores === 0) return false;
+      if (inStock && !cardOpen(p)) return false;
       if (words.length) {
         const hay = norm(`${p.name} ${p.productType} ${setName(p.setCode)} ${p.productType === "Elite Trainer Box" ? "etb" : ""}`);
         return words.every((w) => hay.includes(w));
       }
       return true;
     });
-    const price = (p: ProductCardData) => (p.inStockStores > 0 ? p.lowestPriceCents ?? Infinity : Infinity);
+    const price = (p: ProductCardData) => (cardOpen(p) ? p.lowestPriceCents ?? Infinity : Infinity);
     list = [...list].sort((a, b) => {
       switch (sort) {
         case "price-asc":
           return price(a) - price(b);
         case "price-desc":
-          return (b.inStockStores > 0 ? b.lowestPriceCents ?? 0 : -1) - (a.inStockStores > 0 ? a.lowestPriceCents ?? 0 : -1);
+          return (cardOpen(b) ? b.lowestPriceCents ?? 0 : -1) - (cardOpen(a) ? a.lowestPriceCents ?? 0 : -1);
         case "stores":
+          // Independent stores only; TCGplayer-only products follow, cheapest first.
           return b.inStockStores - a.inStockStores || price(a) - price(b);
         case "newest":
           return (b.releaseDate ?? "").localeCompare(a.releaseDate ?? "") || typeRank(a.productType) - typeRank(b.productType);
         default:
           // In stock first; within that, newest set, then the chase products first.
           return (
-            Number(b.inStockStores > 0) - Number(a.inStockStores > 0) ||
+            Number(cardOpen(b)) - Number(cardOpen(a)) ||
             (b.releaseDate ?? "").localeCompare(a.releaseDate ?? "") ||
             typeRank(a.productType) - typeRank(b.productType) ||
             a.name.localeCompare(b.name)
@@ -99,6 +101,12 @@ export function BrowseGrid({ rows, region }: { rows: CompactCard[]; region: Regi
 
   const shown = filtered.slice(0, limit);
   const any = q || type || set || inStock;
+  // With nothing here, offer the same search on the marketplaces: the words
+  // typed, else the set and type picked.
+  const elsewhere = (
+    q.trim() ||
+    [SETS.find((s) => s.slug === set)?.name, PRODUCT_TYPES.find((t) => t.slug === type)?.label].filter(Boolean).join(" ")
+  ).slice(0, 100);
 
   return (
     <div>
@@ -179,7 +187,10 @@ export function BrowseGrid({ rows, region }: { rows: CompactCard[]; region: Regi
           ))}
         </div>
       ) : (
-        <div className="card px-6 py-12 text-center text-muted">Nothing matches those filters.</div>
+        <div className="card px-6 py-12 text-center text-muted">
+          Nothing matches those filters.
+          {elsewhere && <MarketplaceSearch region={region} query={elsewhere} placement="browse-empty" />}
+        </div>
       )}
 
       {filtered.length > limit && (

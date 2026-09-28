@@ -14,11 +14,19 @@ export default function Privacy() {
       <div className="prose-dex mt-6">
         <p>DexCompare has no accounts, doesn&rsquo;t ask for your email, and sets no advertising cookies. Here is everything we collect.</p>
         <h2>Analytics</h2>
-        <p>We use Vercel Web Analytics to count page views. It doesn&rsquo;t use cookies and doesn&rsquo;t identify you across sites.</p>
-        <h2>Links to stores and eBay</h2>
         <p>
-          When you follow a link to a store or eBay, that site&rsquo;s own privacy policy applies. eBay links carry an affiliate tag so eBay can
-          credit us for the referral.
+          We use Vercel Web Analytics to count page views, and clicks on outbound buy links. Each click records the retailer the link goes
+          to (for example &ldquo;Pokebox (AU)&rdquo;, &ldquo;TCGplayer&rdquo; or &ldquo;eBay (ebay.com.au)&rdquo;) and where on the page it
+          was (for example the best-price button or the price table), together with the page it happened on and the anonymous context
+          Vercel Web Analytics attaches to every page view: the referring page, your approximate location (country, region, city) and
+          your browser, operating system and device type. It uses no cookies, collects no personal data and doesn&rsquo;t identify you,
+          on this site or across others.
+        </p>
+        <h2>Links to stores, eBay and TCGplayer</h2>
+        <p>
+          When you follow a link to a store, eBay or TCGplayer, that site&rsquo;s own privacy policy applies. eBay links carry an eBay Partner
+          Network tag, and TCGplayer links pass through TCGplayer&rsquo;s affiliate network (Impact), so they can credit us for the referral.
+          Store links are plain links.
         </p>
         <h2>Contact</h2>
         <p>

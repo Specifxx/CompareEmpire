@@ -56,7 +56,7 @@ export default function Landing() {
 
       <section className="page mt-20 grid gap-6 md:grid-cols-3">
         {[
-          { t: "Only real, buyable prices", d: "Every price is a store’s own listing in your currency. The headline price is always something you can order today — never a sold-out or stale listing." },
+          { t: "Only real, buyable prices", d: "Every price is a store’s (or, in the US, a TCGplayer seller’s) own listing in your currency. The headline price is always something you can order today — never a sold-out or stale listing." },
           { t: "Stock you can trust", d: "Each listing shows when we last read it. If a store hasn’t answered for three days we say “not checked recently” instead of guessing." },
           { t: "Every store, one page", d: "Each product lists every store we track in your region, cheapest in-stock first, with a link straight to the store’s own page." },
         ].map((f) => (

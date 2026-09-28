@@ -107,7 +107,9 @@ const ALIASES: Record<string, string[]> = {
   swsh35: ["champions?[’']?s?\\s*path"],
   pgo: ["pok[eé]mon\\s*go\\b"],
   cel25: ["25th\\s*anniversary"],
-  cel30: ["30th\\s*anniversary\\s*celebration", "\\bpokemon\\s*30th\\s*anniversary\\b"],
+  // Stores also write it "30th Celebrations", which must not read as
+  // Celebrations (cel25, 2021). Longer names are tried first, so this wins.
+  cel30: ["30th\\s*anniversary\\s*celebration", "\\bpokemon\\s*30th\\s*anniversary\\b", "\\b30th[\\s:\\-]*celebrations\\b"],
   g1: ["\\bgenerations\\b"],
   xy9: ["break\\s*point"],
   xy8: ["break\\s*through"],

@@ -100,6 +100,31 @@ Add the `dexcompare.app` property (DNS verification, or set
 `GOOGLE_SITE_VERIFICATION` in Vercel to the HTML-tag token and redeploy), then
 submit `https://dexcompare.app/sitemap.xml`.
 
+## Click events (Vercel Web Analytics)
+
+Every outbound buy link — to a store, TCGplayer or eBay — sends one custom
+event, `buy_click`, with exactly two properties:
+
+| Property | Example values |
+| --- | --- |
+| `retailer` | `Pokebox (AU)`, `TCGplayer`, `eBay (ebay.com.au)` |
+| `placement` | `product-best`, `product-table`, `product-marketplace`, `product-soldout`, `set-banner`, `type-banner`, `browse-empty`, `region-home`, `store-page` |
+
+- Custom events need the **Pro** plan with Web Analytics enabled (Vercel
+  project → **Analytics** → Enable). **Hobby records page views only**; the
+  events are simply dropped, and nothing breaks.
+- Pro keeps **two properties per event** (extra ones are dropped), which is
+  why `buy_click` has exactly `retailer` and `placement`. Don't add a third.
+- To see them: Vercel project → **Analytics** → **Events** → `buy_click`,
+  then break down by `retailer` or `placement`.
+- Money is reported by the networks, not Vercel: eBay Partner Network reports
+  by `customid` and TCGplayer's Impact dashboard by Shared ID (`sharedid`),
+  both `dex-<region>-<placement>`.
+
+No environment variables are needed. Optional overrides:
+`NEXT_PUBLIC_EBAY_CAMPAIGN_ID` and `NEXT_PUBLIC_TCGPLAYER_IMPACT_LINK` (the
+built-in defaults are the live campaign and deep link).
+
 ## Checking it works
 
 - `https://dexcompare.app/au` shows products, "Last checked" a few minutes/hours ago.
@@ -118,3 +143,23 @@ submit `https://dexcompare.app/sitemap.xml`.
   `.github/workflows/dexcompare-sealed-import.yml` to one.
 - **No eBay API**: eBay appears only as tagged search links (campaign
   5339155912). Nothing here can spend Rift Compare's eBay quota.
+- **TCGplayer** links go through Impact (`partner.tcgplayer.com/c/7385758/…`),
+  the same approved account as Rift Compare. Every page carries Impact's
+  `impact-site-verification` tag (the same token as the other CompareEmpire
+  sites); in Impact, check that `dexcompare.app` is listed as a promotional
+  property of that account.
+- **When the import goes red**: fewer than half the stores read, nothing
+  requested read at all, or TCGplayer not read for 48 hours (its offers show
+  "not checked recently" after 72 hours and are dropped after 14 days). A
+  single failed TCGplayer read only adds a warning to the run and keeps its
+  previous offers; a TCGplayer read that comes back with under 70% of the
+  offers it had last time counts as failed in the same way.
+- **Schema changes reach the database through the import job** (its "Sync
+  the schema" step, `prisma db push` without `--accept-data-loss`), not the
+  Vercel build. A push to `main` that changes `prisma/schema.prisma` starts
+  that job on its own (a two-minute TCGplayer-only run, which also recomputes
+  every product's stats), so a new column — e.g. `ProductStat.marketplaceOpen`
+  — lands at about the same time as the deploy. Check Actions → **DexCompare
+  sealed import** went green after such a merge; until the column exists, new
+  pages that aren't cached yet fail to render. An added column with a default
+  is safe for the old code.
