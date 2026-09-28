@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ProductCardData } from "@/lib/data";
-import { money } from "@/lib/format";
+import { cardOpen } from "@/lib/compact";
+import { money, plural } from "@/lib/format";
 import { thumb } from "@/lib/images";
 import { isPreorderSet } from "@/lib/release";
 import { REGIONS, type Region } from "@/lib/regions";
@@ -9,7 +10,8 @@ import { StockPill } from "./StockPill";
 
 export function ProductCard({ p, region, priority = false }: { p: ProductCardData; region: Region; priority?: boolean }) {
   const market = REGIONS[region].market;
-  const open = p.inStockStores > 0;
+  const open = cardOpen(p);
+  const n = p.inStockStores; // independent stores; TCGplayer is named, never counted
   const pre = isPreorderSet(p.setCode);
   const set = p.setCode ? SET_BY_CODE.get(p.setCode) : null;
   const img = thumb(p.imageUrl, 400);
@@ -46,9 +48,16 @@ export function ProductCard({ p, region, priority = false }: { p: ProductCardDat
               {open ? money(p.lowestPriceCents, market) : "Sold out"}
             </div>
           </div>
-          <StockPill state={open ? "open" : "soldout"} preorder={pre}>
-            {open ? `${pre ? "Pre-order" : "In stock"} · ${p.inStockStores}` : `${p.listedStores} ${p.listedStores === 1 ? "store" : "stores"}`}
-          </StockPill>
+          {open ? (
+            <span className="flex flex-col items-start gap-0.5 sm:items-end" title={n ? `${pre ? "Pre-order" : "In stock"} at ${plural(n, "store")}${p.marketplaceOpen ? " and on TCGplayer" : ""}` : undefined}>
+              <StockPill state="open" preorder={pre}>
+                {n ? `${pre ? "Pre-order" : "In stock"} · ${n}` : "On TCGplayer"}
+              </StockPill>
+              {n > 0 && p.marketplaceOpen && <span className="px-1 text-[11px] font-medium text-muted">+ TCGplayer</span>}
+            </span>
+          ) : (
+            <StockPill state="soldout">{p.listedStores ? plural(p.listedStores, "store") : "TCGplayer"}</StockPill>
+          )}
         </div>
       </div>
     </Link>

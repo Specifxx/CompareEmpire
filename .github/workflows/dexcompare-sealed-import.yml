@@ -1,9 +1,11 @@
 name: DexCompare sealed import
 
-# Reads every store in apps/dexcompare-sealed/src/data/stores.json, replaces the
-# current listings in the DexCompare database, then asks the live site to
-# re-render its cached pages. Twice a day. No eBay API calls:
-# no eBay credentials are passed to this job at all.
+# Reads every store in apps/dexcompare-sealed/src/data/stores.json and TCGplayer's
+# Pokémon sealed catalogue (its public search API, ~60 requests, one a second,
+# no credentials; src/lib/tcgplayer.ts), replaces the current listings in the
+# DexCompare database, then asks the live site to re-render its cached pages.
+# Twice a day. No eBay API calls: no eBay credentials are passed to this job at
+# all.
 #
 # Secrets (Settings → Secrets and variables → Actions):
 #   DEXCOMPARE_SEALED_DATABASE_URL   required. Neon DIRECT connection string
@@ -18,12 +20,19 @@ name: DexCompare sealed import
 # DEXCOMPARE_DATABASE_URL and some of them reset the database they point at.
 
 on:
+  # A merge that changes the schema syncs it straight away (with a quick
+  # TCGplayer-only run that also recomputes every product's stats), so the
+  # deploy it triggers never renders against a database missing a column.
+  push:
+    branches: [main]
+    paths: ["apps/dexcompare-sealed/prisma/schema.prisma"]
   schedule:
     # 20:47 UTC ≈ early morning in Australia/NZ; 08:47 UTC ≈ Europe's morning.
     - cron: "47 20 * * *"
     - cron: "47 8 * * *"
   workflow_dispatch:
     inputs:
+      # Store keys and markets; "tcgplayer" (or "US") includes TCGplayer.
       only:
         description: "Only these stores or markets, comma-separated (e.g. AU or pokebox,cherry). Blank = all."
         required: false
@@ -82,10 +91,13 @@ jobs:
           DATABASE_URL: ${{ secrets.DEXCOMPARE_SEALED_DATABASE_URL }}
           REVALIDATE_SECRET: ${{ secrets.DEXCOMPARE_REVALIDATE_SECRET }}
           NEXT_PUBLIC_SITE_URL: ${{ vars.DEXCOMPARE_SITE_URL || 'https://dexcompare.app' }}
-          ONLY: ${{ inputs.only }}
+          ONLY: ${{ github.event_name == 'push' && 'tcgplayer' || inputs.only }}
         # Three stores at a time: Shopify throttles by IP across all of its
         # storefronts, and a runner reading ten at once gets 429s from stores
-        # it has barely touched.
+        # it has barely touched. TCGplayer is read first, in one of the three
+        # slots (~1.5 min, 15 min at most); a failed TCGplayer read keeps its
+        # previous rows and warns, and the job fails once TCGplayer has gone
+        # unread for 48 hours.
         run: |
           if [ -n "$ONLY" ]; then
             npx tsx scripts/import.ts --concurrency 3 --only "$ONLY"

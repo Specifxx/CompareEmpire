@@ -1,9 +1,11 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { MarketplaceHint } from "@/components/Marketplaces";
 import { ProductGrid } from "@/components/ProductCard";
 import { SearchBox } from "@/components/SearchBox";
 import { Empty, Section } from "@/components/Section";
 import { homeRails, regionOverview } from "@/lib/data";
+import { cardOpen } from "@/lib/compact";
 import { money, plural, timeAgo } from "@/lib/format";
 import { isPreorderSet, formatRelease } from "@/lib/release";
 import { REGIONS, type Region } from "@/lib/regions";
@@ -47,7 +49,8 @@ export default async function RegionHome({ params }: { params: { region: Region 
             Pokémon sealed, <span className="text-brand">in stock</span>, at the best price.
           </h1>
           <p className="mt-4 max-w-2xl text-lg leading-8 text-muted">
-            Booster boxes, Elite Trainer Boxes, bundles and collections compared across {plural(storeCount, `${r.adjective} store`)}.
+            Booster boxes, Elite Trainer Boxes, bundles and collections compared across {plural(storeCount, `${r.adjective} store`)}
+            {r.market === "US" && " and TCGplayer"}.
             Stock and prices are checked twice a day.
           </p>
           <div className="mt-7 max-w-2xl">
@@ -63,7 +66,8 @@ export default async function RegionHome({ params }: { params: { region: Region 
               );
             })}
           </div>
-          <dl className="mt-10 grid max-w-3xl grid-cols-2 gap-4 sm:grid-cols-4">
+          <MarketplaceHint region={r.region} />
+          <dl className="mt-8 grid max-w-3xl grid-cols-2 gap-4 sm:grid-cols-4">
             {[
               { k: "Products tracked", v: overview.products.toLocaleString("en") },
               { k: "In stock now", v: overview.inStock.toLocaleString("en") },
@@ -115,9 +119,12 @@ export default async function RegionHome({ params }: { params: { region: Region 
                           <li key={p.slug} className="flex items-center justify-between gap-3 px-3 py-2.5 text-sm">
                             <span className="text-muted">{p.productType}</span>
                             <span className="tabular font-semibold">
-                              {p.inStockStores > 0 ? (
+                              {cardOpen(p) ? (
                                 <>
-                                  {money(p.lowestPriceCents, r.market)} <span className="font-normal text-faint">· {p.inStockStores} in stock</span>
+                                  {money(p.lowestPriceCents, r.market)}{" "}
+                                  <span className="font-normal text-faint">
+                                    · {p.inStockStores ? `${plural(p.inStockStores, "store")}${p.marketplaceOpen ? " + TCGplayer" : ""}` : "on TCGplayer"}
+                                  </span>
                                 </>
                               ) : (
                                 <span className="text-faint">Sold out</span>
@@ -152,7 +159,11 @@ export default async function RegionHome({ params }: { params: { region: Region 
 
         <section className="mt-16 grid gap-4 md:grid-cols-3">
           {[
-            { n: "1", t: "We read the stores", d: `Twice a day we read the sealed Pokémon listings of ${plural(storeCount, `${r.adjective} store`)} — their own prices, in ${r.currency}.` },
+            {
+              n: "1",
+              t: "We read the stores",
+              d: `Twice a day we read the sealed Pokémon listings of ${plural(storeCount, `${r.adjective} store`)}${r.market === "US" ? " and TCGplayer’s marketplace sellers" : ""} — their own prices, in ${r.currency}.`,
+            },
             { n: "2", t: "You see who has it", d: "Every product lists every store: in stock or sold out, and when we last checked. The cheapest in-stock price comes first." },
             { n: "3", t: "You buy from the store", d: "Click through to the store's own page and buy there. We don't sell anything and no store pays to rank higher." },
           ].map((s) => (

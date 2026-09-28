@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, Inter } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import { Footer } from "@/components/Footer";
+import { IMPACT_SITE_VERIFICATION } from "@/lib/affiliate";
 import { SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/lib/site";
 import { jsonLd } from "@/lib/seo";
 import "./globals.css";
@@ -35,6 +36,11 @@ const orgLd = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${sans.variable} ${display.variable}`}>
+      <head>
+        {/* Impact / TCGplayer affiliate site-ownership verification. Impact looks for
+            the non-standard `value` attribute, so spread it past the meta typing. */}
+        <meta {...({ name: "impact-site-verification", value: IMPACT_SITE_VERIFICATION } as React.MetaHTMLAttributes<HTMLMetaElement>)} />
+      </head>
       <body className="flex min-h-screen flex-col">
         <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-surface focus:px-4 focus:py-2">
           Skip to content

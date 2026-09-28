@@ -2,9 +2,11 @@ import { notFound } from "next/navigation";
 import { cache } from "react";
 import type { Metadata } from "next";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { MarketplaceBanner } from "@/components/Marketplaces";
 import { ProductGrid } from "@/components/ProductCard";
 import { Empty, Section } from "@/components/Section";
 import { productsBySet } from "@/lib/data";
+import { cardOpen } from "@/lib/compact";
 import { formatRelease, isPreorderSet } from "@/lib/release";
 import { REGIONS, type Market, type Region } from "@/lib/regions";
 import { pageMeta, regionAlternates } from "@/lib/seo";
@@ -39,7 +41,7 @@ export default async function SetPage({ params }: { params: { region: Region; se
   if (!s) notFound();
   const products = await getProducts(r.market, s.code);
   const pre = isPreorderSet(s.code);
-  const open = products.filter((p) => p.inStockStores > 0);
+  const open = products.filter(cardOpen);
   return (
     <div className="page py-8">
       <Breadcrumbs items={[{ href: `/${r.region}`, label: r.name }, { href: `/${r.region}/sets`, label: "Sets" }, { label: s.name }]} />
@@ -55,6 +57,7 @@ export default async function SetPage({ params }: { params: { region: Region; se
           </p>
         </div>
       </div>
+      <MarketplaceBanner region={r.region} title={`Shop ${s.name} sealed on eBay and TCGplayer`} query={s.name} placement="set-banner" />
       <Section title={`${s.name} sealed products`}>
         {products.length ? (
           <ProductGrid products={products} region={r.region} eager={4} />

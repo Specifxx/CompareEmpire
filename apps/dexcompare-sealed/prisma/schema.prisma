@@ -69,9 +69,14 @@ model Offer {
 model ProductStat {
   productId        String
   market           String
-  lowestPriceCents Int? // cheapest OPEN offer (in stock and freshly read); null = none
+  lowestPriceCents Int? // cheapest OPEN offer (in stock and freshly read), a marketplace's included; null = none
+  // Independent STORES only: every "N stores" on the site reads these, and a
+  // marketplace (TCGplayer) is never a store. Its presence is marketplaceOpen.
   inStockStores    Int
   listedStores     Int
+  // A marketplace (TCGplayer, US only) has an OPEN offer for the product. A
+  // product is buyable when inStockStores > 0 OR this is true.
+  marketplaceOpen  Boolean @default(false)
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 

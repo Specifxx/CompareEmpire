@@ -14,7 +14,7 @@ export function generateMetadata({ params }: { params: { region: Region } }): Me
   if (!r) return {};
   return pageMeta({
     title: `All Pokémon sealed products in ${r.name}`,
-    description: `Every Pokémon TCG sealed product ${r.adjective} stores list — booster boxes, ETBs, bundles, collections, tins and packs — with live stock and the cheapest price in ${r.currency}.`,
+    description: `Every Pokémon TCG sealed product ${r.adjective} stores${r.market === "US" ? " and TCGplayer" : ""} list — booster boxes, ETBs, bundles, collections, tins and packs — with live stock and the cheapest price in ${r.currency}.`,
     path: `/${r.region}/sealed`,
     alternates: regionAlternates(r.region, "/sealed"),
   });
@@ -28,8 +28,8 @@ export default async function SealedPage({ params }: { params: { region: Region 
       <Breadcrumbs items={[{ href: `/${r.region}`, label: r.name }, { label: "All sealed" }]} />
       <h1 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl">All Pokémon sealed in {r.name}</h1>
       <p className="mt-2 max-w-2xl text-muted">
-        {products.length.toLocaleString("en")} products across {storesInMarket(r.market).length} {r.adjective} stores. Prices are in {r.currency} and
-        exclude shipping.
+        {products.length.toLocaleString("en")} products across {storesInMarket(r.market).length} {r.adjective} stores
+        {r.market === "US" && " and TCGplayer"}. Prices are in {r.currency} and exclude shipping.
       </p>
       <div className="mt-6">
         <BrowseGrid rows={products.map(compactCard)} region={r.region} />

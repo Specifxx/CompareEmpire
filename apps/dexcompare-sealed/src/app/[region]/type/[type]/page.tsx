@@ -3,9 +3,11 @@ import { notFound } from "next/navigation";
 import { cache } from "react";
 import type { Metadata } from "next";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { MarketplaceBanner } from "@/components/Marketplaces";
 import { ProductGrid } from "@/components/ProductCard";
 import { Empty, Section } from "@/components/Section";
 import { productsByType } from "@/lib/data";
+import { cardOpen } from "@/lib/compact";
 import { money } from "@/lib/format";
 import { REGIONS, type Market, type Region } from "@/lib/regions";
 import { PRODUCT_TYPES, TYPE_BY_SLUG } from "@/lib/sealed-title";
@@ -46,7 +48,7 @@ export async function generateMetadata({ params }: { params: { region: Region; t
   const products = await getProducts(r.market, t.label);
   return pageMeta({
     title: `Pokémon ${t.plural} — prices & stock in ${r.name}`,
-    description: `Every Pokémon TCG ${t.label.toLowerCase()} ${r.adjective} stores list, with who has it in stock and the cheapest price in ${r.currency}.`,
+    description: `Every Pokémon TCG ${t.label.toLowerCase()} ${r.adjective} stores${r.market === "US" ? " and TCGplayer" : ""} list, with who has it in stock and the cheapest price in ${r.currency}.`,
     path: `/${r.region}/type/${t.slug}`,
     alternates: regionAlternates(r.region, `/type/${t.slug}`),
     noindex: products.length === 0,
@@ -58,8 +60,11 @@ export default async function TypePage({ params }: { params: { region: Region; t
   const t = TYPE_BY_SLUG.get(params.type);
   if (!t) notFound();
   const products = await getProducts(r.market, t.label);
-  const open = products.filter((p) => p.inStockStores > 0);
-  const sold = products.filter((p) => p.inStockStores === 0);
+  const open = products.filter(cardOpen);
+  const sold = products.filter((p) => !cardOpen(p));
+  // Store counts never include TCGplayer: in the US it is named separately.
+  const byStores = products.filter((p) => p.listedStores > 0).length;
+  const tcgOnly = products.length - byStores;
   return (
     <div className="page py-8">
       <Breadcrumbs items={[{ href: `/${r.region}`, label: r.name }, { label: t.plural }]} />
@@ -70,8 +75,10 @@ export default async function TypePage({ params }: { params: { region: Region; t
       <p className="mt-2 text-sm text-muted">
         <b className="text-ink">{open.length}</b> in stock
         {open.length > 0 && <> from {money(Math.min(...open.map((p) => p.lowestPriceCents ?? Infinity)), r.market)}</>} ·{" "}
-        {products.length} listed by {r.adjective} stores
+        {byStores} listed by {r.adjective} stores
+        {tcgOnly > 0 && <>, {tcgOnly} more only on TCGplayer</>}
       </p>
+      <MarketplaceBanner region={r.region} title={`Shop ${t.plural.startsWith("Pokémon") ? "" : "Pokémon "}${t.plural} on eBay and TCGplayer`} query={t.label} placement="type-banner" />
       <div className="mt-5 flex flex-wrap gap-2">
         {PRODUCT_TYPES.filter((x) => x.slug !== t.slug)
           .slice(0, 8)
@@ -85,7 +92,7 @@ export default async function TypePage({ params }: { params: { region: Region; t
         {open.length ? <ProductGrid products={open} region={r.region} eager={4} /> : <Empty>Nothing of this type is in stock in {r.name} right now.</Empty>}
       </Section>
       {sold.length > 0 && (
-        <Section title="Sold out everywhere" kicker="Listed, but no store has them right now">
+        <Section title="Sold out everywhere" kicker={`Listed, but no store${r.market === "US" ? " or TCGplayer seller" : ""} has them right now`}>
           <ProductGrid products={sold.slice(0, 48)} region={r.region} />
         </Section>
       )}

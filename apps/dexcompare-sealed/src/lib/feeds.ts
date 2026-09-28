@@ -26,6 +26,10 @@ export interface CollectionRead {
   handle: string;
   ok: boolean; // false = 404 / blocked / unreadable (not "empty")
   products: FeedProduct[];
+  // A page after the first failed: `products` is only the start of the
+  // collection. The importer refuses the whole store read rather than replace
+  // its rows with a fraction of its catalogue.
+  truncatedAtPage?: number;
 }
 
 // ── Shopify ─────────────────────────────────────────────────────────────────
@@ -61,7 +65,7 @@ export async function readShopifyCollection(
     const data = (await get(`${base}${path}?${qs}`)) as { products?: ShopifyProductRaw[] } | null;
     if (!data || !Array.isArray(data.products)) {
       if (page === 1) return { handle, ok: false, products: [] };
-      break;
+      return { handle, ok: true, products, truncatedAtPage: page };
     }
     for (const p of data.products) {
       products.push({
@@ -236,7 +240,7 @@ export async function readWooCategory(
     const data = (await get(`${base}${WOO_API}/products?per_page=100&page=${page}&${filter}`)) as WooProductRaw[] | null;
     if (!Array.isArray(data)) {
       if (page === 1) return { handle: slug, ok: false, products: [] };
-      break;
+      return { handle: slug, ok: true, products, truncatedAtPage: page };
     }
     for (const p of data) {
       const fp = wooProduct(p);
