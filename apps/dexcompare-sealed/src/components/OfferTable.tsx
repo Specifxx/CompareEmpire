@@ -1,6 +1,8 @@
+import Link from "next/link";
 import type { OfferView } from "@/lib/data";
 import { ebayLabel, ebayRetailer, ebaySearchUrl, offerLink, offerRetailer, REL_SPONSORED, TCGPLAYER_KEY, TCGPLAYER_RETAILER, tcgplayerSearchUrl } from "@/lib/affiliate";
 import { money, timeAgo } from "@/lib/format";
+import { perPackCents } from "@/lib/packs";
 import { REGIONS, type Region } from "@/lib/regions";
 import { offerStock, offerStockLabel } from "@/lib/sealed-offers";
 import { Ago } from "./Ago";
@@ -16,6 +18,7 @@ export function OfferTable({
   preorder,
   productName,
   usTcgplayer = null,
+  packs = null,
 }: {
   offers: OfferView[];
   region: Region;
@@ -23,6 +26,8 @@ export function OfferTable({
   productName: string;
   /** Outside the US: the matched TCGplayer product, linked (never priced) in the marketplace group. */
   usTcgplayer?: { url: string; title: string } | null;
+  /** Booster packs per unit (src/lib/packs.ts), for a per-pack price under each row's price. Null = not shown. */
+  packs?: number | null;
 }) {
   const r = REGIONS[region];
   const us = r.market === "US";
@@ -59,8 +64,13 @@ export function OfferTable({
                   {offerStockLabel(state, preorder)}
                 </StockPill>
                 <div className="flex items-center gap-3 sm:gap-4">
-                  <div className={`tabular text-right font-display text-lg font-bold sm:w-24 ${state === "open" ? "" : "text-faint line-through decoration-1"}`}>
-                    {money(o.priceCents, r.market)}
+                  <div className="text-right sm:w-28">
+                    <div className={`tabular font-display text-lg font-bold ${state === "open" ? "" : "text-faint line-through decoration-1"}`}>
+                      {money(o.priceCents, r.market)}
+                    </div>
+                    {packs != null && state === "open" && (
+                      <div className="tabular text-xs text-muted">≈ {money(perPackCents(o.priceCents, packs), r.market)} / pack</div>
+                    )}
                   </div>
                   <OutboundLink
                     href={link.href}
@@ -77,6 +87,13 @@ export function OfferTable({
           );
         })}
       </ul>
+      <p className="border-t border-line px-4 py-2.5 text-xs text-muted sm:px-5">
+        In stock first, then cheapest first. No store pays to be listed or to rank higher —{" "}
+        <Link href="/about" prefetch={false} className="underline underline-offset-2 hover:text-ink">
+          how DexCompare works
+        </Link>
+        .
+      </p>
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-t-4 border-line bg-raised px-4 py-2.5 sm:px-5">
         <h3 className="eyebrow">Marketplaces</h3>
         <span className="text-xs text-muted">{AFFILIATE_NOTE}</span>

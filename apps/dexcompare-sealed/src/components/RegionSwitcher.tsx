@@ -49,6 +49,7 @@ export function RegionSwitcher({ region }: { region: Region | null }) {
           <Link
             key={r.region}
             href={`/${r.region}${rest}`}
+            prefetch={false}
             onClick={() => ref.current && (ref.current.open = false)}
             className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm hover:bg-raised ${r.region === region ? "font-semibold" : ""}`}
           >

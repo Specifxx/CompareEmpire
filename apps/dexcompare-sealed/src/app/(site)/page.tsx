@@ -2,16 +2,18 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { RegionSuggest } from "@/components/RegionSuggest";
 import { REGION_LIST } from "@/lib/regions";
-import { SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/lib/site";
+import { SITE_NAME, SITE_URL } from "@/lib/site";
 import { STORES, storesInMarket } from "@/lib/stores";
 import { PRODUCT_TYPES } from "@/lib/sealed-title";
 
 // Fully static: counts come from the store registry, not the database, so
 // this page costs nothing to serve and never depends on the database.
+// `absolute`: the layout's "%s | DexCompare" template would brand it twice.
 export const metadata: Metadata = {
-  title: `${SITE_NAME} — Pokémon sealed prices & stock, compared`,
-  description: `${SITE_TAGLINE} ${STORES.length} stores across Australia, the US, the UK, Canada, New Zealand, Europe and Singapore.`,
+  title: { absolute: `${SITE_NAME} — compare Pokémon sealed prices & stock across ${STORES.length} stores` },
+  description: `Pokémon TCG sealed listings from ${STORES.length} independent stores in Australia, the US, the UK, Canada, New Zealand, Europe and Singapore, ranked by price and stock. Free, no login, no store pays to be listed.`,
   alternates: { canonical: SITE_URL },
+  openGraph: { url: SITE_URL, siteName: SITE_NAME, type: "website" },
 };
 
 export default function Landing() {
@@ -23,10 +25,11 @@ export default function Landing() {
         <div className="page relative py-16 text-center sm:py-24">
           <div className="eyebrow">Booster boxes · ETBs · bundles · collections · tins</div>
           <h1 className="mx-auto mt-4 max-w-4xl font-display text-5xl font-extrabold leading-[1.02] tracking-tight sm:text-7xl">
-            Every store&rsquo;s Pokémon sealed stock, <span className="text-brand">in one place.</span>
+            Independent stores&rsquo; Pokémon sealed stock, <span className="text-brand">in one place.</span>
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-muted">
-            DexCompare checks {STORES.length} independent stores twice a day and shows who has it in stock and who&rsquo;s cheapest.
+            Sealed listings from {STORES.length} independent stores in {REGION_LIST.length} regions, read about twice a day and ranked by
+            price and stock — nothing else. Free, no login, and no store pays to be listed.
           </p>
           <div className="mt-8 flex justify-center">
             <RegionSuggest />
@@ -56,9 +59,9 @@ export default function Landing() {
 
       <section className="page mt-20 grid gap-6 md:grid-cols-3">
         {[
-          { t: "Only real, buyable prices", d: "Every price is a store’s (or, in the US, a TCGplayer seller’s) own listing in your currency. The headline price is always something you can order today — never a sold-out or stale listing." },
-          { t: "Stock you can trust", d: "Each listing shows when we last read it. If a store hasn’t answered for three days we say “not checked recently” instead of guessing." },
-          { t: "Every store, one page", d: "Each product lists every store we track in your region, cheapest in-stock first, with a link straight to the store’s own page." },
+          { t: "The stores’ own prices", d: "Every price is a store’s (or, in the US, a TCGplayer seller’s) own listing, in your currency, excluding shipping. The headline price is always something that was orderable when we last read it — never a sold-out or stale listing." },
+          { t: "Stock, with a timestamp", d: "Each listing shows when we last read it. If a store hasn’t answered for three days we say “not checked recently” instead of guessing." },
+          { t: "Ranked by price and stock only", d: "Each product lists every store we track in your region, cheapest in-stock first, with a link straight to the store’s page. No store pays to be listed or to rank higher; affiliate links (eBay, TCGplayer) are marked." },
         ].map((f) => (
           <div key={f.t} className="card p-6">
             <h3 className="font-display text-lg font-bold">{f.t}</h3>
@@ -76,6 +79,10 @@ export default function Landing() {
             </span>
           ))}
         </div>
+        <p className="mx-auto mt-6 max-w-xl text-sm leading-6 text-muted">
+          English-language Pokémon TCG sealed product only. Singles, graded cards, Japanese product, accessories and store-made bundles are
+          left out on purpose — <Link href="/about#refuse" className="underline underline-offset-2 hover:text-ink">what we refuse, and why</Link>.
+        </p>
       </section>
     </div>
   );

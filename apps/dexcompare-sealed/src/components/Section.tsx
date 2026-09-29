@@ -21,7 +21,7 @@ export function Section({
           <h2 className="font-display text-2xl font-bold tracking-tight sm:text-[28px]">{title}</h2>
         </div>
         {href && (
-          <Link href={href} className="shrink-0 text-sm font-semibold text-brand hover:underline">
+          <Link href={href} prefetch={false} className="shrink-0 text-sm font-semibold text-brand hover:underline">
             {linkLabel} →
           </Link>
         )}

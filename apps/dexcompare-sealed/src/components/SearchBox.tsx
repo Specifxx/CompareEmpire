@@ -11,6 +11,7 @@ export function SearchBox({ region, size = "sm", autoFocus = false }: { region: 
   return (
     <form
       role="search"
+      aria-label={big ? "Search sealed products" : "Header search"}
       onSubmit={(e) => {
         e.preventDefault();
         const term = q.trim();

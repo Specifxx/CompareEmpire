@@ -1,12 +1,15 @@
 // The markets DexCompare compares within. A market is a region whose stores
 // all charge in ONE currency, so "cheapest" is always a like-for-like number a
-// buyer there is actually offered. Pure module: safe in client components.
+// buyer there is actually offered. Pure module: safe in client components
+// (notFound() from next/navigation is itself usable on either side).
 //
 // EU is the eurozone as one market (one currency, one customs union), not a
 // country. The other codes are ISO 3166 except UK (ISO: GB).
 //
 // Which eBay site a region's links go to is affiliate.ts's EBAY_FOR_REGION
 // (NZ → ebay.com.au, SG → ebay.com: neither has an EPN program of its own).
+
+import { notFound } from "next/navigation";
 
 export type Region = "au" | "nz" | "us" | "uk" | "ca" | "eu" | "sg";
 export type Market = Uppercase<Region>;
@@ -39,8 +42,35 @@ export const REGIONS: Record<Region, RegionInfo> = {
 
 export const REGION_LIST: RegionInfo[] = ["au", "us", "uk", "ca", "nz", "eu", "sg"].map((r) => REGIONS[r as Region]);
 
+// The region hreflang="x-default" points at: the one a searcher whose language
+// or country matches none of the seven should land on. US: the biggest English
+// market and the only one with a marketplace, so it is rarely thin.
+export const X_DEFAULT_REGION: Region = "us";
+
+/** Exact, lowercase match only: "AU" and "Au" are not regions (the redirect in middleware.ts lowercases them). */
 export function isRegion(v: string | null | undefined): v is Region {
   return !!v && Object.prototype.hasOwnProperty.call(REGIONS, v);
+}
+
+/**
+ * The region for a [region] route param, or the 404 page. Every page and
+ * generateMetadata under /[region] starts with this instead of REGIONS[param]:
+ * a page's own code runs whether or not its layout called notFound(), and
+ * REGIONS["foo"].market was how /terms and /AU used to answer 500.
+ */
+export function regionOrNotFound(v: string | null | undefined): RegionInfo {
+  if (!isRegion(v)) notFound();
+  return REGIONS[v];
+}
+
+/**
+ * Which of the regions a page advertises should be its x-default: US when it
+ * is among them, otherwise the first. Never a region the page is not
+ * indexable in — an x-default that lands on a noindex page is worse than none.
+ */
+export function xDefaultRegion(advertised: readonly Region[]): Region {
+  if (!advertised.length) return X_DEFAULT_REGION;
+  return advertised.includes(X_DEFAULT_REGION) ? X_DEFAULT_REGION : advertised[0];
 }
 
 export function regionOfMarket(market: string): RegionInfo | null {

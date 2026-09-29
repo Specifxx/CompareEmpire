@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { REGION_LIST } from "@/lib/regions";
-import { CONTACT_EMAIL } from "@/lib/site";
+import { CONTACT_EMAIL, OPERATOR, SITE_NAME } from "@/lib/site";
 import { LogoMark } from "./Logo";
 
 export function Footer() {
@@ -13,7 +13,7 @@ export function Footer() {
           </div>
           <p className="mt-3 text-sm leading-6 text-muted">
             Pokémon TCG sealed product — booster boxes, Elite Trainer Boxes, bundles, collections and tins — compared across
-            independent stores, with live stock.
+            independent stores, with stock as of the last read.
           </p>
           <p className="mt-3 text-xs leading-5 text-muted">
             Prices are each store&rsquo;s (or TCGplayer seller&rsquo;s) own, in its own currency, and exclude shipping. Links to eBay and TCGplayer are affiliate
@@ -39,12 +39,20 @@ export function Footer() {
         <div>
           <div className="eyebrow mb-3">DexCompare</div>
           <ul className="grid gap-1.5 text-sm">
-            <li><Link href="/about" className="text-muted hover:text-ink">How it works</Link></li>
+            <li><Link href="/about" className="text-muted hover:text-ink">About &amp; how it works</Link></li>
             <li><Link href="/about#stores" className="text-muted hover:text-ink">For stores</Link></li>
+            <li><Link href="/contact" className="text-muted hover:text-ink">Contact &amp; report a listing</Link></li>
+            <li><Link href="/terms" className="text-muted hover:text-ink">Terms</Link></li>
             <li><Link href="/privacy" className="text-muted hover:text-ink">Privacy</Link></li>
             <li><a href={`mailto:${CONTACT_EMAIL}`} className="text-muted hover:text-ink">{CONTACT_EMAIL}</a></li>
           </ul>
         </div>
+      </div>
+      <div className="border-t border-line">
+        <p className="page py-4 text-xs text-faint">
+          {SITE_NAME} is operated by {OPERATOR}. Prices and stock are read from each store about twice a day and may have changed; the
+          store&rsquo;s own page is final.
+        </p>
       </div>
     </footer>
   );

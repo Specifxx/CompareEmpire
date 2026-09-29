@@ -18,6 +18,10 @@ export interface FeedProduct {
   title: string;
   url: string;
   imageUrl: string | null;
+  // Pixel size of imageUrl when the feed says (Shopify's images[] carries
+  // width/height): the importer prefers a big photo over a thumbnail.
+  imageWidth?: number;
+  imageHeight?: number;
   variants: FeedVariant[];
   currency: string | null; // stated by the feed (Woo); Shopify's feed doesn't say
 }
@@ -43,7 +47,7 @@ interface ShopifyProductRaw {
   handle: string;
   title: string;
   variants?: ShopifyVariantRaw[];
-  images?: { src?: string }[];
+  images?: { src?: string; width?: number; height?: number }[];
 }
 
 const SHOPIFY_PAGE = 250;
@@ -73,6 +77,8 @@ export async function readShopifyCollection(
         title: decodeEntities(p.title ?? ""),
         url: `${base}/products/${p.handle}`,
         imageUrl: p.images?.[0]?.src ?? null,
+        imageWidth: p.images?.[0]?.width,
+        imageHeight: p.images?.[0]?.height,
         variants: (p.variants ?? [])
           .map((v) => ({ priceCents: Math.round(parseFloat(v.price ?? "0") * 100), available: v.available === true, title: v.title }))
           .filter((v) => Number.isFinite(v.priceCents) && v.priceCents > 0),

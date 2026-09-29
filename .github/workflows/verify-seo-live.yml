@@ -3,12 +3,10 @@ name: Verify SEO surfaces on the live sites (manual, read-only)
 # End-to-end check that the SEO/ISR work is actually serving in production on
 # BOTH sites (runs on GitHub's runners; the dev container has no egress to the
 # production domains). Verifies:
-#  - the market-neutral homepage copy is live (proves the new DB-dependent
-#    Vercel build succeeded — pages now prerender at build time)
-#  - ISR is really on: a repeat request to the homepage returns a Vercel cache
-#    HIT/STALE instead of per-request MISSes
-#  - /sitemap.xml serves a real <sitemapindex>, /feed.xml serves RSS,
-#    /llms.txt serves the agent site map, robots.txt intact
+#  - DexCompare (sealed): canonical/hreflang on https://www.dexcompare.app,
+#    apex and /AU redirects, unknown paths 404, /sitemap.xml is an index whose
+#    regional files total ≥ 1000 product URLs, robots points at it, the trust
+#    pages answer, the security headers are on, ISR returns cache hits
 #  - RiftCompare: neutral hero live, /card-value linked from the chrome
 
 on:
@@ -16,41 +14,77 @@ on:
 
 jobs:
   dexcompare:
+    # The sealed site (apps/dexcompare-sealed) at https://www.dexcompare.app.
+    # Read-only: a handful of GETs.
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      SITE: https://www.dexcompare.app
     steps:
-      - name: Homepage — neutral copy live (new build deployed)
+      - name: Canonical host — every canonical/hreflang URL is on the www host
         run: |
           set -e
-          BODY=$(curl -fsSL --retry 3 https://dexcompare.app/)
-          echo "$BODY" | grep -q "across Australian, NZ, US and UK stores" \
-            && echo "OK: neutral hero copy live" \
-            || { echo "FAIL: neutral copy missing — new deploy not live?"; exit 1; }
-          echo "$BODY" | grep -q "Where can I buy Pokémon cards online?" \
-            && echo "OK: neutral FAQs live" || { echo "FAIL: neutral FAQs missing"; exit 1; }
+          BODY=$(curl -fsSL --retry 3 "$SITE/au")
+          echo "$BODY" | grep -o '<link rel="canonical" href="[^"]*"' | head -1
+          echo "$BODY" | grep -q '<link rel="canonical" href="https://www.dexcompare.app/au"' \
+            && echo "OK: canonical on www.dexcompare.app" \
+            || { echo "FAIL: canonical is not https://www.dexcompare.app/au — NEXT_PUBLIC_SITE_URL wrong in Vercel? (DEPLOY.md, Domains)"; exit 1; }
+          echo "$BODY" | grep -qi 'hreflang="x-default"' && echo "OK: x-default present" || { echo "FAIL: no x-default hreflang"; exit 1; }
+          if echo "$BODY" | grep -q 'dexcompare\.com'; then echo "FAIL: dexcompare.com still referenced"; exit 1; fi
 
-      - name: Homepage — ISR cache actually working
+      - name: Apex and upper-case region redirect, unknown paths 404
         run: |
           set -e
-          curl -fsSL -o /dev/null https://dexcompare.app/   # warm
+          code() { curl -s -o /dev/null -w '%{http_code} %{redirect_url}' "$1"; }
+          echo "apex: $(code https://dexcompare.app/au)"
+          echo "$(code https://dexcompare.app/au)" | grep -qE '^30[18] https://www\.dexcompare\.app/au' && echo "OK: apex redirects to www" || echo "WARN: apex does not redirect to www (Vercel → Domains)"
+          echo "/AU: $(code $SITE/AU)"
+          echo "$(code $SITE/AU)" | grep -q '^308 .*/au$' && echo "OK: /AU → /au" || { echo "FAIL: /AU did not 308 to /au"; exit 1; }
+          for p in /foo /terms-of-service /Au; do
+            c=$(curl -s -o /dev/null -w '%{http_code}' "$SITE$p"); echo "$p: $c"
+            [ "$c" = "404" ] || { echo "FAIL: $p answered $c, expected 404"; exit 1; }
+          done
+
+      - name: Sitemap index, regional files, product count, robots
+        run: |
+          set -e
+          IDX=$(curl -fsSL --retry 3 "$SITE/sitemap.xml")
+          echo "$IDX" | grep -q "<sitemapindex" && echo "OK: /sitemap.xml is a sitemap index" || { echo "FAIL: /sitemap.xml is not an index"; exit 1; }
+          FILES=$(echo "$IDX" | grep -o '<loc>[^<]*</loc>' | sed 's/<[^>]*>//g')
+          echo "$FILES"
+          TOTAL=0
+          for f in $FILES; do
+            XML=$(curl -fsSL --retry 3 "$f")
+            N=$(echo "$XML" | grep -o '/p/[^<]*</loc>' | wc -l)
+            echo "$f: $(echo "$XML" | grep -o '<loc>' | wc -l) URLs, $N products"
+            TOTAL=$((TOTAL + N))
+          done
+          echo "product URLs across regions: $TOTAL"
+          [ "$TOTAL" -ge 1000 ] || { echo "FAIL: under 1000 product URLs — a regional sitemap query failed or the database is empty"; exit 1; }
+          curl -fsSL --retry 3 "$SITE/robots.txt" | grep -q "Sitemap: https://www.dexcompare.app/sitemap.xml" \
+            && echo "OK: robots.txt points at the index" || { echo "FAIL: robots.txt sitemap line wrong"; exit 1; }
+
+      - name: Trust pages and security headers
+        run: |
+          set -e
+          for p in /about /terms /privacy /contact; do
+            c=$(curl -s -o /dev/null -w '%{http_code}' "$SITE$p"); echo "$p: $c"
+            [ "$c" = "200" ] || { echo "FAIL: $p answered $c"; exit 1; }
+          done
+          H=$(curl -fsSL -D - -o /dev/null "$SITE/terms" | tr -d '\r')
+          echo "$H" | grep -qi '^content-security-policy-report-only:' && echo "OK: CSP report-only header present" || { echo "FAIL: no CSP-Report-Only header"; exit 1; }
+          echo "$H" | grep -qi '^strict-transport-security:' && echo "OK: HSTS" || { echo "FAIL: no HSTS"; exit 1; }
+
+      - name: ISR cache actually working
+        run: |
+          set -e
+          curl -fsSL -o /dev/null "$SITE/au"   # warm
           sleep 2
-          H=$(curl -fsSL -D - -o /dev/null https://dexcompare.app/ | tr -d '\r')
+          H=$(curl -fsSL -D - -o /dev/null "$SITE/au" | tr -d '\r')
           echo "$H" | grep -i "x-vercel-cache" || echo "(no x-vercel-cache header)"
           echo "$H" | grep -qiE "x-vercel-cache: (HIT|STALE)" \
-            && echo "OK: homepage served from ISR cache" \
+            && echo "OK: region home served from ISR cache" \
             || { echo "WARN: no cache HIT on repeat request — check again after a few visits"; }
-
-      - name: Sitemap index, RSS, llms.txt, robots
-        run: |
-          set -e
-          curl -fsSL --retry 3 https://dexcompare.app/sitemap.xml | grep -q "<sitemapindex" \
-            && echo "OK: /sitemap.xml is a real sitemap index" || { echo "FAIL: sitemap.xml wrong"; exit 1; }
-          curl -fsSL --retry 3 https://dexcompare.app/feed.xml | grep -q "<rss" \
-            && echo "OK: /feed.xml serves RSS" || { echo "FAIL: feed.xml broken"; exit 1; }
-          curl -fsSL --retry 3 https://dexcompare.app/llms.txt | grep -q "# DexCompare" \
-            && echo "OK: /llms.txt serves" || { echo "FAIL: llms.txt broken (deploy pending?)"; exit 1; }
-          curl -fsSL --retry 3 https://dexcompare.app/robots.txt | grep -q "sitemap" \
-            && echo "OK: robots.txt intact" || { echo "FAIL: robots broken"; exit 1; }
 
   riftcompare:
     runs-on: ubuntu-latest

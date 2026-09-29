@@ -80,6 +80,19 @@ GitHub Actions (twice a day)               Vercel (Next.js 14, ISR)
 - **Egress**: the rules at the top of `src/lib/db.ts` (from Rift Compare). No
   page is prerendered against the database at build, and no request reads a
   whole table.
+- **Regions in URLs** (`src/lib/regions.ts`): every page under `/[region]`
+  starts with `regionOrNotFound(params.region)`, which 404s an unknown or
+  upper-case segment before anything dereferences it; `src/middleware.ts`
+  308s the exact upper-case prefixes (`/AU/…` → `/au/…`). hreflang
+  (`regionAlternates` in `src/lib/seo.ts`) advertises only the regions a page
+  is indexable in, plus `x-default`.
+- **Sitemap**: `/sitemap.xml` is an index of `/sitemap/0.xml` (static pages,
+  store pages) and one file per region (`src/lib/sitemap.ts`,
+  `src/app/sitemap.ts`). A failed query throws so ISR keeps the last good copy;
+  the import job counts the live product URLs afterwards and fails under 1,000.
+- **Trust pages** (`src/app/(site)`): `/about` (which stores and why, what we
+  refuse, freshness), `/terms`, `/privacy`, `/contact` (report a listing). The
+  operator name comes from `NEXT_PUBLIC_OPERATOR` (`src/lib/site.ts`).
 
 ## Local development
 
@@ -92,7 +105,8 @@ DATABASE_URL=… npx tsx scripts/import.ts --only AU   # or: --only pokebox,cher
 npm run dev                        # http://localhost:3003
 ```
 
-Checks: `npm run typecheck`, `npm run lint`, `npm test`.
+Checks: `npm run typecheck`, `npm run lint`, `npm test`. `SITE_URL` defaults
+to `https://www.dexcompare.app`; set `NEXT_PUBLIC_SITE_URL` to override it.
 
 ## Adding a store
 

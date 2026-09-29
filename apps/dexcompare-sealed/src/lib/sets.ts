@@ -22,6 +22,11 @@ export interface PokemonSet {
   logo: string | null;
   generic?: boolean;
   aliases?: string[]; // extra regex sources (case-insensitive)
+  // The set was never sold as a 36-pack booster box (the ".5" and special sets:
+  // ETBs, bundles and collections only). A "Booster Box" or "36 Pack Bundle" of
+  // it is a store-made lot, refused by identify(). Checked against TCGplayer's
+  // catalogue on 2026-09-28: it lists no booster box (or case) for any of them.
+  noBoosterBox?: boolean;
 }
 
 export const SETS: PokemonSet[] = [
@@ -96,7 +101,12 @@ export const SETS: PokemonSet[] = [
   {"code":"xy4","name":"Phantom Forces","slug":"phantom-forces","series":"XY","releaseDate":"2014-11-05","logo":"https://images.pokemontcg.io/xy4/logo.png"},
   {"code":"xy3","name":"Furious Fists","slug":"furious-fists","series":"XY","releaseDate":"2014-08-13","logo":"https://images.pokemontcg.io/xy3/logo.png"},
   {"code":"xy2","name":"Flashfire","slug":"flashfire","series":"XY","releaseDate":"2014-05-07","logo":"https://images.pokemontcg.io/xy2/logo.png"},
+  {"code":"xy1","name":"XY","slug":"xy","series":"XY","releaseDate":"2014-02-05","logo":"https://images.pokemontcg.io/xy1/logo.png","generic":true},
 ];
+
+// Sets sold without a booster box (see PokemonSet.noBoosterBox).
+const NO_BOOSTER_BOX = ["cel30", "me2pt5", "sv8pt5", "sv6pt5", "sv4pt5", "sv3pt5", "swsh12pt5", "pgo", "cel25", "swsh45", "swsh35", "sm115", "sm75", "sm35", "det1", "g1"];
+for (const s of SETS) if (NO_BOOSTER_BOX.includes(s.code)) s.noBoosterBox = true;
 
 // Title spellings the plain set name doesn't cover.
 const ALIASES: Record<string, string[]> = {
@@ -105,6 +115,9 @@ const ALIASES: Record<string, string[]> = {
   sv3pt5: ["(?<![\\d/.])151(?![\\d/]|\\s*cards?)"],
   sv1: ["scarlet\\s*(?:&|and)\\s*violet\\s*base(?:\\s*set)?"],
   swsh35: ["champions?[’']?s?\\s*path"],
+  // Store misspellings seen in the 2026-09 import: "Shinning Fates", "Guardian Rising".
+  swsh45: ["shin+ing\\s*fates"],
+  sm2: ["guardian'?s?\\s*rising"],
   pgo: ["pok[eé]mon\\s*go\\b"],
   cel25: ["25th\\s*anniversary"],
   // Stores also write it "30th Celebrations", which must not read as
@@ -113,6 +126,9 @@ const ALIASES: Record<string, string[]> = {
   g1: ["\\bgenerations\\b"],
   xy9: ["break\\s*point"],
   xy8: ["break\\s*through"],
+  // "XY" alone is also the series (every XY-era set is "XY - Flashfire"), so the
+  // base set only reads from "XY Base Set", "XY Booster Box", "XY Elite Trainer Box".
+  xy1: ["\\bxy\\s*[:\\-]?\\s*\\(?\\s*(?:base\\s*set|booster|elite)"],
 };
 for (const s of SETS) if (ALIASES[s.code]) s.aliases = ALIASES[s.code];
 

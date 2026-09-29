@@ -3,13 +3,16 @@
 import { useEffect, useMemo, useState } from "react";
 import type { ProductCardData } from "@/lib/data";
 import { cardOpen, expandCard, type CompactCard } from "@/lib/compact";
+import { pctOf } from "@/lib/format";
+import { packsForLabel, perPackCents } from "@/lib/packs";
 import { PRODUCT_TYPES, typeRank } from "@/lib/sealed-title";
 import { SETS } from "@/lib/sets";
 import type { Region } from "@/lib/regions";
 import { MarketplaceSearch } from "./Marketplaces";
+import { Pagination } from "./Pagination";
 import { ProductCard } from "./ProductCard";
 
-type Sort = "relevance" | "price-asc" | "price-desc" | "newest" | "stores";
+type Sort = "relevance" | "price-asc" | "price-desc" | "per-pack" | "saving" | "newest" | "stores";
 const PAGE = 48;
 
 function norm(s: string): string {
@@ -18,9 +21,14 @@ function norm(s: string): string {
 
 // Filters live in the URL (?q=&type=&set=&stock=&sort=) so a filtered view can
 // be shared, but they're read AFTER hydration, not through useSearchParams: the
-// cached HTML then always holds the full, unfiltered list for crawlers,
-// instead of a loading fallback.
-export function BrowseGrid({ rows, region }: { rows: CompactCard[]; region: Region }) {
+// cached HTML then always holds the unfiltered list for crawlers, instead of a
+// loading fallback.
+//
+// Unfiltered, the grid is one page of 48 with real <a> links to the others
+// (`${base}/page/N`, each a cached render), so every product is reachable from
+// HTML. The whole list still ships (compact tuples), so as soon as a filter or
+// sort is touched the grid works over everything, client-side, with "Show more".
+export function BrowseGrid({ rows, region, base, page = 1 }: { rows: CompactCard[]; region: Region; base: string; page?: number }) {
   const products = useMemo(() => rows.map(expandCard), [rows]);
   const [q, setQ] = useState("");
   const [type, setType] = useState("");
@@ -28,6 +36,7 @@ export function BrowseGrid({ rows, region }: { rows: CompactCard[]; region: Regi
   const [inStock, setInStock] = useState(false);
   const [sort, setSort] = useState<Sort>("relevance");
   const [limit, setLimit] = useState(PAGE);
+  const [touched, setTouched] = useState(false);
 
   useEffect(() => {
     const p = new URLSearchParams(window.location.search);
@@ -37,9 +46,13 @@ export function BrowseGrid({ rows, region }: { rows: CompactCard[]; region: Regi
     setInStock(p.get("stock") === "in");
     const s = p.get("sort") as Sort | null;
     if (s) setSort(s);
+    setTouched(true);
   }, []);
 
+  const any = !!(q || type || set || inStock || sort !== "relevance");
+
   useEffect(() => {
+    if (!touched) return;
     const p = new URLSearchParams();
     if (q) p.set("q", q);
     if (type) p.set("type", type);
@@ -47,9 +60,10 @@ export function BrowseGrid({ rows, region }: { rows: CompactCard[]; region: Regi
     if (inStock) p.set("stock", "in");
     if (sort !== "relevance") p.set("sort", sort);
     const qs = p.toString();
-    window.history.replaceState(null, "", qs ? `?${qs}` : window.location.pathname);
+    // A filtered view is the whole list, so it lives on the bare URL, not /page/N.
+    window.history.replaceState(null, "", qs ? `${base}?${qs}` : window.location.pathname);
     setLimit(PAGE);
-  }, [q, type, set, inStock, sort]);
+  }, [q, type, set, inStock, sort, base, touched]);
 
   const setsHere = useMemo(() => {
     const codes = new Set(products.map((p) => p.setCode).filter(Boolean));
@@ -75,12 +89,20 @@ export function BrowseGrid({ rows, region }: { rows: CompactCard[]; region: Regi
       return true;
     });
     const price = (p: ProductCardData) => (cardOpen(p) ? p.lowestPriceCents ?? Infinity : Infinity);
+    // Per pack: only products whose line fixes a pack count; the rest follow.
+    const perPack = (p: ProductCardData) => (cardOpen(p) ? perPackCents(p.lowestPriceCents, packsForLabel(p.productType, p.setCode, p.name)) ?? Infinity : Infinity);
+    // Saving vs the median of in-stock stores (three or more): most below first.
+    const saving = (p: ProductCardData) => (cardOpen(p) && p.inStockStores >= 3 ? pctOf(p.lowestPriceCents ?? 0, p.medianOpenCents) ?? Infinity : Infinity);
     list = [...list].sort((a, b) => {
       switch (sort) {
         case "price-asc":
           return price(a) - price(b);
         case "price-desc":
           return (cardOpen(b) ? b.lowestPriceCents ?? 0 : -1) - (cardOpen(a) ? a.lowestPriceCents ?? 0 : -1);
+        case "per-pack":
+          return perPack(a) - perPack(b) || price(a) - price(b);
+        case "saving":
+          return saving(a) - saving(b) || price(a) - price(b);
         case "stores":
           // Independent stores only; TCGplayer-only products follow, cheapest first.
           return b.inStockStores - a.inStockStores || price(a) - price(b);
@@ -99,8 +121,8 @@ export function BrowseGrid({ rows, region }: { rows: CompactCard[]; region: Regi
     return list;
   }, [products, q, type, set, inStock, sort]);
 
-  const shown = filtered.slice(0, limit);
-  const any = q || type || set || inStock;
+  const pages = Math.max(1, Math.ceil(products.length / PAGE));
+  const shown = any ? filtered.slice(0, limit) : filtered.slice((page - 1) * PAGE, page * PAGE);
   // With nothing here, offer the same search on the marketplaces: the words
   // typed, else the set and type picked.
   const elsewhere = (
@@ -135,10 +157,12 @@ export function BrowseGrid({ rows, region }: { rows: CompactCard[]; region: Regi
                 </option>
               ))}
             </select>
-            <select value={sort} onChange={(e) => setSort(e.target.value as Sort)} aria-label="Sort" className="min-w-0 flex-1 rounded-full border border-line bg-raised px-3 py-2 text-sm md:w-44">
+            <select value={sort} onChange={(e) => setSort(e.target.value as Sort)} aria-label="Sort" className="min-w-0 flex-1 rounded-full border border-line bg-raised px-3 py-2 text-sm md:w-52">
               <option value="relevance">Recommended</option>
               <option value="price-asc">Price: low to high</option>
               <option value="price-desc">Price: high to low</option>
+              <option value="per-pack">Price per pack</option>
+              <option value="saving">Biggest saving vs median</option>
               <option value="newest">Newest set</option>
               <option value="stores">Most stores in stock</option>
             </select>
@@ -163,6 +187,7 @@ export function BrowseGrid({ rows, region }: { rows: CompactCard[]; region: Regi
         <span>
           <b className="text-ink">{filtered.length.toLocaleString("en")}</b> {filtered.length === 1 ? "product" : "products"}
           {inStock ? " in stock" : ""}
+          {!any && pages > 1 && ` · page ${page} of ${pages}`}
         </span>
         {any && (
           <button
@@ -193,12 +218,16 @@ export function BrowseGrid({ rows, region }: { rows: CompactCard[]; region: Regi
         </div>
       )}
 
-      {filtered.length > limit && (
-        <div className="mt-8 flex justify-center">
-          <button onClick={() => setLimit((n) => n + PAGE)} className="btn-ghost px-6 py-2.5">
-            Show more ({(filtered.length - limit).toLocaleString("en")} left)
-          </button>
-        </div>
+      {any ? (
+        filtered.length > limit && (
+          <div className="mt-8 flex justify-center">
+            <button onClick={() => setLimit((n) => n + PAGE)} className="btn-ghost px-6 py-2.5">
+              Show more ({(filtered.length - limit).toLocaleString("en")} left)
+            </button>
+          </div>
+        )
+      ) : (
+        <Pagination base={base} page={page} pages={pages} />
       )}
     </div>
   );

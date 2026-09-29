@@ -35,8 +35,9 @@ import {
   type CollectionRead,
   type FeedProduct,
 } from "./feeds";
-import { RateLimitedError, REQUEST_DELAY_MS, sleep } from "./scrape-http";
-import { floorCents, identify, isIdentity, roughUsdCents, type SealedIdentity, type TypeKey } from "./sealed-title";
+import { RateLimitedError, REQUEST_DELAY_MS, SCRAPE_HEADERS, sleep } from "./scrape-http";
+import { usMsrpCents } from "./rrp";
+import { canonicalName, cleanName, floorCents, identify, isIdentity, roughUsdCents, slugify, type SealedIdentity, type TypeKey } from "./sealed-title";
 import { headlineOffer, offerStock } from "./sealed-offers";
 import { SOURCES, STORE_BY_KEY, isMarketplace, storeCurrency, type StoreConfig } from "./stores";
 import { isTcgImage, readTcgplayerCatalogue, tcgFeedProducts, tcgImageExists } from "./tcgplayer";
@@ -48,6 +49,7 @@ export interface ImportRow {
   priceCents: number;
   inStock: boolean;
   imageUrl: string | null;
+  imageArea?: number; // pixels, when the feed said (feeds.ts)
 }
 
 export interface StoreRead {
@@ -63,6 +65,8 @@ export interface StoreRead {
   partial?: string;
 }
 
+// The photo HEAD sweep (sweepImages) runs 4 at a time for at most this long.
+const IMAGE_SWEEP_MAX_MS = 5 * 60_000;
 const MAX_PAGES = 8; // per collection: 2,000 products
 const OFFER_TTL_DAYS = 14; // an offer not re-read for this long is deleted
 // An in-stock price below 25% of the product's IN-STOCK median in that market
@@ -70,6 +74,46 @@ const OFFER_TTL_DAYS = 14; // an offer not re-read for this long is deleted
 // out-of-print sets, one store selling old stock at the original price next to
 // others asking collector prices is real, and it's the deal people want.
 const LOW_OUTLIER = 0.25;
+// The high side (dropHighOutliers), for STORE rows only: an in-stock price over
+// this many times the product's in-stock median in the market is a lot the
+// title didn't admit to ("Booster Pack x 50 (LIVE)" at 50x, a "Pack Bundle" at
+// 53x) or a display filed as a unit. Small products are the ones sold by the
+// handful, so they get the wider bar; a box, ETB or collection is only judged
+// while its set is recent (HIGH_OUTLIER_MAX_AGE_DAYS) — an out-of-print box
+// really can ask 3x the next store's old stock.
+const HIGH_OUTLIER: Partial<Record<TypeKey, number>> = {
+  "booster-pack": 4,
+  "sleeved-booster": 4,
+  blister: 4,
+  "booster-bundle": 4,
+  "build-battle": 4,
+  "booster-box": 3,
+  etb: 3,
+  "pc-etb": 3,
+  collection: 3,
+};
+const HIGH_OUTLIER_RECENT_ONLY = new Set<TypeKey>(["booster-box", "etb", "pc-etb", "collection"]);
+const HIGH_OUTLIER_MAX_AGE_DAYS = 548; // 18 months
+// A store whose in-stock prices sit under this share of the market median on
+// SUSPECT_STORE_MIN products isn't selling at those prices: it shows "in stock"
+// at the old MSRP on product that has long gone (tcgcarddepot listed 39 such
+// products). Its rows are kept, as sold out, for the run.
+const SUSPECT_STORE_SHARE = 0.5;
+const SUSPECT_STORE_MIN = 5;
+// …and that is a pattern only when it is a fifth or more of what the store has
+// in stock at a comparable price: a genuinely cheap store (5 of 99 rows under
+// half the median — shopverse, measured 2026-09) is a discounter, not a stale
+// feed, and must not be flipped to sold out wholesale (and then to dormant).
+// tcgcarddepot: 41 of 101.
+const SUSPECT_STORE_MIN_RATE = 0.2;
+// A TCGplayer ask on an UNRELEASED set over this many times TPCi's US MSRP is a
+// pre-release placeholder ($449.99 for a $59.99 PC ETB), not a price anyone
+// will pay: the stores' pre-orders are at or near MSRP. Released sets keep
+// every ask; there the market is the price.
+const PRE_RELEASE_MSRP_MULTIPLE = 3;
+// A store with this many listings and none in stock at the end of a run is
+// dormant (see StoreStat.dormant); its rows don't count as "listed by".
+const DORMANT_MIN_LISTED = 20;
 // A marketplace ask over this multiple of what the stores ask for the same
 // product (see dropPlaceholderAsks) is a placeholder, not a price. Generous on
 // purpose: stores' sold-out listings often still show the original retail
@@ -135,6 +179,7 @@ export function rowsFromReads(store: StoreConfig, reads: CollectionRead[]): Impo
       const price = priceOf(p, floorCents(id.type, store.market));
       if (!price) continue;
       const row: ImportRow = { identity: id, title: p.title, url: p.url, imageUrl: p.imageUrl, ...price };
+      if (p.imageWidth && p.imageHeight) row.imageArea = p.imageWidth * p.imageHeight;
       const prev = best.get(id.groupKey);
       if (!prev || better(row, prev)) best.set(id.groupKey, row);
     }
@@ -255,6 +300,80 @@ function median(v: number[]): number {
   return s.length % 2 ? s[(s.length - 1) / 2] : (s[s.length / 2 - 1] + s[s.length / 2]) / 2;
 }
 
+/** In-stock median per market × product from the STORES' rows, where three or more stores have it. */
+function inStockMedians(reads: StoreRead[]): Map<string, number> {
+  const prices = new Map<string, number[]>();
+  for (const r of reads) {
+    if (isMarketplace(r.store)) continue;
+    for (const row of r.rows) {
+      if (!row.inStock) continue;
+      const k = `${r.store.market}|${row.identity.groupKey}`;
+      (prices.get(k) ?? prices.set(k, []).get(k)!).push(row.priceCents);
+    }
+  }
+  const out = new Map<string, number>();
+  for (const [k, v] of prices) if (v.length >= 3) out.set(k, median(v));
+  return out;
+}
+
+function ageDays(releaseDate: string | undefined, today: Date): number {
+  return releaseDate ? (today.getTime() - Date.parse(releaseDate)) / 86400_000 : Infinity;
+}
+
+/**
+ * Drop a store's in-stock rows priced far ABOVE the other stores' in-stock
+ * price for the same product in the same market (HIGH_OUTLIER): a lot or a
+ * display the title didn't say. Marketplace rows are judged by
+ * dropPlaceholderAsks instead. Needs three or more in-stock listings.
+ */
+export function dropHighOutliers(reads: StoreRead[], today = new Date()): number {
+  const medians = inStockMedians(reads);
+  let dropped = 0;
+  for (const r of reads) {
+    if (isMarketplace(r.store)) continue;
+    r.rows = r.rows.filter((row) => {
+      const bar = HIGH_OUTLIER[row.identity.type];
+      const m = medians.get(`${r.store.market}|${row.identity.groupKey}`);
+      if (bar == null || m == null || !row.inStock || row.priceCents <= m * bar) return true;
+      if (HIGH_OUTLIER_RECENT_ONLY.has(row.identity.type) && ageDays(row.identity.set?.releaseDate, today) > HIGH_OUTLIER_MAX_AGE_DAYS) return true;
+      dropped++;
+      console.warn(`  high outlier dropped: ${r.store.key} "${row.title}" ${row.priceCents} vs median ${m} (${bar}x)`);
+      return false;
+    });
+  }
+  return dropped;
+}
+
+/**
+ * Stores whose "in stock" can't be believed: SUSPECT_STORE_MIN or more of
+ * their in-stock prices (and SUSPECT_STORE_MIN_RATE of those with a market
+ * median to compare with) sit under SUSPECT_STORE_SHARE of the market's in-stock
+ * median. Every row of such a store is written as sold out this run (the
+ * listing and its price stay on the page, ranked with the other sold-out ones).
+ * Runs before dropLowOutliers, which would otherwise delete the worst of them
+ * and leave the rest counted as the cheapest in stock.
+ */
+export function demoteSuspectStores(reads: StoreRead[]): { store: string; low: number }[] {
+  const medians = inStockMedians(reads);
+  const demoted: { store: string; low: number }[] = [];
+  for (const r of reads) {
+    if (isMarketplace(r.store)) continue;
+    let low = 0;
+    let judged = 0;
+    for (const row of r.rows) {
+      const m = medians.get(`${r.store.market}|${row.identity.groupKey}`);
+      if (m == null || !row.inStock) continue;
+      judged++;
+      if (row.priceCents < m * SUSPECT_STORE_SHARE) low++;
+    }
+    if (low < SUSPECT_STORE_MIN || low < judged * SUSPECT_STORE_MIN_RATE) continue;
+    for (const row of r.rows) row.inStock = false;
+    demoted.push({ store: r.store.key, low });
+    console.warn(`  suspect stock: ${r.store.key} has ${low} in-stock prices under half the market median; its rows are written as sold out`);
+  }
+  return demoted;
+}
+
 /**
  * Drop a marketplace's (TCGplayer's) placeholder asks. tcgplayer.ts skips an
  * ask over three times TCGplayer's own market price, but most older products
@@ -269,10 +388,15 @@ function median(v: number[]): number {
  *     the set's units (a $19,998.95 Lost Origin booster bundle case against a
  *     $198.49 booster bundle), for cases no store lists.
  *
+ *   - On a set that hasn't released yet, over PRE_RELEASE_MSRP_MULTIPLE times
+ *     TPCi's US MSRP for the product (src/lib/rrp.ts), where one is published:
+ *     TCGplayer's first sellers list a $59.99 Pokémon Center ETB at $449.99
+ *     months before release, and that became the "from" price.
+ *
  * Uses only this run's reads: on a partial run (--only) the first check sees
  * fewer store asks and simply applies less often.
  */
-export function dropPlaceholderAsks(reads: StoreRead[]): number {
+export function dropPlaceholderAsks(reads: StoreRead[], today = new Date()): number {
   const storeAsks = new Map<string, number[]>();
   for (const r of reads) {
     if (!r.ok || isMarketplace(r.store)) continue;
@@ -292,12 +416,15 @@ export function dropPlaceholderAsks(reads: StoreRead[]): number {
       const ref = asks && asks.length >= 2 ? median(asks) : null;
       const unitType = CASE_UNIT[row.identity.type];
       const unitPrice = unitType && row.identity.set ? unit.get(`${row.identity.set.code}|${unitType}`) : undefined;
+      const msrp = row.identity.set && ageDays(row.identity.set.releaseDate, today) < 0 ? usMsrpCents(row.identity.type, row.identity.set.code) : null;
       const why =
         ref != null && usd > ref * MARKETPLACE_HIGH
           ? `vs stores' median ~US$${(ref / 100).toFixed(2)}`
           : unitPrice != null && row.priceCents > unitPrice * CASE_MAX_UNITS
             ? `vs ${(unitPrice / 100).toFixed(2)} for one ${unitType}`
-            : null;
+            : msrp != null && row.priceCents > msrp * PRE_RELEASE_MSRP_MULTIPLE
+              ? `vs US MSRP ${(msrp / 100).toFixed(2)} before release`
+              : null;
       if (!why) return true;
       dropped++;
       console.warn(`  placeholder ask dropped: ${r.store.key} "${row.title}" ${row.priceCents} ${why}`);
@@ -379,10 +506,15 @@ async function mapLimit<T, R>(items: T[], limit: number, fn: (item: T) => Promis
   return out;
 }
 
-/** The key a product's own name identifies to, when that isn't the key it's filed under. */
-function misfiled(p: { name: string; groupKey: string }): SealedIdentity | null {
+/**
+ * Is a product's name wrong for the key it's filed under? Either the name
+ * identifies to another key, or it doesn't identify at all any more (a name
+ * taken from a listing the classifier now refuses: "3-Pack Blister MAX 1 PER
+ * CUSTOMER", "Tins (Pair)").
+ */
+function misfiled(p: { name: string; groupKey: string }): boolean {
   const id = identify(p.name);
-  return isIdentity(id) && id.groupKey !== p.groupKey ? id : null;
+  return !isIdentity(id) || id.groupKey !== p.groupKey;
 }
 
 /**
@@ -492,31 +624,85 @@ export function pickName(candidates: { name: string; marketplace: boolean }[]): 
   return best;
 }
 
+interface ImageCandidate {
+  url: string;
+  marketplace: boolean;
+  area: number; // pixels, 0 when unknown
+  words: string[]; // the product's set slug and signature words, for filename matches
+}
+
 /**
- * A photo for a product that has none: TCGplayer's catalogue photo (one clean
- * shot per product) when its CDN really has it — the URL is built from the
- * product id either way — else the first store's.
+ * Is this photo gone? A HEAD costs no bandwidth. Only an answer that says so
+ * counts: 404/410, or a page that is not an image. A 403/405/429/5xx or a
+ * timeout is "can't tell" and keeps the photo (a store that refuses HEAD must
+ * not lose every photo, and get it back next run, forever).
  */
-async function pickImage(urls: string[]): Promise<string | null> {
-  const tcg = urls.find(isTcgImage);
-  if (tcg && (await tcgImageExists(tcg))) return tcg;
-  return urls.find((u) => !isTcgImage(u)) ?? null;
+async function imageExists(url: string): Promise<boolean> {
+  if (isTcgImage(url)) return tcgImageExists(url);
+  try {
+    const res = await fetch(url, { method: "HEAD", headers: SCRAPE_HEADERS, redirect: "follow", signal: AbortSignal.timeout(10_000) });
+    if (res.status === 404 || res.status === 410) return false;
+    if (res.ok) return (res.headers.get("content-type") ?? "").startsWith("image/");
+    return true;
+  } catch {
+    return true;
+  }
+}
+
+/** The words a product's photo filename might carry: its set's slug and its signature (the featured Pokémon). */
+function imageWords(identity: SealedIdentity): string[] {
+  const sig = identity.groupKey.split("|")[2] ?? "";
+  return [...(identity.set?.slug.split("-") ?? []), ...sig.split("-")].filter((w) => w.length >= 4);
+}
+
+function filenameMentions(url: string, words: string[]): boolean {
+  const file = slugify(decodeURIComponent(url.split("?")[0].split("/").pop() ?? ""));
+  return words.some((w) => file.includes(w));
+}
+
+/**
+ * A product's photo, best first: TCGplayer's catalogue photo (one clean shot
+ * per product; the URL is built from the product id, so it is checked against
+ * the CDN before use), then a store photo whose filename names the set or the
+ * featured Pokémon (a photo of THIS product, not the store's generic set
+ * banner), then the largest store photo, then any.
+ */
+export function rankImages(cands: ImageCandidate[]): string[] {
+  const score = (c: ImageCandidate) => (c.marketplace ? 3 : filenameMentions(c.url, c.words) ? 2 : c.area > 0 ? 1 : 0);
+  return [...new Map(cands.map((c) => [c.url, c])).values()]
+    .sort((a, b) => score(b) - score(a) || b.area - a.area)
+    .map((c) => c.url);
+}
+
+async function pickImage(cands: ImageCandidate[]): Promise<string | null> {
+  for (const url of rankImages(cands)) {
+    if (!isTcgImage(url)) return url; // store photos are HEAD-checked after the write (sweepImages)
+    if (await tcgImageExists(url)) return url;
+  }
+  return null;
 }
 
 /**
  * Create any products this run found for the first time. Returns groupKey →
- * product id. A product that has no photo gets one; one that has a photo keeps
- * it.
+ * product id, and how many products were renamed and given an image.
  *
  * First, products whose listings have moved to a new key follow them
- * (planMoves). Then, on a full run, a product whose own name no longer
- * identifies to its key (a product is named after the listing that created
- * it, and "Neo Discovery 2-Pack Blister" can't say which 2-pack it is once
- * "[Unlimited Edition]" matters) takes the name of a listing that does
- * (pickName); the slug stays. Not on a partial (--only) run, which sees only
- * some of the listings to choose from.
+ * (planMoves). Then, on a full run:
+ *   - a product whose own name no longer identifies to its key (a product is
+ *     named after the listing that created it, and "Neo Discovery 2-Pack
+ *     Blister" can't say which 2-pack it is once "[Unlimited Edition]"
+ *     matters; "3PK Blister MAX 2 PER CUSTOMER" no longer identifies at all)
+ *     takes the name of a listing that does (pickName); the slug stays;
+ *   - a curated product (the Ultra-Premium Collections) takes its fixed name;
+ *   - every other name is re-run through cleanName, which learns new store
+ *     noise between runs ("[CRI - 3]", "(anglais)", "MAX 1 PER CUSTOMER");
+ *   - a product with a store photo takes TCGplayer's instead when TCGplayer
+ *     lists it (pickImage), and every photo set this run is HEAD-checked
+ *     (sweepImages), so a 404 is cleared and refilled next run.
+ * Not on a partial (--only) run, which sees only some of the listings to
+ * choose from. A product with no photo gets one on any run.
  */
-async function upsertProducts(reads: StoreRead[], full: boolean): Promise<Map<string, string>> {
+async function upsertProducts(reads: StoreRead[], full: boolean): Promise<{ ids: Map<string, string>; renamed: number; imaged: number }> {
   const existing = await prisma.product.findMany({ select: { id: true, groupKey: true, slug: true, name: true, imageUrl: true } });
   const byKey = new Map(existing.map((p) => [p.groupKey, p]));
   const byId = new Map(existing.map((p) => [p.id, p]));
@@ -539,22 +725,23 @@ async function upsertProducts(reads: StoreRead[], full: boolean): Promise<Map<st
     p.groupKey = m.to;
     byKey.set(m.to, p);
   }
-  const fresh = new Map<string, { identity: SealedIdentity; images: string[] }>();
-  const needImage = new Map<string, string[]>();
+  const fresh = new Map<string, { identity: SealedIdentity; images: ImageCandidate[] }>();
+  const images = new Map<string, ImageCandidate[]>(); // existing product id → this run's photos of it
   const names = new Map<string, { name: string; marketplace: boolean }[]>();
   for (const r of reads)
     for (const row of r.rows) {
       const k = row.identity.groupKey;
       const have = byKey.get(k);
+      const cand: ImageCandidate | null = row.imageUrl ? { url: row.imageUrl, marketplace: isMarketplace(r.store), area: row.imageArea ?? 0, words: imageWords(row.identity) } : null;
       if (have) {
-        if (!have.imageUrl && row.imageUrl) (needImage.get(have.id) ?? needImage.set(have.id, []).get(have.id)!).push(row.imageUrl);
+        if (cand) (images.get(have.id) ?? images.set(have.id, []).get(have.id)!).push(cand);
         if (full && misfiled(have) && !misfiled({ name: row.identity.name, groupKey: k })) {
           (names.get(have.id) ?? names.set(have.id, []).get(have.id)!).push({ name: row.identity.name, marketplace: isMarketplace(r.store) });
         }
         continue;
       }
       const f = fresh.get(k) ?? fresh.set(k, { identity: row.identity, images: [] }).get(k)!;
-      if (row.imageUrl) f.images.push(row.imageUrl);
+      if (cand) f.images.push(cand);
     }
   // Moves first, in planMoves' order: an old key a moved product frees may be
   // taken by another move, or be about to be created.
@@ -565,10 +752,14 @@ async function upsertProducts(reads: StoreRead[], full: boolean): Promise<Map<st
       data: { groupKey: m.to, productType: identity.typeLabel, setCode: identity.set?.code ?? null },
     });
   }
+  // Photos: a product with none gets the best on offer; on a full run one with
+  // a store photo moves to TCGplayer's when TCGplayer lists it.
   const image = new Map<string, string>();
-  await mapLimit([...needImage], 4, async ([id, urls]) => {
-    const url = await pickImage(urls);
-    if (url) image.set(id, url);
+  await mapLimit([...images], 4, async ([id, cands]) => {
+    const current = byId.get(id)!.imageUrl;
+    if (current && (!full || isTcgImage(current) || !cands.some((c) => c.marketplace))) return;
+    const url = await pickImage(current ? cands.filter((c) => c.marketplace) : cands);
+    if (url && url !== current) image.set(id, url);
   });
   const freshImage = new Map<string, string | null>();
   await mapLimit([...fresh], 4, async ([k, f]) => void freshImage.set(k, await pickImage(f.images)));
@@ -587,16 +778,41 @@ async function upsertProducts(reads: StoreRead[], full: boolean): Promise<Map<st
   });
   if (data.length) await prisma.product.createMany({ data, skipDuplicates: true });
   for (const [id, imageUrl] of image) await prisma.product.update({ where: { id }, data: { imageUrl } });
+  // Names: a misfiled product takes a listing's name; a curated key its fixed
+  // name; every other name is re-cleaned.
   let renamed = 0;
-  for (const [id, candidates] of names) {
-    const name = pickName(candidates);
-    if (!name || name === byId.get(id)!.name) continue;
-    await prisma.product.update({ where: { id }, data: { name } });
-    renamed++;
+  if (full) {
+    for (const p of existing) {
+      const fixed = canonicalName(p.groupKey);
+      const picked = names.has(p.id) ? pickName(names.get(p.id)!) : null;
+      const name = fixed ?? picked ?? cleanName(p.name);
+      if (!name || name === p.name) continue;
+      await prisma.product.update({ where: { id: p.id }, data: { name } });
+      renamed++;
+    }
   }
+  await sweepImages([...image.values(), ...[...freshImage.values()].filter((u): u is string => !!u)]);
   const all = await prisma.product.findMany({ select: { id: true, groupKey: true } });
-  console.log(`products: ${data.length} new, ${moved.length} moved to a new key, ${renamed} renamed, ${image.size} given an image, ${all.length} total`);
-  return new Map(all.map((p) => [p.groupKey, p.id]));
+  console.log(`products: ${data.length} new, ${moved.length} moved to a new key, ${renamed} renamed, ${image.size + [...freshImage.values()].filter(Boolean).length} given an image, ${all.length} total`);
+  return { ids: new Map(all.map((p) => [p.groupKey, p.id])), renamed, imaged: image.size };
+}
+
+/**
+ * HEAD every photo set this run and clear the ones that aren't there (a store
+ * that renamed its files, a CDN that answers 404): a product with no photo is
+ * refilled from its listings on the next run, one with a dead photo is not.
+ * TCGplayer's were checked before they were chosen.
+ */
+async function sweepImages(urls: string[]): Promise<void> {
+  const dead: string[] = [];
+  const deadline = Date.now() + IMAGE_SWEEP_MAX_MS; // photos past it keep unchecked (the sweep is a courtesy, not a gate)
+  await mapLimit([...new Set(urls.filter((u) => !isTcgImage(u)))], 4, async (url) => {
+    if (Date.now() > deadline) return;
+    if (!(await imageExists(url))) dead.push(url);
+  });
+  if (!dead.length) return;
+  const cleared = await prisma.product.updateMany({ where: { imageUrl: { in: dead } }, data: { imageUrl: null } });
+  console.log(`images: ${cleared.count} cleared (HEAD failed), refilled next run`);
 }
 
 async function writeOffers(reads: StoreRead[], ids: Map<string, string>, now: Date): Promise<number> {
@@ -640,26 +856,56 @@ async function writeOffers(reads: StoreRead[], ids: Map<string, string>, now: Da
  * One product × market summary from its offers. The store counts are
  * independent stores only ("N stores" never counts a marketplace); a
  * marketplace's open offer sets marketplaceOpen instead. The "from" price is
- * the cheapest open offer of any kind, as on the product page.
+ * the cheapest open offer of any kind, as on the product page. A dormant
+ * store's rows (see dormantStores) don't count as "listed". The median is of
+ * the OPEN independent-store prices, null under two.
  */
-export function productStat(list: StatOffer[], now: number): { lowestPriceCents: number | null; inStockStores: number; listedStores: number; marketplaceOpen: boolean } {
+export function productStat(
+  list: StatOffer[],
+  now: number,
+  dormant: ReadonlySet<string> = new Set(),
+): { lowestPriceCents: number | null; inStockStores: number; listedStores: number; marketplaceOpen: boolean; medianOpenCents: number | null } {
   const fromMarketplace = (o: StatOffer) => {
     const s = STORE_BY_KEY.get(o.store);
     return !!s && isMarketplace(s);
   };
   const open = list.filter((o) => offerStock(o, now) === "open");
+  const openStores = open.filter((o) => !fromMarketplace(o));
   return {
     lowestPriceCents: headlineOffer(list, now)?.priceCents ?? null,
-    inStockStores: new Set(open.filter((o) => !fromMarketplace(o)).map((o) => o.store)).size,
-    listedStores: new Set(list.filter((o) => !fromMarketplace(o)).map((o) => o.store)).size,
+    inStockStores: new Set(openStores.map((o) => o.store)).size,
+    listedStores: new Set(list.filter((o) => !fromMarketplace(o) && !dormant.has(o.store)).map((o) => o.store)).size,
     marketplaceOpen: open.some(fromMarketplace),
+    medianOpenCents: openStores.length >= 2 ? Math.round(median(openStores.map((o) => o.priceCents))) : null,
   };
 }
 
 type StatOffer = { store: string; priceCents: number; inStock: boolean; lastSeen: Date };
 
+/** Every store's stored listings and how many are in stock. One groupBy over Offer. */
+async function storeCounts(): Promise<Map<string, { listed: number; inStock: number }>> {
+  const counts = await prisma.offer.groupBy({ by: ["store", "inStock"], _count: { _all: true } });
+  const out = new Map<string, { listed: number; inStock: number }>();
+  for (const c of counts) {
+    const s = out.get(c.store) ?? out.set(c.store, { listed: 0, inStock: 0 }).get(c.store)!;
+    s.listed += c._count._all;
+    if (c.inStock) s.inStock += c._count._all;
+  }
+  return out;
+}
+
+/** Stores with DORMANT_MIN_LISTED or more listings and none in stock: they list, but don't sell. */
+export function dormantStores(counts: ReadonlyMap<string, { listed: number; inStock: number }>): Set<string> {
+  const out = new Set<string>();
+  for (const [store, c] of counts) {
+    const s = STORE_BY_KEY.get(store);
+    if (s && !isMarketplace(s) && c.listed >= DORMANT_MIN_LISTED && c.inStock === 0) out.add(store);
+  }
+  return out;
+}
+
 /** Recompute every product's per-market summary from the stored offers. */
-export async function recomputeStats(now = new Date()): Promise<number> {
+export async function recomputeStats(now = new Date(), dormant: ReadonlySet<string> = new Set()): Promise<number> {
   const offers = await prisma.offer.findMany({
     select: { productId: true, market: true, store: true, priceCents: true, inStock: true, lastSeen: true },
   });
@@ -670,30 +916,28 @@ export async function recomputeStats(now = new Date()): Promise<number> {
   }
   const data = [...groups.entries()].map(([k, list]) => {
     const [productId, market] = k.split("|");
-    return { productId, market, ...productStat(list, now.getTime()) };
+    return { productId, market, ...productStat(list, now.getTime(), dormant) };
   });
   await prisma.$transaction([prisma.productStat.deleteMany({}), prisma.productStat.createMany({ data })]);
   return data.length;
 }
 
-async function writeStoreStats(reads: StoreRead[], now: Date): Promise<void> {
-  const counts = await prisma.offer.groupBy({ by: ["store", "inStock"], _count: { _all: true } });
-  const listed = new Map<string, number>();
-  const inStock = new Map<string, number>();
-  for (const c of counts) {
-    listed.set(c.store, (listed.get(c.store) ?? 0) + c._count._all);
-    if (c.inStock) inStock.set(c.store, c._count._all);
-  }
+async function writeStoreStats(reads: StoreRead[], now: Date, counts: ReadonlyMap<string, { listed: number; inStock: number }>, dormant: ReadonlySet<string>): Promise<void> {
   for (const r of reads) {
     const data = {
       market: r.store.market,
-      listed: listed.get(r.store.key) ?? 0,
-      inStock: inStock.get(r.store.key) ?? 0,
+      listed: counts.get(r.store.key)?.listed ?? 0,
+      inStock: counts.get(r.store.key)?.inStock ?? 0,
+      dormant: dormant.has(r.store.key),
       lastError: r.error,
       ...(r.ok ? { lastOkAt: now } : {}),
     };
     await prisma.storeStat.upsert({ where: { store: r.store.key }, create: { store: r.store.key, ...data }, update: data });
   }
+  // Stores not read this run can still turn dormant (or stop being) as their
+  // rows age out or the flag's threshold changes.
+  await prisma.storeStat.updateMany({ where: { store: { in: [...dormant] }, dormant: false }, data: { dormant: true } });
+  await prisma.storeStat.updateMany({ where: { store: { notIn: [...dormant] }, dormant: true }, data: { dormant: false } });
   await prisma.storeStat.deleteMany({ where: { store: { notIn: SOURCES.map((s) => s.key) } } });
 }
 
@@ -704,8 +948,12 @@ export interface ImportSummary {
   marketplaces: { key: string; name: string; market: string; ok: boolean; offers: number; error: string | null; lastOkAt: Date | null }[];
   failed: { key: string; market: string; error: string }[]; // stores and marketplaces
   offers: number;
-  outliers: number;
+  outliers: number; // store rows dropped as far below the market (dropLowOutliers)
+  highOutliers: number; // …and far above it (dropHighOutliers)
+  suspectStores: { store: string; low: number }[]; // stores whose rows were written as sold out (demoteSuspectStores)
   placeholders: number; // marketplace placeholder asks dropped
+  dormant: string[]; // store keys (dormantStores)
+  renamed: number; // products renamed on a full run
   stats: number;
   // Per market for the stores; a marketplace gets its own row ("US · TCGplayer").
   byMarket: Record<string, { stores: number; ok: number; offers: number; inStock: number }>;
@@ -743,16 +991,21 @@ export async function runImport(opts: { only?: string[]; concurrency?: number } 
     return r;
   });
 
+  const suspectStores = demoteSuspectStores(reads);
   const outliers = dropLowOutliers(reads);
-  const placeholders = dropPlaceholderAsks(reads);
+  const highOutliers = dropHighOutliers(reads, now);
+  const placeholders = dropPlaceholderAsks(reads, now);
   await guardReads(reads);
-  const ids = await upsertProducts(
+  const { ids, renamed } = await upsertProducts(
     reads.filter((r) => r.ok),
     !opts.only?.length,
   );
   const offers = await writeOffers(reads, ids, now);
-  const stats = await recomputeStats(now);
-  await writeStoreStats(reads, now);
+  const counts = await storeCounts();
+  const dormant = dormantStores(counts);
+  if (dormant.size) console.log(`stores: ${dormant.size} dormant (${DORMANT_MIN_LISTED}+ listings, none in stock): ${[...dormant].sort().join(", ")}`);
+  const stats = await recomputeStats(now, dormant);
+  await writeStoreStats(reads, now, counts, dormant);
 
   const byMarket: ImportSummary["byMarket"] = {};
   for (const r of reads) {
@@ -785,7 +1038,11 @@ export async function runImport(opts: { only?: string[]; concurrency?: number } 
     failed: reads.filter((r) => !r.ok).map((r) => ({ key: r.store.key, market: r.store.market, error: r.error ?? "?" })),
     offers,
     outliers,
+    highOutliers,
+    suspectStores,
     placeholders,
+    dormant: [...dormant].sort(),
+    renamed,
     stats,
     byMarket,
     minutes: (Date.now() - t0) / 60000,
