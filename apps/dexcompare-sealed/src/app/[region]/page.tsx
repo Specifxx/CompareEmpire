@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { Ago } from "@/components/Ago";
 import { MarketplaceHint } from "@/components/Marketplaces";
 import { ProductGrid } from "@/components/ProductCard";
 import { SearchBox } from "@/components/SearchBox";
@@ -8,7 +9,7 @@ import { homeRails, regionOverview } from "@/lib/data";
 import { cardOpen } from "@/lib/compact";
 import { money, plural, timeAgo } from "@/lib/format";
 import { isPreorderSet, formatRelease } from "@/lib/release";
-import { REGIONS, type Region } from "@/lib/regions";
+import { regionOrNotFound } from "@/lib/regions";
 import { pageMeta, regionAlternates } from "@/lib/seo";
 import { PRODUCT_TYPES } from "@/lib/sealed-title";
 import { SETS } from "@/lib/sets";
@@ -16,9 +17,8 @@ import { storesInMarket } from "@/lib/stores";
 
 export const revalidate = 86400;
 
-export function generateMetadata({ params }: { params: { region: Region } }): Metadata {
-  const r = REGIONS[params.region];
-  if (!r) return {};
+export function generateMetadata({ params }: { params: { region: string } }): Metadata {
+  const r = regionOrNotFound(params.region);
   const n = storesInMarket(r.market).length;
   return pageMeta({
     title: `Pokémon sealed prices & stock in ${r.name}`,
@@ -30,8 +30,8 @@ export function generateMetadata({ params }: { params: { region: Region } }): Me
 
 const QUICK_TYPES = ["booster-boxes", "elite-trainer-boxes", "booster-bundles", "collections", "ultra-premium-collections", "tins", "booster-packs", "blisters"];
 
-export default async function RegionHome({ params }: { params: { region: Region } }) {
-  const r = REGIONS[params.region];
+export default async function RegionHome({ params }: { params: { region: string } }) {
+  const r = regionOrNotFound(params.region);
   const [{ boxes, etbs, preorders, latestSets: bySet }, overview] = await Promise.all([homeRails(r.market), regionOverview(r.market)]);
   const storeCount = storesInMarket(r.market).length;
   const latestSets = SETS.filter((s) => bySet.has(s.code)).slice(0, 4);
@@ -46,7 +46,7 @@ export default async function RegionHome({ params }: { params: { region: Region 
             <span aria-hidden="true">{r.flag}</span> {r.name} · prices in {r.currency}
           </div>
           <h1 className="mt-3 max-w-3xl font-display text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-6xl">
-            Pokémon sealed, <span className="text-brand">in stock</span>, at the best price.
+            Pokémon sealed prices &amp; stock in <span className="text-brand">{r.name}</span>
           </h1>
           <p className="mt-4 max-w-2xl text-lg leading-8 text-muted">
             Booster boxes, Elite Trainer Boxes, bundles and collections compared across {plural(storeCount, `${r.adjective} store`)}
@@ -60,22 +60,33 @@ export default async function RegionHome({ params }: { params: { region: Region 
             {QUICK_TYPES.map((slug) => {
               const t = PRODUCT_TYPES.find((x) => x.slug === slug)!;
               return (
-                <Link key={slug} href={`/${r.region}/type/${slug}`} className="chip">
+                <Link key={slug} href={`/${r.region}/type/${slug}`} prefetch={false} className="chip">
                   {t.plural}
                 </Link>
               );
             })}
           </div>
+          <p className="mt-5 text-sm text-muted">
+            Can&rsquo;t find it?{" "}
+            <Link href={`/${r.region}/releases`} prefetch={false} className="font-semibold text-brand hover:underline">
+              Upcoming releases
+            </Link>{" "}
+            ·{" "}
+            <Link href={`/${r.region}/stores`} prefetch={false} className="font-semibold text-brand hover:underline">
+              Stores we compare
+            </Link>
+          </p>
           <MarketplaceHint region={r.region} />
           <dl className="mt-8 grid max-w-3xl grid-cols-2 gap-4 sm:grid-cols-4">
             {[
               { k: "Products tracked", v: overview.products.toLocaleString("en") },
               { k: "In stock now", v: overview.inStock.toLocaleString("en") },
               { k: "Stores compared", v: storeCount.toLocaleString("en") },
-              { k: "Last checked", v: timeAgo(overview.lastChecked) },
+              // A live <time>: the page is cached for a day, so a fixed "3 hours ago" would freeze.
+              { k: "Last checked", v: overview.lastChecked ? <Ago iso={overview.lastChecked.toISOString()} initial={timeAgo(overview.lastChecked)} /> : "not yet" },
             ].map((s) => (
               <div key={s.k} className="rounded-xl border border-line bg-raised px-4 py-3">
-                <dt className="text-xs font-medium text-faint">{s.k}</dt>
+                <dt className="text-xs font-medium text-muted">{s.k}</dt>
                 <dd className="tabular mt-1 font-display text-2xl font-bold">{s.v}</dd>
               </div>
             ))}
@@ -94,11 +105,11 @@ export default async function RegionHome({ params }: { params: { region: Region 
                   .slice(0, 3);
                 const pre = isPreorderSet(s.code);
                 return (
-                  <Link key={s.code} href={`/${r.region}/sets/${s.slug}`} className="card group flex flex-col gap-4 p-5 transition-shadow hover:shadow-lift">
+                  <Link key={s.code} href={`/${r.region}/sets/${s.slug}`} prefetch={false} className="card group flex flex-col gap-4 p-5 transition-shadow hover:shadow-lift">
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex items-center gap-3">
                         {s.logo ? (
-                          <img src={s.logo} alt="" className="h-10 w-24 object-contain" loading="lazy" />
+                          <img src={s.logo} alt="" width={96} height={40} className="h-10 w-24 object-contain" loading="lazy" decoding="async" />
                         ) : (
                           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-soft font-display font-extrabold text-brand">
                             {s.name.slice(0, 1)}
@@ -157,7 +168,10 @@ export default async function RegionHome({ params }: { params: { region: Region 
           {etbs.length ? <ProductGrid products={etbs} region={r.region} /> : <Empty>No Elite Trainer Boxes in stock right now.</Empty>}
         </Section>
 
-        <section className="mt-16 grid gap-4 md:grid-cols-3">
+        <section className="mt-16 grid gap-4 md:grid-cols-3" aria-labelledby="how">
+          <h2 id="how" className="sr-only">
+            How DexCompare works
+          </h2>
           {[
             {
               n: "1",

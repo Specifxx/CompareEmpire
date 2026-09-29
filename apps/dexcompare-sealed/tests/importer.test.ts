@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { distrustRead, dropLowOutliers, offerRef, pickName, planMoves, priceOf, rowsFromReads, sourcesFor, type StoreRead } from "../src/lib/importer";
+import { demoteSuspectStores, distrustRead, dormantStores, dropHighOutliers, dropLowOutliers, offerRef, pickName, planMoves, priceOf, rankImages, rowsFromReads, sourcesFor, type StoreRead } from "../src/lib/importer";
 import { readShopifyCollection } from "../src/lib/feeds";
 import { headlineOffer, offerStock, openStoreCount, rankOffers, OFFER_STALE_MS } from "../src/lib/sealed-offers";
 import type { FeedProduct } from "../src/lib/feeds";
@@ -73,6 +73,67 @@ test("in-stock listings far below the market median are dropped", () => {
   assert.equal(dropLowOutliers(reads), 1);
   assert.equal(reads[3].rows.length, 0);
   assert.equal(reads[4].rows.length, 1);
+});
+
+/** A store read of one in-stock listing per title. */
+function readOf(key: string, items: { title: string; cents: number; inStock?: boolean; market?: string }[]): StoreRead {
+  const s = { ...store, key, market: (items[0]?.market ?? "AU") as StoreConfig["market"] };
+  const products = items.map((it, i) => prod(`${key}-${i}`, it.title, [[it.cents, it.inStock ?? true]]));
+  return { store: s, ok: true, error: null, products: products.length, rediscovered: false, ms: 0, rows: rowsFromReads(s, [{ handle: "pokemon", ok: true, products }]) };
+}
+
+test("in-stock listings far above the market median are dropped: packs, blisters and bundles at 4x, boxes and ETBs of recent sets at 3x", () => {
+  const today = new Date("2026-09-28T00:00:00Z");
+  const reads = [
+    // "Perfect Order Booster Pack x 50 (LIVE)" is refused by identify(); a plain pack at 50x the median is the same lot in disguise.
+    readOf("a", [{ title: "Perfect Order Booster Pack", cents: 599 }, { title: "Pitch Black Booster Box", cents: 27000 }, { title: "Evolving Skies Booster Box", cents: 90000 }]),
+    readOf("b", [{ title: "Perfect Order Booster Pack", cents: 649 }, { title: "Pitch Black Booster Box", cents: 28000 }, { title: "Evolving Skies Booster Box", cents: 95000 }]),
+    readOf("c", [{ title: "Perfect Order Booster Pack", cents: 699 }, { title: "Pitch Black Booster Box", cents: 29000 }, { title: "Evolving Skies Booster Box", cents: 100000 }]),
+    readOf("d", [
+      { title: "Perfect Order Booster Pack", cents: 29999 }, // 46x: dropped
+      { title: "Pitch Black Booster Box", cents: 99000 }, // 3.5x, set released 2026-07: dropped
+      { title: "Evolving Skies Booster Box", cents: 350000 }, // 3.7x, but Evolving Skies is from 2021: kept
+    ]),
+    readOf("e", [{ title: "Perfect Order Booster Pack", cents: 2300 }]), // 3.5x a pack: under the 4x bar, kept
+  ];
+  assert.equal(dropHighOutliers(reads, today), 2);
+  assert.deepEqual(reads[3].rows.map((r) => r.identity.groupKey), ["swsh7|booster-box"]);
+  assert.equal(reads[4].rows.length, 1);
+  // Sold-out asks are not judged (and don't make the median).
+  const sold = [readOf("x", [{ title: "Perfect Order Booster Pack", cents: 29999, inStock: false }]), ...reads.slice(0, 3)];
+  assert.equal(dropHighOutliers(sold, today), 0);
+});
+
+test("a store with five or more in-stock prices under half the market median is written as sold out", () => {
+  const items = ["Surging Sparks Elite Trainer Box", "Paradox Rift Elite Trainer Box", "Obsidian Flames Elite Trainer Box", "Paldea Evolved Elite Trainer Box", "Temporal Forces Elite Trainer Box", "Twilight Masquerade Elite Trainer Box"];
+  const market = (key: string, cents: number) => readOf(key, items.map((title) => ({ title, cents })));
+  const reads = [market("a", 12000), market("b", 13000), market("c", 14000), market("depot", 5000), readOf("once", [{ title: "Surging Sparks Elite Trainer Box", cents: 5000 }])];
+  assert.deepEqual(demoteSuspectStores(reads), [{ store: "depot", low: 6 }]);
+  assert.ok(reads[3].rows.every((r) => !r.inStock), "its rows stay, as sold out");
+  assert.ok(reads[4].rows.every((r) => r.inStock), "one cheap listing is a deal, not a pattern");
+  assert.ok(reads[0].rows.every((r) => r.inStock));
+});
+
+test("dormant: 20+ listings and none in stock; small or selling stores and TCGplayer are not", () => {
+  const counts = new Map([
+    ["gatheringgames", { listed: 285, inStock: 0 }],
+    ["cardtribe", { listed: 21, inStock: 0 }],
+    ["tiny", { listed: 19, inStock: 0 }],
+    ["busy", { listed: 300, inStock: 1 }],
+    ["tcgplayer", { listed: 1500, inStock: 0 }],
+  ]);
+  assert.deepEqual([...dormantStores(counts)].sort(), ["cardtribe", "gatheringgames"].filter((k) => STORES.some((s) => s.key === k)).sort());
+});
+
+test("images: TCGplayer's photo first, then a store photo named for the product, then the largest", () => {
+  const words = ["surging", "sparks", "pikachu"];
+  const generic = { url: "https://cdn.shopify.com/s/files/1/pokemon-banner.jpg", marketplace: false, area: 4_000_000, words };
+  const named = { url: "https://cdn.shopify.com/s/files/1/Surging-Sparks-ETB_pikachu.png?v=1", marketplace: false, area: 500_000, words };
+  const small = { url: "https://cdn.shopify.com/s/files/1/etb.jpg", marketplace: false, area: 90_000, words };
+  const unknown = { url: "https://woo.example/wp-content/uploads/x.jpg", marketplace: false, area: 0, words };
+  const tcg = { url: "https://tcgplayer-cdn.tcgplayer.com/product/1_in_1000x1000.jpg", marketplace: true, area: 0, words };
+  assert.deepEqual(rankImages([unknown, small, generic, named, tcg]), [tcg.url, named.url, generic.url, small.url, unknown.url]);
+  assert.deepEqual(rankImages([small, small, generic]), [generic.url, small.url]);
 });
 
 test("stock states: stale rows are unknown and never the headline", () => {

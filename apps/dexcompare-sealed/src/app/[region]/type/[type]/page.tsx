@@ -2,14 +2,15 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 import type { Metadata } from "next";
+import { Ago } from "@/components/Ago";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { MarketplaceBanner } from "@/components/Marketplaces";
 import { ProductGrid } from "@/components/ProductCard";
 import { Empty, Section } from "@/components/Section";
-import { productsByType } from "@/lib/data";
+import { lastCheckedAt, marketsWithType, productsByType } from "@/lib/data";
 import { cardOpen } from "@/lib/compact";
-import { money } from "@/lib/format";
-import { REGIONS, type Market, type Region } from "@/lib/regions";
+import { money, timeAgo } from "@/lib/format";
+import { regionOfMarket, regionOrNotFound, type Market, type RegionInfo } from "@/lib/regions";
 import { PRODUCT_TYPES, TYPE_BY_SLUG } from "@/lib/sealed-title";
 import { pageMeta, regionAlternates } from "@/lib/seo";
 
@@ -41,30 +42,35 @@ const ABOUT: Record<string, string> = {
 
 const getProducts = cache((market: Market, typeLabel: string) => productsByType(market, typeLabel));
 
-export async function generateMetadata({ params }: { params: { region: Region; type: string } }): Promise<Metadata> {
-  const r = REGIONS[params.region];
+export async function generateMetadata({ params }: { params: { region: string; type: string } }): Promise<Metadata> {
+  const r = regionOrNotFound(params.region);
   const t = TYPE_BY_SLUG.get(params.type);
-  if (!r || !t) return {};
+  if (!t) return {};
   const products = await getProducts(r.market, t.label);
+  // Empty here: noindex, and no hreflang set. Otherwise advertise only the
+  // regions that list the type (their copies are the indexable ones).
+  const regions = products.length ? (await marketsWithType(t.label)).map(regionOfMarket).filter((x): x is RegionInfo => !!x) : [];
   return pageMeta({
     title: `Pokémon ${t.plural} — prices & stock in ${r.name}`,
     description: `Every Pokémon TCG ${t.label.toLowerCase()} ${r.adjective} stores${r.market === "US" ? " and TCGplayer" : ""} list, with who has it in stock and the cheapest price in ${r.currency}.`,
     path: `/${r.region}/type/${t.slug}`,
-    alternates: regionAlternates(r.region, `/type/${t.slug}`),
+    alternates: products.length ? regionAlternates(r.region, `/type/${t.slug}`, regions) : undefined,
     noindex: products.length === 0,
   });
 }
 
-export default async function TypePage({ params }: { params: { region: Region; type: string } }) {
-  const r = REGIONS[params.region];
+export default async function TypePage({ params }: { params: { region: string; type: string } }) {
+  const r = regionOrNotFound(params.region);
   const t = TYPE_BY_SLUG.get(params.type);
   if (!t) notFound();
-  const products = await getProducts(r.market, t.label);
+  const [products, checked] = await Promise.all([getProducts(r.market, t.label), lastCheckedAt(r.market)]);
   const open = products.filter(cardOpen);
   const sold = products.filter((p) => !cardOpen(p));
   // Store counts never include TCGplayer: in the US it is named separately.
-  const byStores = products.filter((p) => p.listedStores > 0).length;
-  const tcgOnly = products.length - byStores;
+  // Outside the US nothing is TCGplayer-only: listedStores is 0 there only when
+  // no store but a dormant one lists the product (importer.ts, dormantStores).
+  const tcgOnly = r.market === "US" ? products.filter((p) => p.listedStores === 0).length : 0;
+  const byStores = products.length - tcgOnly;
   return (
     <div className="page py-8">
       <Breadcrumbs items={[{ href: `/${r.region}`, label: r.name }, { label: t.plural }]} />
@@ -77,13 +83,19 @@ export default async function TypePage({ params }: { params: { region: Region; t
         {open.length > 0 && <> from {money(Math.min(...open.map((p) => p.lowestPriceCents ?? Infinity)), r.market)}</>} ·{" "}
         {byStores} listed by {r.adjective} stores
         {tcgOnly > 0 && <>, {tcgOnly} more only on TCGplayer</>}
+        {checked && (
+          <>
+            {" "}
+            · prices checked <Ago iso={checked.toISOString()} initial={timeAgo(checked)} />
+          </>
+        )}
       </p>
       <MarketplaceBanner region={r.region} title={`Shop ${t.plural.startsWith("Pokémon") ? "" : "Pokémon "}${t.plural} on eBay and TCGplayer`} query={t.label} placement="type-banner" />
       <div className="mt-5 flex flex-wrap gap-2">
         {PRODUCT_TYPES.filter((x) => x.slug !== t.slug)
           .slice(0, 8)
           .map((x) => (
-            <Link key={x.slug} href={`/${r.region}/type/${x.slug}`} className="chip">
+            <Link key={x.slug} href={`/${r.region}/type/${x.slug}`} prefetch={false} className="chip">
               {x.plural}
             </Link>
           ))}

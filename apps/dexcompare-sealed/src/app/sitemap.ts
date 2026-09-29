@@ -1,53 +1,78 @@
 import type { MetadataRoute } from "next";
-import { setCounts, sitemapEntries, typesByMarket } from "@/lib/data";
-import { REGION_LIST, regionOfMarket } from "@/lib/regions";
-import { PRODUCT_TYPES } from "@/lib/sealed-title";
-import { SETS } from "@/lib/sets";
-import { SITE_URL } from "@/lib/site";
-import { STORES } from "@/lib/stores";
+import { COMPARABLE } from "@/lib/data";
+import { prisma } from "@/lib/db";
+import { regionOfSitemapId, SITEMAP_IDS, STATIC_SITEMAP_ID, regionSitemap, staticSitemap } from "@/lib/sitemap";
+import type { Market } from "@/lib/regions";
 
 export const revalidate = 86400;
 
-// Only pages with something on them: products a region's stores actually list
-// (a product nobody in a region lists is noindex there), and a region's stores.
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const out: MetadataRoute.Sitemap = [
-    { url: SITE_URL, changeFrequency: "daily", priority: 1 },
-    { url: `${SITE_URL}/about`, changeFrequency: "monthly", priority: 0.3 },
-  ];
-  for (const r of REGION_LIST) {
-    const base = `${SITE_URL}/${r.region}`;
-    out.push({ url: base, changeFrequency: "daily", priority: 0.9 });
-    out.push({ url: `${base}/sealed`, changeFrequency: "daily", priority: 0.8 });
-    out.push({ url: `${base}/sets`, changeFrequency: "weekly", priority: 0.6 });
-    out.push({ url: `${base}/stores`, changeFrequency: "weekly", priority: 0.5 });
-  }
-  // Type and set pages only where the region's stores list something.
+// /sitemap.xml is an index of /sitemap/0.xml (static + stores) and one file per
+// region (src/lib/sitemap.ts). Each file is a few small, scoped reads.
+//
+// A failed query is rethrown, on purpose: the regeneration fails and ISR keeps
+// serving the last good copy. The old single sitemap caught the error and
+// cached a map with no products for 24 hours. The one exception is the build,
+// which prerenders these files and must not fail when the database is
+// unreachable or empty (DEPLOY.md): it gets the static pages without lastmod
+// and empty regional files, and the first post-import refresh fills them in.
+export function generateSitemaps() {
+  return SITEMAP_IDS;
+}
+
+export default async function sitemap({ id }: { id: number }): Promise<MetadataRoute.Sitemap> {
+  const n = Number(id);
   try {
-    const types = await typesByMarket();
-    for (const r of REGION_LIST) {
-      for (const t of PRODUCT_TYPES) {
-        if (types.get(r.market)?.has(t.label)) out.push({ url: `${SITE_URL}/${r.region}/type/${t.slug}`, changeFrequency: "daily", priority: 0.7 });
-      }
-      const counts = await setCounts(r.market);
-      for (const s of SETS) if (counts.has(s.code)) out.push({ url: `${SITE_URL}/${r.region}/sets/${s.slug}`, changeFrequency: "daily", priority: 0.6 });
-    }
+    if (n === STATIC_SITEMAP_ID) return staticSitemap(await lastImportByMarket());
+    const r = regionOfSitemapId(n);
+    if (!r) return [];
+    const [typeLabels, setCodes, productSlugs, lastmod] = await Promise.all([
+      typesInMarket(r.market),
+      setsInMarket(r.market),
+      comparableSlugs(r.market),
+      lastImport(r.market),
+    ]);
+    return regionSitemap(r, { typeLabels, setCodes, productSlugs, lastmod });
   } catch (e) {
-    console.warn("sitemap: set list unavailable:", (e as Error).message);
-  }
-  for (const s of STORES) {
-    const r = regionOfMarket(s.market);
-    if (r) out.push({ url: `${SITE_URL}/${r.region}/stores/${s.key}`, changeFrequency: "daily", priority: 0.4 });
-  }
-  // The build runs before any import, and must not fail if the database is
-  // unreachable: the first post-import refresh fills this in.
-  try {
-    for (const e of await sitemapEntries()) {
-      const r = regionOfMarket(e.market);
-      if (r) out.push({ url: `${SITE_URL}/${r.region}/p/${e.slug}`, changeFrequency: "daily", priority: 0.7 });
+    if (process.env.NEXT_PHASE === "phase-production-build") {
+      console.error(`sitemap/${n}: database unavailable at build (${(e as Error).message}); written without products until the first refresh.`);
+      return n === STATIC_SITEMAP_ID ? staticSitemap({}) : [];
     }
-  } catch (e) {
-    console.warn("sitemap: product list unavailable:", (e as Error).message);
+    console.error(`sitemap/${n}: not regenerated, the previous copy stays:`, (e as Error).message);
+    throw e;
   }
-  return out;
+}
+
+// ─── Reads (one market each; slugs and codes only) ───────────────────────────
+// GROUP BY in SQL: Prisma's `distinct` dedupes client-side after fetching every row.
+
+async function typesInMarket(market: Market): Promise<string[]> {
+  const rows = await prisma.$queryRaw<{ productType: string }[]>`
+    SELECT p."productType" FROM "ProductStat" s JOIN "Product" p ON p."id" = s."productId"
+    WHERE s."market" = ${market} AND (s."inStockStores" > 0 OR s."marketplaceOpen" OR s."listedStores" >= 2)
+    GROUP BY 1`;
+  return rows.map((r) => r.productType);
+}
+
+async function setsInMarket(market: Market): Promise<string[]> {
+  const rows = await prisma.$queryRaw<{ setCode: string }[]>`
+    SELECT p."setCode" FROM "ProductStat" s JOIN "Product" p ON p."id" = s."productId"
+    WHERE s."market" = ${market} AND p."setCode" IS NOT NULL AND (s."inStockStores" > 0 OR s."marketplaceOpen" OR s."listedStores" >= 2)
+    GROUP BY 1`;
+  return rows.map((r) => r.setCode);
+}
+
+async function comparableSlugs(market: Market): Promise<string[]> {
+  const rows = await prisma.productStat.findMany({ where: { market, ...COMPARABLE }, select: { product: { select: { slug: true } } } });
+  return rows.map((r) => r.product.slug);
+}
+
+/** When the market's stores were last written by an import (StoreStat.updatedAt, current state). */
+async function lastImport(market: Market): Promise<Date | null> {
+  const agg = await prisma.storeStat.aggregate({ where: { market }, _max: { updatedAt: true } });
+  return agg._max.updatedAt ?? null;
+}
+
+async function lastImportByMarket(): Promise<Record<string, Date | null>> {
+  const rows = await prisma.storeStat.groupBy({ by: ["market"], _max: { updatedAt: true } });
+  return Object.fromEntries(rows.map((r) => [r.market, r._max.updatedAt ?? null]));
 }

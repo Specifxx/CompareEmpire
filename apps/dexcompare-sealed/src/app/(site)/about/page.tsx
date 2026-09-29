@@ -53,6 +53,67 @@ export default function About() {
           languages and store-made bundles are excluded.
         </p>
 
+        <h2 id="which-stores">Which stores, and why</h2>
+        <p>
+          A store is listed when it passes four checks, run by a script before it is added and again on every read: it publishes a
+          <b> public catalogue feed</b> (the Shopify or WooCommerce product listing its own website is built on — we read that, not the
+          pages); it lists <b>at least three</b> Pokémon sealed products; it prices them <b>in its region&rsquo;s currency</b>; and its{" "}
+          <b>robots.txt</b> allows the read. We pause between requests and back off when a store asks us to.
+        </p>
+        <p>
+          That rule decides who is missing, too. Big-box chains and department stores without a public feed are out of scope, however large
+          their Pokémon range, and so is any store that prices a region in a converted currency. It is why the store lists are independent
+          hobby and games stores, and why a region with few of those (Singapore, New Zealand) has fewer comparisons than Australia or the US.
+          Marketplaces are not stores: TCGplayer appears in the US as a marketplace, badged as such, and is never counted in &ldquo;N stores&rdquo;.
+        </p>
+
+        <h2 id="refuse">What we refuse, with examples</h2>
+        <p>
+          A listing has to be English-language Pokémon TCG sealed product, as the manufacturer sealed it. Everything else is left out, even
+          when the store files it under Pokémon:
+        </p>
+        <ul>
+          <li>
+            <b>Singles and graded cards</b> — &ldquo;Charizard ex 199/165 PSA 10&rdquo;, &ldquo;Pikachu promo SVP 085&rdquo;.
+          </li>
+          <li>
+            <b>Japanese and other-language product</b> — &ldquo;Pokémon Center Japan Terastal Festival box&rdquo;, &ldquo;Display Écarlate et
+            Violet&rdquo;. A region compares English print runs only, because that is what its stores compete on.
+          </li>
+          <li>
+            <b>Other games and merchandise</b> — One Piece and Lorcana boxes, Moncolle and Re-Ment figures, plush, binders, sleeves, playmats.
+          </li>
+          <li>
+            <b>Store-made bundles and partial product</b> — &ldquo;2× ETB + 1 bundle deal&rdquo;, &ldquo;10 loose packs&rdquo;, energy lots,
+            opened or &ldquo;unshrinked&rdquo; boxes, damaged-box discounts. There is no like-for-like price for those.
+          </li>
+          <li>
+            <b>Prices that cannot be real</b> — a listing far below every other store&rsquo;s price for the same product (a placeholder, or a
+            single pack filed as a box) is dropped rather than shown as the &ldquo;from&rdquo; price.
+          </li>
+        </ul>
+        <p>
+          The filter errs towards leaving things out. If it leaves out something it should list, or lists something it should not,{" "}
+          <Link href="/contact#report">report it</Link>.
+        </p>
+
+        <h2 id="freshness">Freshness</h2>
+        <p>
+          Every store is read about twice a day, and every figure on the site is from the latest read: a &ldquo;from&rdquo; price, a stock
+          status, a store&rsquo;s listing count, the median a region&rsquo;s stores are asking. Each listing shows how long ago its store was
+          read. When a store cannot be read for three days its listings are marked &ldquo;not checked recently&rdquo; and drop out of the
+          &ldquo;from&rdquo; price; after two weeks they are removed. A store that lists twenty or more products and had none of them in stock
+          at the last read is treated as dormant: its listings stay on product pages, marked sold out, but it no longer counts towards
+          &ldquo;listed by N stores&rdquo;. We keep nothing from earlier reads, so nothing here is a trend, a history or an all-time low.
+        </p>
+
+        <h2 id="report">Report a listing</h2>
+        <p>
+          Wrong price, wrong product, wrong stock, or a store that should not be there: email{" "}
+          <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a> with the page&rsquo;s address and the store&rsquo;s name. Details on{" "}
+          <Link href="/contact#report">the contact page</Link>. Fixes usually land with the next read.
+        </p>
+
         <h2>What we don&rsquo;t keep</h2>
         <p>
           DexCompare keeps no price history and no stock history — only what each store lists right now — and no data about you: no
@@ -83,8 +144,10 @@ export default function About() {
         <h2 id="stores">For stores</h2>
         <p>
           If you sell English Pokémon sealed product online on Shopify or WooCommerce, we can list you for free. Email{" "}
-          <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a> with your store&rsquo;s address. If you&rsquo;d rather not be listed, email us
-          and we&rsquo;ll remove you within a day. We read a few pages of your catalogue twice a day and respect robots.txt.
+          <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a> with your store&rsquo;s address and it goes through the same checks as every
+          other store (<a href="#which-stores">above</a>). If you&rsquo;d rather not be listed, email us and we&rsquo;ll remove you within a day.
+          We read a few pages of your catalogue twice a day and respect robots.txt. Listing is free and cannot be bought; nothing changes the
+          ranking except price and stock.
         </p>
         <p>
           Stores currently compared:{" "}

@@ -32,7 +32,11 @@ Repo **Specifxx/CompareEmpire** → Settings → Secrets and variables → Actio
 | `DEXCOMPARE_SEALED_DATABASE_URL` | the Neon **direct** string |
 | `DEXCOMPARE_REVALIDATE_SECRET` | a long random string — generate with `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`. Keep it for step 4. |
 
-**Variables** tab: `DEXCOMPARE_SITE_URL` = `https://dexcompare.app`.
+**Variables** tab: `DEXCOMPARE_SITE_URL` = `https://www.dexcompare.app` — the
+canonical origin with `www`, exactly as in Vercel below. The import job POSTs
+`/api/revalidate` there and then reads `/sitemap.xml`; through the apex→www
+redirect the POST would lose its `Authorization` header and the job would
+report "Page refresh: failed: HTTP 401".
 
 > Use the new secret name. The old singles app's paused workflows read
 > `DEXCOMPARE_DATABASE_URL`, and some of them reset the database they point at.
@@ -62,8 +66,18 @@ In the existing **dexcompare** project (or a new one importing
    | Name | Value |
    | --- | --- |
    | `DATABASE_URL` | the Neon **pooled** string |
-   | `NEXT_PUBLIC_SITE_URL` | `https://dexcompare.app` |
+   | `NEXT_PUBLIC_SITE_URL` | `https://www.dexcompare.app` — with `www`, no trailing slash |
    | `REVALIDATE_SECRET` | the same value as `DEXCOMPARE_REVALIDATE_SECRET` |
+   | `NEXT_PUBLIC_OPERATOR` | who runs the site, as it should read in the Terms and the footer ("operated by …"): a trading name or a person. Optional; until it is set the site name stands in. The code never invents an entity or an address. |
+   | `NEXT_PUBLIC_CONTACT_EMAIL` | optional; default `hello@dexcompare.app`. Make sure it is a mailbox someone reads: the contact page promises a reply. |
+
+   `NEXT_PUBLIC_SITE_URL` is the origin every canonical, hreflang, JSON-LD,
+   robots and sitemap URL is built on. The code defaults to
+   `https://www.dexcompare.app` and normalises what it is given (trailing slash
+   stripped, anything unparseable ignored), and a production build whose value
+   does not match the domain Vercel is deploying to prints a loud `[site]`
+   warning in the build log — but never fails the build. (2026-09-28: the live
+   site said `dexcompare.com` everywhere because this variable was wrong.)
 
    **Delete** the old app's variables: the old `DATABASE_URL` (a dead Neon
    project), `EBAY_CLIENT_ID`, `EBAY_CLIENT_SECRET`, `ANTHROPIC_API_KEY`,
@@ -84,21 +98,52 @@ Step for that one deploy.
 
 Vercel project → Settings → **Domains**:
 
-1. Add `dexcompare.app` and make it the primary. The old DexCompare project
-   may already have it; if so, just confirm it's attached to this project.
-2. Add `www.dexcompare.app` set to **Redirect to `dexcompare.app`
-   (308 permanent)**.
+1. Add `www.dexcompare.app` and make it the primary: it is what
+   `NEXT_PUBLIC_SITE_URL` says, so it is what every canonical URL says. The old
+   DexCompare project may already hold the domains; if so, confirm they are
+   attached to this project.
+2. Add `dexcompare.app` set to **Redirect to `www.dexcompare.app` (308
+   permanent)**. One host serves pages; the other only redirects. Whichever way
+   round you choose, `NEXT_PUBLIC_SITE_URL` (Vercel), `DEXCOMPARE_SITE_URL`
+   (GitHub) and the primary domain must agree.
 3. Follow Vercel's DNS instructions at your registrar if it shows any.
    `.app` domains are HTTPS-only (HSTS-preloaded), which Vercel handles.
 
 Old URLs like `/sealed`, `/sets/<set>` and `/stores` redirect to the Australian
-pages; old single-card pages return 404 so Google drops them.
+pages; old single-card pages return 404 so Google drops them. Upper-case region
+prefixes (`/AU`, `/AU/sets`) 308 to the lower-case page (`src/middleware.ts`);
+any other unknown path (`/foo`, `/Au`) is a plain 404.
 
 ## 6. Search Console
 
-Add the `dexcompare.app` property (DNS verification, or set
-`GOOGLE_SITE_VERIFICATION` in Vercel to the HTML-tag token and redeploy), then
-submit `https://dexcompare.app/sitemap.xml`.
+Add the `www.dexcompare.app` URL-prefix property (or a domain property for
+`dexcompare.app`; DNS verification, or set `GOOGLE_SITE_VERIFICATION` in Vercel
+to the HTML-tag token and redeploy), then submit
+`https://www.dexcompare.app/sitemap.xml`.
+
+That URL is a **sitemap index** (`src/app/sitemap.xml/route.ts`) listing
+`/sitemap/0.xml` (the static pages and every store page) and `/sitemap/1.xml` …
+`/sitemap/7.xml`, one per region in the order AU, US, UK, CA, NZ, EU, SG
+(`src/lib/sitemap.ts`): a region's type pages, set pages and every product at
+least one store there has in stock or two stores list. Each file carries the
+market's last import as `lastmod`. If a query fails while a file is being
+regenerated, the request errors and ISR keeps the previous copy — a sitemap is
+never cached with its products missing (the old single sitemap was, for 24
+hours at a time). The import job checks the live index after every full run
+and goes red if the regional sitemaps total under 1,000 product URLs
+(`scripts/import.ts`, `checkLiveSitemap`; a full import lists ~8,000).
+
+## Security headers
+
+`next.config.js` sends HSTS, `X-Content-Type-Options`, `X-Frame-Options`,
+`Referrer-Policy`, `Permissions-Policy` and a **report-only**
+Content-Security-Policy. Report-only never blocks anything: a violation shows
+in the browser console as `[Report Only] Refused to …`. Before ever switching
+it to an enforcing `Content-Security-Policy`, browse the landing page, a region
+home, a product page and a store page with the console open and make sure it
+is silent — product photos are hotlinked from ~250 store CDNs (`img-src
+https:` covers them) and Vercel Analytics posts to `/_vercel/insights` on the
+same origin.
 
 ## Click events (Vercel Web Analytics)
 
@@ -127,7 +172,16 @@ built-in defaults are the live campaign and deep link).
 
 ## Checking it works
 
-- `https://dexcompare.app/au` shows products, "Last checked" a few minutes/hours ago.
+- `https://www.dexcompare.app/au` shows products, "Last checked" a few minutes/hours ago.
+- `https://www.dexcompare.app/sitemap.xml` lists eight files, and
+  `/sitemap/2.xml` (US) has a couple of thousand `/us/p/…` URLs. A regional
+  file with no products means the database is empty or unreachable (the build
+  writes empty regional files when it cannot reach the database; the first
+  import's page refresh fills them).
+- `view-source:` of any page: `<link rel="canonical">` and every `hrefLang`
+  say `https://www.dexcompare.app/…`. If they say another host, fix
+  `NEXT_PUBLIC_SITE_URL` and redeploy.
+- `/AU` answers 308 to `/au`; `/foo` answers 404 with the branded page.
 - A product page lists stores with *In stock* / *Sold out* and "checked … ago".
 - Neon → Monitoring → **Network transfer**: expect a small fraction of the
   5 GB allowance; each import reads well under 10 MB, and each page render
@@ -146,7 +200,7 @@ built-in defaults are the live campaign and deep link).
 - **TCGplayer** links go through Impact (`partner.tcgplayer.com/c/7385758/…`),
   the same approved account as Rift Compare. Every page carries Impact's
   `impact-site-verification` tag (the same token as the other CompareEmpire
-  sites); in Impact, check that `dexcompare.app` is listed as a promotional
+  sites); in Impact, check that `www.dexcompare.app` is listed as a promotional
   property of that account.
 - **When the import goes red**: fewer than half the stores read, nothing
   requested read at all, or TCGplayer not read for 48 hours (its offers show

@@ -1,10 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, Inter } from "next/font/google";
-import { Analytics } from "@vercel/analytics/react";
 import { Footer } from "@/components/Footer";
+import { SiteAnalytics } from "@/components/SiteAnalytics";
 import { IMPACT_SITE_VERIFICATION } from "@/lib/affiliate";
 import { SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/lib/site";
-import { jsonLd } from "@/lib/seo";
+import { jsonLd, siteJsonLd } from "@/lib/seo";
 import "./globals.css";
 
 const sans = Inter({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
@@ -25,18 +25,14 @@ export const viewport: Viewport = {
   ],
 };
 
-const orgLd = {
-  "@context": "https://schema.org",
-  "@graph": [
-    { "@type": "Organization", "@id": `${SITE_URL}/#org`, name: SITE_NAME, url: SITE_URL, logo: `${SITE_URL}/logo.svg` },
-    { "@type": "WebSite", "@id": `${SITE_URL}/#site`, name: SITE_NAME, url: SITE_URL, publisher: { "@id": `${SITE_URL}/#org` } },
-  ],
-};
-
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${sans.variable} ${display.variable}`}>
       <head>
+        {/* Product photos: 96% are on Shopify's CDN, most of the rest on TCGplayer's.
+            Warming those two connections is the cheapest LCP win there is. */}
+        <link rel="preconnect" href="https://cdn.shopify.com" />
+        <link rel="dns-prefetch" href="https://tcgplayer-cdn.tcgplayer.com" />
         {/* Impact / TCGplayer affiliate site-ownership verification. Impact looks for
             the non-standard `value` attribute, so spread it past the meta typing. */}
         <meta {...({ name: "impact-site-verification", value: IMPACT_SITE_VERIFICATION } as React.MetaHTMLAttributes<HTMLMetaElement>)} />
@@ -47,8 +43,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </a>
         {children}
         <Footer />
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(orgLd) }} />
-        <Analytics />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(siteJsonLd()) }} />
+        <SiteAnalytics />
       </body>
     </html>
   );

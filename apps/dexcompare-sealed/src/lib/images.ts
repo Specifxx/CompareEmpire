@@ -20,3 +20,17 @@ export function thumb(url: string | null | undefined, width = 400): string | nul
     return url;
   }
 }
+
+/**
+ * A srcset of CDN renditions for a responsive <img> (with `sizes`), or null
+ * when the host can't resize — then a srcset would just repeat one URL.
+ */
+export function thumbSet(url: string | null | undefined, widths: number[]): string | null {
+  if (!url) return null;
+  const first = thumb(url, widths[0]);
+  if (!first || first === thumb(url, widths[widths.length - 1])) return null;
+  return widths.map((w) => `${thumb(url, w)} ${w}w`).join(", ");
+}
+
+/** Grid cards: a phone shows two across, a desktop four of ~280px. */
+export const CARD_SIZES = "(min-width: 1024px) 280px, (min-width: 768px) 33vw, 50vw";

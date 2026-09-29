@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { REGION_LIST } from "@/lib/regions";
-import { CONTACT_EMAIL } from "@/lib/site";
+import { CONTACT_EMAIL, OPERATOR, SITE_NAME } from "@/lib/site";
 import { LogoMark } from "./Logo";
 
 export function Footer() {
@@ -39,12 +39,20 @@ export function Footer() {
         <div>
           <div className="eyebrow mb-3">DexCompare</div>
           <ul className="grid gap-1.5 text-sm">
-            <li><Link href="/about" className="text-muted hover:text-ink">How it works</Link></li>
+            <li><Link href="/about" className="text-muted hover:text-ink">About &amp; how it works</Link></li>
             <li><Link href="/about#stores" className="text-muted hover:text-ink">For stores</Link></li>
+            <li><Link href="/contact" className="text-muted hover:text-ink">Contact &amp; report a listing</Link></li>
+            <li><Link href="/terms" className="text-muted hover:text-ink">Terms</Link></li>
             <li><Link href="/privacy" className="text-muted hover:text-ink">Privacy</Link></li>
             <li><a href={`mailto:${CONTACT_EMAIL}`} className="text-muted hover:text-ink">{CONTACT_EMAIL}</a></li>
           </ul>
         </div>
+      </div>
+      <div className="border-t border-line">
+        <p className="page py-4 text-xs text-faint">
+          {SITE_NAME} is operated by {OPERATOR}. Prices and stock are read from each store about twice a day and may have changed; the
+          store&rsquo;s own page is final.
+        </p>
       </div>
     </footer>
   );

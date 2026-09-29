@@ -42,7 +42,7 @@
 //     single unit (dropPlaceholderAsks in importer.ts).
 import type { FeedProduct } from "./feeds";
 import { SCRAPE_HEADERS, sleep } from "./scrape-http";
-import { TYPE_BY_KEY, classify, detectSet } from "./sealed-title";
+import { detectSet, identify } from "./sealed-title";
 
 const SEARCH_URL = "https://mp-search-api.tcgplayer.com/v1/search/request?q=&isList=false";
 const PAGE_SIZE = 50;
@@ -264,9 +264,9 @@ export async function tcgImageExists(url: string): Promise<boolean> {
 
 /**
  * The title identify() reads for a TCGplayer product: its name, prefixed with
- * its set only when the name names none and describes a product identified by
- * set ("Elite Trainer Box [Mewtwo X]" in "XY - BREAKthrough"). Measured over
- * the live catalogue on 2026-09-27 (2,219 products with a buyable listing):
+ * its set only when identify() finds the name a set product with no set in it
+ * ("Elite Trainer Box [Mewtwo X]" in "XY - BREAKthrough"). Measured over the
+ * live catalogue on 2026-09-27 (2,219 products with a buyable listing):
  * this identifies 1,605, 1,566 of them onto a product the stores' titles also
  * identify to. Prefixing every name with its set identified 3 more but put 529
  * fewer on the stores' products: TCGplayer files collections and tins under a
@@ -274,11 +274,9 @@ export async function tcgImageExists(url: string): Promise<boolean> {
  */
 export function tcgTitle(p: Pick<TcgProduct, "productName" | "setName">): string {
   const name = (p.productName ?? "").trim();
-  if (detectSet(name)) return name;
-  const type = classify(name);
-  if (!type || TYPE_BY_KEY.get(type)?.kind !== "set") return name;
+  if (identify(name) !== "no-set") return name;
   // "SWSH07: Evolving Skies", "XY - BREAKthrough", "ME: Ascended Heroes".
-  const set = (p.setName ?? "").replace(/^(?:SV|SWSH|SM|XY|ME|BW)\d{0,2}\s*[:\-–]\s*/i, "").trim();
+  const set = (p.setName ?? "").replace(/^(?:SV|SWSH|SM|XY|ME|BW)\d{0,2}(?:\.\d)?\s*[:\-–]\s*/i, "").trim();
   return set && detectSet(set) ? `${set} ${name}` : name;
 }
 

@@ -34,10 +34,50 @@ async function revalidate(): Promise<string> {
   }
 }
 
+// Fewer product URLs than this across every region's sitemap means the live
+// sitemap is broken (a failed query, a stale copy, the wrong database), not
+// quiet: the local import lists ~8,000. A full import is the only run that can
+// judge it, so --only runs skip the check.
+const MIN_SITEMAP_PRODUCTS = 1000;
+
+/**
+ * After the pages are refreshed, read the live sitemap index and count product
+ * URLs across the regional sitemaps (src/lib/sitemap.ts). Returns a problem
+ * sentence, or null. Network trouble is a warning, not a failure: the import
+ * itself succeeded, and the next run checks again.
+ */
+async function checkLiveSitemap(): Promise<string | null> {
+  const get = async (url: string) => {
+    const res = await fetch(url, { headers: { "user-agent": "dexcompare-import sitemap check" }, signal: AbortSignal.timeout(60_000) });
+    if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+    return res.text();
+  };
+  try {
+    const index = await get(`${SITE_URL}/sitemap.xml`);
+    const files = [...index.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]).filter((u) => /\/sitemap\/\d+\.xml$/.test(u));
+    if (!files.length) return `${SITE_URL}/sitemap.xml is not a sitemap index (no /sitemap/<n>.xml entries).`;
+    let products = 0;
+    const counts: string[] = [];
+    for (const f of files) {
+      const xml = await get(f);
+      const urls = xml.match(/<loc>/g)?.length ?? 0;
+      const n = xml.match(/\/p\/[^<]+<\/loc>/g)?.length ?? 0;
+      products += n;
+      counts.push(`${f.replace(SITE_URL, "")}: ${urls} URLs, ${n} products`);
+    }
+    console.log(`Live sitemap: ${products} product URLs\n  ${counts.join("\n  ")}`);
+    return products < MIN_SITEMAP_PRODUCTS ? `Live sitemap lists ${products} product URLs (expected at least ${MIN_SITEMAP_PRODUCTS}).` : null;
+  } catch (e) {
+    console.log(`::warning::Live sitemap not checked: ${(e as Error).message}`);
+    return null;
+  }
+}
+
 async function main() {
   const only = opt("only")?.split(",").map((s) => (s.length === 2 ? s.toUpperCase() : s));
   const summary = await runImport({ only, concurrency: Number(opt("concurrency") ?? 3) });
   const reval = await revalidate();
+  const sitemapProblem = reval === "ok" && !only ? await checkLiveSitemap() : null;
 
   // "N stores" counts independent stores only; a marketplace is reported by name.
   const marketplaces = summary.marketplaces.map((m) => `${m.name} ${m.ok ? `read (${m.offers} offers)` : "NOT read"}`);
@@ -59,7 +99,11 @@ async function main() {
       .map(([m, s]) => `| ${m} | ${s.stores} | ${s.ok} | ${s.offers} | ${s.inStock} |`),
     ``,
     `Low-price outliers dropped: ${summary.outliers}`,
+    `High-price outliers dropped: ${summary.highOutliers}`,
     `Marketplace placeholder asks dropped: ${summary.placeholders}`,
+    `Stores written as sold out (in-stock prices under half the market on 5+ products): ${summary.suspectStores.map((s) => `${s.store} (${s.low})`).join(", ") || "none"}`,
+    `Dormant stores (20+ listings, none in stock): ${summary.dormant.length ? summary.dormant.join(", ") : "none"}`,
+    ...(summary.renamed ? [`Products renamed: ${summary.renamed}`] : []),
     `Page refresh: ${reval}`,
     ``,
     summary.failed.length ? `### Not read this run (${summary.failed.length}) — their previous rows were kept` : ``,
@@ -86,6 +130,7 @@ async function main() {
   // Nothing requested was read at all (e.g. --only tcgplayer, and it failed).
   const requested = summary.stores + summary.marketplaces.length;
   if (requested > 0 && summary.ok === 0 && summary.marketplaces.every((m) => !m.ok)) problems.push(`None of the ${requested} sources requested was read.`);
+  if (sitemapProblem) problems.push(sitemapProblem);
   if (problems.length) {
     for (const p of problems) console.log(`::error::${p}`);
     console.error(`${problems.join(" ")} Failing the job so it gets looked at.`);

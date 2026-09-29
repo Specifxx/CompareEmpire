@@ -77,6 +77,10 @@ model ProductStat {
   // A marketplace (TCGplayer, US only) has an OPEN offer for the product. A
   // product is buyable when inStockStores > 0 OR this is true.
   marketplaceOpen  Boolean @default(false)
+  // Median of the OPEN independent-store prices in this market (null under
+  // two stores): "18% below the median of 6 stores" is a cross-store fact
+  // about now, not history.
+  medianOpenCents  Int?
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
@@ -93,6 +97,10 @@ model StoreStat {
   inStock    Int       @default(0)
   lastOkAt   DateTime?
   lastError  String?
+  // Listed 20+ products and had none in stock at the last import: a store that
+  // has stopped restocking. Its sold-out rows stay (the page says so) but no
+  // longer count as "listed by N stores" (ProductStat.listedStores).
+  dormant    Boolean   @default(false)
   updatedAt  DateTime  @updatedAt
 
   @@index([market])

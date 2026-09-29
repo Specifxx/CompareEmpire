@@ -19,6 +19,9 @@ export interface ProductCardData {
   inStockStores: number; // independent stores only
   listedStores: number; // independent stores only
   marketplaceOpen: boolean; // TCGplayer (US) has it: buyable even with no store in stock
+  // Median of the OPEN independent-store prices (null under two stores): a
+  // cross-store fact about now, so a card can say "18% below the median".
+  medianOpenCents: number | null;
   releaseDate: string | null;
 }
 
@@ -27,6 +30,7 @@ const cardSelect = {
   inStockStores: true,
   listedStores: true,
   marketplaceOpen: true,
+  medianOpenCents: true,
   product: { select: { slug: true, name: true, productType: true, setCode: true, imageUrl: true } },
 } as const;
 
@@ -35,6 +39,7 @@ type CardRow = {
   inStockStores: number;
   listedStores: number;
   marketplaceOpen: boolean;
+  medianOpenCents: number | null;
   product: { slug: string; name: string; productType: string; setCode: string | null; imageUrl: string | null };
 };
 
@@ -45,6 +50,7 @@ function toCard(r: CardRow): ProductCardData {
     inStockStores: r.inStockStores,
     listedStores: r.listedStores,
     marketplaceOpen: r.marketplaceOpen,
+    medianOpenCents: r.medianOpenCents,
     releaseDate: r.product.setCode ? SET_BY_CODE.get(r.product.setCode)?.releaseDate ?? null : null,
   };
 }
@@ -175,6 +181,12 @@ export async function regionOverview(market: Market): Promise<RegionOverview> {
   return { products, inStock, stores: stores._count._all, storesRead: read, lastChecked: stores._max.lastOkAt ?? null };
 }
 
+/** When the market's stores were last read successfully: the "Prices checked" line on listing pages. One aggregate. */
+export async function lastCheckedAt(market: Market): Promise<Date | null> {
+  const r = await prisma.storeStat.aggregate({ where: { market, ...STORES_ONLY }, _max: { lastOkAt: true } });
+  return r._max.lastOkAt ?? null;
+}
+
 export async function allRegionOverviews(): Promise<Record<string, { products: number; inStock: number; stores: number }>> {
   const [listed, open, stores] = await Promise.all([
     prisma.productStat.groupBy({ by: ["market"], _count: { _all: true } }),
@@ -218,7 +230,7 @@ export interface ProductPageData {
   setCode: string | null;
   imageUrl: string | null;
   offers: OfferView[];
-  stats: { market: string; lowestPriceCents: number | null; inStockStores: number; listedStores: number; marketplaceOpen: boolean }[];
+  stats: { market: string; lowestPriceCents: number | null; inStockStores: number; listedStores: number; marketplaceOpen: boolean; medianOpenCents: number | null }[];
   /**
    * Outside the US only: the product's TCGplayer offer, priced in US$. NEVER
    * merged into `offers` — a region only compares prices in its own currency,
@@ -243,7 +255,7 @@ export async function productPage(slug: string, market: Market): Promise<Product
         take: 80,
         select: { store: true, title: true, url: true, priceCents: true, inStock: true, lastSeen: true },
       },
-      stats: { select: { market: true, lowestPriceCents: true, inStockStores: true, listedStores: true, marketplaceOpen: true } },
+      stats: { select: { market: true, lowestPriceCents: true, inStockStores: true, listedStores: true, marketplaceOpen: true, medianOpenCents: true } },
     },
   });
   if (!p) return null;
@@ -274,11 +286,20 @@ export async function productPage(slug: string, market: Market): Promise<Product
   return { ...p, offers, usMarketplace: tcg ? { ...tcg, lastSeen: tcg.lastSeen.toISOString() } : null };
 }
 
-export async function storeOffers(store: string) {
+/** Rows per page on the browse and store pages. Each page is its own cached URL. */
+export const PAGE_SIZE = 48;
+
+/**
+ * One page of a store's listings, in stock first then cheapest. Paged in SQL:
+ * a big store has 1,400 rows, and each page is rendered (and cached) on its own,
+ * so a page reads only its own rows. The page count comes from StoreStat.listed.
+ */
+export async function storeOffers(store: string, page = 1) {
   const rows = await prisma.offer.findMany({
     where: { store },
-    orderBy: [{ inStock: "desc" }, { priceCents: "asc" }],
-    take: 400,
+    orderBy: [{ inStock: "desc" }, { priceCents: "asc" }, { id: "asc" }],
+    skip: (page - 1) * PAGE_SIZE,
+    take: PAGE_SIZE,
     select: {
       priceCents: true,
       inStock: true,
@@ -298,7 +319,7 @@ export async function storeStats(market: Market) {
 }
 
 export async function storeStat(store: string) {
-  return prisma.storeStat.findUnique({ where: { store }, select: { listed: true, inStock: true, lastOkAt: true, lastError: true } });
+  return prisma.storeStat.findUnique({ where: { store }, select: { listed: true, inStock: true, lastOkAt: true, lastError: true, dormant: true } });
 }
 
 /** Per set: how many products the market lists and how many are in stock (at a store or on TCGplayer). */
@@ -345,4 +366,47 @@ export async function sitemapEntries(): Promise<{ market: string; slug: string }
     select: { market: true, product: { select: { slug: true } } },
   });
   return rows.map((r) => ({ market: r.market, slug: r.product.slug }));
+}
+
+// The headline set products a buyer prices a new set by. The release calendar
+// and the set page's "cheapest way to buy packs" strip read these.
+export const CALENDAR_TYPES = ["Booster Box", "Elite Trainer Box", "Booster Bundle"];
+
+/**
+ * Release calendar: for the given sets, the cheapest OPEN booster box, ETB and
+ * bundle in the market. One scoped read: a handful of sets × three types.
+ */
+export async function calendarProducts(market: Market, setCodes: string[]): Promise<Map<string, ProductCardData[]>> {
+  const out = new Map<string, ProductCardData[]>();
+  if (!setCodes.length) return out;
+  const rows = await prisma.productStat.findMany({
+    where: { market, ...OPEN, product: { setCode: { in: setCodes }, productType: { in: CALENDAR_TYPES } } },
+    take: setCodes.length * CALENDAR_TYPES.length * 3,
+    select: cardSelect,
+  });
+  for (const p of sortCards(rows.map(toCard))) {
+    const list = out.get(p.setCode!) ?? out.set(p.setCode!, []).get(p.setCode!)!;
+    if (!list.some((x) => x.productType === p.productType)) list.push(p); // cheapest per type: sortCards put it first
+  }
+  return out;
+}
+
+/**
+ * The markets that list a product of this set / of this type — the regions its
+ * set or type page is indexable in (the page is noindex where it lists
+ * nothing), for hreflang. One small GROUP BY: at most seven rows.
+ */
+export async function marketsWithSet(setCode: string): Promise<Market[]> {
+  const rows = await prisma.productStat.groupBy({ by: ["market"], where: { product: { setCode } } });
+  return rows.map((r) => r.market as Market);
+}
+
+export async function marketsWithType(typeLabel: string): Promise<Market[]> {
+  const rows = await prisma.productStat.groupBy({ by: ["market"], where: { product: { productType: typeLabel } } });
+  return rows.map((r) => r.market as Market);
+}
+
+/** Passes the browse/sitemap bar in a market: something to buy or something to compare (COMPARABLE, for one row). */
+export function comparable(s: { inStockStores: number; listedStores: number; marketplaceOpen: boolean }): boolean {
+  return s.inStockStores > 0 || s.marketplaceOpen || s.listedStores >= 2;
 }

@@ -303,13 +303,14 @@ test("product summary: store counts never include TCGplayer; its open offer sets
       ],
       now,
     ),
-    { lowestPriceCents: 9000, inStockStores: 1, listedStores: 2, marketplaceOpen: true },
+    { lowestPriceCents: 9000, inStockStores: 1, listedStores: 2, marketplaceOpen: true, medianOpenCents: null },
   );
   assert.deepEqual(productStat([{ store: "tcgplayer", priceCents: 9000, inStock: true, lastSeen: fresh }], now), {
     lowestPriceCents: 9000,
     inStockStores: 0,
     listedStores: 0,
     marketplaceOpen: true,
+    medianOpenCents: null,
   });
   // A TCGplayer row not re-read for days is "unknown": not open, not the price.
   assert.deepEqual(productStat([{ store: "tcgplayer", priceCents: 9000, inStock: true, lastSeen: stale }], now), {
@@ -317,5 +318,47 @@ test("product summary: store counts never include TCGplayer; its open offer sets
     inStockStores: 0,
     listedStores: 0,
     marketplaceOpen: false,
+    medianOpenCents: null,
   });
+});
+
+test("product summary: the median is of open independent-store prices only, null under two; a dormant store's row isn't 'listed'", () => {
+  const now = Date.parse("2026-09-28T12:00:00Z");
+  const fresh = new Date(now - 3600_000);
+  const list = [
+    { store: "tcgplayer", priceCents: 5000, inStock: true, lastSeen: fresh },
+    { store: "a", priceCents: 10000, inStock: true, lastSeen: fresh },
+    { store: "b", priceCents: 12000, inStock: true, lastSeen: fresh },
+    { store: "c", priceCents: 20000, inStock: true, lastSeen: fresh },
+    { store: "d", priceCents: 9000, inStock: false, lastSeen: fresh }, // sold out: not in the median
+    { store: "sleepy", priceCents: 9500, inStock: false, lastSeen: fresh },
+  ];
+  const stat = productStat(list, now, new Set(["sleepy"]));
+  assert.equal(stat.medianOpenCents, 12000);
+  assert.equal(stat.inStockStores, 3);
+  assert.equal(stat.listedStores, 4, "a dormant store's sold-out row doesn't count as listed");
+  assert.equal(stat.lowestPriceCents, 5000, "TCGplayer can still be the 'from' price");
+  assert.equal(productStat(list.slice(0, 2), now).medianOpenCents, null);
+  assert.equal(productStat(list.slice(1, 3), now).medianOpenCents, 11000);
+});
+
+test("placeholder asks: a pre-release TCGplayer ask over 3x US MSRP is dropped; the same ask on a released set is kept", () => {
+  const today = new Date("2026-09-28T00:00:00Z");
+  const tcg = read(TCGPLAYER, [
+    // Delta Reign (2026-11-06) hasn't released: a $59.99 PC ETB at $449.99 is a placeholder, a $134.95 ETB (2.7x $49.99) is a pre-order price.
+    product(700001, "Delta Reign Pokemon Center Elite Trainer Box (Exclusive)", "ME06: Delta Reign", [listing(449.99, 0)]),
+    product(700002, "Delta Reign Elite Trainer Box", "ME06: Delta Reign", [listing(134.95, 0)]),
+    // Released long ago: whatever it asks is the market.
+    product(700003, "Prismatic Evolutions Pokemon Center Elite Trainer Box (Exclusive)", "SV08.5: Prismatic Evolutions", [listing(449.99, 0)]),
+    // No MSRP published for the type: kept.
+    product(700004, "Delta Reign Elite Trainer Box Case", "ME06: Delta Reign", [listing(1204.36, 0)]),
+  ]);
+  assert.equal(dropPlaceholderAsks([tcg], today), 1);
+  assert.deepEqual(tcg.rows.map((r) => r.identity.groupKey).sort(), ["me6|etb", "me6|etb-case", "sv8pt5|pc-etb"]);
+});
+
+test("tcgplayer: a name with no set of its own borrows the catalogue's set only when that is all it lacks", () => {
+  assert.equal(tcgTitle({ productName: "Booster Box [Set of 6]", setName: "SV04: Paradox Rift" }), "Booster Box [Set of 6]"); // refused as a lot either way
+  assert.equal(tcgTitle({ productName: "Booster Bundle", setName: "SV4.5: Paldean Fates" }), "Paldean Fates Booster Bundle");
+  assert.equal(tcgTitle({ productName: "Charizard ex Premium Collection", setName: "SV03: Obsidian Flames" }), "Charizard ex Premium Collection");
 });

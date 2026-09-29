@@ -12,6 +12,7 @@ export function Header({ region }: { region: Region | null }) {
         { href: `/${region}/type/booster-boxes`, label: "Booster boxes" },
         { href: `/${region}/type/elite-trainer-boxes`, label: "ETBs" },
         { href: `/${region}/sets`, label: "Sets" },
+        { href: `/${region}/releases`, label: "Releases" },
         { href: `/${region}/stores`, label: "Stores" },
       ]
     : [];
