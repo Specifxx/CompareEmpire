@@ -4,7 +4,7 @@
 // in Vercel overrides the default; DEPLOY.md, "Domains" says what to set.
 export const SITE_NAME = "DexCompare";
 export const SITE_URL = normaliseOrigin(process.env.NEXT_PUBLIC_SITE_URL) ?? "https://www.dexcompare.app";
-export const CONTACT_EMAIL = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "hello@dexcompare.app";
+export const CONTACT_EMAIL = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "riftcompare@gmail.com";
 export const SITE_TAGLINE = "Pokémon sealed prices and stock, compared across independent stores.";
 
 // Who runs the site, for the Terms and the footer. Set NEXT_PUBLIC_OPERATOR in
