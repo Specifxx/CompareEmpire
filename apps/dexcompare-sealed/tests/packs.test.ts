@@ -28,7 +28,13 @@ test("ETB pack counts by set: the 10-pack special sets, and Celebrations refuses
 test("blisters: the name says whether it is a 1-, 2- or 3-pack", () => {
   assert.equal(packsFor("blister", "sv8", "Surging Sparks Single Pack Blister"), 1);
   assert.equal(packsFor("blister", "sv8", "Surging Sparks 1 Pack Blister"), 1);
-  assert.equal(packsFor("blister", "sv8", "Surging Sparks Checklane Blister"), 1);
+  // A bare checklane blister holds one pack or two depending on the set: no per-pack price.
+  assert.equal(packsFor("blister", "sv8", "Surging Sparks Checklane Blister"), null);
+  assert.equal(packsFor("blister", "sv8", "Surging Sparks Premium Checklane Blister"), null);
+  assert.equal(packsFor("blister", "sv8", "Checklane 2-Pack Blister [Pawmot]"), 2);
+  assert.equal(packsFor("blister", "sv8", "Obsidian Flames Checklane Blister - Pawmi & Wooper - 2 Pack"), 2);
+  assert.equal(packsFor("blister", "sv8", "Journey Together 1 Pack Checklane Blister"), 1);
+  assert.equal(packsFor("blister", "sv8", "Checklane 2-Pack Pin Blister [Arceus]"), 2);
   assert.equal(packsFor("blister", "sv8", "Surging Sparks 2-Pack Blister"), 2);
   assert.equal(packsFor("blister", "sv8", "Surging Sparks Two Pack Blister"), 2);
   assert.equal(packsFor("blister", "sv8", "Surging Sparks 3 Pack Blister"), 3);
@@ -83,6 +89,8 @@ test("US MSRP: two tiers, US only, nothing for older series", () => {
 test("median saving: three stores and 10% under, or nothing; never 'above'", () => {
   assert.equal(medianSaving(4100, 5000, 6), "18% below the median of 6 stores");
   assert.equal(medianSaving(4600, 5000, 6), null); // 8% is noise
+  assert.equal(medianSaving(4500, 5000, 6), "10% below the median of 6 stores"); // exactly the bar
+  assert.equal(medianSaving(4520, 5000, 6), null); // 9.6% under is not "10% below"
   assert.equal(medianSaving(4100, 5000, 2), null); // too few stores
   assert.equal(medianSaving(4100, null, 6), null);
   assert.equal(medianSaving(6000, 5000, 6), null);

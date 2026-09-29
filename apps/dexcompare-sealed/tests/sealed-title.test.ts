@@ -236,7 +236,8 @@ test("displays and multiples in TCGplayer's wording are refused", () => {
 test("a retailer's edition or bundle of a set product is not the product", () => {
   assert.equal(key("Prismatic Evolutions Elite Trainer Box and Pokeball (Sam's Club)"), "REJECT:retail-edition");
   assert.equal(key("Prismatic Evolutions Elite Trainer Box (Dollar General Exclusive)"), "REJECT:retail-edition");
-  assert.equal(key("Costco Pokemon Collector 3-Pack: Scarlet & Violet 151 ETB + Paldea Legends Tins"), "REJECT:retail-edition");
+  // Refused either way; the "+" between two products is read first (multiple), before the retailer name.
+  assert.equal(key("Costco Pokemon Collector 3-Pack: Scarlet & Violet 151 ETB + Paldea Legends Tins"), "REJECT:multiple");
   assert.equal(key("Costco Pokemon Surging Sparks 2-Pack Trainer Box and Booster Bundle"), "REJECT:unclassified");
   assert.equal(key("Surging Sparks Elite Trainer Box and Booster Bundle"), "REJECT:unclassified");
   // A retailer-exclusive collection or blister is its own product: its name says which.
@@ -629,6 +630,11 @@ test("a title naming both a booster box and an ETB is whichever comes first; SEO
   assert.equal(classify("Surging Sparks Elite Trainer Box - not a Booster Box"), "etb");
   assert.equal(key("Pokemon TCG: Sun & Moon - Checklane Blister Pack + Rockruff Card & Collectible Coin").startsWith("blister|"), true);
   assert.equal(key("Booster Bundle | Paldean Fates | POKÉMON | Inglés"), "sv4pt5|booster-bundle");
+  // A language named in a trailing "| …" segment is the edition, not filler.
+  assert.equal(key("Booster Box Black Bolt | POKÉMON | Coreano"), "REJECT:foreign");
+  assert.equal(key("Blister Caos Creciente | POKÉMON | Español"), "REJECT:foreign");
+  assert.equal(key("Pokémon Liga Deck Mew VMAX Level 3 | 60 Karten Deutsch"), "REJECT:foreign");
+  assert.equal(key("Mini Tin Junio | POKÉMON | Inglés"), "tin|-|junio-mini");
   assert.equal(key("Pokemon TCG | Kingdra ex Special Collection"), key("Kingdra ex Special Collection"));
 });
 
@@ -676,4 +682,32 @@ test("names keep 'Pokémon' where it is the name, lose store notes, and are titl
   }
   assert.equal(titleCase("XY MEGA MEWTWO EX BOX"), "XY Mega Mewtwo EX Box");
   assert.equal(titleCase("MEGA LATIAS EX BOX"), "Mega Latias ex Box");
+});
+
+test("a box with a tear, rip, dent, crease or cut seal is not the sealed product's price", () => {
+  for (const t of [
+    "Pokemon - Forbidden Light Elite Trainer Box (small tear)",
+    "151 Elite Trainer Box (Small Rip In Plastic)",
+    "Pokemon Crown Zenith Elite Trainer Box (Torn Seal)",
+    "Celebrations Ultra-Premium Collection - Celebrations (Seal has cut)",
+    "Pokémon TCG - Scarlet and Violet Surging Sparks Elite Trainer Box [Corner Dent, SEAL INTACT]",
+    "Pokemon Pikachu V Box Brilliant Stars - (Slight Crease)",
+    "Pokémon XY Steam Siege Booster Box (Slight Damage) | XY11",
+    "League Battle Deck [Ice Rider Calyrex VMAX] (Minor Box Damage)",
+    "Pokemon XY Evolutions Checklane Blister - Greninja (Rips & Damage To Cardboard Packaging)",
+  ]) {
+    assert.equal(key(t), "REJECT:not-sealed", t);
+  }
+  // Ordinary names with none of those words are untouched.
+  assert.equal(key("Surging Sparks Elite Trainer Box"), "sv8|etb");
+  assert.equal(key("Pokémon TCG: Scream Tail Premium Collection").startsWith("REJECT"), false);
+});
+
+test("a '+' with a whole product on each side is two products; a product and its contents is one", () => {
+  assert.equal(key("Pokemon Chilling Reign Booster Box + Crobat Premium Collection Box"), "REJECT:multiple");
+  assert.equal(key("Pokemon TCG: Obsidian Flames - Booster Box + Elite Trainer Box"), "REJECT:multiple");
+  assert.equal(key("Pokemon - Poke Ball Tin + 2 Kanto Power Mini Tins - Ultra Ball"), "REJECT:multiple");
+  assert.equal(key("Pokémon TCG Triple Whammy Tin – Darkrai Promo + Booster Packs").startsWith("tin|"), true);
+  assert.equal(key("Prismatic Evolutions Surprise Box (Official Eeveelution Promo + 4 Booster Packs)").startsWith("collection|sv8pt5"), true);
+  assert.equal(key("Surging Sparks Elite Trainer Box + Promo"), "sv8|etb");
 });

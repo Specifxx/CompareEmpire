@@ -11,7 +11,7 @@ import { PRODUCT_TYPES } from "@/lib/sealed-title";
 // `absolute`: the layout's "%s | DexCompare" template would brand it twice.
 export const metadata: Metadata = {
   title: { absolute: `${SITE_NAME} — compare Pokémon sealed prices & stock across ${STORES.length} stores` },
-  description: `Every Pokémon TCG sealed listing from ${STORES.length} independent stores in Australia, the US, the UK, Canada, New Zealand, Europe and Singapore, ranked by price and stock. Free, no login, no store pays to be listed.`,
+  description: `Pokémon TCG sealed listings from ${STORES.length} independent stores in Australia, the US, the UK, Canada, New Zealand, Europe and Singapore, ranked by price and stock. Free, no login, no store pays to be listed.`,
   alternates: { canonical: SITE_URL },
   openGraph: { url: SITE_URL, siteName: SITE_NAME, type: "website" },
 };
@@ -25,10 +25,10 @@ export default function Landing() {
         <div className="page relative py-16 text-center sm:py-24">
           <div className="eyebrow">Booster boxes · ETBs · bundles · collections · tins</div>
           <h1 className="mx-auto mt-4 max-w-4xl font-display text-5xl font-extrabold leading-[1.02] tracking-tight sm:text-7xl">
-            Every store&rsquo;s Pokémon sealed stock, <span className="text-brand">in one place.</span>
+            Independent stores&rsquo; Pokémon sealed stock, <span className="text-brand">in one place.</span>
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-muted">
-            Every sealed listing from {STORES.length} independent stores in {REGION_LIST.length} regions, read about twice a day and ranked by
+            Sealed listings from {STORES.length} independent stores in {REGION_LIST.length} regions, read about twice a day and ranked by
             price and stock — nothing else. Free, no login, and no store pays to be listed.
           </p>
           <div className="mt-8 flex justify-center">

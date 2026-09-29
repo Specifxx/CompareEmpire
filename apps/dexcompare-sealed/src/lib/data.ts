@@ -89,6 +89,15 @@ export async function marketProducts(market: Market): Promise<ProductCardData[]>
   return rows.map(toCard);
 }
 
+/**
+ * How many products marketProducts() would return: one COUNT. The browse pages
+ * past page 1 check their number against it first, so /us/sealed/page/9999 is a
+ * 404 that costs a count, not a read of the whole market.
+ */
+export async function marketProductCount(market: Market): Promise<number> {
+  return prisma.productStat.count({ where: { market, ...COMPARABLE } });
+}
+
 export async function productsByType(market: Market, typeLabel: string): Promise<ProductCardData[]> {
   const rows = await prisma.productStat.findMany({
     where: { market, product: { productType: typeLabel } },
@@ -347,25 +356,6 @@ export async function relatedProducts(market: Market, setCode: string, excludeSl
     select: cardSelect,
   });
   return sortCards(rows.map(toCard)).slice(0, take);
-}
-
-/** Which product types each market lists (sitemap: no links to empty type pages). */
-export async function typesByMarket(): Promise<Map<string, Set<string>>> {
-  // GROUP BY in SQL: Prisma's `distinct` dedupes client-side after fetching every row.
-  const rows = await prisma.$queryRaw<{ market: string; productType: string }[]>`
-    SELECT s."market", p."productType" FROM "ProductStat" s JOIN "Product" p ON p."id" = s."productId" GROUP BY 1, 2`;
-  const out = new Map<string, Set<string>>();
-  for (const r of rows) (out.get(r.market) ?? out.set(r.market, new Set()).get(r.market)!).add(r.productType);
-  return out;
-}
-
-/** Everything the sitemap lists: comparable products (COMPARABLE), per market. */
-export async function sitemapEntries(): Promise<{ market: string; slug: string }[]> {
-  const rows = await prisma.productStat.findMany({
-    where: COMPARABLE,
-    select: { market: true, product: { select: { slug: true } } },
-  });
-  return rows.map((r) => ({ market: r.market, slug: r.product.slug }));
 }
 
 // The headline set products a buyer prices a new set by. The release calendar

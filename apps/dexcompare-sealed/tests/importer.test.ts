@@ -114,6 +114,20 @@ test("a store with five or more in-stock prices under half the market median is 
   assert.ok(reads[0].rows.every((r) => r.inStock));
 });
 
+test("a cheap store is not a suspect store: 5 low prices among many ordinary ones", () => {
+  const sets = ["Surging Sparks", "Paradox Rift", "Obsidian Flames", "Paldea Evolved", "Temporal Forces", "Twilight Masquerade", "Stellar Crown", "Silver Tempest", "Journey Together", "Destined Rivals"];
+  const items = sets.flatMap((s) => [`${s} Elite Trainer Box`, `${s} Booster Box`, `${s} Booster Bundle`]);
+  const market = (key: string, cents: number) => readOf(key, items.map((title) => ({ title, cents })));
+  const cheap = readOf(
+    "discounter",
+    items.map((title, k) => ({ title, cents: k < 5 ? 14000 : 30000 })),
+  );
+  const reads = [market("a", 30000), market("b", 31000), market("c", 32000), cheap];
+  assert.equal(cheap.rows.length, 30);
+  assert.deepEqual(demoteSuspectStores(reads), []);
+  assert.ok(cheap.rows.every((r) => r.inStock));
+});
+
 test("dormant: 20+ listings and none in stock; small or selling stores and TCGplayer are not", () => {
   const counts = new Map([
     ["gatheringgames", { listed: 285, inStock: 0 }],

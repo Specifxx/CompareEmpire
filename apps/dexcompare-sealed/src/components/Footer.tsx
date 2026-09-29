@@ -13,7 +13,7 @@ export function Footer() {
           </div>
           <p className="mt-3 text-sm leading-6 text-muted">
             Pokémon TCG sealed product — booster boxes, Elite Trainer Boxes, bundles, collections and tins — compared across
-            independent stores, with live stock.
+            independent stores, with stock as of the last read.
           </p>
           <p className="mt-3 text-xs leading-5 text-muted">
             Prices are each store&rsquo;s (or TCGplayer seller&rsquo;s) own, in its own currency, and exclude shipping. Links to eBay and TCGplayer are affiliate

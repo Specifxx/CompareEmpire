@@ -81,10 +81,14 @@ export function packsFor(type: TypeKey, setCode: string | null, name = ""): numb
     }
     case "blister": {
       // The classifier keeps 1-pack and 2-pack blisters apart from the 3-pack
-      // by name; the name says which this is.
-      if (/\b(?:single|1)[\s-]*(?:pack|booster)\b|\bchecklane\b/i.test(name)) return 1;
-      if (/\b2[\s-]*(?:pack|booster)\b|\btwo[\s-]*pack\b/i.test(name)) return 2;
-      if (/\b3[\s-]*(?:pack|pk|booster)\b|\bthree[\s-]*pack\b|\btriple\b/i.test(name)) return 3;
+      // by name; the name says which this is. The count is read before
+      // anything else: "Checklane 2-Pack Blister" holds two packs. A bare
+      // "Checklane Blister" / "Premium Checklane Blister" holds one pack in
+      // some sets and two in others (stores print both), so it gets no
+      // per-pack price rather than a guess.
+      if (/\b2[\s-]*(?:packs?|booster)\b|\btwo[\s-]*packs?\b/i.test(name)) return 2;
+      if (/\b3[\s-]*(?:packs?|pk|booster)\b|\bthree[\s-]*packs?\b|\btriple\b/i.test(name)) return 3;
+      if (/\b(?:single|1)[\s-]*(?:packs?|booster)\b/i.test(name)) return 1;
       return null;
     }
     default:

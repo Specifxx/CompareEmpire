@@ -62,7 +62,10 @@ export function relativeDay(iso: string, today = new Date().toISOString().slice(
  */
 export function medianSaving(lowestCents: number | null | undefined, medianCents: number | null | undefined, inStockStores: number): string | null {
   if (!lowestCents || !medianCents || inStockStores < 3) return null;
+  // The 10% bar is on the exact ratio; only the printed figure is rounded, so
+  // 9.6% under never reads as "10% below".
+  if (lowestCents > medianCents * 0.9) return null;
   const pct = pctOf(lowestCents, medianCents);
-  if (pct == null || pct > -10) return null;
+  if (pct == null) return null;
   return `${-pct}% below the median of ${plural(inStockStores, "store")}`;
 }

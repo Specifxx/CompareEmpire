@@ -55,7 +55,7 @@ export default function About() {
 
         <h2 id="which-stores">Which stores, and why</h2>
         <p>
-          A store is listed when it passes four checks, run by a script before it is added and again on every read: it publishes a
+          A store is listed when it passes four checks, run by a script before it is added (the feed, currency and robots.txt checks run again on every read): it publishes a
           <b> public catalogue feed</b> (the Shopify or WooCommerce product listing its own website is built on — we read that, not the
           pages); it lists <b>at least three</b> Pokémon sealed products; it prices them <b>in its region&rsquo;s currency</b>; and its{" "}
           <b>robots.txt</b> allows the read. We pause between requests and back off when a store asks us to.
@@ -103,7 +103,8 @@ export default function About() {
           status, a store&rsquo;s listing count, the median a region&rsquo;s stores are asking. Each listing shows how long ago its store was
           read. When a store cannot be read for three days its listings are marked &ldquo;not checked recently&rdquo; and drop out of the
           &ldquo;from&rdquo; price; after two weeks they are removed. A store that lists twenty or more products and had none of them in stock
-          at the last read is treated as dormant: its listings stay on product pages, marked sold out, but it no longer counts towards
+          at the last read is treated as dormant, and so is one whose &ldquo;in stock&rdquo; prices sat far below the other stores&rsquo; on many
+          products (we do not trust those): its listings stay on product pages, marked sold out, but it no longer counts towards
           &ldquo;listed by N stores&rdquo;. We keep nothing from earlier reads, so nothing here is a trend, a history or an all-time low.
         </p>
 

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ProductCardData } from "@/lib/data";
 import { cardOpen } from "@/lib/compact";
-import { medianSaving, money, plural } from "@/lib/format";
+import { medianSaving, money, pctOf, plural } from "@/lib/format";
 import { CARD_SIZES, thumb, thumbSet } from "@/lib/images";
 import { packsForLabel, perPackCents } from "@/lib/packs";
 import { isPreorderSet } from "@/lib/release";
@@ -25,7 +25,8 @@ export function ProductCard({ p, region, priority = false }: { p: ProductCardDat
   const perPack = open ? perPackCents(p.lowestPriceCents, packsForLabel(p.productType, p.setCode, p.name)) : null;
   const saving = open ? medianSaving(p.lowestPriceCents, p.medianOpenCents, n) : null;
   const msrp = open ? usMsrpForCard(market, p.productType, p.setCode) : null;
-  const belowMsrp = msrp != null && p.lowestPriceCents != null && p.lowestPriceCents < msrp;
+  // Same rounding as the product page ("N% below US MSRP" appears at 1% or more): a price within half a percent is at MSRP.
+  const belowMsrp = msrp != null && p.lowestPriceCents != null && (pctOf(p.lowestPriceCents, msrp) ?? 0) < 0;
   return (
     <Link
       href={`/${region}/p/${p.slug}`}

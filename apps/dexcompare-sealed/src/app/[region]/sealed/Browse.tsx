@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { Ago } from "@/components/Ago";
 import { BrowseGrid } from "@/components/BrowseGrid";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
-import { lastCheckedAt, marketProducts, PAGE_SIZE, sortCards } from "@/lib/data";
+import { lastCheckedAt, marketProductCount, marketProducts, PAGE_SIZE, sortCards } from "@/lib/data";
 import { compactCard } from "@/lib/compact";
 import { timeAgo } from "@/lib/format";
 import { pageHref } from "@/components/Pagination";
@@ -27,7 +27,7 @@ export function browseMeta(r: RegionInfo, page: number): Metadata {
   const suffix = page > 1 ? ` — page ${page}` : "";
   return pageMeta({
     title: `All Pokémon sealed products in ${r.name}${suffix}`,
-    description: `Every Pokémon TCG sealed product ${r.adjective} stores${r.market === "US" ? " and TCGplayer" : ""} list — booster boxes, ETBs, bundles, collections, tins and packs — with live stock and the cheapest price in ${r.currency}.`,
+    description: `Every Pokémon TCG sealed product ${r.adjective} stores${r.market === "US" ? " and TCGplayer" : ""} list — booster boxes, ETBs, bundles, collections, tins and packs — with current stock and the lowest price in ${r.currency}.`,
     path: pageHref(base, page),
     // Page 1 is the canonical browse page in every region (with hreflang); a
     // later page is canonical to itself (pageMeta's default) and has no alternates.
@@ -36,6 +36,7 @@ export function browseMeta(r: RegionInfo, page: number): Metadata {
 }
 
 export async function BrowsePage({ r, page }: { r: RegionInfo; page: number }) {
+  if (page > 1 && page > Math.ceil((await marketProductCount(r.market)) / PAGE_SIZE)) notFound();
   const [products, checked] = await Promise.all([marketProducts(r.market), lastCheckedAt(r.market)]);
   const sorted = sortCards(products);
   const pages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));

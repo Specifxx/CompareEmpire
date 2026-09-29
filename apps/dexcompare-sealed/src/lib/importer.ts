@@ -65,6 +65,8 @@ export interface StoreRead {
   partial?: string;
 }
 
+// The photo HEAD sweep (sweepImages) runs 4 at a time for at most this long.
+const IMAGE_SWEEP_MAX_MS = 5 * 60_000;
 const MAX_PAGES = 8; // per collection: 2,000 products
 const OFFER_TTL_DAYS = 14; // an offer not re-read for this long is deleted
 // An in-stock price below 25% of the product's IN-STOCK median in that market
@@ -98,6 +100,12 @@ const HIGH_OUTLIER_MAX_AGE_DAYS = 548; // 18 months
 // products). Its rows are kept, as sold out, for the run.
 const SUSPECT_STORE_SHARE = 0.5;
 const SUSPECT_STORE_MIN = 5;
+// …and that is a pattern only when it is a fifth or more of what the store has
+// in stock at a comparable price: a genuinely cheap store (5 of 99 rows under
+// half the median — shopverse, measured 2026-09) is a discounter, not a stale
+// feed, and must not be flipped to sold out wholesale (and then to dormant).
+// tcgcarddepot: 41 of 101.
+const SUSPECT_STORE_MIN_RATE = 0.2;
 // A TCGplayer ask on an UNRELEASED set over this many times TPCi's US MSRP is a
 // pre-release placeholder ($449.99 for a $59.99 PC ETB), not a price anyone
 // will pay: the stores' pre-orders are at or near MSRP. Released sets keep
@@ -338,7 +346,8 @@ export function dropHighOutliers(reads: StoreRead[], today = new Date()): number
 
 /**
  * Stores whose "in stock" can't be believed: SUSPECT_STORE_MIN or more of
- * their in-stock prices sit under SUSPECT_STORE_SHARE of the market's in-stock
+ * their in-stock prices (and SUSPECT_STORE_MIN_RATE of those with a market
+ * median to compare with) sit under SUSPECT_STORE_SHARE of the market's in-stock
  * median. Every row of such a store is written as sold out this run (the
  * listing and its price stay on the page, ranked with the other sold-out ones).
  * Runs before dropLowOutliers, which would otherwise delete the worst of them
@@ -350,11 +359,14 @@ export function demoteSuspectStores(reads: StoreRead[]): { store: string; low: n
   for (const r of reads) {
     if (isMarketplace(r.store)) continue;
     let low = 0;
+    let judged = 0;
     for (const row of r.rows) {
       const m = medians.get(`${r.store.market}|${row.identity.groupKey}`);
-      if (m != null && row.inStock && row.priceCents < m * SUSPECT_STORE_SHARE) low++;
+      if (m == null || !row.inStock) continue;
+      judged++;
+      if (row.priceCents < m * SUSPECT_STORE_SHARE) low++;
     }
-    if (low < SUSPECT_STORE_MIN) continue;
+    if (low < SUSPECT_STORE_MIN || low < judged * SUSPECT_STORE_MIN_RATE) continue;
     for (const row of r.rows) row.inStock = false;
     demoted.push({ store: r.store.key, low });
     console.warn(`  suspect stock: ${r.store.key} has ${low} in-stock prices under half the market median; its rows are written as sold out`);
@@ -619,14 +631,21 @@ interface ImageCandidate {
   words: string[]; // the product's set slug and signature words, for filename matches
 }
 
-/** Does TCGplayer's CDN or the store's have this photo? A HEAD costs no bandwidth; any failure counts as no. */
+/**
+ * Is this photo gone? A HEAD costs no bandwidth. Only an answer that says so
+ * counts: 404/410, or a page that is not an image. A 403/405/429/5xx or a
+ * timeout is "can't tell" and keeps the photo (a store that refuses HEAD must
+ * not lose every photo, and get it back next run, forever).
+ */
 async function imageExists(url: string): Promise<boolean> {
   if (isTcgImage(url)) return tcgImageExists(url);
   try {
     const res = await fetch(url, { method: "HEAD", headers: SCRAPE_HEADERS, redirect: "follow", signal: AbortSignal.timeout(10_000) });
-    return res.ok && (res.headers.get("content-type") ?? "").startsWith("image/");
+    if (res.status === 404 || res.status === 410) return false;
+    if (res.ok) return (res.headers.get("content-type") ?? "").startsWith("image/");
+    return true;
   } catch {
-    return false;
+    return true;
   }
 }
 
@@ -786,7 +805,9 @@ async function upsertProducts(reads: StoreRead[], full: boolean): Promise<{ ids:
  */
 async function sweepImages(urls: string[]): Promise<void> {
   const dead: string[] = [];
+  const deadline = Date.now() + IMAGE_SWEEP_MAX_MS; // photos past it keep unchecked (the sweep is a courtesy, not a gate)
   await mapLimit([...new Set(urls.filter((u) => !isTcgImage(u)))], 4, async (url) => {
+    if (Date.now() > deadline) return;
     if (!(await imageExists(url))) dead.push(url);
   });
   if (!dead.length) return;

@@ -78,7 +78,8 @@ export async function StorePage({ r, s, page }: { r: RegionInfo; s: StoreConfig;
           </p>
           {st?.dormant && (
             <p className="mt-2 max-w-xl text-sm text-muted">
-              None of these listings was in stock when we last read the store, so it is treated as dormant: its listings stay on product
+              None of these listings is shown as in stock: the store had none in stock when we last read it, or its &ldquo;in stock&rdquo;
+              prices sat far below every other store&rsquo;s and were not trusted. It is treated as dormant: its listings stay on product
               pages, marked sold out, but it no longer counts towards how many stores list a product.
             </p>
           )}

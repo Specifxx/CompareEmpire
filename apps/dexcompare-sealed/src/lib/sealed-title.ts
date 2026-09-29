@@ -132,6 +132,23 @@ const POKEMON_WORD = /\bpokemon\b|\bpkmn\b|\bptcg\b/i;
 const OTHER_GAME =
   /\b(?:st|op|eb|prb)\d{2}\s*-\s*\d{3}\b|\bstraw\s*hat\b|\(\s*leader\s*\)|\(\s*parallel\s*\)|\bdon!!|\b(one\s*piece|lorcana|magic\s*the\s*gathering|\bmtg\b|yu-?gi-?oh|digimon|dragon\s*ball|flesh\s*(?:and|&)\s*blood|star\s*wars|weiss\s*schwarz|union\s*arena|gundam|riftbound|league\s*of\s*legends|sorcery|metazoo|grand\s*archive|battle\s*spirits|cardfight|vanguard|final\s*fantasy|disney|marvel|dc\s*comics|naruto|hololive|shadowverse|altered|topps|panini|upper\s*deck|nba|nfl|nhl|mlb|ufc|wwe|hockey|baseball|basketball|football|soccer)\b/i;
 
+// The language named in English, French, German, Italian, Spanish or Dutch
+// (EU stores name the edition in their own language: "Japonais", "Koreanisch",
+// "Vereinfachtes Chinesisch", "giapponese", "Coreano"). Also read from the
+// segments stripFiller drops: "Booster Box Black Bolt | POKÉMON | Coreano" is
+// a Korean box, not a title with filler.
+const LANG_NAMES =
+  "\\b(?:japanese|japan|jpn|jap|japonais|japonaise|japanisch|japanische[nrs]?|giapponese|japones|japons|japans|japanse" +
+  "|korean|kor|coreen|coreenne|koreanisch|koreanische[nrs]?|coreano|koreaans" +
+  "|chinese|chn|chs|cht|chinois|chinoise|chinesisch|chinesische[nrs]?|cinese|chino|chinees|vereinfacht\\w*|simplified|traditional|traditionnel|mandarin|cantonese" +
+  "|thai|indonesian|indonesisch" +
+  "|german|deutsch\\w*|allemand|tedesco|aleman|duits" +
+  "|french|francais|francaise|franzosisch\\w*|francese|frances|frans|vf" +
+  "|italian|italiano|italiana|italienisch\\w*|italien|italiaans" +
+  "|spanish|espanol|castellano|spanisch\\w*|espagnol|spagnolo|spaans" +
+  "|portuguese|portugues|dutch|nederlands|niederlandisch\\w*|polish|polski|asia|asian|jp|kr|cn)\\b";
+const LANG_NAMES_RE = new RegExp(LANG_NAMES, "i");
+
 // Not English. CJK script anywhere, a language word, or a bracketed language
 // code ("(JP)", "[DE]"). Bare two-letter codes are only trusted in brackets or
 // after a dash at the end — "IT" and "ES" are also English words.
@@ -139,18 +156,7 @@ const FOREIGN = new RegExp(
   [
     // CJK / Thai script anywhere.
     "[\\u3040-\\u30ff\\u3400-\\u9fff\\uac00-\\ud7af\\u0e00-\\u0e7f]",
-    // The language named in English, French, German, Italian, Spanish or Dutch
-    // (EU stores name the edition in their own language: "Japonais",
-    // "Koreanisch", "Vereinfachtes Chinesisch", "giapponese").
-    "\\b(?:japanese|japan|jpn|jap|japonais|japonaise|japanisch|japanische[nrs]?|giapponese|japones|japons|japans|japanse" +
-      "|korean|kor|coreen|coreenne|koreanisch|koreanische[nrs]?|coreano|koreaans" +
-      "|chinese|chn|chs|cht|chinois|chinoise|chinesisch|chinesische[nrs]?|cinese|chino|chinees|vereinfacht\\w*|simplified|traditional|traditionnel|mandarin|cantonese" +
-      "|thai|indonesian|indonesisch" +
-      "|german|deutsch\\w*|allemand|tedesco|aleman|duits" +
-      "|french|francais|francaise|franzosisch\\w*|francese|frances|frans|vf" +
-      "|italian|italiano|italiana|italienisch\\w*|italien|italiaans" +
-      "|spanish|espanol|castellano|spanisch\\w*|espagnol|spagnolo|spaans" +
-      "|portuguese|portugues|dutch|nederlands|niederlandisch\\w*|polish|polski|asia|asian|jp|kr|cn)\\b",
+    LANG_NAMES,
     // A language code in brackets, or after a dash at the end: "(JAP)", "[DE]", "- FR".
     "[(\\[]\\s*(?:jp|jpn|jap|kr|kor|cn|sc|tc|th|id|de|ger|dt|fr|fra|it|ita|es|spa|pt|nl|pl)\\s*[)\\]]",
     "\\s-\\s*(?:jp|jpn|jap|kr|cn|de|fr|it|es|pt|nl|pl)\\s*$",
@@ -178,7 +184,8 @@ const FOREIGN = new RegExp(
 
 // Singles, slabs and anything that isn't a factory-sealed product. Also a
 // product that was sealed and isn't quite any more ("unshrinked", "no shrink",
-// "box wear", "minor damage", "*may* have imperfections"): its price is not
+// "box wear", "minor damage", "small tear", "torn wrap", "corner dent", "*may* have
+// imperfections"): its price is not
 // the product's. TCGplayer's single cards from collections read "Charizard 004
 // - Holofoil Celebrations Classic Collection" and "(XY88) [XY: Black Star
 // Promos]"; a store's "SWSH145" is a promo card's number, never a set code
@@ -186,7 +193,7 @@ const FOREIGN = new RegExp(
 // the blister's promo, not a single; "20 x Basic Fire Energy" is an energy lot;
 // "Arceus Figure (from Arceus V Figure Collection)" is a part of one.
 const NOT_SEALED =
-  /\bholofoil\b|\(\s*from\b|\bblack\s*star\s*promos?\b|\b\d{3}\s*-\s*(?:holo|rare|common|uncommon)\b|\bunshrink(?:ed)?\b|\bno\s*shrink\b|\bloose\s*wrap\b|\bbox\s*wear\b|\bimperfections?\b|\bminor\s*damage\b|\bcode\s*cards?\b|\b\d+\s*x\s*basic\s*\w+\s*energy\b|(?<!\bwith\s+[a-z'.-]+\s+|\bwith\s+)\b(?:swsh|svp|sv|sm|xy|bw)\s*-?\s*(?!151\b)\d{3}\b|\b\d{1,3}[a-z]?\s*\/\s*\d{2,3}\b|\b[a-z]{1,4}\d{1,3}\s*\/\s*[a-z]{0,4}\d{2,3}\b|\b(?:ultra|secret|holo|illustration|hyper|double|shiny|amazing|radiant)\s*rare\b|\breverse\s*holo\b|\bfull\s*art\b|\b(psa|cgc|bgs|beckett|ace\s*grading|tag\s*grading|graded|slab|slabbed)\b|\bgem\s*mint\b|\bsingles\b|\bsingle\s*cards?\b|\bnear\s*mint\b|\blightly\s*played\b|\b(nm|lp|mp|hp)\b(?!\s*-?\s*\d)|\bopened\b|\bempty\b|\bbox\s*only\b|\bcase\s*only\b|\bwrappers?\b|\bdamaged\b|\bdented\b|\bcrushed\b|\bimperfect\b|\bresealed\b|\brepack(?:ed|s)?\b|\bmystery\b|\blucky\s*(?:dip|bag|box)\b|\bgrab\s*bag\b|\bcustom\b|\bproxy\b|\blive\s*break\b|\bbreaks?\b|\brip\s*(?:&|and)\s*ship\b|\b\d+\s*-?\s*cards?\s*(?:box|lot|hit|pack|bundle)\b|\bvalue\s*(?:lot|box|pack)\b|\bhit\s*pack\b|\bpound\s*of\b|\bmoonshot\b|\bgod\s*pack\b|\bcodes?\b|\bptcgl\b|\bptcgo\b|\bonline\b|\bdigital\b/i;
+  /\bholofoil\b|\(\s*from\b|\bblack\s*star\s*promos?\b|\b\d{3}\s*-\s*(?:holo|rare|common|uncommon)\b|\bunshrink(?:ed)?\b|\bno\s*shrink\b|\bloose\s*wrap\b|\bbox\s*wear\b|\bimperfections?\b|\bminor\s*damage\b|\bcode\s*cards?\b|\b\d+\s*x\s*basic\s*\w+\s*energy\b|(?<!\bwith\s+[a-z'.-]+\s+|\bwith\s+)\b(?:swsh|svp|sv|sm|xy|bw)\s*-?\s*(?!151\b)\d{3}\b|\b\d{1,3}[a-z]?\s*\/\s*\d{2,3}\b|\b[a-z]{1,4}\d{1,3}\s*\/\s*[a-z]{0,4}\d{2,3}\b|\b(?:ultra|secret|holo|illustration|hyper|double|shiny|amazing|radiant)\s*rare\b|\breverse\s*holo\b|\bfull\s*art\b|\b(psa|cgc|bgs|beckett|ace\s*grading|tag\s*grading|graded|slab|slabbed)\b|\bgem\s*mint\b|\bsingles\b|\bsingle\s*cards?\b|\bnear\s*mint\b|\blightly\s*played\b|\b(nm|lp|mp|hp)\b(?!\s*-?\s*\d)|\bopened\b|\bempty\b|\bbox\s*only\b|\bcase\s*only\b|\bwrappers?\b|\bdamaged\b|\bdented\b|\bcrushed\b|\b(?:torn|creased|ripped|rips)\b|\bdent\b|\bseal\s+(?:has\s+)?cut\b|\b(?:box|seal|wrap|corner|plastic|packaging|cardboard)\s+(?:tears?|rips?|dents?|creases?|cuts?|damage)\b|\b(?:tears?|rips?|dents?|creases?|cuts?)\s+(?:in|on|to|of)\s+(?:the\s+)?(?:wrap|plastic|seal|box|cardboard|shrink|packaging)\b|\b(?:small|slight|slightly|minor|major|mild|tiny|light)\s+(?:\d+\s*cm\s+)?(?:(?:box|seal|corner|packaging)\s+)?(?:tears?|rips?|dents?|creases?|damage|cuts?)\b|\bimperfect\b|\bresealed\b|\brepack(?:ed|s)?\b|\bmystery\b|\blucky\s*(?:dip|bag|box)\b|\bgrab\s*bag\b|\bcustom\b|\bproxy\b|\blive\s*break\b|\bbreaks?\b|\brip\s*(?:&|and)\s*ship\b|\b\d+\s*-?\s*cards?\s*(?:box|lot|hit|pack|bundle)\b|\bvalue\s*(?:lot|box|pack)\b|\bhit\s*pack\b|\bpound\s*of\b|\bmoonshot\b|\bgod\s*pack\b|\bcodes?\b|\bptcgl\b|\bptcgo\b|\bonline\b|\bdigital\b/i;
 
 // Accessories and merchandise. Hard exclusions: a title naming one of these is
 // never the sealed product itself ("Elite Trainer Box Sleeves" is sleeves).
@@ -249,6 +256,8 @@ function countedUnits(t: string): boolean {
 // Words that name a kind of product, for twoProducts.
 const PRODUCT_WORD = "(?:elite\\s*trainer\\s*box|etb|booster\\s*box|booster\\s*bundle|booster\\s*packs?|display|tins?|blisters?|decks?|collection|calendar|pin|box|kit)";
 const PRODUCT_WORD_RE = new RegExp(`\\b${PRODUCT_WORD}\\b`, "g");
+// A whole product on one side of a "+": what a store bundles, never a pack or a promo.
+const SIDE_PRODUCT = /\b(?:booster\s*box|booster\s*bundle|elite\s*trainer\s*box|etb|(?:premium|special|collection|ultra[\s-]*premium)\s*collection|collection\s*box|tins?|battle\s*(?:decks?|box)|build\s*(?:&|and)\s*battle|blisters?)\b/;
 
 /**
  * Two products sold as one listing: "Pitch Black Booster Box + Prismatic
@@ -258,6 +267,11 @@ const PRODUCT_WORD_RE = new RegExp(`\\b${PRODUCT_WORD}\\b`, "g");
  * set's own Booster Bundle is a product and never counts.
  */
 function twoProducts(t: string): boolean {
+  // "Chilling Reign Booster Box + Crobat Premium Collection Box": a "+" with a
+  // product on both sides. "Surprise Box (Promo + 4 Booster Packs)" and "Tin –
+  // Darkrai Promo + Booster Packs" have one product and its contents.
+  const plus = t.toLowerCase().split(/\s\+\s/);
+  if (plus.length > 1 && plus.filter((x) => SIDE_PRODUCT.test(x)).length >= 2) return true;
   const s = t.toLowerCase().replace(/booster\s*bundles?/g, " ");
   if (/\bpacks?\s*bundle\b/.test(s) && !/\bblister/.test(s)) return true;
   if (!/\bbundle\b/.test(s)) return false;
@@ -699,6 +713,8 @@ export function titleCase(t: string): string {
   return t.replace(/[\p{L}\p{N}'’]+/gu, (w, i: number) => {
     const up = w.toUpperCase();
     if (ACRONYMS.has(up)) return up;
+    // A set code inside a name: "SV3.5 Zapdos ex Collection".
+    if (/^(?:SV|ME|SWSH|SM|XY|BW|HS)\d+$/.test(up)) return up;
     if (up === "EX") return xyEra ? "EX" : "ex";
     const low = w.toLowerCase();
     // "of", "the"… stay small except at the start or after a separator ("- The Don").
@@ -707,9 +723,9 @@ export function titleCase(t: string): string {
   });
 }
 
-/** Is a name shouted? Two or more words of four letters in capitals, and most such words are. */
+/** Is a name shouted? Two or more words of three letters in capitals, and most such words are. */
 function isAllCaps(t: string): boolean {
-  const words = (t.match(/\p{L}{4,}/gu) ?? []).filter((w) => !ACRONYMS.has(w));
+  const words = (t.match(/\p{L}{3,}/gu) ?? []).filter((w) => !ACRONYMS.has(w.toUpperCase()));
   const caps = words.filter((w) => w === w.toUpperCase());
   return caps.length >= 2 && caps.length >= words.length * 0.6;
 }
@@ -792,7 +808,7 @@ export function identify(title: string, opts: { strict?: boolean } = {}): Sealed
   // ("Mega Evolutions Mini Tin" is the Mega Evolution series, not XY Evolutions.)
   const t = stripFiller(normalizeTitle(title).replace(/\bS\s*(?:&|and)\s*V\b/gi, "Scarlet & Violet").replace(/\bMega\s*Evolutions\b/gi, "Mega Evolution"));
   if (!t) return "unclassified";
-  if (FOREIGN.test(t)) return "foreign";
+  if (FOREIGN.test(t) || LANG_NAMES_RE.test(normalizeTitle(title))) return "foreign";
   if (NOT_SEALED.test(t)) return "not-sealed";
   if (ACCESSORY.test(t)) return "accessory";
   if (BINDER.test(t) && !/binder\s*collection/i.test(t)) return "accessory";

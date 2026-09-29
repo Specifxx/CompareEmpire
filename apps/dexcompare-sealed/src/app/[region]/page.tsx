@@ -22,7 +22,7 @@ export function generateMetadata({ params }: { params: { region: string } }): Me
   const n = storesInMarket(r.market).length;
   return pageMeta({
     title: `Pokémon sealed prices & stock in ${r.name}`,
-    description: `Compare Pokémon TCG booster boxes, Elite Trainer Boxes, bundles and collections across ${n} ${r.adjective} stores. Live stock and prices in ${r.currency}.`,
+    description: `Compare Pokémon TCG booster boxes, Elite Trainer Boxes, bundles and collections across ${n} ${r.adjective} stores. Stock and prices in ${r.currency}, read twice a day.`,
     path: `/${r.region}`,
     alternates: regionAlternates(r.region, ""),
   });
@@ -178,7 +178,7 @@ export default async function RegionHome({ params }: { params: { region: string 
               t: "We read the stores",
               d: `Twice a day we read the sealed Pokémon listings of ${plural(storeCount, `${r.adjective} store`)}${r.market === "US" ? " and TCGplayer’s marketplace sellers" : ""} — their own prices, in ${r.currency}.`,
             },
-            { n: "2", t: "You see who has it", d: "Every product lists every store: in stock or sold out, and when we last checked. The cheapest in-stock price comes first." },
+            { n: "2", t: "You see who has it", d: "Each product page lists the stores that carry it: in stock or sold out, and when we last checked. The cheapest in-stock price comes first." },
             { n: "3", t: "You buy from the store", d: "Click through to the store's own page and buy there. We don't sell anything and no store pays to rank higher." },
           ].map((s) => (
             <div key={s.n} className="card p-6">
