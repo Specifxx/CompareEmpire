@@ -1,10 +1,11 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { Ago } from "@/components/Ago";
-import { MarketplaceHint } from "@/components/Marketplaces";
+import { EbayBanner } from "@/components/Ebay";
 import { ProductGrid } from "@/components/ProductCard";
 import { SearchBox } from "@/components/SearchBox";
 import { Empty, Section } from "@/components/Section";
+import { ebayLabel } from "@/lib/affiliate";
 import { homeRails, regionOverview } from "@/lib/data";
 import { cardOpen } from "@/lib/compact";
 import { money, plural, timeAgo } from "@/lib/format";
@@ -27,6 +28,11 @@ export function generateMetadata({ params }: { params: { region: string } }): Me
     alternates: regionAlternates(r.region, ""),
   });
 }
+
+// Rails are at most eight products, so no tile reaches them today (a tile follows
+// the 12th); if the first rail ever grows, this is the placement it reports under.
+// Only that rail: at most three tiles on a page.
+const HOME_FEED = { placement: "feed", context: "Pokémon sealed", query: "" } as const;
 
 const QUICK_TYPES = ["booster-boxes", "elite-trainer-boxes", "booster-bundles", "collections", "ultra-premium-collections", "tins", "booster-packs", "blisters"];
 
@@ -76,7 +82,8 @@ export default async function RegionHome({ params }: { params: { region: string 
               Stores we compare
             </Link>
           </p>
-          <MarketplaceHint region={r.region} />
+          {/* Replaces the thin "Can't find it in stock?" strip. Below the H1, search and type chips, never above them. */}
+          <EbayBanner region={r.region} variant="hero" placement="region-home-hero" text={`Looking for Pokémon sealed on eBay? Search Buy It Now listings on ${ebayLabel(r.region)}.`} className="mt-6 max-w-3xl" />
           <dl className="mt-8 grid max-w-3xl grid-cols-2 gap-4 sm:grid-cols-4">
             {[
               { k: "Products tracked", v: overview.products.toLocaleString("en") },
@@ -161,7 +168,7 @@ export default async function RegionHome({ params }: { params: { region: string 
         )}
 
         <Section title="Booster boxes in stock" kicker="Newest sets first" href={`/${r.region}/type/booster-boxes`}>
-          {boxes.length ? <ProductGrid products={boxes} region={r.region} eager={4} /> : <Empty>No booster boxes in stock right now.</Empty>}
+          {boxes.length ? <ProductGrid products={boxes} region={r.region} eager={4} feed={HOME_FEED} /> : <Empty>No booster boxes in stock right now.</Empty>}
         </Section>
 
         <Section title="Elite Trainer Boxes in stock" kicker="Newest sets first" href={`/${r.region}/type/elite-trainer-boxes`}>

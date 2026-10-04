@@ -22,6 +22,7 @@ const config: Config = {
         sold: { DEFAULT: v("sold"), soft: v("sold-soft") },
         stale: { DEFAULT: v("stale"), soft: v("stale-soft") },
         pre: { DEFAULT: v("pre"), soft: v("pre-soft") },
+        ad: { DEFAULT: v("ad"), line: v("ad-line") },
       },
       fontFamily: {
         sans: ["var(--font-sans)", "ui-sans-serif", "system-ui", "Segoe UI", "Roboto", "Helvetica", "Arial", "sans-serif"],

@@ -8,9 +8,10 @@ import { packsForLabel, perPackCents } from "@/lib/packs";
 import { PRODUCT_TYPES, typeRank } from "@/lib/sealed-title";
 import { SETS } from "@/lib/sets";
 import type { Region } from "@/lib/regions";
+import { NoPreFooter } from "./Ebay";
 import { MarketplaceSearch } from "./Marketplaces";
 import { Pagination } from "./Pagination";
-import { ProductCard } from "./ProductCard";
+import { ProductGrid } from "./ProductCard";
 
 type Sort = "relevance" | "price-asc" | "price-desc" | "per-pack" | "saving" | "newest" | "stores";
 const PAGE = 48;
@@ -206,13 +207,16 @@ export function BrowseGrid({ rows, region, base, page = 1 }: { rows: CompactCard
       </div>
 
       {shown.length ? (
-        <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
-          {shown.map((p, i) => (
-            <ProductCard key={p.slug} p={p} region={region} priority={i < 8} />
-          ))}
-        </div>
+        // eBay tiles after the 12th, 24th and 36th product, searching what is filtered (or Pokémon sealed).
+        <ProductGrid
+          products={shown}
+          region={region}
+          eager={8}
+          feed={{ placement: "browse-feed", context: elsewhere || "Pokémon sealed", query: elsewhere }}
+        />
       ) : (
         <div className="card px-6 py-12 text-center text-muted">
+          <NoPreFooter />
           Nothing matches those filters.
           {elsewhere && <MarketplaceSearch region={region} query={elsewhere} placement="browse-empty" />}
         </div>

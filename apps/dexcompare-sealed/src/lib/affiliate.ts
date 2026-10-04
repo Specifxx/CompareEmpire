@@ -22,6 +22,24 @@ export const PLACEMENTS = [
   "browse-empty", // /[region]/sealed with nothing matching the filters
   "region-home",
   "store-page", // a store's "Visit" link
+  // eBay units (components/Ebay.tsx). One placement per distinct surface, so
+  // EPN's customid report and Vercel's buy_click say which surface earned.
+  "header", // the "eBay" item in the site header (desktop nav and the mobile section row)
+  "region-home-hero", // region home: the banner under the hero
+  "feed", // an in-feed tile in a product grid with no more specific placement (home rails)
+  "browse-feed", // /[region]/sealed (+ pages): in-feed tile
+  "set-feed", // set page: in-feed tile
+  "type-feed", // type page: in-feed tile
+  "card-soldout", // "Sold out here — search eBay" under a sold-out product card
+  "product-related", // product page: set x type searches inside the marketplace panel
+  "product-after-table", // product page: "Still deciding?" row closing the offer table
+  "set-related", // set page: set x type searches in the banner
+  "releases-card", // release calendar: a set's own search link
+  "releases-banner", // release calendar: banner at the bottom
+  "store-banner", // store directory and store page: "Not in stock at the stores?"
+  "pre-footer", // every region page: banner directly above the site footer
+  "footer", // the "Shop Pokémon sealed on eBay" link in the site footer
+  "not-found", // the 404 page
 ] as const;
 export type Placement = (typeof PLACEMENTS)[number];
 
@@ -62,12 +80,15 @@ export function searchTerms(name: string): string {
     .replace(/\b(?:limit|max)\s*(?:of\s*)?\d+(?:\s*(?:per|\/)\s*(?:customer|household|order|person))?\b/gi, " ")
     .replace(/\b(?:one|\d+)\s*(?:per|\/)\s*(?:customer|household|order|person)\b/gi, " ")
     .replace(/\blocal\s*pick\s*-?\s*up(?:\s*only)?\b|\bin[-\s]?store\s*(?:pick\s*-?\s*up\s*)?only\b/gi, " ")
-    .replace(/\bpre[-\s]?orders?\b|\bpresale\b|\binvite\s*only\b/gi, " ")
+    .replace(/\bpre[-\s]?orders?\b|\bpre-?prder\b|\bpresale\b|\binvite\s*only\b/gi, " ")
+    // Store-listing noise that matches nothing on eBay (which requires every word).
+    .replace(/\bcollection\s+only\b|\bon\s+sale\b|\b(?:random|assorted)(?:\s+(?:style|design|colou?r|artwork))?\b|\bpack\s+lineup\s+in\s+description\b|\bmiscellaneous\s+cards?\s*&\s*products?\b|\b\d+%\s*vat\b|\bvat\b|\bsale\b/gi, " ")
     // A code has a letter in it: "(2025)", "(151)" and "(24)" are part of the name.
     .replace(/[[(]\s*(?!\d+\s*[\])])[A-Z0-9]{2,6}(?:\s*-\s*\d+)?\s*[\])]/g, " ")
     .replace(/[[\]|()"“”]/g, " ")
     .replace(/(^|\s)[-–—:]+(?=\s|$)/g, " ")
     .replace(/(^|\s)-+(?=\S)/g, "$1")
+    .replace(/(\S)-+(?=\s|$)/g, "$1") // a dangling "ONLY-" from a removed note
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -119,10 +140,107 @@ export function ebaySearchUrl(name: string, region: Region, placement: Placement
   return u.toString();
 }
 
+/**
+ * The one-line disclosure that sits beside every group of affiliate links (the
+ * FTC wants it next to the links, not only in the footer). Pure, so the eBay
+ * units and the Marketplaces panel share it without importing each other.
+ */
+export const AFFILIATE_NOTE = "Affiliate links — we may earn a commission, at no cost to you.";
+/** …and the shorter form for a single small link (a sold-out card's), which has no room for the full line. */
+export const AFFILIATE_NOTE_SHORT = "Affiliate link — we may earn a commission.";
+
 /** The eBay site a region's links actually land on: "ebay.com.au" (also for NZ), "ebay.com" (also for SG). */
 export function ebayLabel(region: Region): string {
   return EBAY_FOR_REGION[region].replace(/^www\./, "");
 }
+
+// ─── Optional official EPN banner creative ─────────────────────────────────────
+// The owner can paste an image and tracking link copied from EPN Campaign
+// Manager into NEXT_PUBLIC_EBAY_BANNER_IMAGE / _HREF (optionally _WIDTH, _HEIGHT,
+// _ALT). Both set and valid → the "hero" and "footer" banners show that image
+// instead of the native banner. Anything else is ignored, never half-applied:
+// the page must not break, or link somewhere odd, because of a typo in an env var.
+
+export interface EbayBannerCreative {
+  image: string;
+  href: string;
+  width: number;
+  height: number;
+  alt: string;
+}
+
+const BANNER_DEFAULT = { width: 728, height: 90, alt: "Shop Pokémon sealed on eBay (advertisement)" };
+
+function httpsUrl(raw: string | undefined): URL | null {
+  const v = (raw ?? "").trim();
+  if (!v || v.length > 2048) return null;
+  try {
+    const u = new URL(v);
+    if (u.protocol !== "https:" || !u.hostname.includes(".") || u.username || u.password) return null;
+    return u;
+  } catch {
+    return null;
+  }
+}
+
+/** ebay.<tld> (com, com.au, co.uk, ca, de…), its subdomains (rover.ebay.com), or the ebay.us short-link host. */
+export function isEbayHost(host: string): boolean {
+  return /(^|\.)ebay\.(?:com|com\.au|co\.uk|ca|de|fr|it|es|ie|nl|at|ch|com\.sg|us)$/i.test(host);
+}
+
+function dimension(raw: string | undefined, fallback: number, min: number, max: number): number | null {
+  const v = (raw ?? "").trim();
+  if (!v) return fallback;
+  if (!/^\d{1,4}$/.test(v)) return null;
+  const n = Number(v);
+  return n >= min && n <= max ? n : null;
+}
+
+/** Where EPN's own creatives are served from: eBay's hosts, ebayimg.com and ebaystatic.com. Nothing else is loaded as an ad image. */
+export function isEbayImageHost(host: string): boolean {
+  return isEbayHost(host) || /(^|\.)(?:ebayimg|ebaystatic)\.com$/i.test(host);
+}
+
+export function parseEbayBanner(env: { image?: string; href?: string; width?: string; height?: string; alt?: string }): EbayBannerCreative | null {
+  const image = httpsUrl(env.image);
+  const href = httpsUrl(env.href);
+  if (!image || !href || !isEbayHost(href.hostname) || !isEbayImageHost(image.hostname)) return null;
+  // A tracking link carries our campaign id; one without it, or with another's, earns nothing for us.
+  // (ebay.us short links hide the campaign in the redirect, so they are taken as pasted.)
+  if (!/(^|\.)ebay\.us$/i.test(href.hostname) && href.searchParams.get("campid") !== EBAY_CAMPAIGN_ID) return null;
+  const width = dimension(env.width, BANNER_DEFAULT.width, 100, 1200);
+  const height = dimension(env.height, BANNER_DEFAULT.height, 30, 700);
+  if (width == null || height == null) return null;
+  const alt = (env.alt ?? "").replace(/\s+/g, " ").trim().slice(0, 140) || BANNER_DEFAULT.alt;
+  return { image: image.toString(), href: href.toString(), width, height, alt };
+}
+
+/**
+ * The creative's link for a region and placement: the pasted tracking link with
+ * our customid (dex-<region>-<placement>) filled in when it has none, so EPN's
+ * report can tell the hero from the banner above the footer. Short links
+ * (ebay.us) and links that already carry a customid are left as pasted.
+ */
+export function creativeHref(href: string, region: Region, placement: Placement): string {
+  const u = new URL(href);
+  if (!u.searchParams.has("campid") || u.searchParams.get("customid")) return href;
+  u.searchParams.set("customid", subId(region, placement));
+  return u.toString();
+}
+
+/** The retailer label of a creative's click: the host the link really goes to, which is not always the region's eBay site. */
+export function creativeRetailer(href: string): string {
+  return `eBay (${new URL(href).hostname.replace(/^www\./, "")})`;
+}
+
+// Literal property reads: Next inlines NEXT_PUBLIC_* at build only for these.
+export const EBAY_BANNER: EbayBannerCreative | null = parseEbayBanner({
+  image: process.env.NEXT_PUBLIC_EBAY_BANNER_IMAGE,
+  href: process.env.NEXT_PUBLIC_EBAY_BANNER_HREF,
+  width: process.env.NEXT_PUBLIC_EBAY_BANNER_WIDTH,
+  height: process.env.NEXT_PUBLIC_EBAY_BANNER_HEIGHT,
+  alt: process.env.NEXT_PUBLIC_EBAY_BANNER_ALT,
+});
 
 // ─── TCGplayer (Impact deep links) ─────────────────────────────────────────────
 

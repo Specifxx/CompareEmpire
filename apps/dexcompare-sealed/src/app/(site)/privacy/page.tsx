@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { EBAY_BANNER } from "@/lib/affiliate";
 import { CONTACT_EMAIL, SITE_URL } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -9,7 +10,7 @@ export const metadata: Metadata = {
 };
 
 // Bump when what is collected changes, not for wording.
-const LAST_UPDATED = "28 September 2026";
+const LAST_UPDATED = "4 October 2026";
 
 export default function Privacy() {
   return (
@@ -32,7 +33,11 @@ export default function Privacy() {
         <p>
           When you follow a link to a store, eBay or TCGplayer, that site&rsquo;s own privacy policy applies. eBay links carry an eBay Partner
           Network tag, and TCGplayer links pass through TCGplayer&rsquo;s affiliate network (Impact), so they can credit us for the referral.
-          Store links are plain links.
+          Store links are plain links. The eBay banners and links on the site are advertisements, marked &ldquo;Ad&rdquo;; they are ordinary
+          links that load nothing from eBay until you follow one: no ad script, no tracking pixel, no cookie.
+          {EBAY_BANNER && (
+            <> The one exception is eBay&rsquo;s own banner image, which is enabled on this site: your browser loads that picture from eBay&rsquo;s servers when the banner scrolls into view, so eBay can see that request.</>
+          )}
         </p>
         <h2>Server logs</h2>
         <p>

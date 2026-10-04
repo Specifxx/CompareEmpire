@@ -30,13 +30,47 @@ place untouched; nothing deploys from it once the Vercel project points here.
     region's ranking, "from" price or JSON-LD.
 
   Both carry a sub-id, `dex-<region>-<placement>` (EPN `customid`, Impact
-  `sharedid`), so the networks' reports say which surface earned. Placements:
-  `product-best`, `product-marketplace`, `product-soldout`, `product-table`,
-  `set-banner`, `type-banner`, `browse-empty`, `region-home`, `store-page`.
-  Store links go out untouched. Every group of affiliate links carries its own
-  disclosure, and every outbound buy link (`src/components/OutboundLink.tsx`)
-  records a Vercel `buy_click` event with `retailer` and `placement` — see
-  DEPLOY.md, "Click events".
+  `sharedid`), so the networks' reports say which surface earned. Placements
+  are listed in `PLACEMENTS` (`src/lib/affiliate.ts`) and, with where each
+  renders, in DEPLOY.md, "Click events". Store links go out untouched. Every
+  group of affiliate links carries its own disclosure, and every outbound buy
+  link (`src/components/OutboundLink.tsx`) records a Vercel `buy_click` event
+  with `retailer` and `placement`.
+
+### eBay units
+
+eBay is on most pages as a small set of sponsored units (`src/components/Ebay.tsx`):
+a header item (desktop, xl and up only: a phone's sticky header would show it beside the page's own unit), a banner (`EbayBanner`: hero on a region's home, section on set /
+type / release / store pages, footer above every page's footer), an in-feed tile
+in long product grids (`EbayFeedCard`), "Also on eBay" searches
+(`EbayQuickSearches`), a "sold out here" link under some sold-out cards
+(`EbaySoldOutLink`) and the product page's marketplace panel. All of them:
+
+- are plain `<a>` links to an EPN-tagged eBay **search** (`ebaySearchUrl`), through
+  `OutboundLink`, `rel="sponsored nofollow noopener noreferrer"`. No eBay API, no
+  credentials, no scraping: so **no eBay price, listing count or "deal" is ever
+  shown**, and no eBay logo (the word "eBay" in text);
+- are visibly ads: an "Ad" pill, "eBay" in the text, the affiliate disclosure per
+  group (a sold-out card's link carries the short form beside it), and a dashed,
+  cool-tinted box (`.ad-box`) with outlined `.btn-ad` buttons and dashed `.ad-chip`s: never the
+  red `.btn-primary` or the white `.chip` of the site's own actions and navigation;
+- never enter a ranked table, headline price, "N stores" count, per-pack, median or
+  MSRP maths, JSON-LD, meta/OG or the sitemap; stay off about, terms, privacy,
+  contact and the 404 (which has one labelled link);
+- keep the layout honest: no sticky or fixed unit of their own (the header item sits in
+  the header that was already sticky), no overlay or pop-up, no script or iframe,
+  fixed-size markup (no layout shift), never above a content page's H1, and at most one
+  unit in a phone viewport (two on a desktop one). The rules that keep
+  units apart live in `src/lib/ebay-ads.ts` (pure, unit-tested in
+  `tests/affiliate.test.ts`): tiles after the 12th/24th/36th product and only with
+  eight products after them, sold-out links sixteen positions apart, and a page too
+  short to fit its own units beside the footer banner drops the footer banner
+  (`<NoPreFooter/>`). On a phone the section banner is a compact strip (no body line,
+  no chip row), and a sold-out link's grid row keeps a blank of its height under the other
+  cards (`soldOutMates`) so the row stays even; **When adding a unit, run the viewport sweep** (a Playwright
+  scroll at 390×844 counting `[data-ad]` elements in view);
+- optionally show EPN's own banner image on the hero and footer banners instead of
+  the native ones (`NEXT_PUBLIC_EBAY_BANNER_IMAGE` / `_HREF`, see DEPLOY.md).
 
 ## What this site does not store
 

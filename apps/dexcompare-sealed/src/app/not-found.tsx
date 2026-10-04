@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Header } from "@/components/Header";
+import { NotFoundEbay } from "@/components/NotFoundEbay";
 import { REGION_LIST, X_DEFAULT_REGION } from "@/lib/regions";
 
 export default function NotFound() {
@@ -30,6 +31,8 @@ export default function NotFound() {
             </li>
           ))}
         </ul>
+        {/* One labelled eBay search, on the eBay site of the region in the URL (US outside one). */}
+        <NotFoundEbay />
       </main>
     </>
   );

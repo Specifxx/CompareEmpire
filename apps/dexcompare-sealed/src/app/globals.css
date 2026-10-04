@@ -22,6 +22,8 @@
   --stale-soft: 253 243 219;
   --pre: 88 76 214;
   --pre-soft: 236 234 252;
+  --ad: 243 246 252; /* sponsored units: a cool tint no store row or product card uses. muted 5.8:1, brand 4.7:1 on it */
+  --ad-line: 120 128 148;
   --shadow: 24 22 18;
   color-scheme: light;
 }
@@ -46,6 +48,8 @@
     --stale-soft: 52 40 14;
     --pre: 160 150 255;
     --pre-soft: 36 32 70;
+    --ad: 26 31 45;
+    --ad-line: 120 130 156;
     --shadow: 0 0 0;
     color-scheme: dark;
   }
@@ -94,6 +98,21 @@ body {
   .chip-on {
     @apply border-ink bg-ink text-surface hover:border-ink;
   }
+  /* A sponsored eBay unit: dashed, cool-tinted, always with an .ad-pill. Never a card, never a row. */
+  .ad-box {
+    @apply rounded-xl border border-dashed border-ad-line bg-ad;
+  }
+  /* An ad's own button and chips: outlined and cool-toned, so they never pass for the site's red
+     actions (.btn-primary) or its internal navigation chips (.chip). */
+  .btn-ad {
+    @apply btn border border-ad-line bg-surface text-ink hover:border-ink;
+  }
+  .ad-chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-dashed border-ad-line bg-surface px-3 py-1 text-xs font-medium text-ink transition-colors hover:border-ink;
+  }
+  .ad-pill {
+    @apply inline-flex shrink-0 items-center rounded border border-ad-line px-1.5 text-[11px] font-bold leading-[18px] text-muted;
+  }
   .eyebrow {
     @apply text-xs font-semibold uppercase tracking-[0.12em] text-muted;
   }
@@ -109,4 +128,17 @@ body {
   .prose-dex ul {
     @apply mb-4 list-disc space-y-1 pl-5 text-muted;
   }
+}
+
+/* A page whose own units leave no room for the banner above the footer asks for
+   it to be dropped with <NoPreFooter/> (components/Ebay.tsx). Pure CSS, so the
+   page stays static. Where :has() is missing the banner simply stays. */
+body:has([data-ebay-no-prefooter]) [data-ebay-prefooter] {
+  display: none;
+}
+
+/* …and the footer's own eBay link steps aside while that banner is the unit
+   directly above it (components/FooterEbay.tsx). */
+body:not(:has([data-ebay-no-prefooter])) [data-ebay-footer-link] {
+  display: none;
 }

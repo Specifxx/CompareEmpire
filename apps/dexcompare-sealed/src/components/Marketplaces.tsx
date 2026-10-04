@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import {
+  AFFILIATE_NOTE,
   ebayLabel,
   ebayRetailer,
   ebaySearchUrl,
@@ -11,9 +12,11 @@ import {
   type OutboundHref,
   type Placement,
 } from "@/lib/affiliate";
+import type { EbayChip } from "@/lib/ebay-ads";
 import { money } from "@/lib/format";
 import { REGIONS, type Region } from "@/lib/regions";
 import { offerStock } from "@/lib/sealed-offers";
+import { AdPill, EbayQuickSearches } from "./Ebay";
 import { OutboundLink } from "./OutboundLink";
 import { StockPill } from "./StockPill";
 
@@ -25,7 +28,7 @@ import { StockPill } from "./StockPill";
 // offers and ranks with the stores; everywhere else it is shown here, labelled
 // as US$, and never enters the region's comparison.
 
-export const AFFILIATE_NOTE = "Affiliate links — we may earn a commission, at no cost to you.";
+export { AFFILIATE_NOTE };
 
 /** The fields of a matched TCGplayer offer the marketplace links need (an OfferView or usMarketplace). */
 export interface TcgplayerMatch {
@@ -52,7 +55,8 @@ export function ebayQuery(productName: string, tcgplayer: Pick<TcgplayerMatch, "
   return tcgplayer?.title || productName;
 }
 
-const ROW = "flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5 px-5 py-3.5 text-sm transition-colors hover:bg-raised";
+// The focus ring is drawn inside (-2px): these rows sit in an overflow-hidden card, which would clip it.
+const ROW = "flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5 px-5 py-3.5 text-sm transition-colors hover:bg-raised focus-visible:outline-offset-[-2px]";
 // Muted, not faint: a disclosure must be as readable as what it discloses (WCAG AA).
 const NOTE = "text-xs leading-5 text-muted";
 
@@ -63,6 +67,8 @@ export function MarketplacePanel({
   preorder,
   tcgplayer,
   tcgplayerIsBest = false,
+  ebayPrimary = false,
+  quick = [],
 }: {
   region: Region;
   productName: string;
@@ -71,6 +77,10 @@ export function MarketplacePanel({
   tcgplayer: TcgplayerMatch | null;
   /** US: TCGplayer is the best price above, so its button is already there. */
   tcgplayerIsBest?: boolean;
+  /** Only one store has it in stock: the eBay row becomes a button, the page's one primary marketplace action. */
+  ebayPrimary?: boolean;
+  /** "Also on eBay": the product's set x type searches (lib/ebay-ads.ts quickSearches), inside this same unit. */
+  quick?: EbayChip[];
 }) {
   const r = REGIONS[region];
   const us = r.market === "US";
@@ -108,10 +118,10 @@ export function MarketplacePanel({
     );
   }
   return (
-    <div className="card mt-3 overflow-hidden">
+    <div data-ad="product-marketplace" className="card mt-3 overflow-hidden">
       <h2 className="eyebrow border-b border-line bg-raised px-5 py-2.5">Marketplaces</h2>
       <ul className="divide-y divide-line">
-        <li>
+        <li className="bg-ad">
           <OutboundLink
             href={ebaySearchUrl(ebayQuery(productName, tcgplayer), region, "product-marketplace")}
             rel={REL_SPONSORED}
@@ -120,12 +130,23 @@ export function MarketplacePanel({
             className={ROW}
           >
             <span className="min-w-0">
-              <b>eBay</b> <span className="text-muted">— Buy It Now listings on {ebayLabel(region)}</span>
+              <b>eBay</b> <AdPill className="mx-0.5 align-middle" /> <span className="text-muted">— Buy It Now listings on {ebayLabel(region)}</span>
             </span>
-            <span className="ml-auto shrink-0 font-semibold text-brand">
-              Search eBay <span aria-hidden="true">↗</span>
-            </span>
+            {ebayPrimary ? (
+              <span className="btn-ad ml-auto shrink-0">
+                Search eBay <span aria-hidden="true">↗</span>
+              </span>
+            ) : (
+              <span className="ml-auto shrink-0 font-semibold text-brand">
+                Search eBay <span aria-hidden="true">↗</span>
+              </span>
+            )}
           </OutboundLink>
+          {quick.length > 0 && (
+            <div className="border-t border-dashed border-ad-line px-5 py-3">
+              <EbayQuickSearches bare region={region} chips={quick} placement="product-related" />
+            </div>
+          )}
         </li>
         {showTcg && (
           <li>
@@ -158,6 +179,7 @@ export function SoldOutCallout({
   storesListing,
   notChecked,
   tcgplayer,
+  quick = [],
 }: {
   region: Region;
   productName: string;
@@ -166,25 +188,30 @@ export function SoldOutCallout({
   /** …of which we couldn't read recently, so "sold out" is a guess for them. */
   notChecked: number;
   tcgplayer: TcgplayerMatch | null;
+  /** "Also on eBay": the product's set x type searches, inside this same unit. */
+  quick?: EbayChip[];
 }) {
   const r = REGIONS[region];
   const us = r.market === "US";
   const tcg = tcgplayerLink(region, productName, tcgplayer, "product-soldout");
   const tcgOpen = !us && tcgplayer && offerStock(tcgplayer) === "open";
   const big = "px-6 py-3 text-base";
+  // Sold out here: eBay is the page's primary marketplace action in every region.
   const ebayBtn = (
-    <OutboundLink
-      href={ebaySearchUrl(ebayQuery(productName, tcgplayer), region, "product-soldout")}
-      rel={REL_SPONSORED}
-      retailer={ebayRetailer(region)}
-      placement="product-soldout"
-      className={`${us ? "btn-ghost" : "btn-primary"} ${big}`}
-    >
-      Buy It Now on eBay <span aria-hidden="true">↗</span>
-    </OutboundLink>
+    <span className="inline-flex">
+      <OutboundLink
+        href={ebaySearchUrl(ebayQuery(productName, tcgplayer), region, "product-soldout")}
+        rel={REL_SPONSORED}
+        retailer={ebayRetailer(region)}
+        placement="product-soldout"
+        className={`btn-ad ${big}`}
+      >
+        <AdPill /> Search eBay for Buy It Now <span aria-hidden="true">↗</span>
+      </OutboundLink>
+    </span>
   );
   const tcgBtn = (
-    <OutboundLink href={tcg.href} rel={tcg.rel} retailer={TCGPLAYER_RETAILER} placement="product-soldout" className={`${us ? "btn-primary" : "btn-ghost"} ${big}`}>
+    <OutboundLink href={tcg.href} rel={tcg.rel} retailer={TCGPLAYER_RETAILER} placement="product-soldout" className={`btn-ghost ${big}`}>
       {tcgOpen ? (
         <span className="tabular">{usd(tcgplayer!.priceCents)} on TCGplayer (US)</span>
       ) : (
@@ -196,7 +223,7 @@ export function SoldOutCallout({
     </OutboundLink>
   );
   return (
-    <div className="card mt-6 p-5 sm:p-6">
+    <div data-ad="product-soldout" className="card mt-6 p-5 sm:p-6">
       <StockPill state="soldout">Sold out</StockPill>
       <h2 className="mt-3 font-display text-2xl font-bold leading-tight tracking-tight">
         {storesListing ? `Sold out at every ${r.adjective} store we track` : `No ${r.adjective} store we track lists this yet`}
@@ -210,19 +237,11 @@ export function SoldOutCallout({
         )}
         Marketplaces may still have it:
       </p>
-      <div className="mt-4 flex flex-wrap gap-2.5">
-        {us ? (
-          <>
-            {tcgBtn}
-            {ebayBtn}
-          </>
-        ) : (
-          <>
-            {ebayBtn}
-            {tcgBtn}
-          </>
-        )}
+      <div className="mt-5 flex flex-wrap gap-2.5">
+        {ebayBtn}
+        {tcgBtn}
       </div>
+      {quick.length > 0 && <EbayQuickSearches bare region={region} chips={quick} placement="product-related" className="mt-4" />}
       <p className={`mt-3 ${NOTE}`}>
         {AFFILIATE_NOTE} eBay links go to {ebayLabel(region)}.
         {!us && ` TCGplayer sells in US$ from the US; check it ships to ${r.name} before you buy.`}
@@ -231,59 +250,28 @@ export function SoldOutCallout({
   );
 }
 
-/** A slim "Shop … on eBay and TCGplayer" line (set and type pages). */
-export function MarketplaceBanner({ region, title, query, placement }: { region: Region; title: string; query: string; placement: Placement }) {
-  const us = REGIONS[region].market === "US";
-  return (
-    <div className="card mt-4 flex flex-col gap-3 px-5 py-3.5 sm:flex-row sm:items-center sm:justify-between">
-      <p className="text-sm">
-        <b>{title}</b> <span className="text-xs text-muted">· {AFFILIATE_NOTE}</span>
-      </p>
-      <div className="flex shrink-0 flex-wrap gap-2">
-        <OutboundLink href={ebaySearchUrl(query, region, placement)} rel={REL_SPONSORED} retailer={ebayRetailer(region)} placement={placement} className="chip font-semibold">
-          eBay <span aria-hidden="true">↗</span>
-        </OutboundLink>
-        <OutboundLink href={tcgplayerSearchUrl(query, region, placement)} rel={REL_SPONSORED} retailer={TCGPLAYER_RETAILER} placement={placement} className="chip font-semibold">
-          TCGplayer{us ? "" : " (US)"} <span aria-hidden="true">↗</span>
-        </OutboundLink>
-      </div>
-    </div>
-  );
-}
-
-/** One line of marketplace searches, for the region home page's hero. */
-export function MarketplaceHint({ region }: { region: Region }) {
-  const us = REGIONS[region].market === "US";
-  const link = "font-semibold text-brand hover:underline";
-  return (
-    <p className="mt-5 text-sm text-muted">
-      Can&rsquo;t find it in stock? Search{" "}
-      <OutboundLink href={ebaySearchUrl("", region, "region-home")} rel={REL_SPONSORED} retailer={ebayRetailer(region)} placement="region-home" className={link}>
-        eBay <span aria-hidden="true">↗</span>
-      </OutboundLink>{" "}
-      or{" "}
-      <OutboundLink href={tcgplayerSearchUrl("", region, "region-home")} rel={REL_SPONSORED} retailer={TCGPLAYER_RETAILER} placement="region-home" className={link}>
-        TCGplayer{us ? "" : " (US)"} <span aria-hidden="true">↗</span>
-      </OutboundLink>{" "}
-      <span>(affiliate links)</span>
-    </p>
-  );
-}
-
-/** Search buttons for a free-text query (the browse page's "nothing matches"). */
+/**
+ * The browse page's "nothing matches": the same words on eBay and TCGplayer.
+ * The eBay half is a labelled unit; it stands in for the footer banner, which
+ * the grid drops while this shows (NoPreFooter).
+ */
 export function MarketplaceSearch({ region, query, placement }: { region: Region; query: string; placement: Placement }) {
   const us = REGIONS[region].market === "US";
   return (
-    <div className="mt-5 flex flex-col items-center gap-3">
-      <div className="flex flex-wrap justify-center gap-2">
-        <OutboundLink href={ebaySearchUrl(query, region, placement)} rel={REL_SPONSORED} retailer={ebayRetailer(region)} placement={placement} className="btn-primary max-w-full">
+    <div data-ad={placement} role="group" aria-label="Sponsored: eBay and TCGplayer searches" className="ad-box mx-auto mt-6 max-w-xl p-5">
+      <div className="flex items-center justify-center gap-2 text-xs font-medium text-muted">
+        <AdPill /> <span>eBay · sponsored link</span>
+      </div>
+      <p className="mt-2 font-display text-lg font-bold leading-snug text-ink">No store we track matches. Search for it on eBay?</p>
+      <div className="mt-4 flex flex-wrap justify-center gap-2">
+        <OutboundLink href={ebaySearchUrl(query, region, placement)} rel={REL_SPONSORED} retailer={ebayRetailer(region)} placement={placement} className="btn-ad max-w-full px-6 py-3 text-base">
           <span className="truncate">Search eBay for &ldquo;{query}&rdquo;</span> <span aria-hidden="true">↗</span>
         </OutboundLink>
-        <OutboundLink href={tcgplayerSearchUrl(query, region, placement)} rel={REL_SPONSORED} retailer={TCGPLAYER_RETAILER} placement={placement} className="btn-ghost">
+        <OutboundLink href={tcgplayerSearchUrl(query, region, placement)} rel={REL_SPONSORED} retailer={TCGPLAYER_RETAILER} placement={placement} className="btn-ghost px-5 py-3 text-base">
           Search TCGplayer{us ? "" : " (US)"} <span aria-hidden="true">↗</span>
         </OutboundLink>
       </div>
-      <p className={NOTE}>{AFFILIATE_NOTE}</p>
+      <p className={`mt-3 ${NOTE}`}>{AFFILIATE_NOTE}</p>
     </div>
   );
 }

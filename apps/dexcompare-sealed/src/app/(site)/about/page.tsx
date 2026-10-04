@@ -129,7 +129,10 @@ export default function About() {
         </p>
         <ul>
           <li>
-            <b>eBay</b> (eBay Partner Network): the &ldquo;Search eBay&rdquo; links for Buy It Now listings on your region&rsquo;s eBay site.
+            <b>eBay</b> (eBay Partner Network): the eBay links, banners and search tiles around the site. Every one is an <b>ad</b> and says
+            so: it carries an &ldquo;Ad&rdquo; label, sits apart from the store listings in its own dashed, tinted box, and opens a
+            <b> search</b> for Pokémon sealed product (Buy It Now) on your region&rsquo;s eBay site. We don&rsquo;t read eBay: we know
+            nothing about what is listed there or at what price, so we show no eBay price, no count of eBay listings and no &ldquo;deal&rdquo;.
           </li>
           <li>
             <b>TCGplayer</b> (through Impact): every link to tcgplayer.com. TCGplayer is a US marketplace. In the United States we
@@ -138,8 +141,16 @@ export default function About() {
           </li>
         </ul>
         <p>
+          eBay appears in a few set places: an &ldquo;eBay&rdquo; item in the header, a banner on each region&rsquo;s home page and above the
+          footer, banners on set, type, release and store pages, a search tile in long product grids, a &ldquo;sold out here&rdquo; search
+          link under some sold-out products, and the marketplace boxes on product pages. It is never in the About, Terms, Privacy or
+          Contact pages. An eBay unit is never part of a price table, a headline price, a store count, a per-pack figure, a median or a
+          ranking, and it never changes the order of anything.
+        </p>
+        <p>
           Links to stores are plain links: stores pay us nothing. No one pays to be listed or to rank higher, and commissions never change the
-          order — it is price and stock, nothing else. Affiliate links are marked as such next to where they appear.
+          order — it is price and stock, nothing else. Affiliate links and ads are marked as such next to where they appear. DexCompare is
+          not endorsed by eBay or TCGplayer.
         </p>
 
         <h2 id="stores">For stores</h2>

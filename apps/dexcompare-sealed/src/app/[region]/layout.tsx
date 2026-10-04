@@ -1,3 +1,4 @@
+import { EbayBanner } from "@/components/Ebay";
 import { Header } from "@/components/Header";
 import { regionOrNotFound } from "@/lib/regions";
 
@@ -19,6 +20,14 @@ export default function RegionLayout({ children, params }: { children: React.Rea
       <Header region={r.region} />
       <main id="main" className="flex-1">
         {children}
+        {/* Every region page ends with the eBay banner, directly above the site footer
+            (inside <main>: it is page content, not a landmark of its own). A page too
+            short to fit it beside its own units renders <NoPreFooter/>, and globals.css
+            hides this wrapper. The legal pages and the 404 are not under [region], so
+            they never get one. */}
+        <div className="page mt-16" data-ebay-prefooter>
+          <EbayBanner region={r.region} variant="footer" placement="pre-footer" />
+        </div>
       </main>
     </>
   );

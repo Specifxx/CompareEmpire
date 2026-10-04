@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 // Bump when the terms change in substance, not for wording.
-const LAST_UPDATED = "28 September 2026";
+const LAST_UPDATED = "4 October 2026";
 
 export default function Terms() {
   return (
@@ -51,8 +51,11 @@ export default function Terms() {
         <h2 id="affiliate">Affiliate links</h2>
         <p>
           Links to eBay and TCGplayer are affiliate links (eBay Partner Network; TCGplayer through Impact). If you buy through one we may earn a
-          commission, at no cost to you. Links to stores are plain links and stores pay us nothing. Affiliate status never changes the order
-          products or stores appear in — that is price and stock only. See{" "}
+          commission, at no cost to you. The eBay links, banners and search tiles on the site are advertisements: each is marked
+          &ldquo;Ad&rdquo;, opens a search on eBay (we show no eBay prices or listings, because we don&rsquo;t read eBay), and is never part
+          of a comparison, ranking or count. Links to stores are plain links and stores pay us nothing. Affiliate status never changes the
+          order products or stores appear in — that is price and stock only. We don&rsquo;t control eBay or TCGplayer: what you find there, and
+          any purchase you make, is between you and them. See{" "}
           <Link href="/about#money">how {SITE_NAME} makes money</Link>.
         </p>
 

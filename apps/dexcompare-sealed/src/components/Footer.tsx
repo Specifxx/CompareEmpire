@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { REGION_LIST } from "@/lib/regions";
 import { CONTACT_EMAIL, OPERATOR, SITE_NAME } from "@/lib/site";
+import { FooterEbay } from "./FooterEbay";
 import { LogoMark } from "./Logo";
 
 export function Footer() {
@@ -16,8 +17,9 @@ export function Footer() {
             independent stores, with stock as of the last read.
           </p>
           <p className="mt-3 text-xs leading-5 text-muted">
-            Prices are each store&rsquo;s (or TCGplayer seller&rsquo;s) own, in its own currency, and exclude shipping. Links to eBay and TCGplayer are affiliate
-            links: we may earn a commission at no cost to you. Store links are plain links.{" "}
+            Prices are each store&rsquo;s (or TCGplayer seller&rsquo;s) own, in its own currency, and exclude shipping. eBay links and banners (always marked
+            &ldquo;Ad&rdquo;) and TCGplayer links are affiliate links: we may earn a commission at no cost to you. They are never part of a ranking and never change
+            the order. Store links are plain links.{" "}
             <Link href="/about#money" className="underline underline-offset-2 hover:text-ink">
               How we make money
             </Link>
@@ -45,6 +47,7 @@ export function Footer() {
             <li><Link href="/terms" className="text-muted hover:text-ink">Terms</Link></li>
             <li><Link href="/privacy" className="text-muted hover:text-ink">Privacy</Link></li>
             <li><a href={`mailto:${CONTACT_EMAIL}`} className="text-muted hover:text-ink">{CONTACT_EMAIL}</a></li>
+            <FooterEbay />
           </ul>
         </div>
       </div>

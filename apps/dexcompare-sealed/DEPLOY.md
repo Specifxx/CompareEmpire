@@ -153,7 +153,28 @@ event, `buy_click`, with exactly two properties:
 | Property | Example values |
 | --- | --- |
 | `retailer` | `Pokebox (AU)`, `TCGplayer`, `eBay (ebay.com.au)` |
-| `placement` | `product-best`, `product-table`, `product-marketplace`, `product-soldout`, `set-banner`, `type-banner`, `browse-empty`, `region-home`, `store-page` |
+| `placement` | `product-best`, `product-table`, `product-marketplace`, `product-soldout`, `set-banner`, `type-banner`, `browse-empty`, `region-home`, `store-page`, and the eBay units below |
+
+The eBay units (`src/components/Ebay.tsx`) each have their own placement, so
+EPN's `customid` report and Vercel's `buy_click` say which surface earned:
+
+| Placement | Where |
+| --- | --- |
+| `header` | the "eBay" item in the header (desktop nav, xl and up only) |
+| `region-home-hero` | banner under the hero on a region's home page |
+| `feed` | in-feed tile in a home rail (rails are 8 products, so none shows today) |
+| `browse-feed` | in-feed tile in `/<region>/sealed` and its pages |
+| `set-feed`, `type-feed` | in-feed tile in the set / type page's product grid |
+| `card-soldout` | "Sold out here — search eBay" under a sold-out product card |
+| `product-related` | the product's set × type searches inside the marketplace panel / sold-out callout |
+| `product-after-table` | the "Still deciding? Search this product on eBay" row closing a long offer table |
+| `set-banner`, `set-related` | the set page banner, and the set × type chips inside it |
+| `type-banner` | the type page banner (type chips inside it) |
+| `releases-card`, `releases-banner` | a release card's own search link; the banner at the bottom of the calendar |
+| `store-banner` | the banner on the store directory and on a store's page |
+| `pre-footer` | the banner above the footer of every region page (not on about, terms, privacy, contact or the 404) |
+| `footer` | the "Shop Pokémon sealed on eBay" link in the footer: phones only, and only on pages that dropped the banner above it (it would sit next to it) |
+| `not-found` | the 404 page (on the eBay site of the region in the URL, US outside one) |
 
 - Custom events need the **Pro** plan with Web Analytics enabled (Vercel
   project → **Analytics** → Enable). **Hobby records page views only**; the
@@ -169,6 +190,33 @@ event, `buy_click`, with exactly two properties:
 No environment variables are needed. Optional overrides:
 `NEXT_PUBLIC_EBAY_CAMPAIGN_ID` and `NEXT_PUBLIC_TCGPLAYER_IMPACT_LINK` (the
 built-in defaults are the live campaign and deep link).
+
+### eBay banners: native by default, EPN's own creative optionally
+
+Every eBay unit is a labelled ("Ad"), plain link to a tagged eBay **search**:
+no script, no iframe, no eBay API, no eBay logo. If you would rather show an
+official EPN banner image on the two big spots (the region home hero and the
+banner above every footer), copy it from EPN Campaign Manager (**Tools →
+Banners**) and set, in Vercel (they are inlined at build, so redeploy after):
+
+| Variable | Value |
+| --- | --- |
+| `NEXT_PUBLIC_EBAY_BANNER_IMAGE` | the banner's `https://` image URL (on eBay's own hosts: `ebay.<tld>`, `ebayimg.com`, `ebaystatic.com`) |
+| `NEXT_PUBLIC_EBAY_BANNER_HREF` | the EPN tracking link for it (`https://rover.ebay.com/…` or an `ebay.<tld>` link carrying `campid=<our campaign id>`; or an `https://ebay.us/…` short link) |
+| `NEXT_PUBLIC_EBAY_BANNER_WIDTH`, `_HEIGHT` | optional, the image's size in px (default 728 × 90; width 100–1200, height 30–700) |
+| `NEXT_PUBLIC_EBAY_BANNER_ALT` | optional alt text |
+
+Both image and link must be set and valid, or the native banners stay: a
+non-`https` URL, a link that is not on an eBay domain or lacks our `campid`,
+an image from any other host, or a size out of range is ignored whole. The image is rendered with explicit width and height and
+`loading="lazy"` (no layout shift), under the same "Ad" label and affiliate
+note, through the same click tracking (`placement` is the surface). The link is
+used as pasted, with `customid=dex-<region>-<placement>` filled in when it has none (short
+`ebay.us` links are left alone), so EPN's report can split the hero from the footer banner;
+`buy_click`'s retailer names the host the link really goes to (the creative is one link for
+every region, whatever the region's own eBay site). Unset them to go back to
+the native banners. The privacy page mentions the picture automatically
+(your browser loads it from eBay) when they are set.
 
 ## Checking it works
 
