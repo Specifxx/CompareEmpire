@@ -2,8 +2,11 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { regionOrNotFound } from "@/lib/regions";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { AdPill, EbayBanner, EbaySearchLink, NoPreFooter } from "@/components/Ebay";
 import { Empty } from "@/components/Section";
 import { calendarProducts, CALENDAR_TYPES, setCounts } from "@/lib/data";
+import { ebayLabel } from "@/lib/affiliate";
+import { releaseLinkIndexes } from "@/lib/ebay-ads";
 import { money, plural, relativeDay } from "@/lib/format";
 import { formatRelease } from "@/lib/release";
 import { jsonLd, pageMeta, regionAlternates } from "@/lib/seo";
@@ -52,7 +55,9 @@ export default async function ReleasesPage({ params }: { params: { region: strin
     })),
   };
 
-  const Row = ({ s, future }: { s: PokemonSet; future: boolean }) => {
+  // A search link on every sixth card (none in the last six, so none on a short calendar): see releaseLinkIndexes.
+  const ebayAt = releaseLinkIndexes(upcoming.length + recent.length);
+  const Row = ({ s, future, n }: { s: PokemonSet; future: boolean; n: number }) => {
     const c = counts.get(s.code);
     const picks = cheapest.get(s.code) ?? [];
     return (
@@ -100,6 +105,14 @@ export default async function ReleasesPage({ params }: { params: { region: strin
               )}
             </ul>
           )}
+          {ebayAt.has(n) && (
+            <div data-ad="releases-card" className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+              <AdPill />
+              <EbaySearchLink region={r.region} query={s.name} placement="releases-card" className="font-semibold text-brand hover:underline">
+                Search {s.name} on eBay <span aria-hidden="true">↗</span>
+              </EbaySearchLink>
+            </div>
+          )}
         </div>
       </li>
     );
@@ -120,8 +133,8 @@ export default async function ReleasesPage({ params }: { params: { region: strin
         </h2>
         {upcoming.length ? (
           <ol className="grid gap-3">
-            {[...upcoming].reverse().map((s) => (
-              <Row key={s.code} s={s} future />
+            {[...upcoming].reverse().map((s, i) => (
+              <Row key={s.code} s={s} future n={i} />
             ))}
           </ol>
         ) : (
@@ -135,8 +148,8 @@ export default async function ReleasesPage({ params }: { params: { region: strin
         </h2>
         {recent.length ? (
           <ol className="grid gap-3">
-            {recent.map((s) => (
-              <Row key={s.code} s={s} future={false} />
+            {recent.map((s, i) => (
+              <Row key={s.code} s={s} future={false} n={upcoming.length + i} />
             ))}
           </ol>
         ) : (
@@ -151,6 +164,16 @@ export default async function ReleasesPage({ params }: { params: { region: strin
         </Link>
         .
       </p>
+      {/* The page's closing banner stands in for the footer one, so two never sit back to back. */}
+      <NoPreFooter />
+      <EbayBanner
+        region={r.region}
+        variant="section"
+        placement="releases-banner"
+        title="Looking for a new set on eBay?"
+        text={`Search Buy It Now listings for Pokémon sealed on ${ebayLabel(r.region)}.`}
+        className="mt-10"
+      />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(ld) }} />
     </div>
   );

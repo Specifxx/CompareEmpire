@@ -4,11 +4,13 @@ import { cache } from "react";
 import type { Metadata } from "next";
 import { Ago } from "@/components/Ago";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
-import { MarketplaceBanner } from "@/components/Marketplaces";
+import { EbayBanner, NoPreFooter } from "@/components/Ebay";
 import { ProductGrid } from "@/components/ProductCard";
 import { Empty, Section } from "@/components/Section";
 import { lastCheckedAt, marketsWithType, productsByType } from "@/lib/data";
+import { ebayLabel } from "@/lib/affiliate";
 import { cardOpen } from "@/lib/compact";
+import { gridPageHasRoomForFooter, typeChips } from "@/lib/ebay-ads";
 import { money, timeAgo } from "@/lib/format";
 import { regionOfMarket, regionOrNotFound, type Market, type RegionInfo } from "@/lib/regions";
 import { PRODUCT_TYPES, TYPE_BY_SLUG } from "@/lib/sealed-title";
@@ -71,8 +73,10 @@ export default async function TypePage({ params }: { params: { region: string; t
   // no store but a dormant one lists the product (importer.ts, dormantStores).
   const tcgOnly = r.market === "US" ? products.filter((p) => p.listedStores === 0).length : 0;
   const byStores = products.length - tcgOnly;
+  const typeName = t.plural.startsWith("Pokémon") ? t.plural : `Pokémon ${t.plural}`;
   return (
     <div className="page py-8">
+      {!gridPageHasRoomForFooter(products.length) && <NoPreFooter />}
       <Breadcrumbs items={[{ href: `/${r.region}`, label: r.name }, { label: t.plural }]} />
       <h1 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
         Pokémon {t.plural} in {r.name}
@@ -90,7 +94,16 @@ export default async function TypePage({ params }: { params: { region: string; t
           </>
         )}
       </p>
-      <MarketplaceBanner region={r.region} title={`Shop ${t.plural.startsWith("Pokémon") ? "" : "Pokémon "}${t.plural} on eBay and TCGplayer`} query={t.label} placement="type-banner" />
+      <EbayBanner
+        region={r.region}
+        variant="section"
+        placement="type-banner"
+        title={`Shop ${typeName} on eBay`}
+        text={`Search Buy It Now listings for ${typeName} on ${ebayLabel(r.region)}.`}
+        query={t.label}
+        chips={typeChips(null, t.key)}
+        className="mt-4"
+      />
       <div className="mt-5 flex flex-wrap gap-2">
         {PRODUCT_TYPES.filter((x) => x.slug !== t.slug)
           .slice(0, 8)
@@ -101,7 +114,7 @@ export default async function TypePage({ params }: { params: { region: string; t
           ))}
       </div>
       <Section title="In stock now" kicker="Cheapest first">
-        {open.length ? <ProductGrid products={open} region={r.region} eager={4} /> : <Empty>Nothing of this type is in stock in {r.name} right now.</Empty>}
+        {open.length ? <ProductGrid products={open} region={r.region} eager={4} feed={{ placement: "type-feed", context: typeName, query: t.label }} /> : <Empty>Nothing of this type is in stock in {r.name} right now.</Empty>}
       </Section>
       {sold.length > 0 && (
         <Section title="Sold out everywhere" kicker={`Listed, but no store${r.market === "US" ? " or TCGplayer seller" : ""} has them right now`}>

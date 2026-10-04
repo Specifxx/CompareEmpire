@@ -4,11 +4,13 @@ import { cache } from "react";
 import type { Metadata } from "next";
 import { Ago } from "@/components/Ago";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
-import { MarketplaceBanner } from "@/components/Marketplaces";
+import { EbayBanner, NoPreFooter } from "@/components/Ebay";
 import { ProductGrid } from "@/components/ProductCard";
 import { Empty, Section } from "@/components/Section";
 import { lastCheckedAt, marketsWithSet, productsBySet, type ProductCardData } from "@/lib/data";
+import { ebayLabel } from "@/lib/affiliate";
 import { cardOpen } from "@/lib/compact";
+import { gridPageHasRoomForFooter, typeChips } from "@/lib/ebay-ads";
 import { money, timeAgo } from "@/lib/format";
 import { packsForLabel, perPackCents } from "@/lib/packs";
 import { formatRelease, isPreorderSet } from "@/lib/release";
@@ -72,6 +74,7 @@ export default async function SetPage({ params }: { params: { region: string; se
   const perPack = cheapestPerPack(products);
   return (
     <div className="page py-8">
+      {!gridPageHasRoomForFooter(products.length) && <NoPreFooter />}
       <Breadcrumbs items={[{ href: `/${r.region}`, label: r.name }, { href: `/${r.region}/sets`, label: "Sets" }, { label: s.name }]} />
       <div className="card flex flex-col gap-6 p-6 sm:flex-row sm:items-center">
         {s.logo && <img src={s.logo} alt={`${s.name} logo`} width={192} height={80} fetchPriority="high" decoding="async" className="h-20 w-48 object-contain" />}
@@ -91,7 +94,18 @@ export default async function SetPage({ params }: { params: { region: string; se
           </p>
         </div>
       </div>
-      <MarketplaceBanner region={r.region} title={`Shop ${s.name} sealed on eBay and TCGplayer`} query={s.name} placement="set-banner" />
+      {/* One unit: the banner and, inside it, the set x type searches (EbayQuickSearches, "set-related"). */}
+      <EbayBanner
+        region={r.region}
+        variant="section"
+        placement="set-banner"
+        title={`Shop ${s.name} sealed on eBay`}
+        text={`Search Buy It Now listings for ${s.name} on ${ebayLabel(r.region)}.`}
+        query={s.name}
+        className="mt-4"
+        chips={typeChips(s.name)}
+        chipsPlacement="set-related"
+      />
       {perPack.length > 0 && (
         <Section title={`Cheapest way to buy ${s.name} packs`} kicker={`Per booster pack, ${pre ? "cheapest pre-order" : "in stock now"}`}>
           <PerPackStrip r={r} items={perPack} />
@@ -103,7 +117,7 @@ export default async function SetPage({ params }: { params: { region: string; se
       )}
       <Section title={`${s.name} sealed products`}>
         {products.length ? (
-          <ProductGrid products={products} region={r.region} eager={4} />
+          <ProductGrid products={products} region={r.region} eager={4} feed={{ placement: "set-feed", context: s.name, query: s.name }} />
         ) : (
           <Empty>No {r.adjective} store we track lists {s.name} sealed product right now.</Empty>
         )}

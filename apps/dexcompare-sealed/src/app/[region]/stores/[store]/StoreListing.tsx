@@ -3,10 +3,12 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { Ago } from "@/components/Ago";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { EbayBanner, NoPreFooter } from "@/components/Ebay";
 import { OutboundLink } from "@/components/OutboundLink";
 import { pageHref, Pagination } from "@/components/Pagination";
 import { StockPill } from "@/components/StockPill";
-import { REL_STORE, storeRetailer } from "@/lib/affiliate";
+import { ebayLabel, REL_STORE, storeRetailer } from "@/lib/affiliate";
+import { listHasRoomForFooter } from "@/lib/ebay-ads";
 import { PAGE_SIZE, storeOffers, storeStat } from "@/lib/data";
 import { money, timeAgo } from "@/lib/format";
 import { thumb } from "@/lib/images";
@@ -88,6 +90,15 @@ export async function StorePage({ r, s, page }: { r: RegionInfo; s: StoreConfig;
           Visit {storeHost(s)} <span aria-hidden="true">↗</span>
         </OutboundLink>
       </div>
+      {!listHasRoomForFooter(offers.length) && <NoPreFooter />}
+      <EbayBanner
+        region={r.region}
+        variant="section"
+        placement="store-banner"
+        title="Looking for something else? Search eBay"
+        text={`Search Buy It Now listings for Pokémon sealed on ${ebayLabel(r.region)}.`}
+        className="mt-6"
+      />
       {offers.length ? (
         <div className="card mt-6 overflow-hidden">
           <ul className="divide-y divide-line">

@@ -6,6 +6,7 @@ import { perPackCents } from "@/lib/packs";
 import { REGIONS, type Region } from "@/lib/regions";
 import { offerStock, offerStockLabel } from "@/lib/sealed-offers";
 import { Ago } from "./Ago";
+import { AdPill } from "./Ebay";
 import { AFFILIATE_NOTE, ebayQuery } from "./Marketplaces";
 import { OutboundLink } from "./OutboundLink";
 import { StockPill } from "./StockPill";
@@ -19,6 +20,7 @@ export function OfferTable({
   productName,
   usTcgplayer = null,
   packs = null,
+  marketGroup = true,
 }: {
   offers: OfferView[];
   region: Region;
@@ -28,6 +30,12 @@ export function OfferTable({
   usTcgplayer?: { url: string; title: string } | null;
   /** Booster packs per unit (src/lib/packs.ts), for a per-pack price under each row's price. Null = not shown. */
   packs?: number | null;
+  /**
+   * The Marketplaces group closing the table. The marketplace panel under the
+   * best price already has the same links, so a short table drops this group
+   * (lib/ebay-ads.ts productAdPlan): two eBay units must not share a phone screen.
+   */
+  marketGroup?: boolean;
 }) {
   const r = REGIONS[region];
   const us = r.market === "US";
@@ -45,7 +53,7 @@ export function OfferTable({
           const best = o === cheapestOpen;
           const link = offerLink(o.store, o.url, region, "product-table");
           return (
-            <li key={o.store} className={`flex flex-col gap-2.5 px-4 py-3.5 sm:flex-row sm:items-center sm:gap-4 sm:px-5 ${best ? "bg-open-soft/40" : ""}`}>
+            <li key={o.store} data-offer-row="" className={`flex flex-col gap-2.5 px-4 py-3.5 sm:flex-row sm:items-center sm:gap-4 sm:px-5 ${best ? "bg-open-soft/40" : ""}`}>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <span className="truncate font-semibold">{o.storeName}</span>
@@ -94,30 +102,45 @@ export function OfferTable({
         </Link>
         .
       </p>
-      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-t-4 border-line bg-raised px-4 py-2.5 sm:px-5">
-        <h3 className="eyebrow">Marketplaces</h3>
-        <span className="text-xs text-muted">{AFFILIATE_NOTE}</span>
-      </div>
-      <ul className="divide-y divide-line border-t border-line">
-        <MarketRow
-          name="eBay"
-          detail={`Buy It Now listings on ${ebayLabel(region)}`}
-          action="Search eBay"
-          href={ebaySearchUrl(ebayQuery(productName, ranked ?? usTcgplayer), region, "product-table")}
-          rel={REL_SPONSORED}
-          retailer={ebayRetailer(region)}
-        />
-        {!ranked && (
-          <MarketRow
-            name="TCGplayer"
-            detail={us ? "Pokémon sealed listings from TCGplayer sellers" : "US marketplace · prices in US$, not compared here"}
-            action={usTcgplayer ? "View" : "Search TCGplayer"}
-            href={tcg.href}
-            rel={tcg.rel}
-            retailer={TCGPLAYER_RETAILER}
-          />
-        )}
-      </ul>
+      {marketGroup && (
+        <div data-ad="product-after-table">
+          <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-t-4 border-line bg-raised px-4 py-2.5 sm:px-5">
+            <h3 className="eyebrow">Marketplaces</h3>
+            <span className="text-xs text-muted">{AFFILIATE_NOTE}</span>
+          </div>
+          <ul className="divide-y divide-line border-t border-line">
+            {/* "Still deciding?": the eBay row of this group, a labelled mini banner. */}
+            <li className="flex flex-col gap-3 bg-ad px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-5">
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <AdPill />
+                  <span className="font-semibold">Still deciding? Search this product on eBay</span>
+                </div>
+                <div className="mt-0.5 text-xs text-muted">Buy It Now listings on {ebayLabel(region)}</div>
+              </div>
+              <OutboundLink
+                href={ebaySearchUrl(ebayQuery(productName, ranked ?? usTcgplayer), region, "product-after-table")}
+                rel={REL_SPONSORED}
+                retailer={ebayRetailer(region)}
+                placement="product-after-table"
+                className="btn-ad shrink-0 self-start sm:self-center"
+              >
+                Search eBay <span aria-hidden="true">↗</span>
+              </OutboundLink>
+            </li>
+            {!ranked && (
+              <MarketRow
+                name="TCGplayer"
+                detail={us ? "Pokémon sealed listings from TCGplayer sellers" : "US marketplace · prices in US$, not compared here"}
+                action={usTcgplayer ? "View" : "Search TCGplayer"}
+                href={tcg.href}
+                rel={tcg.rel}
+                retailer={TCGPLAYER_RETAILER}
+              />
+            )}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }

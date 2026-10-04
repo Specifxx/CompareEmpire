@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { REGIONS, type Region } from "@/lib/regions";
+import { EbayNavLink } from "./Ebay";
 import { Logo } from "./Logo";
 import { RegionSwitcher } from "./RegionSwitcher";
 import { SearchBox } from "./SearchBox";
@@ -28,6 +29,8 @@ export function Header({ region }: { region: Region | null }) {
               {n.label}
             </Link>
           ))}
+          {/* A discreet, labelled sponsored item (xl and up only): eBay's search, tagged. Not a section of the site. */}
+          {region && <EbayNavLink region={region} />}
         </nav>
         <div className="ml-auto flex items-center gap-2">
           {region && (

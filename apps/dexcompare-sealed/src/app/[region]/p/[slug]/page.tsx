@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { cache } from "react";
 import type { Metadata } from "next";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { NoPreFooter } from "@/components/Ebay";
 import { MarketplacePanel, SoldOutCallout } from "@/components/Marketplaces";
 import { OfferTable } from "@/components/OfferTable";
 import { OutboundLink } from "@/components/OutboundLink";
@@ -10,6 +11,7 @@ import { ProductGrid } from "@/components/ProductCard";
 import { Section } from "@/components/Section";
 import { StockPill } from "@/components/StockPill";
 import { offerLink, offerRetailer } from "@/lib/affiliate";
+import { productAdPlan, quickSearches } from "@/lib/ebay-ads";
 import { comparable, productPage, relatedProducts, type OfferView } from "@/lib/data";
 import { medianSaving, money, pctOf, plural } from "@/lib/format";
 import { thumb } from "@/lib/images";
@@ -127,6 +129,13 @@ export default async function ProductPage({ params }: { params: { region: string
     .map((x) => ({ x, s: p.stats.find((s) => s.market === x.market) }))
     .filter((e) => !!e.s); // a stat row exists only where a store or TCGplayer lists it
 
+  // eBay units on this page (components/Ebay.tsx, Marketplaces.tsx): the panel (or,
+  // sold out, the callout) carries the product's set x type searches; the table's
+  // closing group and the footer banner appear only where the page is long enough
+  // to keep them a screen apart (productAdPlan).
+  const quick = quickSearches(set?.name, type?.key);
+  const ads = productAdPlan({ offerRows: p.offers.length, elsewhere: elsewhere.length, related: set ? related.length : 0 });
+
   // Price signals beside the best price, each a fact about the current
   // listings: per pack (when the product line fixes a pack count), the median
   // of the in-stock stores (from ProductStat, null under two stores), and in
@@ -156,6 +165,7 @@ export default async function ProductPage({ params }: { params: { region: string
 
   return (
     <div className="page py-8">
+      {!ads.preFooter && <NoPreFooter />}
       <Breadcrumbs
         items={[
           { href: `/${r.region}`, label: r.name },
@@ -269,7 +279,15 @@ export default async function ProductPage({ params }: { params: { region: string
                   </dl>
                 )}
               </div>
-              <MarketplacePanel region={r.region} productName={p.name} preorder={pre} tcgplayer={tcgplayer} tcgplayerIsBest={best.marketplace} />
+              <MarketplacePanel
+                region={r.region}
+                productName={p.name}
+                preorder={pre}
+                tcgplayer={tcgplayer}
+                tcgplayerIsBest={best.marketplace}
+                ebayPrimary={openStores <= 1}
+                quick={quick}
+              />
             </>
           ) : (
             <>
@@ -279,6 +297,7 @@ export default async function ProductPage({ params }: { params: { region: string
                 storesListing={stores.length}
                 notChecked={stores.filter((o) => offerStock(o, now) === "unknown").length}
                 tcgplayer={tcgplayer}
+                quick={quick}
               />
               {msrp != null && (
                 <p className="mt-2 text-sm text-muted">
@@ -299,7 +318,7 @@ export default async function ProductPage({ params }: { params: { region: string
 
       <Section title={tableTitle}>
         {p.offers.length ? (
-          <OfferTable offers={p.offers} region={r.region} preorder={pre} productName={p.name} usTcgplayer={p.usMarketplace} packs={packs} />
+          <OfferTable offers={p.offers} region={r.region} preorder={pre} productName={p.name} usTcgplayer={p.usMarketplace} packs={packs} marketGroup={ads.tableGroup} />
         ) : (
           <div className="card px-6 py-8 text-muted">
             None of the {r.adjective} stores we track list {p.name} right now.
