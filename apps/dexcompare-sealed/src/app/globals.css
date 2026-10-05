@@ -142,3 +142,7 @@ body:has([data-ebay-no-prefooter]) [data-ebay-prefooter] {
 body:not(:has([data-ebay-no-prefooter])) [data-ebay-footer-link] {
   display: none;
 }
+/* …and when the page's own listings strip stands directly above the footer. */
+body:has([data-ebay-no-footer-link]) [data-ebay-footer-link] {
+  display: none;
+}

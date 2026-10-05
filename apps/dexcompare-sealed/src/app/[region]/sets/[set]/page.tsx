@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import { Ago } from "@/components/Ago";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { EbayBanner, NoPreFooter } from "@/components/Ebay";
+import { ListingsStrip } from "@/components/ListingsStrip";
 import { ProductGrid } from "@/components/ProductCard";
 import { Empty, Section } from "@/components/Section";
 import { lastCheckedAt, marketsWithSet, productsBySet, type ProductCardData } from "@/lib/data";
@@ -94,17 +95,27 @@ export default async function SetPage({ params }: { params: { region: string; se
           </p>
         </div>
       </div>
-      {/* One unit: the banner and, inside it, the set x type searches (EbayQuickSearches, "set-related"). */}
-      <EbayBanner
+      {/* One unit. With eBay's API keys: this set's chase cards as real listings (they stand in for the banner's
+          chip row: the banner's own search is the strip's "See more"). Without, or with none to show: the banner
+          and, inside it, the set x type searches (EbayQuickSearches, "set-related"). */}
+      <ListingsStrip
         region={r.region}
+        context={`set:${s.slug}`}
         variant="section"
-        placement="set-banner"
-        title={`Shop ${s.name} sealed on eBay`}
-        text={`Search Buy It Now listings for ${s.name} on ${ebayLabel(r.region)}.`}
-        query={s.name}
+        placement="listings-set"
         className="mt-4"
-        chips={typeChips(s.name)}
-        chipsPlacement="set-related"
+        fallback={
+          <EbayBanner
+            region={r.region}
+            variant="section"
+            placement="set-banner"
+            title={`Shop ${s.name} sealed on eBay`}
+            text={`Search Buy It Now listings for ${s.name} on ${ebayLabel(r.region)}.`}
+            query={s.name}
+            chips={typeChips(s.name)}
+            chipsPlacement="set-related"
+          />
+        }
       />
       {perPack.length > 0 && (
         <Section title={`Cheapest way to buy ${s.name} packs`} kicker={`Per booster pack, ${pre ? "cheapest pre-order" : "in stock now"}`}>

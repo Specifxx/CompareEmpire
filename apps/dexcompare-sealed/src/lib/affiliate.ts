@@ -1,6 +1,9 @@
 // Outbound links. The site earns only through affiliate links, and only two:
 //   • eBay Partner Network, as plain SEARCH links: zero eBay API calls, no
 //     quota, no keys — the old DexCompare's Browse-API importer is gone for good.
+//     (The opt-in chase-card strips are the one exception: real listings from eBay's
+//     Browse API with DexCompare's own keys, fetched by /api/ebay/<region> and tagged with
+//     the same EPN parameters: lib/ebay-listings.ts.)
 //   • TCGplayer via Impact: every tcgplayer.com link is wrapped in the partner
 //     deep link at render time. The database only ever holds the plain URL.
 // Store links go out untouched.
@@ -40,6 +43,22 @@ export const PLACEMENTS = [
   "pre-footer", // every region page: banner directly above the site footer
   "footer", // the "Shop Pokémon sealed on eBay" link in the site footer
   "not-found", // the 404 page
+  // Real eBay LISTINGS (components/EbayListings.tsx, src/lib/ebay-listings.ts): chase-card
+  // strips fed by eBay's Browse API through /api/ebay/<region>. One placement per surface.
+  "listings-home", // region home: the "Chase cards on eBay" strip under the stats row
+  "listings-landing", // the root landing page (US feed, labelled "eBay US")
+  "listings-product", // product page: chase cards from the product's set, below the offer table
+  "listings-set", // set page: chase cards from the set, in place of the banner
+  "listings-type", // type page: chase cards, in place of the banner
+  "listings-browse", // /[region]/sealed: the 2x-wide in-feed listings tile (desktop)
+  "listings-store", // store directory and store page
+  "listings-releases", // release calendar: closing strip
+  "listings-footer", // every content page: the slim strip above the footer
+  "listings-notfound", // the 404 page
+  // The no-keys fallback of the home / landing strip: curated chase-card SEARCH tiles
+  // (src/lib/chase-cards.ts). A search, not a listing, so it reports separately.
+  "chase-home",
+  "chase-landing",
 ] as const;
 export type Placement = (typeof PLACEMENTS)[number];
 
@@ -123,10 +142,22 @@ const EBAY_FOR_REGION: Record<Region, string> = {
  * region's eBay site. `name` is a product, set or type name, or "" for any.
  */
 export function ebaySearchUrl(name: string, region: Region, placement: Placement): string {
+  const terms = searchTerms(name);
+  return epnSearch(/\bpokemon\b/i.test(terms) ? `${terms} sealed` : `Pokemon ${terms} sealed`, region, placement);
+}
+
+/**
+ * The same tagged Buy It Now search for a single CARD (the chase-card tiles): "Pokemon
+ * <query>", with no "sealed" in it. `query` is a card name, set and number.
+ */
+export function ebayCardSearchUrl(query: string, region: Region, placement: Placement): string {
+  const terms = searchTerms(query);
+  return epnSearch(/\bpokemon\b/i.test(terms) ? terms : `Pokemon ${terms}`, region, placement);
+}
+
+function epnSearch(q: string, region: Region, placement: Placement): string {
   const host = EBAY_FOR_REGION[region];
   const epn = EPN[host];
-  const terms = searchTerms(name);
-  const q = /\bpokemon\b/i.test(terms) ? `${terms} sealed` : `Pokemon ${terms} sealed`;
   const u = new URL(`https://${host}/sch/i.html`);
   u.searchParams.set("_nkw", q.replace(/\s+/g, " ").trim());
   u.searchParams.set("LH_BIN", "1"); // Buy It Now: a price you can actually pay
@@ -148,6 +179,52 @@ export function ebaySearchUrl(name: string, region: Region, placement: Placement
 export const AFFILIATE_NOTE = "Affiliate links — we may earn a commission, at no cost to you.";
 /** …and the shorter form for a single small link (a sold-out card's), which has no room for the full line. */
 export const AFFILIATE_NOTE_SHORT = "Affiliate link — we may earn a commission.";
+
+/**
+ * EPN-tag a plain eBay item (or search) URL: the same parameter set as ebaySearchUrl, so
+ * a listing link is tracked exactly like a search link. Used for the Browse API's
+ * `itemWebUrl` when `itemAffiliateWebUrl` is missing. https and an eBay host only;
+ * anything else is null. `customid` is the sub-id string (already sanitised by the caller
+ * through affiliateSubId).
+ */
+export function epnTagUrl(url: string, region: Region, customid: string): string | null {
+  let u: URL;
+  try {
+    u = new URL(url);
+  } catch {
+    return null;
+  }
+  if (u.protocol !== "https:" || u.username || u.password || !isEbayHost(u.hostname) || url.length > 2048) return null;
+  const epn = EPN[u.hostname.toLowerCase()] ?? EPN[EBAY_FOR_REGION[region]];
+  u.searchParams.set("mkevt", "1");
+  u.searchParams.set("mkcid", "1");
+  u.searchParams.set("mkrid", epn.mkrid);
+  u.searchParams.set("siteid", epn.siteid);
+  u.searchParams.set("campid", EBAY_CAMPAIGN_ID);
+  u.searchParams.set("toolid", "10001");
+  u.searchParams.set("customid", customid);
+  return u.toString();
+}
+
+/**
+ * The link of a LISTING tile for a region and placement. Takes the url the API route
+ * returned and never trusts it: https, an eBay host, and OUR campaign id, or it is
+ * null (the tile is dropped). Sets `customid` to dex-<region>-<placement> so EPN's
+ * report says which surface earned (eBay's own affiliate URL carries the
+ * affiliateReferenceId we sent; this overwrites it with the placement).
+ */
+export function listingHref(url: string, region: Region, placement: Placement): string | null {
+  let u: URL;
+  try {
+    u = new URL(url);
+  } catch {
+    return null;
+  }
+  if (u.protocol !== "https:" || u.username || u.password || !isEbayHost(u.hostname) || url.length > 2048) return null;
+  if (u.searchParams.get("campid") !== EBAY_CAMPAIGN_ID) return null;
+  u.searchParams.set("customid", subId(region, placement));
+  return u.toString();
+}
 
 /** The eBay site a region's links actually land on: "ebay.com.au" (also for NZ), "ebay.com" (also for SG). */
 export function ebayLabel(region: Region): string {
@@ -344,6 +421,15 @@ export function offerRetailer(store: string, storeName: string, market: string):
 /** Names the site the click actually lands on, so NZ reads "eBay (ebay.com.au)". */
 export function ebayRetailer(region: Region): string {
   return `eBay (${ebayLabel(region)})`;
+}
+
+/** "eBay (<host of this link>)": a listing's click is reported under the host the link really goes to, whatever eBay's URL said. */
+export function ebayRetailerForHref(href: string, region: Region): string {
+  try {
+    return `eBay (${new URL(href).hostname.toLowerCase().replace(/^www\./, "")})`;
+  } catch {
+    return ebayRetailer(region);
+  }
 }
 
 export function regionName(region: Region): string {

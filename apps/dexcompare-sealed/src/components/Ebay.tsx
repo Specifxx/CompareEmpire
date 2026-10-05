@@ -9,8 +9,9 @@ import { OutboundLink } from "./OutboundLink";
 // What they all do, and never do:
 //   • Each is a plain <a> to an EPN-tagged eBay SEARCH (ebaySearchUrl), through
 //     OutboundLink: one buy_click {retailer, placement} per click, no redirect hop.
-//     rel is "sponsored nofollow noopener noreferrer". No eBay API, no eBay price,
-//     count or "deal": we know none of those.
+//     rel is "sponsored nofollow noopener noreferrer". These units use no eBay API and show no
+//     eBay price, count or "deal": we know none of those. (Real listings, from the Browse API with
+//     DexCompare's own keys, are the separate strips in EbayListings.tsx.)
 //   • Each is visibly an ad: an "Ad" pill, the word "eBay", and (per group) the
 //     affiliate disclosure. The dashed, cool-tinted .ad-box is a look no store row
 //     or product card has, so none of them reads as a listing or a ranked result.
@@ -31,6 +32,15 @@ export function AdPill({ className = "" }: { className?: string }) {
  */
 export function NoPreFooter() {
   return <span hidden data-ebay-no-prefooter="" />;
+}
+
+/**
+ * Put on a page whose last unit, directly above the footer, is its own listings strip (the product
+ * page's, in place of the generic strip the layout draws): the footer's phone-only eBay link would
+ * otherwise sit right under it, two units in one viewport. globals.css hides the link when present.
+ */
+export function NoFooterLink() {
+  return <span hidden data-ebay-no-footer-link="" />;
 }
 
 /** An eBay search link: the tagged URL, rel, retailer and placement in one place. */
@@ -233,6 +243,31 @@ export function EbayFeedCard({ region, context, query, placement }: { region: Re
           <span className="btn-ad mt-auto w-fit">
             Search eBay <Arrow />
           </span>
+        </span>
+      </EbaySearchLink>
+    </div>
+  );
+}
+
+/**
+ * The double-width native tile that stands in for the listings tile (EbayListingsFeedTile) at
+ * lg and up when there are no listings to show: the same search as EbayFeedCard, laid out to
+ * fill two grid columns, so the grid does not reflow whether listings arrive or not.
+ */
+export function EbayFeedWide({ region, context, query, placement }: { region: Region; context: string; query: string; placement: Placement }) {
+  return (
+    <div data-ad={placement} role="group" aria-label="Sponsored: eBay search" className="flex h-full min-h-[24rem]">
+      <EbaySearchLink region={region} query={query} placement={placement} className="group ad-box flex flex-1 flex-col items-center justify-center gap-3 p-6 text-center transition-all hover:-translate-y-0.5 hover:shadow-lift">
+        <AdPill />
+        <svg aria-hidden="true" viewBox="0 0 24 24" className="h-10 w-10 text-muted" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round">
+          <circle cx="10.5" cy="10.5" r="6.5" />
+          <path d="m15.5 15.5 5 5" />
+        </svg>
+        <span className="block text-base font-semibold group-hover:text-brand">Search {context} on eBay</span>
+        <span className="block text-xs text-faint">Buy It Now listings on {ebayLabel(region)}</span>
+        <span className="block max-w-xs text-[11px] leading-4 text-muted">{AFFILIATE_NOTE}</span>
+        <span className="btn-ad">
+          Search eBay <Arrow />
         </span>
       </EbaySearchLink>
     </div>

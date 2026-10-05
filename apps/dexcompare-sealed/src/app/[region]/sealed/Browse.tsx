@@ -5,6 +5,7 @@ import { BrowseGrid } from "@/components/BrowseGrid";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { lastCheckedAt, marketProductCount, marketProducts, PAGE_SIZE, sortCards } from "@/lib/data";
 import { compactCard } from "@/lib/compact";
+import { ebayListingsEnabled } from "@/lib/ebay-listings";
 import { timeAgo } from "@/lib/format";
 import { pageHref } from "@/components/Pagination";
 import type { RegionInfo } from "@/lib/regions";
@@ -58,7 +59,7 @@ export async function BrowsePage({ r, page }: { r: RegionInfo; page: number }) {
       </p>
       <h2 className="sr-only">Products</h2>
       <div className="mt-6">
-        <BrowseGrid rows={sorted.map(compactCard)} region={r.region} base={base} page={page} />
+        <BrowseGrid rows={sorted.map(compactCard)} region={r.region} base={base} page={page} listings={ebayListingsEnabled()} />
       </div>
     </div>
   );

@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { regionOrNotFound } from "@/lib/regions";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { AdPill, EbayBanner, EbaySearchLink, NoPreFooter } from "@/components/Ebay";
+import { ListingsStrip } from "@/components/ListingsStrip";
 import { Empty } from "@/components/Section";
 import { calendarProducts, CALENDAR_TYPES, setCounts } from "@/lib/data";
 import { ebayLabel } from "@/lib/affiliate";
@@ -166,13 +167,21 @@ export default async function ReleasesPage({ params }: { params: { region: strin
       </p>
       {/* The page's closing banner stands in for the footer one, so two never sit back to back. */}
       <NoPreFooter />
-      <EbayBanner
+      <ListingsStrip
         region={r.region}
+        context="releases"
         variant="section"
-        placement="releases-banner"
-        title="Looking for a new set on eBay?"
-        text={`Search Buy It Now listings for Pokémon sealed on ${ebayLabel(r.region)}.`}
+        placement="listings-releases"
         className="mt-10"
+        fallback={
+          <EbayBanner
+            region={r.region}
+            variant="section"
+            placement="releases-banner"
+            title="Looking for a new set on eBay?"
+            text={`Search Buy It Now listings for Pokémon sealed on ${ebayLabel(r.region)}.`}
+          />
+        }
       />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(ld) }} />
     </div>

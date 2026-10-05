@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Fragment } from "react";
 import type { ProductCardData } from "@/lib/data";
 import type { Placement } from "@/lib/affiliate";
 import { cardOpen } from "@/lib/compact";
@@ -10,7 +11,8 @@ import { isPreorderSet } from "@/lib/release";
 import { REGIONS, type Region } from "@/lib/regions";
 import { usMsrpForCard } from "@/lib/rrp";
 import { SET_BY_CODE } from "@/lib/sets";
-import { EbayFeedCard, EbaySoldOutLink, SoldOutSpacer } from "./Ebay";
+import { EbayFeedCard, EbayFeedWide, EbaySoldOutLink, SoldOutSpacer } from "./Ebay";
+import { EbayListingsFeedTile } from "./EbayListings";
 import { StockPill } from "./StockPill";
 
 /**
@@ -120,6 +122,12 @@ export interface GridFeed {
   placement: Placement;
   context: string;
   query: string;
+  /**
+   * Browse page only: the FIRST tile becomes a double-width listings tile from lg (four
+   * columns: the tile starts a row there, so it always fits), a native tile elsewhere and
+   * wherever there are no listings. `enabled` comes from the server (ebayListingsEnabled()).
+   */
+  listings?: { enabled: boolean };
 }
 
 /**
@@ -138,7 +146,21 @@ export function ProductGrid({ products, region, eager = 0, feed = null }: { prod
   return (
     <div className={`grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 ${tiled ? "lg:gap-y-10" : ""}`}>
       {entries.map((e, i) =>
-        e.kind === "feed" ? (
+        e.kind === "feed" && e.slot === 0 && feed!.listings?.enabled ? (
+          // Below lg the single native tile; from lg the 2x-wide listings tile (never both visible: a hidden unit fetches nothing).
+          <Fragment key={`ebay-feed-${e.slot}`}>
+            <div className="grid lg:hidden">
+              <EbayFeedCard region={region} context={feed!.context} query={feed!.query} placement={feed!.placement} />
+            </div>
+            <div className="hidden lg:col-span-2 lg:grid">
+              <EbayListingsFeedTile
+                enabled
+                region={region}
+                native={<EbayFeedWide region={region} context={feed!.context} query={feed!.query} placement={feed!.placement} />}
+              />
+            </div>
+          </Fragment>
+        ) : e.kind === "feed" ? (
           <EbayFeedCard key={`ebay-feed-${e.slot}`} region={region} context={feed!.context} query={feed!.query} placement={feed!.placement} />
         ) : (
           <ProductCard key={e.item.slug} p={e.item} region={region} priority={e.index < eager} soldOutLink={links.has(i)} soldOutSpacer={mates.get(i)} />

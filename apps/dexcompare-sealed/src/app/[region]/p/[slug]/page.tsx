@@ -3,15 +3,18 @@ import { notFound } from "next/navigation";
 import { cache } from "react";
 import type { Metadata } from "next";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
-import { NoPreFooter } from "@/components/Ebay";
-import { MarketplacePanel, SoldOutCallout } from "@/components/Marketplaces";
+import { EbayBanner, NoFooterLink, NoPreFooter } from "@/components/Ebay";
+import { ListingsStrip } from "@/components/ListingsStrip";
+import { ebayQuery, MarketplacePanel, SoldOutCallout } from "@/components/Marketplaces";
 import { OfferTable } from "@/components/OfferTable";
 import { OutboundLink } from "@/components/OutboundLink";
 import { ProductGrid } from "@/components/ProductCard";
 import { Section } from "@/components/Section";
 import { StockPill } from "@/components/StockPill";
-import { offerLink, offerRetailer } from "@/lib/affiliate";
+import { ebayLabel, offerLink, offerRetailer } from "@/lib/affiliate";
+import { productContext } from "@/lib/ebay-context-parse";
 import { productAdPlan, quickSearches } from "@/lib/ebay-ads";
+import { ebayListingsEnabled } from "@/lib/ebay-listings";
 import { comparable, productPage, relatedProducts, type OfferView } from "@/lib/data";
 import { medianSaving, money, pctOf, plural } from "@/lib/format";
 import { thumb } from "@/lib/images";
@@ -135,6 +138,31 @@ export default async function ProductPage({ params }: { params: { region: string
   // to keep them a screen apart (productAdPlan).
   const quick = quickSearches(set?.name, type?.key);
   const ads = productAdPlan({ offerRows: p.offers.length, elsewhere: elsewhere.length, related: set ? related.length : 0 });
+  // With eBay's API keys, the product's set's chase cards appear as real listings: directly below the offer
+  // table (it replaces the "Still deciding?" group) where the table is long enough to sit a screen below the
+  // marketplace panel; otherwise at the bottom of the page, in place of the generic strip above the footer,
+  // where the page has room for a unit there (productAdPlan). Without keys nothing changes.
+  const listingsOn = ebayListingsEnabled();
+  const stripAt = listingsOn ? (ads.tableGroup ? "table" : ads.preFooter ? "bottom" : null) : null;
+  const strip = stripAt && (
+    <ListingsStrip
+      region={r.region}
+      context={productContext(p.setCode)}
+      variant="section"
+      placement="listings-product"
+      className="mt-6"
+      fallback={
+        <EbayBanner
+          region={r.region}
+          variant={stripAt === "table" ? "section" : "footer"}
+          placement={stripAt === "table" ? "product-after-table" : "pre-footer"}
+          title={stripAt === "table" ? "Still deciding? Search this product on eBay" : "Shop Pokémon sealed on eBay"}
+          text={`Search Buy It Now listings on ${ebayLabel(r.region)}.`}
+          query={stripAt === "table" ? ebayQuery(p.name, tcgplayer) : ""}
+        />
+      }
+    />
+  );
 
   // Price signals beside the best price, each a fact about the current
   // listings: per pack (when the product line fixes a pack count), the median
@@ -318,7 +346,7 @@ export default async function ProductPage({ params }: { params: { region: string
 
       <Section title={tableTitle}>
         {p.offers.length ? (
-          <OfferTable offers={p.offers} region={r.region} preorder={pre} productName={p.name} usTcgplayer={p.usMarketplace} packs={packs} marketGroup={ads.tableGroup} />
+          <OfferTable offers={p.offers} region={r.region} preorder={pre} productName={p.name} usTcgplayer={p.usMarketplace} packs={packs} marketGroup={ads.tableGroup && !listingsOn} />
         ) : (
           <div className="card px-6 py-8 text-muted">
             None of the {r.adjective} stores we track list {p.name} right now.
@@ -331,6 +359,8 @@ export default async function ProductPage({ params }: { params: { region: string
             " TCGplayer is a marketplace of many sellers; it ranks by price and stock like any store, and its link is an affiliate link."}
         </p>
       </Section>
+
+      {stripAt === "table" && strip}
 
       {elsewhere.length > 0 && (
         <Section title="In other regions">
@@ -352,6 +382,14 @@ export default async function ProductPage({ params }: { params: { region: string
         <Section title={`More from ${set.name}`} href={`/${r.region}/sets/${set.slug}`} linkLabel="Whole set">
           <ProductGrid products={related} region={r.region} />
         </Section>
+      )}
+
+      {stripAt === "bottom" && (
+        <>
+          <NoPreFooter />
+          <NoFooterLink />
+          {strip}
+        </>
       )}
 
       {ld && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(ld) }} />}

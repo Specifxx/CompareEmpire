@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { Ago } from "@/components/Ago";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { EbayBanner, NoPreFooter } from "@/components/Ebay";
+import { ListingsStrip } from "@/components/ListingsStrip";
 import { OutboundLink } from "@/components/OutboundLink";
 import { pageHref, Pagination } from "@/components/Pagination";
 import { StockPill } from "@/components/StockPill";
@@ -91,13 +92,21 @@ export async function StorePage({ r, s, page }: { r: RegionInfo; s: StoreConfig;
         </OutboundLink>
       </div>
       {!listHasRoomForFooter(offers.length) && <NoPreFooter />}
-      <EbayBanner
+      <ListingsStrip
         region={r.region}
+        context="store"
         variant="section"
-        placement="store-banner"
-        title="Looking for something else? Search eBay"
-        text={`Search Buy It Now listings for Pokémon sealed on ${ebayLabel(r.region)}.`}
+        placement="listings-store"
         className="mt-6"
+        fallback={
+          <EbayBanner
+            region={r.region}
+            variant="section"
+            placement="store-banner"
+            title="Looking for something else? Search eBay"
+            text={`Search Buy It Now listings for Pokémon sealed on ${ebayLabel(r.region)}.`}
+          />
+        }
       />
       {offers.length ? (
         <div className="card mt-6 overflow-hidden">
