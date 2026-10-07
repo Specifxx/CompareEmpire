@@ -358,12 +358,29 @@ export class EbayError extends Error {
   readonly code: string;
   readonly status: number | null;
   readonly retryAfterMs: number | null;
-  constructor(code: string, status: number | null = null, retryAfterMs: number | null = null) {
+  /** eBay's OAuth error category (a fixed list, never eBay's free text), when it sent one. */
+  readonly detail: string | null;
+  constructor(code: string, status: number | null = null, retryAfterMs: number | null = null, detail: string | null = null) {
     super(code);
     this.name = "EbayError";
     this.code = code;
     this.status = status;
     this.retryAfterMs = retryAfterMs;
+    this.detail = detail;
+  }
+}
+
+// The OAuth error categories (RFC 6749 §5.2) eBay's token endpoint answers with. Only a member of
+// this list is ever reported (as the response's `detail`), so no free text, id or secret can leak.
+const OAUTH_ERRORS = new Set(["invalid_client", "invalid_request", "invalid_grant", "invalid_scope", "unauthorized_client", "unsupported_grant_type", "access_denied", "temporarily_unavailable"]);
+
+async function oauthError(res: Response): Promise<string | null> {
+  try {
+    const b: unknown = await res.json();
+    const e = isRecord(b) ? b.error : null;
+    return typeof e === "string" && OAUTH_ERRORS.has(e) ? e : null;
+  } catch {
+    return null;
   }
 }
 
@@ -402,7 +419,7 @@ export function createTokenManager(deps: Deps): TokenManager {
     } catch {
       throw new EbayError("token-network");
     }
-    if (!res.ok) throw new EbayError(`token-http-${res.status}`, res.status, retryAfter(res));
+    if (!res.ok) throw new EbayError(`token-http-${res.status}`, res.status, retryAfter(res), await oauthError(res));
     let body: unknown;
     try {
       body = await res.json();
@@ -494,6 +511,7 @@ export function createEbayClient(deps: Deps, opts: ClientOptions = {}): EbayClie
   let pausedUntil = 0; // set by a 429, for every key
   let authUntil = 0; // set by a token failure, for every key
   let authFailures = 0;
+  let authDetail = ""; // why the last token request failed: "token-http-401:invalid_client" (codes only, no secrets)
   let day = "";
   let used = 0; // searches today, all keys
   let usedSets = 0; // …of which per-set keys
@@ -589,6 +607,7 @@ export function createEbayClient(deps: Deps, opts: ClientOptions = {}): EbayClie
         // The keyset or the token endpoint is the problem, not this key: pause every key, backing off 1, 2, 4 … 15 min.
         authFailures++;
         authUntil = deps.now() + Math.min(FAILURE_BACKOFF_MS * 2 ** (authFailures - 1), FAILURE_BACKOFF_MAX_MS);
+        authDetail = e.detail ? `${e.code}:${e.detail}` : e.code;
         lastReason.set(key, "auth");
       } else {
         lastReason.set(key, "unavailable");
@@ -632,7 +651,8 @@ export function createEbayClient(deps: Deps, opts: ClientOptions = {}): EbayClie
         const reason = !fresh ? "stale" : e.partial ? "partial" : !e.items.length ? "empty" : null;
         return { items: e.items, asOf: iso(e.fetchedAt), ...(reason ? { reason } : {}) };
       }
-      return { items: [], asOf: iso(t), reason: lastReason.get(key) ?? "unavailable" };
+      const reason = lastReason.get(key) ?? "unavailable";
+      return { items: [], asOf: iso(t), reason, ...(reason === "auth" && authDetail ? { detail: authDetail } : {}) };
     },
     callsToday: () => (day === today() ? used : 0),
     setCallsToday: () => (day === today() ? usedSets : 0),

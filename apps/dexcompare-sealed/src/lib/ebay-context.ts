@@ -53,6 +53,8 @@ export interface ListingsResponse {
   asOf: string;
   /** Why `items` is empty, if it is: a short code, never an eBay message. */
   reason?: string;
+  /** For reason "auth" only: the token request's failure category, e.g. "token-http-401:invalid_client". A code, never a message. */
+  detail?: string;
 }
 
 /**

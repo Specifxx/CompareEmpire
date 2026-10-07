@@ -698,3 +698,17 @@ test("ebay-listings.ts talks to api.ebay.com only: there is no host override", (
   // fetches never go through the Next data cache
   assert.ok(/cache:\s*"no-store"/.test(code));
 });
+
+test("client: a refused token reports eBay's OAuth error category, and only a known one", async () => {
+  const known = harness((url) =>
+    url.includes("/oauth2/token") ? new Response(JSON.stringify({ error: "invalid_client", error_description: "client authentication failed: secret-ish text" }), { status: 401 }) : json(FIXTURE),
+  );
+  const a = await createEbayClient(known.deps).listings("us", HOME);
+  assert.equal(a.reason, "auth");
+  assert.equal(a.detail, "token-http-401:invalid_client");
+  assert.ok(!JSON.stringify(a).includes("secret-ish"), "eBay's free text never leaves the server");
+
+  const odd = harness((url) => (url.includes("/oauth2/token") ? new Response(JSON.stringify({ error: "<script>alert(1)</script>" }), { status: 400 }) : json(FIXTURE)));
+  const b = await createEbayClient(odd.deps).listings("us", HOME);
+  assert.equal(b.detail, "token-http-400", "an unknown category is dropped, only the status is kept");
+});
