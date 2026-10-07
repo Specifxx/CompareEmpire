@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import { Ago } from "@/components/Ago";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { EbayBanner, NoPreFooter } from "@/components/Ebay";
+import { ListingsStrip } from "@/components/ListingsStrip";
 import { ProductGrid } from "@/components/ProductCard";
 import { Empty, Section } from "@/components/Section";
 import { lastCheckedAt, marketsWithType, productsByType } from "@/lib/data";
@@ -94,15 +95,24 @@ export default async function TypePage({ params }: { params: { region: string; t
           </>
         )}
       </p>
-      <EbayBanner
+      {/* Chase-card listings (type-agnostic) with eBay's API keys; otherwise the native banner. */}
+      <ListingsStrip
         region={r.region}
+        context={`type:${t.slug}`}
         variant="section"
-        placement="type-banner"
-        title={`Shop ${typeName} on eBay`}
-        text={`Search Buy It Now listings for ${typeName} on ${ebayLabel(r.region)}.`}
-        query={t.label}
-        chips={typeChips(null, t.key)}
+        placement="listings-type"
         className="mt-4"
+        fallback={
+          <EbayBanner
+            region={r.region}
+            variant="section"
+            placement="type-banner"
+            title={`Shop ${typeName} on eBay`}
+            text={`Search Buy It Now listings for ${typeName} on ${ebayLabel(r.region)}.`}
+            query={t.label}
+            chips={typeChips(null, t.key)}
+          />
+        }
       />
       <div className="mt-5 flex flex-wrap gap-2">
         {PRODUCT_TYPES.filter((x) => x.slug !== t.slug)

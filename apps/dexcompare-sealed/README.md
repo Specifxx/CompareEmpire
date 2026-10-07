@@ -19,8 +19,10 @@ place untouched; nothing deploys from it once the Vercel project points here.
   orderable listing. (Ported from Rift Compare's `sealed-offers.ts`.)
 - **Earns** through affiliate links, and only two kinds (`src/lib/affiliate.ts`):
   - **eBay Partner Network** *search links* (Buy It Now, the region's eBay
-    site; NZ uses ebay.com.au, SG ebay.com). There are **no eBay API calls**
-    anywhere, and no eBay credentials.
+    site; NZ uses ebay.com.au, SG ebay.com). By default there are **no eBay API
+    calls** and no eBay credentials. Opt in with DexCompare's own Browse API keyset
+    (`EBAY_CLIENT_ID` / `EBAY_CLIENT_SECRET`, server-only) and the chase-card strips
+    show **real eBay listings** (see "Real eBay listings" below).
   - **TCGplayer via Impact**: every tcgplayer.com link is wrapped in the
     partner deep link at render time; the database only holds plain URLs.
     TCGplayer is a US marketplace: in the US its offer is compared with the
@@ -47,9 +49,10 @@ in long product grids (`EbayFeedCard`), "Also on eBay" searches
 (`EbaySoldOutLink`) and the product page's marketplace panel. All of them:
 
 - are plain `<a>` links to an EPN-tagged eBay **search** (`ebaySearchUrl`), through
-  `OutboundLink`, `rel="sponsored nofollow noopener noreferrer"`. No eBay API, no
-  credentials, no scraping: so **no eBay price, listing count or "deal" is ever
-  shown**, and no eBay logo (the word "eBay" in text);
+  `OutboundLink`, `rel="sponsored nofollow noopener noreferrer"`. The search links, banners and
+  tiles use no eBay API and no credentials, so they show **no eBay price, listing count or
+  "deal"**; the chase-card strips (below) are the one place a real eBay listing, with its own
+  price exactly as eBay returns it, is shown. No eBay logo (the word "eBay" in text);
 - are visibly ads: an "Ad" pill, "eBay" in the text, the affiliate disclosure per
   group (a sold-out card's link carries the short form beside it), and a dashed,
   cool-tinted box (`.ad-box`) with outlined `.btn-ad` buttons and dashed `.ad-chip`s: never the
@@ -63,7 +66,8 @@ in long product grids (`EbayFeedCard`), "Also on eBay" searches
   unit in a phone viewport (two on a desktop one). The rules that keep
   units apart live in `src/lib/ebay-ads.ts` (pure, unit-tested in
   `tests/affiliate.test.ts`): tiles after the 12th/24th/36th product and only with
-  eight products after them, sold-out links sixteen positions apart, and a page too
+  eight products after them, sold-out links sixteen positions apart (the listings strips are
+  fixed-size units that follow the same one-per-phone-viewport rule: sweep them too), and a page too
   short to fit its own units beside the footer banner drops the footer banner
   (`<NoPreFooter/>`). On a phone the section banner is a compact strip (no body line,
   no chip row), and a sold-out link's grid row keeps a blank of its height under the other
@@ -71,6 +75,37 @@ in long product grids (`EbayFeedCard`), "Also on eBay" searches
   scroll at 390×844 counting `[data-ad]` elements in view);
 - optionally show EPN's own banner image on the hero and footer banners instead of
   the native ones (`NEXT_PUBLIC_EBAY_BANNER_IMAGE` / `_HREF`, see DEPLOY.md).
+
+### Real eBay listings (chase cards)
+
+`src/components/EbayListings.tsx` draws "Chase cards on eBay" strips (home hero, landing,
+set, type, product, releases, store pages, a slim one above every footer, a double-width
+in-feed tile on the browse page, the 404) from eBay's official **Browse API**, through our
+own route `GET /api/ebay/<region>?c=<context>`. Everything is opt-in and degrades:
+
+- **No keys** (or `EBAY_LISTINGS=off`): no API call at all. The home and landing pages show
+  six curated chase-card **search** tiles (`src/lib/chase-cards.ts`, `ChaseCards.tsx`: small self-hosted
+  card pictures in `public/chase/`, "Search on eBay", labelled as searches, no price); every other
+  surface keeps its native banner. Layout is identical to before.
+- **Keys**: server-side only (`src/lib/ebay-listings.ts`: OAuth client-credentials token cached in
+  memory, one search per query, a per-instance cache with single-flight, a daily call budget,
+  stale-on-error, 401/429/5xx handling; pure normalise/filter/round-robin functions with
+  unit tests). The route is a whitelist, not a proxy (7 regions × a fixed list of contexts, queries
+  hard-coded, ≤ 12 whitelisted fields returned), and **a page never calls eBay while it
+  renders**: the strip (a client island) fetches `/api/ebay/...` once it is within ~300 px of the
+  viewport, into a box of reserved size (CLS 0), and shows the fallback if nothing comes back.
+- Every tile is one plain `<a>` through `OutboundLink` (rel sponsored, one `buy_click`
+  `{retailer, placement}`), URL = eBay's `itemAffiliateWebUrl` (campaign 5339155912) with
+  `customid=dex-<region>-listings-<surface>`; thumbnails are plain lazy `<img>` from
+  `*.ebayimg.com` (no-referrer, never through Vercel image optimisation); the unit is labelled
+  "Ad", says the listings come from eBay, are refreshed about hourly and can be up to 3 hours older than on eBay, shows eBay's price
+  unconverted and never compares or counts it.
+- Setup, eBay's licence/branding rules and how each is met, the call budget: **DEPLOY.md,
+  "Real eBay listings"**. Check keys with `npx tsx scripts/ebay-check.ts`.
+- Testing without keys: `tests/ebay-*.test.ts` stub `fetch` (fixtures in `tests/fixtures/`); for a
+  browser run, preload a fetch stub that answers `https://api.ebay.com/*` with
+  `NODE_OPTIONS="--import mock.mjs" next start` (the app has no host override: it can only talk to
+  api.ebay.com), and set dummy `EBAY_CLIENT_ID` / `EBAY_CLIENT_SECRET`.
 
 ## What this site does not store
 

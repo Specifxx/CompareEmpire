@@ -1,5 +1,7 @@
 import { EbayBanner } from "@/components/Ebay";
+import { PreFooterListings } from "@/components/EbayListings";
 import { Header } from "@/components/Header";
+import { ebayListingsEnabled } from "@/lib/ebay-listings";
 import { regionOrNotFound } from "@/lib/regions";
 
 // Empty on purpose: region pages render on their first visit and are then
@@ -26,7 +28,9 @@ export default function RegionLayout({ children, params }: { children: React.Rea
             hides this wrapper. The legal pages and the 404 are not under [region], so
             they never get one. */}
         <div className="page mt-16" data-ebay-prefooter>
-          <EbayBanner region={r.region} variant="footer" placement="pre-footer" />
+          {/* Real chase-card listings (a slim four-tile strip) when eBay's API keys are set; otherwise, and
+              whenever there are none to show, the native banner. */}
+          <PreFooterListings enabled={ebayListingsEnabled()} region={r.region} fallback={<EbayBanner region={r.region} variant="footer" placement="pre-footer" />} />
         </div>
       </main>
     </>

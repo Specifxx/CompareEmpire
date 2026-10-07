@@ -17,7 +17,7 @@ export function Footer() {
             independent stores, with stock as of the last read.
           </p>
           <p className="mt-3 text-xs leading-5 text-muted">
-            Prices are each store&rsquo;s (or TCGplayer seller&rsquo;s) own, in its own currency, and exclude shipping. eBay links and banners (always marked
+            Prices are each store&rsquo;s (or TCGplayer seller&rsquo;s) own, in its own currency, and exclude shipping. eBay links, banners and listings (always marked
             &ldquo;Ad&rdquo;) and TCGplayer links are affiliate links: we may earn a commission at no cost to you. They are never part of a ranking and never change
             the order. Store links are plain links.{" "}
             <Link href="/about#money" className="underline underline-offset-2 hover:text-ink">

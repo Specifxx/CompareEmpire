@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ebayListingsEnabled } from "@/lib/ebay-listings";
 import { REGION_LIST } from "@/lib/regions";
 import { CONTACT_EMAIL, SITE_URL } from "@/lib/site";
 import { STORES, storesInMarket } from "@/lib/stores";
@@ -9,6 +10,9 @@ export const metadata: Metadata = {
   description: "How DexCompare finds Pokémon sealed prices and stock, what it does and doesn't store, how it makes money, and how stores get listed.",
   alternates: { canonical: `${SITE_URL}/about` },
 };
+
+// Static page: whether the eBay chase-card strips show real listings (the API keys are set when the site is built) decides the wording.
+const LISTINGS = ebayListingsEnabled();
 
 export default function About() {
   return (
@@ -129,10 +133,24 @@ export default function About() {
         </p>
         <ul>
           <li>
-            <b>eBay</b> (eBay Partner Network): the eBay links, banners and search tiles around the site. Every one is an <b>ad</b> and says
-            so: it carries an &ldquo;Ad&rdquo; label, sits apart from the store listings in its own dashed, tinted box, and opens a
-            <b> search</b> for Pokémon sealed product (Buy It Now) on your region&rsquo;s eBay site. We don&rsquo;t read eBay: we know
-            nothing about what is listed there or at what price, so we show no eBay price, no count of eBay listings and no &ldquo;deal&rdquo;.
+            <b>eBay</b> (eBay Partner Network): the eBay links, banners, search tiles and chase-card strips around the site. Every one is an{" "}
+            <b>ad</b> and says so: it carries an &ldquo;Ad&rdquo; label, sits apart from the store listings in its own dashed, tinted box, and
+            links to eBay.{" "}
+            {LISTINGS ? (
+              <>
+                The chase-card strips show <b>real eBay listings</b> (single Pokémon cards, Buy It Now) that eBay&rsquo;s own listing service
+                returns to us and we refresh about hourly (so a listing can be up to 3 hours older than on eBay). Each is shown as eBay lists it — its title, photo and price in the currency eBay
+                shows, before shipping — never converted, compared with a store&rsquo;s price, counted or ranked, and every one links to
+                the listing on eBay. By the time you click, a price or its availability may have changed: eBay&rsquo;s page is final. The
+                other eBay links open a <b>search</b>, and show no eBay price, no count and no &ldquo;deal&rdquo;.
+              </>
+            ) : (
+              <>
+                They open a <b>search</b> for Pokémon sealed product or chase cards (Buy It Now) on your region&rsquo;s eBay site. We
+                don&rsquo;t read eBay: we know nothing about what is listed there or at what price, so we show no eBay price, no count of
+                eBay listings and no &ldquo;deal&rdquo;.
+              </>
+            )}
           </li>
           <li>
             <b>TCGplayer</b> (through Impact): every link to tcgplayer.com. TCGplayer is a US marketplace. In the United States we
@@ -141,9 +159,10 @@ export default function About() {
           </li>
         </ul>
         <p>
-          eBay appears in a few set places: an &ldquo;eBay&rdquo; item in the header, a banner on each region&rsquo;s home page and above the
-          footer, banners on set, type, release and store pages, a search tile in long product grids, a &ldquo;sold out here&rdquo; search
-          link under some sold-out products, and the marketplace boxes on product pages. It is never in the About, Terms, Privacy or
+          eBay appears in a few set places: an &ldquo;eBay&rdquo; item in the header, a chase-card strip under the stats on each region&rsquo;s
+          home page and on the landing page, a slimmer strip above the footer, strips or banners on set, type, release and store pages, a
+          tile in long product grids, a &ldquo;sold out here&rdquo; search link under some sold-out products, and the marketplace boxes on
+          product pages. It is never in the About, Terms, Privacy or
           Contact pages. An eBay unit is never part of a price table, a headline price, a store count, a per-pack figure, a median or a
           ranking, and it never changes the order of anything.
         </p>
