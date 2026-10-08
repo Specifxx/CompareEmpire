@@ -89,7 +89,7 @@ jobs:
           elif [ "$DRY" != "true" ] && [ "$HAS_EBAY" != "true" ]; then
             echo "EBAY_CLIENT_ID / EBAY_CLIENT_SECRET are not set in this repository's Actions secrets — nothing imported. The site keeps showing the previous listings until they age out (then the compact eBay search link)." >> "$GITHUB_STEP_SUMMARY"
             echo "run=false" >> "$GITHUB_OUTPUT"
-          elif ! printf '%s' "$ONLY" | grep -Eq '^[a-z,]*$'; then
+          elif ! printf '%s\n' "$ONLY" | grep -Eq '^[a-z,]*$'; then
             echo "::error::The 'only' input takes bucket names separated by commas (chase, sealed, types, sets, items)."
             exit 1
           else
