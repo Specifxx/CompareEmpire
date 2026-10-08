@@ -1,0 +1,141 @@
+name: DexCompare eBay import
+
+# The daily eBay listing import for DexCompare (apps/dexcompare-sealed): searches eBay's Browse API with
+# DexCompare's own keys and REPLACES the EbayListing rows the website's listing strips read. The website never
+# calls eBay and holds no eBay credential: the keys live only here, in GitHub Actions.
+#
+# ONCE A DAY, on purpose (the owner's decision; DEPLOY.md, "Why daily, and the licence risk"). eBay's API
+# License Agreement 8.1(c), "Age of Displayed eBay Content", has two prongs: "Displayed item listing information
+# may not be more than six (6) hours older than information displayed on the eBay Site" and "other eBay Content must
+# be no more than twenty-four (24) hours older than content displayed on the eBay Site", and "you will disclose in your
+# Application ... how much older your displayed item listing is". A daily import does NOT meet the six-hour prong (and the
+# default 26 h bound exceeds the 24 h one); every strip discloses its age, and eBay could act on the keyset. To switch to the
+# compliant mode (all in DEPLOY.md, "The switch to compliant mode"; the strips' wording follows by itself):
+#   1. the cron below:  "13 */4 * * *"        (every 4 hours; 6 runs a day)
+#   2. EBAY_LISTING_MAX_AGE_HOURS = 5.5       as a repository variable (this job AND the store import read it) and as an
+#      environment variable in Vercel (the website's route reads it; redeploy once)
+#   3. EBAY_RUN_CAP = 380                     (a repository variable): six runs of 380 searches, retries included, are 2,280 a day,
+#      under the 2,400 daily cap with room for a manual run; the default 2000 would use the whole day in the first run.
+#
+# THE 5,000 CALLS/DAY LIMIT BELONGS TO THE EBAY KEYSET: if the owner's other site uses the same App ID, the database counter cannot
+# see its calls. Use a separate eBay application for DexCompare, or set EBAY_DAILY_CAP to the agreed share on BOTH sites.
+#
+# Why 08:37 UTC: it is the FIRST slot after eBay's daily call counter resets in BOTH seasons (midnight Pacific = 07:00 UTC
+# in summer, 08:00 in winter: 08:37 UTC is 01:37 PDT / 00:37 PST), so the scheduled run is always the FIRST run of its budget day and
+# gets the full run cap, and a manual "run now" earlier in the Pacific day belongs to the previous day and can never starve it.
+# (An earlier slot, before the reset, was the LAST run of its day: a manual run that day left it only the slack.) It is also a good time for the
+# audience: 09:37 / 10:37 in the UK / central Europe, 19:37 in Sydney (listings about an hour old for the evening
+# shop), 04:37 in New York and 01:37 in Los Angeles, so the US sees it 15-22 h old at its evening peak (within the
+# 26 h bound; the strips say how old they are). Minute 37 avoids the top-of-the-hour queue. GitHub may start a scheduled
+# run late; the 26 h bound leaves two hours for that, and a run that never comes only blanks the strips (to a search link).
+#
+# Secrets (Settings → Secrets and variables → Actions):
+#   DEXCOMPARE_SEALED_DATABASE_URL   required. Neon DIRECT connection string (the host WITHOUT "-pooler").
+#   EBAY_CLIENT_ID, EBAY_CLIENT_SECRET   the Production keyset (App ID / Cert ID) of DexCompare's own eBay
+#                                    application. Without them the job writes a skip message and exits 0.
+#   DEXCOMPARE_EBAY_CLIENT_ID / _SECRET   optional overrides, used instead when set.
+# Variables (same page, "Variables" tab), all optional:
+#   EBAY_DAILY_CAP (2400, max 2500)  most Browse calls per Pacific day, across every run of the day (kept in the database); this site's SHARE of the keyset
+#   EBAY_RUN_CAP (2000)              most Browse searches in one run, retries included (a strict ceiling)
+#   EBAY_LISTING_MAX_AGE_HOURS (26)  how old a listing may be before the site stops showing it (set the same value in Vercel; the store import reads it too)
+#   NEXT_PUBLIC_EBAY_CAMPAIGN_ID     only to use a different EPN campaign id from the default; the importer enforces it on every stored URL (the website no longer compares it)
+
+on:
+  schedule:
+    - cron: "37 8 * * *"
+  workflow_dispatch:
+    inputs:
+      only:
+        description: "Only these buckets, comma-separated: chase, sealed, types, sets, items. Blank = all."
+        required: false
+        default: ""
+      force:
+        description: "Buy every planned feed again, even ones refreshed in the last 2 hours (a normal run skips those, so a second dispatch spends nothing on them)."
+        type: boolean
+        default: false
+      dry_run:
+        description: "Print the plan and the expected calls; no eBay call, no database write."
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dexcompare-ebay-import
+  cancel-in-progress: false
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: apps/dexcompare-sealed
+    steps:
+      - name: Check the secrets
+        id: secrets
+        working-directory: .
+        env:
+          # Only whether each secret is set (a boolean) reaches this step; the eBay keys themselves exist only in the Import step.
+          HAS_DB: ${{ secrets.DEXCOMPARE_SEALED_DATABASE_URL != '' }}
+          HAS_EBAY: ${{ (secrets.DEXCOMPARE_EBAY_CLIENT_ID != '' || secrets.EBAY_CLIENT_ID != '') && (secrets.DEXCOMPARE_EBAY_CLIENT_SECRET != '' || secrets.EBAY_CLIENT_SECRET != '') }}
+          DRY: ${{ inputs.dry_run }}
+          ONLY: ${{ inputs.only }}
+        run: |
+          if [ "$HAS_DB" != "true" ]; then
+            echo "DEXCOMPARE_SEALED_DATABASE_URL is not set — nothing to import into." >> "$GITHUB_STEP_SUMMARY"
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          elif [ "$DRY" != "true" ] && [ "$HAS_EBAY" != "true" ]; then
+            echo "EBAY_CLIENT_ID / EBAY_CLIENT_SECRET are not set in this repository's Actions secrets — nothing imported. The site keeps showing the previous listings until they age out (then the compact eBay search link)." >> "$GITHUB_STEP_SUMMARY"
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          elif ! printf '%s' "$ONLY" | grep -Eq '^[a-z,]*$'; then
+            echo "::error::The 'only' input takes bucket names separated by commas (chase, sealed, types, sets, items)."
+            exit 1
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.secrets.outputs.run == 'true'
+
+      - uses: actions/setup-node@v4
+        if: steps.secrets.outputs.run == 'true'
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: apps/dexcompare-sealed/package-lock.json
+
+      - name: Install
+        if: steps.secrets.outputs.run == 'true'
+        run: npm ci --no-audit --no-fund
+
+      - name: Sync the schema
+        if: steps.secrets.outputs.run == 'true'
+        env:
+          DATABASE_URL: ${{ secrets.DEXCOMPARE_SEALED_DATABASE_URL }}
+        # No --accept-data-loss: a schema change that would drop data fails here, loudly. (The importer also creates
+        # its two tables itself if they are missing.)
+        run: npx prisma db push --skip-generate && npx prisma generate
+
+      - name: Import
+        if: steps.secrets.outputs.run == 'true'
+        env:
+          DATABASE_URL: ${{ secrets.DEXCOMPARE_SEALED_DATABASE_URL }}
+          # The eBay keys exist ONLY in this step's environment.
+          EBAY_CLIENT_ID: ${{ secrets.DEXCOMPARE_EBAY_CLIENT_ID || secrets.EBAY_CLIENT_ID }}
+          EBAY_CLIENT_SECRET: ${{ secrets.DEXCOMPARE_EBAY_CLIENT_SECRET || secrets.EBAY_CLIENT_SECRET }}
+          EBAY_DAILY_CAP: ${{ vars.EBAY_DAILY_CAP }}
+          EBAY_RUN_CAP: ${{ vars.EBAY_RUN_CAP }}
+          EBAY_LISTING_MAX_AGE_HOURS: ${{ vars.EBAY_LISTING_MAX_AGE_HOURS }}
+          # The affiliate links the importer stores carry this campaign id; it must equal the website's (Vercel) value.
+          NEXT_PUBLIC_EBAY_CAMPAIGN_ID: ${{ vars.NEXT_PUBLIC_EBAY_CAMPAIGN_ID }}
+          ONLY: ${{ inputs.only }}
+          DRY: ${{ inputs.dry_run }}
+          FORCE: ${{ inputs.force }}
+        run: |
+          args=()
+          if [ -n "$ONLY" ]; then args+=(--only "$ONLY"); fi
+          if [ "$DRY" = "true" ]; then args+=(--dry-run); fi
+          if [ "$FORCE" = "true" ]; then args+=(--force); fi
+          npx tsx scripts/ebay-import.ts "${args[@]}"

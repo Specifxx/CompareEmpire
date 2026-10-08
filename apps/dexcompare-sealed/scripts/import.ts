@@ -12,7 +12,9 @@ process.env.DEXCOMPARE_SCRIPT = "1";
 import { appendFileSync } from "node:fs";
 import { runImport } from "../src/lib/importer";
 import { prisma } from "../src/lib/db";
+import { purgeCutoff } from "../src/lib/ebay-context";
 import { SITE_URL } from "../src/lib/site";
+import { utcTimestamp } from "../src/lib/pg-time";
 
 const args = process.argv.slice(2);
 const opt = (name: string) => {
@@ -73,9 +75,27 @@ async function checkLiveSitemap(): Promise<string | null> {
   }
 }
 
+/**
+ * A second line of defence for eBay API License Agreement 3.1(b) (delete copies no longer required): the eBay import
+ * (scripts/ebay-import.ts) purges listings older than the age bound + 4 h at the end of each of its runs; this does the
+ * same, with one DELETE, at the end of every store import, so a stopped eBay job cannot leave old listings behind. It never
+ * fails the import (the table may not exist yet).
+ */
+async function purgeEbayListings(): Promise<string> {
+  try {
+    const cutoff = purgeCutoff(Date.now(), process.env.EBAY_LISTING_MAX_AGE_HOURS); // the same helper (and bound) as the eBay import's purge
+    const n = await prisma.$executeRaw`DELETE FROM "EbayListing" WHERE "fetchedAt" < ${utcTimestamp(cutoff)}`;
+    return `${n} expired eBay listings deleted`;
+  } catch {
+    return "eBay listing purge skipped (no table yet)";
+  }
+}
+
 async function main() {
   const only = opt("only")?.split(",").map((s) => (s.length === 2 ? s.toUpperCase() : s));
   const summary = await runImport({ only, concurrency: Number(opt("concurrency") ?? 3) });
+  const purged = await purgeEbayListings();
+  console.log(purged);
   const reval = await revalidate();
   const sitemapProblem = reval === "ok" && !only ? await checkLiveSitemap() : null;
 
@@ -104,6 +124,7 @@ async function main() {
     `Stores written as sold out (in-stock prices under half the market on 5+ products): ${summary.suspectStores.map((s) => `${s.store} (${s.low})`).join(", ") || "none"}`,
     `Dormant stores (20+ listings, none in stock): ${summary.dormant.length ? summary.dormant.join(", ") : "none"}`,
     ...(summary.renamed ? [`Products renamed: ${summary.renamed}`] : []),
+    `eBay listings: ${purged}`,
     `Page refresh: ${reval}`,
     ``,
     summary.failed.length ? `### Not read this run (${summary.failed.length}) — their previous rows were kept` : ``,

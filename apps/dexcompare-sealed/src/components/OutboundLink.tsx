@@ -27,6 +27,7 @@ export function OutboundLink({
   title,
   children,
   "aria-label": ariaLabel,
+  onFocus,
 }: {
   href: string;
   rel: string;
@@ -36,6 +37,7 @@ export function OutboundLink({
   title?: string;
   children: ReactNode;
   "aria-label"?: string;
+  onFocus?: (e: React.FocusEvent<HTMLAnchorElement>) => void;
 }) {
   function record() {
     try {
@@ -52,6 +54,7 @@ export function OutboundLink({
       className={className}
       title={title}
       aria-label={ariaLabel}
+      onFocus={onFocus}
       onClick={(e) => {
         if (e.button === 0) record();
       }}

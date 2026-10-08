@@ -1,7 +1,5 @@
-import { EbayBanner } from "@/components/Ebay";
-import { PreFooterListings } from "@/components/EbayListings";
+import { PreFooterStrip } from "@/components/EbayStrip";
 import { Header } from "@/components/Header";
-import { ebayListingsEnabled } from "@/lib/ebay-listings";
 import { regionOrNotFound } from "@/lib/regions";
 
 // Empty on purpose: region pages render on their first visit and are then
@@ -22,15 +20,12 @@ export default function RegionLayout({ children, params }: { children: React.Rea
       <Header region={r.region} />
       <main id="main" className="flex-1">
         {children}
-        {/* Every region page ends with the eBay banner, directly above the site footer
-            (inside <main>: it is page content, not a landmark of its own). A page too
-            short to fit it beside its own units renders <NoPreFooter/>, and globals.css
-            hides this wrapper. The legal pages and the 404 are not under [region], so
-            they never get one. */}
+        {/* Every region page ends with a slim eBay listing strip (four tiles), directly above the site
+            footer (inside <main>: it is page content, not a landmark of its own). With nothing to list it
+            is the compact CTA row. A page too short to fit it beside its own units renders <NoPreFooter/>,
+            and globals.css hides this wrapper. The legal pages are not under [region], so they never get one. */}
         <div className="page mt-16" data-ebay-prefooter>
-          {/* Real chase-card listings (a slim four-tile strip) when eBay's API keys are set; otherwise, and
-              whenever there are none to show, the native banner. */}
-          <PreFooterListings enabled={ebayListingsEnabled()} region={r.region} fallback={<EbayBanner region={r.region} variant="footer" placement="pre-footer" />} />
+          <PreFooterStrip region={r.region} />
         </div>
       </main>
     </>

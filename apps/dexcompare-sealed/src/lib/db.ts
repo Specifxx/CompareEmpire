@@ -15,6 +15,9 @@ import { PrismaClient } from "@prisma/client";
 //      returning []) and re-rendered after each import via /api/revalidate. No
 //      unstable_cache anywhere: its TTL leaks to the whole route segment, and a
 //      short one silently re-runs every query on the page.
+//   5. The eBay strips read the EbayListing table through /api/ebay/<region> (src/lib/ebay-read.ts): ONE indexed
+//      query, at most 8 rows of the first feed of a cascade that has enough fresh rows (never a scan of the table),
+//      CDN-cached for 5 minutes. The importer (scripts/ebay-import.ts) is the only thing that writes it.
 //
 // The guard below makes a violation visible: any single query returning a big
 // payload logs to the Vercel function log instead of quietly burning allowance.

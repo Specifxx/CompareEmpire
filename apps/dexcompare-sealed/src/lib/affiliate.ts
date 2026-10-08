@@ -1,9 +1,10 @@
 // Outbound links. The site earns only through affiliate links, and only two:
-//   • eBay Partner Network, as plain SEARCH links: zero eBay API calls, no
-//     quota, no keys — the old DexCompare's Browse-API importer is gone for good.
-//     (The opt-in chase-card strips are the one exception: real listings from eBay's
-//     Browse API with DexCompare's own keys, fetched by /api/ebay/<region> and tagged with
-//     the same EPN parameters: lib/ebay-listings.ts.)
+//   • eBay Partner Network: plain SEARCH links (the header item, the product page's marketplace
+//     rows, the strips' "See all" and compact CTA) and LISTING links. The listings are imported
+//     once a day by a GitHub Actions job with DexCompare's own Browse API keys
+//     (scripts/ebay-import.ts, lib/ebay-api.ts) and stored in our database; the website never
+//     calls eBay and holds no eBay credential. Listing links carry eBay's own affiliate URL
+//     (campaign below) exactly as eBay returned it (listingHref only validates); its customid is set per feed at import time.
 //   • TCGplayer via Impact: every tcgplayer.com link is wrapped in the partner
 //     deep link at render time. The database only ever holds the plain URL.
 // Store links go out untouched.
@@ -20,45 +21,26 @@ export const PLACEMENTS = [
   "product-marketplace", // product page: the Marketplaces panel under it
   "product-soldout", // product page: the sold-out callout
   "product-table", // product page: the offer table, stores and marketplaces
-  "set-banner",
-  "type-banner",
   "browse-empty", // /[region]/sealed with nothing matching the filters
   "region-home",
   "store-page", // a store's "Visit" link
-  // eBay units (components/Ebay.tsx). One placement per distinct surface, so
-  // EPN's customid report and Vercel's buy_click say which surface earned.
-  "header", // the "eBay" item in the site header (desktop nav and the mobile section row)
-  "region-home-hero", // region home: the banner under the hero
-  "feed", // an in-feed tile in a product grid with no more specific placement (home rails)
-  "browse-feed", // /[region]/sealed (+ pages): in-feed tile
-  "set-feed", // set page: in-feed tile
-  "type-feed", // type page: in-feed tile
-  "card-soldout", // "Sold out here — search eBay" under a sold-out product card
-  "product-related", // product page: set x type searches inside the marketplace panel
-  "product-after-table", // product page: "Still deciding?" row closing the offer table
-  "set-related", // set page: set x type searches in the banner
-  "releases-card", // release calendar: a set's own search link
-  "releases-banner", // release calendar: banner at the bottom
-  "store-banner", // store directory and store page: "Not in stock at the stores?"
-  "pre-footer", // every region page: banner directly above the site footer
-  "footer", // the "Shop Pokémon sealed on eBay" link in the site footer
-  "not-found", // the 404 page
-  // Real eBay LISTINGS (components/EbayListings.tsx, src/lib/ebay-listings.ts): chase-card
-  // strips fed by eBay's Browse API through /api/ebay/<region>. One placement per surface.
-  "listings-home", // region home: the "Chase cards on eBay" strip under the stats row
+  "header", // the "eBay" item in the site header (desktop nav, xl and up only)
+  // eBay LISTING STRIPS (components/EbayStrip.tsx): real listings imported once a day (scripts/ebay-import.ts), read
+  // from our database through /api/ebay/<region>. One placement per surface, so EPN's customid report and Vercel's
+  // buy_click say which surface earned. The compact CTA a strip becomes when there is nothing to list uses its strip's placement.
+  "listings-home", // region home: the chase strip under the stats row
+  "listings-home-sealed", // region home: the sealed strip after the first rail
   "listings-landing", // the root landing page (US feed, labelled "eBay US")
-  "listings-product", // product page: chase cards from the product's set, below the offer table
-  "listings-set", // set page: chase cards from the set, in place of the banner
-  "listings-type", // type page: chase cards, in place of the banner
-  "listings-browse", // /[region]/sealed: the 2x-wide in-feed listings tile (desktop)
+  "listings-product", // product page, in stock: the product's own listings below the offer table (cascade: type, sealed)
+  "listings-product-soldout", // product page, sold out: the same strip directly under the sold-out callout
+  "listings-set", // set page: the set's chase cards (cascade: chase), at the top
+  "listings-type", // type page: the type's listings (cascade: sealed), at the top
+  "listings-browse", // /[region]/sealed page 1: the strip at the top
+  "listings-browse-feed", // /[region]/sealed: the one in-feed listing tile after the 12th product
   "listings-store", // store directory and store page
-  "listings-releases", // release calendar: closing strip
-  "listings-footer", // every content page: the slim strip above the footer
+  "listings-releases", // release calendar: the closing strip
+  "listings-footer", // every content page: the slim four-tile strip above the footer
   "listings-notfound", // the 404 page
-  // The no-keys fallback of the home / landing strip: curated chase-card SEARCH tiles
-  // (src/lib/chase-cards.ts). A search, not a listing, so it reports separately.
-  "chase-home",
-  "chase-landing",
 ] as const;
 export type Placement = (typeof PLACEMENTS)[number];
 
@@ -207,23 +189,44 @@ export function epnTagUrl(url: string, region: Region, customid: string): string
 }
 
 /**
- * The link of a LISTING tile for a region and placement. Takes the url the API route
- * returned and never trusts it: https, an eBay host, and OUR campaign id, or it is
- * null (the tile is dropped). Sets `customid` to dex-<region>-<placement> so EPN's
- * report says which surface earned (eBay's own affiliate URL carries the
- * affiliateReferenceId we sent; this overwrites it with the placement).
+ * Is this the URL of ONE eBay item page, and nothing else (not a sign-in page, not a port, not a doubled campaign id)?
+ * `/itm/<id>` or `/itm/<title-slug>/<id>`, https, no credentials, no port, exactly one campid (EPN could read either of two).
  */
-export function listingHref(url: string, region: Region, placement: Placement): string | null {
+export function isItemListingUrl(u: URL): boolean {
+  return (
+    u.protocol === "https:" &&
+    !u.username &&
+    !u.password &&
+    !u.port &&
+    isEbayHost(u.hostname) &&
+    /^\/itm\/(?:[A-Za-z0-9%._~-]{1,120}\/)?\d{1,15}\/?$/.test(u.pathname) &&
+    u.searchParams.getAll("campid").length <= 1 &&
+    u.searchParams.getAll("customid").length <= 1
+  );
+}
+
+/** An EPN campaign id is a number (ten digits today): anything else is not a campaign. */
+export const isCampaignId = (v: string | null): v is string => !!v && /^\d{5,20}$/.test(v);
+
+/**
+ * The link of a LISTING tile. Takes the url the API route returned and never trusts it: https, an eBay host, ONE item page,
+ * and a campaign id present (any numeric `campid`: the importer enforced the owner's own id when it stored the row, so the
+ * browser does not depend on NEXT_PUBLIC_EBAY_CAMPAIGN_ID matching the importer's), or it is null (the tile is dropped).
+ * Returns the url EXACTLY as stored: eBay's spec says to use `itemAffiliateWebUrl` as it was returned, so nothing here (no
+ * customid, no re-serialisation) touches it. EPN's custom id for a listing is set per feed when the importer asks eBay for it
+ * (the affiliateReferenceId header, ebay-context.ts feedReference); the surface lives in the buy_click event.
+ */
+export function listingHref(url: string): string | null {
+  // eslint-disable-next-line no-control-regex
+  if (typeof url !== "string" || url.length > 2048 || /[\s\u0000-\u001f\u007f]/.test(url)) return null; // the URL parser would silently drop tabs and newlines: refuse them instead
   let u: URL;
   try {
     u = new URL(url);
   } catch {
     return null;
   }
-  if (u.protocol !== "https:" || u.username || u.password || !isEbayHost(u.hostname) || url.length > 2048) return null;
-  if (u.searchParams.get("campid") !== EBAY_CAMPAIGN_ID) return null;
-  u.searchParams.set("customid", subId(region, placement));
-  return u.toString();
+  if (!isItemListingUrl(u) || !isCampaignId(u.searchParams.get("campid"))) return null;
+  return url;
 }
 
 /** The eBay site a region's links actually land on: "ebay.com.au" (also for NZ), "ebay.com" (also for SG). */
@@ -231,7 +234,9 @@ export function ebayLabel(region: Region): string {
   return EBAY_FOR_REGION[region].replace(/^www\./, "");
 }
 
-// ─── Optional official EPN banner creative ─────────────────────────────────────
+// ─── Optional official EPN banner creative (NOT RENDERED any more) ─────────────
+// The text banners that showed it were replaced by the listing strips (components/EbayStrip.tsx); nothing renders
+// this creative now. The parser and its tests stay for a future use; the env variables do nothing.
 // The owner can paste an image and tracking link copied from EPN Campaign
 // Manager into NEXT_PUBLIC_EBAY_BANNER_IMAGE / _HREF (optionally _WIDTH, _HEIGHT,
 // _ALT). Both set and valid → the "hero" and "footer" banners show that image

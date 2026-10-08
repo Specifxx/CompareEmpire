@@ -92,6 +92,9 @@ jobs:
           REVALIDATE_SECRET: ${{ secrets.DEXCOMPARE_REVALIDATE_SECRET }}
           NEXT_PUBLIC_SITE_URL: ${{ vars.DEXCOMPARE_SITE_URL || 'https://dexcompare.app' }}
           ONLY: ${{ github.event_name == 'push' && 'tcgplayer' || inputs.only }}
+          # The expired-eBay-listing purge at the end of the import uses the same age bound as the eBay import
+          # (a repository variable; blank = 26 hours).
+          EBAY_LISTING_MAX_AGE_HOURS: ${{ vars.EBAY_LISTING_MAX_AGE_HOURS }}
         # Three stores at a time: Shopify throttles by IP across all of its
         # storefronts, and a runner reading ten at once gets 429s from stores
         # it has barely touched. TCGplayer is read first, in one of the three

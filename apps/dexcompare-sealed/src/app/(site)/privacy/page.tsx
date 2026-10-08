@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { EBAY_BANNER } from "@/lib/affiliate";
-import { ebayListingsEnabled } from "@/lib/ebay-listings";
 import { CONTACT_EMAIL, SITE_URL } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -12,8 +10,6 @@ export const metadata: Metadata = {
 
 // Bump when what is collected changes, not for wording.
 const LAST_UPDATED = "5 October 2026";
-// Static page: whether the eBay chase-card strips show real listings (the API keys are set when the site is built) decides the wording.
-const LISTINGS = ebayListingsEnabled();
 
 export default function Privacy() {
   return (
@@ -36,22 +32,16 @@ export default function Privacy() {
         <p>
           When you follow a link to a store, eBay or TCGplayer, that site&rsquo;s own privacy policy applies. eBay links carry an eBay Partner
           Network tag, and TCGplayer links pass through TCGplayer&rsquo;s affiliate network (Impact), so they can credit us for the referral.
-          Store links are plain links. The eBay banners and links on the site are advertisements, marked &ldquo;Ad&rdquo;; they are ordinary
-          links that load no ad script, tracking pixel or cookie from eBay.
-          {LISTINGS ? (
-            <>
-              {" "}
-              The chase-card strips are the exception to &ldquo;load nothing from eBay&rdquo;: when one scrolls near the screen, your browser
-              asks DexCompare&rsquo;s own server for the current listings (that request carries nothing about you, and our server asks eBay with
-              our own key, never with your details), and then loads each listing&rsquo;s thumbnail <b>directly from eBay&rsquo;s image servers</b>
-              (ebayimg.com), which shares your IP address and browser type with eBay. We ask your browser not to send the page address along
-              (no-referrer). Nothing is loaded until the strip is near the screen, and eBay sets no cookie through it.
-            </>
-          ) : null}
-          <> The card pictures in the &ldquo;chase cards&rdquo; search tiles (home and landing pages, and wherever no listings can be shown) are small files served from this site itself: they make no request to anyone else. Set logos on the set pages are loaded from the Pokémon TCG image catalogue (images.pokemontcg.io / images.scrydex.com), which can see that request.</>
-          {EBAY_BANNER && (
-            <> The one exception is eBay&rsquo;s own banner image, which is enabled on this site: your browser loads that picture from eBay&rsquo;s servers when the banner scrolls into view, so eBay can see that request.</>
-          )}
+          Store links are plain links. The eBay units on the site are advertisements, marked &ldquo;Ad&rdquo;; they load no ad script,
+          tracking pixel or cookie from eBay.
+          {" "}
+          The eBay listing strips load one thing from eBay: when a strip scrolls near the screen, your browser asks DexCompare&rsquo;s own
+          server for the listings it has stored (that request carries nothing about you; the listings were imported from eBay on a schedule (about once a
+          day in the default setting) with our own key, never with your details), and then loads each listing&rsquo;s thumbnail <b>directly from eBay&rsquo;s image
+          servers</b> (ebayimg.com), which shares your IP address and browser type with eBay. We ask your browser not to send the page address
+          along (no-referrer). Nothing is loaded until the strip is near the screen, and eBay sets no cookie through it. We store the
+          imported listings only briefly (about a day) and then delete them; they hold nothing about visitors.
+          <> Set logos on the set pages are loaded from the Pokémon TCG image catalogue (images.pokemontcg.io / images.scrydex.com), which can see that request.</>
         </p>
         <h2>Server logs</h2>
         <p>

@@ -18,7 +18,7 @@
   --open-soft: 226 245 232;
   --sold: 100 104 115; /* 4.8:1 on --sold-soft: the 12px sold-out pill is AA */
   --sold-soft: 238 238 240;
-  --stale: 176 110 0;
+  --stale: 143 88 0; /* was 176 110 0: 3.7:1 on --stale-soft, under WCAG AA 4.5:1 (axe color-contrast, "Not checked recently" pill) */
   --stale-soft: 253 243 219;
   --pre: 88 76 214;
   --pre-soft: 236 234 252;
@@ -134,15 +134,5 @@ body {
    it to be dropped with <NoPreFooter/> (components/Ebay.tsx). Pure CSS, so the
    page stays static. Where :has() is missing the banner simply stays. */
 body:has([data-ebay-no-prefooter]) [data-ebay-prefooter] {
-  display: none;
-}
-
-/* …and the footer's own eBay link steps aside while that banner is the unit
-   directly above it (components/FooterEbay.tsx). */
-body:not(:has([data-ebay-no-prefooter])) [data-ebay-footer-link] {
-  display: none;
-}
-/* …and when the page's own listings strip stands directly above the footer. */
-body:has([data-ebay-no-footer-link]) [data-ebay-footer-link] {
   display: none;
 }

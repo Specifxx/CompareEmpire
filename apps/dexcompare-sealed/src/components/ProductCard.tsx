@@ -1,9 +1,8 @@
 import Link from "next/link";
-import { Fragment } from "react";
+import type { ReactNode } from "react";
 import type { ProductCardData } from "@/lib/data";
-import type { Placement } from "@/lib/affiliate";
 import { cardOpen } from "@/lib/compact";
-import { soldOutLinks, soldOutMates, withFeed } from "@/lib/ebay-ads";
+import { withFeed } from "@/lib/ebay-ads";
 import { medianSaving, money, pctOf, plural } from "@/lib/format";
 import { CARD_SIZES, thumb, thumbSet } from "@/lib/images";
 import { packsForLabel, perPackCents } from "@/lib/packs";
@@ -11,30 +10,10 @@ import { isPreorderSet } from "@/lib/release";
 import { REGIONS, type Region } from "@/lib/regions";
 import { usMsrpForCard } from "@/lib/rrp";
 import { SET_BY_CODE } from "@/lib/sets";
-import { EbayFeedCard, EbayFeedWide, EbaySoldOutLink, SoldOutSpacer } from "./Ebay";
-import { EbayListingsFeedTile } from "./EbayListings";
+import { EbayFeedTile } from "./EbayStrip";
 import { StockPill } from "./StockPill";
 
-/**
- * `soldOutLink`: also offer a separate, labelled eBay search under the card
- * (EbaySoldOutLink). ProductGrid decides which cards get one (lib/ebay-ads.ts
- * soldOutLinks); the card is a wrapper holding the card's own <Link> and that
- * link as siblings, never nested anchors. `soldOutSpacer`: the card shares a grid
- * row with such a link and keeps a blank of the same height, so the row stays even.
- */
-export function ProductCard({
-  p,
-  region,
-  priority = false,
-  soldOutLink = false,
-  soldOutSpacer,
-}: {
-  p: ProductCardData;
-  region: Region;
-  priority?: boolean;
-  soldOutLink?: boolean;
-  soldOutSpacer?: string;
-}) {
+export function ProductCard({ p, region, priority = false }: { p: ProductCardData; region: Region; priority?: boolean }) {
   const market = REGIONS[region].market;
   const open = cardOpen(p);
   const n = p.inStockStores; // independent stores; TCGplayer is named, never counted
@@ -111,61 +90,49 @@ export function ProductCard({
           </div>
         </div>
       </Link>
-      {soldOutLink && <EbaySoldOutLink region={region} name={p.name} />}
-      {!soldOutLink && soldOutSpacer && <SoldOutSpacer show={soldOutSpacer} />}
     </div>
   );
 }
 
-/** Where a grid's in-feed eBay tiles search: `query` is "" for Pokémon sealed in general, `context` is how the tile says it. */
-export interface GridFeed {
-  placement: Placement;
-  context: string;
-  query: string;
-  /**
-   * Browse page only: the FIRST tile becomes a double-width listings tile from lg (four
-   * columns: the tile starts a row there, so it always fits), a native tile elsewhere and
-   * wherever there are no listings. `enabled` comes from the server (ebayListingsEnabled()).
-   */
-  listings?: { enabled: boolean };
-}
-
 /**
- * A product grid. With `feed`, an eBay tile follows the 12th, 24th and 36th
- * product (never first, at most three, only with products after it); sold-out
- * cards get their own eBay link where there is room (lib/ebay-ads.ts). Both are
- * pure functions of the list, so the server and the browser render the same markup.
+ * A product grid. With `listingsTile` (the browse page), ONE real eBay listing follows the 12th product, as a labelled
+ * sponsored card the size of a product card (components/EbayStrip.tsx EbayFeedTile), only with products after it
+ * (lib/ebay-ads.ts feedSlot). A pure function of the list, so the server and the browser render the same markup.
+ *
+ * With `strip` (a listing strip, set / type / browse pages), the strip sits on a row of its own after the first `stripAfter`
+ * products (4: one row on a desktop, two on a phone) instead of above the list, so the products the visitor came for are
+ * the first thing on the page. `grid-flow-dense` lets the products after it fill the gaps a 3-column row would leave before it.
  */
-export function ProductGrid({ products, region, eager = 0, feed = null }: { products: ProductCardData[]; region: Region; eager?: number; feed?: GridFeed | null }) {
-  const entries = withFeed(products, !!feed);
-  const links = soldOutLinks(entries.map((e) => (e.kind === "feed" ? { feed: true as const } : { soldOut: !cardOpen(e.item) })));
-  const mates = soldOutMates(links, entries.length);
-  // A grid with tiles is a long one: on a desktop its rows get a little more air (40px), so two
-  // tiles three rows apart (the 12th and 24th product) are more than a 900px screen apart.
-  const tiled = entries.some((e) => e.kind === "feed");
+export function ProductGrid({
+  products,
+  region,
+  eager = 0,
+  listingsTile = false,
+  strip,
+  stripAfter = 4,
+}: {
+  products: ProductCardData[];
+  region: Region;
+  eager?: number;
+  listingsTile?: boolean;
+  strip?: ReactNode;
+  stripAfter?: number;
+}) {
+  const entries = withFeed(products, listingsTile);
+  const at = strip ? Math.min(stripAfter, entries.length) : -1;
   return (
-    <div className={`grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 ${tiled ? "lg:gap-y-10" : ""}`}>
-      {entries.map((e, i) =>
-        e.kind === "feed" && e.slot === 0 && feed!.listings?.enabled ? (
-          // Below lg the single native tile; from lg the 2x-wide listings tile (never both visible: a hidden unit fetches nothing).
-          <Fragment key={`ebay-feed-${e.slot}`}>
-            <div className="grid lg:hidden">
-              <EbayFeedCard region={region} context={feed!.context} query={feed!.query} placement={feed!.placement} />
-            </div>
-            <div className="hidden lg:col-span-2 lg:grid">
-              <EbayListingsFeedTile
-                enabled
-                region={region}
-                native={<EbayFeedWide region={region} context={feed!.context} query={feed!.query} placement={feed!.placement} />}
-              />
-            </div>
-          </Fragment>
-        ) : e.kind === "feed" ? (
-          <EbayFeedCard key={`ebay-feed-${e.slot}`} region={region} context={feed!.context} query={feed!.query} placement={feed!.placement} />
-        ) : (
-          <ProductCard key={e.item.slug} p={e.item} region={region} priority={e.index < eager} soldOutLink={links.has(i)} soldOutSpacer={mates.get(i)} />
-        ),
-      )}
+    <div className={`grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 ${strip ? "grid-flow-dense" : ""}`}>
+      {entries.flatMap((e, i) => {
+        const cell = e.kind === "feed" ? <EbayFeedTile key="ebay-feed" region={region} /> : <ProductCard key={e.item.slug} p={e.item} region={region} priority={e.index < eager} />;
+        return i + 1 === at
+          ? [
+              cell,
+              <div key="ebay-strip" className="col-span-full">
+                {strip}
+              </div>,
+            ]
+          : [cell];
+      })}
     </div>
   );
 }

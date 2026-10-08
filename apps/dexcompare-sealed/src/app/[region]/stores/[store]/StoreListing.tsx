@@ -3,13 +3,12 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { Ago } from "@/components/Ago";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
-import { EbayBanner, NoPreFooter } from "@/components/Ebay";
-import { ListingsStrip } from "@/components/ListingsStrip";
+import { NoPreFooter } from "@/components/Ebay";
+import { EbayStrip } from "@/components/EbayStrip";
 import { OutboundLink } from "@/components/OutboundLink";
 import { pageHref, Pagination } from "@/components/Pagination";
 import { StockPill } from "@/components/StockPill";
-import { ebayLabel, REL_STORE, storeRetailer } from "@/lib/affiliate";
-import { listHasRoomForFooter } from "@/lib/ebay-ads";
+import { REL_STORE, storeRetailer } from "@/lib/affiliate";
 import { PAGE_SIZE, storeOffers, storeStat } from "@/lib/data";
 import { money, timeAgo } from "@/lib/format";
 import { thumb } from "@/lib/images";
@@ -91,23 +90,6 @@ export async function StorePage({ r, s, page }: { r: RegionInfo; s: StoreConfig;
           Visit {storeHost(s)} <span aria-hidden="true">↗</span>
         </OutboundLink>
       </div>
-      {!listHasRoomForFooter(offers.length) && <NoPreFooter />}
-      <ListingsStrip
-        region={r.region}
-        context="store"
-        variant="section"
-        placement="listings-store"
-        className="mt-6"
-        fallback={
-          <EbayBanner
-            region={r.region}
-            variant="section"
-            placement="store-banner"
-            title="Looking for something else? Search eBay"
-            text={`Search Buy It Now listings for Pokémon sealed on ${ebayLabel(r.region)}.`}
-          />
-        }
-      />
       {offers.length ? (
         <div className="card mt-6 overflow-hidden">
           <ul className="divide-y divide-line">
@@ -146,6 +128,9 @@ export async function StorePage({ r, s, page }: { r: RegionInfo; s: StoreConfig;
       )}
       <Pagination base={base} page={page} pages={pages} />
       <p className="mt-4 text-xs text-muted">In stock first, then cheapest first. Prices are the store&rsquo;s own, in {r.currency}, and exclude shipping.</p>
+      {/* After the store's list, not above it (the list is what the visitor came for). It is the page's one unit, so the strip above the footer is dropped. */}
+      <NoPreFooter />
+      <EbayStrip region={r.region} context="chase" placement="listings-store" className="mt-8" search={{ kind: "card", query: "" }} />
     </div>
   );
 }

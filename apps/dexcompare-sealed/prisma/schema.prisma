@@ -105,3 +105,39 @@ model StoreStat {
 
   @@index([market])
 }
+
+// ─── eBay listings (the daily import, scripts/ebay-import.ts) ───────────────────
+// The strips' data. Operational and TRANSIENT, not history: a feed's rows are REPLACED
+// in one transaction by each import run (never appended), at most 12 per feed, and every
+// row older than the display bound + 4 h is deleted (eBay API License Agreement 3.1(b):
+// delete copies no longer required). The web route only reads this table; it never calls
+// eBay and holds no eBay credentials. `src/lib/ebay-store.ts` carries the identical DDL
+// the importer self-heals with (CREATE TABLE IF NOT EXISTS) if a table is missing.
+model EbayListing {
+  // "<marketplace>|<kind>[:<arg>]": EBAY_US|chase, EBAY_AU|sealed, EBAY_GB|set:surging-sparks,
+  // EBAY_US|type:booster-boxes, EBAY_US|item:<productId>
+  feed       String
+  rank       Int // 0-based display order within the feed
+  itemId     String
+  title      String
+  imageUrl   String // https, *.ebayimg.com
+  priceValue String // exactly as eBay returned it ("717.90"); never converted
+  currency   String
+  shipValue  String? // the first shipping option's cost, when eBay gave one
+  shipFree   Boolean? // true: free shipping; null: unknown
+  condition  String?
+  url        String // the affiliate URL (itemAffiliateWebUrl, or tagged itemWebUrl)
+  fetchedAt  DateTime // when eBay answered for this feed
+
+  @@id([feed, rank])
+  @@index([fetchedAt])
+}
+
+// Browse-search calls made per day, in the time zone eBay resets its daily limit in
+// (America/Los_Angeles). Reserved with ONE atomic statement before each search, so
+// overlapping and manual runs can never exceed the cap. One small row per day.
+model EbayCallDay {
+  day       String   @id // YYYY-MM-DD, Pacific time
+  total     Int
+  updatedAt DateTime
+}

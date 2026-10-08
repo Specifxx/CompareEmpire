@@ -4,14 +4,13 @@ import { cache } from "react";
 import type { Metadata } from "next";
 import { Ago } from "@/components/Ago";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
-import { EbayBanner, NoPreFooter } from "@/components/Ebay";
-import { ListingsStrip } from "@/components/ListingsStrip";
+import { NoPreFooter } from "@/components/Ebay";
+import { EbayStrip } from "@/components/EbayStrip";
 import { ProductGrid } from "@/components/ProductCard";
 import { Empty, Section } from "@/components/Section";
 import { lastCheckedAt, marketsWithSet, productsBySet, type ProductCardData } from "@/lib/data";
-import { ebayLabel } from "@/lib/affiliate";
 import { cardOpen } from "@/lib/compact";
-import { gridPageHasRoomForFooter, typeChips } from "@/lib/ebay-ads";
+import { gridPageHasRoomForFooter } from "@/lib/ebay-ads";
 import { money, timeAgo } from "@/lib/format";
 import { packsForLabel, perPackCents } from "@/lib/packs";
 import { formatRelease, isPreorderSet } from "@/lib/release";
@@ -73,6 +72,17 @@ export default async function SetPage({ params }: { params: { region: string; se
   const pre = isPreorderSet(s.code);
   const open = products.filter(cardOpen);
   const perPack = cheapestPerPack(products);
+  // This set's chase cards as an image strip of real listings (cascade: generic chase cards for a set with no feed of its own); with none
+  // to list, the compact CTA row. It sits on a row of its own after the first products (ProductGrid `strip`), so the products come first.
+  const strip = (
+    <EbayStrip
+      region={r.region}
+      context={`set:${s.slug}`}
+      placement="listings-set"
+      headings={{ set: `${s.name} chase cards on eBay`, chase: "Chase cards on eBay" }}
+      search={{ kind: "card", query: `${s.name} special illustration rare`, label: `Search ${s.name} on eBay` }}
+    />
+  );
   return (
     <div className="page py-8">
       {!gridPageHasRoomForFooter(products.length) && <NoPreFooter />}
@@ -95,28 +105,6 @@ export default async function SetPage({ params }: { params: { region: string; se
           </p>
         </div>
       </div>
-      {/* One unit. With eBay's API keys: this set's chase cards as real listings (they stand in for the banner's
-          chip row: the banner's own search is the strip's "See more"). Without, or with none to show: the banner
-          and, inside it, the set x type searches (EbayQuickSearches, "set-related"). */}
-      <ListingsStrip
-        region={r.region}
-        context={`set:${s.slug}`}
-        variant="section"
-        placement="listings-set"
-        className="mt-4"
-        fallback={
-          <EbayBanner
-            region={r.region}
-            variant="section"
-            placement="set-banner"
-            title={`Shop ${s.name} sealed on eBay`}
-            text={`Search Buy It Now listings for ${s.name} on ${ebayLabel(r.region)}.`}
-            query={s.name}
-            chips={typeChips(s.name)}
-            chipsPlacement="set-related"
-          />
-        }
-      />
       {perPack.length > 0 && (
         <Section title={`Cheapest way to buy ${s.name} packs`} kicker={`Per booster pack, ${pre ? "cheapest pre-order" : "in stock now"}`}>
           <PerPackStrip r={r} items={perPack} />
@@ -128,9 +116,12 @@ export default async function SetPage({ params }: { params: { region: string; se
       )}
       <Section title={`${s.name} sealed products`}>
         {products.length ? (
-          <ProductGrid products={products} region={r.region} eager={4} feed={{ placement: "set-feed", context: s.name, query: s.name }} />
+          <ProductGrid products={products} region={r.region} eager={4} strip={strip} />
         ) : (
-          <Empty>No {r.adjective} store we track lists {s.name} sealed product right now.</Empty>
+          <>
+            <Empty>No {r.adjective} store we track lists {s.name} sealed product right now.</Empty>
+            <div className="mt-4">{strip}</div>
+          </>
         )}
       </Section>
     </div>

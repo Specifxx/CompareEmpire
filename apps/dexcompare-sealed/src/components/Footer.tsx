@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { REGION_LIST } from "@/lib/regions";
 import { CONTACT_EMAIL, OPERATOR, SITE_NAME } from "@/lib/site";
-import { FooterEbay } from "./FooterEbay";
 import { LogoMark } from "./Logo";
 
 export function Footer() {
@@ -47,7 +46,6 @@ export function Footer() {
             <li><Link href="/terms" className="text-muted hover:text-ink">Terms</Link></li>
             <li><Link href="/privacy" className="text-muted hover:text-ink">Privacy</Link></li>
             <li><a href={`mailto:${CONTACT_EMAIL}`} className="text-muted hover:text-ink">{CONTACT_EMAIL}</a></li>
-            <FooterEbay />
           </ul>
         </div>
       </div>
