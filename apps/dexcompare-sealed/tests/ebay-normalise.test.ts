@@ -22,7 +22,7 @@ import {
   usdToMarketplace,
   type ItemTarget,
 } from "../src/lib/ebay-normalise";
-import { MARKETPLACE_IDS, MARKETPLACES, type MarketplaceId } from "../src/lib/ebay-context";
+import { cleanTitle, MARKETPLACE_IDS, MARKETPLACES, type MarketplaceId } from "../src/lib/ebay-context";
 import { identify, isIdentity } from "../src/lib/sealed-title";
 import { NOW, summary } from "./helpers/ebay-fakes";
 
@@ -141,6 +141,7 @@ test("junk titles: reproductions, foreign cards that do not say so, sealed produ
     "Charizard ex Illustration Rare 199/165 Pokemon Russian Card",
     "Charizard ex Tarjeta Pokemon Rara 199/165",
     "Pokemon Karte Glurak ex 199/165 Sammelkarte",
+    "PSA 10 Charizard 003/032 CLL Holo Kartenspiel Pokemon Classic Japanisch 2023",
     "Charizard ex Ultra Premium Collection Pokemon TCG Special Illustration Rare",
     "Charizard ex League Battle Deck 199/165",
     "Charizard ex Oversized Jumbo Promo Card 199/165",
@@ -240,6 +241,34 @@ test("type floors in each marketplace's currency, and US$ thresholds", () => {
 });
 
 // ─── sealed feeds ───────────────────────────────────────────────────────────────
+
+test("sealed feeds refuse pre-sales, 'read description' notes, dented boxes and eBay Live lots; a Pre-Release kit stays", () => {
+  const ok = (t: string, p = 150) => normaliseSealed(summary("1", t, p), "EBAY_US", NOW);
+  for (const t of [
+    "Pokemon Delta Reign Booster Box Presale 11/6",
+    "Pokemon Delta Reign Elite Trainer Box 11/6 PRESALE",
+    "PRE SALE Pokemon Delta Reign Booster Box",
+    "Pokemon Delta Reign Booster Box Pre-Order",
+    "Pokemon Astral Radiance Booster Box SEALED DENTS READ DESC",
+    "Check Desc Pokemon Astral Radiance Booster Box",
+    "Pokemon Surging Sparks Booster Box dented corner",
+    "#001 - [EBAY LIVE] Pokemon Surging Sparks Booster Box",
+  ]) assert.equal(ok(t), null, t);
+  assert.ok(ok("Pokemon Surging Sparks Booster Box Factory Sealed"));
+  const target: ItemTarget = { groupKey: "surging-sparks|booster-box", type: "booster-box", setCode: "sv8" };
+  assert.equal(relevantToProduct("Pokemon Surging Sparks Booster Box Presale", target), false);
+});
+
+test("titles lose emoji and decoration, and 'Pokemon Pokemon' is said once", () => {
+  assert.equal(cleanTitle("🔥 Pokemon Charizard ex 234/091 PSA 10 ✅"), "Pokemon Charizard ex 234/091 PSA 10");
+  assert.equal(cleanTitle("Pokemon Pokemon Card Game MEGA Charizard ex"), "Pokemon Card Game MEGA Charizard ex");
+  assert.equal(cleanTitle("💙 *** Pokémon Pokémon Surging Sparks ETB *** 💙"), "Pokémon Surging Sparks ETB");
+  assert.equal(cleanTitle("Charizard ex — 199/165 (Mint) ★"), "Charizard ex — 199/165 (Mint)");
+  assert.equal(cleanTitle("x".repeat(200)).length, 80);
+  assert.equal(cleanTitle(undefined), "");
+  const it = baseItem(summary("1", "🔥 Pokemon Pokemon Charizard ex 199/165 PSA 10 ✅", 150), "EBAY_US", NOW, "chase");
+  assert.equal(it?.title, "Pokemon Charizard ex 199/165 PSA 10");
+});
 
 test("normaliseSealed: only whole sealed products the classifier accepts, over their type's floor", () => {
   const ok = (t: string, p = 150) => normaliseSealed(summary("1", t, p), "EBAY_US", NOW);

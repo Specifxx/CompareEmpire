@@ -383,8 +383,10 @@ function Tile({ item, region, placement, variant, portrait, onBroken }: { item: 
           onError={() => onBroken(item.id)}
           className="absolute inset-0 h-full w-full object-contain"
         />
+        {/* Graded / Ungraded is the fact a card's price turns on, and the shipping line is too narrow on a phone to carry it. */}
+        {cond && <span className="absolute bottom-1 left-1 max-w-[calc(100%-0.5rem)] truncate rounded bg-surface/90 px-1.5 py-0.5 text-[10px] font-semibold leading-3 text-ink shadow-card">{cond}</span>}
       </span>
-      <span className="mt-2 line-clamp-2 block h-9 text-xs font-semibold leading-[18px] group-hover:text-brand">{item.title}</span>
+      <span className="mt-2 line-clamp-2 h-9 text-xs font-semibold leading-[18px] group-hover:text-brand">{item.title}</span>
       <span className="mt-1 flex h-5 items-baseline gap-1 leading-5">
         <span className="tabular min-w-0 truncate text-[15px] font-bold">{formatPrice(item.price)}</span>
         <span className="ml-auto shrink-0 text-xs font-semibold text-brand" aria-hidden="true">
@@ -393,9 +395,8 @@ function Tile({ item, region, placement, variant, portrait, onBroken }: { item: 
       </span>
       <span className={`block h-4 truncate text-[11px] leading-4 ${ship.free ? "font-medium text-open" : "text-muted"}`}>
         {ship.text}
-        {cond && <span className="font-normal text-muted"> · {cond}</span>}
       </span>
-      <span className="sr-only"> View on eBay (opens in a new tab)</span>
+      <span className="sr-only">{cond ? ` ${cond}.` : ""} View on eBay (opens in a new tab)</span>
     </OutboundLink>
   );
 }
@@ -440,7 +441,7 @@ function TopLine({ site, heading, age, twoLine, narrow }: { site: string; headin
         <span className="truncate text-[11px] font-semibold uppercase tracking-wide text-muted">Ad · Live listings on eBay{site}</span>
       </div>
       {/* A long product name wraps to two lines (the whole name, not "Ascended Heroes - Focused Fighters Premi…"); the height is reserved either way. */}
-      <p title={heading} className={`order-3 block w-full min-w-0 font-display text-base font-bold leading-6 tracking-tight ${narrow ? "" : "sm:order-2 sm:w-auto sm:flex-1 sm:text-lg"} ${twoLine ? "line-clamp-2 h-12" : "h-6 truncate"}`}>
+      <p title={heading} className={`order-3 w-full min-w-0 font-display text-base font-bold leading-6 tracking-tight ${narrow ? "" : "sm:order-2 sm:w-auto sm:flex-1 sm:text-lg"} ${twoLine ? "line-clamp-2 h-12" : "h-6 truncate"}`}>
         {heading}
       </p>
       <span className={`order-2 ml-auto shrink-0 text-[11px] text-muted ${narrow ? "" : "sm:order-3 sm:text-xs"}`}>Updated {age}</span>
@@ -598,7 +599,7 @@ export function EbayFeedTile({ region }: { region: Region }) {
           </span>
         </span>
         <span className="flex flex-1 flex-col gap-1 p-3 sm:p-4">
-          <span className="line-clamp-2 block min-h-[2.5rem] text-sm font-semibold leading-snug group-hover:text-brand sm:text-[15px]">{item.title}</span>
+          <span className="line-clamp-2 min-h-[2.5rem] text-sm font-semibold leading-snug group-hover:text-brand sm:text-[15px]">{item.title}</span>
           <span className="tabular block font-display text-lg font-bold">{formatPrice(item.price)}</span>
           <span className={`block text-xs ${ship.free ? "font-medium text-open" : "text-muted"}`}>
             {ship.text}

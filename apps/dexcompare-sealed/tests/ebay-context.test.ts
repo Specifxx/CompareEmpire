@@ -107,8 +107,11 @@ test("shipping line: Free shipping, + A$12.00 shipping, or Shipping on eBay; con
   assert.deepEqual(shipLabel({ value: "12.00", currency: "AUD" }), { text: "+ A$12.00 shipping", free: false });
   assert.deepEqual(shipLabel(undefined), { text: "Shipping on eBay", free: false });
   assert.deepEqual(shipLabel({}), { text: "Shipping on eBay", free: false });
-  for (const n of ["Brand New", "New", "New with tags", "Neu", "", undefined]) assert.equal(conditionLabel(n), "", String(n));
-  for (const u of ["Used", "Graded", "Pre-owned", "Open box"]) assert.equal(conditionLabel(u), u);
+  for (const n of ["Brand New", "New", "New with tags", "Neu", "Neuf", "Nuovo", "", undefined]) assert.equal(conditionLabel(n), "", String(n));
+  for (const u of ["Used", "Graded", "Pre-owned", "Open box", "Near Mint or Better"]) assert.equal(conditionLabel(u), u);
+  // the marketplace's own language → plain English
+  for (const g of ["Bewertet", "Gradée", "Gradé", "Valutata", "Valutato", "Calificada", "Gegradeerd"]) assert.equal(conditionLabel(g), "Graded", g);
+  for (const u of ["Nicht bewertet", "Niet gecategoriseerd", "Sin clasificar", "Non gradée", "Non valutata", "Ungraded"]) assert.equal(conditionLabel(u), "Ungraded", u);
 });
 
 test("acceptItem: whitelisted fields, an eBay item URL with a campaign id (kept EXACTLY as stored) and an eBay image, or nothing", () => {

@@ -11,7 +11,7 @@
 //   • adult-only items dropped; shipping captured so a tile can call it out separately;
 //   • no derived statistics: nothing here computes an average, median or "% below" of eBay prices.
 import { epnTagUrl, EBAY_CAMPAIGN_ID, isItemListingUrl } from "./affiliate";
-import { cleanImageUrl, cleanPrice, cleanText, feedReference, MARKETPLACES, type FeedItem, type FeedKind, type MarketplaceId } from "./ebay-context";
+import { cleanImageUrl, cleanPrice, cleanText, cleanTitle, feedReference, MARKETPLACES, type FeedItem, type FeedKind, type MarketplaceId } from "./ebay-context";
 import { detectSet, floorCents, fromRoughUsdCents, identify, isIdentity, TYPE_BY_KEY, type TypeKey } from "./sealed-title";
 import type { Region } from "./regions";
 import { regionsOfMarketplace } from "./ebay-context";
@@ -123,7 +123,7 @@ export function baseItem(raw: unknown, marketplace: MarketplaceId, now: number, 
   if (!isRecord(raw)) return null;
   const m = MARKETPLACES[marketplace];
   const id = typeof raw.itemId === "string" && raw.itemId.length > 0 && raw.itemId.length <= 64 ? raw.itemId : null;
-  const title = cleanText(raw.title, 80);
+  const title = cleanTitle(raw.title);
   if (!id || !title) return null;
   if (raw.adultOnly === true) return null;
 
@@ -167,7 +167,7 @@ const JUNK_TITLE = new RegExp(
       // lots, sealed product and kits: not one card
       "lots?|bulk|damaged|empty|bundle|booster|boxes|box|etb|tin|sealed|case|display|binder|sleeves?|playmat|mystery|random|you\\s*pick|choose|pick\\s*your|complete\\s*set|master\\s*set|\\d+\\s*(?:cards|packs?)|packs?|decks?|kits?|playsets?|(?:ultra\\s*)?premium\\s*collection|special\\s*collection|collection\\s*box|league\\s*battle|build\\s*(?:&|and)\\s*battle|stadium",
       // other languages (and the Japanese product-code styles that do not say "Japanese")
-      "japanese|japan|jpn|jp|korean|chinese|german|deutsch|karte|karten|sammelkarte|french|francais|carte|italian|italiano|carta|spanish|espanol|tarjeta|thai|indonesian|portuguese|dutch|russian|vietnamese|polish|turkish|arabic|pokemon\\s*card\\s*game|sv\\d+[a-z]|s\\d+[a-z]|sm\\d+[a-z]|" +
+      "japanese|japan|jpn|jp|korean|chinese|german|deutsch|karte|karten|kartenspiel|sammelkarte|french|francais|carte|italian|italiano|carta|spanish|espanol|tarjeta|thai|indonesian|portuguese|dutch|russian|vietnamese|polish|turkish|arabic|pokemon\\s*card\\s*game|sv\\d+[a-z]|s\\d+[a-z]|sm\\d+[a-z]|" +
         // the same languages as the eBay site itself writes them (EBAY_DE listings), print-language codes and local card names
         "japanisch|japonais|japonaise|japones|japonesa|giapponese|koreanisch|chinesisch|jahre|de|ger|fr|fra|esp|ita|glurak|dracaufeu|lizardon|bisaflor|turtok",
     ].join("|") +
@@ -233,8 +233,13 @@ export function multiUnit(title: string, type: TypeKey): boolean {
   return !PACK_COUNT_OK.has(type) && /\b(?:[2-9]|1\d)\s*-\s*packs?\b/i.test(title);
 }
 
+// Listings a sealed strip should not lead with: unreleased product sold ahead of its release (a pre-sale price is a guess, and
+// the product is not in the shops yet), "read the description" condition notes, dented/damaged boxes, and eBay Live stream lots.
+const SEALED_NOISE = /\bpre[\s-]?(?:sales?|orders?)\b|\bpresales?\b|\b(?:read|see|check)\s+(?:the\s+)?desc(?:ription)?\b|\bdents?\b|\bdented\b|\bdamaged\b|\bdmg\b|\[\s*ebay\s+live\s*\]|\bebay\s+live\b|\bas[\s-]is\b|\bopen(?:ed)?\s+box\b/i;
+
 /** The listing's identity if the repo's classifier accepts it as sealed Pokémon product (Pokémon named: strict) and it is ONE unit, else null. */
 function sealedIdentity(title: string, strict: boolean) {
+  if (SEALED_NOISE.test(title)) return null;
   const id = identify(title, { strict });
   return isIdentity(id) && !multiUnit(title, id.type) ? id : null;
 }

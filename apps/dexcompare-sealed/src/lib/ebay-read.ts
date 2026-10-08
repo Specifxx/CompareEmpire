@@ -19,7 +19,8 @@ import {
 import { utcTimestamp } from "./pg-time";
 import type { ParsedContext } from "./ebay-context-parse";
 import type { Region } from "./regions";
-import { TYPE_BY_LABEL } from "./sealed-title";
+import { ALWAYS_TYPES } from "./ebay-eligibility";
+import { TYPE_BY_LABEL, TYPE_BY_SLUG, type TypeKey } from "./sealed-title";
 
 /** One EbayListing row, as the route reads it. */
 export interface ListingRow {
@@ -50,6 +51,15 @@ export interface ReadDeps {
   env: Record<string, string | undefined>;
 }
 
+/**
+ * May the generic "Sealed Pokémon" feed (boxes, ETBs, UPCs at US$30 and up) stand in for a type? Only for the types whose own prices are
+ * that class. A booster pack, a tin, a blister or an unknown type would sit under a A$9 product with A$130–700 listings: no strip
+ * (the compact eBay link) is better than a mismatched one.
+ */
+function sealedMayStandIn(type: TypeKey | undefined): boolean {
+  return type !== undefined && ALWAYS_TYPES.has(type);
+}
+
 /** The feeds, in priority order, that can answer a context in a region's marketplace. `product` is item contexts' lookup result. */
 export function cascadeFor(ctx: ParsedContext, region: Region, product?: { id: string; productType: string } | null): { kind: FeedKind; key: string }[] {
   const mkt = MARKETPLACE_OF_REGION[region];
@@ -62,10 +72,10 @@ export function cascadeFor(ctx: ParsedContext, region: Region, product?: { id: s
     case "set":
       return [f("set", ctx.slug!), f("chase")];
     case "type":
-      return [f("type", ctx.slug!), f("sealed")];
+      return [f("type", ctx.slug!), ...(sealedMayStandIn(TYPE_BY_SLUG.get(ctx.slug!)?.key) ? [f("sealed")] : [])];
     case "item": {
-      const typeSlug = product ? TYPE_BY_LABEL.get(product.productType)?.slug : undefined;
-      return [...(product ? [f("item", product.id)] : []), ...(typeSlug ? [f("type", typeSlug)] : []), f("sealed")];
+      const type = product ? TYPE_BY_LABEL.get(product.productType) : undefined;
+      return [...(product ? [f("item", product.id)] : []), ...(type ? [f("type", type.slug)] : []), ...(sealedMayStandIn(type?.key) ? [f("sealed")] : [])];
     }
   }
 }

@@ -54,12 +54,16 @@ test("cascade: item → type → sealed, set → chase, type → sealed, chase a
   const keys = (c: string, region: Region = "au", p?: typeof ETB | null) => cascadeFor(parseContext(c)!, region, p).map((x) => x.key);
   assert.deepEqual(keys("item:x", "au", ETB), ["EBAY_AU|item:prod1", "EBAY_AU|type:elite-trainer-boxes", "EBAY_AU|sealed"]);
   assert.deepEqual(keys("item:x", "nz", ETB), ["EBAY_AU|item:prod1", "EBAY_AU|type:elite-trainer-boxes", "EBAY_AU|sealed"], "NZ reads the AU marketplace's feeds");
-  assert.deepEqual(keys("item:x", "sg", { id: "p2", productType: "Tin" }), ["EBAY_US|item:p2", "EBAY_US|type:tins", "EBAY_US|sealed"]);
+  // the generic sealed feed (boxes, ETBs, UPCs from US$30) stands in only for the types whose own prices are that class
+  assert.deepEqual(keys("item:x", "sg", { id: "p2", productType: "Tin" }), ["EBAY_US|item:p2", "EBAY_US|type:tins"], "a tin never falls back to boxes");
+  assert.deepEqual(keys("item:x", "au", { id: "p4", productType: "Booster Pack" }), ["EBAY_AU|item:p4", "EBAY_AU|type:booster-packs"]);
+  assert.deepEqual(keys("type:tins", "us"), ["EBAY_US|type:tins"]);
+  assert.deepEqual(keys("type:booster-bundles", "us"), ["EBAY_US|type:booster-bundles"]);
   assert.deepEqual(keys("set:surging-sparks", "uk"), ["EBAY_GB|set:surging-sparks", "EBAY_GB|chase"]);
   assert.deepEqual(keys("type:booster-boxes", "eu"), ["EBAY_DE|type:booster-boxes", "EBAY_DE|sealed"]);
   assert.deepEqual(keys("chase", "ca"), ["EBAY_CA|chase"]);
   assert.deepEqual(keys("sealed", "us"), ["EBAY_US|sealed"]);
-  assert.deepEqual(keys("item:x", "au", { id: "p3", productType: "Unknown Label" }), ["EBAY_AU|item:p3", "EBAY_AU|sealed"]);
+  assert.deepEqual(keys("item:x", "au", { id: "p3", productType: "Unknown Label" }), ["EBAY_AU|item:p3"], "an unknown type gets no mismatched stand-in");
 });
 
 test("the cascade answers with the FIRST feed that has rows; a feed with one row does not qualify", async () => {
@@ -76,9 +80,12 @@ test("the cascade answers with the FIRST feed that has rows; a feed with one row
   assert.equal(body.feed, "chase");
   assert.equal(MAX_FEED_ROWS, 8);
   assert.equal(body.items.length, MAX_FEED_ROWS, "a strip shows six (the browse card the seventh): a response never carries more than 8 rows");
-  // type → sealed
-  body = await (await call(fake(feedRows("EBAY_GB|sealed", 5, 1)).deps, "uk", "type:tins")).json();
+  // type → sealed, for the types whose own prices are that class; a tins page is not answered with boxes
+  body = await (await call(fake(feedRows("EBAY_GB|sealed", 5, 1)).deps, "uk", "type:booster-boxes")).json();
   assert.equal(body.feed, "sealed");
+  body = await (await call(fake(feedRows("EBAY_GB|sealed", 5, 1)).deps, "uk", "type:tins")).json();
+  assert.equal(body.feed, null);
+  assert.equal(body.items.length, 0);
 });
 
 test("the response: whitelisted fields only, rows in rank order, fetchedAt = the OLDEST row, maxAgeMs", async () => {

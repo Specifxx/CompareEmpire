@@ -194,6 +194,20 @@ export function cleanText(v: unknown, max: number): string {
   return v.replace(/[\u0000-\u001f\u007f​-‏‪-‮⁠-⁩﻿]/g, " ").replace(ONE_SPACE, " ").trim().slice(0, max);
 }
 
+/**
+ * A listing title as the strip prints it: sellers' emoji and decoration (🔥 ✅ ★ ***) removed, "Pokemon Pokemon" said once, at most
+ * 80 characters. Nothing else is rewritten: the words are the seller's. Applied when the importer stores a title and again when the
+ * browser accepts one, so rows stored before this existed read the same.
+ */
+export function cleanTitle(v: unknown, max = 80): string {
+  const s = cleanText(v, 400)
+    .replace(/[\p{Extended_Pictographic}\u{FE0E}\u{FE0F}\u{200D}\u{20E3}\u2605\u2606\u25CF\u25B6\u2192]/gu, " ")
+    .replace(/\b(pok[eé]mon)(?:\s+\1\b)+/gi, "$1")
+    .replace(ONE_SPACE, " ")
+    .replace(/^[\s*~=|•·!_-]+|[\s*~=|•·_-]+$/g, "");
+  return s.slice(0, max).trim();
+}
+
 /** The price as eBay returned it, or null if it is not a plain positive decimal. */
 export function cleanPrice(p: unknown): { value: string; currency: string } | null {
   if (!p || typeof p !== "object") return null;
@@ -247,10 +261,18 @@ export function shipLabel(ship: FeedItem["ship"]): { text: string; free: boolean
   return { text: "Shipping on eBay", free: false };
 }
 
-/** A condition worth printing: anything but "New" ("Brand New", "New with tags", "Neu"…). */
+// eBay writes a card's condition in the marketplace's language ("Bewertet", "Gradée", "Valutata"): the strip says Graded or Ungraded
+// in one language, as the US and AU sites do.
+const UNGRADED = /^(?:ungraded|nicht\s+(?:bewertet|gegradet|klassifiziert)|non\s+(?:gradée?|valutata|classée?|classificata)|sin\s+(?:clasificar|graduar|gradear)|no\s+(?:calificad[ao]|graduad[ao])|niet\s+(?:gecategoriseerd|gegradeerd|beoordeeld)|sem\s+classifica)/i;
+const GRADED = /^(?:graded|bewertet|gradée?|valutat[ao]|calificad[ao]|graduad[ao]|gegradeerd|beoordeeld|classificad[ao])(?=\s|$|[,;(/-])/i;
+
+/** A condition worth printing: anything but "New" ("Brand New", "New with tags", "Neu"…); a card's grading in plain English. */
 export function conditionLabel(c: string | undefined): string {
   const s = (c ?? "").trim();
-  return !s || /^(?:brand\s*)?new\b|^neu\b|^neuf\b/i.test(s) ? "" : s;
+  if (!s || /^(?:brand\s*)?new\b|^neu\b|^neuf\b|^nuovo\b|^nuevo\b|^nieuw\b/i.test(s)) return "";
+  if (UNGRADED.test(s)) return "Ungraded";
+  if (GRADED.test(s)) return "Graded";
+  return s;
 }
 
 // ─── The response, checked by the browser ──────────────────────────────────────
@@ -273,7 +295,7 @@ export function acceptItem(raw: unknown): AcceptedItem | null {
   if (!raw || typeof raw !== "object") return null;
   const r = raw as Record<string, unknown>;
   const id = typeof r.id === "string" && r.id.length > 0 && r.id.length <= 64 ? r.id : "";
-  const title = cleanText(r.title, 80);
+  const title = cleanTitle(r.title);
   const imageUrl = cleanImageUrl(r.imageUrl);
   const price = cleanPrice(r.price);
   const href = typeof r.url === "string" ? listingHref(r.url) : null;
