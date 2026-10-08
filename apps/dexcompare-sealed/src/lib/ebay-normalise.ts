@@ -167,7 +167,9 @@ const JUNK_TITLE = new RegExp(
       // lots, sealed product and kits: not one card
       "lots?|bulk|damaged|empty|bundle|booster|boxes|box|etb|tin|sealed|case|display|binder|sleeves?|playmat|mystery|random|you\\s*pick|choose|pick\\s*your|complete\\s*set|master\\s*set|\\d+\\s*(?:cards|packs?)|packs?|decks?|kits?|playsets?|(?:ultra\\s*)?premium\\s*collection|special\\s*collection|collection\\s*box|league\\s*battle|build\\s*(?:&|and)\\s*battle|stadium",
       // other languages (and the Japanese product-code styles that do not say "Japanese")
-      "japanese|japan|jpn|jp|korean|chinese|german|deutsch|karte|karten|sammelkarte|french|francais|carte|italian|italiano|carta|spanish|espanol|tarjeta|thai|indonesian|portuguese|dutch|russian|vietnamese|polish|turkish|arabic|pokemon\\s*card\\s*game|sv\\d+[a-z]|s\\d+[a-z]|sm\\d+[a-z]",
+      "japanese|japan|jpn|jp|korean|chinese|german|deutsch|karte|karten|sammelkarte|french|francais|carte|italian|italiano|carta|spanish|espanol|tarjeta|thai|indonesian|portuguese|dutch|russian|vietnamese|polish|turkish|arabic|pokemon\\s*card\\s*game|sv\\d+[a-z]|s\\d+[a-z]|sm\\d+[a-z]|" +
+        // the same languages as the eBay site itself writes them (EBAY_DE listings), print-language codes and local card names
+        "japanisch|japonais|japonaise|japones|japonesa|giapponese|koreanisch|chinesisch|jahre|de|ger|fr|fra|esp|ita|glurak|dracaufeu|lizardon|bisaflor|turtok",
     ].join("|") +
     ")\\b",
   "i",
