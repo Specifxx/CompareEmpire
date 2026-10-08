@@ -331,10 +331,15 @@ export const EBAY_BANNER: EbayBannerCreative | null = parseEbayBanner({
 // var falls back to the approved link instead of un-monetising every click.
 export const TCGPLAYER_IMPACT_LINK = process.env.NEXT_PUBLIC_TCGPLAYER_IMPACT_LINK || "https://partner.tcgplayer.com/c/7385758/1780961/21018";
 
-// Impact's site-ownership token for this account's promotional properties. The
-// same token every CompareEmpire site renders (and the old DexCompare did on
-// this domain); Impact re-checks a property for it. Rendered by app/layout.tsx.
-export const IMPACT_SITE_VERIFICATION = "ebb0400c-dec0-45ae-a56e-e7bb1596e965";
+// Impact's site-ownership tokens for this account's promotional properties. The
+// first is the one every CompareEmpire site renders (and the old DexCompare did on
+// this domain); the second is the token Impact issued for this site's own
+// property. Both are rendered, so neither verification lapses while Impact
+// re-checks a property for its token. Rendered by app/layout.tsx.
+export const IMPACT_SITE_VERIFICATIONS: readonly string[] = [
+  "ebb0400c-dec0-45ae-a56e-e7bb1596e965",
+  "f20df7de-d054-4571-b9bc-8777b2eafcdf",
+];
 
 // TCGPLAYER.key in stores.ts. Not imported from there: stores.ts pulls in the
 // whole store registry, and this module ships to the browser.

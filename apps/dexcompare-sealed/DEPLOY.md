@@ -548,8 +548,9 @@ Run `scripts/ebay-check.ts` once the keys are in, then one manual import, and re
   5,000-call daily limit with this one: see "Capacity model").
 - **TCGplayer** links go through Impact (`partner.tcgplayer.com/c/7385758/…`),
   the same approved account as Rift Compare. Every page carries Impact's
-  `impact-site-verification` tag (the same token as the other CompareEmpire
-  sites); in Impact, check that `www.dexcompare.app` is listed as a promotional
+  `impact-site-verification` tags (the account's shared token, as on the other
+  CompareEmpire sites, and the token Impact issued for this site's own
+  property, `f20df7de-…`); in Impact, check that `www.dexcompare.app` is listed as a promotional
   property of that account.
 - **When the import goes red**: fewer than half the stores read, nothing
   requested read at all, or TCGplayer not read for 48 hours (its offers show

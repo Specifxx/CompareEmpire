@@ -6,6 +6,7 @@ import {
   ebayLabel,
   ebayRetailer,
   ebaySearchUrl,
+  IMPACT_SITE_VERIFICATIONS,
   listingHref,
   offerLink,
   offerRetailer,
@@ -339,3 +340,13 @@ test("search queries drop store-listing noise that eBay would AND into the searc
   assert.equal(searchTerms("Ultra-Premium Collection"), "Ultra-Premium Collection");
 });
 
+
+test("Impact site verification: both tokens are in the root layout's <head> as meta name=impact-site-verification with a `value` attribute", () => {
+  assert.ok(IMPACT_SITE_VERIFICATIONS.includes("f20df7de-d054-4571-b9bc-8777b2eafcdf"), "this site's own property token");
+  assert.ok(IMPACT_SITE_VERIFICATIONS.includes("ebb0400c-dec0-45ae-a56e-e7bb1596e965"), "the account's shared token stays");
+  assert.equal(new Set(IMPACT_SITE_VERIFICATIONS).size, IMPACT_SITE_VERIFICATIONS.length);
+  for (const t of IMPACT_SITE_VERIFICATIONS) assert.match(t, /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
+  const layout = readFileSync(new URL("../src/app/layout.tsx", import.meta.url), "utf8");
+  assert.match(layout, /IMPACT_SITE_VERIFICATIONS\.map\(\(value\) =>[\s\S]*name: "impact-site-verification", value/);
+  assert.ok(layout.indexOf("impact-site-verification") > layout.indexOf("<head>") && layout.indexOf("impact-site-verification") < layout.indexOf("</head>"));
+});
