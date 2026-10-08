@@ -6,6 +6,7 @@ import {
   ebayLabel,
   ebayRetailer,
   ebaySearchUrl,
+  listingHref,
   offerLink,
   offerRetailer,
   PLACEMENTS,
@@ -25,19 +26,7 @@ import {
   isEbayHost,
   parseEbayBanner,
 } from "../src/lib/affiliate";
-import {
-  FEED_MAX,
-  feedSlots,
-  gridPageHasRoomForFooter,
-  listHasRoomForFooter,
-  productAdPlan,
-  quickSearches,
-  releaseLinkIndexes,
-  soldOutLinks,
-  soldOutMates,
-  typeChips,
-  withFeed,
-} from "../src/lib/ebay-ads";
+import { feedSlot, gridPageHasRoomForFooter, listHasRoomForFooter, preFooterPlan, productAdPlan, withFeed } from "../src/lib/ebay-ads";
 import { REGION_LIST, type Region } from "../src/lib/regions";
 import { STORES, TCGPLAYER } from "../src/lib/stores";
 
@@ -129,9 +118,9 @@ test("TCGplayer: never double-wrapped, and never wraps a look-alike, http, relat
 });
 
 test("TCGplayer: the search link is a wrapped Pokémon sealed search", () => {
-  const u = new URL(tcgplayerSearchUrl("Pokémon Surging Sparks Booster Box", "au", "set-banner"));
+  const u = new URL(tcgplayerSearchUrl("Pokémon Surging Sparks Booster Box", "au", "listings-set"));
   assert.equal(u.origin + u.pathname, TCGPLAYER_IMPACT_LINK);
-  assert.equal(u.searchParams.get("sharedid"), "dex-au-set-banner");
+  assert.equal(u.searchParams.get("sharedid"), "dex-au-listings-set");
   const target = new URL(u.searchParams.get("u")!);
   assert.equal(target.origin + target.pathname, "https://www.tcgplayer.com/search/pokemon/product");
   assert.equal(target.searchParams.get("productLineName"), "pokemon");
@@ -196,10 +185,12 @@ test("search queries drop store notes and SKU codes, and never send eBay an oper
   assert.equal(searchTerms("Scarlet & Violet (151) Elite Trainer Box"), "Scarlet & Violet 151 Elite Trainer Box");
 });
 
-// ─── eBay everywhere: placements, in-feed tiles, quick searches, EPN creative ───
+// ─── eBay everywhere: placements, the in-feed tile, the pre-footer strip, EPN creative ───
 
 test("eBay units: every placement, in every region, is a tagged search on the right site with a customid of <= 60 characters", () => {
-  const NEW = ["header", "region-home-hero", "feed", "browse-feed", "set-feed", "type-feed", "card-soldout", "product-related", "product-after-table", "set-related", "releases-card", "releases-banner", "store-banner", "pre-footer", "footer", "not-found"];
+  const NEW = ["header", "listings-home", "listings-home-sealed", "listings-landing", "listings-product", "listings-product-soldout", "listings-set", "listings-type", "listings-browse", "listings-browse-feed", "listings-store", "listings-releases", "listings-footer", "listings-notfound"];
+  // the text-only banners, chips and links of the previous round are gone
+  for (const gone of ["feed", "browse-feed", "set-feed", "type-feed", "card-soldout", "product-related", "product-after-table", "set-banner", "set-related", "type-banner", "releases-card", "releases-banner", "store-banner", "pre-footer", "footer", "not-found", "region-home-hero", "chase-home", "chase-landing"]) assert.ok(!(PLACEMENTS as readonly string[]).includes(gone), `${gone} was removed`);
   for (const p of NEW) assert.ok((PLACEMENTS as readonly string[]).includes(p), `${p} is a placement`);
   assert.equal(new Set(PLACEMENTS).size, PLACEMENTS.length, "no duplicate placement");
   for (const placement of PLACEMENTS) {
@@ -213,7 +204,7 @@ test("eBay units: every placement, in every region, is a tagged search on the ri
       assert.equal(u.searchParams.get("mkevt"), "1");
     }
   }
-  assert.equal(new URL(ebaySearchUrl("", "nz", "pre-footer")).hostname, "www.ebay.com.au");
+  assert.equal(new URL(ebaySearchUrl("", "nz", "listings-footer")).hostname, "www.ebay.com.au");
   assert.equal(new URL(ebaySearchUrl("", "sg", "header")).hostname, "www.ebay.com");
 });
 
@@ -222,87 +213,49 @@ test("eBay units: DEPLOY.md lists every placement the events can carry", () => {
   for (const p of PLACEMENTS) assert.ok(doc.includes(`\`${p}\``), `DEPLOY.md names ${p}`);
 });
 
-test("in-feed tiles: after the 12th, 24th and 36th product, never first, never in the first six, at most three, only with products after", () => {
-  assert.deepEqual(feedSlots(48), [12, 24, 36]);
-  assert.deepEqual(feedSlots(20), [12]);
-  assert.deepEqual(feedSlots(40), [12, 24, 36].filter((k) => 40 - k >= 8));
-  assert.deepEqual(feedSlots(12), [], "a tile never ends the grid");
-  assert.deepEqual(feedSlots(19), [], "…and needs eight products after it");
-  assert.deepEqual(feedSlots(8), [], "a home rail has no tile");
-  assert.deepEqual(feedSlots(0), []);
+test("in-feed listing tile: ONE, after the 12th product, only with eight products after it", () => {
+  assert.equal(feedSlot(48), 12);
+  assert.equal(feedSlot(20), 12);
+  assert.equal(feedSlot(19), null, "it needs eight products after it");
+  assert.equal(feedSlot(12), null, "a tile never ends the grid");
+  assert.equal(feedSlot(0), null);
   for (let n = 0; n <= 400; n++) {
-    const slots = feedSlots(n);
-    assert.ok(slots.length <= FEED_MAX, `${n}: at most three`);
-    for (const k of slots) {
-      assert.equal(k % 12, 0, `${n}: positions are multiples of 12`);
-      assert.ok(k >= 12 && k > 6, `${n}: never in the first six`);
-      assert.ok(n - k >= 8, `${n}: products follow the tile`);
-    }
-    assert.deepEqual(feedSlots(n), slots, "deterministic");
+    const k = feedSlot(n);
+    if (k != null) assert.ok(k === 12 && n - k >= 8, `${n}`);
+    assert.equal(feedSlot(n), k, "deterministic");
   }
-  // A page of 48: the entry order is 12 products, a tile, 12, a tile, 12, a tile, 12.
   const items = Array.from({ length: 48 }, (_, i) => i);
   const entries = withFeed(items);
-  assert.equal(entries.length, 51);
-  assert.deepEqual(entries.flatMap((e, i) => (e.kind === "feed" ? [i] : [])), [12, 25, 38]);
+  assert.equal(entries.length, 49, "one tile, not three");
+  assert.deepEqual(entries.flatMap((e, i) => (e.kind === "feed" ? [i] : [])), [12]);
   assert.equal(entries[0].kind, "item");
   assert.deepEqual(entries.flatMap((e) => (e.kind === "item" ? [e.item] : [])), items, "every product, in order, once");
   assert.deepEqual(withFeed(items), entries, "same input, same output (server and client agree)");
-  assert.equal(withFeed(items, false).length, 48, "no feed, no tiles");
+  assert.equal(withFeed(items, false).length, 48, "no tile where the grid does not ask for one");
 });
 
-test("sold-out links: only sold-out cards, past the first eight, sixteen apart from tiles and each other, with eight cards after", () => {
-  const soldOut = Array.from({ length: 60 }, () => ({ soldOut: true }));
-  const idx = [...soldOutLinks(soldOut)];
-  assert.ok(idx.length > 0);
-  for (const i of idx) assert.ok(i >= 8 && 59 - i >= 8, `${i} has room each side`);
-  for (let k = 1; k < idx.length; k++) assert.ok(idx[k] - idx[k - 1] >= 16, "sixteen apart");
-  assert.deepEqual(idx, [8, 24, 40]);
-  // In-stock cards never get one; a tile keeps eight clear.
-  const mixed = soldOut.map((c, i) => ({ soldOut: i % 2 === 0 }));
-  for (const i of soldOutLinks(mixed)) assert.equal(i % 2, 0);
-  const withTile = [...soldOut.slice(0, 20), { feed: true as const }, ...soldOut.slice(20)];
-  for (const i of soldOutLinks(withTile)) assert.ok(Math.abs(i - 20) >= 16, `${i} is clear of the tile`);
-  assert.equal(soldOutLinks(soldOut.slice(0, 16)).size, 0, "a short grid gets none (a related-products row is eight)");
-  assert.deepEqual([...soldOutLinks(soldOut)], idx, "deterministic");
+test("pre-footer strip: the feed the page's own strip is not; a region's home page has none (two strips of its own, and a feed holds only 8 listings)", () => {
+  assert.equal(preFooterPlan("/au", "au"), null);
+  assert.equal(preFooterPlan("/au/", "au"), null);
+  assert.deepEqual(preFooterPlan("/au/sets/surging-sparks", "au"), { context: "sealed" });
+  assert.deepEqual(preFooterPlan("/uk/stores/foo", "uk"), { context: "sealed" });
+  assert.deepEqual(preFooterPlan("/au/type/tins", "au"), { context: "chase" });
+  assert.deepEqual(preFooterPlan("/au/p/some-product", "au"), { context: "chase" });
+  assert.deepEqual(preFooterPlan("/au/sealed/page/2", "au"), { context: "chase" });
+  assert.deepEqual(preFooterPlan("/us/sets", "au"), { context: "chase" }, "another region's path is not this region's");
 });
 
-test("quick searches: the set crossed with box, ETB, bundle and case, minus the product's own type, never more than five", () => {
-  const labels = (set: string | null, type?: string) => quickSearches(set, type).map((c) => c.label);
-  assert.deepEqual(labels("Surging Sparks"), ["Booster box", "ETB", "Booster bundle", "Case"]);
-  assert.deepEqual(labels("Surging Sparks", "booster-box"), ["ETB", "Booster bundle", "Case"]);
-  assert.deepEqual(labels("Surging Sparks", "etb"), ["Booster box", "Booster bundle", "Case"]);
-  assert.deepEqual(labels("Surging Sparks", "pc-etb"), ["Booster box", "Booster bundle", "Case"], "a Pokémon Center ETB is an ETB");
-  assert.deepEqual(labels("Surging Sparks", "booster-bundle"), ["Booster box", "ETB", "Case"]);
-  assert.deepEqual(labels("Surging Sparks", "etb-case"), ["Booster box", "ETB", "Booster bundle"]);
-  assert.deepEqual(labels("Surging Sparks", "tin"), ["Booster box", "ETB", "Booster bundle", "Case"], "a type with no chip leaves all four");
-  assert.deepEqual(labels(null), [], "no set, no searches");
-  assert.deepEqual(labels("  "), []);
-  for (const t of [undefined, "booster-box", "etb", "tin", "deck", "booster-box-case"]) {
-    const own = quickSearches("Surging Sparks", t);
-    assert.ok(own.length <= 5);
-    for (const c of own) assert.ok(c.query.startsWith("Surging Sparks "), c.query);
-  }
-  // The searches are real eBay searches inside the set.
-  const q = quickSearches("Surging Sparks", "booster-box").map((c) => new URL(ebaySearchUrl(c.query, "au", "product-related")).searchParams.get("_nkw"));
-  assert.deepEqual(q, ["Pokemon Surging Sparks Elite Trainer Box sealed", "Pokemon Surging Sparks Booster Bundle sealed", "Pokemon Surging Sparks Booster Box Case sealed"]);
+test("listing links: eBay's affiliate URL is used exactly as stored; the buy_click carries the placement, the URL the per-feed sub-id", () => {
+  const stored = "https://www.ebay.com.au/itm/123456789012?_skw=a+b&hash=item1%3Ag%3AX%2By&amdata=enc%3AAQAKAAAA%2B%2Fx%3D&mkevt=1&mkcid=1&mkrid=705-53470-19255-0&campid=5339155912&customid=dex-au-item&toolid=10001";
+  assert.equal(listingHref(stored), stored, "no rewrite of customid, order or encoding");
+  assert.equal(listingHref(stored.replace("5339155912", "1111111111")), stored.replace("5339155912", "1111111111"), "the browser does not compare the campaign id with the build's env");
+  assert.equal(listingHref(stored.replace(/&campid=\d+/, "")), null, "a campaign id must be present");
+  assert.equal(listingHref("https://www.ebay.com.au/sch/i.html?_nkw=x&campid=5339155912"), null, "item pages only");
+  assert.equal(listingHref(`${stored}\n`), null);
+  assert.equal(listingHref(stored.replace("https://", "http://")), null);
 });
 
-test("banner chips: one per product type, inside the set when there is one, minus the type page you are on", () => {
-  assert.deepEqual(typeChips().map((c) => c.label), ["Booster boxes", "ETBs", "Booster bundles", "Tins", "Collections", "Packs"]);
-  assert.equal(typeChips("Surging Sparks")[0].query, "Surging Sparks Booster Box");
-  assert.deepEqual(typeChips(null, "tin").map((c) => c.label), ["Booster boxes", "ETBs", "Booster bundles", "Collections", "Packs"]);
-  assert.ok(typeChips(null, "etb").length <= 5);
-  assert.equal(typeChips(null, "deck").length, 6);
-});
-
-test("page budgets: pure, monotonic, and the footer banner gives way on short pages", () => {
-  assert.equal(releaseLinkIndexes(0).size, 0);
-  assert.deepEqual([...releaseLinkIndexes(3)], [], "too few cards for a link plus a screen before the banner");
-  assert.deepEqual([...releaseLinkIndexes(6)], []);
-  assert.deepEqual([...releaseLinkIndexes(7)], [0]);
-  assert.deepEqual([...releaseLinkIndexes(19)], [0, 6, 12]);
-  for (let n = 0; n < 60; n++) for (const i of releaseLinkIndexes(n)) assert.ok(n - 1 - i >= 6 && i % 6 === 0);
+test("page budgets: pure, monotonic, and the pre-footer strip gives way on short pages", () => {
   assert.equal(gridPageHasRoomForFooter(3), false);
   assert.equal(gridPageHasRoomForFooter(40), true);
   assert.equal(listHasRoomForFooter(5), false);
@@ -367,9 +320,9 @@ test("EPN creative: https image and an eBay tracking link only; garbage is ignor
   assert.equal(parseEbayBanner({ ...ok, image: "https://ir.ebaystatic.com/cr/v/c01/b.png" })?.width, 728);
   // The creative's own click: our customid is filled in (short links and a set customid are left alone), and the retailer is the host it really goes to.
   const rover = "https://rover.ebay.com/rover/1/705-53470-19255-0/1?campid=5339155912&customid=&toolid=10001";
-  assert.equal(new URL(creativeHref(rover, "eu", "pre-footer")).searchParams.get("customid"), "dex-eu-pre-footer");
-  assert.equal(creativeHref("https://ebay.us/abc123", "eu", "pre-footer"), "https://ebay.us/abc123");
-  assert.equal(creativeHref(ok.href, "au", "region-home-hero"), ok.href);
+  assert.equal(new URL(creativeHref(rover, "eu", "listings-footer")).searchParams.get("customid"), "dex-eu-listings-footer");
+  assert.equal(creativeHref("https://ebay.us/abc123", "eu", "listings-footer"), "https://ebay.us/abc123");
+  assert.equal(creativeHref(ok.href, "au", "listings-home"), ok.href);
   assert.equal(creativeRetailer(rover), "eBay (rover.ebay.com)");
   assert.equal(creativeRetailer("https://www.ebay.de/sch/i.html"), "eBay (ebay.de)");
 });
@@ -386,16 +339,3 @@ test("search queries drop store-listing noise that eBay would AND into the searc
   assert.equal(searchTerms("Ultra-Premium Collection"), "Ultra-Premium Collection");
 });
 
-test("sold-out links: the cards that share a grid row keep room for them, at every column count", () => {
-  const links = new Set([20]);
-  const mates = soldOutMates(links, 40);
-  assert.ok(!mates.has(20), "the link's own card keeps nothing");
-  // 2 columns: 20 and 21. 3 columns: 18-20. 4 columns: 20-23.
-  assert.equal(mates.get(21), "block md:hidden lg:block"); // row 7 of 3 columns is 21-23
-  assert.equal(mates.get(19), "hidden md:block lg:hidden");
-  assert.equal(mates.get(18), "hidden md:block lg:hidden");
-  assert.equal(mates.get(22), "hidden md:hidden lg:block");
-  assert.equal(mates.get(23), "hidden md:hidden lg:block");
-  assert.ok(!mates.has(17) && !mates.has(24), "other rows keep nothing");
-  assert.equal(soldOutMates(new Set(), 40).size, 0);
-});

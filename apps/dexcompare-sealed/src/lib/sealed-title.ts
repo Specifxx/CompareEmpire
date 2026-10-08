@@ -100,6 +100,11 @@ export function roughUsdCents(cents: number, market: string): number {
   return cents / (FLOOR_FX[market] ?? 1);
 }
 
+/** The inverse: US cents in a market's currency, very roughly. For thresholds only (the eBay import's eligibility), never for display. */
+export function fromRoughUsdCents(usdCents: number, market: string): number {
+  return usdCents * (FLOOR_FX[market] ?? 1);
+}
+
 // ── normalisation ────────────────────────────────────────────────────────────
 
 const ENTITIES: Record<string, string> = { amp: "&", quot: '"', apos: "'", lt: "<", gt: ">", nbsp: " ", ndash: "–", mdash: "—", eacute: "é", rsquo: "’", lsquo: "‘" };

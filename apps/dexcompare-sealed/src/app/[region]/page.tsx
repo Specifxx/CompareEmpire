@@ -1,8 +1,8 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { Ago } from "@/components/Ago";
-import { ChaseSearchStrip } from "@/components/ChaseCards";
-import { ListingsStrip } from "@/components/ListingsStrip";
+import { NoPreFooter } from "@/components/Ebay";
+import { EbayStrip } from "@/components/EbayStrip";
 import { ProductGrid } from "@/components/ProductCard";
 import { SearchBox } from "@/components/SearchBox";
 import { Empty, Section } from "@/components/Section";
@@ -28,11 +28,6 @@ export function generateMetadata({ params }: { params: { region: string } }): Me
     alternates: regionAlternates(r.region, ""),
   });
 }
-
-// Rails are at most eight products, so no tile reaches them today (a tile follows
-// the 12th); if the first rail ever grows, this is the placement it reports under.
-// Only that rail: at most three tiles on a page.
-const HOME_FEED = { placement: "feed", context: "Pokémon sealed", query: "" } as const;
 
 const QUICK_TYPES = ["booster-boxes", "elite-trainer-boxes", "booster-bundles", "collections", "ultra-premium-collections", "tins", "booster-packs", "blisters"];
 
@@ -99,19 +94,13 @@ export default async function RegionHome({ params }: { params: { region: string 
         </div>
       </section>
 
+      {/* The page carries two strips of its own (chase cards, sealed): no third one above the footer. */}
+      <NoPreFooter />
       <div className="page">
-        {/* The page's one big eBay unit, directly under the stats row and above the first rail (it replaces the
-            native hero banner that used to sit under the search). Real chase-card listings when eBay's API keys
-            are set (fetched in the browser once it is near the viewport); until then, curated chase-card
-            SEARCH tiles, labelled as searches. Never above the H1. */}
-        <ListingsStrip
-          region={r.region}
-          context="home"
-          variant="hero"
-          placement="listings-home"
-          className="mt-8"
-          fallback={<ChaseSearchStrip region={r.region} placement="chase-home" />}
-        />
+        {/* The page's big eBay unit, directly under the stats row and above the first rail: chase cards as an image
+            strip of real listings (imported from eBay once a day, fetched in the browser once it is near the viewport);
+            with none to list, the compact CTA row. Never above the H1. A second, sealed strip follows the first rail. */}
+        <EbayStrip region={r.region} context="chase" placement="listings-home" className="mt-8" search={{ kind: "card", query: "" }} />
         {latestSets.length > 0 && (
           <Section title="Latest sets" kicker="New & upcoming" href={`/${r.region}/sets`} linkLabel="All sets">
             <div className="grid gap-4 md:grid-cols-2">
@@ -178,8 +167,11 @@ export default async function RegionHome({ params }: { params: { region: string 
         )}
 
         <Section title="Booster boxes in stock" kicker="Newest sets first" href={`/${r.region}/type/booster-boxes`}>
-          {boxes.length ? <ProductGrid products={boxes} region={r.region} eager={4} feed={HOME_FEED} /> : <Empty>No booster boxes in stock right now.</Empty>}
+          {boxes.length ? <ProductGrid products={boxes} region={r.region} eager={4} /> : <Empty>No booster boxes in stock right now.</Empty>}
         </Section>
+
+        {/* The sealed strip: after the first rail (booster boxes), far enough down that it never shares a phone screen with the chase strip. */}
+        <EbayStrip region={r.region} context="sealed" placement="listings-home-sealed" className="mt-14" search={{ kind: "sealed", query: "" }} />
 
         <Section title="Elite Trainer Boxes in stock" kicker="Newest sets first" href={`/${r.region}/type/elite-trainer-boxes`}>
           {etbs.length ? <ProductGrid products={etbs} region={r.region} /> : <Empty>No Elite Trainer Boxes in stock right now.</Empty>}

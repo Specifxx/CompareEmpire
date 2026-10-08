@@ -4,14 +4,13 @@ import { cache } from "react";
 import type { Metadata } from "next";
 import { Ago } from "@/components/Ago";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
-import { EbayBanner, NoPreFooter } from "@/components/Ebay";
-import { ListingsStrip } from "@/components/ListingsStrip";
+import { NoPreFooter } from "@/components/Ebay";
+import { EbayStrip } from "@/components/EbayStrip";
 import { ProductGrid } from "@/components/ProductCard";
 import { Empty, Section } from "@/components/Section";
 import { lastCheckedAt, marketsWithType, productsByType } from "@/lib/data";
-import { ebayLabel } from "@/lib/affiliate";
 import { cardOpen } from "@/lib/compact";
-import { gridPageHasRoomForFooter, typeChips } from "@/lib/ebay-ads";
+import { gridPageHasRoomForFooter } from "@/lib/ebay-ads";
 import { money, timeAgo } from "@/lib/format";
 import { regionOfMarket, regionOrNotFound, type Market, type RegionInfo } from "@/lib/regions";
 import { PRODUCT_TYPES, TYPE_BY_SLUG } from "@/lib/sealed-title";
@@ -75,6 +74,17 @@ export default async function TypePage({ params }: { params: { region: string; t
   const tcgOnly = r.market === "US" ? products.filter((p) => p.listedStores === 0).length : 0;
   const byStores = products.length - tcgOnly;
   const typeName = t.plural.startsWith("Pokémon") ? t.plural : `Pokémon ${t.plural}`;
+  // The type's own listings (cascade: generic sealed Pokémon) as an image strip; with none to list, the compact CTA row. It sits on a row of
+  // its own after the first products (ProductGrid `strip`), so the products come first.
+  const strip = (
+    <EbayStrip
+      region={r.region}
+      context={`type:${t.slug}`}
+      placement="listings-type"
+      headings={{ type: `${typeName} on eBay`, sealed: "Sealed Pokémon on eBay" }}
+      search={{ kind: "sealed", query: t.label, label: `Search ${typeName} on eBay` }}
+    />
+  );
   return (
     <div className="page py-8">
       {!gridPageHasRoomForFooter(products.length) && <NoPreFooter />}
@@ -95,25 +105,6 @@ export default async function TypePage({ params }: { params: { region: string; t
           </>
         )}
       </p>
-      {/* Chase-card listings (type-agnostic) with eBay's API keys; otherwise the native banner. */}
-      <ListingsStrip
-        region={r.region}
-        context={`type:${t.slug}`}
-        variant="section"
-        placement="listings-type"
-        className="mt-4"
-        fallback={
-          <EbayBanner
-            region={r.region}
-            variant="section"
-            placement="type-banner"
-            title={`Shop ${typeName} on eBay`}
-            text={`Search Buy It Now listings for ${typeName} on ${ebayLabel(r.region)}.`}
-            query={t.label}
-            chips={typeChips(null, t.key)}
-          />
-        }
-      />
       <div className="mt-5 flex flex-wrap gap-2">
         {PRODUCT_TYPES.filter((x) => x.slug !== t.slug)
           .slice(0, 8)
@@ -124,7 +115,14 @@ export default async function TypePage({ params }: { params: { region: string; t
           ))}
       </div>
       <Section title="In stock now" kicker="Cheapest first">
-        {open.length ? <ProductGrid products={open} region={r.region} eager={4} feed={{ placement: "type-feed", context: typeName, query: t.label }} /> : <Empty>Nothing of this type is in stock in {r.name} right now.</Empty>}
+        {open.length ? (
+          <ProductGrid products={open} region={r.region} eager={4} strip={strip} />
+        ) : (
+          <>
+            <Empty>Nothing of this type is in stock in {r.name} right now.</Empty>
+            <div className="mt-4">{strip}</div>
+          </>
+        )}
       </Section>
       {sold.length > 0 && (
         <Section title="Sold out everywhere" kicker={`Listed, but no store${r.market === "US" ? " or TCGplayer seller" : ""} has them right now`}>

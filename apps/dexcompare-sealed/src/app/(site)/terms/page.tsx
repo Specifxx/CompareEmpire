@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ebayListingsEnabled } from "@/lib/ebay-listings";
 import { CONTACT_EMAIL, OPERATOR, SITE_NAME, SITE_URL } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -10,8 +9,6 @@ export const metadata: Metadata = {
 };
 
 // Bump when the terms change in substance, not for wording.
-// Static page: whether the eBay chase-card strips show real listings (the API keys are set when the site is built) decides the wording.
-const LISTINGS = ebayListingsEnabled();
 const LAST_UPDATED = "5 October 2026";
 
 export default function Terms() {
@@ -54,18 +51,14 @@ export default function Terms() {
         <h2 id="affiliate">Affiliate links</h2>
         <p>
           Links to eBay and TCGplayer are affiliate links (eBay Partner Network; TCGplayer through Impact). If you buy through one we may earn a
-          commission, at no cost to you. The eBay links, banners, search tiles and chase-card strips on the site are advertisements: each is
+          commission, at no cost to you. The eBay listing strips and links on the site are advertisements: each is
           marked &ldquo;Ad&rdquo; and is never part of a comparison, ranking or count.{" "}
-          {LISTINGS ? (
-            <>
-              The chase-card strips show listings that eBay returns to us through its official listing service, refreshed about hourly (up to 3 hours older than on
-              eBay) and shown as eBay lists them (title, photo and price in eBay&rsquo;s currency, before shipping). We don&rsquo;t verify them, take
-              no part in any sale and can&rsquo;t promise a listing is still available or its price unchanged by the time you click: eBay&rsquo;s
-              page and the seller&rsquo;s terms apply. The other eBay links open a search on eBay and show no eBay price.
-            </>
-          ) : (
-            <>Each eBay link opens a search on eBay (we show no eBay prices or listings, because we don&rsquo;t read eBay).</>
-          )}{" "} Links to stores are plain links and stores pay us nothing. Affiliate status never changes the
+          The strips show listings that eBay returns to us through its official listing service, imported on a schedule (about once a day in the default setting) and stored briefly (each strip says how old its
+          listings are, and it may be a day or so older than eBay&rsquo;s own page), and shown as eBay lists them (title, photo, price in eBay&rsquo;s
+          currency, and the shipping cost eBay gives). We don&rsquo;t verify them, take no part in any sale and can&rsquo;t promise a listing is
+          still available or its price unchanged by the time you click: eBay&rsquo;s page and the seller&rsquo;s terms apply. The other eBay links
+          open a search on eBay and show no eBay price.
+{" "}Links to stores are plain links and stores pay us nothing. Affiliate status never changes the
           order products or stores appear in — that is price and stock only. We don&rsquo;t control eBay or TCGplayer: what you find there, and
           any purchase you make, is between you and them. See{" "}
           <Link href="/about#money">how {SITE_NAME} makes money</Link>.

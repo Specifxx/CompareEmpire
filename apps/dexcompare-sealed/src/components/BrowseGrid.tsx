@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import type { ProductCardData } from "@/lib/data";
 import { cardOpen, expandCard, type CompactCard } from "@/lib/compact";
 import { pctOf } from "@/lib/format";
@@ -29,7 +29,7 @@ function norm(s: string): string {
 // (`${base}/page/N`, each a cached render), so every product is reachable from
 // HTML. The whole list still ships (compact tuples), so as soon as a filter or
 // sort is touched the grid works over everything, client-side, with "Show more".
-export function BrowseGrid({ rows, region, base, page = 1, listings = false }: { rows: CompactCard[]; region: Region; base: string; page?: number; listings?: boolean }) {
+export function BrowseGrid({ rows, region, base, page = 1, strip }: { rows: CompactCard[]; region: Region; base: string; page?: number; strip?: ReactNode }) {
   const products = useMemo(() => rows.map(expandCard), [rows]);
   const [q, setQ] = useState("");
   const [type, setType] = useState("");
@@ -207,13 +207,8 @@ export function BrowseGrid({ rows, region, base, page = 1, listings = false }: {
       </div>
 
       {shown.length ? (
-        // eBay tiles after the 12th, 24th and 36th product, searching what is filtered (or Pokémon sealed).
-        <ProductGrid
-          products={shown}
-          region={region}
-          eager={8}
-          feed={{ placement: "browse-feed", context: elsewhere || "Pokémon sealed", query: elsewhere, listings: { enabled: listings } }}
-        />
+        // One real eBay listing tile after the 12th product.
+        <ProductGrid products={shown} region={region} eager={8} listingsTile strip={any ? undefined : strip} />
       ) : (
         <div className="card px-6 py-12 text-center text-muted">
           <NoPreFooter />

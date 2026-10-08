@@ -1,7 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { ChaseSearchStrip } from "@/components/ChaseCards";
-import { ListingsStrip } from "@/components/ListingsStrip";
+import { EbayStrip } from "@/components/EbayStrip";
 import { RegionSuggest } from "@/components/RegionSuggest";
 import { REGION_LIST } from "@/lib/regions";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
@@ -59,17 +58,10 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* The landing page has no region: its one eBay unit uses the US feed and says so ("eBay US"). Real listings
-          with API keys, chase-card search tiles without. */}
+      {/* The landing page has no region: its one eBay unit uses the US feed and says so ("eBay US"). Real listings imported
+          once a day; with none, the compact CTA row. */}
       <section className="page mt-16" aria-label="Chase cards on eBay US">
-        <ListingsStrip
-          region="us"
-          context="home"
-          variant="hero"
-          placement="listings-landing"
-          site="eBay US"
-          fallback={<ChaseSearchStrip region="us" placement="chase-landing" site="eBay US" />}
-        />
+        <EbayStrip region="us" context="chase" placement="listings-landing" site="US" search={{ kind: "card", query: "" }} />
       </section>
 
       <section className="page mt-20 grid gap-6 md:grid-cols-3">

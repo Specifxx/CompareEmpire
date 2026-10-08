@@ -2,10 +2,8 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Ago } from "@/components/Ago";
-import { EbayBanner, NoPreFooter } from "@/components/Ebay";
-import { ListingsStrip } from "@/components/ListingsStrip";
-import { ebayLabel } from "@/lib/affiliate";
-import { listHasRoomForFooter } from "@/lib/ebay-ads";
+import { NoPreFooter } from "@/components/Ebay";
+import { EbayStrip } from "@/components/EbayStrip";
 import { storeStats } from "@/lib/data";
 import { timeAgo } from "@/lib/format";
 import { regionOrNotFound } from "@/lib/regions";
@@ -41,23 +39,6 @@ export default async function StoresPage({ params }: { params: { region: string 
         Independent game and card stores that sell Pokémon sealed product online in {r.currency}. We read their public product listings
         about twice a day. Run a store and want to be listed? <Link href="/about#stores" className="font-semibold text-brand">See how</Link>.
       </p>
-      {!listHasRoomForFooter(stores.length) && <NoPreFooter />}
-      <ListingsStrip
-        region={r.region}
-        context="store"
-        variant="section"
-        placement="listings-store"
-        className="mt-6"
-        fallback={
-          <EbayBanner
-            region={r.region}
-            variant="section"
-            placement="store-banner"
-            title="Not in stock at the stores? Search eBay"
-            text={`Search Buy It Now listings for Pokémon sealed on ${ebayLabel(r.region)}.`}
-          />
-        }
-      />
       <div className="card mt-6 overflow-hidden">
         <div className="hidden grid-cols-[1fr_7rem_7rem_9rem] gap-4 border-b border-line bg-raised px-5 py-2.5 text-xs font-semibold uppercase tracking-wide text-muted sm:grid">
           <span>Store</span>
@@ -83,6 +64,9 @@ export default async function StoresPage({ params }: { params: { region: string 
           ))}
         </ul>
       </div>
+      {/* After the list, not above it (the list is what the visitor came for). It is the page's one unit, so the strip above the footer is dropped. */}
+      <NoPreFooter />
+      <EbayStrip region={r.region} context="chase" placement="listings-store" className="mt-8" search={{ kind: "card", query: "" }} />
     </div>
   );
 }

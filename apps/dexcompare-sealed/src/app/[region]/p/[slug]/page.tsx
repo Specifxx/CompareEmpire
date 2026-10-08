@@ -3,18 +3,17 @@ import { notFound } from "next/navigation";
 import { cache } from "react";
 import type { Metadata } from "next";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
-import { EbayBanner, NoFooterLink, NoPreFooter } from "@/components/Ebay";
-import { ListingsStrip } from "@/components/ListingsStrip";
+import { NoPreFooter } from "@/components/Ebay";
+import { EbayStrip } from "@/components/EbayStrip";
 import { ebayQuery, MarketplacePanel, SoldOutCallout } from "@/components/Marketplaces";
 import { OfferTable } from "@/components/OfferTable";
 import { OutboundLink } from "@/components/OutboundLink";
 import { ProductGrid } from "@/components/ProductCard";
 import { Section } from "@/components/Section";
 import { StockPill } from "@/components/StockPill";
-import { ebayLabel, offerLink, offerRetailer } from "@/lib/affiliate";
-import { productContext } from "@/lib/ebay-context-parse";
-import { productAdPlan, quickSearches } from "@/lib/ebay-ads";
-import { ebayListingsEnabled } from "@/lib/ebay-listings";
+import { offerLink, offerRetailer } from "@/lib/affiliate";
+import { productAdPlan } from "@/lib/ebay-ads";
+import { tierOf } from "@/lib/ebay-eligibility";
 import { comparable, productPage, relatedProducts, type OfferView } from "@/lib/data";
 import { medianSaving, money, pctOf, plural } from "@/lib/format";
 import { thumb } from "@/lib/images";
@@ -23,7 +22,7 @@ import { formatRelease, isPreorderSet } from "@/lib/release";
 import { regionOrNotFound, REGION_LIST, type Market, type RegionInfo } from "@/lib/regions";
 import { RRP_NOTE, usMsrpCents } from "@/lib/rrp";
 import { offerStock } from "@/lib/sealed-offers";
-import { TYPE_BY_LABEL } from "@/lib/sealed-title";
+import { roughUsdCents, TYPE_BY_LABEL } from "@/lib/sealed-title";
 import { jsonLd, pageMeta, productJsonLd, regionAlternates } from "@/lib/seo";
 import { SET_BY_CODE } from "@/lib/sets";
 
@@ -132,35 +131,26 @@ export default async function ProductPage({ params }: { params: { region: string
     .map((x) => ({ x, s: p.stats.find((s) => s.market === x.market) }))
     .filter((e) => !!e.s); // a stat row exists only where a store or TCGplayer lists it
 
-  // eBay units on this page (components/Ebay.tsx, Marketplaces.tsx): the panel (or,
-  // sold out, the callout) carries the product's set x type searches; the table's
-  // closing group and the footer banner appear only where the page is long enough
-  // to keep them a screen apart (productAdPlan).
-  const quick = quickSearches(set?.name, type?.key);
+  // eBay units on this page (components/Ebay.tsx, Marketplaces.tsx, EbayStrip.tsx): the panel carries the product's marketplace
+  // links; the product's own listings are an image strip (components/EbayStrip.tsx). An ELIGIBLE product (a booster box, ETB,
+  // case…, or a collection, tin… priced from about US$50: lib/ebay-eligibility.ts) asks for its own listings (cascade: its type's,
+  // then generic sealed); any other asks for its type's. SOLD OUT: the strip sits directly under the callout, the highest-intent
+  // spot. IN STOCK: directly below the offer table where the table is long enough to sit a screen below the panel, else at the
+  // bottom of the page in place of the pre-footer strip where the page has room for a unit there (productAdPlan).
   const ads = productAdPlan({ offerRows: p.offers.length, elsewhere: elsewhere.length, related: set ? related.length : 0 });
-  // With eBay's API keys, the product's set's chase cards appear as real listings: directly below the offer
-  // table (it replaces the "Still deciding?" group) where the table is long enough to sit a screen below the
-  // marketplace panel; otherwise at the bottom of the page, in place of the generic strip above the footer,
-  // where the page has room for a unit there (productAdPlan). Without keys nothing changes.
-  const listingsOn = ebayListingsEnabled();
-  const stripAt = listingsOn ? (ads.tableGroup ? "table" : ads.preFooter ? "bottom" : null) : null;
+  const reference = (best ?? p.offers.reduce<OfferView | null>((m, o) => (!m || o.priceCents < m.priceCents ? o : m), null))?.priceCents ?? null;
+  const eligible = !!type && reference != null && tierOf(type.key, roughUsdCents(reference, r.market) / 100) !== "no";
+  const stripContext = eligible ? `item:${p.slug}` : type ? `type:${type.slug}` : "sealed";
+  const stripAt = best ? (ads.tableGroup ? "table" : ads.preFooter ? "bottom" : null) : "soldout";
   const strip = stripAt && (
-    <ListingsStrip
+    <EbayStrip
       region={r.region}
-      context={productContext(p.setCode)}
-      variant="section"
-      placement="listings-product"
-      className="mt-6"
-      fallback={
-        <EbayBanner
-          region={r.region}
-          variant={stripAt === "table" ? "section" : "footer"}
-          placement={stripAt === "table" ? "product-after-table" : "pre-footer"}
-          title={stripAt === "table" ? "Still deciding? Search this product on eBay" : "Shop Pokémon sealed on eBay"}
-          text={`Search Buy It Now listings on ${ebayLabel(r.region)}.`}
-          query={stripAt === "table" ? ebayQuery(p.name, tcgplayer) : ""}
-        />
-      }
+      context={stripContext}
+      placement={stripAt === "soldout" ? "listings-product-soldout" : "listings-product"}
+      narrow={stripAt === "soldout"}
+      className={stripAt === "soldout" ? "mt-4" : "mt-6"}
+      headings={{ item: `${p.name} on eBay`, type: type ? `${type.plural} on eBay` : undefined, sealed: "Sealed Pokémon on eBay" }}
+      search={{ kind: "sealed", query: ebayQuery(p.name, tcgplayer), label: "Search this product on eBay" }}
     />
   );
 
@@ -314,7 +304,6 @@ export default async function ProductPage({ params }: { params: { region: string
                 tcgplayer={tcgplayer}
                 tcgplayerIsBest={best.marketplace}
                 ebayPrimary={openStores <= 1}
-                quick={quick}
               />
             </>
           ) : (
@@ -325,8 +314,8 @@ export default async function ProductPage({ params }: { params: { region: string
                 storesListing={stores.length}
                 notChecked={stores.filter((o) => offerStock(o, now) === "unknown").length}
                 tcgplayer={tcgplayer}
-                quick={quick}
               />
+              {strip}
               {msrp != null && (
                 <p className="mt-2 text-sm text-muted">
                   US MSRP <b className="tabular text-ink">{money(msrp, r.market)}</b>
@@ -346,7 +335,7 @@ export default async function ProductPage({ params }: { params: { region: string
 
       <Section title={tableTitle}>
         {p.offers.length ? (
-          <OfferTable offers={p.offers} region={r.region} preorder={pre} productName={p.name} usTcgplayer={p.usMarketplace} packs={packs} marketGroup={ads.tableGroup && !listingsOn} />
+          <OfferTable offers={p.offers} region={r.region} preorder={pre} packs={packs} />
         ) : (
           <div className="card px-6 py-8 text-muted">
             None of the {r.adjective} stores we track list {p.name} right now.
@@ -387,7 +376,6 @@ export default async function ProductPage({ params }: { params: { region: string
       {stripAt === "bottom" && (
         <>
           <NoPreFooter />
-          <NoFooterLink />
           {strip}
         </>
       )}

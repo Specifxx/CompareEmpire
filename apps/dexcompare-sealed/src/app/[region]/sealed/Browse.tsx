@@ -3,9 +3,9 @@ import { notFound } from "next/navigation";
 import { Ago } from "@/components/Ago";
 import { BrowseGrid } from "@/components/BrowseGrid";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { EbayStrip } from "@/components/EbayStrip";
 import { lastCheckedAt, marketProductCount, marketProducts, PAGE_SIZE, sortCards } from "@/lib/data";
 import { compactCard } from "@/lib/compact";
-import { ebayListingsEnabled } from "@/lib/ebay-listings";
 import { timeAgo } from "@/lib/format";
 import { pageHref } from "@/components/Pagination";
 import type { RegionInfo } from "@/lib/regions";
@@ -59,7 +59,15 @@ export async function BrowsePage({ r, page }: { r: RegionInfo; page: number }) {
       </p>
       <h2 className="sr-only">Products</h2>
       <div className="mt-6">
-        <BrowseGrid rows={sorted.map(compactCard)} region={r.region} base={base} page={page} listings={ebayListingsEnabled()} />
+        {/* Page 1 only: the sealed Pokémon strip (image tiles of real listings; the compact CTA row when there are none), on a row of its
+            own after the first products of the unfiltered list (BrowseGrid places it). */}
+        <BrowseGrid
+          rows={sorted.map(compactCard)}
+          region={r.region}
+          base={base}
+          page={page}
+          strip={page === 1 ? <EbayStrip region={r.region} context="sealed" placement="listings-browse" search={{ kind: "sealed", query: "" }} /> : undefined}
+        />
       </div>
     </div>
   );

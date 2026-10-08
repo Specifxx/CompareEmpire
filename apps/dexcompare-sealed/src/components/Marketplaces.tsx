@@ -12,11 +12,10 @@ import {
   type OutboundHref,
   type Placement,
 } from "@/lib/affiliate";
-import type { EbayChip } from "@/lib/ebay-ads";
 import { money } from "@/lib/format";
 import { REGIONS, type Region } from "@/lib/regions";
 import { offerStock } from "@/lib/sealed-offers";
-import { AdPill, EbayQuickSearches } from "./Ebay";
+import { AdPill } from "./Ebay";
 import { OutboundLink } from "./OutboundLink";
 import { StockPill } from "./StockPill";
 
@@ -68,7 +67,6 @@ export function MarketplacePanel({
   tcgplayer,
   tcgplayerIsBest = false,
   ebayPrimary = false,
-  quick = [],
 }: {
   region: Region;
   productName: string;
@@ -79,8 +77,6 @@ export function MarketplacePanel({
   tcgplayerIsBest?: boolean;
   /** Only one store has it in stock: the eBay row becomes a button, the page's one primary marketplace action. */
   ebayPrimary?: boolean;
-  /** "Also on eBay": the product's set x type searches (lib/ebay-ads.ts quickSearches), inside this same unit. */
-  quick?: EbayChip[];
 }) {
   const r = REGIONS[region];
   const us = r.market === "US";
@@ -142,11 +138,6 @@ export function MarketplacePanel({
               </span>
             )}
           </OutboundLink>
-          {quick.length > 0 && (
-            <div className="border-t border-dashed border-ad-line px-5 py-3">
-              <EbayQuickSearches bare region={region} chips={quick} placement="product-related" />
-            </div>
-          )}
         </li>
         {showTcg && (
           <li>
@@ -171,7 +162,8 @@ export function MarketplacePanel({
 
 /**
  * Product page, in place of the best-price card when nothing in the region is
- * open (in stock or pre-order): say so plainly, then the marketplaces, big.
+ * open (in stock or pre-order): say so plainly, with TCGplayer's link. The product's
+ * eBay listings are the strip directly under it (EbayStrip.tsx), the page's one eBay unit there.
  */
 export function SoldOutCallout({
   region,
@@ -179,7 +171,6 @@ export function SoldOutCallout({
   storesListing,
   notChecked,
   tcgplayer,
-  quick = [],
 }: {
   region: Region;
   productName: string;
@@ -188,28 +179,12 @@ export function SoldOutCallout({
   /** …of which we couldn't read recently, so "sold out" is a guess for them. */
   notChecked: number;
   tcgplayer: TcgplayerMatch | null;
-  /** "Also on eBay": the product's set x type searches, inside this same unit. */
-  quick?: EbayChip[];
 }) {
   const r = REGIONS[region];
   const us = r.market === "US";
   const tcg = tcgplayerLink(region, productName, tcgplayer, "product-soldout");
   const tcgOpen = !us && tcgplayer && offerStock(tcgplayer) === "open";
   const big = "px-6 py-3 text-base";
-  // Sold out here: eBay is the page's primary marketplace action in every region.
-  const ebayBtn = (
-    <span className="inline-flex">
-      <OutboundLink
-        href={ebaySearchUrl(ebayQuery(productName, tcgplayer), region, "product-soldout")}
-        rel={REL_SPONSORED}
-        retailer={ebayRetailer(region)}
-        placement="product-soldout"
-        className={`btn-ad ${big}`}
-      >
-        <AdPill /> Search eBay for Buy It Now <span aria-hidden="true">↗</span>
-      </OutboundLink>
-    </span>
-  );
   const tcgBtn = (
     <OutboundLink href={tcg.href} rel={tcg.rel} retailer={TCGPLAYER_RETAILER} placement="product-soldout" className={`btn-ghost ${big}`}>
       {tcgOpen ? (
@@ -223,7 +198,7 @@ export function SoldOutCallout({
     </OutboundLink>
   );
   return (
-    <div data-ad="product-soldout" className="card mt-6 p-5 sm:p-6">
+    <div className="card mt-6 p-5 sm:p-6">
       <StockPill state="soldout">Sold out</StockPill>
       <h2 className="mt-3 font-display text-2xl font-bold leading-tight tracking-tight">
         {storesListing ? `Sold out at every ${r.adjective} store we track` : `No ${r.adjective} store we track lists this yet`}
@@ -235,15 +210,11 @@ export function SoldOutCallout({
             {notChecked > 0 && ` (${notChecked} not checked recently)`}.{" "}
           </>
         )}
-        Marketplaces may still have it:
+        Marketplaces may still have it.
       </p>
-      <div className="mt-5 flex flex-wrap gap-2.5">
-        {ebayBtn}
-        {tcgBtn}
-      </div>
-      {quick.length > 0 && <EbayQuickSearches bare region={region} chips={quick} placement="product-related" className="mt-4" />}
+      <div className="mt-5 flex flex-wrap gap-2.5">{tcgBtn}</div>
       <p className={`mt-3 ${NOTE}`}>
-        {AFFILIATE_NOTE} eBay links go to {ebayLabel(region)}.
+        {AFFILIATE_NOTE}
         {!us && ` TCGplayer sells in US$ from the US; check it ships to ${r.name} before you buy.`}
       </p>
     </div>
