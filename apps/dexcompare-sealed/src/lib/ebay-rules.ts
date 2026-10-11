@@ -25,7 +25,7 @@ const LISTING_REJECT = new RegExp(
     // a single card or promo: a card number ("Snorlax 051", "#139", "MEP 085"), a graded card, Trainer Tips / art cards, a promo set, a pulled card
     "\\b(?:psa|bgs|cgc|sgc|ace)\\s*\\d{1,2}(?:[.,]\\d)?\\b|\\bgrad(?:ed|e)?\\s*\\d|\\btrainer\\s+tips\\b|\\bart\\s+cards?\\b|\\bholo\\s+card\\b|\\bpromos?\\s*(?:and|&|\\/)\\s*posters?\\b|\\b(?:poster|pin|illustration|sticker|figure)\\s+collection\\s+promos?\\b|\\bpromo\\s+cards?\\s+(?:cosmos|pack\\s*fresh|only)\\b|\\bpack\\s*fresh\\b|\\b\\d\\s+cards?\\s+set\\b|\\b\\d+[\\s-]*inch\\b|\\$\\d|\\b\\d{1,3}[.,]\\d{1,3}\\s*g\\b|\\bheavy\\b(?!\\s+hitters)|^\\s*[2-9]\\s+(?:x\\s+)?pokemon\\b",
     // not sealed, or not a product: an opened one ("Open Live", "LIVE ONLY", "Open (Nearly Complete)"), wear and tear, a protector, an outer sleeve, a repack or a container
-    "(?<!never\\s)(?<!not\\s)\\bopen(?:ed)?\\b|\\btears?\\b|\\bw\\/\\s*tear\\b|\\bthere'?s\\s+a\\s+rip\\b|\\b(?:a|with)\\s+rip\\b|\\bripped\\b|\\bflaws?\\b|\\bdefective\\b|\\bloch\\b|\\bcosmetic\\s+(?:wear|damage)\\b|\\bschutz\\w*|^\\s*(?:pet\\s+)?(?:plexi\\w*|acryl\\w*)|\\bprotector\\b|\\bouter\\s+sleeve\\b|\\bsampl(?:e|ing)\\b|\\bcandy\\b|\\bcontainer\\b|\\borgani[sz]er\\b|\\bjewel+(?:e?ry)\\b|\\bsurprise\\s+(?:mini\\s+)?tin\\b|\\bguaranteed\\b|\\brepack\\w*|\\btrick\\s+or\\s+trade\\b|\\bhongbao\\b|\\blunar\\b|\\bhalloween\\b|\\band\\s+others\\b",
+    "(?<!never\\s)(?<!not\\s)\\bopen(?:ed)?\\b|\\btears?\\b|\\bholes?\\b|\\bdents?\\b|\\bw\\/\\s*tear\\b|\\bthere'?s\\s+a\\s+rip\\b|\\b(?:a|with)\\s+rip\\b|\\bripped\\b|\\bflaws?\\b|\\bdefective\\b|\\bloch\\b|\\bcosmetic\\s+(?:wear|damage)\\b|\\bschutz\\w*|^\\s*(?:pet\\s+)?(?:plexi\\w*|acryl\\w*)|\\bprotector\\b|\\bouter\\s+sleeve\\b|\\bsampl(?:e|ing)\\b|\\bcandy\\b|\\bcontainer\\b|\\borgani[sz]er\\b|\\bjewel+(?:e?ry)\\b|\\bsurprise\\s+(?:mini\\s+)?tin\\b|\\bguaranteed\\b|\\brepack\\w*|\\btrick\\s+or\\s+trade\\b|\\bhongbao\\b|\\blunar\\b|\\bhalloween\\b|\\band\\s+others\\b",
     // several units: "4x", "2 Stuck", "alle 3", "pack of four", "(6) Bundle", "[36 Packs]", "ALL 36!"
     "\\b(?:[2-9]|1\\d)\\s*x\\b(?!\\s*(?:booster|boosters|packs?|cards?|etbs?|boxes|bundles?|tins?|booster\\s+box(?:es)?))|\\b\\d+\\s*(?:stuck|stk)\\b|\\balle\\s+\\d+\\b|\\bpack\\s+of\\s+(?:[2-9]|two|three|four|five|six)\\b|\\(\\s*\\d+\\s*\\)\\s*bundle\\b|\\[\\s*[1-9]\\d\\s*packs?\\s*\\]|\\ball\\s+\\d+\\b|\\b(?:10|[2-9])\\s+packungen\\b",
     // another language's edition: its own words (German, Italian, French set and product names), a language code, China
@@ -91,6 +91,8 @@ export function refusedForType(title: string, type: TypeKey): boolean {
   if ((type === "booster-pack" || type === "sleeved-booster") && /\bpromo\b/.test(t)) return true;
   // An ETB or a booster box is not "ETB / 2 Pack Blister"; a 36-pack box is not an 18-pack display.
   if ((type === "etb" || type === "pc-etb" || type === "booster-box") && /\bblister\b/.test(t)) return true;
+  // A blister's promo on its own: "Slowpoke Promo MEP 086 Pitch Black Checklane" (a card number, and no blister, pack or booster).
+  if (type === "blister" && CARD_NUMBER.test(t) && !/\b(?:blister|pack|packs|booster|boosters|sealed)\b/.test(t)) return true;
   // A tin is one tin: "5 Pack Mini Tin Box" is five.
   if (type === "tin" && /\b[5-9]\s*(?:pack|pk)\s+(?:of\s+)?(?:mini\s+)?tins?\b/.test(t)) return true; // ("2 Pack Mini Tin": a tin holding two packs)
   // A collection's promo set is its cards without the box ("Poster Collection Promo Card Set").

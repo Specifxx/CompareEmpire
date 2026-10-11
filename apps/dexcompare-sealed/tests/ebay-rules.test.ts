@@ -76,6 +76,8 @@ test("audit: wrong rows of every kind are refused for their page's product type"
     ["Pokemon Ascended Heroes Tech Sticker Collection 4x", "collection"],
     ["2 Pokemon TCG ME2.5 Ascended Heroes Tech Sticker Collection Bundle Sealed New", "collection"],
     ["Pokemon 151 Booster Pack China Sealed | Mew EX SAR", "booster-pack"],
+    ["Slowpoke Promo MEP 086 Pitch Black Checklane", "blister"],
+    ["Pokemon TCG Prismatic Evolutions elite trainer box (2 tiny holes in wrap)", "etb"],
   ] as [string, TypeKey][])
     assert.ok(refused(t, type), `${type}: ${t}`);
 });
@@ -99,6 +101,7 @@ test("audit: right rows stay (an 18-pack display, a 2-pack mini tin, live-sale n
     ["Pokemon TCG: Unova Heavy Hitters Premium Collection Black Bolt White Flare", "collection"],
     ["Pokémon TCG League Battle Deck Single Strike Urshifu VMAX 60 Cards 18$ 2021 MPN", "deck"],
     ["SEALED CASE! 6x Booster Box Journey Together Pokemon TCG SV09", "booster-box-case"],
+    ["Pokemon TCG Mega Evolution Pitch Black Checklane Blister Slowpoke Promo MEP 086", "blister"],
   ] as [string, TypeKey][])
     assert.ok(!refused(t, type), `${type}: ${t}`);
 });
