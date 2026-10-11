@@ -9,7 +9,7 @@ import { HOT_SETS, isHotSet } from "../src/lib/popular";
 import { REGION_LIST } from "../src/lib/regions";
 import { SET_BY_CODE } from "../src/lib/sets";
 import { firstHotSet, hotProductHighlight, hotSetHighlight, hotSetQuery, isHotReleased } from "../src/components/Ebay";
-import { EbayCta, EbayStrip, hotPlacement } from "../src/components/EbayStrip";
+import { EbayCta, EbayPriceRows, EbayStrip, hotPlacement } from "../src/components/EbayStrip";
 import { MarketplacePanel } from "../src/components/Marketplaces";
 
 // The components are compiled with the classic JSX runtime here (tsconfig "jsx": "preserve"; Next uses its own).
@@ -145,4 +145,22 @@ test("the pages pass the highlight where the owner asked, and add no unit for it
   assert.match(product, /highlight=\{hot \? hotProductHighlight\(p\.name, ebayQ\) : undefined\}/);
   assert.equal((product.match(/<EbayStrip/g) ?? []).length, 1, "still one strip on a product page");
   assert.equal((home.match(/<EbayStrip/g) ?? []).length, 2, "still two strips on the home page");
+});
+
+test("a product's eBay price rows: at the top of the price section, ABOVE the store table, its own ad block, the product's own feed only", () => {
+  const product = readFileSync(new URL("../src/app/[region]/p/[slug]/page.tsx", import.meta.url), "utf8");
+  const rows = product.indexOf("<EbayPriceRows");
+  assert.ok(rows > 0, "the product page renders the eBay price rows");
+  assert.ok(rows > product.indexOf("<Section title={tableTitle}>") && rows < product.indexOf("<OfferTable"), "inside the price section, before the store table");
+  const strip = readFileSync(new URL("../src/components/EbayStrip.tsx", import.meta.url), "utf8");
+  const src = strip.slice(strip.indexOf("export function EbayPriceRows"));
+  assert.match(src, /state\.a\.feed === "item"/, "only the product's own listings, never its type's");
+  assert.match(src, /"listings-price-rows"/);
+  assert.ok((PLACEMENTS as readonly string[]).includes("listings-price-rows"));
+  const offers = readFileSync(new URL("../src/components/OfferTable.tsx", import.meta.url), "utf8");
+  assert.doesNotMatch(offers, /EbayPriceRows|ebay-context|listingsUrl/, "the store table itself carries no eBay rows");
+  // server markup (loading): a reserved, aria-hidden skeleton, no link yet, no shift when the rows arrive
+  const html = render(React.createElement(EbayPriceRows, { region: "us", slug: "30th-celebration-elite-trainer-box" }));
+  assert.match(html, /aria-hidden="true" class="invisible/);
+  assert.doesNotMatch(html, /<a /);
 });

@@ -4,7 +4,7 @@ import { cache } from "react";
 import type { Metadata } from "next";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { hotProductHighlight, isHotReleased, NoPreFooter } from "@/components/Ebay";
-import { EbayStrip } from "@/components/EbayStrip";
+import { EbayPriceRows, EbayStrip } from "@/components/EbayStrip";
 import { ebayQuery, MarketplacePanel, SoldOutCallout } from "@/components/Marketplaces";
 import { OfferTable } from "@/components/OfferTable";
 import { OutboundLink } from "@/components/OutboundLink";
@@ -338,6 +338,8 @@ export default async function ProductPage({ params }: { params: { region: string
       </div>
 
       <Section title={tableTitle}>
+        {/* The product's own eBay listings, as price rows at the top: an ad block of its own, never a row of the store table (EbayPriceRows). */}
+        <EbayPriceRows region={r.region} slug={p.slug} className="mb-3" />
         {p.offers.length ? (
           <OfferTable offers={p.offers} region={r.region} preorder={pre} packs={packs} />
         ) : (

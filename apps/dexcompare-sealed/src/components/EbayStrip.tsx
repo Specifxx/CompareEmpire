@@ -668,3 +668,119 @@ export function EbayFeedTile({ region }: { region: Region }) {
     </div>
   );
 }
+
+// ─── The product's eBay price rows (top of the price section) ─────────────────
+
+const PRICE_ROWS = 3;
+
+/**
+ * A product's OWN eBay listings as price rows, at the top of its price section, directly above the store table: up to three, lowest
+ * price first (as its feed is stored), each a row like a store's (eBay's photo, the listing's title, condition and shipping, its price,
+ * "View on eBay"), in a framed block labelled "Ad" of its own. It is never a row OF the store table, never counted in "Prices at N stores",
+ * the best price, the per-pack price or the median (eBay's API License Agreement 8.1(b)(2): eBay content is not "co-mingled or combined
+ * with non-eBay Content"; 8.1(d): no derived statistics). Only the product's own feed answers here: when the route falls back to its
+ * type's or generic listings (other products), the block shows nothing.
+ *
+ * No layout shift: while it loads it reserves three rows (skeletons); when fewer listings come back, or none, the reserved height is
+ * released only once the block is out of the viewport (useCollapsed), and until then the space stays (empty) under the rows.
+ */
+export function EbayPriceRows({ region, slug, className = "" }: { region: Region; slug: string; className?: string }) {
+  const placement: Placement = "listings-price-rows";
+  const { ref, state, now } = useListings({ region, context: `item:${slug}`, placement, min: 1 });
+  const [broken, setBroken] = useState<ReadonlySet<string>>(new Set());
+  const a = state.status === "ready" && state.a.feed === "item" ? state.a : null;
+  const items = a ? a.items.filter((i) => !broken.has(i.id)).slice(0, PRICE_ROWS) : [];
+  const settled = state.status === "none" || (state.status === "ready" && items.length < PRICE_ROWS);
+  const released = useCollapsed(ref, settled);
+  const none = state.status === "none" || (state.status === "ready" && items.length === 0);
+  if (none && released) return <div ref={ref} />;
+  const reserve = !released; // three rows' height until it is safe to let the block shrink
+  return (
+    <div ref={ref} className={`grid grid-cols-[minmax(0,1fr)] ${className}`}>
+      {reserve && (
+        <div aria-hidden="true" className="invisible col-start-1 row-start-1">
+          <PriceRowsFrame region={region} age="26 h ago" maxAgeMs={hoursToMs(DEFAULT_MAX_AGE_HOURS)}>
+            {Array.from({ length: PRICE_ROWS }, (_, i) => (
+              <PriceRowSkeleton key={i} />
+            ))}
+          </PriceRowsFrame>
+        </div>
+      )}
+      {(state.status === "idle" || items.length > 0) && (
+        <div
+          className="col-start-1 row-start-1 self-start"
+          {...(a && items.length ? { "data-ad": placement, "data-feed": "item", "data-state": "ready", role: "group", "aria-label": "Sponsored: this product's eBay listings (ads)" } : { "aria-hidden": true })}
+        >
+          <PriceRowsFrame region={region} age={a ? formatAge(now - a.fetchedAtMs) : null} maxAgeMs={a?.maxAgeMs ?? hoursToMs(DEFAULT_MAX_AGE_HOURS)}>
+            {a
+              ? items.map((it) => <PriceRow key={it.id} item={it} region={region} placement={placement} onBroken={(id) => setBroken((s) => new Set(s).add(id))} />)
+              : Array.from({ length: PRICE_ROWS }, (_, i) => <PriceRowSkeleton key={i} />)}
+          </PriceRowsFrame>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PriceRowsFrame({ region, age, maxAgeMs, children }: { region: Region; age: string | null; maxAgeMs: number; children: ReactNode }) {
+  return (
+    <div className="ad-box overflow-hidden">
+      <div className="flex items-center gap-2 border-b border-line px-4 py-2 sm:px-5">
+        <EbayMark className="text-base" />
+        <span className="ad-pill">Ad</span>
+        <span className="min-w-0 truncate text-[11px] font-semibold uppercase tracking-wide text-muted">Listings on {ebayLabel(region)}</span>
+        <span className="ml-auto shrink-0 text-[11px] text-muted">{age ? `Updated ${age}` : " "}</span>
+      </div>
+      <ul role="list" className="divide-y divide-line">
+        {children}
+      </ul>
+      <p className="border-t border-line px-4 py-2 text-[11px] leading-4 text-muted sm:px-5">
+        {AFFILIATE_NOTE_SHORT} Imported from eBay {importCadence(maxAgeMs)}{age ? ` (updated ${age})` : ""}, lowest price first, before shipping; check eBay.
+        {SHARED_FEED_SHORT[region] ? ` ${SHARED_FEED_SHORT[region]}` : ""}
+      </p>
+    </div>
+  );
+}
+
+const PRICE_ROW = "flex h-[84px] items-center gap-3 px-4 sm:px-5";
+
+function PriceRow({ item, region, placement, onBroken }: { item: AcceptedItem; region: Region; placement: Placement; onBroken: (id: string) => void }) {
+  const ship = shipFor(region, item.ship);
+  const cond = conditionLabel(item.condition);
+  return (
+    <li>
+      <OutboundLink href={item.href} rel={REL_SPONSORED} retailer={ebayRetailerForHref(item.href, region)} placement={placement} className={`group ${PRICE_ROW} transition-colors hover:bg-raised focus-visible:outline-offset-[-2px]`}>
+        <span className="relative h-14 w-14 shrink-0 overflow-hidden rounded-md bg-surface">
+          <img src={item.imageUrl} alt="" width={500} height={500} loading="lazy" decoding="async" referrerPolicy="no-referrer" onError={() => onBroken(item.id)} className="absolute inset-0 h-full w-full object-contain" />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="line-clamp-2 text-[13px] font-semibold leading-[18px] group-hover:text-brand">{item.title}</span>
+          <span className={`block truncate text-[11px] leading-4 ${ship.free ? "font-medium text-open" : "text-muted"}`}>
+            {cond ? <span className="font-normal text-muted">{cond} · </span> : null}
+            {ship.text}
+          </span>
+        </span>
+        <span className="shrink-0 text-right">
+          <span className="tabular block font-display text-base font-bold sm:text-lg">{formatPrice(item.price)}</span>
+          <span className="text-xs font-semibold text-brand">
+            View on eBay <Arrow />
+          </span>
+        </span>
+        <span className="sr-only"> (opens eBay in a new tab)</span>
+      </OutboundLink>
+    </li>
+  );
+}
+
+function PriceRowSkeleton() {
+  return (
+    <li aria-hidden="true" className={PRICE_ROW}>
+      <span className="h-14 w-14 shrink-0 rounded-md bg-raised" />
+      <span className="min-w-0 flex-1">
+        <span className="block h-3 w-4/5 rounded bg-raised" />
+        <span className="mt-2 block h-3 w-2/5 rounded bg-raised" />
+      </span>
+      <span className="block h-5 w-16 shrink-0 rounded bg-raised" />
+    </li>
+  );
+}
