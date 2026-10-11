@@ -100,16 +100,17 @@ export function ebayRowIndex(rows: readonly { open: boolean; cents: number }[], 
   return lastOpen + 1;
 }
 
-/** NZ and SG are served the AU and US sites' listings: whose they are, and that delivery is not shown. */
+/** NZ and SG are served the AU and US sites' listings: whose they are, and that delivery is not shown. True of a listing and a search alike. */
 export const SHARED_SITE_NOTE: Readonly<Record<string, string>> = {
-  nz: " It is an eBay Australia listing (the eBay New Zealand buyers use); delivery to New Zealand is not shown.",
-  sg: " It is an eBay US listing (the eBay Singapore buyers use); delivery to Singapore is not shown.",
+  nz: " The eBay row uses eBay Australia (the eBay New Zealand buyers use): its prices are in A$, and a listing's delivery to New Zealand is not shown, so check it on eBay.",
+  sg: " The eBay row uses eBay US (the eBay Singapore buyers use): its prices are in US$, and a listing's delivery to Singapore is not shown, so check it on eBay.",
 };
 
 /** The sentence under the table about its eBay row: static (server-rendered), so it reads the same whichever state the row is in. */
 export function ebayRowNote(region: string): string {
   return (
-    " The tinted eBay row is an ad: the lowest-priced eBay listing we have for this product (as imported from eBay, before shipping; how long ago is on the row), or an eBay search when there is none." +
+    " The tinted eBay row is an ad: the lowest-priced eBay listing we have for this product, or an eBay search when there is none." +
+    " Listings are imported from eBay on a schedule (how long ago is on the row) and priced before shipping, so a price or its availability may have changed: eBay's page is final." +
     " Its link is an eBay Partner Network affiliate link: we may earn a commission, at no extra cost to you." +
     (SHARED_SITE_NOTE[region] ?? "")
   );

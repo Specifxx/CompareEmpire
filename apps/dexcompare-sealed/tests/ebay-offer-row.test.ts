@@ -139,7 +139,7 @@ test("the server table: store rows as before, the eBay row as a search after the
   assert.match(html, /Best <span class="hidden group-data-\[ebay=cheaper\]\/offers:inline">store <\/span>price/);
   assert.match(html, /class="group\/offers divide-y divide-line"/);
   assert.doesNotMatch(html, /data-ebay="cheaper"/, "no listing, nothing to be cheaper");
-  assert.ok(html.includes(ebayRowNote("us").trim()), "the note under the table");
+  assert.ok(html.replace(/&#x27;/g, "'").includes(ebayRowNote("us").trim()), "the note under the table");
   assert.ok((PLACEMENTS as readonly string[]).includes("listings-offer-row"));
   assert.ok(!(PLACEMENTS as readonly string[]).includes("listings-price-rows"), "the old block above the table is gone");
 });
@@ -147,7 +147,11 @@ test("the server table: store rows as before, the eBay row as a search after the
 test("NZ and SG: the note says whose listings these are; no eBay row without `ebay`", () => {
   const offers = [offer("alpha", 5000)];
   const nz = render(React.createElement(OfferTable, { offers, region: "nz", preorder: false, ebay: { slug: "x", query: "X", floor: null, packs: null } }));
-  assert.match(nz, /eBay Australia listing/);
+  assert.match(nz, /The eBay row uses eBay Australia/);
+  assert.doesNotMatch(nz, /It is an eBay Australia listing/, "true whether the row is a listing or a search");
+  const sg = render(React.createElement(OfferTable, { offers, region: "sg", preorder: false, ebay: { slug: "x", query: "X", floor: null, packs: null } }));
+  assert.match(sg, /The eBay row uses eBay US \(the eBay Singapore buyers use\)/);
+  assert.match(nz, /may have changed: eBay(&#x27;|')s page is final/, "the staleness caveat every eBay unit carries");
   assert.match(nz, /www\.ebay\.com\.au/);
   const plain = render(React.createElement(OfferTable, { offers, region: "us", preorder: false }));
   assert.doesNotMatch(plain, /listings-offer-row|ebay\.com|aria-label="eBay"/);

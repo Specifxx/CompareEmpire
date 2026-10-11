@@ -761,7 +761,7 @@ function EbayOfferRow({ region, placement, query, item, cents, age, thumb, onThu
           <div className="flex items-center gap-2">
             <EbayMark className="text-lg" />
             <span className="ad-pill">Ad</span>
-            {cond && <span className="shrink-0 truncate rounded-full border border-line bg-surface px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-muted">{cond}</span>}
+            {cond && <span className="min-w-0 max-w-[9rem] truncate rounded-full border border-line bg-surface px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-muted">{cond}</span>}
           </div>
           <div className="mt-0.5 truncate text-xs text-faint" title={item?.title}>
             {item ? (
@@ -773,12 +773,14 @@ function EbayOfferRow({ region, placement, query, item, cents, age, thumb, onThu
               `Search ${q.length > 48 ? `${q.slice(0, 47)}…` : q || "this product"} on ${ebayLabel(region)}`
             )}
           </div>
+          {/* below md the shipping is a line of its own (beside the price and the button it would be cut to a partial price) */}
+          <div className={`truncate text-xs font-semibold md:hidden ${ship?.free ? "text-open" : "text-muted"}`}>{ship ? ship.text : "Prices from eBay sellers"}</div>
         </div>
       </div>
-      <div className="flex items-center justify-between gap-3 sm:justify-end sm:gap-4">
-        {/* the shipping: a pill like the stores' stock pill on a wide screen, plain text on a phone (where the row has less room) */}
+      <div className="flex items-center justify-end gap-3 sm:gap-4">
+        {/* from md, a pill where a store row has its stock pill */}
         <span
-          className={`min-w-0 truncate text-xs font-semibold sm:inline-flex sm:shrink-0 sm:items-center sm:whitespace-nowrap sm:rounded-full sm:px-2.5 sm:py-1 ${ship?.free ? "text-open sm:bg-open-soft" : "text-muted sm:border sm:border-line sm:bg-surface"}`}
+          className={`hidden whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold md:inline-flex md:shrink-0 md:items-center ${ship?.free ? "bg-open-soft text-open" : "border border-line bg-surface text-muted"}`}
         >
           {ship ? ship.text : "Marketplace"}
         </span>
