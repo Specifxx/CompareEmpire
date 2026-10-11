@@ -319,7 +319,7 @@ also cover every product.
    its own value (default `5339155912`) on every URL it stores and asks eBay to tag the URLs with it. The website no longer compares a listing's
    campaign id with its own build's (it checks only that an eBay item URL carries a numeric `campid`), so an override in Vercel alone can no longer
    blank the strips; it changes only the site's own search links. The simplest course is to override neither.
-   `EBAY_SWEEP_CALLS` (default 1800, clamped to 0..2500) is how many of a run's calls the catalogue sweep may spend (the per-product searches
+   `EBAY_SWEEP_CALLS` (default 2100, clamped to 0..2500) is how many of a run's calls the catalogue sweep may spend (the per-product searches
    get what it leaves); the workflow passes the repository variable of that name to the importer. With the run cap equal to the daily cap, the scheduled run may spend the whole day: to keep room for a manual re-run on the
    same Pacific day, set `EBAY_RUN_CAP` lower (2,200 leaves 300).
 4. **Merge to `main`** (GitHub runs scheduled workflows from the default branch only). The schedule is 08:37 UTC daily: **after** eBay's
@@ -431,19 +431,19 @@ skip-fresh window (at least 50, or a quarter of its products if that is more: a 
 **A run, in order:**
 
 1. the fixed feeds: chase, sealed, types, sets (265 calls);
-2. the sweep, marketplace by marketplace, up to `EBAY_SWEEP_CALLS` (default **1,800**) of what the fixed feeds leave;
+2. the sweep, marketplace by marketplace, up to `EBAY_SWEEP_CALLS` (default **2,100**) of what the fixed feeds leave;
 3. per-product searches ("Pokemon <cleaned name>") **only for eligible keys the sweep did not cover**, most valuable first, with whatever is
-   left of the run cap: about 400 at the defaults when the sweep spends its whole share, more when its queries stop early.
+   left of the run cap: about 135 at the defaults when the sweep spends its whole share, more when its queries stop early.
 
 Defaults: `EBAY_DAILY_CAP` **2,500** (also the maximum; this site's share of the keyset, see the box at the top), `EBAY_RUN_CAP` **2,500**,
-`EBAY_SWEEP_CALLS` **1,800** (new, optional repository variable).
+`EBAY_SWEEP_CALLS` **2,100** (new, optional repository variable; it was 1,800 on the first run, when the 408 per-product searches after the sweep found listings for only 150 products against the sweep's 4,673 from 1,800 calls).
 
 **The probe** (`scripts/ebay-sweep-probe.ts`, the workflow's `probe` input): about 60 Browse calls (20 pages on EBAY_US, 10 on each other
 marketplace), each reserved against the daily cap like the importer's; it prints per marketplace the pages, listings, how many matched,
 the products with ≥ 1, ≥ 2 and ≥ 6 listings, why each query stopped, and sample titles that matched or did not, and **writes no listings**.
 Its run of 2026-10-11:
 
-| Marketplace | Pages | Products with ≥ 1 listing | With ≥ 2 (would get an item feed) |
+| Marketplace | Pages | Products with ≥ 1 listing | With ≥ 2 |
 | --- | ---: | ---: | ---: |
 | EBAY_US | 20 | 430 | 208 |
 | EBAY_GB | 10 | 266 | 121 |
@@ -459,7 +459,22 @@ listings were German- or Japanese-language product, which the classifier refuses
 "collection" matched about 803,000 US listings and "deck" 179,000, mostly loose-card lots, so collections and decks are searched by the
 words their products use ("premium collection", "battle deck"…).
 
-How many products a full 1,800-call sweep covers is known only from a live run: read the run summary's **Sweep** table. `--dry-run`
+**The first full run** (2026-10-11, workflow run 38120236337: 2,473 of 2,500 calls, 14 minutes, 1,800 of them sweep pages):
+
+| Marketplace | Products | Sweep pages | Listings read | Matched | Item feeds written |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| EBAY_US | 2,538 | 561 | 112,054 | 24,173 | 1,402 (55%) |
+| EBAY_AU | 2,339 | 321 | 64,100 | 7,681 | 880 (38%) |
+| EBAY_GB | 2,169 | 322 | 64,396 | 10,789 | 967 (45%) |
+| EBAY_CA | 3,526 | 403 | 80,499 | 3,410 | 907 (26%) |
+| EBAY_DE | 1,593 | 193 | 38,228 | 2,251 | 517 (32%) |
+
+Item feeds in the database went from 983 (the day before) to **4,886**; the 408 per-product searches that followed found listings for 150
+products. A sample of 280 live product pages read straight after: 64% showed the product's own listings, 15% its type's, 21% nothing (a
+product eBay does not list in that marketplace, of a type with no type feed). Six US queries stopped at eBay's 10,000-deep limit while still
+finding products, so the series-narrowed queries were added, and the sweep's default share went from 1,800 to 2,100.
+
+How many products a full sweep covers is known only from a live run: read the run summary's **Sweep** table. `--dry-run`
 shows the sweep's share of the cap and the per-product pre-plan, not the sweep's coverage. Nothing here changes the licence handling
 below: the sweep is the same FIXED_PRICE Browse search, its listings go only into item feeds shown in their own labelled units, the
 affiliate URL is stored exactly as eBay returns it with our campaign id, converted prices are refused, its counts appear only in the
@@ -475,8 +490,8 @@ Priority order (spent until the run cap; a cap hit drops the **least valuable**,
 | 2 | sealed | generic sealed Pokémon, 6 queries per marketplace, kept only if `identify()` accepts the title | 30 |
 | 3 | types | one query per high-value type (booster boxes, ETBs, Pokémon Center ETBs, UPCs, booster-box / ETB / bundle cases, Build & Battle Stadiums, collections) | 45 |
 | 4 | sets | chase cards of the 30 most recently released sets (never a series-named or common-word set), one query each | 150 |
-| 5 | sweep | the catalogue sweep (above): 17 broad queries per marketplace, 200 listings a call, an item feed for every product found twice | up to 1,800 (`EBAY_SWEEP_CALLS`) |
-| 6 | items | one query per (marketplace, **eligible** product) the sweep did **not** cover: "Pokemon <cleaned name>" (no "sealed": eBay requires every keyword) | what is left (~400) |
+| 5 | sweep | the catalogue sweep (above): 17 broad queries per marketplace, 200 listings a call, an item feed for every product found | up to 2,100 (`EBAY_SWEEP_CALLS`) |
+| 6 | items | one query per (marketplace, **eligible** product) the sweep did **not** cover: "Pokemon <cleaned name>" (no "sealed": eBay requires every keyword) | what is left (~135) |
 
 The plan reserves the sweep's share after the fixed feeds; the item feeds it lists are a pre-plan, and the run buys them only for keys
 the sweep missed, sized to what the sweep actually left.
@@ -569,7 +584,7 @@ covered. The weighting is a price proxy, not traffic: **ETBs, the most-searched 
 cheap next to cases and boxes; if that matters, raise their rank (a per-type multiplier in `itemKeys`).
 
 Since 2026-10-11 the caps are 2,500 and the sweep (above) covers products in bulk; the per-product searches keep this ranking but get
-only what the sweep leaves (~400 calls), for the eligible keys it missed. `--dry-run` still prints this capacity model, but for that
+only what the sweep leaves (~135 calls), for the eligible keys it missed. `--dry-run` still prints this capacity model, but for that
 per-product **pre-plan** (sized after the sweep's reservation), so its "covered" counts leave out everything the sweep will cover: the
 coverage that counts is a real run's (item feeds in the database, from the sweep and from per-product searches, and the Sweep table).
 What would cover more: `EBAY_SWEEP_CALLS` higher where the Sweep table shows queries stopping on `budget`,

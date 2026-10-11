@@ -68,6 +68,21 @@ export const SWEEP_QUERIES: readonly SweepQuery[] = [
   { key: "figure", q: "figure collection", types: ["collection"] },
   { key: "battledeck", q: "battle deck", types: ["deck"] },
   { key: "themedeck", q: "theme deck", types: ["deck"] },
+  // eBay pages a search only 10,000 deep: on 2026-10-11 six US queries reached that limit while still finding products. The same
+  // searches narrowed by series reach the listings behind it (and pay for themselves elsewhere, or run dry in two pages).
+  { key: "etb-sv", q: "elite trainer box scarlet violet", types: ["etb", "pc-etb"] },
+  { key: "etb-me", q: "elite trainer box mega evolution", types: ["etb", "pc-etb"] },
+  { key: "etb-swsh", q: "elite trainer box sword shield", types: ["etb", "pc-etb"] },
+  { key: "box-sv", q: "booster box scarlet violet", types: ["booster-box"] },
+  { key: "box-me", q: "booster box mega evolution", types: ["booster-box"] },
+  { key: "box-swsh", q: "booster box sword shield", types: ["booster-box"] },
+  { key: "box-sm", q: "booster box sun moon", types: ["booster-box"] },
+  { key: "minitin", q: "mini tin", types: ["tin"] },
+  { key: "tin-sv", q: "tin scarlet violet", types: ["tin"] },
+  { key: "premium-ex", q: "premium collection ex", types: ["collection", "upc"] },
+  { key: "blister3", q: "3 pack blister", types: ["blister"] },
+  { key: "pack-sv", q: "booster pack scarlet violet", types: ["booster-pack", "sleeved-booster"] },
+  { key: "pack-me", q: "booster pack mega evolution", types: ["booster-pack", "sleeved-booster"] },
 ];
 
 // ─── The product index ─────────────────────────────────────────────────────────
@@ -213,7 +228,7 @@ const SWEEP_REJECT = new RegExp(
     "\\bexpansion\\s+pack\\b|\\bhigh\\s+class\\s+pack\\b|\\bconstructed\\s+(?:deck|starter)\\b|\\bpokemon\\s+card(?:\\s+game)?\\s*[:\\-]?\\s*(?:mega|scarlet|sword|sun|xy|151)\\b|\\bpremium\\s+trainer\\s+box\\b",
     "\\btins\\b[^()]{0,40}\\(\\s*\\d+\\s*-?\\s*(?:pack|pk)s?\\s*\\)|\\b(?:full|complete|whole)\\s+set\\b|\\ball\\s+(?:[2-9]|three|four|five|six|eight|nine|ten)\\b|\\b(?:set|bundle|lot)\\s+of\\b|\\blots?\\b",
     "\\b(?:missing|without|w/o|removed|incomplete|partial|contents)\\b|\\b(?:coins?|promos?|cards?|pins?|tin|box|packs?|figure|jumbo|oversized?)\\s+only\\b|\\bno\\s+(?:packs?|boosters?|promos?|cards?|coins?)\\b",
-    "\\brandom\\b|\\bassorted\\b|\\bvariation\\b|\\bchosen\\b|\\bvarious\\b|\\bstyles?\\s+may\\s+vary\\b|\\bmystery\\b",
+    "\\brandom\\b|\\bassorted\\b|\\bvariation\\b|\\bchosen\\b|\\bvarious\\b|\\bstyles?\\s+may\\s+vary\\b|\\bmystery\\b|\\byou\\s+choose\\b|\\bchoose\\s+(?:your|one|from|between)\\b|\\bpick\\s+(?:your|one|from)\\b|\\byour\\s+choice\\b",
     "\\bdamage[ds]?\\b|\\bcrushed\\b|\\btorn\\b|\\bresealed\\b|\\bunsealed\\b|\\bempty\\b",
   ].join("|"),
   "i",
@@ -263,6 +278,8 @@ export function matchListing(title: string, index: SweepIndex): { product: Sweep
   if (!id) return { miss: "rejected" };
   if ((id.type === "booster-pack" || id.type === "sleeved-booster") && SEVERAL_PACKS.test(fold(title))) return { miss: "rejected" };
   if (CASE_TYPES.has(id.type) && CASE_FRESH.test(fold(title))) return { miss: "rejected" };
+  // "Sleeved Booster Bundle 4 Arts" is four sleeved boosters, not the 6-pack Booster Bundle.
+  if (id.type === "booster-bundle" && /\bsleeved\b/i.test(title)) return { miss: "rejected" };
   const exact = index.byKey.get(id.groupKey);
   if (exact) return { product: exact };
   const kind = TYPE_BY_KEY.get(id.type)?.kind;

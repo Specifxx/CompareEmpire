@@ -111,6 +111,8 @@ test("sweep matching: the reviewers' wrong matches stay refused (partials, multi
     "Pokemon Surging Sparks Booster Box Case Fresh",
     "Pokémon Card Game Scarlet & Violet 151 Booster Pack",
     "POKÉMON CARD GAME Scarlet & Violet Premium Trainer Box ex",
+    "Pokemon Surging Sparks Booster Box - You Choose",
+    "Pokemon 151 Mini Tin Slowpoke Sandshrew - Choose Your Tin",
   ])
     assert.equal(m(t), "rejected", t);
   assert.notEqual(m("Pokemon Destined Rivals Mewtwo ex Tin"), "mewtwo2012", "a re-read that drops the year is not a signature");

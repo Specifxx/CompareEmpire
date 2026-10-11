@@ -7,7 +7,7 @@ name: DexCompare eBay import
 # A run, in order (DEPLOY.md, "The catalogue sweep"): (1) the fixed feeds: chase, sealed, types, sets (265 calls);
 # (2) the CATALOGUE SWEEP (src/lib/ebay-sweep.ts): per marketplace, broad searches paged 200 listings a call, each listing
 # handed to the product the repo's classifier says it is, so one call can feed dozens of products (an item feed for every
-# product found twice, cheap ones included; up to EBAY_SWEEP_CALLS, default 1800); (3) one search per ELIGIBLE product the
+# product found, cheap ones included; up to EBAY_SWEEP_CALLS, default 2100); (3) one search per ELIGIBLE product the
 # sweep did not cover, with what is left of the run cap. Every product page asks for its own listings. Why: one search per
 # product reached 1,735 of the 7,701 eligible keys a day and 44% of those searches came back empty. Every Browse call, sweep
 # pages included, is reserved in the database before it is made and never passes the run cap or the daily cap.
@@ -51,7 +51,7 @@ name: DexCompare eBay import
 #                                    to keep room for a manual re-run on the same Pacific day
 #   EBAY_LISTING_MAX_AGE_HOURS (26)  how old a listing may be before the site stops showing it (set the same value in Vercel; the store import reads it too)
 #   NEXT_PUBLIC_EBAY_CAMPAIGN_ID     only to use a different EPN campaign id from the default; the importer enforces it on every stored URL (the website no longer compares it)
-#   EBAY_SWEEP_CALLS (1800)          how many of a run's calls the catalogue sweep may spend (the per-product searches get the rest).
+#   EBAY_SWEEP_CALLS (2100)          how many of a run's calls the catalogue sweep may spend (the per-product searches get the rest).
 #
 # Inputs (Run workflow): only (buckets: chase, sealed, types, sets, sweep, items; a list without "sweep" skips the sweep), force,
 # dry_run, and probe: scripts/ebay-sweep-probe.ts instead of the import, about 60 calls (20 pages on EBAY_US, 10 on each other

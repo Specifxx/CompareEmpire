@@ -67,9 +67,9 @@ have changed; check eBay."
   within ~300 px of the viewport, into a box of reserved size (CLS 0). Pages stay ISR.
 * **Catalogue sweep** (`src/lib/ebay-sweep.ts`): product feeds come first from broad searches paged 200 listings a call per
   marketplace, each listing handed to the product the repo's classifier says it is, so one call can feed dozens of products (an
-  item feed for every product found twice, cheap ones included). One search per product had reached 1,735 of the 7,701 eligible
+  item feed for every product found, cheap ones included). One search per product had reached 1,735 of the 7,701 eligible
   keys a day, and 44% of those searches came back empty. A run buys the fixed feeds (chase, sealed, types, sets), then the sweep
-  (up to `EBAY_SWEEP_CALLS`, default 1,800), then one search per eligible product the sweep missed, with what is left. The
+  (up to `EBAY_SWEEP_CALLS`, default 2,100), then one search per eligible product the sweep missed, with what is left. The
   workflow's `probe` input measures the sweep (~60 calls, no listing written): on 2026-10-11, 60 pages found two or more
   listings for 590 product keys (product x marketplace); Canada and the EU find fewer by design (eBay-converted prices and German/Japanese listings are
   refused). DEPLOY.md, "The catalogue sweep".

@@ -10,7 +10,7 @@
 //   1. the fixed feeds: chase, sealed, types, sets (265 calls);
 //   2. the CATALOGUE SWEEP (src/lib/ebay-sweep.ts): per marketplace, broad searches paged 200 listings a call, each listing
 //      handed to the product the classifier says it is (one call can feed dozens of products); an item feed for every product
-//      found twice, cheap ones included, written 100 feeds to a transaction; up to EBAY_SWEEP_CALLS (1,800) of the run cap;
+//      found, cheap ones included, written 100 feeds to a transaction; up to EBAY_SWEEP_CALLS (2,100) of the run cap;
 //   3. one search per ELIGIBLE product the sweep did not cover, most valuable first, with whatever is left of the run cap.
 // (One search per product alone reached 1,735 of the 7,701 eligible keys a day, and 44% of those searches came back empty.)
 // It ends with the purge of rows older than the bound + 4 h. The website reads the table; only this job holds eBay credentials.
@@ -25,7 +25,7 @@
 // sweep's coverage shows only in a real run (the summary's Sweep table).
 // Env: DATABASE_URL; EBAY_CLIENT_ID / EBAY_CLIENT_SECRET (DEXCOMPARE_EBAY_CLIENT_ID / _SECRET win when set);
 // optional EBAY_DAILY_CAP (2500, max 2500: this site's share of a 5,000 keyset shared with the owner's other site; set it on
-// BOTH sites), EBAY_RUN_CAP (2500), EBAY_SWEEP_CALLS (1800), EBAY_LISTING_MAX_AGE_HOURS (26).
+// BOTH sites), EBAY_RUN_CAP (2500), EBAY_SWEEP_CALLS (2100), EBAY_LISTING_MAX_AGE_HOURS (26).
 // Exit 1: token failure (only eBay's OAuth error category is printed), a search refusal or the circuit breaker, or fewer than
 // half of the planned feeds refreshed (the fixed feeds and the per-product searches; the sweep is reported on its own).
 process.env.DEXCOMPARE_SCRIPT = "1";
