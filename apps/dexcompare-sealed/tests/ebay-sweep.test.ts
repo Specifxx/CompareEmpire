@@ -120,6 +120,7 @@ test("sweep matching: the reviewers' wrong matches stay refused (partials, multi
     "Pokémon Card Game Scarlet & Violet 151 Booster Pack",
     "POKÉMON CARD GAME Scarlet & Violet Premium Trainer Box ex",
     "Pokemon Surging Sparks Booster Box - You Choose",
+    "3 Promo Sealed Pokemon Surging Sparks Energy Packs From Elite Trainer Box",
     "Pokemon 151 Mini Tin Slowpoke Sandshrew - Choose Your Tin",
   ])
     assert.equal(m(t), "rejected", t);

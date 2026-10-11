@@ -25,7 +25,8 @@
 //     type's price floor.
 import { MAX_SEARCH_DEPTH, type SearchSpec } from "./ebay-api";
 import { feedReference, type FeedItem, type MarketplaceId } from "./ebay-context";
-import { baseItem, EBAY_NOISE, groupParts, lowestPriceFirst, refusedForType, refusedListing, sealedIdentity, typeFloor } from "./ebay-normalise";
+import { baseItem, EBAY_NOISE, groupParts, lowestPriceFirst, sealedIdentity, typeFloor } from "./ebay-normalise";
+import { refusedForType, refusedListing } from "./ebay-rules";
 import type { PlanRow } from "./ebay-store";
 import { HOT_SET_QUERY, HOT_SETS } from "./popular";
 import { identify, isIdentity, normalizeTitle, PRODUCT_TYPES, TYPE_BY_KEY, TYPE_BY_LABEL, type TypeKey } from "./sealed-title";

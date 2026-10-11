@@ -4,6 +4,7 @@
 // so tests/ run it with a fake and the route runs it with Prisma.
 import { Prisma } from "@prisma/client";
 import { listingHref } from "./affiliate";
+import { refusedListing } from "./ebay-rules";
 import {
   cleanImageUrl,
   feedKey,
@@ -86,7 +87,16 @@ export function cascadeFor(ctx: ParsedContext, region: Region, product?: { id: s
  * id is NOT compared with this runtime's NEXT_PUBLIC_EBAY_CAMPAIGN_ID: the importer enforced the owner's id when it wrote the row.
  */
 export function rowIsSafe(r: ListingRow): boolean {
-  return !!cleanImageUrl(r.imageUrl) && listingHref(r.url) !== null;
+  return !!cleanImageUrl(r.imageUrl) && listingHref(r.url) !== null && !refusedAtRead(r);
+}
+
+/**
+ * A sealed-product row (an item, type or generic sealed feed) the importer's rules refuse TODAY (ebay-normalise.ts refusedListing: a
+ * product's contents, lots, partials, random variants…): not shown, even when it was stored before the rule existed (rows live up to a
+ * day). Chase and set feeds (single cards) have their own filter at import.
+ */
+function refusedAtRead(r: ListingRow): boolean {
+  return !/\|(?:chase|set:)/.test(r.feed) && refusedListing(r.title);
 }
 
 /** A stored row → the whitelisted item the response carries. Shipping currency is the price's (eBay prices shipping in the marketplace's currency). */

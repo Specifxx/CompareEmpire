@@ -248,3 +248,15 @@ test("a stored row whose link is not one eBay item page with a campaign id, or w
   const out = await listingsFor({ kind: "chase", slug: null } as never, "us", f.deps);
   assert.equal(out.items.length, 2);
 });
+
+test("a stored sealed row the importer's rules now refuse (a product's contents, a lot) is not shown; card feeds keep their own filter", async () => {
+  const bad = { ...row("EBAY_US|item:prod1", 0, 1), title: "3 Promo Sealed Pokemon 30th Anniversary Energy Packs From Elite Trainer Box" };
+  const good = { ...row("EBAY_US|item:prod1", 1, 1), title: "Pokemon TCG 30th Celebration Elite Trainer Box Sealed" };
+  assert.equal(rowIsSafe(bad), false);
+  assert.equal(rowIsSafe(good), true);
+  const body = await (await call(fake([bad, good], {}, { "my-etb": ETB }).deps, "us", "item:my-etb")).json();
+  assert.equal(body.feed, "item");
+  assert.deepEqual(body.items.map((i: { title: string }) => i.title), [good.title]);
+  // a chase card's title is never judged by the sealed rules here
+  assert.equal(rowIsSafe({ ...row("EBAY_US|chase", 0, 1), title: "Charizard ex 199/165 Special Illustration Rare from booster box" }), true);
+});
