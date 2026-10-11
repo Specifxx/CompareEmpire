@@ -4,7 +4,7 @@ import { cache } from "react";
 import type { Metadata } from "next";
 import { Ago } from "@/components/Ago";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
-import { NoPreFooter } from "@/components/Ebay";
+import { hotSetHighlight, NoPreFooter } from "@/components/Ebay";
 import { EbayStrip } from "@/components/EbayStrip";
 import { ProductGrid } from "@/components/ProductCard";
 import { Empty, Section } from "@/components/Section";
@@ -74,6 +74,8 @@ export default async function SetPage({ params }: { params: { region: string; se
   const perPack = cheapestPerPack(products);
   // This set's chase cards as an image strip of real listings (cascade: generic chase cards for a set with no feed of its own); with none
   // to list, the compact CTA row. It sits on a row of its own after the first products (ProductGrid `strip`), so the products come first.
+  // One of the owner's hot sets (lib/popular.ts), once out, adds the highlighted "Shop <set> on eBay" button to the strip's top line (and
+  // makes it the CTA's button): a search for the set's SEALED product, what this page compares, beside its chase-card tiles.
   const strip = (
     <EbayStrip
       region={r.region}
@@ -81,6 +83,7 @@ export default async function SetPage({ params }: { params: { region: string; se
       placement="listings-set"
       headings={{ set: `${s.name} chase cards on eBay`, chase: "Chase cards on eBay" }}
       search={{ kind: "card", query: `${s.name} special illustration rare`, label: `Search ${s.name} on eBay` }}
+      highlight={hotSetHighlight(s)}
     />
   );
   return (

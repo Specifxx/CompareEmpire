@@ -9,6 +9,12 @@
 // PURE apart from the injected page fetcher: the importer (ebay-import.ts) supplies the fetch (reserved, retried and
 // circuit-broken like every other search) and writes the feeds; tests/ run it with fakes.
 //
+// Hot sets first (sweepWithHot): each marketplace's sweep starts with a HOT PASS, one search per (hot set, product type the
+// catalogue has for it), "Pokemon 30th elite trainer box", "Pokemon pitch black booster bundle"…, in the owner's order
+// (popular.ts HOT_SETS), paged like any other query; it may spend at most HOT_SHARE (half) of the marketplace's share, and the
+// general queries (SWEEP_QUERIES) get the rest. Both passes feed the same collector, so a general page gains nothing for a product
+// the hot pass already filled and stops sooner.
+//
 // Matching (matchListing):
 //   • a SET product (booster box, ETB, bundle…, and a UPC with a canonical key): the listing's group key IS the product's;
 //   • a collection, tin, blister or deck: same type; the sets do not disagree (either may be unnamed); every identifying word
@@ -19,9 +25,10 @@
 //     type's price floor.
 import { MAX_SEARCH_DEPTH, type SearchSpec } from "./ebay-api";
 import { feedReference, type FeedItem, type MarketplaceId } from "./ebay-context";
-import { baseItem, EBAY_NOISE, groupParts, lowestPriceFirst, sealedIdentity, typeFloor } from "./ebay-normalise";
+import { baseItem, EBAY_NOISE, groupParts, lowestPriceFirst, refusedForType, refusedListing, sealedIdentity, typeFloor } from "./ebay-normalise";
 import type { PlanRow } from "./ebay-store";
-import { identify, isIdentity, normalizeTitle, TYPE_BY_KEY, TYPE_BY_LABEL, type TypeKey } from "./sealed-title";
+import { HOT_SET_QUERY, HOT_SETS } from "./popular";
+import { identify, isIdentity, normalizeTitle, PRODUCT_TYPES, TYPE_BY_KEY, TYPE_BY_LABEL, type TypeKey } from "./sealed-title";
 import { MARKET_WEIGHT, MARKETPLACE_OF_REGION } from "./ebay-context";
 import type { Region } from "./regions";
 import { SETS } from "./sets";
@@ -84,6 +91,77 @@ export const SWEEP_QUERIES: readonly SweepQuery[] = [
   { key: "pack-sv", q: "booster pack scarlet violet", types: ["booster-pack", "sleeved-booster"] },
   { key: "pack-me", q: "booster pack mega evolution", types: ["booster-pack", "sleeved-booster"] },
 ];
+
+// ─── Hot sets ──────────────────────────────────────────────────────────────────
+
+/** The most of a marketplace's sweep share its hot pass may spend (in pages); the general queries get the rest. */
+export const HOT_SHARE = 0.5;
+
+/** What the hot pass searches a product type by ("Pokemon <set words> <phrase>"), and its query key's suffix. A case is its box's phrase + "case". */
+export const HOT_TYPE_QUERY: Readonly<Record<TypeKey, { key: string; phrase: string }>> = {
+  "booster-box": { key: "box", phrase: "booster box" },
+  etb: { key: "etb", phrase: "elite trainer box" },
+  "pc-etb": { key: "etb", phrase: "elite trainer box" },
+  "booster-bundle": { key: "bundle", phrase: "booster bundle" },
+  upc: { key: "collection", phrase: "collection" },
+  collection: { key: "collection", phrase: "collection" },
+  tin: { key: "tin", phrase: "tin" },
+  "build-battle": { key: "build", phrase: "build battle" },
+  "build-battle-stadium": { key: "build", phrase: "build battle" },
+  blister: { key: "blister", phrase: "blister" },
+  "sleeved-booster": { key: "pack", phrase: "booster pack" },
+  "booster-pack": { key: "pack", phrase: "booster pack" },
+  deck: { key: "deck", phrase: "deck" },
+  "booster-box-case": { key: "box-case", phrase: "booster box case" },
+  "etb-case": { key: "etb-case", phrase: "elite trainer box case" },
+  "booster-bundle-case": { key: "bundle-case", phrase: "booster bundle case" },
+};
+
+/** The words eBay is searched by for a hot set: popular.ts HOT_SET_QUERY's, else its sets.ts name with accents folded and "&" dropped; null for an unknown code. */
+export function hotSetWords(code: string): string | null {
+  const own = HOT_SET_QUERY[code];
+  if (own) return own.toLowerCase();
+  const set = SETS.find((s) => s.code === code);
+  if (!set) return null;
+  return set.name
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/&/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+}
+
+/**
+ * The hot pass's searches: for each hot set in the owner's order (popular.ts HOT_SETS) that is OUT (released on or before `today`; the
+ * importer refuses pre-sale listings, so an unreleased set would only burn pages), one query per product type the WHOLE catalogue (every
+ * plan row, any market) has for that set, in PRODUCT_TYPES order; types searched by the same words share one query (an ETB and a Pokémon
+ * Center ETB), and its price floor is the lowest of their floors (sweepSpec).
+ */
+export function hotSweepQueries(rows: readonly PlanRow[], today: string, hot: readonly string[] = HOT_SETS): SweepQuery[] {
+  const out = new Map<string, { key: string; q: string; types: TypeKey[] }>();
+  for (const code of hot) {
+    const set = SETS.find((s) => s.code === code);
+    const words = hotSetWords(code);
+    if (!set || !words || set.releaseDate > today) continue;
+    const has = new Set<TypeKey>();
+    for (const r of rows) {
+      if (r.setCode !== code) continue;
+      const t = typeOfLabel(r.typeLabel);
+      if (t) has.add(t);
+    }
+    for (const t of PRODUCT_TYPES) {
+      if (!has.has(t.key)) continue;
+      const { key, phrase } = HOT_TYPE_QUERY[t.key];
+      const q = `${words} ${phrase}`;
+      const cur = out.get(q);
+      if (cur) {
+        if (!cur.types.includes(t.key)) cur.types.push(t.key);
+      } else out.set(q, { key: `hot-${code}-${key}`, q, types: [t.key] });
+    }
+  }
+  return [...out.values()];
+}
 
 // ─── The product index ─────────────────────────────────────────────────────────
 
@@ -217,23 +295,6 @@ export function buildSweepIndex(rows: readonly PlanRow[], marketplace: Marketpla
 
 // ─── Matching ──────────────────────────────────────────────────────────────────
 
-/**
- * Listings the sweep never hands to a product, on top of what identify() and SEALED_NOISE refuse (tested on the accent-folded
- * title): Japanese product naming ("Pokemon Card Game MEGA Expansion Pack … Box", "Premium Trainer Box"), several units
- * ("Mini Tins (10-Pack)", "Full Set", "All 3", "Lot"), part of a product ("Missing Promo", "Coin Only", "No Packs"), a variant
- * left to chance ("One Variation Chosen At Random", "Assorted") and damage notes.
- */
-const SWEEP_REJECT = new RegExp(
-  [
-    "\\bexpansion\\s+pack\\b|\\bhigh\\s+class\\s+pack\\b|\\bconstructed\\s+(?:deck|starter)\\b|\\bpokemon\\s+card(?:\\s+game)?\\s*[:\\-]?\\s*(?:mega|scarlet|sword|sun|xy|151)\\b|\\bpremium\\s+trainer\\s+box\\b",
-    "\\btins\\b[^()]{0,40}\\(\\s*\\d+\\s*-?\\s*(?:pack|pk)s?\\s*\\)|\\b(?:full|complete|whole)\\s+set\\b|\\ball\\s+(?:[2-9]|three|four|five|six|eight|nine|ten)\\b|\\b(?:set|bundle|lot)\\s+of\\b|\\blots?\\b",
-    "\\b(?:missing|without|w/o|removed|incomplete|partial|contents)\\b|\\b(?:coins?|promos?|cards?|pins?|tin|box|packs?|figure|jumbo|oversized?)\\s+only\\b|\\bno\\s+(?:packs?|boosters?|promos?|cards?|coins?)\\b",
-    "\\brandom\\b|\\bassorted\\b|\\bvariation\\b|\\bchosen\\b|\\bvarious\\b|\\bstyles?\\s+may\\s+vary\\b|\\bmystery\\b|\\byou\\s+choose\\b|\\bchoose\\s+(?:your|one|from|between)\\b|\\bpick\\s+(?:your|one|from)\\b|\\byour\\s+choice\\b",
-    "\\bdamage[ds]?\\b|\\bcrushed\\b|\\btorn\\b|\\bresealed\\b|\\bunsealed\\b|\\bempty\\b",
-  ].join("|"),
-  "i",
-);
-
 // Words a listing may carry beyond its product's own without becoming another product: seller filler, promo-card finishes,
 // shipping talk, abbreviations of the product line, and the words of set names (the set is already compared by its code).
 // Never the words that tell products apart (KEEP_SHORT in sealed-title.ts) or a Pokémon a set happens to be named after.
@@ -263,23 +324,15 @@ export function setWordsIn(title: string): Set<string> {
 /** May a listing carry this word beyond its product's words? (`setWords`: the words of the sets this listing names.) */
 export const isFiller = (w: string, setWords: ReadonlySet<string> = new Set()) => !NEVER_FILLER.has(w) && (EBAY_NOISE.has(w) || FILLER.has(w) || setWords.has(w));
 
-// A booster pack product is ONE pack: "5 Booster Packs", "Booster Pack x10", "(10 Packs)", "Packs" are lots of it.
-const SEVERAL_PACKS = /\b(?:[2-9]|[1-9]\d)\s*(?:x\s*)?(?:sleeved\s+)?(?:booster\s+)?packs?\b|\(\s*\d+\s*packs?\s*\)|\bpacks\b|\bx\s*\d+\b|\b\d+\s*x\b/i;
-// A box or ETB "Case Fresh" is one box from a case, not the case.
-const CASE_FRESH = /\bcase[\s-]*fresh\b|\bfresh\s+(?:from|out\s+of)\s+(?:a\s+)?case\b|\bfrom\s+(?:an?\s+)?(?:sealed\s+)?case\b/i;
-const CASE_TYPES = new Set<TypeKey>(["booster-box-case", "etb-case", "booster-bundle-case"]);
 
 export type MatchMiss = "rejected" | "no-product" | "ambiguous";
 
 /** The product a listing title IS, in this marketplace's index, or why not. */
 export function matchListing(title: string, index: SweepIndex): { product: SweepProduct } | { miss: MatchMiss } {
-  if (SWEEP_REJECT.test(fold(title))) return { miss: "rejected" };
+  if (refusedListing(title)) return { miss: "rejected" };
   const id = sealedIdentity(title, false);
   if (!id) return { miss: "rejected" };
-  if ((id.type === "booster-pack" || id.type === "sleeved-booster") && SEVERAL_PACKS.test(fold(title))) return { miss: "rejected" };
-  if (CASE_TYPES.has(id.type) && CASE_FRESH.test(fold(title))) return { miss: "rejected" };
-  // "Sleeved Booster Bundle 4 Arts" is four sleeved boosters, not the 6-pack Booster Bundle.
-  if (id.type === "booster-bundle" && /\bsleeved\b/i.test(title)) return { miss: "rejected" };
+  if (refusedForType(title, id.type)) return { miss: "rejected" };
   const exact = index.byKey.get(id.groupKey);
   if (exact) return { product: exact };
   const kind = TYPE_BY_KEY.get(id.type)?.kind;
@@ -484,8 +537,38 @@ export async function sweepMarketplace(
 }
 
 /**
+ * One marketplace's sweep, hot sets first: the HOT PASS (`hot`, from hotSweepQueries) pages with at most HOT_SHARE of `budget`, then
+ * the general queries (SWEEP_QUERIES unless `queries`) page with the rest, both into the same collector. `spent()` (the importer's
+ * count of the calls made, retries included) sizes the general pass from what the hot pass really cost; without it, the pages it
+ * fetched. A fatal error in either pass is thrown as sweepMarketplace throws it; once `shouldStop()` says the run is over the general
+ * pass does not start.
+ */
+export async function sweepWithHot(
+  collector: SweepCollector,
+  budget: number,
+  fetchPage: FetchPage,
+  opts: { concurrency: number; hot: readonly SweepQuery[]; queries?: readonly SweepQuery[]; shouldStop?: () => boolean; isFatal?: (e: unknown) => boolean; spent?: () => number },
+): Promise<{ hot: QueryProgress[]; general: QueryProgress[] }> {
+  const { hot: hotQueries, queries, spent, ...common } = opts;
+  const total = Math.max(0, Math.floor(budget));
+  let fetched = 0;
+  const counted: FetchPage = (spec) => {
+    fetched++;
+    return fetchPage(spec);
+  };
+  const start = spent?.() ?? 0;
+  const hotBudget = Math.floor(total * HOT_SHARE);
+  const hot = hotQueries.length && hotBudget > 0 ? await sweepMarketplace(collector, hotBudget, counted, { ...common, queries: hotQueries }) : [];
+  if (common.shouldStop?.()) return { hot, general: [] };
+  const used = spent ? spent() - start : fetched;
+  const general = await sweepMarketplace(collector, Math.max(0, total - used), counted, { ...common, queries: queries ?? SWEEP_QUERIES });
+  return { hot, general };
+}
+
+/**
  * How a sweep budget is shared between marketplaces: by how many products each lists × its audience weight (MARKET_WEIGHT: the US
- * first), with a floor so a small one still gets a few pages.
+ * first, then the UK and the EU, then Australia and Canada), with a floor so a small one still gets a few pages. The importer asks
+ * again before each marketplace with what is left, so what one leaves unspent rolls forward in MARKETPLACE_ORDER.
  */
 export function marketplaceShares(indexes: readonly SweepIndex[], budget: number, minShare = 0.08): Map<MarketplaceId, number> {
   const w = (x: SweepIndex) => x.products.length * MARKET_WEIGHT[x.marketplace];

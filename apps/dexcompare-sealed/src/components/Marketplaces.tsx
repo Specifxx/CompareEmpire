@@ -67,6 +67,7 @@ export function MarketplacePanel({
   tcgplayer,
   tcgplayerIsBest = false,
   ebayPrimary = false,
+  popular = false,
 }: {
   region: Region;
   productName: string;
@@ -75,8 +76,13 @@ export function MarketplacePanel({
   tcgplayer: TcgplayerMatch | null;
   /** US: TCGplayer is the best price above, so its button is already there. */
   tcgplayerIsBest?: boolean;
-  /** Only one store has it in stock: the eBay row becomes a button, the page's one primary marketplace action. */
+  /** Only one store has it in stock, or the product is popular: the eBay row becomes a button, the page's one primary marketplace action. */
   ebayPrimary?: boolean;
+  /**
+   * A product of one of the owner's hot sets (lib/popular.ts; the page passes ebayPrimary with it): the eBay row carries a
+   * "Popular set" chip in the panel's heading, outside the ad link. The owner's pick (lib/popular.ts), so the words claim nothing about eBay's data.
+   */
+  popular?: boolean;
 }) {
   const r = REGIONS[region];
   const us = r.market === "US";
@@ -115,7 +121,11 @@ export function MarketplacePanel({
   }
   return (
     <div data-ad="product-marketplace" className="card mt-3 overflow-hidden">
-      <h2 className="eyebrow border-b border-line bg-raised px-5 py-2.5">Marketplaces</h2>
+      <h2 className="eyebrow flex items-center justify-between gap-3 border-b border-line bg-raised px-5 py-2.5">
+        Marketplaces
+        {/* Outside the ad link: the site's own pick (lib/popular.ts HOT_SETS), not eBay's data and not a claim of a trend. */}
+        {popular && <span className="rounded-full bg-brand/10 px-2 py-0.5 text-[11px] font-bold normal-case tracking-normal text-brand">Popular set</span>}
+      </h2>
       <ul className="divide-y divide-line">
         <li className="bg-ad">
           <OutboundLink

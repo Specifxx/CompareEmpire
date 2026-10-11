@@ -58,8 +58,12 @@ export function regionsOfMarketplace(id: MarketplaceId): Region[] {
   return (Object.keys(MARKETPLACE_OF_REGION) as Region[]).filter((r) => MARKETPLACE_OF_REGION[r] === id);
 }
 
-/** How much a marketplace's visitors matter, for ranking which item feeds the daily call budget buys first. */
-export const MARKET_WEIGHT: Record<MarketplaceId, number> = { EBAY_US: 1, EBAY_GB: 0.6, EBAY_AU: 0.6, EBAY_CA: 0.5, EBAY_DE: 0.4 };
+/**
+ * How much a marketplace's visitors matter, for ranking which item feeds the daily call budget buys first and how the catalogue sweep's
+ * calls are shared. The owner's priority (src/lib/popular.ts PRIORITY_MARKETPLACES): the US above all, then the UK and the EU (eBay.de);
+ * Australia/NZ and Canada get what is left.
+ */
+export const MARKET_WEIGHT: Record<MarketplaceId, number> = { EBAY_US: 1, EBAY_GB: 0.7, EBAY_DE: 0.7, EBAY_AU: 0.35, EBAY_CA: 0.25 };
 
 // ─── Feed keys ─────────────────────────────────────────────────────────────────
 

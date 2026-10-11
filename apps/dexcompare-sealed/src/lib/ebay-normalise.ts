@@ -12,7 +12,7 @@
 //   • no derived statistics: nothing here computes an average, median or "% below" of eBay prices.
 import { epnTagUrl, EBAY_CAMPAIGN_ID, isItemListingUrl } from "./affiliate";
 import { cleanImageUrl, cleanPrice, cleanText, cleanTitle, feedReference, MARKETPLACES, type FeedItem, type FeedKind, type MarketplaceId } from "./ebay-context";
-import { detectSet, floorCents, fromRoughUsdCents, identify, isIdentity, TYPE_BY_KEY, type TypeKey } from "./sealed-title";
+import { detectSet, floorCents, fromRoughUsdCents, identify, isIdentity, normalizeTitle, TYPE_BY_KEY, type TypeKey } from "./sealed-title";
 import type { Region } from "./regions";
 import { regionsOfMarketplace } from "./ebay-context";
 
@@ -237,6 +237,46 @@ export function multiUnit(title: string, type: TypeKey): boolean {
 // the product is not in the shops yet), "read the description" condition notes, dented/damaged boxes, and eBay Live stream lots.
 const SEALED_NOISE = /\bpre[\s-]?(?:sales?|orders?)\b|\bpresales?\b|\b(?:read|see|check)\s+(?:the\s+)?desc(?:ription)?\b|\bdents?\b|\bdented\b|\bdamaged\b|\bdmg\b|\[\s*ebay\s+live\s*\]|\bebay\s+live\b|\bas[\s-]is\b|\bopen(?:ed)?\s+box\b/i;
 
+// ─── Listings that are not ONE of the product ──────────────────────────────────
+
+/**
+ * Listings never handed to a product (the catalogue sweep AND the per-product searches), on top of what identify() and SEALED_NOISE refuse (tested on the accent-folded
+ * title): Japanese product naming ("Pokemon Card Game MEGA Expansion Pack … Box", "Premium Trainer Box"), several units
+ * ("Mini Tins (10-Pack)", "Full Set", "All 3", "Lot"), part of a product ("Missing Promo", "Coin Only", "No Packs"), a variant
+ * left to chance ("One Variation Chosen At Random", "Assorted") and damage notes.
+ */
+const LISTING_REJECT = new RegExp(
+  [
+    "\\bexpansion\\s+pack\\b|\\bhigh\\s+class\\s+pack\\b|\\bconstructed\\s+(?:deck|starter)\\b|\\bpokemon\\s+card(?:\\s+game)?\\s*[:\\-]?\\s*(?:mega|scarlet|sword|sun|xy|151)\\b|\\bpremium\\s+trainer\\s+box\\b",
+    "\\btins\\b[^()]{0,40}\\(\\s*\\d+\\s*-?\\s*(?:pack|pk)s?\\s*\\)|\\b(?:full|complete|whole)\\s+set\\b|\\ball\\s+(?:[2-9]|three|four|five|six|eight|nine|ten)\\b|\\b(?:set|bundle|lot)\\s+of\\b|\\blots?\\b",
+    "\\b(?:missing|without|w/o|removed|incomplete|partial|contents)\\b|\\b(?:coins?|promos?|cards?|pins?|tin|box|packs?|figure|jumbo|oversized?)\\s+only\\b|\\bno\\s+(?:packs?|boosters?|promos?|cards?|coins?)\\b",
+    "\\brandom\\b|\\bassorted\\b|\\bvariation\\b|\\bchosen\\b|\\bvarious\\b|\\bstyles?\\s+may\\s+vary\\b|\\bmystery\\b|\\byou\\s+choose\\b|\\bchoose\\s+(?:your|one|from|between)\\b|\\bpick\\s+(?:your|one|from)\\b|\\byour\\s+choice\\b",
+    "\\bdamage[ds]?\\b|\\bcrushed\\b|\\btorn\\b|\\bresealed\\b|\\bunsealed\\b|\\bempty\\b",
+  ].join("|"),
+  "i",
+);
+
+const foldTitle = (t: string) => normalizeTitle(t).toLowerCase();
+
+/** Is this listing refused whatever product it is for (LISTING_REJECT, on the accent-folded title)? */
+export function refusedListing(title: string): boolean {
+  return LISTING_REJECT.test(foldTitle(title));
+}
+
+// A booster pack product is ONE pack: "5 Booster Packs", "Booster Pack x10", "(10 Packs)", "Packs" are lots of it.
+const SEVERAL_PACKS = /\b(?:[2-9]|[1-9]\d)\s*(?:x\s*)?(?:sleeved\s+)?(?:booster\s+)?packs?\b|\(\s*\d+\s*packs?\s*\)|\bpacks\b|\bx\s*\d+\b|\b\d+\s*x\b/i;
+// A box or ETB "Case Fresh" is one box from a case, not the case.
+const CASE_FRESH = /\bcase[\s-]*fresh\b|\bfresh\s+(?:from|out\s+of)\s+(?:a\s+)?case\b|\bfrom\s+(?:an?\s+)?(?:sealed\s+)?case\b/i;
+
+/** Is this listing, read as `type`, not one unit of that type: a multi-pack lot of a pack, a "case fresh" box for a case, sleeved boosters for a bundle? */
+export function refusedForType(title: string, type: TypeKey): boolean {
+  const t = foldTitle(title);
+  if ((type === "booster-pack" || type === "sleeved-booster") && SEVERAL_PACKS.test(t)) return true;
+  if (CASE_TYPES.has(type) && CASE_FRESH.test(t)) return true;
+  // "Sleeved Booster Bundle 4 Arts" is four sleeved boosters, not the 6-pack Booster Bundle.
+  return type === "booster-bundle" && /\bsleeved\b/.test(t);
+}
+
 /** The listing's identity if the repo's classifier accepts it as sealed Pokémon product (Pokémon named: strict) and it is ONE unit, else null. */
 export function sealedIdentity(title: string, strict: boolean) {
   if (SEALED_NOISE.test(title)) return null;
@@ -308,7 +348,7 @@ export function relevantToProduct(title: string, p: ItemTarget): boolean {
 /** A listing for one product's item feed. `floor` is the type's floor in the marketplace's currency. */
 export function normaliseItemFeed(raw: unknown, marketplace: MarketplaceId, now: number, target: ItemTarget): FeedItem | null {
   const it = baseItem(raw, marketplace, now, "item");
-  if (!it || !relevantToProduct(it.title, target)) return null;
+  if (!it || refusedListing(it.title) || refusedForType(it.title, target.type) || !relevantToProduct(it.title, target)) return null;
   if (Number(it.price.value) < typeFloor(target.type, marketplace)) return null;
   return it;
 }

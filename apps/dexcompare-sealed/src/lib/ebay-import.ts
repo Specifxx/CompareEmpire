@@ -10,13 +10,16 @@
 //     4. sets     chase cards of the 30 most recently released sets, 1 query each           (5 × 30  = 150)
 //     5. sweep    the CATALOGUE SWEEP (ebay-sweep.ts): broad searches paged 200 listings a call, each listing
 //                 handed to the product the classifier says it is: an item feed for EVERY product it finds,
-//                 cheap ones included (EBAY_SWEEP_CALLS, default 2,100, shared by marketplace by product count × audience)
-//     6. items    one query per (marketplace, ELIGIBLE product) the sweep did NOT cover: the product's own
-//                 listings, first every eligible key (core), then, budget permitting, downward by price
-//                 to US$25 (extension), each tier ranked by reference price × market weight
-//                 (sold-out ×1.5); whatever the sweep left of the run cap
+//                 cheap ones included (EBAY_SWEEP_CALLS, default 2,100, shared by marketplace by product count × audience,
+//                 in MARKETPLACE_ORDER); each marketplace starts with the HOT PASS (the hot sets' own searches, at most
+//                 half its share)
+//     6. items    one query per (marketplace, product) the sweep did NOT cover, whatever the sweep left of the run cap:
+//                 first the HOT-SET products of the priority marketplaces (US, UK, EU), any type and price (packs and
+//                 cheap ones too), by hot rank, then marketplace, then value; then every ELIGIBLE key (core), then,
+//                 budget permitting, downward by price to US$25 (extension), each tier ranked by reference price ×
+//                 market weight (sold-out ×1.5)
 //   A "feed" is what the strips read (ebay-context.ts). Marketplaces: au+nz share EBAY_AU, us+sg share EBAY_US,
-//   uk EBAY_GB, ca EBAY_CA, eu EBAY_DE.
+//   uk EBAY_GB, ca EBAY_CA, eu EBAY_DE. The owner's priorities (which sets are hot, which markets come first) live in popular.ts.
 import { searchTerms } from "./affiliate";
 import { referenceUsd, tierOf, type Tier } from "./ebay-eligibility";
 import { createTokenManager, EbayError, searchPage, type Deps, type SearchSpec, type TokenManager } from "./ebay-api";
@@ -51,10 +54,11 @@ import {
   type ItemTarget,
 } from "./ebay-normalise";
 import { budgetDay, type ImportDb, type PlanRow } from "./ebay-store";
-import { buildSweepIndex, marketplaceShares, SweepCollector, sweepMarketplace, sweepSignatureSets, sweepVocabulary, type QueryProgress, type SweepIndex } from "./ebay-sweep";
+import { buildSweepIndex, hotSweepQueries, marketplaceShares, SweepCollector, sweepSignatureSets, sweepVocabulary, sweepWithHot, type QueryProgress, type SweepIndex } from "./ebay-sweep";
+import { HOT_SET_QUERY, HOT_SETS, hotRank, isHotSet, PRIORITY_MARKETPLACES } from "./popular";
 import type { Region } from "./regions";
-import { roughUsdCents, TYPE_BY_KEY, TYPE_BY_LABEL, TYPE_BY_SLUG, type TypeKey } from "./sealed-title";
-import { SETS, type PokemonSet } from "./sets";
+import { normalizeTitle, roughUsdCents, TYPE_BY_KEY, TYPE_BY_LABEL, TYPE_BY_SLUG, type TypeKey } from "./sealed-title";
+import { SET_BY_CODE, SETS, type PokemonSet } from "./sets";
 
 // ─── Tunables ──────────────────────────────────────────────────────────────────
 
@@ -161,10 +165,75 @@ export function itemKeys(rows: readonly PlanRow[]): ItemKey[] {
   return out.sort((a, b) => tierRank(a) - tierRank(b) || b.value - a.value || a.productId.localeCompare(b.productId) || a.marketplace.localeCompare(b.marketplace));
 }
 
+/** A product the per-product searches buy first because its set is hot (popular.ts), whatever its type or price. */
+export interface HotKey {
+  marketplace: MarketplaceId;
+  productId: string;
+  name: string;
+  type: TypeKey;
+  groupKey: string;
+  setCode: string;
+  /** The set's place in HOT_SETS (0 = the most wanted). */
+  rank: number;
+  /** The highest reference price among the marketplace's regions that list it, US$ (null: no price known). */
+  usd: number | null;
+  /** usd × the marketplace's weight × 1.5 when sold out (as itemKeys); 0 with no price. */
+  value: number;
+}
+
+/**
+ * Every (PRIORITY marketplace, hot-set product) key: the products of popular.ts HOT_SETS listed in the US, UK or EU, ANY type and ANY
+ * price (booster packs and cheap ones included: no eligibility rule), ordered by the set's hot rank, then MARKETPLACE_ORDER, then
+ * value (then product id, so the order is stable). Only regions where the product has a ProductStat row count, as for itemKeys.
+ */
+export function hotItemKeys(rows: readonly PlanRow[], today = "9999-12-31"): HotKey[] {
+  const priority = new Set<string>(PRIORITY_MARKETPLACES);
+  // A hot set that is not out yet gets nothing (popular.ts): its listings are pre-sales, which the normaliser refuses anyway.
+  const released = (code: string | null) => !!code && (SET_BY_CODE.get(code)?.releaseDate ?? "9999-12-31") <= today;
+  const by = new Map<string, { marketplace: MarketplaceId; row: PlanRow; usd: number | null; anyOpen: boolean }>();
+  for (const r of rows) {
+    if (!isHotSet(r.setCode) || !released(r.setCode)) continue;
+    const marketplace = MARKETPLACE_OF_REGION[r.market.toLowerCase() as Region];
+    if (!marketplace || !priority.has(marketplace) || !TYPE_BY_LABEL.has(r.typeLabel)) continue;
+    const usd = referenceUsd(r);
+    const k = `${marketplace}|${r.productId}`;
+    const cur = by.get(k);
+    const open = r.openCents != null;
+    if (!cur) by.set(k, { marketplace, row: r, usd, anyOpen: open });
+    else {
+      cur.anyOpen = cur.anyOpen || open;
+      if (usd != null && (cur.usd == null || usd > cur.usd)) {
+        cur.usd = usd;
+        cur.row = r;
+      }
+    }
+  }
+  const order = (m: MarketplaceId) => MARKETPLACE_ORDER.indexOf(m);
+  return [...by.values()]
+    .map(({ marketplace, row, usd, anyOpen }): HotKey => ({
+      marketplace,
+      productId: row.productId,
+      name: row.name,
+      type: TYPE_BY_LABEL.get(row.typeLabel)!.key,
+      groupKey: row.groupKey,
+      setCode: row.setCode!,
+      rank: hotRank(row.setCode),
+      usd,
+      value: usd == null ? 0 : usd * MARKET_WEIGHT[marketplace] * (anyOpen ? 1 : SOLD_OUT_BOOST),
+    }))
+    .sort((a, b) => a.rank - b.rank || order(a.marketplace) - order(b.marketplace) || b.value - a.value || a.productId.localeCompare(b.productId));
+}
+
 // ─── Queries ───────────────────────────────────────────────────────────────────
 
-/** Marketplaces in the order the budget is spent: the biggest audience first, so a cap hit drops EBAY_DE before EBAY_US. */
-export const MARKETPLACE_ORDER: readonly MarketplaceId[] = [...MARKETPLACE_IDS].sort((a, b) => MARKET_WEIGHT[b] - MARKET_WEIGHT[a] || a.localeCompare(b));
+/**
+ * Marketplaces in the order the budget is spent: the owner's priority ones first (popular.ts PRIORITY_MARKETPLACES: US, UK, EU), then
+ * the rest by audience weight (AU, CA), so a cap hit drops EBAY_CA before EBAY_US.
+ */
+export const MARKETPLACE_ORDER: readonly MarketplaceId[] = [
+  ...PRIORITY_MARKETPLACES,
+  ...MARKETPLACE_IDS.filter((m) => !(PRIORITY_MARKETPLACES as readonly string[]).includes(m)).sort((a, b) => MARKET_WEIGHT[b] - MARKET_WEIGHT[a] || a.localeCompare(b)),
+];
 
 export const CHASE_QUERIES = [
   "Charizard ex special illustration rare",
@@ -249,8 +318,10 @@ export interface PlanFeed {
   /** One Browse call per entry. */
   searches: SearchSpec[];
   rule: Rule;
-  /** items only */
+  /** items only: the eligible key it buys (absent for a hot-set product that is not an eligible key) */
   item?: ItemKey;
+  /** items only: a hot-set product of a priority marketplace (hotItemKeys), bought before every eligible key */
+  hot?: boolean;
 }
 
 export interface Plan {
@@ -299,16 +370,54 @@ export function fixedFeeds(today: string): PlanFeed[] {
   return out;
 }
 
-function itemFeed(k: ItemKey): PlanFeed {
+/**
+ * The words a product of a set in HOT_SET_QUERY is searched by: its name with the set's own name swapped for the keyword sellers
+ * use ("30th Celebration Elite Trainer Box" → "30th Elite Trainer Box", which "30th Anniversary" listings match; "Scarlet & Violet 151
+ * Booster Bundle" → "151 Booster Bundle"). Any other product: its name.
+ */
+export function hotQueryName(name: string, setCode: string | null): string {
+  const term = setCode ? HOT_SET_QUERY[setCode] : undefined;
+  const set = setCode ? SET_BY_CODE.get(setCode) : undefined;
+  if (!term || !set) return name;
+  const words = (t: string) => normalizeTitle(t).split(/[^A-Za-z0-9]+/).filter((w) => w && w.toLowerCase() !== "and"); // "&" / "and" are separators
+  const nameRe = words(set.name).map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("[\\s&:,.'\\-–—]*(?:and[\\s]*)?");
+  let rest = normalizeTitle(name).replace(new RegExp(`\\b${nameRe}\\b`, "gi"), " ");
+  if (setCode === "cel30") rest = rest.replace(/\b30th\s+anniversary(?:\s+celebration)?\b/gi, " ");
+  rest = rest.replace(/^\s*pokemon(?:\s+tcg\s*[:\-–—]?|\s*[:\-–—])/i, " "); // a leading "Pokemon TCG:" (itemQuery puts "Pokemon" first again; "Pokemon Center" stays)
+  rest = rest.replace(/^[\s\-–—:,]+|[\s\-–—:,]+$/g, "").replace(/\s+/g, " ");
+  const hasTerm = new RegExp(`\\b${term}\\b`, "i").test(rest);
+  return hasTerm ? rest : `${term} ${rest}`.trim();
+}
+
+/** One product's own search: "Pokemon <cleaned name>" (a hot set's keyword in place of its name), the type's price floor, the item normaliser. */
+function productFeed(k: Pick<ItemKey, "marketplace" | "productId" | "name" | "type" | "groupKey" | "setCode">): PlanFeed {
   return {
     feed: feedKey(k.marketplace, "item", k.productId),
     bucket: "items",
     kind: "item",
     marketplace: k.marketplace,
-    searches: [{ q: itemQuery(k.name), marketplace: k.marketplace, limit: ITEM_LIMIT, minPrice: typeFloor(k.type, k.marketplace), ref: feedReference(k.marketplace, "item") }],
+    searches: [{ q: itemQuery(hotQueryName(k.name, k.setCode)), marketplace: k.marketplace, limit: ITEM_LIMIT, minPrice: typeFloor(k.type, k.marketplace), ref: feedReference(k.marketplace, "item") }],
     rule: { kind: "item", target: { groupKey: k.groupKey, type: k.type, setCode: k.setCode } },
-    item: k,
   };
+}
+
+const itemFeed = (k: ItemKey): PlanFeed => ({ ...productFeed(k), item: k });
+
+/**
+ * The per-product searches, in the order they are bought (before the cap and the sweep's coverage are applied): first the hot-set
+ * products of the priority marketplaces (hotItemKeys: any type, any price), then every eligible key not already among them (itemKeys'
+ * order: core by value, then the extension). A hot product that is also an eligible key keeps its ItemKey (`item`), so it still counts
+ * as a covered core or extension key.
+ */
+export function perProductFeeds(rows: readonly PlanRow[], keys: readonly ItemKey[] = itemKeys(rows), today?: string): PlanFeed[] {
+  const eligible = new Map(keys.map((k) => [feedKey(k.marketplace, "item", k.productId), k]));
+  const hot = hotItemKeys(rows, today).map((h): PlanFeed => {
+    const f = productFeed(h);
+    const item = eligible.get(f.feed);
+    return { ...f, hot: true, ...(item ? { item } : {}) };
+  });
+  const seen = new Set(hot.map((f) => f.feed));
+  return [...hot, ...keys.map(itemFeed).filter((f) => !seen.has(f.feed))];
 }
 
 export interface PlanOptions {
@@ -323,15 +432,16 @@ export interface PlanOptions {
 }
 
 /**
- * Spend `cap` calls in priority order: chase, sealed, types, sets, the catalogue sweep's share, then item keys (core by value, then
- * the extension). The item feeds planned here are the PRE-plan: the run buys them only for keys the sweep did not cover, and with
- * whatever the sweep actually left (ebay-import.ts runImport).
+ * Spend `cap` calls in priority order: chase, sealed, types, sets, the catalogue sweep's share, then the per-product searches
+ * (perProductFeeds: the hot-set products of the US, UK and EU first, then item keys, core by value, then the extension). The item
+ * feeds planned here are the PRE-plan: the run buys them only for products the sweep did not cover, and with whatever the sweep
+ * actually left (ebay-import.ts runImport).
  */
 export function buildPlan(rows: readonly PlanRow[], opts: PlanOptions): Plan {
   const want = (b: Bucket) => !opts.only || opts.only.includes(b);
   const keys = itemKeys(rows);
   const fixed = fixedFeeds(opts.today).filter((f) => want(f.bucket));
-  const items = keys.map(itemFeed).filter((f) => want(f.bucket));
+  const items = perProductFeeds(rows, keys, opts.today).filter((f) => want(f.bucket));
   const byBucket = Object.fromEntries(BUCKETS.map((b) => [b, { feeds: 0, calls: 0, wanted: 0, wantedCalls: 0, fresh: 0 }])) as Plan["byBucket"];
   let left = Math.max(0, Math.floor(opts.cap));
   const feeds: PlanFeed[] = [];
@@ -474,7 +584,35 @@ export interface SweepReport {
   found: number;
   /** item feeds written (products with at least minRowsFor("item") listings) */
   written: number;
+  /** the general queries (SWEEP_QUERIES) */
   queries: QueryProgress[];
+  /** the hot pass's queries (hotSweepQueries), run first, and the pages they fetched (included in `pages`) */
+  hotQueries: QueryProgress[];
+  hotPages: number;
+}
+
+/** One hot set in one priority marketplace after the run: counts only. */
+export interface HotCoverage {
+  set: string;
+  marketplace: MarketplaceId;
+  /** products of the set the marketplace's regions list */
+  products: number;
+  /** ...of which have an item feed in the database after the run */
+  withFeed: number;
+}
+
+/** The per-product searches for hot-set products of the priority marketplaces (hotItemKeys): counts only. */
+export interface HotItems {
+  /** hot keys in all */
+  keys: number;
+  /** refreshed recently (not bought again) */
+  fresh: number;
+  /** covered by this run's sweep */
+  covered: number;
+  /** searched one by one this run */
+  searched: number;
+  /** ...of which wrote an item feed */
+  refreshed: number;
 }
 
 export interface RunSummary {
@@ -499,19 +637,54 @@ export interface RunSummary {
   /** the token failure's code and OAuth category, or the search failure's code (e.g. search-http-403), when that is why */
   tokenError: string | null;
   feedsRefreshed: number;
-  /** the fixed feeds and the per-product searches planned (the sweep is reported in `sweep`) */
+  /**
+   * the fixed feeds and the per-product searches planned (the sweep is reported in `sweep`); a hot-set product that is not an eligible key
+   * (a pack, a cheap product) is best effort like the sweep: it is in `hotItems`, not here or in `feedsRefreshed` (the job's exit check)
+   */
   feedsPlanned: number;
   sweep: SweepReport[];
+  /** per hot set (HOT_SETS order) × priority marketplace: products with an item feed after the run / products listed */
+  hot: HotCoverage[];
+  hotItems: HotItems;
   itemFeedsInDb: number;
   rowsInDb: number;
   oldestRowAgeMs: number | null;
 }
+
+/** Does a feed count in feedsPlanned / feedsRefreshed? All but a hot-set product's search that is not an eligible key (see RunSummary). */
+const counted = (f: PlanFeed) => !f.hot || !!f.item;
 
 const emptyBucket = (): BucketResult => ({ planned: 0, refreshed: 0, failed: 0, skipped: 0, fresh: 0, calls: 0, emptied: 0, stored: 0, covered: 0 });
 
 /** Delete listings older than the bound plus the grace (3.1(b): copies no longer required are deleted). The store import calls the same helper. */
 export function purgeCutoff(nowMs: number, env: CapEnv): Date {
   return purgeCutoffFor(nowMs, env.EBAY_LISTING_MAX_AGE_HOURS);
+}
+
+/**
+ * Per hot set (HOT_SETS order) and priority marketplace: how many of the set's products the marketplace lists, and how many of those
+ * `hasFeed` says have an item feed. Counts only.
+ */
+export function hotCoverage(rows: readonly PlanRow[], hasFeed: (feed: string) => boolean, sets: readonly string[] = HOT_SETS): HotCoverage[] {
+  const ids = new Map<string, Set<string>>();
+  const wanted = new Set(sets);
+  for (const r of rows) {
+    if (!r.setCode || !wanted.has(r.setCode)) continue;
+    const mp = MARKETPLACE_OF_REGION[r.market.toLowerCase() as Region];
+    if (!mp) continue;
+    const k = `${r.setCode}|${mp}`;
+    const s = ids.get(k) ?? new Set<string>();
+    s.add(r.productId);
+    ids.set(k, s);
+  }
+  const out: HotCoverage[] = [];
+  for (const set of sets) {
+    for (const marketplace of PRIORITY_MARKETPLACES) {
+      const list = [...(ids.get(`${set}|${marketplace}`) ?? [])];
+      out.push({ set, marketplace, products: list.length, withFeed: list.filter((id) => hasFeed(feedKey(marketplace, "item", id))).length });
+    }
+  }
+  return out;
 }
 
 type StopWhy = "rate-limited" | "cap" | "retries" | "token" | "forbidden" | "failing" | "empty";
@@ -540,18 +713,21 @@ export async function runImport(deps: ImportDeps, opts: RunOptions = {}): Promis
   }
   const cap = runCap(caps, usedBefore, opts.maxCalls);
   const rows = await db.planRows();
+  // Every feed's age (also what the hot-set report counts from, with the feeds this run writes): read once, at the start.
+  let ages = new Map<string, Date>();
+  try {
+    ages = await db.feedAges();
+  } catch {
+    /* no table yet (a dry run before the first import): nothing is fresh */
+  }
   // Feeds refreshed recently (an earlier run today, an overlapping one, a retry after a crash) are not bought again unless forced.
   let fresh: Set<string> | undefined;
   if (!opts.force) {
-    try {
-      const freshMs = freshWindowMs(env);
-      const ages = await db.feedAges();
-      fresh = new Set([...ages].filter(([, at]) => now() - at.getTime() < freshMs).map(([feed]) => feed));
-    } catch {
-      /* no table yet (a dry run before the first import): nothing is fresh */
-    }
+    const freshMs = freshWindowMs(env);
+    fresh = new Set([...ages].filter(([, at]) => now() - at.getTime() < freshMs).map(([feed]) => feed));
   }
-  const plan = buildPlan(rows, { cap, sweepCalls: sweepCallsFromEnv(env), today: new Date(now()).toISOString().slice(0, 10), only: opts.only, fresh });
+  const today = new Date(now()).toISOString().slice(0, 10);
+  const plan = buildPlan(rows, { cap, sweepCalls: sweepCallsFromEnv(env), today, only: opts.only, fresh });
 
   const buckets = Object.fromEntries(BUCKETS.map((b) => [b, emptyBucket()])) as Record<Bucket, BucketResult>;
   for (const b of BUCKETS) {
@@ -579,15 +755,26 @@ export async function runImport(deps: ImportDeps, opts: RunOptions = {}): Promis
     feedsRefreshed: 0,
     feedsPlanned: plan.feeds.filter((f) => f.bucket !== "items").length,
     sweep: [],
+    hot: [],
+    hotItems: { keys: 0, fresh: 0, covered: 0, searched: 0, refreshed: 0 },
     itemFeedsInDb: 0,
     rowsInDb: 0,
     oldestRowAgeMs: null,
   };
   for (const line of startReport(summary, { maxCalls: opts.maxCalls, force: !!opts.force, freshMs: freshWindowMs(env) })) log(line);
-  if (dry || (!plan.feeds.length && plan.sweepBudget <= 0)) {
+
+  // Item feeds this run writes: the sweep's (`swept`, which also decides what the per-product searches skip) and the per-product searches'.
+  const swept = new Set<string>();
+  const itemWritten = new Set<string>();
+  /** The end of every run: the purge and the database summary (not in a dry run), then the hot-set coverage, counted from the feeds read at the start and those written since, less what the end purge removed. */
+  async function close(): Promise<RunSummary> {
     if (!dry) await finish(deps, summary);
+    const cutoff = now() - hoursToMs(parseMaxAgeHours(env.EBAY_LISTING_MAX_AGE_HOURS)); // what the site still shows, not what the purge keeps
+    summary.hot = hotCoverage(rows, (feed) => swept.has(feed) || itemWritten.has(feed) || (ages.get(feed)?.getTime() ?? -Infinity) >= cutoff);
     return summary;
   }
+
+  if (dry || (!plan.feeds.length && plan.sweepBudget <= 0)) return close();
 
   // One token for the run. A token failure is fatal: nothing else can work.
   const tokens: TokenManager = createTokenManager(api);
@@ -596,8 +783,7 @@ export async function runImport(deps: ImportDeps, opts: RunOptions = {}): Promis
   } catch (e) {
     summary.stopped = "token";
     summary.tokenError = e instanceof EbayError ? e.describe() : "error";
-    await finish(deps, summary);
-    return summary;
+    return close();
   }
 
   // STRICT run cap: every search (a first try, a retry, the repeat after a 401) is claimed here BEFORE its await, so three workers can
@@ -723,9 +909,10 @@ export async function runImport(deps: ImportDeps, opts: RunOptions = {}): Promis
       return;
     }
     await db.replaceFeed(f.feed, items, new Date(at)); // one transaction: the feed's rows are REPLACED, never appended
+    if (f.kind === "item") itemWritten.add(f.feed);
     b.refreshed++;
     b.stored += items.length;
-    summary.feedsRefreshed++;
+    if (counted(f)) summary.feedsRefreshed++;
   }
 
   // Concurrency 3, in plan order. A StopRun ends the whole run: workers finish the feed they are in and take no more.
@@ -754,8 +941,8 @@ export async function runImport(deps: ImportDeps, opts: RunOptions = {}): Promis
   // 1. The fixed feeds (chase, sealed, types, sets): the strips every page shows.
   await runFeeds(plan.feeds.filter((f) => f.bucket !== "items"));
 
-  // 2. The catalogue sweep: an item feed for every product its pages find, marketplace by marketplace.
-  const swept = new Set<string>();
+  // 2. The catalogue sweep: an item feed for every product its pages find, marketplace by marketplace (US, UK, EU first), each
+  //    starting with the hot sets' own searches (at most half its share).
   if (!stop && plan.sweepBudget > 0) {
     const vocab = sweepVocabulary(rows);
     const sigSets = sweepSignatureSets(rows);
@@ -775,12 +962,21 @@ export async function runImport(deps: ImportDeps, opts: RunOptions = {}): Promis
       const collector = new SweepCollector(ix, now());
       const before = buckets.sweep.calls;
       let queries: QueryProgress[] = [];
+      let hotQueries: QueryProgress[] = [];
+      // The hot searches for what THIS marketplace lists (a type only another market stocks would cost pages that can match nothing).
+      const hot = hotSweepQueries(
+        rows.filter((r) => MARKETPLACE_OF_REGION[r.market.toLowerCase() as Region] === ix.marketplace),
+        today,
+      );
+      const hotQs = new Set(hot.map((q) => `Pokemon ${q.q}`));
+      let hotFetched = 0; // counted as the pages are made, so a run that stops during the hot pass still reports them
       try {
-        queries = await sweepMarketplace(
+        const done = await sweepWithHot(
           collector,
           budget,
           async (spec) => {
             if (stop) throw stop; // another worker ended the run: no further page
+            if (hotQs.has(spec.q)) hotFetched++;
             try {
               return await searchRaw(spec, "sweep");
             } catch (e) {
@@ -788,8 +984,16 @@ export async function runImport(deps: ImportDeps, opts: RunOptions = {}): Promis
               throw e;
             }
           },
-          { concurrency: Math.max(1, opts.concurrency ?? CONCURRENCY), shouldStop: () => !!stop, isFatal: (e) => e instanceof StopRun },
+          {
+            concurrency: Math.max(1, opts.concurrency ?? CONCURRENCY),
+            hot,
+            spent: () => buckets.sweep.calls, // the hot pass's real cost, retries included, comes off the general pass's share
+            shouldStop: () => !!stop,
+            isFatal: (e) => e instanceof StopRun,
+          },
         );
+        queries = done.general;
+        hotQueries = done.hot;
       } catch (e) {
         if (e instanceof StopRun) stop ??= e;
         else log(`sweep ${ix.marketplace}: unexpected error (${e instanceof Error ? e.name : "error"})`);
@@ -825,24 +1029,33 @@ export async function runImport(deps: ImportDeps, opts: RunOptions = {}): Promis
       const found = collector.feeds().size;
       buckets.sweep.emptied += found - ready.length; // (none while one listing is enough for a product's strip)
       const st = collector.stats;
-      summary.sweep.push({ marketplace: ix.marketplace, products: ix.products.length, pages: st.pages, listings: st.listings, valid: st.valid, matched: st.matched, found, written, queries });
-      log(`sweep ${ix.marketplace}: ${num(st.pages)} pages, ${num(st.matched)} listings matched to ${num(found)} of ${num(ix.products.length)} products; ${num(written)} item feeds written.`);
+      const hotPages = Math.max(hotFetched, hotQueries.reduce((a, q) => a + q.pages, 0));
+      summary.sweep.push({ marketplace: ix.marketplace, products: ix.products.length, pages: st.pages, listings: st.listings, valid: st.valid, matched: st.matched, found, written, queries, hotQueries, hotPages });
+      log(`sweep ${ix.marketplace}: ${num(st.pages)} pages (${num(hotPages)} on the hot sets), ${num(st.matched)} listings matched to ${num(found)} of ${num(ix.products.length)} products; ${num(written)} item feeds written.`);
     }
   }
 
-  // 3. Per-product searches for the eligible keys the sweep did not cover, most valuable first, with what is left of the cap.
+  // 3. Per-product searches for what the sweep did not cover, with what is left of the cap: the hot-set products of the US, UK and EU
+  //    first (any type, any price), then the eligible keys, most valuable first (perProductFeeds: the plan's own order).
   const wantItems = !opts.only || opts.only.includes("items");
-  const notFresh = wantItems ? plan.keys.map(itemFeed).filter((f) => !fresh?.has(f.feed)) : [];
+  const perProduct = wantItems ? perProductFeeds(rows, plan.keys, today) : [];
+  const notFresh = perProduct.filter((f) => !fresh?.has(f.feed));
   const open = notFresh.filter((f) => !swept.has(f.feed));
   buckets.items.covered = notFresh.length - open.length;
-  if (stop && wantItems) summary.feedsPlanned += plan.byBucket.items.feeds; // the run stopped first: that work is unfinished, not absent
+  const hotFeeds = perProduct.filter((f) => f.hot);
+  summary.hotItems.keys = hotFeeds.length;
+  summary.hotItems.fresh = hotFeeds.filter((f) => fresh?.has(f.feed)).length;
+  summary.hotItems.covered = hotFeeds.filter((f) => !fresh?.has(f.feed) && swept.has(f.feed)).length;
+  if (stop && wantItems) summary.feedsPlanned += plan.feeds.filter((f) => f.bucket === "items" && counted(f)).length; // the run stopped first: that work is unfinished, not absent
   if (!stop && wantItems) {
     const room = Math.max(0, plan.cap - spent);
     const take = Math.max(0, room - retryAllowance(Math.min(room, open.length)));
     const list = open.slice(0, take);
     buckets.items.planned = list.length;
-    summary.feedsPlanned += list.length;
+    summary.feedsPlanned += list.filter(counted).length;
+    summary.hotItems.searched = list.filter((f) => f.hot).length;
     await runFeeds(list);
+    summary.hotItems.refreshed = list.filter((f) => f.hot && itemWritten.has(f.feed)).length;
   }
 
   if (stop) summary.stopped = (stop as StopRun).why;
@@ -859,8 +1072,7 @@ export async function runImport(deps: ImportDeps, opts: RunOptions = {}): Promis
     }
     r.skipped = plan.byBucket[b].wanted - plan.byBucket[b].feeds - plan.byBucket[b].fresh + (r.planned - r.refreshed - r.failed - r.emptied);
   }
-  await finish(deps, summary);
-  return summary;
+  return close();
 }
 
 const num = (x: number) => x.toLocaleString("en");
@@ -876,7 +1088,7 @@ export function startReport(s: RunSummary, o: { maxCalls?: number; force: boolea
   const wanted = BUCKETS.reduce((a, b) => a + s.plan.byBucket[b].wantedCalls, 0);
   const fresh = BUCKETS.reduce((a, b) => a + s.plan.byBucket[b].fresh, 0);
   const per = BUCKETS.filter((b) => s.plan.byBucket[b].wanted > 0)
-    .map((b) => (b === "sweep" ? `sweep up to ${num(s.plan.sweepBudget)} calls over ${num(s.plan.byBucket.sweep.feeds)} marketplaces` : b === "items" ? `items: whatever the sweep leaves, for eligible products it did not cover (pre-plan ${num(s.plan.byBucket.items.feeds)})` : `${b} ${num(s.plan.byBucket[b].feeds)} feeds/${num(s.plan.byBucket[b].calls)} calls`))
+    .map((b) => (b === "sweep" ? `sweep up to ${num(s.plan.sweepBudget)} calls over ${num(s.plan.byBucket.sweep.feeds)} marketplaces` : b === "items" ? `items: whatever the sweep leaves, for the hot-set products and then the eligible products it did not cover (pre-plan ${num(s.plan.byBucket.items.feeds)})` : `${b} ${num(s.plan.byBucket[b].feeds)} feeds/${num(s.plan.byBucket[b].calls)} calls`))
     .join(", ");
   return [
     `${s.dryRun ? "DRY RUN (no eBay call, no database write). " : ""}Budget day ${s.day} (the Pacific day: eBay's call limit resets at 00:00 Pacific = 07:00 UTC in summer, 08:00 in winter).`,
@@ -884,6 +1096,7 @@ export function startReport(s: RunSummary, o: { maxCalls?: number; force: boolea
     `This run may make at most ${num(s.plan.cap)} searches, retries included (the smallest of: ${reasons.join(", ")}).${s.plan.cap === 0 ? " Nothing to do: the budget for today is spent." : ""}`,
     `Plan: ${num(s.plan.feeds.length)} feeds in ${num(s.plan.calls)} searches (${per || "nothing"}); ${num(fresh)} feeds skipped as refreshed in the last ${Math.round((o.freshMs / 3600_000) * 10) / 10} h${o.force ? " (--force: bought again anyway)" : ""}; the plan would like ${num(wanted)} searches in all, and what does not fit waits for the next run.`,
     `It stops early on a 429, a 401/403 on a search, ${BREAKER_FAILURES} failed searches in a row, or ${BREAKER_EMPTY} with no listings in a row.`,
+    `Priorities (src/lib/popular.ts): marketplaces in the order ${MARKETPLACE_ORDER.join(", ")}; hot sets ${HOT_SETS.join(", ")}. Each marketplace's sweep starts with the hot sets' own searches (at most half its share), and their products in ${PRIORITY_MARKETPLACES.join(", ")} that the sweep misses are searched one by one before any other product.`,
   ];
 }
 

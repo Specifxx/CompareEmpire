@@ -8,10 +8,14 @@
 // and manual dispatches cannot pass the daily cap), searches with concurrency 3, and REPLACES each feed's rows in the
 // EbayListing table (never appends; an empty or failed refresh keeps the old rows until the age bound). A run, in order:
 //   1. the fixed feeds: chase, sealed, types, sets (265 calls);
-//   2. the CATALOGUE SWEEP (src/lib/ebay-sweep.ts): per marketplace, broad searches paged 200 listings a call, each listing
-//      handed to the product the classifier says it is (one call can feed dozens of products); an item feed for every product
-//      found, cheap ones included, written 100 feeds to a transaction; up to EBAY_SWEEP_CALLS (2,100) of the run cap;
-//   3. one search per ELIGIBLE product the sweep did not cover, most valuable first, with whatever is left of the run cap.
+//   2. the CATALOGUE SWEEP (src/lib/ebay-sweep.ts): per marketplace (US, UK, EU first, then AU, CA), broad searches paged 200
+//      listings a call, each listing handed to the product the classifier says it is (one call can feed dozens of products); an
+//      item feed for every product found, cheap ones included, written 100 feeds to a transaction; up to EBAY_SWEEP_CALLS (2,100)
+//      of the run cap. Each marketplace starts with the HOT PASS: the hot sets' own searches ("Pokemon 30th elite trainer box"…),
+//      at most half its share;
+//   3. one search per product the sweep did not cover, with whatever is left of the run cap: first every HOT-SET product of the
+//      US, UK and EU (any type, any price), then every ELIGIBLE product, most valuable first.
+// The hot sets and the market order are the owner's, in src/lib/popular.ts (DEPLOY.md, "Priorities: markets and hot sets").
 // (One search per product alone reached 1,735 of the 7,701 eligible keys a day, and 44% of those searches came back empty.)
 // It ends with the purge of rows older than the bound + 4 h. The website reads the table; only this job holds eBay credentials.
 // scripts/ebay-sweep-probe.ts (the workflow's `probe` input) measures the sweep with ~60 calls and writes no listings.

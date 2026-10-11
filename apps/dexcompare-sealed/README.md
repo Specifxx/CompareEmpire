@@ -61,6 +61,14 @@ have changed; check eBay."
   Marketplaces panel its eBay and TCGplayer search rows. With **nothing to list** (before the first import, the kill switch, rows
   older than the age bound) a unit is one compact row: wordmark, "Ad" and a "Search Pokémon sealed on eBay" button.
   There are no text-only banners, chip rows or "Still deciding?" rows.
+* **Popular sets** (`src/lib/popular.ts` HOT_SETS, owner-edited, 30th Celebration first): once a hot set is out, its eBay search is
+  highlighted as an eBay-blue button (44 px tall, placements `hot-home`, `hot-set`, `hot-product`) INSIDE the top line of an existing strip, never a unit of its
+  own: the region home's sealed strip ("Shop 30th Celebration on eBay", the first hot set that is out), a hot set's page and a hot
+  product's page ("Shop <product> on eBay"), and it is the compact CTA's button when that strip has nothing to list. It is in the strip's
+  reserved box too, so the strip still replaces the box at the same height. A hot set searches "Pokemon <HOT_SET_QUERY or name>
+  sealed" ("Pokemon 30th sealed": sellers write 30th Celebration / 30th Anniversary / 30th Anniversary Celebration). A hot product's
+  Marketplaces panel makes eBay its primary button with a "Popular set" chip outside the ad link (the owner's list, not eBay data).
+  Helpers: `components/Ebay.tsx` (hotSetHighlight, firstHotSet, hotProductHighlight); tests: `tests/hot-ui.test.ts`.
 * **Data flow**: `scripts/ebay-import.ts` (once a day, GitHub Actions) → `EbayListing` (≤ 8 rows per feed, REPLACED per feed,
   never appended, deleted after the age bound + 4 h) → `GET /api/ebay/<region>?c=<context>` (a read of those rows: no eBay call,
   no token, a cascade item → type → sealed, set → chase, type → sealed; sealed only for box-class types) → the strip, which fetches from the browser once it is

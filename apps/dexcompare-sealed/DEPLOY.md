@@ -187,6 +187,7 @@ compact "search" CTA and the in-feed tile report under the strip's own placement
 | `listings-releases` | release calendar: the closing strip (it stands in for the pre-footer one) |
 | `listings-footer` | every content page: the slim four-tile strip above the footer (the feed the page's own strip is not; none on a region home, which has two strips of its own) |
 | `listings-notfound` | the 404 page: a slim strip (on the eBay site of the region in the URL, US outside one) |
+| `hot-home`, `hot-set`, `hot-product` | the highlighted eBay search button of a popular set or product (`src/lib/popular.ts` HOT_SETS, 30th Celebration first): inside the top line of the region home's sealed strip (`hot-home`), a hot set's strip (`hot-set`) and a hot product's strip (`hot-product`), and the compact CTA those strips become (a search link, `dex-<region>-hot-<surface>`); a highlighted strip's CTA clicks report under its hot placement |
 | `product-best`, `product-table`, `product-marketplace`, `product-soldout`, `browse-empty`, `region-home`, `store-page` | the page's own store/TCGplayer buttons, and the functional marketplace rows of a product's "Marketplaces" panel (an eBay search and TCGplayer) |
 
 When a strip has nothing to list (no import yet, a kill switch, rows older than the age bound) it is a single
@@ -237,8 +238,10 @@ scripts/ebay-import.ts                                      pages stay static; a
   ├─ 1. fixed feeds: chase, sealed, types, sets             GET /api/ebay/<region>?c=<context>
   ├─ 2. catalogue sweep: broad searches, 200 a call,          └─ reads ≤ 8 rows of EbayListing (no eBay call,
   │     each listing to the product it IS                         no token, no secret), never older than
-  ├─ 3. per-product searches, for the eligible                    EBAY_LISTING_MAX_AGE_HOURS (default 26)
-  │     products the sweep missed, with what is left
+  │     (US, UK, EU first; hot sets first in each)                EBAY_LISTING_MAX_AGE_HOURS (default 26)
+  ├─ 3. per-product searches for what the sweep missed:
+  │     hot-set products (US, UK, EU), then the eligible
+  │     ones, with what is left
   ├─ reserve each Browse call in the DB first
   ├─ search (3 at a time), normalise, filter
   └─ REPLACE each feed's rows (one transaction)
@@ -295,7 +298,7 @@ it is 12 hours or less, so the copy stays true in either mode (the About, Terms 
    manual run; the default 2,500 would use the whole day in the first run and the later ones would stop at once. 380 searches a run cover the
    generic, type and set feeds (265) and 115 pages of the catalogue sweep (it takes what the fixed feeds leave, up to `EBAY_SWEEP_CALLS`), which
    leaves next to nothing for per-product searches: a product page shows what those sweep pages found for it, else its type's strip. (The
-   2026-10-11 probe's 60 sweep pages found two or more listings for 590 product keys.) (Retries count inside the run cap, so 380 is a hard ceiling;
+   2026-10-11 probe's 60 sweep pages found two or more listings for 590 product keys, and at least one for 1,350.) (Retries count inside the run cap, so 380 is a hard ceiling;
    six runs of 416 would use all but 4 of the daily cap.)
 
 The skip-fresh window is `min(2 h, a quarter of the bound)`: 1.4 h in compliant mode, so a four-hourly run always buys every feed again. Switching
@@ -403,7 +406,7 @@ with nothing (the query required "sealed", which many sealed listings never say;
 own. Every other product page showed its type's strip, and packs (never eligible) and anything under US$25 were never searched at all.
 The sweep turns it round: **one call can feed dozens of products.**
 
-**What it does** (`src/lib/ebay-sweep.ts`). Per marketplace it pages 17 broad searches (`SWEEP_QUERIES`: "Pokemon elite trainer box",
+**What it does** (`src/lib/ebay-sweep.ts`). Per marketplace it pages 30 broad searches (`SWEEP_QUERIES`: "Pokemon elite trainer box",
 "Pokemon booster box", "Pokemon tin", "Pokemon premium collection", "Pokemon battle deck"…) **200 listings a call** (eBay's maximum,
 paged by `offset` to eBay's 10,000-deep limit), round-robin (page 1 of each, then page 2 of each that is still finding listings…), and
 runs every listing through the repo's own classifier (`identify()`, the one the store import files products with) to hand it to the
@@ -417,12 +420,13 @@ product it IS:
   naming, damage notes, a used condition or a price under the type's floor, on top of what the item feeds already refuse (singles, lots,
   pre-sales, other languages, converted prices).
 
-A product keeps up to 8 listings, de-duplicated, **lowest price first**, and one found with **two or more** gets an item feed
+A product keeps up to 8 listings, de-duplicated, **lowest price first**, and one found with **one or more** gets an item feed
 (`EBAY_US|item:<productId>`: the same feed a per-product search writes, so the route, the strip and EPN's `dex-<market>-item` are
 unchanged), cheap products included. A query stops at the end of its results (`end`), after two pages in a row that added nothing to a
 product with fewer than six listings (`dry`, never before its second page), at the 10,000-deep limit (`depth`), when its marketplace's
-share is spent (`budget`) or on an error. The sweep's calls are shared between marketplaces by how many products each lists (with a floor
-of about 8% each), in the order US, AU, UK, CA, EU; what one leaves unspent goes to the next. Every page is one Browse call **reserved in the database
+share is spent (`budget`) or on an error. The sweep's calls are shared between marketplaces by how many products each lists x its audience
+weight (with a floor of about 8% each), in the order US, UK, EU, AU, CA; what one leaves unspent goes to the next, and each marketplace
+starts with its **hot pass** (see "Priorities: markets and hot sets" below). Every page is one Browse call **reserved in the database
 before it is made**, through the same strict run cap, retry allowance and circuit breaker as every other search. Feeds are written 100 to a
 transaction (`replaceFeeds`: the feeds' advisory locks in sorted order, one `DELETE`, one `INSERT`), and what the pages found is written
 even when the run stops part-way (every row is a real, current listing). A marketplace with many item feeds refreshed within the
@@ -431,9 +435,11 @@ skip-fresh window (at least 50, or a quarter of its products if that is more: a 
 **A run, in order:**
 
 1. the fixed feeds: chase, sealed, types, sets (265 calls);
-2. the sweep, marketplace by marketplace, up to `EBAY_SWEEP_CALLS` (default **2,100**) of what the fixed feeds leave;
-3. per-product searches ("Pokemon <cleaned name>") **only for eligible keys the sweep did not cover**, most valuable first, with whatever is
-   left of the run cap: about 135 at the defaults when the sweep spends its whole share, more when its queries stop early.
+2. the sweep, marketplace by marketplace (US, UK, EU, AU, CA), up to `EBAY_SWEEP_CALLS` (default **2,100**) of what the fixed feeds leave,
+   each marketplace starting with the hot sets' own searches (at most half its share);
+3. per-product searches ("Pokemon <cleaned name>") **only for products the sweep did not cover**, with whatever is left of the run cap
+   (about 135 at the defaults when the sweep spends its whole share, more when its queries stop early): first the **hot-set products of
+   the US, UK and EU** (any type, any price), then the eligible keys, most valuable first.
 
 Defaults: `EBAY_DAILY_CAP` **2,500** (also the maximum; this site's share of the keyset, see the box at the top), `EBAY_RUN_CAP` **2,500**,
 `EBAY_SWEEP_CALLS` **2,100** (new, optional repository variable; it was 1,800 on the first run, when the 408 per-product searches after the sweep found listings for only 150 products against the sweep's 4,673 from 1,800 calls).
@@ -480,6 +486,48 @@ below: the sweep is the same FIXED_PRICE Browse search, its listings go only int
 affiliate URL is stored exactly as eBay returns it with our campaign id, converted prices are refused, its counts appear only in the
 job's log and summary (never on the site), and its rows are hidden and purged on the same age bound.
 
+### Priorities: markets and hot sets
+
+The owner's priorities live in one small file, **`src/lib/popular.ts`**, which the importer reads (and the pages too: they highlight a
+hot product's eBay link). Nothing in it raises a cap: the hot sets' sweep pages come out of the sweep's `EBAY_SWEEP_CALLS` share, and
+their per-product searches out of what the sweep leaves.
+
+* **Markets.** `PRIORITY_MARKETPLACES` is US, UK, EU (eBay.de). Every part of the run goes in the order **US, UK, EU, then AU/NZ, CA**
+  (`MARKETPLACE_ORDER` in `src/lib/ebay-import.ts`): the fixed feeds (so a cap hit drops Canada's before the US's), the sweep's
+  marketplaces, and the per-product searches. The audience weights (`MARKET_WEIGHT` in `src/lib/ebay-context.ts`: **US 1, UK 0.7,
+  EU 0.7, AU/NZ 0.35, CA 0.25**) size each marketplace's share of the sweep (the products it lists x its weight, at least about 8%
+  each) and rank the eligible per-product searches. With the product counts of 2026-10-11 that is about 37% of the sweep for the US,
+  22% for the UK, 16% for the EU, 12% for AU and 13% for CA (it was 33 / 17 / 8 / 18 / 23% before), and what one marketplace leaves
+  unspent rolls on to the next in that order. (Arithmetic from the counts, not yet a measured run: read the next summary's Sweep table.)
+* **Hot sets.** `HOT_SETS`, most wanted first: 30th Celebration (`cel30`), then Pitch Black, Chaos Rising, Ascended Heroes, Prismatic
+  Evolutions, Perfect Order, Phantasmal Flames and 151. They go first twice:
+  1. **In the sweep.** Each marketplace starts with a **hot pass**: for each hot set in that order and each product type that
+     marketplace's own regions list for it, one search, "Pokemon 30th elite trainer box", "Pokemon 30th booster pack", "Pokemon pitch black booster
+     box"... (an ETB and a Pokémon Center ETB share one; a case is its box's words + "case"), paged 200 listings a call with the same
+     stop rules and the same matching as every sweep query. The hot pass may spend at most **half** the marketplace's share (in pages);
+     the general queries get the rest, so they are never starved. A set whose release date is still to come is skipped.
+  2. **In the per-product searches.** Every hot-set product listed in the **US, UK or EU** that the sweep did not cover (and whose feed
+     was not refreshed in the last 2 hours) is searched on its own ("Pokemon <cleaned name>", with a set in `HOT_SET_QUERY` searched by
+     its keyword: "Pokemon 30th Elite Trainer Box", "Pokemon 151 Booster Bundle"), by hot rank, then US, UK, EU, then price, **before any
+     other product, whatever its type or price**: booster packs and cheap products too (the eligibility rule below applies only to the
+     others). A set not out yet is skipped here too. These searches refuse what the sweep refuses: lots and multi-pack listings ("5
+     Booster Packs"), part of a product, random variants, Japanese naming, damage.
+* **The run summary's "Hot sets" table**: per hot set and marketplace (US, UK, EU), the products with an item feed the site still shows
+  after the run (younger than the age bound) / the products of that set the marketplace lists, and one line with how many hot products the sweep covered, how many were
+  fresh, and how many were searched one by one (and found listings). The Sweep table's "Hot-set pages" column is the hot pass's pages
+  per marketplace. Counts only, like the rest of the summary.
+
+**To change them**, edit `src/lib/popular.ts`; the next run uses it (its first log lines print the order and the hot sets: "Priorities
+(src/lib/popular.ts): ..."):
+
+* `HOT_SETS`: set codes as in `src/lib/sets.ts`, most wanted first. Keep it short: each hot set adds a sweep query per product type
+  it has in every marketplace (a page each at least) and puts its unswept US/UK/EU products ahead of every other product's search.
+  A code whose set is not out yet does nothing until its release date.
+* `HOT_SET_QUERY`: the eBay keywords for a hot set whose sellers do not write its `sets.ts` name. eBay requires every keyword, so
+  "30th Celebration" would miss the listings titled just "30th Anniversary"; `cel30: "30th"` finds those, "30th Anniversary
+  Celebration" and "30th Celebration" alike (`sv3pt5: "151"` likewise: sellers rarely write "Scarlet & Violet 151"). Any other hot set is searched by its name, accents folded and "&" dropped.
+* `PRIORITY_MARKETPLACES`: which eBay sites come first, in order (the weights are `MARKET_WEIGHT`).
+
 ### The import's plan, caps and failure handling
 
 Priority order (spent until the run cap; a cap hit drops the **least valuable**, never a hole in the middle):
@@ -490,8 +538,8 @@ Priority order (spent until the run cap; a cap hit drops the **least valuable**,
 | 2 | sealed | generic sealed Pokémon, 6 queries per marketplace, kept only if `identify()` accepts the title | 30 |
 | 3 | types | one query per high-value type (booster boxes, ETBs, Pokémon Center ETBs, UPCs, booster-box / ETB / bundle cases, Build & Battle Stadiums, collections) | 45 |
 | 4 | sets | chase cards of the 30 most recently released sets (never a series-named or common-word set), one query each | 150 |
-| 5 | sweep | the catalogue sweep (above): 17 broad queries per marketplace, 200 listings a call, an item feed for every product found | up to 2,100 (`EBAY_SWEEP_CALLS`) |
-| 6 | items | one query per (marketplace, **eligible** product) the sweep did **not** cover: "Pokemon <cleaned name>" (no "sealed": eBay requires every keyword) | what is left (~135) |
+| 5 | sweep | the catalogue sweep (above): per marketplace (US, UK, EU, AU, CA) the hot pass, then 30 broad queries, 200 listings a call, an item feed for every product found | up to 2,100 (`EBAY_SWEEP_CALLS`) |
+| 6 | items | one query per (marketplace, product) the sweep did **not** cover: first every **hot-set** product of the US, UK and EU, then every **eligible** product: "Pokemon <cleaned name>" (no "sealed": eBay requires every keyword) | what is left (~135) |
 
 The plan reserves the sweep's share after the fixed feeds; the item feeds it lists are a pre-plan, and the run buys them only for keys
 the sweep missed, sized to what the sweep actually left.
@@ -503,7 +551,8 @@ the sweep missed, sized to what the sweep actually left.
   not eligible. Best-known = the market's cheapest open price, else its cheapest listed (sold-out) one; only regions where the
   product has a `ProductStat` row count, and a marketplace takes the higher price of its regions. Core keys are bought first;
   if budget remains, the **extension** (US$25-50) follows, downward by price. Within a tier, keys are ranked by reference
-  price (US$) x market weight (US 1.0, UK 0.6, AU/NZ 0.6, CA 0.5, EU 0.4), sold-out products x1.5 (highest intent).
+  price (US$) x market weight (US 1.0, UK 0.7, EU 0.7, AU/NZ 0.35, CA 0.25: `MARKET_WEIGHT`), sold-out products x1.5 (highest intent).
+  The hot-set products of the US, UK and EU are searched before all of them, whatever their price (next section).
   Thresholds in each market's money (the importer's rough FX table, never shown): **US$50 = A$75 / NZ$82.50 / US$50 / £39 / C$68.50 / €45 / S$65**, and
   **US$25 = A$37.50 / NZ$41.25 / US$25 / £19.50 / C$34.25 / €22.50 / S$32.50**.
 * **Relevance** (`src/lib/ebay-normalise.ts`): a listing is kept for a product only if the repo's own title classifier accepts it as
@@ -550,10 +599,12 @@ the sweep missed, sized to what the sweep actually left.
   (logged, previous rows kept); a **token failure fails the run** (`::error::` with only eBay's OAuth category, e.g.
   `token-http-401:invalid_client`, never a secret, id or eBay's own text); fewer than half of the planned feeds refreshed fails
   the run (planned = the fixed feeds and the per-product searches the run actually made room for; the sweep's feeds are counted in its
-  own table). A feed is replaced only after a successful, **non-empty** normalisation; an empty or failed one keeps its old rows
-  until the bound. The sweep writes a product's feed only when it found two or more listings for it; a product it found once, or
-  not at all, is searched on its own if it is eligible and the budget reaches it, and otherwise keeps its old rows until the bound
-  (its page then falls back to its type's strip).
+  own table, and the search of a hot-set product that is not an eligible key (a booster pack, a cheap product) in the "Hot sets"
+  lines: it is best effort, and a pack eBay does not list must not fail the job). A feed is replaced only after a successful, **non-empty** normalisation; an empty or failed one keeps its old rows
+  until the bound. The sweep writes a product's feed when it found at least one listing for it (one listing is still that product's
+  eBay price: the route answers a product's own feed from one row, any other feed from two); a product it did not find is searched
+  on its own if it is a hot product or eligible and the budget reaches it, and otherwise keeps its old rows until the bound (its page
+  then falls back to its type's strip).
 
 ### Capacity model: the per-product plan alone (local data, 2026-10-07)
 

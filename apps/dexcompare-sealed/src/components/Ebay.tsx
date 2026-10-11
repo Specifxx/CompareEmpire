@@ -1,6 +1,9 @@
 import type { ReactNode } from "react";
 import { ebayRetailer, ebaySearchUrl, REL_SPONSORED, type Placement } from "@/lib/affiliate";
+import { HOT_SET_QUERY, HOT_SETS, isHotSet } from "@/lib/popular";
 import type { Region } from "@/lib/regions";
+import { isPreorderSet } from "@/lib/release";
+import { SET_BY_CODE, type PokemonSet } from "@/lib/sets";
 import { OutboundLink } from "./OutboundLink";
 
 // The small pieces of the eBay units that are not the listing strips (EbayStrip.tsx):
@@ -14,6 +17,61 @@ import { OutboundLink } from "./OutboundLink";
 //   • each is visibly an ad ("Ad" pill, or the affiliate note beside the group it belongs to);
 //   • none is part of a ranking, a count, a median, JSON-LD, meta or the sitemap;
 //   • no script, no iframe, no overlay, no countdown. Every unit's root carries data-ad="<placement>" for the sweep.
+
+// ─── Popular sets and products: the highlighted eBay button ────────────────────
+// The owner's hot sets (lib/popular.ts HOT_SETS, 30th Celebration first) get a prominent eBay search button inside their
+// strip's own top line (EbayStrip `highlight`, placements hot-home / hot-set / hot-product): on the region home's sealed strip (the first hot set
+// that is out), on a hot set's page, and on a hot product's page (whose marketplace panel also makes eBay its primary
+// button, and a "Popular set" chip outside the ad link: the owner's pick, not a claim about eBay's data or a trend).
+// A hot set that is not released yet gets nothing until it is out, as in the importer, which refuses pre-sale listings.
+
+/** A highlighted eBay search: the button's words, and what it searches for (through ebaySearchUrl, so "sealed" is added). */
+export interface EbayHighlight {
+  label: string;
+  query: string;
+}
+
+type SetName = Pick<PokemonSet, "code" | "name">;
+
+/**
+ * What a hot set's button searches eBay for: "Pokemon " and the set's eBay keyword (HOT_SET_QUERY) or its name. ebaySearchUrl
+ * then adds "sealed", the type-neutral word every sealed search on the site carries, so 30th Celebration searches
+ * "Pokemon 30th sealed": eBay requires every word, and sellers list the set as "30th Celebration", "30th Anniversary" or
+ * "30th Anniversary Celebration", which "30th Celebration" would cut to the first.
+ */
+export function hotSetQuery(set: SetName): string {
+  return `Pokemon ${HOT_SET_QUERY[set.code] ?? set.name}`;
+}
+
+/** Is this a hot set that is out (its products and its page get the highlight)? */
+export function isHotReleased(setCode: string | null | undefined, now: Date = new Date()): boolean {
+  return isHotSet(setCode) && !isPreorderSet(setCode, now);
+}
+
+/** A hot, released set's button: "Shop 30th Celebration on eBay". Undefined for any other set. */
+export function hotSetHighlight(set: SetName | null | undefined, now: Date = new Date()): EbayHighlight | undefined {
+  if (!set || !isHotReleased(set.code, now)) return undefined;
+  return { label: `Shop ${set.name} on eBay`, query: hotSetQuery(set) };
+}
+
+/** The most wanted hot set that is out (HOT_SETS order): the one the region home page highlights. */
+export function firstHotSet(now: Date = new Date()): PokemonSet | null {
+  for (const code of HOT_SETS) {
+    const s = SET_BY_CODE.get(code);
+    if (s && isHotReleased(code, now)) return s;
+  }
+  return null;
+}
+
+/**
+ * A hot product's button names the product (cut to about 40 characters): when its own listings are missing, the strip above shows its
+ * TYPE's listings, and "Shop this" would point at those. It searches what the page's other eBay links search.
+ */
+export function hotProductHighlight(name: string, query: string): EbayHighlight {
+  const n = name.trim();
+  const short = n.length > 40 ? `${n.slice(0, 39).trimEnd()}…` : n; // the button wraps, so a full name of up to 40 characters fits at 320 px
+  return { label: `Shop ${short} on eBay`, query };
+}
 
 /** The small "Ad" label. */
 export function AdPill({ className = "" }: { className?: string }) {

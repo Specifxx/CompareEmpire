@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { Ago } from "@/components/Ago";
-import { NoPreFooter } from "@/components/Ebay";
+import { firstHotSet, hotSetHighlight, NoPreFooter } from "@/components/Ebay";
 import { EbayStrip } from "@/components/EbayStrip";
 import { ProductGrid } from "@/components/ProductCard";
 import { SearchBox } from "@/components/SearchBox";
@@ -36,6 +36,9 @@ export default async function RegionHome({ params }: { params: { region: string 
   const [{ boxes, etbs, preorders, latestSets: bySet }, overview] = await Promise.all([homeRails(r.market), regionOverview(r.market)]);
   const storeCount = storesInMarket(r.market).length;
   const latestSets = SETS.filter((s) => bySet.has(s.code)).slice(0, 4);
+  // The owner's most wanted set that is out (lib/popular.ts HOT_SETS: 30th Celebration first) gets the sealed strip's highlighted
+  // eBay button, "Shop 30th Celebration on eBay": inside that strip's own top line, so the page keeps its two units.
+  const hotHighlight = hotSetHighlight(firstHotSet());
 
   return (
     <div>
@@ -171,7 +174,7 @@ export default async function RegionHome({ params }: { params: { region: string 
         </Section>
 
         {/* The sealed strip: after the first rail (booster boxes), far enough down that it never shares a phone screen with the chase strip. */}
-        <EbayStrip region={r.region} context="sealed" placement="listings-home-sealed" className="mt-14" search={{ kind: "sealed", query: "" }} />
+        <EbayStrip region={r.region} context="sealed" placement="listings-home-sealed" className="mt-14" search={{ kind: "sealed", query: "" }} highlight={hotHighlight} />
 
         <Section title="Elite Trainer Boxes in stock" kicker="Newest sets first" href={`/${r.region}/type/elite-trainer-boxes`}>
           {etbs.length ? <ProductGrid products={etbs} region={r.region} /> : <Empty>No Elite Trainer Boxes in stock right now.</Empty>}

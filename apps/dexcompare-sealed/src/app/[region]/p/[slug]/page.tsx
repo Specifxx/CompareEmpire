@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { cache } from "react";
 import type { Metadata } from "next";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
-import { NoPreFooter } from "@/components/Ebay";
+import { hotProductHighlight, isHotReleased, NoPreFooter } from "@/components/Ebay";
 import { EbayStrip } from "@/components/EbayStrip";
 import { ebayQuery, MarketplacePanel, SoldOutCallout } from "@/components/Marketplaces";
 import { OfferTable } from "@/components/OfferTable";
@@ -138,6 +138,11 @@ export default async function ProductPage({ params }: { params: { region: string
   // bottom of the page in place of the pre-footer strip where the page has room for a unit there (productAdPlan).
   const ads = productAdPlan({ offerRows: p.offers.length, elsewhere: elsewhere.length, related: set ? related.length : 0 });
   const stripContext = `item:${p.slug}`;
+  // A product of one of the owner's hot sets (lib/popular.ts: 30th Celebration first), once the set is out: the marketplace panel makes
+  // eBay its primary button with a "Popular set" chip, and the strip carries the highlighted "Shop <product> on eBay" button. Where
+  // the strip goes, and whether there is one, is productAdPlan's call as for any product: the highlight adds no unit.
+  const hot = isHotReleased(p.setCode);
+  const ebayQ = ebayQuery(p.name, tcgplayer);
   const stripAt = best ? (ads.tableGroup ? "table" : ads.preFooter ? "bottom" : null) : "soldout";
   const strip = stripAt && (
     <EbayStrip
@@ -147,7 +152,8 @@ export default async function ProductPage({ params }: { params: { region: string
       narrow={stripAt === "soldout"}
       className={stripAt === "soldout" ? "mt-4" : "mt-6"}
       headings={{ item: `${p.name} on eBay`, type: type ? `${type.plural} on eBay` : undefined, sealed: "Sealed Pokémon on eBay" }}
-      search={{ kind: "sealed", query: ebayQuery(p.name, tcgplayer), label: "Search this product on eBay" }}
+      search={{ kind: "sealed", query: ebayQ, label: "Search this product on eBay" }}
+      highlight={hot ? hotProductHighlight(p.name, ebayQ) : undefined}
     />
   );
 
@@ -300,7 +306,8 @@ export default async function ProductPage({ params }: { params: { region: string
                 preorder={pre}
                 tcgplayer={tcgplayer}
                 tcgplayerIsBest={best.marketplace}
-                ebayPrimary={openStores <= 1}
+                ebayPrimary={openStores <= 1 || hot}
+                popular={hot}
               />
             </>
           ) : (

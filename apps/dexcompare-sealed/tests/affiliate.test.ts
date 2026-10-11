@@ -189,7 +189,7 @@ test("search queries drop store notes and SKU codes, and never send eBay an oper
 // ─── eBay everywhere: placements, the in-feed tile, the pre-footer strip, EPN creative ───
 
 test("eBay units: every placement, in every region, is a tagged search on the right site with a customid of <= 60 characters", () => {
-  const NEW = ["header", "listings-home", "listings-home-sealed", "listings-landing", "listings-product", "listings-product-soldout", "listings-set", "listings-type", "listings-browse", "listings-browse-feed", "listings-store", "listings-releases", "listings-footer", "listings-notfound"];
+  const NEW = ["header", "listings-home", "listings-home-sealed", "listings-landing", "listings-product", "listings-product-soldout", "listings-set", "listings-type", "listings-browse", "listings-browse-feed", "listings-store", "listings-releases", "listings-footer", "listings-notfound", "hot-home", "hot-set", "hot-product"];
   // the text-only banners, chips and links of the previous round are gone
   for (const gone of ["feed", "browse-feed", "set-feed", "type-feed", "card-soldout", "product-related", "product-after-table", "set-banner", "set-related", "type-banner", "releases-card", "releases-banner", "store-banner", "pre-footer", "footer", "not-found", "region-home-hero", "chase-home", "chase-landing"]) assert.ok(!(PLACEMENTS as readonly string[]).includes(gone), `${gone} was removed`);
   for (const p of NEW) assert.ok((PLACEMENTS as readonly string[]).includes(p), `${p} is a placement`);

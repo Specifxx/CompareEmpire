@@ -6,6 +6,7 @@ import { ITEM_CORE_USD, ITEM_FLOOR_USD } from "./ebay-eligibility";
 import { BUCKETS, type Plan, type RunSummary } from "./ebay-import";
 import { TYPE_BY_KEY, PRODUCT_TYPES, type TypeKey } from "./sealed-title";
 import { MARKETPLACE_ORDER } from "./ebay-import";
+import { SETS } from "./sets";
 
 const n = (x: number) => x.toLocaleString("en");
 const pct = (a: number, b: number) => (b ? `${Math.round((a / b) * 100)}%` : "n/a");
@@ -90,17 +91,45 @@ export function runReport(s: RunSummary): string[] {
   }
   out.push(``, `(sweep: "planned" counts marketplaces; "refreshed" the item feeds it wrote; "empty" products it found only one listing for.)`);
   if (s.sweep.length) {
-    out.push(``, `| Sweep | Products | Pages | Listings | Matched | Products found | Item feeds written | Queries (pages, why it stopped) |`, `| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |`);
+    out.push(``, `| Sweep | Products | Pages | Hot-set pages (queries) | Listings | Matched | Products found | Item feeds written | General queries (pages, why it stopped) |`, `| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |`);
     for (const m of s.sweep) {
       const q = m.queries.map((x) => `${x.key} ${x.pages}${x.stopped ? ` ${x.stopped}` : ""}`).join(", ");
-      out.push(`| ${m.marketplace} | ${n(m.products)} | ${n(m.pages)} | ${n(m.listings)} | ${n(m.matched)} | ${n(m.found)} | ${n(m.written)} (${pct(m.written, m.products)}) | ${q} |`);
+      out.push(`| ${m.marketplace} | ${n(m.products)} | ${n(m.pages)} | ${n(m.hotPages)} (${n(m.hotQueries.length)}) | ${n(m.listings)} | ${n(m.matched)} | ${n(m.found)} | ${n(m.written)} (${pct(m.written, m.products)}) | ${q} |`);
     }
   }
+  out.push(...hotReport(s));
   const eligible = s.plan.items.core + s.plan.items.extension;
   out.push(
     ``,
-    `Feeds refreshed ${n(s.feedsRefreshed)} of ${n(s.feedsPlanned)} planned (fixed feeds and per-product searches). Item feeds in the database: ${n(s.itemFeedsInDb)} (${n(s.buckets.sweep.refreshed)} from the sweep and ${n(s.buckets.items.refreshed)} from per-product searches this run); ${n(eligible)} keys are eligible for a per-product search (${n(s.plan.items.core)} core).`,
+    `Feeds refreshed ${n(s.feedsRefreshed)} of ${n(s.feedsPlanned)} planned (fixed feeds and per-product searches; a hot-set product that is not an eligible key is counted only in the hot-set line). Item feeds in the database: ${n(s.itemFeedsInDb)} (${n(s.buckets.sweep.refreshed)} from the sweep and ${n(s.buckets.items.refreshed)} from per-product searches this run); ${n(eligible)} keys are eligible for a per-product search (${n(s.plan.items.core)} core).`,
     `Rows in the database: ${n(s.rowsInDb)}. Oldest row: ${age(s.oldestRowAgeMs)}. Purged: ${n(s.purged)} at the start, ${n(s.purgedAtEnd)} at the end.`,
+  );
+  return out;
+}
+
+/**
+ * The hot sets (src/lib/popular.ts), per priority marketplace: products with an item feed in the database after the run / products of
+ * the set the marketplace lists; then what the per-product searches did for them. Counts only (a set's own name from sets.ts, never a
+ * listing's title or price).
+ */
+export function hotReport(s: RunSummary): string[] {
+  if (!s.hot.length) return [];
+  const sets = [...new Set(s.hot.map((h) => h.set))];
+  const mps = [...new Set(s.hot.map((h) => h.marketplace))];
+  const out = [``, `| Hot set | ${mps.join(" | ")} |`, `| --- | ${mps.map(() => "---:").join(" | ")} |`];
+  for (const code of sets) {
+    const cells = mps.map((mp) => {
+      const c = s.hot.find((h) => h.set === code && h.marketplace === mp);
+      return c && c.products ? `${n(c.withFeed)}/${n(c.products)} (${pct(c.withFeed, c.products)})` : "-";
+    });
+    const name = SETS.find((x) => x.code === code)?.name;
+    out.push(`| ${code}${name ? ` (${name})` : ""} | ${cells.join(" | ")} |`);
+  }
+  const h = s.hotItems;
+  out.push(
+    ``,
+    `(Hot sets: products with an item feed in the database after this run / products of the set listed in that marketplace; the hot sets and their order are src/lib/popular.ts HOT_SETS.)`,
+    `Hot-set products in ${mps.join(", ")}: ${n(h.keys)}; ${n(h.covered)} covered by the sweep, ${n(h.fresh)} fresh (not bought again), ${n(h.searched)} searched one by one this run (${n(h.refreshed)} found listings).`,
   );
   return out;
 }

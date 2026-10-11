@@ -21,6 +21,7 @@ import {
 } from "@/lib/ebay-context";
 import { preFooterPlan } from "@/lib/ebay-ads";
 import { isRegion, type Region } from "@/lib/regions";
+import type { EbayHighlight } from "./Ebay";
 import { EbayMark } from "./EbayMark";
 import { OutboundLink } from "./OutboundLink";
 
@@ -46,6 +47,10 @@ import { OutboundLink } from "./OutboundLink";
 //     <img> (no-referrer); one that fails to load hides its tile.
 //   • Labelled "Ad", with the affiliate disclosure and "imported from eBay <cadence> (updated <age>)" (the cadence is read from the
 //     age bound the route reports: about once a day by default, several times a day in the compliant mode).
+//   • A POPULAR product or set (lib/popular.ts, components/Ebay.tsx hotSetHighlight) passes `highlight`: one eBay-blue search
+//     button, at least 44 px tall, inside the strip's own top line (no extra unit), under its surface's own placement (hot-home, hot-set, hot-product). It is in
+//     every state: in the strip, in the invisible reserved box (so the strip replaces the box at the same height), and as the
+//     compact CTA's one button.
 
 // ─── Fetching: one request per region+context, shared by every unit that wants it ──────
 
@@ -265,6 +270,35 @@ function useCollapsed(ref: React.RefObject<HTMLDivElement>, none: boolean, below
 
 const Arrow = () => <span aria-hidden="true">↗</span>;
 
+/** The placement of a highlighted button (affiliate.ts PLACEMENTS), by the strip it sits in: one per surface, so each highlight's clicks can be told apart. */
+export function hotPlacement(strip: Placement): Placement {
+  if (strip === "listings-home-sealed" || strip === "listings-home" || strip === "listings-landing") return "hot-home";
+  if (strip === "listings-set") return "hot-set";
+  return "hot-product";
+}
+
+/**
+ * The highlighted eBay search of a popular product or set: eBay's own button blue (#3665f3, white text 4.9:1), a full-width row
+ * on a phone, at least 44 px tall. A sponsored search link like the CTA's: rel sponsored, one buy_click under its surface's hot placement, and
+ * always inside a unit labelled "Ad".
+ */
+function HotLink({ region, highlight, placement, className = "" }: { region: Region; highlight: EbayHighlight; placement: Placement; className?: string }) {
+  const hot = hotPlacement(placement);
+  // The label wraps rather than truncates: at 320 px a cut label would lose "eBay". It is the same element in the reserved box and
+  // in the strip, so a two-line label is the same height in both (no shift).
+  return (
+    <OutboundLink
+      href={ebaySearchUrl(highlight.query, region, hot)}
+      rel={REL_SPONSORED}
+      retailer={ebayRetailer(region)}
+      placement={hot}
+      className={`inline-flex min-h-11 min-w-0 max-w-full items-center justify-center gap-2 rounded-full bg-[#3665f3] px-5 py-2 text-center text-sm font-bold leading-5 text-white shadow-card transition-colors hover:bg-[#2a50c8] ${className}`}
+    >
+      <span>{highlight.label}</span> <Arrow />
+    </OutboundLink>
+  );
+}
+
 export type StripVariant = "full" | "slim";
 
 /** What the compact CTA searches eBay for. */
@@ -297,18 +331,25 @@ function ctaLabel(s: StripSearch): string {
   return q ? `Search ${q.length > 38 ? `${q.slice(0, 37)}…` : q} on eBay` : "Search Pokémon sealed on eBay";
 }
 
-/** The compact single-row unit: wordmark, "Ad", one search button, the short affiliate note. What a strip is when there is nothing to list. */
-export function EbayCta({ region, placement, search, site, reserveNote = false, className = "" }: { region: Region; placement: Placement; search: StripSearch; site?: string; reserveNote?: boolean; className?: string }) {
+/**
+ * The compact single-row unit: wordmark, "Ad", one search button, the short affiliate note. What a strip is when there is nothing to list.
+ * With a `highlight` that button IS the highlight (its words, its search, eBay's blue, its surface's hot placement), on a row of its own on a phone.
+ */
+export function EbayCta({ region, placement, search, highlight, site, reserveNote = false, className = "" }: { region: Region; placement: Placement; search: StripSearch; highlight?: EbayHighlight; site?: string; reserveNote?: boolean; className?: string }) {
   return (
     <div data-ad={placement} data-state="cta" role="group" aria-label="Sponsored: eBay search" className={`ad-box px-3 py-2.5 sm:px-4 ${className}`}>
-      <div className="flex items-center gap-x-3">
+      <div className={`flex items-center gap-x-3 ${highlight ? "flex-wrap gap-y-2" : ""}`}>
         <span className="flex shrink-0 items-center gap-2">
           <EbayMark className="text-lg" />
           <span className="text-[11px] font-semibold uppercase tracking-wide text-muted">Ad{site ? ` · ${site}` : ""}</span>
         </span>
-        <OutboundLink href={searchHref(region, placement, search)} rel={REL_SPONSORED} retailer={ebayRetailer(region)} placement={placement} className="btn-ad ml-auto min-w-0 max-w-full px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm">
-          <span className="truncate">{ctaLabel(search)}</span> <Arrow />
-        </OutboundLink>
+        {highlight ? (
+          <HotLink region={region} highlight={highlight} placement={placement} className="w-full sm:ml-auto sm:w-auto" />
+        ) : (
+          <OutboundLink href={searchHref(region, placement, search)} rel={REL_SPONSORED} retailer={ebayRetailer(region)} placement={placement} className="btn-ad ml-auto min-w-0 max-w-full px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm">
+            <span className="truncate">{ctaLabel(search)}</span> <Arrow />
+          </OutboundLink>
+        )}
       </div>
       <p className={`mt-1.5 text-[11px] leading-4 text-muted ${reserveNote ? "min-h-8 sm:min-h-4" : ""}`}>{AFFILIATE_NOTE_SHORT} Goes to {ebayLabel(region)}.</p>
     </div>
@@ -432,8 +473,10 @@ function TileItem({ variant, narrow, children }: { variant: StripVariant; narrow
  * The top line, as in Rift Compare's strip: wordmark, "AD · LIVE LISTINGS ON EBAY", the headline, and how old the data is.
  * One row from sm up (the headline beside the label); on a phone, and always in a `narrow` column (the product page's right column,
  * where the headline would be cut to "Sun & Moon Booster Box on e..."), the headline is a row of its own. Fixed row heights, so the skeleton matches.
+ * A `hot` button (a popular product or set) ends the row from lg up; below lg (and always in a `narrow` column) it is a row of its own under
+ * the headline: full width on a phone, its own width from sm. Its row is there in the skeleton too.
  */
-function TopLine({ site, heading, age, twoLine, narrow }: { site: string; heading: string; age: string; twoLine: boolean; narrow: boolean }) {
+function TopLine({ site, heading, age, twoLine, narrow, hot }: { site: string; heading: string; age: string; twoLine: boolean; narrow: boolean; hot?: ReactNode }) {
   return (
     <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
       <div className="order-1 flex min-w-0 items-center gap-2">
@@ -445,6 +488,7 @@ function TopLine({ site, heading, age, twoLine, narrow }: { site: string; headin
         {heading}
       </p>
       <span className={`order-2 ml-auto shrink-0 text-[11px] text-muted ${narrow ? "" : "sm:order-3 sm:text-xs"}`}>Updated {age}</span>
+      {hot && <div className={`order-4 flex w-full pt-1 ${narrow ? "" : "lg:w-auto lg:pt-0"}`}>{hot}</div>}
     </div>
   );
 }
@@ -463,6 +507,11 @@ export interface EbayStripProps {
   headings?: Partial<Record<FeedKind, string>>;
   /** What the compact CTA (shown when there is nothing to list) searches eBay for. */
   search?: StripSearch;
+  /**
+   * A popular product or set (components/Ebay.tsx hotSetHighlight / hotProductHighlight): an eBay-blue search button in the strip's
+   * top line, in every state, and the compact CTA's button (in place of `search`). Placement: hot-home / hot-set / hot-product.
+   */
+  highlight?: EbayHighlight;
   /** "US" on the landing page (no region of its own): the strip says which eBay. */
   site?: string;
   /** Inside a column too narrow for six tiles (the product page's right column): always the scroll row. */
@@ -477,7 +526,7 @@ export interface EbayStripProps {
   className?: string;
 }
 
-export function EbayStrip({ region, context, placement, variant = "full", headings, search = {}, site, narrow = false, regionKnown = true, className = "" }: EbayStripProps) {
+export function EbayStrip({ region, context, placement, variant = "full", headings, search = {}, highlight, site, narrow = false, regionKnown = true, className = "" }: EbayStripProps) {
   const count = SHOWN[variant];
   const portrait = isCardContext(context);
   const min = context.startsWith("item:") ? 1 : Math.min(2, count);
@@ -492,11 +541,12 @@ export function EbayStrip({ region, context, placement, variant = "full", headin
   // A product page's strip carries the order note when its own listings answer (item feeds are stored lowest price first): the line is reserved either way.
   const orderNote = context.startsWith("item:");
 
-  const cta = <EbayCta region={region} placement={placement} search={search} site={siteName.trim() || undefined} reserveNote={!regionKnown} />;
+  const cta = <EbayCta region={region} placement={placement} search={search} highlight={highlight} site={siteName.trim() || undefined} reserveNote={!regionKnown} />;
+  const hot = highlight ? <HotLink region={region} highlight={highlight} placement={placement} className="w-full sm:w-auto" /> : undefined;
   // The strip's markup, with real tiles or with skeletons: ONE function, so the reserved box and the strip are the same height.
   const body = (shown: AcceptedItem[] | null, heading: string, age: string, feed: FeedKind | null, maxAgeMs: number, fitN: number | null = null) => (
     <>
-      <TopLine site={siteName} heading={heading} age={age} twoLine={twoLine} narrow={narrow} />
+      <TopLine site={siteName} heading={heading} age={age} twoLine={twoLine} narrow={narrow} hot={hot} />
       {orderNote && (
         <p className="mt-1 h-4 text-[11px] leading-4 text-muted">{feed === "item" ? "Lowest price first, before shipping" : "\u00a0"}</p>
       )}
@@ -537,8 +587,9 @@ export function EbayStrip({ region, context, placement, variant = "full", headin
   const heading = headings?.[a.feed] ?? DEFAULT_HEADINGS[a.feed];
   const label = `${heading} (ads)`;
   // Fewer tiles than the row holds (a feed with 2-5 listings): on a wide screen the frame is only as wide as its tiles (but never narrower than its top line).
+  // Not with a highlight: its button ends the top line from lg up, and a narrowed frame would push it to a row of its own (a taller strip than the skeleton).
   const cols = variant === "slim" ? 4 : 6;
-  const fitN = !narrow && items.length < cols ? items.length : null;
+  const fitN = !narrow && !highlight && items.length < cols ? items.length : null;
   const partial = fitN != null ? ({ "--n": fitN } as React.CSSProperties) : undefined;
   return (
     <div

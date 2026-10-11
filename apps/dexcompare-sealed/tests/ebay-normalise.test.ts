@@ -447,3 +447,17 @@ test("normaliseItemFeed: relevance, the type's floor, currency, shipping and the
   assert.equal(normaliseItemFeed(summary("80", "Pokemon TCG Surging Sparks Elite Trainer Box Sealed", 80, "EBAY_US", { buyingOptions: ["AUCTION"] }), "EBAY_US", NOW, ETB), null, "auction");
   assert.equal(normaliseItemFeed(summary("81", "Pokemon TCG Surging Sparks Elite Trainer Box Sealed", 80, "EBAY_US", { image: { imageUrl: "https://evil.example/x.jpg" }, thumbnailImages: [] }), "EBAY_US", NOW, ETB), null, "an image that is not eBay's");
 });
+
+test("a booster pack's own search refuses multi-pack lots and other non-units, as the sweep does", () => {
+  const target: ItemTarget = { groupKey: "cel30|booster-pack", type: "booster-pack", setCode: "cel30" };
+  const ok = (t: string) => normaliseItemFeed(summary("1", t, 20), "EBAY_US", NOW, target);
+  for (const t of [
+    "Pokemon 30th Celebration 5 Booster Packs Sealed",
+    "Pokemon TCG 30th Celebration Booster Packs",
+    "Pokemon 30th Celebration Booster Pack - 4 Packs",
+    "Pokemon 30th Celebration Booster Pack x10",
+    "Pokemon 30th Celebration Booster Pack Lot",
+  ])
+    assert.equal(ok(t), null, t);
+  assert.ok(ok("Pokemon 30th Celebration Booster Pack Sealed"));
+});

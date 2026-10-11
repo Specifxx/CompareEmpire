@@ -1,9 +1,14 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { buildSearchUrl } from "../src/lib/ebay-api";
+import { buildSearchUrl, type SearchSpec } from "../src/lib/ebay-api";
 import { runImport } from "../src/lib/ebay-import";
+import { typeFloor } from "../src/lib/ebay-normalise";
 import {
   buildSweepIndex,
+  HOT_SHARE,
+  HOT_TYPE_QUERY,
+  hotSetWords,
+  hotSweepQueries,
   isFiller,
   marketplaceShares,
   matchListing,
@@ -15,8 +20,11 @@ import {
   sweepSignatureSets,
   sweepSpec,
   sweepVocabulary,
+  sweepWithHot,
 } from "../src/lib/ebay-sweep";
 import type { PlanRow } from "../src/lib/ebay-store";
+import { HOT_SET_QUERY, HOT_SETS } from "../src/lib/popular";
+import { PRODUCT_TYPES } from "../src/lib/sealed-title";
 import { fakeDb, harness, json, NOW, okToken, planRow, requestedReference, summary, withReference } from "./helpers/ebay-fakes";
 
 // A small catalogue, as the store import files it (the real classifier makes the group keys).
@@ -207,15 +215,132 @@ test("paging: 200 a page with the offset, round-robin across queries, stops at t
   assert.equal(tight[0].stopped, "budget");
 });
 
-test("shares: by product count, with a floor for a small marketplace, never more than the budget", () => {
-  const rows = [...catalogue(), ...Array.from({ length: 30 }, (_, i) => planRow("tin", "CA", 2000, { name: `Tin - Pikachu ${i}`, productId: `ca${i}` }))];
+test("shares: by product count x audience weight (the US first), with a floor for a small marketplace, never more than the budget", () => {
+  const rows = [...catalogue(), ...Array.from({ length: 40 }, (_, i) => planRow("tin", "CA", 2000, { name: `Tin - Pikachu ${i}`, productId: `ca${i}` }))];
   const vocab = sweepVocabulary(rows);
   const ix = (["EBAY_US", "EBAY_AU", "EBAY_CA"] as const).map((m) => buildSweepIndex(rows, m, vocab));
+  assert.deepEqual(ix.map((x) => x.products.length), [8, 1, 40]);
   const sh = marketplaceShares(ix, 1000);
   const total = [...sh.values()].reduce((a, b) => a + b, 0);
   assert.ok(total <= 1000);
-  assert.ok(sh.get("EBAY_CA")! > sh.get("EBAY_US")!, "more products, more pages");
+  assert.ok(sh.get("EBAY_CA")! > sh.get("EBAY_US")!, "five times the products at a quarter of the weight: more pages");
   assert.ok(sh.get("EBAY_AU")! >= 70, "the floor");
+  // the same products at the US's weight, the UK's and Canada's: the US's share is the largest, Canada's the smallest
+  const same = (["EBAY_US", "EBAY_GB", "EBAY_DE", "EBAY_AU", "EBAY_CA"] as const).map((marketplace) => ({ ...ix[0], marketplace }));
+  const s2 = marketplaceShares(same, 1000);
+  assert.ok(s2.get("EBAY_US")! > s2.get("EBAY_GB")! && s2.get("EBAY_GB")! === s2.get("EBAY_DE")! && s2.get("EBAY_DE")! > s2.get("EBAY_AU")! && s2.get("EBAY_AU")! > s2.get("EBAY_CA")!, JSON.stringify([...s2]));
+  // the first full run's catalogue (2026-10-11: US 2,538, UK 2,169, EU 1,593, AU 2,339, CA 3,526 products): the US gets the most
+  const sized = (marketplace: "EBAY_US" | "EBAY_GB" | "EBAY_DE" | "EBAY_AU" | "EBAY_CA", n: number) => ({ ...ix[0], marketplace, products: Array.from({ length: n }, () => ix[0].products[0]) });
+  const real = marketplaceShares([sized("EBAY_US", 2538), sized("EBAY_GB", 2169), sized("EBAY_DE", 1593), sized("EBAY_AU", 2339), sized("EBAY_CA", 3526)], 2100);
+  const us = real.get("EBAY_US")!;
+  assert.ok([...real].every(([m, v]) => m === "EBAY_US" || v < us), JSON.stringify([...real]));
+  assert.ok(real.get("EBAY_GB")! > real.get("EBAY_AU")! && real.get("EBAY_GB")! > real.get("EBAY_CA")!, "the UK before Australia and Canada");
+  assert.ok([...real.values()].reduce((a, b) => a + b, 0) <= 2100);
+});
+
+// ─── hot sets (src/lib/popular.ts) ──────────────────────────────────────────────
+
+function hotCatalogue(): PlanRow[] {
+  return [
+    planRow("etb", "US", 6000, { name: "30th Celebration Elite Trainer Box", productId: "c30-etb" }),
+    planRow("pc-etb", "UK", 9000, { name: "30th Celebration Pokemon Center Elite Trainer Box", productId: "c30-pcetb" }),
+    planRow("booster-pack", "US", 600, { name: "30th Celebration Booster Pack", productId: "c30-pack" }),
+    planRow("upc", "US", 15000, { name: "30th Celebration Ultra-Premium Collection (Day)", productId: "c30-upc" }),
+    planRow("collection", "US", 3000, { name: "30th Celebration Pikachu Premium Collection", productId: "c30-col" }),
+    planRow("tin", "AU", 2000, { name: "30th Celebration Mini Tin - Pikachu", productId: "c30-tin" }), // an AU-only type still makes a query
+    planRow("etb", "US", 5500, { name: "Pitch Black Elite Trainer Box", productId: "me5-etb" }),
+    planRow("booster-box-case", "US", 90000, { name: "Pitch Black Booster Box Case", productId: "me5-case" }),
+    planRow("booster-bundle", "US", 3000, { name: "Scarlet & Violet 151 Booster Bundle", productId: "151-bundle" }),
+    planRow("booster-box", "US", 16000, { name: "Surging Sparks Booster Box", productId: "bb" }), // not a hot set
+  ];
+}
+
+test("hot queries: per hot set in HOT_SETS order, one per product type the catalogue has for it; 30th Celebration is searched as '30th' and 151 as '151'", () => {
+  assert.equal(HOT_SHARE, 0.5);
+  assert.deepEqual(HOT_SETS.slice(0, 2), ["cel30", "me5"]);
+  assert.equal(HOT_SET_QUERY.cel30, "30th");
+  const qs = hotSweepQueries(hotCatalogue(), "2026-10-07");
+  assert.deepEqual(
+    qs.map((x) => [x.key, x.q, [...x.types]]),
+    [
+      ["hot-cel30-etb", "30th elite trainer box", ["etb", "pc-etb"]], // an ETB and a Pokémon Center ETB share one query
+      ["hot-cel30-collection", "30th collection", ["upc", "collection"]],
+      ["hot-cel30-tin", "30th tin", ["tin"]],
+      ["hot-cel30-pack", "30th booster pack", ["booster-pack"]],
+      ["hot-me5-etb", "pitch black elite trainer box", ["etb"]],
+      ["hot-me5-box-case", "pitch black booster box case", ["booster-box-case"]],
+      ["hot-sv3pt5-bundle", "151 booster bundle", ["booster-bundle"]],
+    ],
+  );
+  assert.equal(new Set(qs.map((x) => x.q)).size, qs.length, "no query twice");
+  assert.ok(!qs.some((x) => /surging/.test(x.q)), "only hot sets");
+  // "Pokemon <words> <phrase>", 200 a page, the lowest floor of its types (the pack's for the pack query)
+  const pack = qs.find((x) => x.key === "hot-cel30-pack")!;
+  const u = new URL(buildSearchUrl(sweepSpec(pack, "EBAY_US", 0)));
+  assert.equal(u.searchParams.get("q"), "Pokemon 30th booster pack");
+  assert.equal(u.searchParams.get("limit"), "200");
+  assert.equal(sweepSpec(qs[0], "EBAY_US", 0).minPrice, typeFloor("etb", "EBAY_US"), "the ETB's floor, lower than the Pokémon Center ETB's");
+  // every phrase: a case is its box's phrase + "case"; collections and UPCs are "collection"; packs and sleeved boosters "booster pack"
+  for (const t of PRODUCT_TYPES) assert.ok(HOT_TYPE_QUERY[t.key].phrase.length > 0, t.key);
+  assert.equal(HOT_TYPE_QUERY["etb-case"].phrase, "elite trainer box case");
+  assert.equal(HOT_TYPE_QUERY["booster-bundle-case"].phrase, "booster bundle case");
+  assert.equal(HOT_TYPE_QUERY["sleeved-booster"].phrase, "booster pack");
+  assert.equal(HOT_TYPE_QUERY["build-battle-stadium"].phrase, "build battle");
+  // a hot set that is not out yet is skipped (30th Celebration came out on 2026-09-16)
+  const before = hotSweepQueries(hotCatalogue(), "2026-09-01");
+  assert.ok(!before.some((x) => x.key.startsWith("hot-cel30")));
+  assert.equal(before[0].key, "hot-me5-etb");
+  // an unknown code, or a hot set the catalogue has nothing of, makes no query
+  assert.deepEqual(hotSweepQueries(hotCatalogue(), "2026-10-07", ["nope", "me4"]), []);
+  assert.equal(hotSetWords("sv8pt5"), "prismatic evolutions");
+  assert.equal(hotSetWords("pgo"), "pokemon go", "accents folded");
+  assert.equal(hotSetWords("sv1"), "scarlet violet", "'&' dropped");
+  assert.equal(hotSetWords("cel30"), "30th");
+  assert.equal(hotSetWords("nope"), null);
+});
+
+test("the hot pass runs first, with at most half the marketplace's share; the general queries get the rest", async () => {
+  const hot = hotSweepQueries(hotCatalogue(), "2026-10-07");
+  const general = SWEEP_QUERIES.slice(0, 4);
+  const seen: string[] = [];
+  // a collector whose every page gains (no query runs dry): only the budget and the order are under test here
+  const ix = () => ({ index: { marketplace: "EBAY_US" }, addPage: () => 1 }) as unknown as SweepCollector;
+  const endless = async (s: SearchSpec) => {
+    seen.push(s.q);
+    return { items: Array.from({ length: SWEEP_PAGE }, () => ({})), total: 100_000 };
+  };
+  const hotQs = new Set(hot.map((x) => `Pokemon ${x.q}`));
+  const r = await sweepWithHot(ix(), 41, endless, { concurrency: 3, hot, queries: general });
+  const lastHot = seen.findLastIndex((q) => hotQs.has(q));
+  const firstGeneral = seen.findIndex((q) => !hotQs.has(q));
+  assert.ok(lastHot < firstGeneral, "every hot page before the first general one");
+  assert.equal(r.hot.reduce((a, p) => a + p.pages, 0), 20, "half of 41, rounded down");
+  assert.equal(r.general.reduce((a, p) => a + p.pages, 0), 21, "the rest");
+  assert.equal(seen.length, 41, "never past the share");
+  assert.equal(seen[0], "Pokemon 30th elite trainer box", "30th Celebration first");
+  // round-robin inside the hot pass: every hot query's first page before any second page
+  assert.deepEqual(seen.slice(0, hot.length).sort(), [...hotQs].sort());
+  // a hot pass that ends early leaves the rest of the share to the general queries
+  const short = async (s: SearchSpec) => (hotQs.has(s.q) ? { items: [], total: 0 } : endless(s));
+  const r2 = await sweepWithHot(ix(), 41, short, { concurrency: 1, hot, queries: general });
+  assert.equal(r2.hot.reduce((a, p) => a + p.pages, 0), hot.length);
+  assert.equal(r2.general.reduce((a, p) => a + p.pages, 0), 41 - hot.length);
+  // what the hot pass really cost (the importer's count, retries included) comes off the general pass
+  let calls = 0;
+  const retrying = async (s: SearchSpec) => {
+    calls += hotQs.has(s.q) ? 2 : 1; // every hot page needed a retry
+    return endless(s);
+  };
+  const r3 = await sweepWithHot(ix(), 40, retrying, { concurrency: 1, hot, queries: general, spent: () => calls });
+  assert.equal(r3.hot.reduce((a, p) => a + p.pages, 0), 20);
+  assert.equal(r3.general.reduce((a, p) => a + p.pages, 0), 0, "20 hot pages cost 40 calls: nothing left");
+  assert.equal(calls, 40);
+  // no hot query (no hot product in the catalogue): the whole share for the general queries
+  const r4 = await sweepWithHot(ix(), 10, endless, { concurrency: 1, hot: [], queries: general });
+  assert.deepEqual([r4.hot.length, r4.general.reduce((a, p) => a + p.pages, 0)], [0, 10]);
+  // once the run is over (a 429 elsewhere), the general pass does not start
+  const r5 = await sweepWithHot(ix(), 10, endless, { concurrency: 1, hot, queries: general, shouldStop: () => true });
+  assert.deepEqual(r5.general, []);
 });
 
 test("run: the sweep writes an item feed for every product with two or more listings, then per-product searches fill only what it missed", async () => {
