@@ -4,7 +4,7 @@
 // so tests/ run it with a fake and the route runs it with Prisma.
 import { Prisma } from "@prisma/client";
 import { listingHref } from "./affiliate";
-import { refusedListing } from "./ebay-rules";
+import { refusedForType, refusedListing } from "./ebay-rules";
 import {
   cleanImageUrl,
   feedKey,
@@ -86,8 +86,8 @@ export function cascadeFor(ctx: ParsedContext, region: Region, product?: { id: s
  * affiliate.ts listingHref: https, an eBay host, /itm/<id>, no port, one campid) and its picture is on eBay's image host. The campaign
  * id is NOT compared with this runtime's NEXT_PUBLIC_EBAY_CAMPAIGN_ID: the importer enforced the owner's id when it wrote the row.
  */
-export function rowIsSafe(r: ListingRow): boolean {
-  return !!cleanImageUrl(r.imageUrl) && listingHref(r.url) !== null && !refusedAtRead(r);
+export function rowIsSafe(r: ListingRow, type?: TypeKey): boolean {
+  return !!cleanImageUrl(r.imageUrl) && listingHref(r.url) !== null && !refusedAtRead(r, type);
 }
 
 /**
@@ -95,8 +95,16 @@ export function rowIsSafe(r: ListingRow): boolean {
  * product's contents, lots, partials, random variants…): not shown, even when it was stored before the rule existed (rows live up to a
  * day). Chase and set feeds (single cards) have their own filter at import.
  */
-function refusedAtRead(r: ListingRow): boolean {
-  return !/\|(?:chase|set:)/.test(r.feed) && refusedListing(r.title);
+function refusedAtRead(r: ListingRow, type?: TypeKey): boolean {
+  if (/\|(?:chase|set:)/.test(r.feed)) return false;
+  return refusedListing(r.title) || (type !== undefined && refusedForType(r.title, type));
+}
+
+/** The product type a sealed feed is FOR (an item feed: the product's; a type feed: its slug's), so the per-type rules apply too. */
+function feedType(kind: FeedKind, ctx: ParsedContext, product: { productType: string } | null | undefined): TypeKey | undefined {
+  if (kind === "item") return product ? TYPE_BY_LABEL.get(product.productType)?.key : undefined;
+  if (kind === "type" && ctx.kind === "type") return TYPE_BY_SLUG.get(ctx.slug!)?.key;
+  return undefined;
 }
 
 /** A stored row → the whitelisted item the response carries. Shipping currency is the price's (eBay prices shipping in the marketplace's currency). */
@@ -127,7 +135,8 @@ export async function listingsFor(ctx: ParsedContext, region: Region, deps: Read
     const rows = await deps.rows(cascade.map((c) => c.key), cutoff, cascade.map((c) => minRowsFor(c.kind)));
     // The database already picked the winning feed; pick again here so a reader that returns more is still right.
     for (const c of cascade) {
-      const mine = rows.filter((r) => r.feed === c.key && r.fetchedAt.getTime() >= cutoff.getTime() && rowIsSafe(r)).sort((a, b) => a.rank - b.rank).slice(0, MAX_FEED_ROWS);
+      const type = feedType(c.kind, ctx, product);
+      const mine = rows.filter((r) => r.feed === c.key && r.fetchedAt.getTime() >= cutoff.getTime() && rowIsSafe(r, type)).sort((a, b) => a.rank - b.rank).slice(0, MAX_FEED_ROWS);
       if (mine.length < minRowsFor(c.kind)) continue;
       const oldest = Math.min(...mine.map((r) => r.fetchedAt.getTime()));
       return { feed: c.kind, items: mine.map(rowToItem), fetchedAt: new Date(oldest).toISOString(), maxAgeMs };
