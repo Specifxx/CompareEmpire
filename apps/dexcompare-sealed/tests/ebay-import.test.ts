@@ -1018,7 +1018,7 @@ test("run: a dry run makes no call and writes nothing", async () => {
 
 test("selectFeedItems: each rule keeps what it should, and an item feed keeps 8 at most", () => {
   const feed = (kind: "item" | "chase") => ({ ...fixedFeeds(TODAY)[0], rule: kind === "chase" ? { kind: "chase" as const } : { kind: "item" as const, target: { groupKey: "sv8|etb", type: "etb" as const, setCode: "sv8" } }, marketplace: "EBAY_US" as const });
-  const etbs = Array.from({ length: 20 }, (_, i) => summary(String(i), `Pokemon TCG Surging Sparks Elite Trainer Box Sealed #${i}`, 100 - i));
+  const etbs = Array.from({ length: 20 }, (_, i) => summary(String(i), `Pokemon TCG Surging Sparks Elite Trainer Box Sealed Copy ${String.fromCharCode(65 + i)}`, 100 - i));
   const out = selectFeedItems(feed("item"), [etbs], NOW);
   assert.equal(out.length, 8);
   assert.deepEqual(out.map((o) => Number(o.price.value)), [81, 82, 83, 84, 85, 86, 87, 88]);

@@ -684,12 +684,15 @@ const PRICE_ROWS = 3;
  * No layout shift: while it loads it reserves three rows (skeletons); when fewer listings come back, or none, the reserved height is
  * released only once the block is out of the viewport (useCollapsed), and until then the space stays (empty) under the rows.
  */
-export function EbayPriceRows({ region, slug, className = "" }: { region: Region; slug: string; className?: string }) {
+export function EbayPriceRows({ region, slug, floor, className = "" }: { region: Region; slug: string; floor?: { value: number; currency: string } | null; className?: string }) {
   const placement: Placement = "listings-price-rows";
   const { ref, state, now } = useListings({ region, context: `item:${slug}`, placement, min: 1 });
   const [broken, setBroken] = useState<ReadonlySet<string>>(new Set());
   const a = state.status === "ready" && state.a.feed === "item" ? state.a : null;
-  const items = a ? a.items.filter((i) => !broken.has(i.id)).slice(0, PRICE_ROWS) : [];
+  // A listing far under the product's cheapest store price (same currency) is almost always a part of it or a single card, which lowest
+  // price first would put on top: not shown here. An internal relevance check: nothing is computed for display or compared on the page.
+  const plausible = (i: AcceptedItem) => !floor || i.price.currency !== floor.currency || Number(i.price.value) >= floor.value;
+  const items = a ? a.items.filter((i) => !broken.has(i.id) && plausible(i)).slice(0, PRICE_ROWS) : [];
   const settled = state.status === "none" || (state.status === "ready" && items.length < PRICE_ROWS);
   const released = useCollapsed(ref, settled);
   const none = state.status === "none" || (state.status === "ready" && items.length === 0);
