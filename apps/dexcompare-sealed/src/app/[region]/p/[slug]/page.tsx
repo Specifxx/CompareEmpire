@@ -11,14 +11,14 @@ import { OfferTable } from "@/components/OfferTable";
 import { OutboundLink } from "@/components/OutboundLink";
 import { ProductGrid } from "@/components/ProductCard";
 import { Section } from "@/components/Section";
-import { StockPill } from "@/components/StockPill";
+import { BestPriceCard } from "@/components/BestPriceCard";
 import { offerLink, offerRetailer } from "@/lib/affiliate";
 import { productAdPlan } from "@/lib/ebay-ads";
 import { rowPacks } from "@/lib/ebay-offer-row";
 import { comparable, productPage, relatedProducts, type OfferView } from "@/lib/data";
-import { medianSaving, money, pctOf, plural } from "@/lib/format";
+import { money, plural } from "@/lib/format";
 import { thumb } from "@/lib/images";
-import { packsFor, perPackCents } from "@/lib/packs";
+import { packsFor } from "@/lib/packs";
 import { formatRelease, isPreorderSet } from "@/lib/release";
 import { regionOrNotFound, REGION_LIST, type Market, type RegionInfo } from "@/lib/regions";
 import { RRP_NOTE, usMsrpCents } from "@/lib/rrp";
@@ -145,7 +145,9 @@ export default async function ProductPage({ params }: { params: { region: string
   // price is the cheapest IN-STOCK store's, the rows the listing is ranked among (a sold-out or stale price can be far below what the
   // product sells for now); any store's when none is in stock.
   const cheapestCents = best?.priceCents ?? p.offers.reduce<number | null>((m, o) => (m == null || o.priceCents < m ? o.priceCents : m), null);
-  const ebayFloor = cheapestCents != null && marketplaceOf(r.region).currency === r.currency ? { value: (cheapestCents * 0.4) / 100, currency: r.currency } : null;
+  // NZ and SG are served the AU and US sites, in A$ and US$: their eBay listings are never compared with the stores' prices.
+  const ebayComparable = marketplaceOf(r.region).currency === r.currency;
+  const ebayFloor = cheapestCents != null && ebayComparable ? { value: (cheapestCents * 0.4) / 100, currency: r.currency } : null;
   // A product of one of the owner's hot sets (lib/popular.ts: 30th Celebration first), once the set is out: the marketplace panel makes
   // eBay its primary button with a "Popular set" chip, and the strip carries the highlighted "Shop <product> on eBay" button. Where
   // the strip goes, and whether there is one, is productAdPlan's call as for any product: the highlight adds no unit.
@@ -170,12 +172,9 @@ export default async function ProductPage({ params }: { params: { region: string
   // of the in-stock stores (from ProductStat, null under two stores), and in
   // the US TPCi's published MSRP. Nothing here is history.
   const packs = type ? packsFor(type.key, p.setCode, p.name) : null;
-  const perPack = best ? perPackCents(best.priceCents, packs) : null;
   const median = here?.medianOpenCents ?? null;
   const medianStores = here?.inStockStores ?? 0;
-  const saving = best ? medianSaving(best.priceCents, median, medianStores) : null;
   const msrp = r.market === "US" && type ? usMsrpCents(type.key, p.setCode) : null;
-  const vsMsrp = best && msrp ? pctOf(best.priceCents, msrp) : null;
 
   const ld = open.length
     ? productJsonLd({
@@ -241,73 +240,33 @@ export default async function ProductPage({ params }: { params: { region: string
 
           {best && bestLink ? (
             <>
-              <div className="card mt-6 p-5">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <div className="text-sm font-medium text-muted">{pre ? "Cheapest pre-order" : "Best price in stock"}</div>
-                    <div className="tabular font-display text-4xl font-extrabold tracking-tight">{money(best.priceCents, r.market)}</div>
-                    {perPack != null && <div className="tabular mt-0.5 text-sm text-muted">≈ {money(perPack, r.market)} per pack</div>}
-                    <div className="mt-1 text-sm text-muted">
-                      {best.marketplace ? "on" : "at"} {best.storeName}
-                      {bestLink.sponsored && <span> · marketplace · affiliate link</span>}
-                    </div>
-                  </div>
-                  <OutboundLink
-                    href={bestLink.href}
-                    rel={bestLink.rel}
-                    retailer={offerRetailer(best.store, best.storeName, r.market)}
-                    placement="product-best"
-                    className="btn-primary px-6 py-3 text-base"
-                  >
-                    {best.marketplace ? `Buy on ${best.storeName}` : `Go to ${best.storeName}`} <span aria-hidden="true">↗</span>
-                  </OutboundLink>
-                </div>
-                {(saving || (msrp != null && vsMsrp != null && vsMsrp < 0)) && (
-                  <p className="mt-3 flex flex-wrap gap-2 text-sm font-semibold text-open">
-                    {saving && <span>{saving}</span>}
-                    {msrp != null && vsMsrp != null && vsMsrp < 0 && <span className="rounded-full border border-open/40 px-2">{-vsMsrp}% below US MSRP</span>}
-                  </p>
-                )}
-                <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-line pt-4 text-sm text-muted">
-                  <StockPill state="open" preorder={pre}>
-                    {pre ? "Pre-order" : "In stock"}{" "}
-                    {openStores ? `at ${openStores} of ${plural(stores.length, "store")}${tcgOpen ? " + TCGplayer" : ""}` : "on TCGplayer"}
-                  </StockPill>
-                  {!openStores && stores.length > 0 && <span>no {r.adjective} store we track has it in stock</span>}
-                  {open.length > 1 && (
-                    <span>
-                      up to {money(open[open.length - 1].priceCents, r.market)} — you save {money(open[open.length - 1].priceCents - best.priceCents, r.market)} by
-                      buying at the cheapest
-                    </span>
-                  )}
-                </div>
-                {(median != null || msrp != null) && (
-                  <dl className="mt-3 grid gap-x-6 gap-y-1 text-sm text-muted sm:grid-cols-2">
-                    {median != null && (
-                      <div>
-                        <dt className="inline">Median in-stock price </dt>
-                        <dd className="tabular inline font-semibold text-ink">
-                          {money(median, r.market)} <span className="font-normal text-muted">across {plural(medianStores, "store")}</span>
-                        </dd>
-                      </div>
-                    )}
-                    {msrp != null && (
-                      <div>
-                        <dt className="inline">US MSRP </dt>
-                        <dd className="tabular inline font-semibold text-ink">
-                          {money(msrp, r.market)}
-                          {vsMsrp != null && vsMsrp !== 0 && (
-                            <span className="font-normal text-muted">
-                              {" "}
-                              · best price {Math.abs(vsMsrp)}% {vsMsrp < 0 ? "below" : "above"} MSRP
-                            </span>
-                          )}
-                        </dd>
-                      </div>
-                    )}
-                  </dl>
-                )}
-              </div>
+              {/* The best price: the cheapest store's, or the product's eBay listing when that is cheaper (BestPriceCard, in the browser). */}
+              <BestPriceCard
+                region={r.region}
+                market={r.market}
+                adjective={r.adjective}
+                preorder={pre}
+                store={{
+                  cents: best.priceCents,
+                  where: `${best.marketplace ? "on" : "at"} ${best.storeName}`,
+                  marketplace: best.marketplace,
+                  href: bestLink.href,
+                  rel: bestLink.rel,
+                  sponsored: bestLink.sponsored,
+                  retailer: offerRetailer(best.store, best.storeName, r.market),
+                  button: best.marketplace ? `Buy on ${best.storeName}` : `Go to ${best.storeName}`,
+                }}
+                packs={packs}
+                median={median}
+                medianStores={medianStores}
+                msrp={msrp}
+                openStores={openStores}
+                storeCount={stores.length}
+                tcgOpen={tcgOpen}
+                openCount={open.length}
+                highestOpenCents={open[open.length - 1].priceCents}
+                ebay={ebayComparable ? { slug: p.slug, floor: ebayFloor, packs: rowPacks(type?.key, packs) } : null}
+              />
               <MarketplacePanel
                 region={r.region}
                 productName={p.name}

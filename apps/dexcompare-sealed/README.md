@@ -64,7 +64,9 @@ have changed; check eBay."
 * **The price table's eBay row** (`listings-offer-row`, the owner's call: DexCompare compares websites, and eBay is one): a product's
   cheapest own eBay listing is a row of its store price table, ranked by its price among the in-stock stores, tinted, labelled "Ad",
   with eBay's blue "View on eBay" button and its age on the row; an eBay search for the product after the in-stock stores when it has
-  none. Never the best price ("Best store price" when eBay's listing is cheaper), never counted (`src/lib/ebay-offer-row.ts`).
+  none. When it is cheaper than every in-stock store it is the best price: "Best price" on it, "Best store price" on the cheapest
+  store, and the best-price card at the top of the page shows it (`listings-best-price`, `src/components/BestPriceCard.tsx`). Never
+  counted (store count, median), never in JSON-LD, meta or the "from" prices elsewhere (`src/lib/ebay-offer-row.ts`).
 * **Popular sets** (`src/lib/popular.ts` HOT_SETS, owner-edited, 30th Celebration first): once a hot set is out, its eBay search is
   highlighted as an eBay-blue button (44 px tall, placements `hot-home`, `hot-set`, `hot-product`) INSIDE the top line of an existing strip, never a unit of its
   own: the region home's sealed strip ("Shop 30th Celebration on eBay", the first hot set that is out), a hot set's page and a hot

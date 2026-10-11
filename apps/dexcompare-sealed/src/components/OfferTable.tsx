@@ -14,7 +14,9 @@ import { StockPill } from "./StockPill";
 // The region's offers, ranked (in the US that includes TCGplayer's, badged as a marketplace), and, with `ebay`, ONE eBay row among
 // them: the product's lowest-priced own eBay listing, ranked by its price among the stores you can buy from now, tinted, labelled "Ad",
 // with eBay's blue button (EbayStrip.tsx OfferRowsWithEbay, lib/ebay-offer-row.ts). The owner's call: DexCompare compares websites, and
-// eBay is one. The eBay row is never the "Best price" and nothing counts it (the title's store count, the median, per-pack prices).
+// eBay is one. When the eBay listing is cheaper than every store you can buy from it is the best price ("Best price" on it, "Best store
+// price" on the cheapest store, and the product page's best-price card shows it: BestPriceCard.tsx); nothing counts it (the title's store
+// count, the median).
 // The store rows are rendered here, on the server; the browser only places the eBay row among them.
 export function OfferTable({
   offers,

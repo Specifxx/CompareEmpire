@@ -38,6 +38,7 @@ export const PLACEMENTS = [
   "listings-browse", // /[region]/sealed page 1: the strip at the top
   "listings-browse-feed", // /[region]/sealed: the one in-feed listing tile after the 12th product
   "listings-offer-row", // product page: the eBay row of the price table (the product's cheapest own listing, ranked among the stores; an eBay search when it has none)
+  "listings-best-price", // product page: the best-price card's eBay button, when the product's eBay listing is cheaper than every store
   "listings-store", // store directory and store page
   "listings-releases", // release calendar: the closing strip
   "listings-footer", // every content page: the slim four-tile strip above the footer

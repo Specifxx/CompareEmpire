@@ -135,8 +135,9 @@ export default function About() {
             the store listings in a unit of their own (a dashed, tinted box). In a product&rsquo;s price table, eBay is compared as one more
             website: its <b>lowest-priced listing of that product</b> is a tinted row with eBay&rsquo;s blue button, placed by its price among
             the stores that have it in stock (after them when we have no listing and the row is an eBay search, and always in New Zealand and
-            Singapore, whose listings come from another country&rsquo;s eBay in its currency). That row is never the best price and is never
-            counted. The strips show <b>real eBay listings</b> (Buy It Now): on a schedule (once a day, in the default setting) our server asks eBay&rsquo;s official listing service
+            Singapore, whose listings come from another country&rsquo;s eBay in its currency). When that listing is cheaper than every
+            store, it is the product&rsquo;s best price, at the top of the page too, still marked &ldquo;Ad&rdquo; with how old it is. It is
+            never counted in the number of stores or the median. The strips show <b>real eBay listings</b> (Buy It Now): on a schedule (once a day, in the default setting) our server asks eBay&rsquo;s official listing service
             (its Browse API) for them and stores the latest few for each strip, and each strip says how old its listings are. Each is shown
             as eBay lists it &mdash; its title, photo, price in the currency eBay shows, and the shipping cost eBay gives &mdash; never
             converted, counted or averaged (only the price-table row is placed by its price), and every one links to the listing on eBay. Because they are

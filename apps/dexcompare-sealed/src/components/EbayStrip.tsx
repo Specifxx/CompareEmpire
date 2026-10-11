@@ -685,11 +685,26 @@ export interface OfferRowSlot {
 }
 
 /**
+ * The product's eBay listing that the price table shows, and that COUNTS AS THE CHEAPEST PRICE when it beats every store you can buy
+ * from (the owner's call, 2026-10-11): the lowest-priced plausible listing of its OWN feed (lib/ebay-offer-row.ts pickListing: never its
+ * type's or generic listings, never one under the store-price floor or stating another pack count), its price in cents when it is in the
+ * stores' currency (else null: never compared), and how old it is. Fetched as soon as the page runs; one request however many callers
+ * (the table row and the best-price card share it through `acquire`).
+ */
+export function useEbayPick({ region, slug, floor, packs, placement }: { region: Region; slug: string; floor: PriceFloor | null; packs: number | null; placement: Placement }) {
+  const { ref, state, now } = useListings({ region, context: `item:${slug}`, placement, min: 1, eager: true });
+  const a = state.status === "ready" && state.a.feed === "item" ? state.a : null;
+  const item = a ? pickListing(a.items, floor, packs) : null;
+  const cents = item && item.price.currency === REGIONS[region]?.currency ? listingCents(item.price.value) : null;
+  return { ref, item, cents, age: a ? formatAge(now - a.fetchedAtMs) : "" };
+}
+
+/**
  * The store rows of a product's price table with ONE eBay row among them (the owner's call, 2026-10-11: eBay is one of the websites
- * compared). The row is the product's lowest-priced OWN eBay listing (lib/ebay-offer-row.ts pickListing: never its type's or generic
- * listings, never one under the store-price floor or stating another pack count), ranked by its price among the stores you can buy from now (ebayRowIndex), tinted
- * (the sponsored tint and an eBay-blue edge), labelled "Ad", with eBay's blue "View on eBay" button. It is never the "Best price": when
- * it is cheaper than the best store, that badge reads "Best store price". Nothing is computed from it (no count, median or per-pack).
+ * compared). The row is the product's useEbayPick listing, ranked by its price among the stores you can buy from now (ebayRowIndex),
+ * tinted (the sponsored tint and an eBay-blue edge), labelled "Ad", with eBay's blue "View on eBay" button. When it is cheaper than every
+ * store you can buy from it IS the best price: it carries the "Best price" badge, and the cheapest store's reads "Best store price". It
+ * is never counted ("Prices at N stores", the median).
  *
  * The server HTML (and a visitor without script) has the row as an eBay SEARCH for the product, straight after the in-stock stores: the
  * place it keeps when the product has no listing of its own. The listing is fetched as soon as the page runs (not when the table nears
@@ -698,14 +713,10 @@ export interface OfferRowSlot {
  */
 export function OfferRowsWithEbay({ rows, region, slug, query, floor, packs = null }: { rows: OfferRowSlot[]; region: Region; slug: string; query: string; floor: PriceFloor | null; packs?: number | null }) {
   const placement: Placement = "listings-offer-row";
-  const { ref, state, now } = useListings({ region, context: `item:${slug}`, placement, min: 1, eager: true });
+  const { ref, item, cents, age } = useEbayPick({ region, slug, floor, packs, placement });
   const [thumbOk, setThumbOk] = useState<Record<string, false>>({});
-  const a = state.status === "ready" && state.a.feed === "item" ? state.a : null;
-  const item = a ? pickListing(a.items, floor, packs) : null;
-  const currency = REGIONS[region]?.currency;
-  const cents = item && item.price.currency === currency ? listingCents(item.price.value) : null;
   const at = ebayRowIndex(rows, cents);
-  // the cheapest store you can buy from: its badge says "store" when the eBay listing beats it
+  // the cheapest store you can buy from: when the eBay listing beats it, the listing is the best price and the store's badge says "store"
   const best = rows.find((r) => r.open);
   const cheaper = cents != null && best != null && cents < best.cents;
   const row = (
@@ -716,7 +727,8 @@ export function OfferRowsWithEbay({ rows, region, slug, query, floor, packs = nu
       query={query}
       item={item}
       cents={cents}
-      age={a ? formatAge(now - a.fetchedAtMs) : ""}
+      age={age}
+      best={cheaper}
       thumb={item ? thumbOk[item.id] !== false : false}
       onThumbError={(id) => setThumbOk((s) => ({ ...s, [id]: false }))}
     />
@@ -734,7 +746,7 @@ export function OfferRowsWithEbay({ rows, region, slug, query, floor, packs = nu
 const EBAY_BUTTON = "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[#3665f3] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2a50c8]";
 
 /** Shaped like a store row (OfferTable): the same paddings, two lines on the left, a pill, a price over a small line, one button. */
-function EbayOfferRow({ region, placement, query, item, cents, age, thumb, onThumbError }: { region: Region; placement: Placement; query: string; item: AcceptedItem | null; cents: number | null; age: string; thumb: boolean; onThumbError: (id: string) => void }) {
+function EbayOfferRow({ region, placement, query, item, cents, age, best, thumb, onThumbError }: { region: Region; placement: Placement; query: string; item: AcceptedItem | null; cents: number | null; age: string; best: boolean; thumb: boolean; onThumbError: (id: string) => void }) {
   const r = REGIONS[region];
   const ship = item ? shipFor(region, item.ship) : null;
   const cond = item ? conditionLabel(item.condition) : "";
@@ -761,6 +773,7 @@ function EbayOfferRow({ region, placement, query, item, cents, age, thumb, onThu
           <div className="flex items-center gap-2">
             <EbayMark className="text-lg" />
             <span className="ad-pill">Ad</span>
+            {best && <span className="shrink-0 rounded-full bg-open px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-surface">Best price</span>}
             {cond && <span className="min-w-0 max-w-[9rem] truncate rounded-full border border-line bg-surface px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-muted">{cond}</span>}
           </div>
           <div className="mt-0.5 truncate text-xs text-faint" title={item?.title}>

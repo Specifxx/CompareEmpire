@@ -1,11 +1,13 @@
 // The eBay row of a product's price table (components/OfferTable.tsx, EbayStrip.tsx OfferRowsWithEbay): which listing it shows, where it
 // sits among the store rows, and the note under the table. Pure, shared by the server table and the browser.
 //
-// The owner's call (2026-10-11): DexCompare compares WEBSITES, and eBay is one of them, so the product's cheapest eBay listing is a row of
-// the store table, ranked by its price among the stores you can buy from now, tinted and with eBay's blue button, labelled "Ad". It is
-// never the "Best price", never counted in "Prices at N stores", the median or the per-pack price, and never in JSON-LD, meta or the
-// sitemap. eBay's API License Agreement asks that eBay content not be "co-mingled or combined with non-eBay Content" (8.1(b)(2)): the
-// owner chose this knowing that (DEPLOY.md, "eBay's rules, and how each is met").
+// The owner's calls (2026-10-11): DexCompare compares WEBSITES, and eBay is one of them, so the product's cheapest eBay listing is a row of
+// the store table, ranked by its price among the stores you can buy from now, tinted and with eBay's blue button, labelled "Ad"; and when
+// it is cheaper than every one of those stores it COUNTS AS THE CHEAPEST PRICE: the "Best price" badge in the table, and the product
+// page's best-price card (components/BestPriceCard.tsx). It is never counted in "Prices at N stores" or the median, and never in JSON-LD,
+// meta, OG, the sitemap or the "from" prices elsewhere (server-rendered and cached for a day: an eBay price there would outlive its age
+// bound). eBay's API License Agreement asks that eBay content not be "co-mingled or combined with non-eBay Content" (8.1(b)(2)) and that
+// nothing be derived from it (8.1(d)): the owner chose this knowing that (DEPLOY.md, "eBay's rules, and how each is met").
 
 import type { TypeKey } from "./sealed-title";
 
@@ -109,7 +111,7 @@ export const SHARED_SITE_NOTE: Readonly<Record<string, string>> = {
 /** The sentence under the table about its eBay row: static (server-rendered), so it reads the same whichever state the row is in. */
 export function ebayRowNote(region: string): string {
   return (
-    " The tinted eBay row is an ad: the lowest-priced eBay listing we have for this product, or an eBay search when there is none." +
+    " The tinted eBay row is an ad: the lowest-priced eBay listing we have for this product, or an eBay search when there is none; when it is cheaper than every store, it is the best price." +
     " Listings are imported from eBay on a schedule (how long ago is on the row) and priced before shipping, so a price or its availability may have changed: eBay's page is final." +
     " Its link is an eBay Partner Network affiliate link: we may earn a commission, at no extra cost to you." +
     (SHARED_SITE_NOTE[region] ?? "")
