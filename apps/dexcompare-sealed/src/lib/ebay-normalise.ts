@@ -238,7 +238,7 @@ export function multiUnit(title: string, type: TypeKey): boolean {
 const SEALED_NOISE = /\bpre[\s-]?(?:sales?|orders?)\b|\bpresales?\b|\b(?:read|see|check)\s+(?:the\s+)?desc(?:ription)?\b|\bdents?\b|\bdented\b|\bdamaged\b|\bdmg\b|\[\s*ebay\s+live\s*\]|\bebay\s+live\b|\bas[\s-]is\b|\bopen(?:ed)?\s+box\b/i;
 
 /** The listing's identity if the repo's classifier accepts it as sealed Pokémon product (Pokémon named: strict) and it is ONE unit, else null. */
-function sealedIdentity(title: string, strict: boolean) {
+export function sealedIdentity(title: string, strict: boolean) {
   if (SEALED_NOISE.test(title)) return null;
   const id = identify(title, { strict });
   return isIdentity(id) && !multiUnit(title, id.type) ? id : null;
@@ -273,9 +273,9 @@ export interface ItemTarget {
 }
 
 // Words eBay sellers add that say nothing about WHICH product it is (after the classifier's own NOISE list).
-const EBAY_NOISE = new Set("fast usa tracked nib mint hot cheap bargain great gift gifts hobby collectible collectable collectibles trusted".split(" "));
+export const EBAY_NOISE = new Set("fast usa tracked nib mint hot cheap bargain great gift gifts hobby collectible collectable collectibles trusted".split(" "));
 
-function groupParts(key: string): { type: string; set: string; tokens: string[] } | null {
+export function groupParts(key: string): { type: string; set: string; tokens: string[] } | null {
   const p = key.split("|");
   if (p.length === 2) return { type: p[1], set: p[0], tokens: [] }; // "<set>|<type>"
   if (p.length === 3) return { type: p[0], set: p[1], tokens: p[2] ? p[2].split("-") : [] }; // "<type>|<set or ->|<tokens>"

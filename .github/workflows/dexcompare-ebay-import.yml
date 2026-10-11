@@ -57,6 +57,10 @@ on:
         description: "Print the plan and the expected calls; no eBay call, no database write."
         type: boolean
         default: false
+      probe:
+        description: "Measure the catalogue sweep (scripts/ebay-sweep-probe.ts): ~60 reserved calls, match statistics and samples, NO listing written."
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -133,7 +137,9 @@ jobs:
           ONLY: ${{ inputs.only }}
           DRY: ${{ inputs.dry_run }}
           FORCE: ${{ inputs.force }}
+          PROBE: ${{ inputs.probe }}
         run: |
+          if [ "$PROBE" = "true" ]; then npx tsx scripts/ebay-sweep-probe.ts --pages 2 --max-calls 60; exit 0; fi
           args=()
           if [ -n "$ONLY" ]; then args+=(--only "$ONLY"); fi
           if [ "$DRY" = "true" ]; then args+=(--dry-run); fi

@@ -215,7 +215,12 @@ export interface SearchSpec {
   minPrice: number | null;
   /** The affiliateReferenceId of this search's feed (feedReference); the default for a check or a test is AFFILIATE_REFERENCE. */
   ref?: string;
+  /** The page: results to skip (the catalogue sweep pages through a search 200 at a time). eBay serves offset + limit <= 10,000. */
+  offset?: number;
 }
+
+/** The deepest a search can be paged: eBay's Browse search answers at most offset + limit = 10,000. */
+export const MAX_SEARCH_DEPTH = 10_000;
 
 export function searchFilter(marketplace: MarketplaceId, minPrice: number | null): string {
   const m = MARKETPLACES[marketplace];
@@ -231,6 +236,8 @@ export function buildSearchUrl(spec: SearchSpec): string {
   u.searchParams.set("q", spec.q.slice(0, 100));
   u.searchParams.set("limit", String(Math.min(Math.max(Math.floor(spec.limit), 1), 200)));
   u.searchParams.set("filter", searchFilter(spec.marketplace, spec.minPrice));
+  const offset = Math.floor(spec.offset ?? 0);
+  if (offset > 0) u.searchParams.set("offset", String(Math.min(offset, MAX_SEARCH_DEPTH - 1)));
   return u.toString();
 }
 
@@ -252,12 +259,17 @@ export function searchHeaders(token: string, marketplace: MarketplaceId, ref: st
 }
 
 /**
- * ONE search (one Browse call; the caller has already reserved it): the raw itemSummaries, at most 50. A 401
+ * ONE search (one Browse call; the caller has already reserved it): the raw itemSummaries, at most the spec's limit (200). A 401
  * refreshes the token once and repeats the request (that repeat is a second call: the importer reserves it
  * through `onRetry`). Throws EbayError for anything else: `search-http-<status>` (429 carries Retry-After),
  * `search-network`, `search-malformed` (not JSON, or not an object), `search-warning` (200, no listings, eBay warns).
  */
 export async function searchOnce(deps: Deps, tokens: TokenManager, spec: SearchSpec, onRetry?: () => Promise<boolean>): Promise<unknown[]> {
+  return (await searchPage(deps, tokens, spec, onRetry)).items;
+}
+
+/** searchOnce, plus eBay's `total` (how many listings match the search, as eBay estimates it; null when absent): the sweep's paging. */
+export async function searchPage(deps: Deps, tokens: TokenManager, spec: SearchSpec, onRetry?: () => Promise<boolean>): Promise<{ items: unknown[]; total: number | null }> {
   let token = await tokens.get();
   for (let attempt = 0; ; attempt++) {
     let res: Response;
@@ -283,7 +295,8 @@ export async function searchOnce(deps: Deps, tokens: TokenManager, spec: SearchS
     // HTTP 200, no listings AND eBay warns (an unsupported filter or parameter it ignored, a degraded index): that is not "nothing
     // matches", it is a search that did not work. Counted by the circuit breaker like an error; only the fixed code is ever reported.
     if (!items.length && Array.isArray(body.warnings) && body.warnings.length) throw new EbayError("search-warning", res.status);
-    return items.slice(0, 50);
+    const total = typeof body.total === "number" && Number.isFinite(body.total) && body.total >= 0 ? Math.floor(body.total) : null;
+    return { items: items.slice(0, Math.min(Math.max(Math.floor(spec.limit), 1), 200)), total };
   }
 }
 
