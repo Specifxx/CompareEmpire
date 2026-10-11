@@ -7,10 +7,12 @@ import {
   isFiller,
   marketplaceShares,
   matchListing,
+  setWordsIn,
   SWEEP_PAGE,
   SWEEP_QUERIES,
   SweepCollector,
   sweepMarketplace,
+  sweepSignatureSets,
   sweepSpec,
   sweepVocabulary,
 } from "../src/lib/ebay-sweep";
@@ -73,9 +75,64 @@ test("sweep matching: lots, several units, random variants, Japanese naming and 
     assert.equal(hit(t), "rejected", t);
 });
 
-test("filler: seller and shipping words and set-name words are filler; the words that tell products apart never are", () => {
-  for (const w of ["fast", "nib", "coin", "holo", "express", "spc", "surging", "sparks", "black", "bolt"]) assert.ok(isFiller(w), w);
-  for (const w of ["mini", "super", "ex", "mega", "charizard", "pikachu", "slowpoke"]) assert.ok(!isFiller(w), w);
+test("filler: seller and shipping words are filler, set words only for a set the title names; product words never", () => {
+  for (const w of ["fast", "nib", "coin", "holo", "express"]) assert.ok(isFiller(w), w);
+  for (const w of ["mini", "super", "ex", "mega", "charizard", "pikachu", "slowpoke", "spc", "quick", "day", "moon", "ultra"]) assert.ok(!isFiller(w), w);
+  const named = setWordsIn("Pokemon Victini Illustration Collection Black Bolt White Flare");
+  for (const w of ["black", "bolt", "white", "flare"]) assert.ok(isFiller(w, named), w);
+  assert.ok(!isFiller("moon", setWordsIn("Pokemon Moon Ball Tin")), "Moon Ball is not a set");
+});
+
+test("sweep matching: the reviewers' wrong matches stay refused (partials, multi-pack lots, case-fresh boxes, Japanese naming, other eras)", () => {
+  const rows = [
+    ...catalogue(),
+    planRow("booster-box-case", "US", 90000, { name: "Surging Sparks Booster Box Case", productId: "bbcase" }),
+    planRow("tin", "US", 60000, { name: "Mewtwo EX Tin 2012", productId: "mewtwo2012" }),
+    planRow("tin", "US", 3000, { name: "Ultra Ball Tin", productId: "ultra" }),
+    planRow("tin", "US", 3000, { name: "Pokemon GO - Ultra Ball Tin", productId: "ultra-go" }),
+    planRow("etb", "US", 5000, { name: "Scarlet & Violet Elite Trainer Box", productId: "sv1etb" }),
+    planRow("booster-pack", "US", 500, { name: "Scarlet & Violet 151 Booster Pack", productId: "151pack" }),
+  ];
+  const ix = buildSweepIndex(rows, "EBAY_US", sweepVocabulary(rows));
+  const m = (t: string) => {
+    const r = matchListing(t, ix);
+    return "product" in r ? r.product.productId : r.miss;
+  };
+  for (const t of [
+    "Pokemon Charizard ex Premium Collection Missing Promo",
+    "Pokemon Charizard ex Premium Collection Without Packs",
+    "Pokemon Charizard ex Premium Collection Coin Only",
+    "Pokemon Charizard ex Premium Collection No Packs",
+    "Pokemon 151 Mini Tins Lot Slowpoke Sandshrew",
+    "Pokemon Surging Sparks 5 Booster Packs Sealed",
+    "Pokemon Surging Sparks Booster Pack - 10 Packs",
+    "Pokemon Surging Sparks Booster Packs (5 Packs)",
+    "Pokemon Surging Sparks Booster Pack x10",
+    "Pokemon Surging Sparks Booster Box Case Fresh",
+    "Pokémon Card Game Scarlet & Violet 151 Booster Pack",
+    "POKÉMON CARD GAME Scarlet & Violet Premium Trainer Box ex",
+  ])
+    assert.equal(m(t), "rejected", t);
+  assert.notEqual(m("Pokemon Destined Rivals Mewtwo ex Tin"), "mewtwo2012", "a re-read that drops the year is not a signature");
+  assert.notEqual(m("Pokemon Evolutions Charizard EX Box"), "chz", "a listing that names a set is only that set's product");
+  assert.equal(m("Pokemon Ultra Ball Tin Sealed"), "ultra", "an unnamed listing takes the unnamed product, never the Pokémon GO one");
+  const goOnly = rows.filter((r) => r.productId !== "ultra");
+  const ix2 = buildSweepIndex(goOnly, "EBAY_US", sweepVocabulary(rows), sweepSignatureSets(rows)); // catalogue-wide, as the importer builds them
+  const r2 = matchListing("Pokemon Ultra Ball Tin Sealed", ix2);
+  assert.ok(!("product" in r2), "with only the GO tin listed here, an unnamed Ultra Ball tin is not assumed to be it (other sets share the words)");
+  assert.equal(m("Pokemon Surging Sparks Booster Box (36 ct) Factory Sealed"), "bb", "a box's own pack count is not a lot");
+  assert.equal(m("Pokemon Surging Sparks Booster Pack Sealed"), "pack");
+});
+
+test("collector: a 'New other' or 'Like New' condition is not a sealed product", () => {
+  const c = new SweepCollector(usIndex(), NOW);
+  c.addPage([
+    summary("n1", "Pokemon Surging Sparks Booster Box", 150, "EBAY_US", { condition: "New other (see details)" }),
+    summary("n2", "Pokemon Surging Sparks Booster Box", 150, "EBAY_US", { condition: "Like New" }),
+    summary("n3", "Pokemon Surging Sparks Booster Box", 150, "EBAY_US", { condition: "Neu: Sonstige (siehe Arti" }),
+  ]);
+  assert.equal(c.stats.miss.condition, 3);
+  assert.equal(c.feeds().size, 0);
 });
 
 test("collector: keeps lowest price first, de-duplicated, at most 8; refuses used, under-floor and unmatched listings; counts why", () => {

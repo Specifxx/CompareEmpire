@@ -95,6 +95,11 @@ export function feedReference(marketplace: MarketplaceId, kind: FeedKind): strin
 export const MAX_FEED_ROWS = 8;
 /** A feed with fewer live rows than this is not shown: the cascade moves on to the next feed. */
 export const MIN_FEED_ROWS = 2;
+/**
+ * The fewest rows a feed of this kind needs to answer: a product's OWN listings answer from one (one listing is still that product's
+ * eBay price; the catalogue sweep finds many products listed once), any other feed from MIN_FEED_ROWS.
+ */
+export const minRowsFor = (kind: FeedKind): number => (kind === "item" ? 1 : MIN_FEED_ROWS);
 
 // ─── Contexts ──────────────────────────────────────────────────────────────────
 
@@ -187,11 +192,13 @@ export interface ListingsResponse {
 }
 
 const ONE_SPACE = /\s+/g;
+/** The first `max` UTF-16 units, never ending in half of a surrogate pair (an emoji cut in two is not valid text, and Postgres refuses it). */
+const wellFormedCut = (v: string, max: number) => v.slice(0, max).replace(/[\uD800-\uDBFF]$/, "");
 export function cleanText(v: unknown, max: number): string {
   if (typeof v !== "string") return "";
   // Control characters, zero-width and bidi-override/isolate characters (seller-controlled text must not reorder what is around it).
   // eslint-disable-next-line no-control-regex
-  return v.replace(/[\u0000-\u001f\u007f​-‏‪-‮⁠-⁩﻿]/g, " ").replace(ONE_SPACE, " ").trim().slice(0, max);
+  return wellFormedCut(v.replace(/[\u0000-\u001f\u007f​-‏‪-‮⁠-⁩﻿]/g, " ").replace(ONE_SPACE, " ").trim(), max);
 }
 
 /**
@@ -205,7 +212,7 @@ export function cleanTitle(v: unknown, max = 80): string {
     .replace(/\b(pok[eé]mon)(?:\s+\1\b)+/gi, "$1")
     .replace(ONE_SPACE, " ")
     .replace(/^[\s*~=|•·!_-]+|[\s*~=|•·_-]+$/g, "");
-  return s.slice(0, max).trim();
+  return wellFormedCut(s, max).trim();
 }
 
 /** The price as eBay returned it, or null if it is not a plain positive decimal. */

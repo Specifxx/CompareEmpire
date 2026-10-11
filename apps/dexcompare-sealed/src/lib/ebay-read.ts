@@ -10,7 +10,7 @@ import {
   hoursToMs,
   MARKETPLACE_OF_REGION,
   MAX_FEED_ROWS,
-  MIN_FEED_ROWS,
+  minRowsFor,
   parseMaxAgeHours,
   type FeedItem,
   type FeedKind,
@@ -40,11 +40,11 @@ export interface ListingRow {
 
 export interface ReadDeps {
   /**
-   * The rows of the FIRST feed in `feeds` (priority order) that has at least `min` rows fetched at or after
+   * The rows of the FIRST feed in `feeds` (priority order) that has at least its `mins` entry of rows fetched at or after
    * `cutoff`; nothing when none does. One indexed query (the primary key leads with `feed`), at most
    * MAX_FEED_ROWS rows. May throw (a missing table, a database error): the caller answers "empty".
    */
-  rows(feeds: readonly string[], cutoff: Date, min: number): Promise<ListingRow[]>;
+  rows(feeds: readonly string[], cutoff: Date, mins: readonly number[]): Promise<ListingRow[]>;
   /** The product behind a slug (a unique-index lookup), or null. */
   product(slug: string): Promise<{ id: string; productType: string } | null>;
   now(): number;
@@ -114,11 +114,11 @@ export async function listingsFor(ctx: ParsedContext, region: Region, deps: Read
     const cascade = cascadeFor(ctx, region, product);
     const now = deps.now();
     const cutoff = new Date(now - maxAgeMs);
-    const rows = await deps.rows(cascade.map((c) => c.key), cutoff, MIN_FEED_ROWS);
+    const rows = await deps.rows(cascade.map((c) => c.key), cutoff, cascade.map((c) => minRowsFor(c.kind)));
     // The database already picked the winning feed; pick again here so a reader that returns more is still right.
     for (const c of cascade) {
       const mine = rows.filter((r) => r.feed === c.key && r.fetchedAt.getTime() >= cutoff.getTime() && rowIsSafe(r)).sort((a, b) => a.rank - b.rank).slice(0, MAX_FEED_ROWS);
-      if (mine.length < MIN_FEED_ROWS) continue;
+      if (mine.length < minRowsFor(c.kind)) continue;
       const oldest = Math.min(...mine.map((r) => r.fetchedAt.getTime()));
       return { feed: c.kind, items: mine.map(rowToItem), fetchedAt: new Date(oldest).toISOString(), maxAgeMs };
     }
@@ -144,17 +144,19 @@ export function prismaReadDeps(prisma: Db, env: ReadDeps["env"]): ReadDeps {
     },
     // One query: the rows of every feed in `feeds` that is fresh, the feeds' row counts as a window, and only the
     // best-priority feed with enough rows. Reads at most MAX_FEED_ROWS rows (db.ts rules 1 and 2).
-    async rows(feeds, cutoff, min) {
+    async rows(feeds, cutoff, mins) {
       const list = [...feeds];
+      const need = list.map((_, i) => Math.max(1, Math.floor(mins[i] ?? 2)));
       return prisma.$queryRaw<ListingRow[]>(Prisma.sql`
         WITH f AS (
-          SELECT e.*, array_position(${list}::text[], e."feed") AS pos, count(*) OVER (PARTITION BY e."feed") AS n
+          SELECT e.*, array_position(${list}::text[], e."feed") AS pos, count(*) OVER (PARTITION BY e."feed") AS n,
+                 (${need}::int[])[array_position(${list}::text[], e."feed")] AS m
           FROM "EbayListing" e
           WHERE e."feed" = ANY(${list}::text[]) AND e."fetchedAt" >= ${utcTimestamp(cutoff)}
         )
         SELECT "feed", "rank", "itemId", "title", "imageUrl", "priceValue", "currency", "shipValue", "shipFree", "condition", "url", "fetchedAt"
         FROM f
-        WHERE n >= ${min} AND pos = (SELECT min(pos) FROM f WHERE n >= ${min})
+        WHERE n >= m AND pos = (SELECT min(pos) FROM f WHERE n >= m)
         ORDER BY "rank"
         LIMIT ${MAX_FEED_ROWS}`);
     },

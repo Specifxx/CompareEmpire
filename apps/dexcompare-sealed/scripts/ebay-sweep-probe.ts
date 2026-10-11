@@ -7,7 +7,7 @@
 process.env.DEXCOMPARE_SCRIPT = "1";
 
 import { prisma } from "../src/lib/db";
-import { createTokenManager, keysPresent, realDeps, searchPage, type EbayEnv } from "../src/lib/ebay-api";
+import { createTokenManager, EbayError, keysPresent, realDeps, searchPage, type EbayEnv } from "../src/lib/ebay-api";
 import { MARKETPLACE_IDS, type MarketplaceId } from "../src/lib/ebay-context";
 import { capsFromEnv, type CapEnv } from "../src/lib/ebay-import";
 import { relevantToProduct, sealedIdentity } from "../src/lib/ebay-normalise";
@@ -69,9 +69,17 @@ async function main() {
         const total = await db.reserve(day, 1, caps.daily);
         if (total == null) throw new Error("daily cap reached");
         spent++;
-        return searchPage(api, tokens, spec);
+        // The repeat after a 401 is a second call: reserved like the first.
+        return searchPage(api, tokens, spec, async () => {
+          const ok = (await db.reserve(day, 1, caps.daily)) != null;
+          if (ok) spent++;
+          return ok;
+        });
       },
-      { concurrency: 3, isFatal: (e) => e instanceof Error && e.message === "daily cap reached" },
+      {
+        concurrency: 3,
+        isFatal: (e) => (e instanceof Error && e.message === "daily cap reached") || (e instanceof EbayError && (e.status === 429 || e.status === 401 || e.status === 403 || e.code.startsWith("token"))),
+      },
     );
     const feeds = collector.feeds();
     const ge = (n: number) => [...feeds.values()].filter((f) => f.length >= n).length;

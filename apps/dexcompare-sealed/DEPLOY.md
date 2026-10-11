@@ -177,7 +177,7 @@ compact "search" CTA and the in-feed tile report under the strip's own placement
 | `listings-home` | region home: the chase-card strip under the stats row (6 tiles) |
 | `listings-home-sealed` | region home: the sealed-Pokémon strip after the first rail (booster boxes) |
 | `listings-landing` | the root landing page (`/`): the chase strip from the US feed, labelled "eBay US" |
-| `listings-product` | product page, in stock: the product's own listings (cascade: its type's, then generic sealed) directly below the offer table where the table is long enough to sit a screen below the marketplace panel, else at the bottom of the page in place of the pre-footer strip where the page has room; none on a page too short for either |
+| `listings-product` | product page, in stock: the product's own listings, on every product page (cascade: its type's, then, for box-class types only, generic sealed) directly below the offer table where the table is long enough to sit a screen below the marketplace panel, else at the bottom of the page in place of the pre-footer strip where the page has room; none on a page too short for either |
 | `listings-product-soldout` | product page, sold out: the same strip directly under the sold-out callout (the highest-intent spot) |
 | `listings-set` | set page: the set's chase cards (cascade: generic chase cards), on a row of its own after the first four products |
 | `listings-type` | type page: the type's listings (cascade: generic sealed), on a row of its own after the first four products |
@@ -215,15 +215,18 @@ eBay", "<Product> on eBay") show **real eBay listings**: photo, title, price as 
 and how old the data is, each tile an affiliate link. They are **imported once a day** by a GitHub Actions
 job (`.github/workflows/dexcompare-ebay-import.yml`, `scripts/ebay-import.ts`) with DexCompare's own eBay keys
 and stored in two small tables; the website only **reads** them. Scraping eBay is a Terms violation and eBay
-blocks it; the Browse API is the only compliant source.
+blocks it; the Browse API is the only compliant source. **Every product page asks for its own listings**, which come
+first from the **catalogue sweep** (below): broad searches paged 200 listings a call, each listing handed to the
+product the repo's classifier says it is, so one call can feed dozens of products, cheap ones included.
 
 > **READ THIS FIRST: the 5,000 calls/day limit belongs to the eBay APPLICATION (the keyset), not to this site.**
 > The database counter (`EbayCallDay`) counts only the searches THIS importer makes; it cannot see the owner's other site if that site uses the
 > same App ID / Cert ID, and eBay's own counter (which a 429 comes from) adds the two. If both sites run on one keyset, either
 > **(a) create a separate eBay application (a separate keyset) for DexCompare** and put its id and secret in `DEXCOMPARE_EBAY_CLIENT_ID` /
 > `DEXCOMPARE_EBAY_CLIENT_SECRET` (the recommendation: each site then has its own 5,000), or
-> **(b) agree each site's share of the 5,000 and set `EBAY_DAILY_CAP` to that share on BOTH sites** (the default 2,400 leaves 2,600 for the other
-> one; the importer's hard maximum is 2,500). Until one of these is done, a busy day on the other site can exhaust the shared limit
+> **(b) agree each site's share of the 5,000 and set `EBAY_DAILY_CAP` to that share on BOTH sites**. This site's default, **2,500**, is also the
+> importer's hard maximum: it is DexCompare's half of a keyset shared with the owner's other site, so that site must be capped at 2,500 too. Since
+> the catalogue sweep, the daily run spends close to its whole 2,500 every day, so the split is no longer theoretical. Until one of these is done, a busy day on the other site can exhaust the shared limit
 > and this import will meet 429s (it stops the run and keeps the previous rows). The importer prints its running total against the caps in
 > the log (before the first search and every 250 searches), and `scripts/ebay-check.ts` prints eBay's own count and reset time for the
 > keyset, which includes the other site's calls: compare the two numbers after the first live run.
@@ -231,10 +234,14 @@ blocks it; the Browse API is the only compliant source.
 ```
 GitHub Actions, once a day (secrets live here only)        Vercel (Next.js, ISR)
 scripts/ebay-import.ts                                      pages stay static; a strip fetches, near the viewport,
-  ├─ plan: which searches, in priority order                GET /api/ebay/<region>?c=<context>
-  ├─ reserve each Browse call in the DB first                 └─ reads ≤ 8 rows of EbayListing (no eBay call,
-  ├─ search (3 at a time), normalise, filter                      no token, no secret), never older than
-  └─ REPLACE each feed's rows (one transaction)                   EBAY_LISTING_MAX_AGE_HOURS (default 26)
+  ├─ 1. fixed feeds: chase, sealed, types, sets             GET /api/ebay/<region>?c=<context>
+  ├─ 2. catalogue sweep: broad searches, 200 a call,          └─ reads ≤ 8 rows of EbayListing (no eBay call,
+  │     each listing to the product it IS                         no token, no secret), never older than
+  ├─ 3. per-product searches, for the eligible                    EBAY_LISTING_MAX_AGE_HOURS (default 26)
+  │     products the sweep missed, with what is left
+  ├─ reserve each Browse call in the DB first
+  ├─ search (3 at a time), normalise, filter
+  └─ REPLACE each feed's rows (one transaction)
 ```
 
 ### Why daily, and the licence risk (read this)
@@ -284,10 +291,12 @@ it is 12 hours or less, so the copy stays true in either mode (the About, Terms 
    * **Vercel** (the route reads it and tells the browser; a changed environment variable needs a redeploy),
    * the **GitHub repository variable** `EBAY_LISTING_MAX_AGE_HOURS` (Settings → Secrets and variables → Actions → Variables): the eBay import and,
      through the same variable, the store import (`dexcompare-sealed-import.yml`) read it for their purges.
-3. **Lower `EBAY_RUN_CAP` to `380`** (GitHub variable). Six runs of 380 searches are 2,280 a day, under the 2,400 daily cap with 120 to spare for a
-   manual run; the default 2,000 would use the whole day in the first run and the later ones would stop at once. 380 searches a run cover the
-   generic, type and set feeds (265) and the 115 most valuable product feeds: the other product pages fall back to their type's strip. (Retries
-   count inside the run cap, so 380 is a hard ceiling. Run caps of 400 leave no slack at all: six of them are exactly the daily cap.)
+3. **Lower `EBAY_RUN_CAP` to `380`** (GitHub variable). Six runs of 380 searches are 2,280 a day, under the 2,500 daily cap with 220 to spare for a
+   manual run; the default 2,500 would use the whole day in the first run and the later ones would stop at once. 380 searches a run cover the
+   generic, type and set feeds (265) and 115 pages of the catalogue sweep (it takes what the fixed feeds leave, up to `EBAY_SWEEP_CALLS`), which
+   leaves next to nothing for per-product searches: a product page shows what those sweep pages found for it, else its type's strip. (The
+   2026-10-11 probe's 60 sweep pages found two or more listings for 590 product keys.) (Retries count inside the run cap, so 380 is a hard ceiling;
+   six runs of 416 would use all but 4 of the daily cap.)
 
 The skip-fresh window is `min(2 h, a quarter of the bound)`: 1.4 h in compliant mode, so a four-hourly run always buys every feed again. Switching
 back is the same three settings in reverse. Raising the call limit (the eBay Application Growth Check, below) is what would let a compliant mode
@@ -304,26 +313,34 @@ also cover every product.
    (the names the owner set), plus the existing `DEXCOMPARE_SEALED_DATABASE_URL`. `DEXCOMPARE_EBAY_CLIENT_ID` /
    `DEXCOMPARE_EBAY_CLIENT_SECRET` are accepted too and win when set (to give this site a different keyset from a shared
    one without renaming anything). The secrets are passed to the **import step only**.
-3. **Optional repository variables** (Variables tab): `EBAY_DAILY_CAP` (default 2400, at most 2500), `EBAY_RUN_CAP` (2000),
-   `EBAY_LISTING_MAX_AGE_HOURS` (26), and `NEXT_PUBLIC_EBAY_CAMPAIGN_ID` **only if** you override the EPN campaign id: the importer enforces
+3. **Optional repository variables** (Variables tab): `EBAY_DAILY_CAP` (default 2500, also the maximum: this site's share of the keyset,
+   see the box above), `EBAY_RUN_CAP` (2500), `EBAY_LISTING_MAX_AGE_HOURS` (26), and `NEXT_PUBLIC_EBAY_CAMPAIGN_ID` **only if** you override the
+   EPN campaign id: the importer enforces
    its own value (default `5339155912`) on every URL it stores and asks eBay to tag the URLs with it. The website no longer compares a listing's
    campaign id with its own build's (it checks only that an eBay item URL carries a numeric `campid`), so an override in Vercel alone can no longer
    blank the strips; it changes only the site's own search links. The simplest course is to override neither.
+   `EBAY_SWEEP_CALLS` (default 1800, clamped to 0..2500) is how many of a run's calls the catalogue sweep may spend (the per-product searches
+   get what it leaves); the workflow passes the repository variable of that name to the importer. With the run cap equal to the daily cap, the scheduled run may spend the whole day: to keep room for a manual re-run on the
+   same Pacific day, set `EBAY_RUN_CAP` lower (2,200 leaves 300).
 4. **Merge to `main`** (GitHub runs scheduled workflows from the default branch only). The schedule is 08:37 UTC daily: **after** eBay's
    daily counter resets (midnight Pacific = 07:00 UTC in summer, 08:00 in winter), so the scheduled run is always the first run of its
    budget day and gets the full run cap, whatever manual runs were made the day before. (An earlier slot, before the reset, was the LAST
    run of its day: a manual "run it now" earlier that day left it only the 400-call slack, and most product strips went dark for ~18 h.)
    It is also a good time for the audience: 09:37 / 10:37 in the UK / central Europe, 19:37 in Sydney, 04:37 in New York, 01:37 in Los Angeles.
 5. **Run it now**: Actions → **DexCompare eBay import** → **Run workflow**. Inputs: `only` (a comma-separated
-   subset of `chase, sealed, types, sets, items`), `force` (buy every feed again; a normal run does not re-buy a feed whose rows are less than 2 hours old, so an accidental second dispatch, or a re-run after a failure, spends nothing on what is already fresh), `dry_run` (prints the plan and the expected calls: no eBay call, no
-   database write). The job runs `prisma db push` first (two new tables, no data loss), and the importer creates the
+   subset of `chase, sealed, types, sets, sweep, items`; the input's own description predates `sweep`, which it accepts too), `force` (buy every feed again; a normal run does not re-buy a feed whose rows are less than 2 hours old, so an accidental second dispatch, or a re-run after a failure, spends nothing on what is already fresh), `dry_run` (prints the plan and the expected calls: no eBay call, no
+   database write), `probe` (measures the catalogue sweep instead of importing: about 60 Browse calls, each reserved against the daily cap,
+   match counts and sample titles in the log, **no listing written**; see "The catalogue sweep"). The job runs `prisma db push` first (two new tables, no data loss), and the importer creates the
    tables itself if they are missing. Without the eBay secrets the job writes a skip message to its summary and exits 0.
-   A full run takes minutes (about 2,000 searches, three at a time). **A manual run prints its budget before the first search**:
+   A full run makes about 2,500 searches, three at a time (the sweep's pages carry 200 listings each; the job's timeout is 90 minutes). **A manual run prints its budget before the first search**:
    the Pacific budget day, how many Browse calls are reserved so far today and how many are left of the daily cap, the most searches
-   this run may make (and which limit that is: run cap, daily room or `--max-calls`), what the plan buys per bucket, how many feeds it
+   this run may make (and which limit that is: run cap, daily room or `--max-calls`), what the plan buys per bucket (the sweep's share, and
+   that the per-product searches get what it leaves), how many feeds it
    skips as fresh, and when it stops early; then a progress line every 250 searches (this run's searches and today's total against the
-   caps). Its summary shows calls used today, feeds refreshed/failed/skipped per bucket, items stored, product keys covered vs
-   eligible, and the oldest row's age. Use `dry_run` first to read the same numbers without spending anything.
+   caps). Its summary shows calls used today, feeds refreshed/failed/skipped per bucket, how many eligible keys the sweep covered (so were
+   not searched one by one), items stored, a **Sweep** table per marketplace (products, pages, listings, matched, products found, item feeds
+   written, and each query's pages and why it stopped), item feeds in the database, and the oldest row's age. Use `dry_run` first to read
+   the budget and the plan without spending anything (the sweep's coverage shows only in a real run).
 6. **Vercel needs nothing eBay-related.** `EBAY_CLIENT_ID` / `EBAY_CLIENT_SECRET` are no longer read by the site: remove
    them from Vercel (least privilege). Optional there: `EBAY_LISTINGS=off` (a kill switch: the route answers empty and the
    strips become the plain search row) and `EBAY_LISTING_MAX_AGE_HOURS` (the age bound; default 26).
@@ -335,6 +352,8 @@ also cover every product.
    EBAY_CLIENT_ID=… EBAY_CLIENT_SECRET=… npx tsx scripts/ebay-check.ts            # all five marketplaces
    DATABASE_URL=… npx tsx scripts/ebay-budget.ts                                  # read-only: today's counter, feeds, their ages, rows
    DATABASE_URL=… npx tsx scripts/ebay-import.ts --dry-run                        # the plan and the capacity model, no network, no writes
+   DATABASE_URL=… EBAY_CLIENT_ID=… EBAY_CLIENT_SECRET=… npx tsx scripts/ebay-sweep-probe.ts --pages 2 --max-calls 60
+                                                    # the probe (what the workflow's `probe` runs): ~60 reserved calls, writes no listing
    ```
 
 ### How it works
@@ -347,7 +366,10 @@ also cover every product.
   counter per budget day.
 * **The route** `GET /api/ebay/<region>?c=<context>` reads the rows for the feeds a context maps to and answers with the
   first feed that has at least two live rows (a CASCADE): `item:<slug>` → the product's feed, then its type's, then sealed;
-  `set:<slug>` → the set's feed, then chase; `type:<slug>` → the type's feed, then sealed; `chase` and `sealed` stand alone.
+  `set:<slug>` → the set's feed, then chase; `type:<slug>` → the type's feed, then sealed; `chase` and `sealed` stand alone. Generic
+  sealed (boxes, ETBs, UPCs) stands in only for the box-class types (`ALWAYS_TYPES`: booster boxes, ETBs, cases, UPCs, Build & Battle
+  Stadiums): a pack, tin or blister page never borrows box listings, it shows the compact search row. **Every product page asks for
+  `item:<slug>`**, whatever its price: the sweep writes item feeds for cheap products too.
   One indexed query (a unique-index lookup of the product first, for `item:` only). The response is
   `{ feed, items, fetchedAt (the OLDEST row used), maxAgeMs, reason? }`: whitelisted fields only. Region and context are
   whitelists (a product slug is checked against the database), the SQL is parameterised, an unknown product or a missing
@@ -373,6 +395,76 @@ also cover every product.
   the callout; in stock, below the offer table where the page is long enough, else at the bottom in place of the pre-footer strip.
   A page too short for its units drops the pre-footer strip (`<NoPreFooter/>`).
 
+### The catalogue sweep
+
+**Why.** One search per product costs one Browse call per (marketplace, product), and there are far more keys than calls: that plan
+reached 1,735 of the 7,701 eligible keys a day (capacity model below), and on 2026-10-10, 762 of its 1,735 searches (**44%**) came back
+with nothing (the query required "sealed", which many sealed listings never say; it no longer does), so 973 products got listings of their
+own. Every other product page showed its type's strip, and packs (never eligible) and anything under US$25 were never searched at all.
+The sweep turns it round: **one call can feed dozens of products.**
+
+**What it does** (`src/lib/ebay-sweep.ts`). Per marketplace it pages 17 broad searches (`SWEEP_QUERIES`: "Pokemon elite trainer box",
+"Pokemon booster box", "Pokemon tin", "Pokemon premium collection", "Pokemon battle deck"…) **200 listings a call** (eBay's maximum,
+paged by `offset` to eBay's 10,000-deep limit), round-robin (page 1 of each, then page 2 of each that is still finding listings…), and
+runs every listing through the repo's own classifier (`identify()`, the one the store import files products with) to hand it to the
+product it IS:
+
+* a set product (booster box, ETB, bundle…, a UPC with a canonical key): the listing's group key is exactly the product's;
+* a collection, tin, blister or deck: the same type, sets that do not disagree, every identifying word of the product in the title, and
+  no other word that names some product of that type anywhere in the catalogue (seller filler such as "fast" or "NIB" is fine; "mini",
+  "super" or another Pokémon is not: that listing is a different product); the most specific product wins and a tie is refused;
+* never: several units ("10-Pack", "Full Set", "All 3"), a variant left to chance ("Assorted", "chosen at random"), Japanese product
+  naming, damage notes, a used condition or a price under the type's floor, on top of what the item feeds already refuse (singles, lots,
+  pre-sales, other languages, converted prices).
+
+A product keeps up to 8 listings, de-duplicated, **lowest price first**, and one found with **two or more** gets an item feed
+(`EBAY_US|item:<productId>`: the same feed a per-product search writes, so the route, the strip and EPN's `dex-<market>-item` are
+unchanged), cheap products included. A query stops at the end of its results (`end`), after two pages in a row that added nothing to a
+product with fewer than six listings (`dry`, never before its second page), at the 10,000-deep limit (`depth`), when its marketplace's
+share is spent (`budget`) or on an error. The sweep's calls are shared between marketplaces by how many products each lists (with a floor
+of about 8% each), in the order US, AU, UK, CA, EU; what one leaves unspent goes to the next. Every page is one Browse call **reserved in the database
+before it is made**, through the same strict run cap, retry allowance and circuit breaker as every other search. Feeds are written 100 to a
+transaction (`replaceFeeds`: the feeds' advisory locks in sorted order, one `DELETE`, one `INSERT`), and what the pages found is written
+even when the run stops part-way (every row is a real, current listing). A marketplace with many item feeds refreshed within the
+skip-fresh window (at least 50, or a quarter of its products if that is more: a re-run, an overlapping run) is not swept again unless `force`.
+
+**A run, in order:**
+
+1. the fixed feeds: chase, sealed, types, sets (265 calls);
+2. the sweep, marketplace by marketplace, up to `EBAY_SWEEP_CALLS` (default **1,800**) of what the fixed feeds leave;
+3. per-product searches ("Pokemon <cleaned name>") **only for eligible keys the sweep did not cover**, most valuable first, with whatever is
+   left of the run cap: about 400 at the defaults when the sweep spends its whole share, more when its queries stop early.
+
+Defaults: `EBAY_DAILY_CAP` **2,500** (also the maximum; this site's share of the keyset, see the box at the top), `EBAY_RUN_CAP` **2,500**,
+`EBAY_SWEEP_CALLS` **1,800** (new, optional repository variable).
+
+**The probe** (`scripts/ebay-sweep-probe.ts`, the workflow's `probe` input): about 60 Browse calls (20 pages on EBAY_US, 10 on each other
+marketplace), each reserved against the daily cap like the importer's; it prints per marketplace the pages, listings, how many matched,
+the products with ≥ 1, ≥ 2 and ≥ 6 listings, why each query stopped, and sample titles that matched or did not, and **writes no listings**.
+Its run of 2026-10-11:
+
+| Marketplace | Pages | Products with ≥ 1 listing | With ≥ 2 (would get an item feed) |
+| --- | ---: | ---: | ---: |
+| EBAY_US | 20 | 430 | 208 |
+| EBAY_GB | 10 | 266 | 121 |
+| EBAY_AU | 10 | 303 | 130 |
+| EBAY_CA | 10 | 197 | 70 |
+| EBAY_DE | 10 | 154 | 61 |
+| **all** (product keys) | **60** | **1,350** | **590** |
+
+So 60 sweep calls would have written 590 item feeds, against 973 from 1,735 per-product searches the day before. **Canada is lower by
+design**: 65% of EBAY_CA's listings carried prices eBay had converted from USD (US sellers), and the importer refuses a converted price
+(prices are shown exactly as eBay returns them, in the marketplace's currency). **The EU (EBAY_DE) is lower** because about half its
+listings were German- or Japanese-language product, which the classifier refuses. eBay's own totals explain the query list: a bare
+"collection" matched about 803,000 US listings and "deck" 179,000, mostly loose-card lots, so collections and decks are searched by the
+words their products use ("premium collection", "battle deck"…).
+
+How many products a full 1,800-call sweep covers is known only from a live run: read the run summary's **Sweep** table. `--dry-run`
+shows the sweep's share of the cap and the per-product pre-plan, not the sweep's coverage. Nothing here changes the licence handling
+below: the sweep is the same FIXED_PRICE Browse search, its listings go only into item feeds shown in their own labelled units, the
+affiliate URL is stored exactly as eBay returns it with our campaign id, converted prices are refused, its counts appear only in the
+job's log and summary (never on the site), and its rows are hidden and purged on the same age bound.
+
 ### The import's plan, caps and failure handling
 
 Priority order (spent until the run cap; a cap hit drops the **least valuable**, never a hole in the middle):
@@ -383,9 +475,13 @@ Priority order (spent until the run cap; a cap hit drops the **least valuable**,
 | 2 | sealed | generic sealed Pokémon, 6 queries per marketplace, kept only if `identify()` accepts the title | 30 |
 | 3 | types | one query per high-value type (booster boxes, ETBs, Pokémon Center ETBs, UPCs, booster-box / ETB / bundle cases, Build & Battle Stadiums, collections) | 45 |
 | 4 | sets | chase cards of the 30 most recently released sets (never a series-named or common-word set), one query each | 150 |
-| 5 | items | one query per (marketplace, **eligible** product): "Pokemon <cleaned name> sealed" | the rest |
+| 5 | sweep | the catalogue sweep (above): 17 broad queries per marketplace, 200 listings a call, an item feed for every product found twice | up to 1,800 (`EBAY_SWEEP_CALLS`) |
+| 6 | items | one query per (marketplace, **eligible** product) the sweep did **not** cover: "Pokemon <cleaned name>" (no "sealed": eBay requires every keyword) | what is left (~400) |
 
-* **Eligible products.** Always (from US$25): booster box, booster-box / ETB / bundle case, ETB, Pokémon Center ETB,
+The plan reserves the sweep's share after the fixed feeds; the item feeds it lists are a pre-plan, and the run buys them only for keys
+the sweep missed, sized to what the sweep actually left.
+
+* **Eligible products** (the per-product searches only; the sweep has no eligibility rule, only each type's price floor). Always (from US$25): booster box, booster-box / ETB / bundle case, ETB, Pokémon Center ETB,
   Ultra-Premium Collection, Build & Battle Stadium. Only from a best-known price of about **US$50** (the **core**): collection,
   tin, deck, booster bundle, Build & Battle box, blister. **Never**: booster packs and sleeved boosters, or anything under
   **US$25**; a reference price over US$600 for those gated types is a placeholder ask ("CA$9,999" blisters are in the data) and is
@@ -401,11 +497,13 @@ Priority order (spent until the run cap; a cap hit drops the **least valuable**,
   "NIB"…). Singles, cases when the product is a box, lots, empty or opened boxes, damaged ones, other languages and other
   sets or types are refused, and so is anything under the type's price floor. Up to 8 de-duplicated listings are stored,
   **lowest price first** (the strip says nothing more than "before shipping": never "cheapest" or "deal"). Chase feeds keep the
-  junk / counterfeit / language filters of the previous round.
+  junk / counterfeit / language filters of the previous round. The sweep matches with the same classifier, plus the rules in "The
+  catalogue sweep" above.
 * **Caps.** The run cap is `min(EBAY_RUN_CAP, what is left of today's daily cap, --max-calls)` and is a **strict upper bound on the searches of
   a run, retries and the repeat after a 401 included** (a search is claimed against it before it is made, so three workers cannot overshoot;
   retries therefore take their calls from the least valuable feeds at the end of the plan). The daily cap
-  (`EBAY_DAILY_CAP`, default 2,400 of eBay's 5,000 default, the ~400 slack being for manual re-runs, token calls and the other site) is kept in the
+  (`EBAY_DAILY_CAP`, default and maximum 2,500: this site's half of eBay's 5,000 default for a keyset it shares with the owner's other
+  site; with the run cap also at 2,500 there is no slack for a manual re-run on the same Pacific day unless `EBAY_RUN_CAP` is set lower) is kept in the
   database, per **budget day = the Pacific day** (eBay's limit resets at midnight Pacific; the official page was not readable
   from the build sandbox, a third-party summary says "midnight Pacific Time", and eBay's own field documentation says the reset is "current time
   plus the time window", which some developers see at other times than midnight: **this boundary is an assumption**. `scripts/ebay-check.ts`
@@ -420,9 +518,11 @@ Priority order (spent until the run cap; a cap hit drops the **least valuable**,
   RETURNING "total"
   ```
 
-  so overlapping runs and manual dispatches can never pass the cap between them (verified: three runs started together made
-  2,400 searches between them, equal to the counter and to the mock's own count). Token requests are identity-API calls, not
-  Browse searches: nothing in eBay's documentation says they count, and the slack covers them if they do.
+  so overlapping runs and manual dispatches can never pass the cap between them (verified at the then-default cap of 2,400: three runs
+  started together made 2,400 searches between them, equal to the counter and to the mock's own count). The catalogue sweep's pages go
+  through the same reservation. Token requests are identity-API calls, not Browse searches: nothing in eBay's documentation says they
+  count. If they do, they are one or two a run outside both sites' caps, and with both sites at 2,500 the keyset has no slack left for
+  them: a day on which both spend their whole share could meet a 429 at the very end (the run stops and keeps the previous rows).
 * **Failures.** Concurrency 3; **a circuit breaker protects the daily budget**: a 403 (or a 401 that survives the token refresh: no Buy API
   access) stops the run at once, **6 searches in a row that fail** (a 400 or 5xx after its retry, malformed JSON, or HTTP 200 with no listings and a
   warning from eBay) stop it, and so do 30 in a row that come back with no listings at all; each ends with one `::error::` that names only the error
@@ -434,12 +534,16 @@ Priority order (spent until the run cap; a cap hit drops the **least valuable**,
   filter retries once without it (the `[N..]` range syntax could not be exercised without keys); a **429 stops the whole run**
   (logged, previous rows kept); a **token failure fails the run** (`::error::` with only eBay's OAuth category, e.g.
   `token-http-401:invalid_client`, never a secret, id or eBay's own text); fewer than half of the planned feeds refreshed fails
-  the run. A feed is replaced only after a successful, **non-empty** normalisation; an empty or failed one keeps its old rows
-  until the bound.
+  the run (planned = the fixed feeds and the per-product searches the run actually made room for; the sweep's feeds are counted in its
+  own table). A feed is replaced only after a successful, **non-empty** normalisation; an empty or failed one keeps its old rows
+  until the bound. The sweep writes a product's feed only when it found two or more listings for it; a product it found once, or
+  not at all, is searched on its own if it is eligible and the budget reaches it, and otherwise keeps its old rows until the bound
+  (its page then falls back to its type's strip).
 
-### Capacity model (local data, 2026-10-07)
+### Capacity model: the per-product plan alone (local data, 2026-10-07)
 
-From the full local database (6,684 products, 14,166 product x region rows), `npx tsx scripts/ebay-import.ts --dry-run`:
+This is the plan **before the catalogue sweep** (one search per eligible key, a 2,000-call run cap, a 2,400 daily cap): the arithmetic
+that made the sweep necessary. From the full local database (6,684 products, 14,166 product x region rows), `npx tsx scripts/ebay-import.ts --dry-run`:
 
 | Bucket | Feeds | Calls |
 | --- | ---: | ---: |
@@ -451,10 +555,10 @@ From the full local database (6,684 products, 14,166 product x region rows), `np
 | items wanted | 7,701 (4,848 core + 2,853 extension; 4,357 distinct products) | 7,701 |
 | items bought at a 2,000-call run | **1,735** (35.8% of the core keys, 22.5% of all) | 1,735 |
 
-**Do ALL eligible keys fit? No.** All core keys need 265 + 4,848 = **5,113** calls a day; every eligible key (extension too)
-needs **7,966**. One run is capped at 2,000 and the day at 2,400 (and eBay's own default limit is 5,000 a day for the whole
-application, shared with the owner's other site), so a day covers about 1,735 of them. The extension (US$25-50) is not
-reached at all at a 2,000-call run, and the cheapest key bought is about US$100. By marketplace (covered / eligible product keys):
+**Do ALL eligible keys fit, one search each? No.** All core keys need 265 + 4,848 = **5,113** calls a day; every eligible key (extension too)
+needs **7,966**. One run was capped at 2,000 and the day at 2,400 (and eBay's own default limit is 5,000 a day for the whole
+application, shared with the owner's other site), so a day covered about 1,735 of them (and on 2026-10-10, 44% of those searches came back empty). The extension (US$25-50) is not
+reached at all at a 2,000-call run, and the cheapest key bought was about US$100. By marketplace (covered / eligible product keys):
 US 690 / 1,947 (35%), AU+NZ 399 / 1,715 (23%), CA 363 / 1,895 (19%), UK 144 / 971 (15%), EU 139 / 1,173 (12%). By type
 (covered / eligible): booster-box cases 113/113, ETB cases 155/155, bundle cases 61/61, Ultra-Premium Collections 53/70,
 Booster Boxes 205/260, Pokémon Center ETBs 99/145, Build & Battle Stadiums 14/48, ETBs **123/293**, collections 571/2,956,
@@ -464,9 +568,15 @@ of US$500 or more (642) is covered, 1,458 of the 1,640 keys of US$200 or more. S
 covered. The weighting is a price proxy, not traffic: **ETBs, the most-searched product, are only 42% covered** because they are
 cheap next to cases and boxes; if that matters, raise their rank (a per-type multiplier in `itemKeys`).
 
-What would cover more: `EBAY_RUN_CAP` 2,500 (+500 keys), dropping the sets bucket (`only` without `sets`: +150), or the Application
-Growth Check (below), which raises the 5,000/day limit: covering every core key needs about 5,100 calls a day by itself.
-A product whose key is not covered still shows its type's listings (or generic sealed), so no strip is empty.
+Since 2026-10-11 the caps are 2,500 and the sweep (above) covers products in bulk; the per-product searches keep this ranking but get
+only what the sweep leaves (~400 calls), for the eligible keys it missed. `--dry-run` still prints this capacity model, but for that
+per-product **pre-plan** (sized after the sweep's reservation), so its "covered" counts leave out everything the sweep will cover: the
+coverage that counts is a real run's (item feeds in the database, from the sweep and from per-product searches, and the Sweep table).
+What would cover more: `EBAY_SWEEP_CALLS` higher where the Sweep table shows queries stopping on `budget`,
+dropping the sets bucket (`only: chase,sealed,types,sweep,items`: +150; an `only` list without `sweep` skips the sweep), or the Application
+Growth Check (below), which raises the 5,000/day limit.
+A product with no feed of its own still shows its type's listings (or, for box-class types, generic sealed); a type with none shows the
+compact search row.
 
 ### Troubleshooting
 
@@ -483,6 +593,10 @@ A product whose key is not covered still shows its type's listings (or generic s
   Firewall rate limit on `/api/ebay/*` (Security → Firewall → Rate limiting) if its traffic ever looks abnormal; each answer reads at most 8 rows
   (about 5 KB).
 * **A 429 in the log**: eBay's daily or burst limit; the run stopped and kept the old rows. Check the other site's use of the same keyset.
+* **Fewer product strips than expected**: read the run summary's Sweep table. A marketplace whose queries stopped on `budget` wanted more
+  calls (`EBAY_SWEEP_CALLS`); `dry` or `end` means its searches ran out of new products; a low "matched" next
+  to many listings means the classifier refused them (run the `probe` input and read its MISS / AMB samples). Canada and the EU are lower by
+  design: eBay-converted prices and German- or Japanese-language listings are refused.
 * **Scheduled runs can be delayed or skipped by GitHub** (and are disabled after 60 days without repository activity). Rows older
   than the bound simply stop showing (the strips become the search row): that is the intended failure mode, not an error.
 * **The strips show only the search row**: nothing imported yet, the kill switch is on, or the rows are older than the bound;
@@ -498,10 +612,10 @@ A product whose key is not covered still shows its type's listings (or generic s
 | "Displayed item listing information may not be more than six (6) hours older" (prong 1) and "other eBay Content ... no more than twenty-four (24) hours older" (prong 2) (API License Agreement 8.1(c), "Age of Displayed eBay Content") | **Not met in the default daily mode** (26 h bound): disclosed ("Updated 9 h ago", "imported about once a day"), bounded (26 h), and switchable to a compliant mode (above) |
 | Delete copies when no longer required (3.1(b)); delete eBay Content that is no longer publicly available (8.1(b)(1)) | Rows are deleted when older than the bound + 4 h, by the importer (start and end of each run) and the store import; a refresh replaces, never appends; no history |
 | eBay content not "co-mingled or combined with non-eBay Content" (8.1(b)(2)) | A strip holds eBay listings only, in a dashed unit of its own, never inside a ranked table or row |
-| No derived statistics (8.1(d)) | None: no average, median, "% below"; prices shown as returned, never converted, compared, ranked against the stores', counted, or in JSON-LD, meta, OG or the sitemap; the order within a product's feed is "lowest price first, before shipping" (shown on the strip) and says nothing else |
+| No derived statistics (8.1(d)) | None: no average, median, "% below"; prices shown as returned, never converted, compared, ranked against the stores', counted, or in JSON-LD, meta, OG or the sitemap; the order within a product's feed is "lowest price first, before shipping" (shown on the strip) and says nothing else; the catalogue sweep's counts (listings matched, products found) stay in the job's log and summary, never on the site |
 | "Only surface FIXED PRICE items"; eBay's own image; shipping separate; "indicate when the item is not new" (Buy APIs Requirements) | `buyingOptions:{FIXED_PRICE}`; `*.ebayimg.com` thumbnails as plain `<img>`; the first shipping option is shown on the tile; the condition is shown when it is not new |
 | Use the URL returned in `itemAffiliateWebUrl` | Every link is that URL **exactly as returned** (the importer checks it is one eBay item page with our campaign id and stores eBay's own string; the browser checks an eBay item URL with a numeric `campid` and changes nothing in it). `customid` is the per-feed `affiliateReferenceId` the importer sent (`dex-<market>-<feed kind>`). Only when eBay sends no usable one is `itemWebUrl` tagged with the same EPN parameters |
-| 5,000 calls/day default (API call limits), per application | Daily cap 2,400 (max 2,500) for THIS site's runs, reserved atomically in the database before each call; **the counter cannot see another site on the same keyset** (box at the top of this section) |
+| 5,000 calls/day default (API call limits), per application | Daily cap 2,500 (also the maximum: this site's share of a keyset shared with the owner's other site) for THIS site's runs, every call (sweep pages included) reserved atomically in the database before it is made; **the counter cannot see another site on the same keyset** (box at the top of this section) |
 
 ### The eBay wordmark
 
@@ -542,10 +656,12 @@ Run `scripts/ebay-check.ts` once the keys are in, then one manual import, and re
   are free. If the repo is ever made private, twice a day is ~2,000+ minutes a
   month — change the two `cron:` lines in
   `.github/workflows/dexcompare-sealed-import.yml` to one.
-- **eBay API: DexCompare's own keyset, in GitHub Actions only.** One import a day makes at most 2,000 Browse
-  calls (cap 2,400 a day across every run, kept in the database); the website makes none. Nothing here can
+- **eBay API: DexCompare's own keyset, in GitHub Actions only.** One import a day makes at most 2,500 Browse
+  calls (the run cap; the daily cap, 2,500 across every run, is kept in the database), most of them catalogue
+  sweep pages; the website makes none. The job's timeout is 90 minutes. Nothing here can
   spend Rift Compare's eBay quota unless both sites share one keyset (the owner's other site shares the
-  5,000-call daily limit with this one: see "Capacity model").
+  5,000-call daily limit with this one: 2,500 is this site's share, so cap the other site at 2,500 too; see the
+  box at the top of "eBay listings: the daily import").
 - **TCGplayer** links go through Impact (`partner.tcgplayer.com/c/7385758/…`),
   the same approved account as Rift Compare. Every page carries Impact's
   `impact-site-verification` tags (the account's shared token, as on the other

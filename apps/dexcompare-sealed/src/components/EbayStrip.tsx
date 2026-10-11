@@ -414,7 +414,7 @@ function SkeletonTile({ variant, portrait }: { variant: StripVariant; portrait: 
 
 /** The row: a scroll-snap strip on phones (the unit scrolls, never the page) and a fixed grid from lg. `narrow`: always the scroll row (a column that cannot fit six). */
 function TileRow({ variant, label, narrow, fit, children }: { variant: StripVariant; label: string; narrow: boolean; fit: boolean; children: ReactNode }) {
-  const cols = fit ? "lg:grid-cols-[repeat(var(--n),minmax(0,1fr))]" : variant === "slim" ? "lg:grid-cols-4" : "lg:grid-cols-6";
+  const cols = fit ? "lg:grid-cols-[repeat(var(--n),minmax(0,176px))]" : variant === "slim" ? "lg:grid-cols-4" : "lg:grid-cols-6";
   const grid = narrow ? "" : `lg:grid lg:overflow-visible lg:pb-1 ${cols}`;
   // px-1/pt-1 (and the negative margins that cancel them) give the focus ring room inside the scrolling row, which would clip it.
   return (
@@ -480,7 +480,7 @@ export interface EbayStripProps {
 export function EbayStrip({ region, context, placement, variant = "full", headings, search = {}, site, narrow = false, regionKnown = true, className = "" }: EbayStripProps) {
   const count = SHOWN[variant];
   const portrait = isCardContext(context);
-  const min = Math.min(2, count);
+  const min = context.startsWith("item:") ? 1 : Math.min(2, count);
   const { ref, state, now } = useListings({ region, context, placement, min: Math.max(1, min) });
   const [broken, setBroken] = useState<ReadonlySet<string>>(new Set());
   const items = state.status === "ready" ? state.a.items.slice(0, count).filter((i) => !broken.has(i.id)) : null;

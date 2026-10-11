@@ -1,22 +1,33 @@
 // The daily eBay listing import: GitHub Actions runs this once a day (.github/workflows/dexcompare-ebay-import.yml).
 //
 //   DATABASE_URL=… EBAY_CLIENT_ID=… EBAY_CLIENT_SECRET=… npx tsx scripts/ebay-import.ts \
-//        [--dry-run] [--only chase,sealed,types,sets,items] [--max-calls N] [--force]
+//        [--dry-run] [--only chase,sealed,types,sets,sweep,items] [--max-calls N] [--force]
 //
 // It reads ProductStat/Offer, plans which eBay searches to make (src/lib/ebay-import.ts: priority, caps,
 // eligibility), reserves each Browse call in the database BEFORE making it (one atomic statement: overlapping runs
 // and manual dispatches cannot pass the daily cap), searches with concurrency 3, and REPLACES each feed's rows in the
-// EbayListing table (never appends; an empty or failed refresh keeps the old rows until the age bound). It ends with
-// the purge of rows older than the bound + 4 h. The website reads the table; only this job holds eBay credentials.
+// EbayListing table (never appends; an empty or failed refresh keeps the old rows until the age bound). A run, in order:
+//   1. the fixed feeds: chase, sealed, types, sets (265 calls);
+//   2. the CATALOGUE SWEEP (src/lib/ebay-sweep.ts): per marketplace, broad searches paged 200 listings a call, each listing
+//      handed to the product the classifier says it is (one call can feed dozens of products); an item feed for every product
+//      found twice, cheap ones included, written 100 feeds to a transaction; up to EBAY_SWEEP_CALLS (1,800) of the run cap;
+//   3. one search per ELIGIBLE product the sweep did not cover, most valuable first, with whatever is left of the run cap.
+// (One search per product alone reached 1,735 of the 7,701 eligible keys a day, and 44% of those searches came back empty.)
+// It ends with the purge of rows older than the bound + 4 h. The website reads the table; only this job holds eBay credentials.
+// scripts/ebay-sweep-probe.ts (the workflow's `probe` input) measures the sweep with ~60 calls and writes no listings.
 //
-// A feed whose rows are fresher than a quarter of the age bound (6.5 h by default) is not bought again (a re-run, an overlapping
-// run, a retry after a crash); --force buys everything again. The run stops, with ::error::, when eBay refuses the keyset (401/403
-// on a search), or 20 searches in a row fail, or 60 in a row come back with no listings at all.
+// A feed refreshed within min(2 h, a quarter of the age bound) is not bought again, and a marketplace with many such item feeds
+// is not swept again (a re-run, an overlapping run, a retry after a crash); --force buys everything again. The run stops, with
+// ::error::, when eBay refuses the keyset (401/403 on a search), or 6 searches in a row fail, or 30 in a row come back with no
+// listings at all (BREAKER_FAILURES, BREAKER_EMPTY).
 //
-// --dry-run prints the plan and the expected calls: no network and no database writes (it does read the product tables).
+// --dry-run prints the plan and the expected calls: no network and no database writes (it does read the product tables); the
+// sweep's coverage shows only in a real run (the summary's Sweep table).
 // Env: DATABASE_URL; EBAY_CLIENT_ID / EBAY_CLIENT_SECRET (DEXCOMPARE_EBAY_CLIENT_ID / _SECRET win when set);
-// optional EBAY_DAILY_CAP (2400, max 2500), EBAY_RUN_CAP (2000), EBAY_LISTING_MAX_AGE_HOURS (26).
-// Exit 1: token failure (only eBay's OAuth error category is printed), or fewer than half of the planned feeds refreshed.
+// optional EBAY_DAILY_CAP (2500, max 2500: this site's share of a 5,000 keyset shared with the owner's other site; set it on
+// BOTH sites), EBAY_RUN_CAP (2500), EBAY_SWEEP_CALLS (1800), EBAY_LISTING_MAX_AGE_HOURS (26).
+// Exit 1: token failure (only eBay's OAuth error category is printed), a search refusal or the circuit breaker, or fewer than
+// half of the planned feeds refreshed (the fixed feeds and the per-product searches; the sweep is reported on its own).
 process.env.DEXCOMPARE_SCRIPT = "1";
 
 import { appendFileSync } from "node:fs";

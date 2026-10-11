@@ -27,20 +27,20 @@ const row = (feed: string, rank: number, ageH: number, over: Partial<ListingRow>
 });
 const feedRows = (feed: string, n: number, ageH: number) => Array.from({ length: n }, (_, i) => row(feed, i, ageH));
 
-/** A fake database: the real SQL's contract (first fresh feed in priority order with >= min rows, at most MAX_FEED_ROWS rows). */
+/** A fake database: the real SQL's contract (first fresh feed in priority order with >= its own minimum of rows, at most MAX_FEED_ROWS rows). */
 function fake(all: ListingRow[], env: Record<string, string | undefined> = {}, products: Record<string, { id: string; productType: string }> = {}) {
-  const log: { feeds: readonly string[]; cutoff: Date; min: number }[] = [];
+  const log: { feeds: readonly string[]; cutoff: Date; mins: readonly number[] }[] = [];
   const deps: ReadDeps = {
     env,
     now: () => NOW,
     async product(slug) {
       return products[slug] ?? null;
     },
-    async rows(feeds, cutoff, min) {
-      log.push({ feeds, cutoff, min });
-      for (const f of feeds) {
+    async rows(feeds, cutoff, mins) {
+      log.push({ feeds, cutoff, mins });
+      for (const [i, f] of feeds.entries()) {
         const mine = all.filter((r) => r.feed === f && r.fetchedAt >= cutoff);
-        if (mine.length >= min) return mine.sort((a, b) => a.rank - b.rank).slice(0, 12); // a reader that returns MORE than the route may show: the route cuts
+        if (mine.length >= mins[i]) return mine.sort((a, b) => a.rank - b.rank).slice(0, 12); // a reader that returns MORE than the route may show: the route cuts
       }
       return [];
     },
@@ -66,15 +66,21 @@ test("cascade: item → type → sealed, set → chase, type → sealed, chase a
   assert.deepEqual(keys("item:x", "au", { id: "p3", productType: "Unknown Label" }), ["EBAY_AU|item:p3"], "an unknown type gets no mismatched stand-in");
 });
 
-test("the cascade answers with the FIRST feed that has rows; a feed with one row does not qualify", async () => {
+test("the cascade answers with the FIRST feed that has rows: a product's own listings from one, any other feed from two", async () => {
   const all = [...feedRows("EBAY_AU|type:elite-trainer-boxes", 8, 3), ...feedRows("EBAY_AU|sealed", 12, 3), ...feedRows("EBAY_AU|item:prod1", 1, 3)];
   const f = fake(all, {}, { "my-etb": ETB });
   let body = await (await call(f.deps, "au", "item:my-etb")).json();
-  assert.equal(body.feed, "type", "the item feed has one row: below the minimum, so the type feed answers");
+  assert.equal(body.feed, "item", "one listing is still the product's eBay price");
+  assert.equal(body.items.length, 1);
+  assert.deepEqual(f.log.at(-1)!.mins, [1, 2, 2], "the item feed needs one row, the type and sealed feeds two");
   all.push(row("EBAY_AU|item:prod1", 1, 3));
   body = await (await call(f.deps, "au", "item:my-etb")).json();
   assert.equal(body.feed, "item");
   assert.equal(body.items.length, 2);
+  // a TYPE feed with one row does not qualify: the next feed answers
+  const lone = fake([...feedRows("EBAY_GB|type:booster-boxes", 1, 3), ...feedRows("EBAY_GB|sealed", 5, 3)]);
+  body = await (await call(lone.deps, "uk", "type:booster-boxes")).json();
+  assert.equal(body.feed, "sealed");
   // set → chase
   body = await (await call(fake(feedRows("EBAY_US|chase", 12, 1)).deps, "us", "set:surging-sparks")).json();
   assert.equal(body.feed, "chase");
@@ -180,7 +186,7 @@ test("every region reads its marketplace's feeds, one query per request", async 
     await call(f.deps, r.region, "type:booster-boxes");
     assert.equal(f.log.length, 1, "ONE read");
     assert.ok(f.log[0].feeds.every((k) => /^EBAY_(US|AU|GB|CA|DE)\|/.test(k)));
-    assert.equal(f.log[0].min, 2);
+    assert.deepEqual(f.log[0].mins, [2, 2], "a type feed and generic sealed each need two rows");
   }
 });
 

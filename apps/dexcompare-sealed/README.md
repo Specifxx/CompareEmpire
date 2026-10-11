@@ -53,8 +53,8 @@ no extra cost to you. Listings are imported from eBay about once a day (updated 
 have changed; check eBay."
 
 * **Where**: the region home (a chase strip under the stats row and a sealed strip after the first rail), the landing page
-  (US feed), product pages (an eligible product's own listings, directly under the sold-out callout when sold out, below the
-  offer table when in stock; any other product its type's or generic sealed), set pages, type pages, `/<region>/sealed`
+  (US feed), product pages (every product asks for its own listings, directly under the sold-out callout when sold out, below the
+  offer table when in stock; with fewer than two of its own, its type's, then, for box-class types only, generic sealed), set pages, type pages, `/<region>/sealed`
   (a strip on a row of its own after the first four products of page 1 and ONE real listing as a labelled sponsored card after the 12th product),
   releases, store pages (after the list), the 404 and a slim strip above every footer except a region's home. On set and type pages the strip is also
   after the first four products, so the list the visitor came for stays the first and largest thing on the screen. The header keeps its small "eBay" search item, and a product's
@@ -63,8 +63,16 @@ have changed; check eBay."
   There are no text-only banners, chip rows or "Still deciding?" rows.
 * **Data flow**: `scripts/ebay-import.ts` (once a day, GitHub Actions) → `EbayListing` (≤ 8 rows per feed, REPLACED per feed,
   never appended, deleted after the age bound + 4 h) → `GET /api/ebay/<region>?c=<context>` (a read of those rows: no eBay call,
-  no token, a cascade item → type → sealed, set → chase, type → sealed) → the strip, which fetches from the browser once it is
+  no token, a cascade item → type → sealed, set → chase, type → sealed; sealed only for box-class types) → the strip, which fetches from the browser once it is
   within ~300 px of the viewport, into a box of reserved size (CLS 0). Pages stay ISR.
+* **Catalogue sweep** (`src/lib/ebay-sweep.ts`): product feeds come first from broad searches paged 200 listings a call per
+  marketplace, each listing handed to the product the repo's classifier says it is, so one call can feed dozens of products (an
+  item feed for every product found twice, cheap ones included). One search per product had reached 1,735 of the 7,701 eligible
+  keys a day, and 44% of those searches came back empty. A run buys the fixed feeds (chase, sealed, types, sets), then the sweep
+  (up to `EBAY_SWEEP_CALLS`, default 1,800), then one search per eligible product the sweep missed, with what is left. The
+  workflow's `probe` input measures the sweep (~60 calls, no listing written): on 2026-10-11, 60 pages found two or more
+  listings for 590 product keys (product x marketplace); Canada and the EU find fewer by design (eBay-converted prices and German/Japanese listings are
+  refused). DEPLOY.md, "The catalogue sweep".
 * **Always**: plain `<a>` links through `OutboundLink` (`rel="sponsored nofollow noopener noreferrer"`, one `buy_click`
   `{retailer, placement}` per click, the href eBay's own URL, unedited), thumbnails from `*.ebayimg.com` as plain lazy `<img>`
   (no-referrer; a tile whose picture fails hides itself), an "Ad" label and the disclosure, a unit of their own (never inside a
@@ -74,8 +82,10 @@ have changed; check eBay."
   counting `[data-ad]` elements in view, and the layout-shift total).
 * **Licence**: eBay's API License Agreement 8.1(c) asks listing information to be at most six hours old (and other eBay Content 24 hours); a daily import is not, which
   is disclosed on every strip and **switchable to a compliant mode: the cron, `EBAY_LISTING_MAX_AGE_HOURS` (GitHub variable and Vercel) and a lower `EBAY_RUN_CAP`**; the strips' wording follows the bound by itself (DEPLOY.md, "The switch to compliant mode").
-* **Call budget**: 2,400 of eBay's 5,000 calls a day for the keyset (the owner's other site may share it: DEPLOY.md says what to do), counted in the database per
-  Pacific day; the schedule is 08:37 UTC, the first slot after the Pacific reset in both PST and PDT. The importer stops on a 403 or 6 failed searches in a row.
+* **Call budget**: 2,500 of eBay's 5,000 calls a day for the keyset (`EBAY_DAILY_CAP`, also the maximum: this site's share of a keyset shared
+  with the owner's other site, which must be capped at 2,500 too; DEPLOY.md says what to do), counted in the database per Pacific day, every
+  call reserved before it is made; one run may spend all of it (`EBAY_RUN_CAP` 2,500). The schedule is 08:37 UTC, the first slot after the
+  Pacific reset in both PST and PDT. The importer stops on a 403 or 6 failed searches in a row.
 * **Testing without keys**: `tests/ebay-*.test.ts` use fake fetch/database (fixtures in `tests/fixtures/`). For a browser run, import
   against a mock: preload a fetch stub that answers `https://api.ebay.com/*` with `NODE_OPTIONS="--import mock.mjs" npx tsx
   scripts/ebay-import.ts` (the code has no host override: it can only talk to api.ebay.com), then start the site on the same database.
@@ -110,6 +120,7 @@ GitHub Actions (twice a day)               Vercel (Next.js 14, ISR)
 GitHub Actions (once a day)                 /api/ebay/<region> reads EbayListing
 .github/workflows/dexcompare-ebay-import.yml  (no eBay call, no secret) for the strips
   └─ scripts/ebay-import.ts  → EbayListing (replace per feed) + EbayCallDay (atomic call counter)
+       fixed feeds, then the catalogue sweep (src/lib/ebay-sweep.ts), then per-product searches
 ```
 
 - **Stores** live in `src/data/stores.json`: Shopify stores are read through

@@ -3,6 +3,11 @@ import assert from "node:assert/strict";
 import {
   BREAKER_EMPTY,
   BREAKER_FAILURES,
+  DEFAULT_DAILY_CAP,
+  DEFAULT_RUN_CAP,
+  DEFAULT_SWEEP_CALLS,
+  MAX_DAILY_CAP,
+  sweepCallsFromEnv,
   freshWindowMs,
   PROGRESS_EVERY,
   startReport,
@@ -32,6 +37,7 @@ import { capacityReport, runReport } from "../src/lib/ebay-report";
 import { hoursToMs, MARKET_WEIGHT } from "../src/lib/ebay-context";
 import { PRODUCT_TYPES, fromRoughUsdCents, type TypeKey } from "../src/lib/sealed-title";
 import { SETS } from "../src/lib/sets";
+import { SWEEP_PAGE, SWEEP_QUERIES } from "../src/lib/ebay-sweep";
 import { fakeDb, harness, json, NOW, okToken, planRow, requestedReference, summary, withReference, type FakeDb, type Handler } from "./helpers/ebay-fakes";
 
 const TODAY = "2026-10-07";
@@ -183,13 +189,14 @@ test("set feeds: the 30 most recently RELEASED sets, never a series-named set, a
   assert.equal(setQuery(SETS.find((s) => s.code === "pgo")!), "Pokemon GO alt art", "Pokémon GO is a Sword & Shield set; accents are folded");
 });
 
-test("item queries: Pokemon + the cleaned product name + sealed, at most 100 characters, store noise removed", () => {
-  assert.equal(itemQuery("Surging Sparks Elite Trainer Box"), "Pokemon Surging Sparks Elite Trainer Box sealed");
-  assert.equal(itemQuery("Pokémon GO Elite Trainer Box"), "Pokemon GO Elite Trainer Box sealed");
-  assert.equal(itemQuery("Charizard ex Premium Collection [Limit 1 Per Customer] - Local Pickup Only"), "Pokemon Charizard ex Premium Collection sealed");
+test("item queries: Pokemon + the cleaned product name (no 'sealed': eBay ANDs every keyword), at most 100 characters, store noise removed", () => {
+  assert.equal(itemQuery("Surging Sparks Elite Trainer Box"), "Pokemon Surging Sparks Elite Trainer Box");
+  assert.equal(itemQuery("Pokémon GO Elite Trainer Box"), "Pokemon GO Elite Trainer Box");
+  assert.equal(itemQuery("Charizard ex Premium Collection [Limit 1 Per Customer] - Local Pickup Only"), "Pokemon Charizard ex Premium Collection");
   const long = itemQuery("Mega Evolution Perfect Order " + "Extraordinarily Long Product Name ".repeat(6));
   assert.ok(long.length <= 100 && long.startsWith("Pokemon "));
   assert.ok(!long.endsWith(" "));
+  for (const q of [itemQuery("Surging Sparks Elite Trainer Box"), itemQuery("Charizard ex Premium Collection"), long]) assert.ok(!/\bsealed\b/i.test(q), q);
 });
 
 const MANY = (n: number): ReturnType<typeof planRow>[] =>
@@ -207,7 +214,9 @@ test("a placeholder ask (a sold-out blister at CA$9,999) is not an eligible key,
 
 test("buildPlan: spends the cap in priority order; a cap hit drops the LEAST valuable; calls never exceed the cap", () => {
   const rows = MANY(300);
-  const full = buildPlan(rows, { cap: 2000, today: TODAY });
+  // The per-product priority on its own (sweepCalls 0: no sweep share); the sweep's place in the order is checked below.
+  const full = buildPlan(rows, { cap: 2000, sweepCalls: 0, today: TODAY });
+  assert.equal(full.sweepBudget, 0);
   assert.equal(full.calls, 265 + 300);
   assert.equal(full.byBucket.items.feeds, 300);
   assert.equal(full.items.core, 300);
@@ -216,25 +225,55 @@ test("buildPlan: spends the cap in priority order; a cap hit drops the LEAST val
   const values = items.map((f) => f.item!.value);
   for (let i = 1; i < values.length; i++) assert.ok(values[i - 1] >= values[i], "most valuable first");
   assert.equal(full.feeds.findIndex((f) => f.bucket === "items") > full.feeds.findLastIndex((f) => f.bucket === "sets"), true);
+  const idx = (b: string) => BUCKETS.indexOf(b as never);
   for (const cap of [0, 1, 7, 8, 39, 40, 41, 70, 71, 100, 115, 264, 265, 266, 300, 565]) {
-    const p = buildPlan(rows, { cap, today: TODAY });
+    const p = buildPlan(rows, { cap, sweepCalls: 0, today: TODAY });
     assert.ok(p.calls <= cap, `${cap}`);
     assert.equal(p.calls, p.feeds.reduce((a, f) => a + f.searches.length, 0));
     // strict priority: nothing of a lower bucket is planned while a higher bucket has an unplanned feed
-    const idx = (b: string) => BUCKETS.indexOf(b as never);
     const planned = p.feeds.map((f) => idx(f.bucket));
     for (let i = 1; i < planned.length; i++) assert.ok(planned[i] >= planned[i - 1]);
   }
   assert.equal(buildPlan(rows, { cap: 0, today: TODAY }).feeds.length, 0);
+  assert.equal(buildPlan(rows, { cap: 0, today: TODAY }).sweepBudget, 0);
   assert.equal(buildPlan(rows, { cap: 7, today: TODAY }).feeds.length, 0, "the first chase feed needs 8 calls");
+  assert.equal(buildPlan(rows, { cap: 7, today: TODAY }).sweepBudget, 0, "nothing below a feed that did not fit, the sweep included");
   // 300 items but a cap of 300 + 265: exactly the 35 least valuable items miss out at cap 530
-  const tight = buildPlan(rows, { cap: 265 + 250, today: TODAY });
+  const tight = buildPlan(rows, { cap: 265 + 250, sweepCalls: 0, today: TODAY });
   assert.equal(tight.byBucket.items.feeds, 250);
   assert.equal(tight.items.coreCovered, 250);
   const dropped = new Set(items.map((f) => f.feed));
   for (const f of tight.feeds.filter((x) => x.bucket === "items")) dropped.delete(f.feed);
   const minKept = Math.min(...tight.feeds.filter((x) => x.bucket === "items").map((x) => x.item!.value));
   for (const f of items) if (dropped.has(f.feed)) assert.ok(f.item!.value <= minKept);
+
+  // The catalogue sweep's share comes after the sets and before the per-product (pre-plan) items: chase, sealed, types, sets, sweep, items.
+  assert.deepEqual(BUCKETS, ["chase", "sealed", "types", "sets", "sweep", "items"]);
+  assert.equal(DEFAULT_SWEEP_CALLS, 1800);
+  const withSweep = buildPlan(rows, { cap: 2500, today: TODAY });
+  assert.equal(withSweep.sweepBudget, DEFAULT_SWEEP_CALLS);
+  assert.equal(withSweep.calls, 265 + DEFAULT_SWEEP_CALLS + 300);
+  assert.deepEqual(withSweep.byBucket.sweep, { feeds: 5, calls: DEFAULT_SWEEP_CALLS, wanted: 5, wantedCalls: DEFAULT_SWEEP_CALLS, fresh: 0 }, "the sweep's 'feeds' are its marketplaces");
+  assert.equal(withSweep.byBucket.items.feeds, 300);
+  for (const cap of [0, 7, 100, 264, 265, 266, 300, 1000, 2064, 2065, 2066, 2100, 2365, 2500]) {
+    const p = buildPlan(rows, { cap, today: TODAY });
+    const fixedCalls = p.feeds.filter((f) => f.bucket !== "items").reduce((a, f) => a + f.searches.length, 0);
+    const itemCalls = p.feeds.filter((f) => f.bucket === "items").reduce((a, f) => a + f.searches.length, 0);
+    assert.ok(p.calls <= cap, `${cap}: ${p.calls}`);
+    assert.equal(p.calls, fixedCalls + p.sweepBudget + itemCalls, `${cap}: the plan's calls are its feeds' searches plus the sweep's share`);
+    // the sweep gets nothing while a fixed feed is unplanned; a per-product search nothing while the sweep is short of its share
+    assert.equal(p.sweepBudget, cap >= 265 ? Math.min(DEFAULT_SWEEP_CALLS, cap - 265) : 0, `${cap}`);
+    if (p.sweepBudget > 0) assert.equal(fixedCalls, 265, `${cap}`);
+    if (itemCalls > 0) assert.equal(p.sweepBudget, DEFAULT_SWEEP_CALLS, `${cap}`);
+    const planned = p.feeds.map((f) => idx(f.bucket));
+    for (let i = 1; i < planned.length; i++) assert.ok(planned[i] >= planned[i - 1]);
+  }
+  // the items that do fit after the sweep are still the most valuable ones
+  const after = buildPlan(rows, { cap: 265 + DEFAULT_SWEEP_CALLS + 100, today: TODAY });
+  assert.equal(after.byBucket.items.feeds, 100);
+  assert.deepEqual(after.feeds.filter((f) => f.bucket === "items").map((f) => f.feed), items.slice(0, 100).map((f) => f.feed));
+  // EBAY_SWEEP_CALLS sets the share (buildPlan's sweepCalls)
+  assert.equal(buildPlan(rows, { cap: 2500, sweepCalls: 100, today: TODAY }).sweepBudget, 100);
 });
 
 test("buildPlan: the extension (US$25-50) is bought only after EVERY core key, and never below US$25", () => {
@@ -242,17 +281,23 @@ test("buildPlan: the extension (US$25-50) is bought only after EVERY core key, a
   const ext = Array.from({ length: 10 }, (_, i) => planRow("tin", "US", usdCents(25 + i * 2, "US"), { id: `e${i}`, name: `Test Tin Extension ${i}` }));
   const below = [planRow("tin", "US", usdCents(24, "US"), { id: "low", name: "Cheap Tin" })];
   const rows = [...ext, ...below, ...core];
-  const p = buildPlan(rows, { cap: 265 + 20, today: TODAY });
+  // the per-product pre-plan on its own (sweepCalls 0), as the run sizes it once the sweep has spent its share
+  const p = buildPlan(rows, { cap: 265 + 20, sweepCalls: 0, today: TODAY });
   assert.equal(p.items.coreCovered, 20);
   assert.equal(p.items.extensionCovered, 0, "the budget ended exactly at the last core key");
-  const p2 = buildPlan(rows, { cap: 265 + 25, today: TODAY });
+  const p2 = buildPlan(rows, { cap: 265 + 25, sweepCalls: 0, today: TODAY });
   assert.equal(p2.items.extensionCovered, 5);
   const covered = p2.feeds.filter((f) => f.item?.tier === "extension").map((f) => f.item!.productId);
   assert.deepEqual(covered, ["e9", "e8", "e7", "e6", "e5"], "downward by price: the dearest of the extension first");
-  const p3 = buildPlan(rows, { cap: 5000, today: TODAY });
+  const p3 = buildPlan(rows, { cap: 5000, sweepCalls: 0, today: TODAY });
   assert.equal(p3.items.extensionCovered, 10);
   assert.ok(!p3.feeds.some((f) => f.item?.productId === "low"), "never below US$25");
   assert.equal(p3.keys.length, 30);
+  // the same order after the sweep's share
+  const p4 = buildPlan(rows, { cap: 265 + DEFAULT_SWEEP_CALLS + 25, today: TODAY });
+  assert.equal(p4.items.coreCovered, 20);
+  assert.deepEqual(p4.feeds.filter((f) => f.item?.tier === "extension").map((f) => f.item!.productId), ["e9", "e8", "e7", "e6", "e5"]);
+  assert.ok(!buildPlan(rows, { cap: 5000, today: TODAY }).feeds.some((f) => f.item?.productId === "low"), "never below US$25");
 });
 
 test("buildPlan: --only buckets, and the plan reports what it wanted vs got", () => {
@@ -260,23 +305,53 @@ test("buildPlan: --only buckets, and the plan reports what it wanted vs got", ()
   const p = buildPlan(rows, { cap: 2000, today: TODAY, only: ["items"] });
   assert.equal(p.feeds.length, 10);
   assert.equal(p.byBucket.chase.wanted, 0);
+  assert.equal(p.sweepBudget, 0, "the sweep is a bucket like the others: --only items leaves it out");
+  assert.equal(p.byBucket.sweep.wanted, 0);
   const q = buildPlan(rows, { cap: 2000, today: TODAY, only: ["chase", "sets"] });
   assert.deepEqual([...new Set(q.feeds.map((f) => f.bucket))], ["chase", "sets"]);
-  const r = buildPlan(MANY(3000), { cap: 2000, today: TODAY });
+  assert.equal(q.sweepBudget, 0);
+  const sw = buildPlan(rows, { cap: 2000, today: TODAY, only: ["sweep"] });
+  assert.deepEqual([sw.feeds.length, sw.sweepBudget, sw.calls], [0, DEFAULT_SWEEP_CALLS, DEFAULT_SWEEP_CALLS], "--only sweep: the sweep alone");
+  // the per-product pre-plan against the cap (no sweep share): what it wanted vs what it got
+  const r = buildPlan(MANY(3000), { cap: 2000, sweepCalls: 0, today: TODAY });
   assert.equal(r.calls, 2000);
   assert.ok(r.byBucket.items.wanted === 3000 && r.byBucket.items.feeds === 1735 && r.items.core === 3000 && r.items.coreCovered === 1735);
   const text = capacityReport(r).join("\n");
   assert.match(text, /NOT all core keys fit/);
-  assert.match(capacityReport(buildPlan(rows, { cap: 2000, today: TODAY })).join("\n"), /ALL core keys fit/);
+  assert.match(capacityReport(buildPlan(rows, { cap: 2000, sweepCalls: 0, today: TODAY })).join("\n"), /ALL core keys fit/);
+  // with the sweep's default share at the default caps: 265 fixed + 1,800 sweep + what is left for the pre-plan
+  const d = buildPlan(MANY(3000), { cap: DEFAULT_RUN_CAP, today: TODAY });
+  assert.equal(d.calls, DEFAULT_RUN_CAP);
+  assert.equal(d.sweepBudget, DEFAULT_SWEEP_CALLS);
+  assert.equal(d.byBucket.items.feeds, DEFAULT_RUN_CAP - 265 - DEFAULT_SWEEP_CALLS);
+  assert.equal(d.byBucket.items.wanted, 3000);
+  const dt = capacityReport(d).join("\n");
+  assert.ok(dt.includes(`| sweep | 5 | 1,800 | 5 | 1,800 |`), dt);
+  assert.match(dt, /NOT all core keys fit/);
 });
 
 // ─── caps ───────────────────────────────────────────────────────────────────────
 
-test("caps: daily 2400 (clamped 0..2500), run 2000, and the run's allowance is what the database says is left", () => {
-  assert.deepEqual(capsFromEnv({}), { daily: 2400, run: 2000 });
-  assert.deepEqual(capsFromEnv({ EBAY_DAILY_CAP: "3000", EBAY_RUN_CAP: "9999" }), { daily: 2500, run: 2500 });
-  assert.deepEqual(capsFromEnv({ EBAY_DAILY_CAP: "-5", EBAY_RUN_CAP: "x" }), { daily: 0, run: 2000 });
+test("caps: daily 2500 (clamped 0..2500), run 2500, sweep 1800, and the run's allowance is what the database says is left", () => {
+  assert.equal(MAX_DAILY_CAP, 2500);
+  assert.deepEqual([DEFAULT_DAILY_CAP, DEFAULT_RUN_CAP, DEFAULT_SWEEP_CALLS], [2500, 2500, 1800]);
+  assert.deepEqual(capsFromEnv({}), { daily: 2500, run: 2500 });
+  assert.deepEqual(capsFromEnv({ EBAY_DAILY_CAP: "3000", EBAY_RUN_CAP: "9999" }), { daily: 2500, run: 2500 }, "never above the hard ceiling");
+  assert.deepEqual(capsFromEnv({ EBAY_DAILY_CAP: "-5", EBAY_RUN_CAP: "x" }), { daily: 0, run: 2500 });
   assert.deepEqual(capsFromEnv({ EBAY_DAILY_CAP: " 1000 ", EBAY_RUN_CAP: "400" }), { daily: 1000, run: 400 });
+  // the sweep's allowance (EBAY_SWEEP_CALLS): default 1800, clamped 0..2500; "0" turns the sweep off
+  assert.equal(sweepCallsFromEnv({}), 1800);
+  assert.equal(sweepCallsFromEnv({ EBAY_SWEEP_CALLS: "0" }), 0);
+  assert.equal(sweepCallsFromEnv({ EBAY_SWEEP_CALLS: " 600 " }), 600);
+  assert.equal(sweepCallsFromEnv({ EBAY_SWEEP_CALLS: "99999" }), 2500);
+  assert.equal(sweepCallsFromEnv({ EBAY_SWEEP_CALLS: "-1" }), 0);
+  assert.equal(sweepCallsFromEnv({ EBAY_SWEEP_CALLS: "lots" }), 1800);
+  // the defaults: the whole run cap, bounded by what is left of the day
+  assert.equal(runCap(capsFromEnv({}), 0), 2500);
+  assert.equal(runCap(capsFromEnv({}), 640), 1860);
+  assert.equal(runCap(capsFromEnv({}), 2500), 0);
+  assert.equal(runCap(capsFromEnv({}), 9999), 0);
+  // a run cap below the daily cap (the compliant mode's EBAY_RUN_CAP)
   assert.equal(runCap({ daily: 2400, run: 2000 }, 0), 2000);
   assert.equal(runCap({ daily: 2400, run: 2000 }, 1000), 1400);
   assert.equal(runCap({ daily: 2400, run: 2000 }, 2400), 0);
@@ -284,6 +359,7 @@ test("caps: daily 2400 (clamped 0..2500), run 2000, and the run's allowance is w
   assert.equal(runCap({ daily: 2400, run: 2000 }, 0, 300), 300);
   assert.equal(runCap({ daily: 2400, run: 2000 }, 0, 5000), 2000);
   assert.equal(retryAllowance(2000), 105);
+  assert.equal(retryAllowance(2500), 130);
   assert.equal(hoursToMs(30), purgeCutoff(NOW, {}).getTime() === NOW - hoursToMs(30) ? hoursToMs(30) : -1, "purge: 26 h bound + 4 h");
   assert.equal(purgeCutoff(NOW, { EBAY_LISTING_MAX_AGE_HOURS: "5.5" }).getTime(), NOW - hoursToMs(9.5));
 });
@@ -322,10 +398,17 @@ test("run: every search is reserved BEFORE it is made; the database counter equa
   const fetch0 = h.deps.fetch;
   h.deps.fetch = async (u, i) => (u.includes("/item_summary/search") && order.push("search"), fetch0(u, i));
   const s = await runImport(deps(db, h), { concurrency: 1 });
-  assert.equal(h.searches().length, 265 + 40);
-  assert.equal(s.searches, 305);
-  assert.equal(db.days.get(s.day), 305, "the counter equals the calls made");
-  assert.equal(s.usedAfter, 305);
+  // the fixed feeds (265), the sweep (every query's first page in each of the 5 marketplaces: the mock's pages are short, so each
+  // query ends after one), then one search per eligible key the sweep did not cover (the mock's cards match no product: all 40)
+  const sweepCalls = SWEEP_QUERIES.length * MARKETPLACE_ORDER.length;
+  const total = 265 + sweepCalls + 40;
+  assert.equal(s.buckets.sweep.calls, sweepCalls);
+  assert.equal(s.sweep.length, 5);
+  assert.equal(h.searches().length, total);
+  assert.equal(s.searches, total);
+  assert.equal(db.days.get(s.day), total, "the counter equals the calls made");
+  assert.equal(s.usedAfter, total);
+  assert.equal(BUCKETS.reduce((a, b) => a + s.buckets[b].calls, 0), total, "every search is counted against its bucket");
   // never a search without its reservation first
   let reserved = 0;
   let searched = 0;
@@ -340,7 +423,17 @@ test("run: every search is reserved BEFORE it is made; the database counter equa
   assert.equal(db.ensured, 1, "the tables are created if missing");
   assert.ok(s.buckets.chase.refreshed === 5 && s.buckets.sets.refreshed === 150);
   assert.ok(s.buckets.items.refreshed === 40, JSON.stringify(s.buckets.items));
+  assert.equal(s.buckets.items.covered, 0);
   assert.ok(db.purges.length >= 2, "purged at the start and at the end");
+  // phase order: every fixed feed's search, then the sweep's pages, then the per-product searches
+  const kinds = h.searches().map((c) => requestedReference(c.init)!.split("-")[2]);
+  const qs = h.searches().map((c) => new URL(c.url).searchParams.get("q") ?? "");
+  const sweepQs = new Set(SWEEP_QUERIES.map((x) => `Pokemon ${x.q}`));
+  const firstSweep = qs.findIndex((q) => sweepQs.has(q));
+  assert.equal(firstSweep, 265);
+  assert.ok(kinds.slice(0, 265).every((k) => k !== "item"), "fixed feeds first");
+  assert.ok(qs.slice(265, 265 + sweepCalls).every((q) => sweepQs.has(q)), "then the sweep");
+  assert.ok(qs.slice(265 + sweepCalls).every((q) => !sweepQs.has(q)) && kinds.slice(265).every((k) => k === "item"), "then the per-product searches");
 });
 
 test("run: three overlapping runs and a manual dispatch can never pass the daily cap", async () => {
@@ -520,14 +613,35 @@ test("after a 429 no worker starts another search for the feed it is in (chase f
   assert.ok(h.searches().length <= 3 + 2, `${h.searches().length} searches after a 429 on the first`);
 });
 
+test("after a 429 in the catalogue sweep no worker starts another search (three in flight at most), even if eBay would answer again", async () => {
+  // full pages that keep paging; ONE 429 (the third call), then eBay answers normally again
+  let n = 0;
+  const h = harness((url, init) => {
+    if (url.includes("/oauth2/token")) return okToken();
+    n++;
+    if (n === 3) return json({ errors: [{ message: "too many" }] }, 429, { "retry-after": "60" });
+    const items = Array.from({ length: SWEEP_PAGE }, (_, i) => summary(`p${n}-${i}`, `Pokemon Test Collection Number ${i} 190/165 Special Illustration Rare Pokemon Card`, 70));
+    return json({ total: 100_000, itemSummaries: withReference(items, requestedReference(init)) });
+  });
+  const db = fakeDb(MANY(40));
+  const s = await runImport(deps(db, h), { only: ["sweep", "items"], concurrency: 3 });
+  assert.equal(s.stopped, "rate-limited");
+  assert.ok(h.searches().length <= 3 + 2, `${h.searches().length} searches after a 429 on the third`);
+  assert.equal(db.days.get(s.day), h.searches().length);
+  assert.equal(s.buckets.items.calls, 0, "no per-product search after a 429");
+});
+
 test("fresh feeds are not bought again (a re-run, an overlapping run, a retry after a crash) unless forced; stale ones are", async () => {
+  // Feed by feed: the fixed feeds and the per-product item feeds (EBAY_SWEEP_CALLS=0). The sweep's own freshness is checked below.
+  const NOSWEEP = { EBAY_SWEEP_CALLS: "0" };
   const db = fakeDb(MANY(30));
   const e = ebay();
-  const first = await runImport(deps(db, harness(e.handler)), { concurrency: 3 });
+  const first = await runImport(deps(db, harness(e.handler), NOSWEEP), { concurrency: 3 });
   assert.equal(first.searches, 265 + 30);
+  assert.equal(first.buckets.sweep.calls, 0);
   // the same instant again: every feed that has rows is fresh and is not bought again (only feeds that came back empty are tried again)
   const h2 = harness(e.handler);
-  const again = await runImport(deps(db, h2), { concurrency: 3 });
+  const again = await runImport(deps(db, h2, NOSWEEP), { concurrency: 3 });
   const stored = first.buckets.chase.refreshed + first.buckets.sealed.refreshed + first.buckets.types.refreshed + first.buckets.sets.refreshed + first.buckets.items.refreshed;
   assert.equal(again.buckets.chase.fresh, 5);
   assert.equal(again.buckets.items.fresh, 30);
@@ -536,9 +650,10 @@ test("fresh feeds are not bought again (a re-run, an overlapping run, a retry af
   assert.ok(h2.searches().length < 295 && stored >= 185, `${h2.searches().length} searches the second time, ${stored} feeds stored the first`);
   assert.equal(again.plan.items.coreCovered, again.plan.items.core, "fresh item feeds still count as covered");
   assert.ok(runReport(again).join("\n").includes("Fresh (not bought)"));
+  assert.ok(h2.searches().every((c) => requestedReference(c.init) !== "dex-us-item"), "no item feed bought again");
   // forced: everything again
   const h3 = harness(e.handler);
-  await runImport(deps(db, h3), { concurrency: 3, force: true });
+  await runImport(deps(db, h3, NOSWEEP), { concurrency: 3, force: true });
   assert.equal(h3.searches().length, 295);
   // the window is 2 hours (a quarter of the bound at most): 1.9 h on a feed is still fresh, 2.1 h on it is bought again
   assert.equal(freshWindowMs({}), hoursToMs(2));
@@ -546,22 +661,61 @@ test("fresh feeds are not bought again (a re-run, an overlapping run, a retry af
   assert.equal(freshWindowMs({ EBAY_LISTING_MAX_AGE_HOURS: "72" }), hoursToMs(2), "never more than 2 h");
   const h3b = harness(e.handler);
   h3b.clock.t = NOW + 1.9 * 3600_000;
-  const soon = await runImport(deps(db, h3b), { concurrency: 3 });
+  const soon = await runImport(deps(db, h3b, NOSWEEP), { concurrency: 3 });
   assert.equal(soon.buckets.chase.fresh, 5);
+  assert.equal(soon.buckets.items.fresh, 30);
   assert.ok(h3b.searches().length < 295, "an accidental re-dispatch within 2 h re-buys nothing that has rows");
   const h4 = harness(e.handler);
   h4.clock.t = NOW + 3 * 3600_000 + 1;
   db.feeds.forEach((v) => (v.fetchedAt = new Date(NOW))); // as the forced run left them
-  const later = await runImport(deps(db, h4), { concurrency: 3 });
+  const later = await runImport(deps(db, h4, NOSWEEP), { concurrency: 3 });
   assert.equal(h4.searches().length, 295);
   assert.equal(later.buckets.chase.fresh, 0);
   // a feed fresher than the share is skipped and the budget goes further down the plan instead
+  const hourOld = () => ({ items: [{ id: "o", title: "o", imageUrl: "https://i.ebayimg.com/x", price: { value: "1.00", currency: "USD" }, url: "https://www.ebay.com/itm/1" }], fetchedAt: new Date(NOW - 3600_000) });
   const db2 = fakeDb(MANY(30));
-  for (const f of fixedFeeds(TODAY)) db2.feeds.set(f.feed, { items: [{ id: "o", title: "o", imageUrl: "https://i.ebayimg.com/x", price: { value: "1.00", currency: "USD" }, url: "https://www.ebay.com/itm/1" }], fetchedAt: new Date(NOW - 3600_000) });
+  for (const f of fixedFeeds(TODAY)) db2.feeds.set(f.feed, hourOld());
   const h5 = harness(e.handler);
-  const s5 = await runImport(deps(db2, h5, { EBAY_RUN_CAP: "20" }), { concurrency: 1 });
-  assert.equal(s5.buckets.items.refreshed, 20, "the cap is spent on item feeds, not on feeds that are an hour old");
+  const s5 = await runImport(deps(db2, h5, { EBAY_RUN_CAP: "20", ...NOSWEEP }), { concurrency: 1 });
+  // the per-product phase holds back its own retry allowance from what is left of the run cap
+  assert.equal(s5.buckets.items.refreshed, 20 - retryAllowance(20), "the cap is spent on item feeds, not on feeds that are an hour old");
   assert.equal(s5.buckets.chase.refreshed, 0);
+  assert.ok(h5.searches().length <= 20 && h5.searches().every((c) => requestedReference(c.init)!.endsWith("-item")), "every search an item search");
+  // with the sweep (the default), the same cap goes to the sweep first, never to the hour-old fixed feeds
+  const db2b = fakeDb(MANY(30));
+  for (const f of fixedFeeds(TODAY)) db2b.feeds.set(f.feed, hourOld());
+  const h5b = harness(e.handler);
+  const s5b = await runImport(deps(db2b, h5b, { EBAY_RUN_CAP: "20" }), { concurrency: 1 });
+  assert.equal(s5b.plan.sweepBudget, 20);
+  assert.ok(s5b.buckets.sweep.calls > 0 && h5b.searches().length <= 20, `${h5b.searches().length}`);
+  assert.equal(s5b.buckets.chase.calls + s5b.buckets.sealed.calls + s5b.buckets.types.calls + s5b.buckets.sets.calls, 0);
+  assert.equal(s5b.buckets.chase.fresh, 5);
+
+  // The sweep: a marketplace whose item feeds are fresh (a re-dispatch after a run that swept it) is not swept again unless forced;
+  // and the per-product searches skip those fresh feeds too. 60 US products, every one with an hour-old item feed.
+  const usRows = Array.from({ length: 60 }, (_, i) => planRow("collection", "US", usdCents(60 + i, "US"), { id: `u${String(i).padStart(2, "0")}`, name: `Fresh Test Collection ${i}` }));
+  const db4 = fakeDb(usRows);
+  for (const r of usRows) db4.feeds.set(`EBAY_US|item:${r.productId}`, hourOld());
+  const h7 = harness(e.handler);
+  const s7 = await runImport(deps(db4, h7), { concurrency: 3 });
+  assert.equal(s7.buckets.sweep.fresh, 1);
+  assert.equal(s7.buckets.sweep.planned, 0);
+  assert.equal(s7.buckets.sweep.calls, 0, "the marketplace is not swept again");
+  assert.equal(s7.buckets.items.fresh, 60);
+  assert.equal(s7.buckets.items.calls, 0, "nor its fresh item feeds searched one by one");
+  assert.equal(h7.searches().length, 265, "only the fixed feeds, which had no rows");
+  // forced: swept again (one page per query: the mock's pages are short), and every item feed bought again
+  const h8 = harness(e.handler);
+  const s8 = await runImport(deps(db4, h8), { concurrency: 3, force: true });
+  assert.equal(s8.buckets.sweep.fresh, 0);
+  assert.equal(s8.buckets.sweep.calls, SWEEP_QUERIES.length);
+  assert.equal(h8.searches().length, 265 + SWEEP_QUERIES.length + 60);
+  // stale (older than the window): swept again without forcing
+  const h9 = harness(e.handler);
+  h9.clock.t = NOW + 3 * 3600_000;
+  const s9 = await runImport(deps(db4, h9), { concurrency: 3 });
+  assert.equal(s9.buckets.sweep.fresh, 0);
+  assert.equal(s9.buckets.sweep.calls, SWEEP_QUERIES.length);
   // compliant mode (bound 5.5 h): the window is 1.4 h, so a 4-hourly run always buys again
   const db3 = fakeDb(MANY(0));
   await runImport(deps(db3, harness(e.handler)), { only: ["chase"], concurrency: 3 });
@@ -627,21 +781,28 @@ test("the importer says what it will do with today's budget BEFORE the first sea
   const s = await runImport({ db, api: h.deps, env: {}, log: (l) => lines.push(l) }, { concurrency: 3, maxCalls: 300 });
   const text = lines.join("\n");
   assert.match(text, /Budget day \d{4}-\d{2}-\d{2} \(the Pacific day/);
-  assert.match(text, /reserved so far today: 640 of the 2,400 daily cap \(1,760 left\)/);
-  assert.match(text, /at most 300 searches, retries included \(the smallest of: run cap 2,000, 1,760 left of today's 2,400, --max-calls 300\)/);
+  assert.match(text, /reserved so far today: 640 of the 2,500 daily cap \(1,860 left\)/);
+  assert.match(text, /at most 300 searches, retries included \(the smallest of: run cap 2,500, 1,860 left of today's 2,500, --max-calls 300\)/);
   assert.match(text, /Plan: \d+ feeds in 300 searches \(chase 5 feeds\/40 calls/);
+  // 300 - 265 fixed = 35 for the sweep; nothing left for per-product searches
+  assert.match(text, /sweep up to 35 calls over 5 marketplaces, items: whatever the sweep leaves/);
   assert.match(text, /stops early on a 429, a 401\/403 on a search, 6 failed searches in a row, or 30 with no listings in a row/);
   assert.match(text, /another application on the same eBay keyset is invisible/);
   assert.ok(!/SECRET|DexComp-|Bearer/.test(text));
   assert.equal(s.searches, 300);
+  assert.equal(db.days.get(day), 640 + 300);
   // the running total against the caps, every PROGRESS_EVERY searches
   assert.equal(PROGRESS_EVERY, 250);
   const progress = lines.filter((l) => l.startsWith("progress:"));
   assert.equal(progress.length, 1);
-  assert.match(progress[0], /^progress: 250 searches this run \(\d+ retries, run cap 300\); 890 of the 2,400 daily cap used today; \d+ feeds refreshed\.$/);
+  assert.match(progress[0], /^progress: 250 searches this run \(\d+ retries, run cap 300\); 890 of the 2,500 daily cap used today; \d+ feeds refreshed\.$/);
+  // the sweep logs counts per marketplace, nothing else
+  const sweepLines = lines.filter((l) => l.startsWith("sweep "));
+  assert.equal(sweepLines.length, 5);
+  for (const l of sweepLines) assert.match(l, /^sweep EBAY_[A-Z]{2}: \d+ pages, \d+ listings matched to \d+ of \d+ products; \d+ item feeds written\.$/);
   // nothing left today: it says so
   const spent = fakeDb(MANY(10));
-  spent.days.set(day, 2400);
+  spent.days.set(day, 2500);
   const lines2: string[] = [];
   const s2 = await runImport({ db: spent, api: harness(e.handler).deps, env: {}, log: (l) => lines2.push(l) }, {});
   assert.equal(s2.searches, 0);
@@ -747,8 +908,18 @@ test("run: a dry run makes no call and writes nothing", async () => {
   assert.equal(db.purges.length, 0);
   assert.equal(db.days.size, 0);
   assert.equal(db.feeds.size, 0);
-  assert.equal(s.plan.calls, 265 + 30);
+  assert.equal(db.replaced.length, 0);
+  // the plan it prints: the fixed feeds, the sweep's share and the per-product pre-plan
+  assert.equal(s.plan.sweepBudget, DEFAULT_SWEEP_CALLS);
+  assert.equal(s.plan.calls, 265 + DEFAULT_SWEEP_CALLS + 30);
+  assert.equal(s.searches, 0);
+  assert.deepEqual(s.sweep, []);
   assert.ok(runReport(s).join("\n").startsWith("DRY RUN"));
+  // the same without the sweep (EBAY_SWEEP_CALLS=0)
+  const h2 = harness(e.handler);
+  const s2 = await runImport(deps(fakeDb(MANY(30)), h2, { EBAY_SWEEP_CALLS: "0" }), { dryRun: true });
+  assert.equal(h2.calls.length, 0);
+  assert.equal(s2.plan.calls, 265 + 30);
 });
 
 test("selectFeedItems: each rule keeps what it should, and an item feed keeps 8 at most", () => {
@@ -763,11 +934,13 @@ test("selectFeedItems: each rule keeps what it should, and an item feed keeps 8 
 
 test("reports: counts and ages only, no titles or prices", async () => {
   const e = ebay();
-  const s = await runImport(deps(fakeDb(MANY(20)), harness(e.handler)), { only: ["chase", "items"] });
+  const s = await runImport(deps(fakeDb(MANY(20)), harness(e.handler)), { only: ["chase", "sweep", "items"] });
   const text = runReport(s).join("\n");
   assert.match(text, /Calls today: \d+/);
   assert.match(text, /Oldest row/);
   assert.match(text, /Item feeds in the database/);
+  assert.match(text, /\| Sweep \| Products \| Pages \|/, "the sweep's table is in the report");
+  assert.ok(s.sweep.length > 0);
   assert.ok(!/Special Illustration|A\$|US\$|\$\d/.test(text.replace(/US\$\d+/g, "")));
 });
 

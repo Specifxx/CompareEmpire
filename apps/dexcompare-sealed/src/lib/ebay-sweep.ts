@@ -21,8 +21,8 @@ import { MAX_SEARCH_DEPTH, type SearchSpec } from "./ebay-api";
 import { feedReference, type FeedItem, type MarketplaceId } from "./ebay-context";
 import { baseItem, EBAY_NOISE, groupParts, lowestPriceFirst, sealedIdentity, typeFloor } from "./ebay-normalise";
 import type { PlanRow } from "./ebay-store";
-import { identify, isIdentity, TYPE_BY_KEY, TYPE_BY_LABEL, type TypeKey } from "./sealed-title";
-import { MARKETPLACE_OF_REGION } from "./ebay-context";
+import { identify, isIdentity, normalizeTitle, TYPE_BY_KEY, TYPE_BY_LABEL, type TypeKey } from "./sealed-title";
+import { MARKET_WEIGHT, MARKETPLACE_OF_REGION } from "./ebay-context";
 import type { Region } from "./regions";
 import { SETS } from "./sets";
 
@@ -92,7 +92,12 @@ export interface SweepIndex {
   byType: Map<TypeKey, SweepProduct[]>;
   /** per type: every word that identifies SOME product of that type, in any marketplace */
   vocab: Map<TypeKey, Set<string>>;
+  /** type|signature → the set codes ("-" for none) products with that signature are sold under, catalogue-wide */
+  sigSets: Map<string, Set<string>>;
 }
+
+/** Format words an older stored key may carry that today's classifier reads as the type itself. */
+const DROPPABLE = new Set(["triple", "3pk", "3pack", "set", "base"]);
 
 const typeOfLabel = (label: string): TypeKey | undefined => TYPE_BY_LABEL.get(label)?.key;
 const marketplaceOfMarket = (market: string): MarketplaceId | undefined => MARKETPLACE_OF_REGION[market.toLowerCase() as Region];
@@ -103,12 +108,18 @@ function signatures(groupKey: string, name: string, type: TypeKey): { set: strin
   const sigs: string[][] = [own.tokens];
   let set = own.set;
   // The stored key was made by the classifier of its day; the name re-read today gives the words a listing will be read into.
+  // It may only DROP a format word ("Triple Blister" read as a plain blister): a re-read that loses a year ("Mewtwo EX Tin 2012")
+  // or any other word would match a different product, so it is not used.
   const again = identify(name, { strict: false });
   if (isIdentity(again) && again.type === type) {
     const p = groupParts(again.groupKey);
     if (p && (p.set === set || p.set === "-" || set === "-")) {
-      if (set === "-") set = p.set;
-      if (p.tokens.join("-") !== own.tokens.join("-")) sigs.push(p.tokens);
+      const dropped = own.tokens.filter((w) => !p.tokens.includes(w));
+      const added = p.tokens.filter((w) => !own.tokens.includes(w));
+      if (dropped.every((w) => DROPPABLE.has(w)) && added.length === 0) {
+        if (set === "-") set = p.set;
+        if (dropped.length) sigs.push(p.tokens);
+      }
     }
   }
   return { set, sigs: sigs.filter((s) => s.length > 0) };
@@ -132,8 +143,35 @@ export function sweepVocabulary(rows: readonly PlanRow[]): Map<TypeKey, Set<stri
   return vocab;
 }
 
+const sigKey = (type: TypeKey, sig: readonly string[]) => `${type}|${[...sig].sort().join("-")}`;
+
+/**
+ * Every set code (or "-") each product signature is sold under, across the WHOLE catalogue: a listing that does not name a set may
+ * take a product that does only when no other set (or no unnamed product) shares the signature ("Ultra Ball Tin" exists for
+ * Pokémon GO and for several years: an unnamed listing is none of them in particular).
+ */
+export function sweepSignatureSets(rows: readonly PlanRow[]): Map<string, Set<string>> {
+  const out = new Map<string, Set<string>>();
+  const seen = new Set<string>();
+  for (const r of rows) {
+    if (seen.has(r.productId)) continue;
+    seen.add(r.productId);
+    const type = typeOfLabel(r.typeLabel);
+    if (!type || TYPE_BY_KEY.get(type)!.kind === "set") continue;
+    const s = signatures(r.groupKey, r.name, type);
+    if (!s) continue;
+    for (const sig of s.sigs) {
+      const k = sigKey(type, sig);
+      const v = out.get(k) ?? new Set<string>();
+      v.add(s.set);
+      out.set(k, v);
+    }
+  }
+  return out;
+}
+
 /** The products listed in a marketplace's regions (a ProductStat row in AU or NZ makes an EBAY_AU product). */
-export function buildSweepIndex(rows: readonly PlanRow[], marketplace: MarketplaceId, vocab: Map<TypeKey, Set<string>>): SweepIndex {
+export function buildSweepIndex(rows: readonly PlanRow[], marketplace: MarketplaceId, vocab: Map<TypeKey, Set<string>>, sigSets: Map<string, Set<string>> = sweepSignatureSets(rows)): SweepIndex {
   const byKey = new Map<string, SweepProduct>();
   const byType = new Map<TypeKey, SweepProduct[]>();
   const products: SweepProduct[] = [];
@@ -159,20 +197,22 @@ export function buildSweepIndex(rows: readonly PlanRow[], marketplace: Marketpla
     list.push(p);
     byType.set(type, list);
   }
-  return { marketplace, products, byKey, byType, vocab };
+  return { marketplace, products, byKey, byType, vocab, sigSets };
 }
 
 // ─── Matching ──────────────────────────────────────────────────────────────────
 
 /**
- * Listings the sweep never hands to a product, on top of what identify() and SEALED_NOISE refuse: Japanese product naming
- * ("Pokemon Card Game MEGA Expansion Pack … Box"), several units ("Mini Tins (10-Pack)", "Full Set", "All 3"), a variant left
- * to chance ("One Variation Chosen At Random", "Assorted") and damage notes.
+ * Listings the sweep never hands to a product, on top of what identify() and SEALED_NOISE refuse (tested on the accent-folded
+ * title): Japanese product naming ("Pokemon Card Game MEGA Expansion Pack … Box", "Premium Trainer Box"), several units
+ * ("Mini Tins (10-Pack)", "Full Set", "All 3", "Lot"), part of a product ("Missing Promo", "Coin Only", "No Packs"), a variant
+ * left to chance ("One Variation Chosen At Random", "Assorted") and damage notes.
  */
 const SWEEP_REJECT = new RegExp(
   [
-    "\\bexpansion\\s+pack\\b|\\bhigh\\s+class\\s+pack\\b|\\bconstructed\\s+(?:deck|starter)\\b|\\bpokemon\\s+card\\s+game\\s+(?:mega|scarlet|sword|sun|xy)\\b",
-    "\\btins\\b[^()]{0,40}\\(\\s*\\d+\\s*-?\\s*(?:pack|pk)s?\\s*\\)|\\(\\s*(?:[4-9]|\\d{2,})\\s*-?\\s*(?:pcs|count|ct)\\s*\\)|\\b(?:full|complete|whole)\\s+set\\b|\\ball\\s+(?:[2-9]|three|four|five|six|eight|nine|ten)\\b|\\b(?:set|bundle|lot)\\s+of\\b",
+    "\\bexpansion\\s+pack\\b|\\bhigh\\s+class\\s+pack\\b|\\bconstructed\\s+(?:deck|starter)\\b|\\bpokemon\\s+card(?:\\s+game)?\\s*[:\\-]?\\s*(?:mega|scarlet|sword|sun|xy|151)\\b|\\bpremium\\s+trainer\\s+box\\b",
+    "\\btins\\b[^()]{0,40}\\(\\s*\\d+\\s*-?\\s*(?:pack|pk)s?\\s*\\)|\\b(?:full|complete|whole)\\s+set\\b|\\ball\\s+(?:[2-9]|three|four|five|six|eight|nine|ten)\\b|\\b(?:set|bundle|lot)\\s+of\\b|\\blots?\\b",
+    "\\b(?:missing|without|w/o|removed|incomplete|partial|contents)\\b|\\b(?:coins?|promos?|cards?|pins?|tin|box|packs?|figure|jumbo|oversized?)\\s+only\\b|\\bno\\s+(?:packs?|boosters?|promos?|cards?|coins?)\\b",
     "\\brandom\\b|\\bassorted\\b|\\bvariation\\b|\\bchosen\\b|\\bvarious\\b|\\bstyles?\\s+may\\s+vary\\b|\\bmystery\\b",
     "\\bdamage[ds]?\\b|\\bcrushed\\b|\\btorn\\b|\\bresealed\\b|\\bunsealed\\b|\\bempty\\b",
   ].join("|"),
@@ -185,30 +225,44 @@ const SWEEP_REJECT = new RegExp(
 const FILLER = new Set(
   (
     "coin coins holo holos cosmos foil foils promo promos card cards express post posted postage delivery hand ships ship shipping " +
-    "quick fast same day can available fresh tracked mint condition perfect great excellent boxed packaging spc upc etb pc pcetb " +
-    "center centre pokemoncenter brand authentic genuine official uk usa us au aus canada eu eur gb english eng tcg ccg sealed new"
+    "fast available fresh tracked mint condition perfect great excellent boxed packaging " +
+    "brand authentic genuine official uk usa us au aus canada eu eur gb english eng tcg ccg sealed new"
   ).split(" "),
 );
 const NEVER_FILLER = new Set(["ex", "v", "gx", "mega", "mini", "super", "vmax", "vstar", "pikachu", "arceus", "mew", "mewtwo", "charizard", "eevee", "go"]);
-const SET_WORDS = new Set(
-  SETS.flatMap((x) =>
-    x.name
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .toLowerCase()
-      .split(/[^a-z0-9]+/),
-  ).filter((w) => w.length >= 3 && !NEVER_FILLER.has(w)),
-);
-/** May a listing carry this word beyond its product's words? */
-export const isFiller = (w: string) => !NEVER_FILLER.has(w) && (EBAY_NOISE.has(w) || FILLER.has(w) || SET_WORDS.has(w));
+const fold = (t: string) => normalizeTitle(t).toLowerCase();
+const escapeRe = (t: string) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+// Every specific set's name, longest first ("Prismatic Evolutions" before "Evolutions").
+const SET_NAMES = SETS.filter((x) => !x.generic)
+  .map((x) => fold(x.name))
+  .sort((a, b) => b.length - a.length);
+const SET_NAME_RE = new RegExp(`\\b(?:${SET_NAMES.map(escapeRe).join("|")})\\b`, "g");
+
+/** The words of every set a title names in full ("Black Bolt White Flare" → black, bolt, white, flare): filler for THAT listing only. */
+export function setWordsIn(title: string): Set<string> {
+  const out = new Set<string>();
+  for (const m of fold(title).matchAll(SET_NAME_RE)) for (const w of m[0].split(/[^a-z0-9]+/)) if (w && !NEVER_FILLER.has(w)) out.add(w);
+  return out;
+}
+
+/** May a listing carry this word beyond its product's words? (`setWords`: the words of the sets this listing names.) */
+export const isFiller = (w: string, setWords: ReadonlySet<string> = new Set()) => !NEVER_FILLER.has(w) && (EBAY_NOISE.has(w) || FILLER.has(w) || setWords.has(w));
+
+// A booster pack product is ONE pack: "5 Booster Packs", "Booster Pack x10", "(10 Packs)", "Packs" are lots of it.
+const SEVERAL_PACKS = /\b(?:[2-9]|[1-9]\d)\s*(?:x\s*)?(?:sleeved\s+)?(?:booster\s+)?packs?\b|\(\s*\d+\s*packs?\s*\)|\bpacks\b|\bx\s*\d+\b|\b\d+\s*x\b/i;
+// A box or ETB "Case Fresh" is one box from a case, not the case.
+const CASE_FRESH = /\bcase[\s-]*fresh\b|\bfresh\s+(?:from|out\s+of)\s+(?:a\s+)?case\b|\bfrom\s+(?:an?\s+)?(?:sealed\s+)?case\b/i;
+const CASE_TYPES = new Set<TypeKey>(["booster-box-case", "etb-case", "booster-bundle-case"]);
 
 export type MatchMiss = "rejected" | "no-product" | "ambiguous";
 
 /** The product a listing title IS, in this marketplace's index, or why not. */
 export function matchListing(title: string, index: SweepIndex): { product: SweepProduct } | { miss: MatchMiss } {
-  if (SWEEP_REJECT.test(title)) return { miss: "rejected" };
+  if (SWEEP_REJECT.test(fold(title))) return { miss: "rejected" };
   const id = sealedIdentity(title, false);
   if (!id) return { miss: "rejected" };
+  if ((id.type === "booster-pack" || id.type === "sleeved-booster") && SEVERAL_PACKS.test(fold(title))) return { miss: "rejected" };
+  if (CASE_TYPES.has(id.type) && CASE_FRESH.test(fold(title))) return { miss: "rejected" };
   const exact = index.byKey.get(id.groupKey);
   if (exact) return { product: exact };
   const kind = TYPE_BY_KEY.get(id.type)?.kind;
@@ -217,17 +271,21 @@ export function matchListing(title: string, index: SweepIndex): { product: Sweep
   if (!parts) return { miss: "no-product" };
   const have = new Set(parts.tokens);
   const vocab = index.vocab.get(id.type) ?? new Set<string>();
+  const setWords = setWordsIn(title);
   let best: SweepProduct | null = null;
   let bestScore = -1;
   let tie = false;
   for (const p of index.byType.get(id.type) ?? []) {
-    if (p.set !== "-" && parts.set !== "-" && p.set !== parts.set) continue;
+    // A listing that names a set is only that set's product. One that names none may take a product that has a set only when no other
+    // set (and no unnamed product) shares the product's words.
+    if (parts.set !== "-" && p.set !== parts.set) continue;
     let score = -1;
     for (const sig of p.sigs) {
       if (!sig.every((w) => have.has(w))) continue;
+      if (parts.set === "-" && p.set !== "-" && (index.sigSets.get(sigKey(id.type, sig))?.size ?? 1) > 1) continue;
       const own = new Set(sig);
       // Every other word of the listing must name nothing: a word that identifies another product of this type makes it that product.
-      if ([...have].some((w) => !own.has(w) && vocab.has(w) && !isFiller(w))) continue;
+      if ([...have].some((w) => !own.has(w) && vocab.has(w) && !isFiller(w, setWords))) continue;
       score = Math.max(score, sig.length);
     }
     if (score < 0) continue;
@@ -243,7 +301,7 @@ export function matchListing(title: string, index: SweepIndex): { product: Sweep
 }
 
 /** eBay conditions that are not a sealed product in its wrapper. */
-const NOT_NEW = /\b(?:used|pre-?owned|open(?:ed)?\s*box|gebraucht|occasion|usato|usado|gebruikt|for\s*parts)\b/i;
+const NOT_NEW = /\b(?:used|pre-?owned|open(?:ed)?\s*box|new\s*other|like\s*new|very\s*good|good|acceptable|refurb\w*|neuwertig|sonstige|gebraucht|occasion|usato|usado|gebruikt|for\s*parts)\b/i;
 
 // ─── The collector ─────────────────────────────────────────────────────────────
 
@@ -351,6 +409,7 @@ export async function sweepMarketplace(
   const dry = queries.map(() => 0);
   // Round-robin by "fewest pages so far": the next free query with the fewest pages goes next.
   const busy = new Set<number>();
+  let fatal = false; // set by the first fatal error: the other workers take no further page
   const pickNext = (): number | null => {
     let best: number | null = null;
     for (let i = 0; i < queries.length; i++) {
@@ -361,7 +420,7 @@ export async function sweepMarketplace(
   };
   async function worker(): Promise<void> {
     for (;;) {
-      if (opts.shouldStop?.()) return;
+      if (fatal || opts.shouldStop?.()) return;
       const i = pickNext();
       if (i == null) return;
       const p = progress[i];
@@ -382,7 +441,10 @@ export async function sweepMarketplace(
       } catch (e) {
         busy.delete(i);
         p.stopped = "error"; // this query ends; a fatal error (the run is over) ends them all
-        if (!opts.isFatal || opts.isFatal(e)) throw e;
+        if (!opts.isFatal || opts.isFatal(e)) {
+          fatal = true;
+          throw e;
+        }
         continue;
       }
       busy.delete(i);
@@ -404,15 +466,19 @@ export async function sweepMarketplace(
   return progress;
 }
 
-/** How a sweep budget is shared between marketplaces: by how many products each lists, with a floor so a small one still gets a few pages. */
+/**
+ * How a sweep budget is shared between marketplaces: by how many products each lists × its audience weight (MARKET_WEIGHT: the US
+ * first), with a floor so a small one still gets a few pages.
+ */
 export function marketplaceShares(indexes: readonly SweepIndex[], budget: number, minShare = 0.08): Map<MarketplaceId, number> {
-  const total = indexes.reduce((a, x) => a + x.products.length, 0);
+  const w = (x: SweepIndex) => x.products.length * MARKET_WEIGHT[x.marketplace];
+  const total = indexes.reduce((a, x) => a + w(x), 0);
   const out = new Map<MarketplaceId, number>();
   if (!total || budget <= 0) {
     for (const x of indexes) out.set(x.marketplace, 0);
     return out;
   }
-  const raw = indexes.map((x) => Math.max(minShare, x.products.length / total));
+  const raw = indexes.map((x) => Math.max(minShare, w(x) / total));
   const sum = raw.reduce((a, b) => a + b, 0);
   indexes.forEach((x, i) => out.set(x.marketplace, Math.floor((budget * raw[i]) / sum)));
   return out;

@@ -29,7 +29,7 @@ import {
   MARKETPLACE_OF_REGION,
   MARKETPLACES,
   MAX_FEED_ROWS,
-  MIN_FEED_ROWS,
+  minRowsFor,
   parseMaxAgeHours,
   purgeCutoff as purgeCutoffFor,
   type FeedItem,
@@ -51,7 +51,7 @@ import {
   type ItemTarget,
 } from "./ebay-normalise";
 import { budgetDay, type ImportDb, type PlanRow } from "./ebay-store";
-import { buildSweepIndex, marketplaceShares, SweepCollector, sweepMarketplace, sweepVocabulary, type QueryProgress, type SweepIndex } from "./ebay-sweep";
+import { buildSweepIndex, marketplaceShares, SweepCollector, sweepMarketplace, sweepSignatureSets, sweepVocabulary, type QueryProgress, type SweepIndex } from "./ebay-sweep";
 import type { Region } from "./regions";
 import { roughUsdCents, TYPE_BY_KEY, TYPE_BY_LABEL, TYPE_BY_SLUG, type TypeKey } from "./sealed-title";
 import { SETS, type PokemonSet } from "./sets";
@@ -468,7 +468,7 @@ export interface SweepReport {
   matched: number;
   /** products with at least one listing */
   found: number;
-  /** item feeds written (products with at least MIN_FEED_ROWS listings) */
+  /** item feeds written (products with at least minRowsFor("item") listings) */
   written: number;
   queries: QueryProgress[];
 }
@@ -754,7 +754,8 @@ export async function runImport(deps: ImportDeps, opts: RunOptions = {}): Promis
   const swept = new Set<string>();
   if (!stop && plan.sweepBudget > 0) {
     const vocab = sweepVocabulary(rows);
-    const all = MARKETPLACE_ORDER.map((mp) => buildSweepIndex(rows, mp, vocab)).filter((ix) => ix.products.length > 0);
+    const sigSets = sweepSignatureSets(rows);
+    const all = MARKETPLACE_ORDER.map((mp) => buildSweepIndex(rows, mp, vocab, sigSets)).filter((ix) => ix.products.length > 0);
     // A marketplace swept in the last fresh window (a re-run, an overlapping run) is not swept again unless forced.
     const freshItems = (mp: MarketplaceId) => (fresh ? [...fresh].filter((k) => k.startsWith(`${mp}|item:`)).length : 0);
     const todo: SweepIndex[] = [];
@@ -762,20 +763,29 @@ export async function runImport(deps: ImportDeps, opts: RunOptions = {}): Promis
       if (freshItems(ix.marketplace) >= Math.max(50, Math.floor(ix.products.length * 0.25))) buckets.sweep.fresh++;
       else todo.push(ix);
     }
-    buckets.sweep.planned = todo.length;
     let left = Math.min(plan.sweepBudget, plan.cap - spent);
     for (let i = 0; i < todo.length && !stop && left > 0; i++) {
       const ix = todo[i];
+      buckets.sweep.planned++;
       const budget = marketplaceShares(todo.slice(i), left).get(ix.marketplace) ?? 0;
       const collector = new SweepCollector(ix, now());
       const before = buckets.sweep.calls;
       let queries: QueryProgress[] = [];
       try {
-        queries = await sweepMarketplace(collector, budget, (spec) => searchRaw(spec, "sweep"), {
-          concurrency: Math.max(1, opts.concurrency ?? CONCURRENCY),
-          shouldStop: () => !!stop,
-          isFatal: (e) => e instanceof StopRun,
-        });
+        queries = await sweepMarketplace(
+          collector,
+          budget,
+          async (spec) => {
+            if (stop) throw stop; // another worker ended the run: no further page
+            try {
+              return await searchRaw(spec, "sweep");
+            } catch (e) {
+              if (e instanceof StopRun) stop ??= e; // at once, so the sibling workers stop before their next page
+              throw e;
+            }
+          },
+          { concurrency: Math.max(1, opts.concurrency ?? CONCURRENCY), shouldStop: () => !!stop, isFatal: (e) => e instanceof StopRun },
+        );
       } catch (e) {
         if (e instanceof StopRun) stop ??= e;
         else log(`sweep ${ix.marketplace}: unexpected error (${e instanceof Error ? e.name : "error"})`);
@@ -783,7 +793,7 @@ export async function runImport(deps: ImportDeps, opts: RunOptions = {}): Promis
       left -= buckets.sweep.calls - before;
       // What the pages found is written even when the run stopped part-way: every row is a real, current listing.
       const at = now();
-      const ready = [...collector.feeds()].filter(([, items]) => items.length >= MIN_FEED_ROWS).map(([productId, items]) => ({ feed: feedKey(ix.marketplace, "item", productId), items }));
+      const ready = [...collector.feeds()].filter(([, items]) => items.length >= minRowsFor("item")).map(([productId, items]) => ({ feed: feedKey(ix.marketplace, "item", productId), items }));
       let written = 0;
       for (let j = 0; j < ready.length; j += SWEEP_WRITE_BATCH) {
         const batch = ready.slice(j, j + SWEEP_WRITE_BATCH);
@@ -792,14 +802,24 @@ export async function runImport(deps: ImportDeps, opts: RunOptions = {}): Promis
           written += batch.length;
           buckets.sweep.stored += batch.reduce((a, f) => a + f.items.length, 0);
           for (const f of batch) swept.add(f.feed);
-        } catch (e) {
-          buckets.sweep.failed += batch.length;
-          log(`sweep ${ix.marketplace}: a write failed (${e instanceof Error ? e.name : "error"}); those products keep their old rows`);
+        } catch {
+          // One bad row must not cost the other 99 products their refresh: write that batch one feed at a time.
+          for (const f of batch) {
+            try {
+              await db.replaceFeed(f.feed, f.items, new Date(at));
+              written++;
+              buckets.sweep.stored += f.items.length;
+              swept.add(f.feed);
+            } catch (e) {
+              buckets.sweep.failed++;
+              log(`sweep ${ix.marketplace}: a feed write failed (${e instanceof Error ? e.name : "error"}); that product keeps its old rows`);
+            }
+          }
         }
       }
       buckets.sweep.refreshed += written;
       const found = collector.feeds().size;
-      buckets.sweep.emptied += found - ready.length; // a product with one listing: not enough for a strip
+      buckets.sweep.emptied += found - ready.length; // (none while one listing is enough for a product's strip)
       const st = collector.stats;
       summary.sweep.push({ marketplace: ix.marketplace, products: ix.products.length, pages: st.pages, listings: st.listings, valid: st.valid, matched: st.matched, found, written, queries });
       log(`sweep ${ix.marketplace}: ${num(st.pages)} pages, ${num(st.matched)} listings matched to ${num(found)} of ${num(ix.products.length)} products; ${num(written)} item feeds written.`);
@@ -807,11 +827,13 @@ export async function runImport(deps: ImportDeps, opts: RunOptions = {}): Promis
   }
 
   // 3. Per-product searches for the eligible keys the sweep did not cover, most valuable first, with what is left of the cap.
-  if (!stop && (!opts.only || opts.only.includes("items"))) {
+  const wantItems = !opts.only || opts.only.includes("items");
+  const notFresh = wantItems ? plan.keys.map(itemFeed).filter((f) => !fresh?.has(f.feed)) : [];
+  const open = notFresh.filter((f) => !swept.has(f.feed));
+  buckets.items.covered = notFresh.length - open.length;
+  if (stop && wantItems) summary.feedsPlanned += plan.byBucket.items.feeds; // the run stopped first: that work is unfinished, not absent
+  if (!stop && wantItems) {
     const room = Math.max(0, plan.cap - spent);
-    const notFresh = plan.keys.map(itemFeed).filter((f) => !fresh?.has(f.feed));
-    const open = notFresh.filter((f) => !swept.has(f.feed));
-    buckets.items.covered = notFresh.length - open.length;
     const take = Math.max(0, room - retryAllowance(Math.min(room, open.length)));
     const list = open.slice(0, take);
     buckets.items.planned = list.length;
@@ -824,7 +846,7 @@ export async function runImport(deps: ImportDeps, opts: RunOptions = {}): Promis
   for (const b of BUCKETS) {
     const r = buckets[b];
     if (b === "sweep") {
-      r.skipped = plan.byBucket.sweep.wanted - r.planned - r.fresh;
+      r.skipped = Math.max(0, plan.byBucket.sweep.wanted - r.planned - r.fresh); // marketplaces not reached (or with no products)
       continue;
     }
     if (b === "items") {

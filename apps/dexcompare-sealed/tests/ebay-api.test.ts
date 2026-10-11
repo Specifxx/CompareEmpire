@@ -231,7 +231,7 @@ test("the importer's secrets reach only the import step of the workflow", () => 
     if (isCheck) for (const m of s.matchAll(/\$\{\{([^}]*)\}\}/g)) if (/EBAY_CLIENT/.test(m[1])) assert.ok(/!= ''/.test(m[1]) && !/\bENV\b/.test(m[1]), `the check step must only test presence: ${m[1]}`);
   }
   assert.ok(/concurrency:\s*\n\s*group: dexcompare-ebay-import\s*\n\s*cancel-in-progress: false/.test(wf));
-  assert.ok(/timeout-minutes: 45/.test(wf));
+  assert.ok(/timeout-minutes: 90/.test(wf), "a bounded job (90 minutes: the sweep pages up to 1,800 calls on top of the fixed feeds)");
   assert.ok(/\npermissions:\s*\n\s*contents: read/.test(wf), "least-privilege token");
   // the daily slot is the FIRST one after eBay's counter resets in BOTH seasons (midnight Pacific = 07:00 UTC in summer, 08:00 in winter):
   // 08:37 UTC is 01:37 PDT / 00:37 PST, so the scheduled run is always the first of its budget day and a manual "run now" earlier in the
