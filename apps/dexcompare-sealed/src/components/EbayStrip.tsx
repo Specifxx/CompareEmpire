@@ -696,14 +696,16 @@ export function useEbayPick({ region, slug, floor, packs, placement }: { region:
   const a = state.status === "ready" && state.a.feed === "item" ? state.a : null;
   const item = a ? pickListing(a.items, floor, packs) : null;
   const cents = item && item.price.currency === REGIONS[region]?.currency ? listingCents(item.price.value) : null;
-  return { ref, item, cents, age: a ? formatAge(now - a.fetchedAtMs) : "" };
+  // Only a NEW listing, priced in the stores' currency, can be the best price (a used or graded box is not the product the stores sell).
+  const bestable = item != null && cents != null && !conditionLabel(item.condition);
+  return { ref, item, cents, bestable, age: a ? formatAge(now - a.fetchedAtMs) : "" };
 }
 
 /**
  * The store rows of a product's price table with ONE eBay row among them (the owner's call, 2026-10-11: eBay is one of the websites
  * compared). The row is the product's useEbayPick listing, ranked by its price among the stores you can buy from now (ebayRowIndex),
- * tinted (the sponsored tint and an eBay-blue edge), labelled "Ad", with eBay's blue "View on eBay" button. When it is cheaper than every
- * store you can buy from it IS the best price: it carries the "Best price" badge, and the cheapest store's reads "Best store price". It
+ * tinted (the sponsored tint and an eBay-blue edge), labelled "Ad", with eBay's blue "View on eBay" button. When it is a new listing
+ * cheaper than every store you can buy from (and the product is not a pre-order) it IS the best price: it carries the "Best price" badge, and the cheapest store's reads "Best store price". It
  * is never counted ("Prices at N stores", the median).
  *
  * The server HTML (and a visitor without script) has the row as an eBay SEARCH for the product, straight after the in-stock stores: the
@@ -711,14 +713,15 @@ export function useEbayPick({ region, slug, floor, packs, placement }: { region:
  * the viewport) so it is usually in place before the visitor reaches the table; it then moves to its rank. The row is in the table in
  * every state, so the page under the table never moves; only the store rows between its two places do, by one row.
  */
-export function OfferRowsWithEbay({ rows, region, slug, query, floor, packs = null }: { rows: OfferRowSlot[]; region: Region; slug: string; query: string; floor: PriceFloor | null; packs?: number | null }) {
+export function OfferRowsWithEbay({ rows, region, slug, query, floor, packs = null, allowBest = true }: { rows: OfferRowSlot[]; region: Region; slug: string; query: string; floor: PriceFloor | null; packs?: number | null; allowBest?: boolean }) {
   const placement: Placement = "listings-offer-row";
-  const { ref, item, cents, age } = useEbayPick({ region, slug, floor, packs, placement });
+  const { ref, item, cents, bestable, age } = useEbayPick({ region, slug, floor, packs, placement });
   const [thumbOk, setThumbOk] = useState<Record<string, false>>({});
   const at = ebayRowIndex(rows, cents);
-  // the cheapest store you can buy from: when the eBay listing beats it, the listing is the best price and the store's badge says "store"
+  // the cheapest store you can buy from: when the eBay listing beats it (a new listing; never on a pre-order product, `allowBest`), the
+  // listing is the best price and the store's badge says "store". The best-price card applies the same rule (BestPriceCard.tsx).
   const best = rows.find((r) => r.open);
-  const cheaper = cents != null && best != null && cents < best.cents;
+  const cheaper = allowBest && bestable && cents != null && best != null && cents < best.cents;
   const row = (
     <EbayOfferRow
       key="ebay"

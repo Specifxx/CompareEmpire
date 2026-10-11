@@ -147,6 +147,9 @@ export default async function ProductPage({ params }: { params: { region: string
   const cheapestCents = best?.priceCents ?? p.offers.reduce<number | null>((m, o) => (m == null || o.priceCents < m ? o.priceCents : m), null);
   // NZ and SG are served the AU and US sites, in A$ and US$: their eBay listings are never compared with the stores' prices.
   const ebayComparable = marketplaceOf(r.region).currency === r.currency;
+  // The eBay listing may be the best price (BestPriceCard, the table's badge) where it is comparable and the product is not a pre-order:
+  // an eBay listing of an unreleased product is a seller's pre-sale.
+  const ebayBest = ebayComparable && !pre;
   const ebayFloor = cheapestCents != null && ebayComparable ? { value: (cheapestCents * 0.4) / 100, currency: r.currency } : null;
   // A product of one of the owner's hot sets (lib/popular.ts: 30th Celebration first), once the set is out: the marketplace panel makes
   // eBay its primary button with a "Popular set" chip, and the strip carries the highlighted "Shop <product> on eBay" button. Where
@@ -265,14 +268,14 @@ export default async function ProductPage({ params }: { params: { region: string
                 tcgOpen={tcgOpen}
                 openCount={open.length}
                 highestOpenCents={open[open.length - 1].priceCents}
-                ebay={ebayComparable ? { slug: p.slug, floor: ebayFloor, packs: rowPacks(type?.key, packs) } : null}
+                ebay={ebayBest ? { slug: p.slug, floor: ebayFloor, packs: rowPacks(type?.key, packs) } : null}
               />
               <MarketplacePanel
                 region={r.region}
                 productName={p.name}
                 preorder={pre}
                 tcgplayer={tcgplayer}
-                tcgplayerIsBest={best.marketplace}
+                tcgplayerIsBest={best.marketplace && !ebayBest /* when the card may turn to eBay, TCGplayer keeps its row here */}
                 ebayPrimary={openStores <= 1 || hot}
                 popular={hot}
               />
@@ -298,6 +301,7 @@ export default async function ProductPage({ params }: { params: { region: string
             {p.offers.some((o) => o.marketplace)
               ? "Prices exclude shipping. TCGplayer’s is one seller’s listing when we last checked; check it, or the store, before you buy."
               : "Store prices exclude shipping; check the store before you buy."}
+            {ebayBest && " An eBay listing shown as the best price is one seller’s, imported from eBay on a schedule; its shipping is beside its price, and eBay’s page is final."}
             {packs != null && " Per-pack prices are the listed price divided by the packs the product holds."}
             {msrp != null && ` ${RRP_NOTE}`}
           </p>

@@ -138,7 +138,7 @@ test("the server table: store rows as before, the eBay row as a search after the
   assert.match(ebay, /aria-label="eBay"/);
   assert.match(html, /Search Surging Sparks Elite Trainer Box on ebay\.com/);
   // the best store keeps its badge; it reads "Best store price" only when the eBay row is cheaper (a data attribute on the list), and the
-  // eBay row then carries "Best price" (client state: see the Playwright check in the commit)
+  // eBay row then carries "Best price" (client state, checked in a browser: the OfferRowsWithEbay `cheaper` rule is pinned below)
   assert.match(html, /Best <span class="hidden group-data-\[ebay=cheaper\]\/offers:inline">store <\/span>price/);
   assert.match(html, /class="group\/offers divide-y divide-line"/);
   assert.doesNotMatch(html, /data-ebay="cheaper"/, "no listing, nothing to be cheaper");
@@ -192,20 +192,29 @@ const cardProps = (ebay: BestPriceCardProps["ebay"]): BestPriceCardProps => ({
   ebay,
 });
 
-test("the best-price card's server HTML is the store's: eBay's headline only an invisible, link-free placeholder holding its space", () => {
+test("the best-price card's server HTML is the store's: eBay's top only an invisible, link-free placeholder holding its space", () => {
   const html = render(React.createElement(BestPriceCard, cardProps({ slug: "30th-celebration-elite-trainer-box", floor: null, packs: 9 })));
-  assert.match(html, /Best price in stock/);
-  assert.match(html, /\$129\.90/);
-  assert.match(html, /≈ \$14\.43 per pack/);
-  assert.match(html, /href="https:\/\/tcgora\.example\/p"/, "the store's button");
-  assert.doesNotMatch(html, /ebay\.com\/itm/, "no eBay link before the listing arrives");
-  const ebayPart = html.slice(html.indexOf('class="col-start-1 row-start-1 invisible"'));
-  assert.ok(html.includes('class="col-start-1 row-start-1 invisible" aria-hidden="true"'), "eBay's headline is there, invisible and hidden from screen readers");
-  assert.match(ebayPart, /aria-label="eBay"/);
-  assert.match(ebayPart, /class="ad-pill">Ad</);
-  assert.match(html, /you save \$80\.09 by buying at the cheapest/);
-  assert.match(html, /13% below the median of 8 stores/);
-  // NZ/SG (no `ebay`): the store's card alone
+  // the two stacked cells, in order: the store's (shown), then eBay's (invisible)
+  const cells = html.split('class="col-start-1 row-start-1').slice(1);
+  assert.equal(cells.length, 2);
+  const [storeCell, ebayCell] = cells;
+  assert.match(storeCell, /^ ?"/, "the store's cell carries no `invisible`");
+  assert.doesNotMatch(storeCell.slice(0, storeCell.indexOf(">")), /aria-hidden/);
+  assert.match(storeCell, /Best price in stock/);
+  assert.match(storeCell, /\$129\.90/);
+  assert.match(storeCell, /≈ \$14\.43 per pack/);
+  assert.match(storeCell, /href="https:\/\/tcgora\.example\/p"/, "the store's button, in the shown cell");
+  assert.match(storeCell, /13% below the median of 8 stores/);
+  assert.match(ebayCell, /^ invisible" aria-hidden="true"/, "eBay's cell is invisible and hidden from screen readers");
+  assert.match(ebayCell, /aria-label="eBay"/);
+  assert.match(ebayCell, /class="ad-pill">Ad</);
+  assert.doesNotMatch(ebayCell, /href=/, "no link at all before the listing arrives");
+  assert.match(ebayCell, /flex-nowrap/, "eBay's badge line is one line, whatever the listing");
+  // below the rule: the stores' facts, server-rendered, the same whichever top is shown
+  const below = html.slice(html.indexOf("border-t border-line"));
+  assert.match(below, /you save \$80\.09 by buying at the cheapest/);
+  assert.match(below, /best store price 160% above MSRP/);
+  // NZ/SG or a pre-order (no `ebay`): the store's card alone
   const plain = render(React.createElement(BestPriceCard, cardProps(null)));
   assert.doesNotMatch(plain, /aria-label="eBay"|invisible/);
   assert.match(plain, /\$129\.90/);
@@ -213,10 +222,19 @@ test("the best-price card's server HTML is the store's: eBay's headline only an 
 
 test("the product page gives the best-price card the same eBay pick as the table (same floor and pack count), and none where prices are not comparable", () => {
   const product = readFileSync(new URL("../src/app/[region]/p/[slug]/page.tsx", import.meta.url), "utf8");
-  assert.match(product, /<BestPriceCard[\s\S]*ebay=\{ebayComparable \? \{ slug: p\.slug, floor: ebayFloor, packs: rowPacks\(type\?\.key, packs\) \} : null\}/);
+  assert.match(product, /<BestPriceCard[\s\S]*ebay=\{ebayBest \? \{ slug: p\.slug, floor: ebayFloor, packs: rowPacks\(type\?\.key, packs\) \} : null\}/);
   assert.match(product, /const ebayComparable = marketplaceOf\(r\.region\)\.currency === r\.currency;/);
+  assert.match(product, /const ebayBest = ebayComparable && !pre;/, "never on a pre-order");
+  assert.match(product, /tcgplayerIsBest=\{best\.marketplace && !ebayBest/, "TCGplayer keeps its panel row when the card may turn to eBay");
+  const strip = readFileSync(new URL("../src/components/EbayStrip.tsx", import.meta.url), "utf8");
+  assert.match(strip, /const bestable = item != null && cents != null && !conditionLabel\(item\.condition\);/, "only a new listing can be the best price");
+  assert.match(strip, /const cheaper = allowBest && bestable && cents != null && best != null && cents < best\.cents;/, "the table's badge: the same rule");
   assert.ok((PLACEMENTS as readonly string[]).includes("listings-best-price"));
   const card = readFileSync(new URL("../src/components/BestPriceCard.tsx", import.meta.url), "utf8");
   assert.match(card, /useEbayPick\(/, "the table's pick, not a second rule");
-  assert.match(card, /cents < store\.cents/, "only when strictly cheaper than the cheapest in-stock store");
+  assert.match(card, /const cheaper = bestable && item != null && cents != null && cents < store\.cents;/, "only a new listing strictly cheaper than the cheapest in-stock store");
+  // the note under the table: the best-price clause only where listings are compared
+  assert.match(ebayRowNote("us"), /when it is a new listing cheaper than every store, it is the best price/);
+  assert.doesNotMatch(ebayRowNote("nz"), /best price/);
+  assert.match(ebayRowNote("sg"), /never compared with the stores'/);
 });

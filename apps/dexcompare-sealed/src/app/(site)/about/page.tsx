@@ -135,12 +135,14 @@ export default function About() {
             the store listings in a unit of their own (a dashed, tinted box). In a product&rsquo;s price table, eBay is compared as one more
             website: its <b>lowest-priced listing of that product</b> is a tinted row with eBay&rsquo;s blue button, placed by its price among
             the stores that have it in stock (after them when we have no listing and the row is an eBay search, and always in New Zealand and
-            Singapore, whose listings come from another country&rsquo;s eBay in its currency). When that listing is cheaper than every
-            store, it is the product&rsquo;s best price, at the top of the page too, still marked &ldquo;Ad&rdquo; with how old it is. It is
-            never counted in the number of stores or the median. The strips show <b>real eBay listings</b> (Buy It Now): on a schedule (once a day, in the default setting) our server asks eBay&rsquo;s official listing service
+            Singapore, whose listings come from another country&rsquo;s eBay in its currency). When that listing is new and cheaper than every
+            store that has the product in stock (not for a pre-order), it is the product&rsquo;s best price, at the top of the page too, with
+            its per-pack price and how it compares with the median and MSRP, still marked &ldquo;Ad&rdquo; with how old it is, its shipping
+            and the cheapest store&rsquo;s price beside it. It is never counted in the number of stores or the median. The strips show <b>real eBay listings</b> (Buy It Now): on a schedule (once a day, in the default setting) our server asks eBay&rsquo;s official listing service
             (its Browse API) for them and stores the latest few for each strip, and each strip says how old its listings are. Each is shown
             as eBay lists it &mdash; its title, photo, price in the currency eBay shows, and the shipping cost eBay gives &mdash; never
-            converted, counted or averaged (only the price-table row is placed by its price), and every one links to the listing on eBay. Because they are
+            converted, counted or averaged (only the price-table row is placed by its price, and it can be the best price), and every one
+            links to the listing on eBay. Because they are
             imported on a schedule, not live, a price or its availability may have changed by the time you click: eBay&rsquo;s page is final. Where
             there is nothing to show, the unit is a single &ldquo;search eBay&rdquo; link. We keep a listing only while it is shown (a day or
             so) and then delete it. Those links open a <b>search</b> and show no eBay price, no count and no &ldquo;deal&rdquo;.
@@ -156,9 +158,9 @@ export default function About() {
           region&rsquo;s home page and on the landing page, a strip of sealed Pokémon listings further down the home page, a listing strip on
           set, type, release, store and browse pages, one listing tile in the browse grid, the product&rsquo;s own listings on its page, a
           slimmer strip above the footer, and the marketplace box on product pages. It is never in the About, Terms, Privacy or
-          Contact pages. Apart from that one tinted row of a product&rsquo;s price table, placed by its price, eBay is never part of a price
-          table or a ranking; and it is never a headline price, a store count, a per-pack figure or a median, and never changes the order of
-          the stores.
+          Contact pages. Apart from that one tinted row of a product&rsquo;s price table, placed by its price, and the best price at the top of
+          the page when that listing is the cheapest, eBay is never part of a price table, a ranking or a headline price; it is never a store
+          count or a median, and it never changes the order of the stores.
         </p>
         <p>
           Links to stores are plain links: stores pay us nothing. No one pays to be listed or to rank higher, and commissions never change the

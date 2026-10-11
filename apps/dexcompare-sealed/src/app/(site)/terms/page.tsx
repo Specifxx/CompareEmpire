@@ -53,7 +53,7 @@ export default function Terms() {
           Links to eBay and TCGplayer are affiliate links (eBay Partner Network; TCGplayer through Impact). If you buy through one we may earn a
           commission, at no cost to you. The eBay listing strips and links on the site are advertisements, and so is the
           eBay row of a product&rsquo;s price table: each is marked &ldquo;Ad&rdquo;. That row (the lowest-priced eBay listing we have for
-          the product) is placed by its price among the stores, and is the product&rsquo;s best price when it is cheaper than every store; it
+          the product) is placed by its price among the stores, and is the product&rsquo;s best price when it is a new listing cheaper than every store; it
           is never counted, and nothing else from eBay is part of a
           comparison, ranking or count.{" "}
           The strips show listings that eBay returns to us through its official listing service, imported on a schedule (about once a day in the default setting) and stored briefly (each strip says how old its

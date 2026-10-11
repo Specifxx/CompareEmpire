@@ -92,7 +92,7 @@ export function OfferTable({
   return (
     <div className="card overflow-hidden">
       {ebay ? (
-        <OfferRowsWithEbay rows={rows} region={region} slug={ebay.slug} query={ebay.query} floor={ebay.floor} packs={ebay.packs} />
+        <OfferRowsWithEbay rows={rows} region={region} slug={ebay.slug} query={ebay.query} floor={ebay.floor} packs={ebay.packs} allowBest={!preorder} />
       ) : (
         <ul className="divide-y divide-line">{rows.map((row) => row.node)}</ul>
       )}
