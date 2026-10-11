@@ -81,17 +81,25 @@ export function runReport(s: RunSummary): string[] {
     `${s.dryRun ? "DRY RUN: " : ""}Budget day ${s.day} (Pacific). Calls today: ${n(s.usedAfter)} (${n(s.usedBefore)} before this run) of a ${n(s.caps.daily)} daily cap; this run's cap ${n(s.plan.cap)} (run cap setting ${n(s.caps.run)}).`,
     `Searches this run: ${n(s.searches)} (${n(s.retries)} retries).${s.stopped ? ` Stopped early: ${s.stopped}${s.tokenError ? ` (${s.tokenError})` : ""}${STOP_WORDS[s.stopped] ? ` - ${STOP_WORDS[s.stopped]}` : ""}.` : ""}`,
     ``,
-    `| Bucket | Planned feeds | Refreshed | Empty (old rows kept) | Failed (old rows kept) | Skipped (cap) | Fresh (not bought) | Searches | Items stored |`,
-    `| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |`,
+    `| Bucket | Planned feeds | Refreshed | Empty (old rows kept) | Failed (old rows kept) | Skipped (cap) | Fresh (not bought) | Covered by the sweep | Searches | Items stored |`,
+    `| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |`,
   );
   for (const b of BUCKETS) {
     const r = s.buckets[b];
-    out.push(`| ${b} | ${n(r.planned)} | ${n(r.refreshed)} | ${n(r.emptied)} | ${n(r.failed)} | ${n(r.skipped)} | ${n(r.fresh)} | ${n(r.calls)} | ${n(r.stored)} |`);
+    out.push(`| ${b} | ${n(r.planned)} | ${n(r.refreshed)} | ${n(r.emptied)} | ${n(r.failed)} | ${n(r.skipped)} | ${n(r.fresh)} | ${b === "items" ? n(r.covered) : "-"} | ${n(r.calls)} | ${n(r.stored)} |`);
+  }
+  out.push(``, `(sweep: "planned" counts marketplaces; "refreshed" the item feeds it wrote; "empty" products it found only one listing for.)`);
+  if (s.sweep.length) {
+    out.push(``, `| Sweep | Products | Pages | Listings | Matched | Products found | Item feeds written | Queries (pages, why it stopped) |`, `| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |`);
+    for (const m of s.sweep) {
+      const q = m.queries.map((x) => `${x.key} ${x.pages}${x.stopped ? ` ${x.stopped}` : ""}`).join(", ");
+      out.push(`| ${m.marketplace} | ${n(m.products)} | ${n(m.pages)} | ${n(m.listings)} | ${n(m.matched)} | ${n(m.found)} | ${n(m.written)} (${pct(m.written, m.products)}) | ${q} |`);
+    }
   }
   const eligible = s.plan.items.core + s.plan.items.extension;
   out.push(
     ``,
-    `Feeds refreshed ${n(s.feedsRefreshed)} of ${n(s.feedsPlanned)} planned. Item feeds in the database: ${n(s.itemFeedsInDb)} (${n(s.buckets.items.refreshed)} refreshed this run) of ${n(eligible)} eligible keys (${n(s.plan.items.core)} core).`,
+    `Feeds refreshed ${n(s.feedsRefreshed)} of ${n(s.feedsPlanned)} planned (fixed feeds and per-product searches). Item feeds in the database: ${n(s.itemFeedsInDb)} (${n(s.buckets.sweep.refreshed)} from the sweep and ${n(s.buckets.items.refreshed)} from per-product searches this run); ${n(eligible)} keys are eligible for a per-product search (${n(s.plan.items.core)} core).`,
     `Rows in the database: ${n(s.rowsInDb)}. Oldest row: ${age(s.oldestRowAgeMs)}. Purged: ${n(s.purged)} at the start, ${n(s.purgedAtEnd)} at the end.`,
   );
   return out;

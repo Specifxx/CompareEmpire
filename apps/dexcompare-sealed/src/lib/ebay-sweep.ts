@@ -24,6 +24,7 @@ import type { PlanRow } from "./ebay-store";
 import { identify, isIdentity, TYPE_BY_KEY, TYPE_BY_LABEL, type TypeKey } from "./sealed-title";
 import { MARKETPLACE_OF_REGION } from "./ebay-context";
 import type { Region } from "./regions";
+import { SETS } from "./sets";
 
 /** Listings per sweep call (the Browse API's maximum). */
 export const SWEEP_PAGE = 200;
@@ -43,18 +44,30 @@ export interface SweepQuery {
   types: readonly TypeKey[];
 }
 
-/** The broad searches, per marketplace. Each word is required (eBay ANDs the keywords); the classifier sorts out the rest. */
+/**
+ * The broad searches, per marketplace. Each word is required (eBay ANDs the keywords); the classifier sorts out the rest.
+ * Measured 2026-10-11 (scripts/ebay-sweep-probe.ts, 60 calls): a bare "collection" or "deck" is mostly loose-card lots
+ * (800,000 US results, ~12 products gained a page), so collections and decks are searched by the words their products use.
+ * Every query pages only while it keeps finding listings for products that need them (sweepMarketplace).
+ */
 export const SWEEP_QUERIES: readonly SweepQuery[] = [
   { key: "etb", q: "elite trainer box", types: ["etb", "pc-etb", "etb-case"] },
   { key: "box", q: "booster box", types: ["booster-box", "booster-box-case"] },
-  { key: "collection", q: "collection", types: ["collection", "upc"] },
   { key: "tin", q: "tin", types: ["tin"] },
+  { key: "premium", q: "premium collection", types: ["collection", "upc"] },
   { key: "blister", q: "blister", types: ["blister"] },
   { key: "bundle", q: "booster bundle", types: ["booster-bundle", "booster-bundle-case"] },
-  { key: "deck", q: "deck", types: ["deck"] },
+  { key: "special", q: "special collection", types: ["collection"] },
+  { key: "colbox", q: "collection box", types: ["collection", "upc"] },
   { key: "build", q: "build battle", types: ["build-battle", "build-battle-stadium"] },
-  { key: "pack", q: "booster pack", types: ["booster-pack", "sleeved-booster", "blister"] },
   { key: "checklane", q: "checklane", types: ["blister"] },
+  { key: "pack", q: "booster pack", types: ["booster-pack", "sleeved-booster", "blister"] },
+  { key: "illustration", q: "illustration collection", types: ["collection"] },
+  { key: "poster", q: "poster collection", types: ["collection"] },
+  { key: "pin", q: "pin collection", types: ["collection"] },
+  { key: "figure", q: "figure collection", types: ["collection"] },
+  { key: "battledeck", q: "battle deck", types: ["deck"] },
+  { key: "themedeck", q: "theme deck", types: ["deck"] },
 ];
 
 // ─── The product index ─────────────────────────────────────────────────────────
@@ -151,10 +164,49 @@ export function buildSweepIndex(rows: readonly PlanRow[], marketplace: Marketpla
 
 // ─── Matching ──────────────────────────────────────────────────────────────────
 
+/**
+ * Listings the sweep never hands to a product, on top of what identify() and SEALED_NOISE refuse: Japanese product naming
+ * ("Pokemon Card Game MEGA Expansion Pack … Box"), several units ("Mini Tins (10-Pack)", "Full Set", "All 3"), a variant left
+ * to chance ("One Variation Chosen At Random", "Assorted") and damage notes.
+ */
+const SWEEP_REJECT = new RegExp(
+  [
+    "\\bexpansion\\s+pack\\b|\\bhigh\\s+class\\s+pack\\b|\\bconstructed\\s+(?:deck|starter)\\b|\\bpokemon\\s+card\\s+game\\s+(?:mega|scarlet|sword|sun|xy)\\b",
+    "\\btins\\b[^()]{0,40}\\(\\s*\\d+\\s*-?\\s*(?:pack|pk)s?\\s*\\)|\\(\\s*(?:[4-9]|\\d{2,})\\s*-?\\s*(?:pcs|count|ct)\\s*\\)|\\b(?:full|complete|whole)\\s+set\\b|\\ball\\s+(?:[2-9]|three|four|five|six|eight|nine|ten)\\b|\\b(?:set|bundle|lot)\\s+of\\b",
+    "\\brandom\\b|\\bassorted\\b|\\bvariation\\b|\\bchosen\\b|\\bvarious\\b|\\bstyles?\\s+may\\s+vary\\b|\\bmystery\\b",
+    "\\bdamage[ds]?\\b|\\bcrushed\\b|\\btorn\\b|\\bresealed\\b|\\bunsealed\\b|\\bempty\\b",
+  ].join("|"),
+  "i",
+);
+
+// Words a listing may carry beyond its product's own without becoming another product: seller filler, promo-card finishes,
+// shipping talk, abbreviations of the product line, and the words of set names (the set is already compared by its code).
+// Never the words that tell products apart (KEEP_SHORT in sealed-title.ts) or a Pokémon a set happens to be named after.
+const FILLER = new Set(
+  (
+    "coin coins holo holos cosmos foil foils promo promos card cards express post posted postage delivery hand ships ship shipping " +
+    "quick fast same day can available fresh tracked mint condition perfect great excellent boxed packaging spc upc etb pc pcetb " +
+    "center centre pokemoncenter brand authentic genuine official uk usa us au aus canada eu eur gb english eng tcg ccg sealed new"
+  ).split(" "),
+);
+const NEVER_FILLER = new Set(["ex", "v", "gx", "mega", "mini", "super", "vmax", "vstar", "pikachu", "arceus", "mew", "mewtwo", "charizard", "eevee", "go"]);
+const SET_WORDS = new Set(
+  SETS.flatMap((x) =>
+    x.name
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .split(/[^a-z0-9]+/),
+  ).filter((w) => w.length >= 3 && !NEVER_FILLER.has(w)),
+);
+/** May a listing carry this word beyond its product's words? */
+export const isFiller = (w: string) => !NEVER_FILLER.has(w) && (EBAY_NOISE.has(w) || FILLER.has(w) || SET_WORDS.has(w));
+
 export type MatchMiss = "rejected" | "no-product" | "ambiguous";
 
 /** The product a listing title IS, in this marketplace's index, or why not. */
 export function matchListing(title: string, index: SweepIndex): { product: SweepProduct } | { miss: MatchMiss } {
+  if (SWEEP_REJECT.test(title)) return { miss: "rejected" };
   const id = sealedIdentity(title, false);
   if (!id) return { miss: "rejected" };
   const exact = index.byKey.get(id.groupKey);
@@ -175,7 +227,7 @@ export function matchListing(title: string, index: SweepIndex): { product: Sweep
       if (!sig.every((w) => have.has(w))) continue;
       const own = new Set(sig);
       // Every other word of the listing must name nothing: a word that identifies another product of this type makes it that product.
-      if ([...have].some((w) => !own.has(w) && vocab.has(w) && !EBAY_NOISE.has(w))) continue;
+      if ([...have].some((w) => !own.has(w) && vocab.has(w) && !isFiller(w))) continue;
       score = Math.max(score, sig.length);
     }
     if (score < 0) continue;

@@ -13,7 +13,6 @@ import { Section } from "@/components/Section";
 import { StockPill } from "@/components/StockPill";
 import { offerLink, offerRetailer } from "@/lib/affiliate";
 import { productAdPlan } from "@/lib/ebay-ads";
-import { tierOf } from "@/lib/ebay-eligibility";
 import { comparable, productPage, relatedProducts, type OfferView } from "@/lib/data";
 import { medianSaving, money, pctOf, plural } from "@/lib/format";
 import { thumb } from "@/lib/images";
@@ -22,7 +21,7 @@ import { formatRelease, isPreorderSet } from "@/lib/release";
 import { regionOrNotFound, REGION_LIST, type Market, type RegionInfo } from "@/lib/regions";
 import { RRP_NOTE, usMsrpCents } from "@/lib/rrp";
 import { offerStock } from "@/lib/sealed-offers";
-import { roughUsdCents, TYPE_BY_LABEL } from "@/lib/sealed-title";
+import { TYPE_BY_LABEL } from "@/lib/sealed-title";
 import { jsonLd, pageMeta, productJsonLd, regionAlternates } from "@/lib/seo";
 import { SET_BY_CODE } from "@/lib/sets";
 
@@ -132,15 +131,13 @@ export default async function ProductPage({ params }: { params: { region: string
     .filter((e) => !!e.s); // a stat row exists only where a store or TCGplayer lists it
 
   // eBay units on this page (components/Ebay.tsx, Marketplaces.tsx, EbayStrip.tsx): the panel carries the product's marketplace
-  // links; the product's own listings are an image strip (components/EbayStrip.tsx). An ELIGIBLE product (a booster box, ETB,
-  // case…, or a collection, tin… priced from about US$50: lib/ebay-eligibility.ts) asks for its own listings (cascade: its type's,
-  // then generic sealed); any other asks for its type's. SOLD OUT: the strip sits directly under the callout, the highest-intent
+  // links; the product's own listings are an image strip (components/EbayStrip.tsx). EVERY product asks for its own listings: the
+  // daily catalogue sweep (lib/ebay-sweep.ts) gives an item feed to every product it finds on eBay, cheap ones included; where it
+  // found fewer than two, the route answers with the type's listings, then (for box-class types only) generic sealed. SOLD OUT: the strip sits directly under the callout, the highest-intent
   // spot. IN STOCK: directly below the offer table where the table is long enough to sit a screen below the panel, else at the
   // bottom of the page in place of the pre-footer strip where the page has room for a unit there (productAdPlan).
   const ads = productAdPlan({ offerRows: p.offers.length, elsewhere: elsewhere.length, related: set ? related.length : 0 });
-  const reference = (best ?? p.offers.reduce<OfferView | null>((m, o) => (!m || o.priceCents < m.priceCents ? o : m), null))?.priceCents ?? null;
-  const eligible = !!type && reference != null && tierOf(type.key, roughUsdCents(reference, r.market) / 100) !== "no";
-  const stripContext = eligible ? `item:${p.slug}` : type ? `type:${type.slug}` : "sealed";
+  const stripContext = `item:${p.slug}`;
   const stripAt = best ? (ads.tableGroup ? "table" : ads.preFooter ? "bottom" : null) : "soldout";
   const strip = stripAt && (
     <EbayStrip

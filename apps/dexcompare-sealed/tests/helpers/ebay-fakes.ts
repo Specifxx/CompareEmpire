@@ -48,6 +48,16 @@ export function fakeDb(rows: PlanRow[] = [], opts: { failReplace?: (feed: string
       db.feeds.set(feed, { items: [...items], fetchedAt });
       db.replaced.push(feed);
     },
+    async replaceFeeds(feeds, fetchedAt) {
+      for (const f of feeds) {
+        if (opts.failReplace?.(f.feed)) throw new Error("db down");
+      }
+      for (const f of feeds) {
+        if (!f.items.length) continue;
+        db.feeds.set(f.feed, { items: [...f.items], fetchedAt });
+        db.replaced.push(f.feed);
+      }
+    },
     async purge(cutoff) {
       db.purges.push(cutoff);
       let n = 0;

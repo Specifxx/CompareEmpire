@@ -8,15 +8,18 @@
 //     2. sealed   generic sealed Pokémon: 6 queries per marketplace, classifier-checked     (5 × 6   = 30)
 //     3. types    one query per high-value product type per marketplace                     (5 × 9   = 45)
 //     4. sets     chase cards of the 30 most recently released sets, 1 query each           (5 × 30  = 150)
-//     5. items    one query per (marketplace, ELIGIBLE product): the product's own listings
-//                 first every eligible key (core), then, budget permitting, downward by price
+//     5. sweep    the CATALOGUE SWEEP (ebay-sweep.ts): broad searches paged 200 listings a call, each listing
+//                 handed to the product the classifier says it is: an item feed for EVERY product it finds,
+//                 cheap ones included (EBAY_SWEEP_CALLS, default 1,800, shared by marketplace by product count)
+//     6. items    one query per (marketplace, ELIGIBLE product) the sweep did NOT cover: the product's own
+//                 listings, first every eligible key (core), then, budget permitting, downward by price
 //                 to US$25 (extension), each tier ranked by reference price × market weight
-//                 (sold-out ×1.5)
+//                 (sold-out ×1.5); whatever the sweep left of the run cap
 //   A "feed" is what the strips read (ebay-context.ts). Marketplaces: au+nz share EBAY_AU, us+sg share EBAY_US,
 //   uk EBAY_GB, ca EBAY_CA, eu EBAY_DE.
 import { searchTerms } from "./affiliate";
 import { referenceUsd, tierOf, type Tier } from "./ebay-eligibility";
-import { createTokenManager, EbayError, searchOnce, type Deps, type SearchSpec, type TokenManager } from "./ebay-api";
+import { createTokenManager, EbayError, searchPage, type Deps, type SearchSpec, type TokenManager } from "./ebay-api";
 import {
   feedKey,
   feedReference,
@@ -26,6 +29,7 @@ import {
   MARKETPLACE_OF_REGION,
   MARKETPLACES,
   MAX_FEED_ROWS,
+  MIN_FEED_ROWS,
   parseMaxAgeHours,
   purgeCutoff as purgeCutoffFor,
   type FeedItem,
@@ -47,14 +51,19 @@ import {
   type ItemTarget,
 } from "./ebay-normalise";
 import { budgetDay, type ImportDb, type PlanRow } from "./ebay-store";
+import { buildSweepIndex, marketplaceShares, SweepCollector, sweepMarketplace, sweepVocabulary, type QueryProgress, type SweepIndex } from "./ebay-sweep";
 import type { Region } from "./regions";
 import { roughUsdCents, TYPE_BY_KEY, TYPE_BY_LABEL, TYPE_BY_SLUG, type TypeKey } from "./sealed-title";
 import { SETS, type PokemonSet } from "./sets";
 
 // ─── Tunables ──────────────────────────────────────────────────────────────────
 
-export const DEFAULT_RUN_CAP = 2000;
-export const DEFAULT_DAILY_CAP = 2400;
+export const DEFAULT_RUN_CAP = 2500;
+export const DEFAULT_DAILY_CAP = 2500;
+/** Calls the catalogue sweep may spend (of what the fixed feeds leave); the per-product searches get the rest. EBAY_SWEEP_CALLS overrides. */
+export const DEFAULT_SWEEP_CALLS = 1800;
+/** Feeds the sweep writes per database transaction. */
+export const SWEEP_WRITE_BATCH = 100;
 /** The hard ceiling for the daily cap setting: eBay's default limit is 5,000 a day for the whole application, shared with the owner's other site. */
 export const MAX_DAILY_CAP = 2500;
 export const CONCURRENCY = 3;
@@ -201,10 +210,13 @@ export function setQuery(s: PokemonSet): string {
   return `${fold(s.name)} ${suffix}`;
 }
 
-/** "Pokemon <product name, cleaned> sealed", at most 100 characters (cut at a word). */
+/**
+ * "Pokemon <product name, cleaned>", at most 100 characters (cut at a word). No "sealed": eBay requires every keyword, and many sealed
+ * listings never say it (762 of 1,735 item searches came back with nothing on 2026-10-10); the classifier refuses singles and lots.
+ */
 export function itemQuery(name: string): string {
   const terms = searchTerms(name);
-  const q = /\bpokemon\b/i.test(terms) ? `${terms} sealed` : `Pokemon ${terms} sealed`;
+  const q = /\bpokemon\b/i.test(terms) ? terms : `Pokemon ${terms}`;
   const t = q.replace(/\s+/g, " ").trim();
   if (t.length <= 100) return t;
   const cut = t.slice(0, 100);
@@ -215,8 +227,8 @@ const prefixed = (q: string) => `Pokemon ${q}`.slice(0, 100);
 
 // ─── The plan ──────────────────────────────────────────────────────────────────
 
-export type Bucket = "chase" | "sealed" | "types" | "sets" | "items";
-export const BUCKETS: readonly Bucket[] = ["chase", "sealed", "types", "sets", "items"];
+export type Bucket = "chase" | "sealed" | "types" | "sets" | "sweep" | "items";
+export const BUCKETS: readonly Bucket[] = ["chase", "sealed", "types", "sets", "sweep", "items"];
 
 export type Rule =
   | { kind: "chase" }
@@ -245,6 +257,8 @@ export interface Plan {
   byBucket: Record<Bucket, { feeds: number; calls: number; wanted: number; wantedCalls: number; fresh: number }>;
   /** Eligible item keys (core and extension) and how many the cap reached. */
   items: { core: number; extension: number; coreCovered: number; extensionCovered: number };
+  /** The catalogue sweep's share of the cap (0 when it is not wanted or nothing is left for it). */
+  sweepBudget: number;
   /** Every eligible key, in budget order (for the capacity report). */
   keys: ItemKey[];
 }
@@ -296,45 +310,68 @@ function itemFeed(k: ItemKey): PlanFeed {
 export interface PlanOptions {
   /** The most Browse calls the plan may make. */
   cap: number;
+  /** The most the catalogue sweep may spend (DEFAULT_SWEEP_CALLS). */
+  sweepCalls?: number;
   today: string;
   only?: readonly Bucket[];
   /** Feeds whose rows are fresh enough to keep (not bought again). They count as covered, cost nothing and do not end the plan. */
   fresh?: ReadonlySet<string>;
 }
 
-/** Spend `cap` calls in priority order: chase, sealed, types, sets, then item keys (core by value, then the extension). */
+/**
+ * Spend `cap` calls in priority order: chase, sealed, types, sets, the catalogue sweep's share, then item keys (core by value, then
+ * the extension). The item feeds planned here are the PRE-plan: the run buys them only for keys the sweep did not cover, and with
+ * whatever the sweep actually left (ebay-import.ts runImport).
+ */
 export function buildPlan(rows: readonly PlanRow[], opts: PlanOptions): Plan {
   const want = (b: Bucket) => !opts.only || opts.only.includes(b);
   const keys = itemKeys(rows);
-  const all = [...fixedFeeds(opts.today), ...keys.map(itemFeed)].filter((f) => want(f.bucket));
+  const fixed = fixedFeeds(opts.today).filter((f) => want(f.bucket));
+  const items = keys.map(itemFeed).filter((f) => want(f.bucket));
   const byBucket = Object.fromEntries(BUCKETS.map((b) => [b, { feeds: 0, calls: 0, wanted: 0, wantedCalls: 0, fresh: 0 }])) as Plan["byBucket"];
   let left = Math.max(0, Math.floor(opts.cap));
   const feeds: PlanFeed[] = [];
   let calls = 0;
   let stopped = false; // once a feed does not fit, nothing of lower priority is bought: a cap hit drops the LEAST valuable, never a hole in the middle
-  const items = { core: 0, extension: 0, coreCovered: 0, extensionCovered: 0 };
-  for (const f of all) {
+  const itemsCount = { core: 0, extension: 0, coreCovered: 0, extensionCovered: 0 };
+  let sweepBudget = 0;
+  const visit = (f: PlanFeed) => {
     const b = byBucket[f.bucket];
     b.wanted++;
     b.wantedCalls += f.searches.length;
-    if (f.item) items[f.item.tier]++;
+    if (f.item) itemsCount[f.item.tier]++;
     if (opts.fresh?.has(f.feed)) {
       b.fresh++; // refreshed recently (another run, earlier today): covered, not bought again
-      if (f.item) items[f.item.tier === "core" ? "coreCovered" : "extensionCovered"]++;
-      continue;
+      if (f.item) itemsCount[f.item.tier === "core" ? "coreCovered" : "extensionCovered"]++;
+      return;
     }
     if (stopped || f.searches.length > left) {
       stopped = true;
-      continue;
+      return;
     }
     left -= f.searches.length;
     calls += f.searches.length;
     b.feeds++;
     b.calls += f.searches.length;
-    if (f.item) items[f.item.tier === "core" ? "coreCovered" : "extensionCovered"]++;
+    if (f.item) itemsCount[f.item.tier === "core" ? "coreCovered" : "extensionCovered"]++;
     feeds.push(f);
+  };
+  for (const f of fixed) visit(f);
+  if (want("sweep")) {
+    const wanted = Math.max(0, Math.floor(opts.sweepCalls ?? DEFAULT_SWEEP_CALLS));
+    const b = byBucket.sweep;
+    b.wanted = MARKETPLACE_IDS.length;
+    b.wantedCalls = wanted;
+    sweepBudget = stopped ? 0 : Math.min(wanted, left);
+    if (sweepBudget > 0) {
+      b.feeds = MARKETPLACE_IDS.length;
+      b.calls = sweepBudget;
+      left -= sweepBudget;
+      calls += sweepBudget;
+    }
   }
-  return { feeds, calls, cap: opts.cap, byBucket, items, keys };
+  for (const f of items) visit(f);
+  return { feeds, calls, cap: opts.cap, byBucket, items: itemsCount, keys, sweepBudget };
 }
 
 // ─── Caps ──────────────────────────────────────────────────────────────────────
@@ -349,13 +386,17 @@ const clampInt = (raw: string | undefined, def: number, lo: number, hi: number) 
 export interface CapEnv {
   EBAY_DAILY_CAP?: string;
   EBAY_RUN_CAP?: string;
+  EBAY_SWEEP_CALLS?: string;
   EBAY_LISTING_MAX_AGE_HOURS?: string;
 }
 
-/** The daily cap (default 2400, clamped to 0..2500) and the per-run cap (default 2000). */
+/** The daily cap (default 2500, clamped to 0..2500) and the per-run cap (default 2500). */
 export function capsFromEnv(env: CapEnv): { daily: number; run: number } {
   return { daily: clampInt(env.EBAY_DAILY_CAP, DEFAULT_DAILY_CAP, 0, MAX_DAILY_CAP), run: clampInt(env.EBAY_RUN_CAP, DEFAULT_RUN_CAP, 0, MAX_DAILY_CAP) };
 }
+
+/** The catalogue sweep's call allowance (default 1,800, clamped to 0..2500). */
+export const sweepCallsFromEnv = (env: CapEnv) => clampInt(env.EBAY_SWEEP_CALLS, DEFAULT_SWEEP_CALLS, 0, MAX_DAILY_CAP);
 
 /** What this run may spend: min(run cap, what is left of today's daily cap, --max-calls). */
 export function runCap(caps: { daily: number; run: number }, usedToday: number, maxCalls?: number): number {
@@ -413,6 +454,23 @@ export interface BucketResult {
   calls: number;
   emptied: number;
   stored: number;
+  /** items only: eligible keys the catalogue sweep covered this run, so not searched one by one. */
+  covered: number;
+}
+
+/** What the catalogue sweep did in one marketplace: counts only. */
+export interface SweepReport {
+  marketplace: MarketplaceId;
+  products: number;
+  pages: number;
+  listings: number;
+  valid: number;
+  matched: number;
+  /** products with at least one listing */
+  found: number;
+  /** item feeds written (products with at least MIN_FEED_ROWS listings) */
+  written: number;
+  queries: QueryProgress[];
 }
 
 export interface RunSummary {
@@ -437,13 +495,15 @@ export interface RunSummary {
   /** the token failure's code and OAuth category, or the search failure's code (e.g. search-http-403), when that is why */
   tokenError: string | null;
   feedsRefreshed: number;
+  /** the fixed feeds and the per-product searches planned (the sweep is reported in `sweep`) */
   feedsPlanned: number;
+  sweep: SweepReport[];
   itemFeedsInDb: number;
   rowsInDb: number;
   oldestRowAgeMs: number | null;
 }
 
-const emptyBucket = (): BucketResult => ({ planned: 0, refreshed: 0, failed: 0, skipped: 0, fresh: 0, calls: 0, emptied: 0, stored: 0 });
+const emptyBucket = (): BucketResult => ({ planned: 0, refreshed: 0, failed: 0, skipped: 0, fresh: 0, calls: 0, emptied: 0, stored: 0, covered: 0 });
 
 /** Delete listings older than the bound plus the grace (3.1(b): copies no longer required are deleted). The store import calls the same helper. */
 export function purgeCutoff(nowMs: number, env: CapEnv): Date {
@@ -487,7 +547,7 @@ export async function runImport(deps: ImportDeps, opts: RunOptions = {}): Promis
       /* no table yet (a dry run before the first import): nothing is fresh */
     }
   }
-  const plan = buildPlan(rows, { cap, today: new Date(now()).toISOString().slice(0, 10), only: opts.only, fresh });
+  const plan = buildPlan(rows, { cap, sweepCalls: sweepCallsFromEnv(env), today: new Date(now()).toISOString().slice(0, 10), only: opts.only, fresh });
 
   const buckets = Object.fromEntries(BUCKETS.map((b) => [b, emptyBucket()])) as Record<Bucket, BucketResult>;
   for (const b of BUCKETS) {
@@ -495,6 +555,9 @@ export async function runImport(deps: ImportDeps, opts: RunOptions = {}): Promis
     buckets[b].fresh = plan.byBucket[b].fresh;
     buckets[b].skipped = plan.byBucket[b].wanted - plan.byBucket[b].feeds - plan.byBucket[b].fresh;
   }
+  // The sweep's marketplaces and the per-product searches are decided as the run goes (what the sweep covered, what it left).
+  buckets.sweep.planned = 0;
+  buckets.items.planned = 0;
   const summary: RunSummary = {
     dryRun: dry,
     day,
@@ -510,13 +573,14 @@ export async function runImport(deps: ImportDeps, opts: RunOptions = {}): Promis
     stopped: null,
     tokenError: null,
     feedsRefreshed: 0,
-    feedsPlanned: plan.feeds.length,
+    feedsPlanned: plan.feeds.filter((f) => f.bucket !== "items").length,
+    sweep: [],
     itemFeedsInDb: 0,
     rowsInDb: 0,
     oldestRowAgeMs: null,
   };
   for (const line of startReport(summary, { maxCalls: opts.maxCalls, force: !!opts.force, freshMs: freshWindowMs(env) })) log(line);
-  if (dry || !plan.feeds.length) {
+  if (dry || (!plan.feeds.length && plan.sweepBudget <= 0)) {
     if (!dry) await finish(deps, summary);
     return summary;
   }
@@ -570,13 +634,18 @@ export async function runImport(deps: ImportDeps, opts: RunOptions = {}): Promis
   let emptyRun = 0;
 
   async function search(spec: SearchSpec, bucket: Bucket): Promise<unknown[]> {
+    return (await searchRaw(spec, bucket)).items;
+  }
+
+  /** One reserved, retried, circuit-broken search: the listings and eBay's total (the sweep pages by it). */
+  async function searchRaw(spec: SearchSpec, bucket: Bucket): Promise<{ items: unknown[]; total: number | null }> {
     let attempt = 0;
     let s = spec;
     for (;;) {
       await reserve(attempt > 0);
       buckets[bucket].calls++;
       try {
-        const list = await searchOnce(api, tokens, s, async () => {
+        const page = await searchPage(api, tokens, s, async () => {
           try {
             await reserve(true); // the repeat after a 401 is a second call
             buckets[bucket].calls++;
@@ -586,9 +655,9 @@ export async function runImport(deps: ImportDeps, opts: RunOptions = {}): Promis
           }
         });
         badRun = 0;
-        if (list.length) emptyRun = 0;
+        if (page.items.length) emptyRun = 0;
         else if (++emptyRun >= BREAKER_EMPTY) throw new StopRun("empty");
-        return list;
+        return page;
       } catch (e) {
         if (e instanceof StopRun) throw e;
         if (!(e instanceof EbayError)) throw e;
@@ -656,29 +725,112 @@ export async function runImport(deps: ImportDeps, opts: RunOptions = {}): Promis
   }
 
   // Concurrency 3, in plan order. A StopRun ends the whole run: workers finish the feed they are in and take no more.
-  let next = 0;
-  const workers = Array.from({ length: Math.max(1, opts.concurrency ?? CONCURRENCY) }, async () => {
-    while (!stop) {
-      const i = next++;
-      if (i >= plan.feeds.length) return;
-      const f = plan.feeds[i];
-      try {
-        await doFeed(f);
-      } catch (e) {
-        if (e instanceof StopRun) {
-          stop ??= e;
-          return;
+  async function runFeeds(list: readonly PlanFeed[]): Promise<void> {
+    let next = 0;
+    const workers = Array.from({ length: Math.max(1, opts.concurrency ?? CONCURRENCY) }, async () => {
+      while (!stop) {
+        const i = next++;
+        if (i >= list.length) return;
+        const f = list[i];
+        try {
+          await doFeed(f);
+        } catch (e) {
+          if (e instanceof StopRun) {
+            stop ??= e;
+            return;
+          }
+          buckets[f.bucket].failed++;
+          log(`feed ${f.bucket}: unexpected error (${e instanceof Error ? e.name : "error"})`);
         }
-        buckets[f.bucket].failed++;
-        log(`feed ${f.bucket}: unexpected error (${e instanceof Error ? e.name : "error"})`);
       }
+    });
+    await Promise.all(workers);
+  }
+
+  // 1. The fixed feeds (chase, sealed, types, sets): the strips every page shows.
+  await runFeeds(plan.feeds.filter((f) => f.bucket !== "items"));
+
+  // 2. The catalogue sweep: an item feed for every product its pages find, marketplace by marketplace.
+  const swept = new Set<string>();
+  if (!stop && plan.sweepBudget > 0) {
+    const vocab = sweepVocabulary(rows);
+    const all = MARKETPLACE_ORDER.map((mp) => buildSweepIndex(rows, mp, vocab)).filter((ix) => ix.products.length > 0);
+    // A marketplace swept in the last fresh window (a re-run, an overlapping run) is not swept again unless forced.
+    const freshItems = (mp: MarketplaceId) => (fresh ? [...fresh].filter((k) => k.startsWith(`${mp}|item:`)).length : 0);
+    const todo: SweepIndex[] = [];
+    for (const ix of all) {
+      if (freshItems(ix.marketplace) >= Math.max(50, Math.floor(ix.products.length * 0.25))) buckets.sweep.fresh++;
+      else todo.push(ix);
     }
-  });
-  await Promise.all(workers);
+    buckets.sweep.planned = todo.length;
+    let left = Math.min(plan.sweepBudget, plan.cap - spent);
+    for (let i = 0; i < todo.length && !stop && left > 0; i++) {
+      const ix = todo[i];
+      const budget = marketplaceShares(todo.slice(i), left).get(ix.marketplace) ?? 0;
+      const collector = new SweepCollector(ix, now());
+      const before = buckets.sweep.calls;
+      let queries: QueryProgress[] = [];
+      try {
+        queries = await sweepMarketplace(collector, budget, (spec) => searchRaw(spec, "sweep"), {
+          concurrency: Math.max(1, opts.concurrency ?? CONCURRENCY),
+          shouldStop: () => !!stop,
+          isFatal: (e) => e instanceof StopRun,
+        });
+      } catch (e) {
+        if (e instanceof StopRun) stop ??= e;
+        else log(`sweep ${ix.marketplace}: unexpected error (${e instanceof Error ? e.name : "error"})`);
+      }
+      left -= buckets.sweep.calls - before;
+      // What the pages found is written even when the run stopped part-way: every row is a real, current listing.
+      const at = now();
+      const ready = [...collector.feeds()].filter(([, items]) => items.length >= MIN_FEED_ROWS).map(([productId, items]) => ({ feed: feedKey(ix.marketplace, "item", productId), items }));
+      let written = 0;
+      for (let j = 0; j < ready.length; j += SWEEP_WRITE_BATCH) {
+        const batch = ready.slice(j, j + SWEEP_WRITE_BATCH);
+        try {
+          await db.replaceFeeds(batch, new Date(at));
+          written += batch.length;
+          buckets.sweep.stored += batch.reduce((a, f) => a + f.items.length, 0);
+          for (const f of batch) swept.add(f.feed);
+        } catch (e) {
+          buckets.sweep.failed += batch.length;
+          log(`sweep ${ix.marketplace}: a write failed (${e instanceof Error ? e.name : "error"}); those products keep their old rows`);
+        }
+      }
+      buckets.sweep.refreshed += written;
+      const found = collector.feeds().size;
+      buckets.sweep.emptied += found - ready.length; // a product with one listing: not enough for a strip
+      const st = collector.stats;
+      summary.sweep.push({ marketplace: ix.marketplace, products: ix.products.length, pages: st.pages, listings: st.listings, valid: st.valid, matched: st.matched, found, written, queries });
+      log(`sweep ${ix.marketplace}: ${num(st.pages)} pages, ${num(st.matched)} listings matched to ${num(found)} of ${num(ix.products.length)} products; ${num(written)} item feeds written.`);
+    }
+  }
+
+  // 3. Per-product searches for the eligible keys the sweep did not cover, most valuable first, with what is left of the cap.
+  if (!stop && (!opts.only || opts.only.includes("items"))) {
+    const room = Math.max(0, plan.cap - spent);
+    const notFresh = plan.keys.map(itemFeed).filter((f) => !fresh?.has(f.feed));
+    const open = notFresh.filter((f) => !swept.has(f.feed));
+    buckets.items.covered = notFresh.length - open.length;
+    const take = Math.max(0, room - retryAllowance(Math.min(room, open.length)));
+    const list = open.slice(0, take);
+    buckets.items.planned = list.length;
+    summary.feedsPlanned += list.length;
+    await runFeeds(list);
+  }
+
   if (stop) summary.stopped = (stop as StopRun).why;
   // Feeds the plan held but the run never finished (it stopped first) count as skipped, with the ones the cap left out.
   for (const b of BUCKETS) {
     const r = buckets[b];
+    if (b === "sweep") {
+      r.skipped = plan.byBucket.sweep.wanted - r.planned - r.fresh;
+      continue;
+    }
+    if (b === "items") {
+      r.skipped = plan.byBucket.items.wanted - plan.byBucket.items.fresh - r.covered - r.refreshed - r.failed - r.emptied;
+      continue;
+    }
     r.skipped = plan.byBucket[b].wanted - plan.byBucket[b].feeds - plan.byBucket[b].fresh + (r.planned - r.refreshed - r.failed - r.emptied);
   }
   await finish(deps, summary);
@@ -698,7 +850,7 @@ export function startReport(s: RunSummary, o: { maxCalls?: number; force: boolea
   const wanted = BUCKETS.reduce((a, b) => a + s.plan.byBucket[b].wantedCalls, 0);
   const fresh = BUCKETS.reduce((a, b) => a + s.plan.byBucket[b].fresh, 0);
   const per = BUCKETS.filter((b) => s.plan.byBucket[b].wanted > 0)
-    .map((b) => `${b} ${num(s.plan.byBucket[b].feeds)} feeds/${num(s.plan.byBucket[b].calls)} calls`)
+    .map((b) => (b === "sweep" ? `sweep up to ${num(s.plan.sweepBudget)} calls over ${num(s.plan.byBucket.sweep.feeds)} marketplaces` : b === "items" ? `items: whatever the sweep leaves, for eligible products it did not cover (pre-plan ${num(s.plan.byBucket.items.feeds)})` : `${b} ${num(s.plan.byBucket[b].feeds)} feeds/${num(s.plan.byBucket[b].calls)} calls`))
     .join(", ");
   return [
     `${s.dryRun ? "DRY RUN (no eBay call, no database write). " : ""}Budget day ${s.day} (the Pacific day: eBay's call limit resets at 00:00 Pacific = 07:00 UTC in summer, 08:00 in winter).`,

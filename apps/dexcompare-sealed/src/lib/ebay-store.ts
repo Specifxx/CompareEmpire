@@ -58,6 +58,8 @@ export interface ImportDb {
   used(day: string): Promise<number>;
   /** Replace ALL of a feed's rows with `items` in one transaction (never appended). */
   replaceFeed(feed: string, items: readonly FeedItem[], fetchedAt: Date): Promise<void>;
+  /** replaceFeed for many feeds in ONE transaction (the catalogue sweep writes hundreds); feeds with no items are left alone. */
+  replaceFeeds(feeds: readonly { feed: string; items: readonly FeedItem[] }[], fetchedAt: Date): Promise<void>;
   /** Delete every listing fetched before `cutoff` and every call-day row older than `keepDays`; returns the number of listings deleted. */
   purge(cutoff: Date, today: string, keepDays?: number): Promise<number>;
   /** Every ProductStat row with its prices (the importer may read whole tables: db.ts rule 3). */
@@ -146,6 +148,26 @@ export function prismaImportDb(prisma: Db): ImportDb {
         // Two runs replacing the same feed at once would both delete, then both insert (a primary-key violation): one at a time.
         prisma.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${feed}))`,
         prisma.$executeRaw`DELETE FROM "EbayListing" WHERE "feed" = ${feed}`,
+        prisma.$executeRaw`INSERT INTO "EbayListing" ("feed","rank","itemId","title","imageUrl","priceValue","currency","shipValue","shipFree","condition","url","fetchedAt") VALUES ${values}`,
+      ]);
+    },
+
+    async replaceFeeds(feeds, fetchedAt) {
+      const list = feeds.filter((f) => f.items.length > 0);
+      if (!list.length) return;
+      const names = [...new Set(list.map((f) => f.feed))].sort(); // locks taken in one order: two writers can never deadlock
+      const values = Prisma.join(
+        list.flatMap((f) =>
+          f.items.map(
+            (it, rank) =>
+              Prisma.sql`(${f.feed}, ${rank}, ${it.id}, ${it.title}, ${it.imageUrl}, ${it.price.value}, ${it.price.currency},
+                ${it.ship?.free ? null : it.ship?.value ?? null}, ${it.ship ? (it.ship.free ? true : it.ship.value ? false : null) : null}, ${it.condition ?? null}, ${it.url}, ${utcTimestamp(fetchedAt)})`,
+          ),
+        ),
+      );
+      await prisma.$transaction([
+        prisma.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(f)) FROM unnest(${names}::text[]) AS f ORDER BY f`,
+        prisma.$executeRaw`DELETE FROM "EbayListing" WHERE "feed" = ANY(${names}::text[])`,
         prisma.$executeRaw`INSERT INTO "EbayListing" ("feed","rank","itemId","title","imageUrl","priceValue","currency","shipValue","shipFree","condition","url","fetchedAt") VALUES ${values}`,
       ]);
     },
