@@ -37,7 +37,7 @@ export const PLACEMENTS = [
   "listings-type", // type page: the type's listings (cascade: sealed), at the top
   "listings-browse", // /[region]/sealed page 1: the strip at the top
   "listings-browse-feed", // /[region]/sealed: the one in-feed listing tile after the 12th product
-  "listings-price-rows", // product page: the product's own eBay listings as price rows, at the top of its price section (a block of its own above the store table)
+  "listings-offer-row", // product page: the eBay row of the price table (the product's cheapest own listing, ranked among the stores; an eBay search when it has none)
   "listings-store", // store directory and store page
   "listings-releases", // release calendar: the closing strip
   "listings-footer", // every content page: the slim four-tile strip above the footer

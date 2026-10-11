@@ -61,6 +61,10 @@ have changed; check eBay."
   Marketplaces panel its eBay and TCGplayer search rows. With **nothing to list** (before the first import, the kill switch, rows
   older than the age bound) a unit is one compact row: wordmark, "Ad" and a "Search Pokémon sealed on eBay" button.
   There are no text-only banners, chip rows or "Still deciding?" rows.
+* **The price table's eBay row** (`listings-offer-row`, the owner's call: DexCompare compares websites, and eBay is one): a product's
+  cheapest own eBay listing is a row of its store price table, ranked by its price among the in-stock stores, tinted, labelled "Ad",
+  with eBay's blue "View on eBay" button and its age on the row; an eBay search for the product after the in-stock stores when it has
+  none. Never the best price ("Best store price" when eBay's listing is cheaper), never counted (`src/lib/ebay-offer-row.ts`).
 * **Popular sets** (`src/lib/popular.ts` HOT_SETS, owner-edited, 30th Celebration first): once a hot set is out, its eBay search is
   highlighted as an eBay-blue button (44 px tall, placements `hot-home`, `hot-set`, `hot-product`) INSIDE the top line of an existing strip, never a unit of its
   own: the region home's sealed strip ("Shop 30th Celebration on eBay", the first hot set that is out), a hot set's page and a hot
@@ -84,7 +88,7 @@ have changed; check eBay."
 * **Always**: plain `<a>` links through `OutboundLink` (`rel="sponsored nofollow noopener noreferrer"`, one `buy_click`
   `{retailer, placement}` per click, the href eBay's own URL, unedited), thumbnails from `*.ebayimg.com` as plain lazy `<img>`
   (no-referrer; a tile whose picture fails hides itself), an "Ad" label and the disclosure, a unit of their own (never inside a
-  ranked table or row), no derived statistics, no script or iframe, no sticky or overlay, never in JSON-LD, meta, OG or the sitemap,
+  ranked table or row, but for the product price table's one eBay row: the owner's call, see `listings-offer-row` in DEPLOY.md), no derived statistics, no script or iframe, no sticky or overlay, never in JSON-LD, meta, OG or the sitemap,
   and at most one unit in a phone viewport (two on a desktop one: the header's item is one of them). The rules that keep units apart
   live in `src/lib/ebay-ads.ts` (pure, tested). **When adding a unit, run the viewport sweep** (a Playwright scroll at 390×844
   counting `[data-ad]` elements in view, and the layout-shift total).

@@ -4,7 +4,7 @@ import { cache } from "react";
 import type { Metadata } from "next";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { hotProductHighlight, isHotReleased, NoPreFooter } from "@/components/Ebay";
-import { EbayPriceRows, EbayStrip } from "@/components/EbayStrip";
+import { EbayStrip } from "@/components/EbayStrip";
 import { marketplaceOf } from "@/lib/ebay-context";
 import { ebayQuery, MarketplacePanel, SoldOutCallout } from "@/components/Marketplaces";
 import { OfferTable } from "@/components/OfferTable";
@@ -139,10 +139,10 @@ export default async function ProductPage({ params }: { params: { region: string
   // bottom of the page in place of the pre-footer strip where the page has room for a unit there (productAdPlan).
   const ads = productAdPlan({ offerRows: p.offers.length, elsewhere: elsewhere.length, related: set ? related.length : 0 });
   const stripContext = `item:${p.slug}`;
-  // The eBay price rows skip a listing under 40% of the cheapest store price, when the store prices are in the eBay site's currency
-  // (not NZ or SG, served the AU and US sites): such a listing is a part of the product or a single card, not the product.
+  // The eBay row of the price table skips a listing under 40% of the cheapest store price, when the store prices are in the eBay site's
+  // currency (not NZ or SG, served the AU and US sites): such a listing is a part of the product or a single card, not the product.
   const cheapestCents = p.offers.reduce<number | null>((m, o) => (m == null || o.priceCents < m ? o.priceCents : m), null);
-  const priceRowsFloor = cheapestCents != null && marketplaceOf(r.region).currency === r.currency ? { value: (cheapestCents * 0.4) / 100, currency: r.currency } : null;
+  const ebayFloor = cheapestCents != null && marketplaceOf(r.region).currency === r.currency ? { value: (cheapestCents * 0.4) / 100, currency: r.currency } : null;
   // A product of one of the owner's hot sets (lib/popular.ts: 30th Celebration first), once the set is out: the marketplace panel makes
   // eBay its primary button with a "Popular set" chip, and the strip carries the highlighted "Shop <product> on eBay" button. Where
   // the strip goes, and whether there is one, is productAdPlan's call as for any product: the highlight adds no unit.
@@ -343,10 +343,9 @@ export default async function ProductPage({ params }: { params: { region: string
       </div>
 
       <Section title={tableTitle}>
-        {/* The product's own eBay listings, as price rows at the top: an ad block of its own, never a row of the store table (EbayPriceRows). */}
-        <EbayPriceRows region={r.region} slug={p.slug} floor={priceRowsFloor} className="mb-3" />
         {p.offers.length ? (
-          <OfferTable offers={p.offers} region={r.region} preorder={pre} packs={packs} />
+          // eBay is one of the websites compared: the product's cheapest own eBay listing is a row of the table, ranked by price (an ad, tinted).
+          <OfferTable offers={p.offers} region={r.region} preorder={pre} packs={packs} ebay={{ slug: p.slug, query: ebayQ, floor: ebayFloor }} />
         ) : (
           <div className="card px-6 py-8 text-muted">
             None of the {r.adjective} stores we track list {p.name} right now.

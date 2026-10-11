@@ -5,7 +5,10 @@
 //   • eBay is a LISTING STRIP (components/EbayStrip.tsx: real listings imported once a day, shown as image
 //     tiles with price, shipping and their age) or, when there is nothing to list, ONE compact CTA row. No
 //     text-only banner, chip row or "Still deciding?" row exists any more.
-//   • A unit never enters a ranked table, a count, a median, JSON-LD, a meta tag or the sitemap.
+//   • A unit never enters a ranked table, a count, a median, JSON-LD, a meta tag or the sitemap. The ONE exception, the owner's
+//     call (2026-10-11): a product's price table carries one eBay row, its cheapest own listing ranked by price among the stores
+//     (components/OfferTable.tsx, lib/ebay-offer-row.ts). It is a row of the comparison, not a unit: the density rule below counts the
+//     strips and CTAs, not it, and it is still never the best price, a count, a median, JSON-LD, meta or the sitemap.
 //   • Density: at most ONE unit in a phone viewport (390x844) and two on a desktop one (the header's own "eBay" item
 //     is always one of the two on xl and up). The planners below keep units far enough apart; where a page is too
 //     short to fit its own units beside the pre-footer strip, the pre-footer strip gives way (<NoPreFooter/>).

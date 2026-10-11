@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { Fragment, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { AFFILIATE_NOTE_SHORT, ebayCardSearchUrl, ebayLabel, ebayRetailer, ebayRetailerForHref, ebaySearchUrl, REL_SPONSORED, type Placement } from "@/lib/affiliate";
 import {
   acceptResponse,
@@ -20,7 +20,9 @@ import {
   type FeedKind,
 } from "@/lib/ebay-context";
 import { preFooterPlan } from "@/lib/ebay-ads";
-import { isRegion, type Region } from "@/lib/regions";
+import { ebayRowIndex, listingCents, pickListing, type PriceFloor } from "@/lib/ebay-offer-row";
+import { money } from "@/lib/format";
+import { isRegion, REGIONS, type Region } from "@/lib/regions";
 import type { EbayHighlight } from "./Ebay";
 import { EbayMark } from "./EbayMark";
 import { OutboundLink } from "./OutboundLink";
@@ -104,10 +106,11 @@ type State = { status: "idle" } | { status: "ready"; a: Accepted } | { status: "
 
 /**
  * Observe `ref`; the first time it comes within 300 px of the viewport (or at once where IntersectionObserver is
- * missing), load the context. Returns the unit's state. While data is shown it is re-checked against its age bound.
+ * missing, or when `eager`: a row of the price table, which must be in place before the visitor reaches it), load the context.
+ * Returns the unit's state. While data is shown it is re-checked against its age bound.
  */
-function useListings(opts: { region: Region; context: string; placement: Placement; min: number }): { ref: React.RefObject<HTMLDivElement>; state: State; now: number } {
-  const { region, context, placement, min } = opts;
+function useListings(opts: { region: Region; context: string; placement: Placement; min: number; eager?: boolean }): { ref: React.RefObject<HTMLDivElement>; state: State; now: number } {
+  const { region, context, placement, min, eager = false } = opts;
   const ref = useRef<HTMLDivElement>(null);
   const [state, setState] = useState<State>({ status: "idle" });
   const [round, setRound] = useState(0); // bumped to re-fetch once the shown rows have aged out
@@ -131,7 +134,7 @@ function useListings(opts: { region: Region; context: string; placement: Placeme
       });
     };
     let io: IntersectionObserver | null = null;
-    if (typeof IntersectionObserver === "undefined" || !node) {
+    if (eager || typeof IntersectionObserver === "undefined" || !node) {
       load(round > 0);
     } else {
       io = new IntersectionObserver(
@@ -150,7 +153,7 @@ function useListings(opts: { region: Region; context: string; placement: Placeme
       io?.disconnect();
       if (held) release(held);
     };
-  }, [region, context, placement, min, round]);
+  }, [region, context, placement, min, eager, round]);
 
   // The age bound, enforced here too. The route says how old a row may be (and never returns older); a tab left open
   // for hours must not keep showing rows that have since crossed it: check on a timer and when the tab comes back,
@@ -669,121 +672,138 @@ export function EbayFeedTile({ region }: { region: Region }) {
   );
 }
 
-// ─── The product's eBay price rows (top of the price section) ─────────────────
+// ─── The eBay row of a product's price table ───────────────────────────────────
 
-const PRICE_ROWS = 3;
+/** A store row of the price table as the server rendered it (OfferTable), with what the eBay row needs to find its place among them. */
+export interface OfferRowSlot {
+  key: string;
+  /** The row's price, in the region's currency, cents. */
+  cents: number;
+  /** Buyable now (in stock or pre-order, checked recently): the rows the eBay listing is ranked among. */
+  open: boolean;
+  node: ReactNode;
+}
 
 /**
- * A product's OWN eBay listings as price rows, at the top of its price section, directly above the store table: up to three, lowest
- * price first (as its feed is stored), each a row like a store's (eBay's photo, the listing's title, condition and shipping, its price,
- * "View on eBay"), in a framed block labelled "Ad" of its own. It is never a row OF the store table, never counted in "Prices at N stores",
- * the best price, the per-pack price or the median (eBay's API License Agreement 8.1(b)(2): eBay content is not "co-mingled or combined
- * with non-eBay Content"; 8.1(d): no derived statistics). Only the product's own feed answers here: when the route falls back to its
- * type's or generic listings (other products), the block shows nothing.
+ * The store rows of a product's price table with ONE eBay row among them (the owner's call, 2026-10-11: eBay is one of the websites
+ * compared). The row is the product's lowest-priced OWN eBay listing (lib/ebay-offer-row.ts pickListing: never its type's or generic
+ * listings, never one under the store-price floor or stating another pack count), ranked by its price among the stores you can buy from now (ebayRowIndex), tinted
+ * (the sponsored tint and an eBay-blue edge), labelled "Ad", with eBay's blue "View on eBay" button. It is never the "Best price": when
+ * it is cheaper than the best store, that badge reads "Best store price". Nothing is computed from it (no count, median or per-pack).
  *
- * No layout shift: while it loads it reserves three rows (skeletons); when fewer listings come back, or none, the reserved height is
- * released only once the block is out of the viewport (useCollapsed), and until then the space stays (empty) under the rows.
+ * The server HTML (and a visitor without script) has the row as an eBay SEARCH for the product, straight after the in-stock stores: the
+ * place it keeps when the product has no listing of its own. The listing is fetched as soon as the page runs (not when the table nears
+ * the viewport) so it is usually in place before the visitor reaches the table; it then moves to its rank. The row is in the table in
+ * every state, so the page under the table never moves; only the store rows between its two places do, by one row.
  */
-export function EbayPriceRows({ region, slug, floor, className = "" }: { region: Region; slug: string; floor?: { value: number; currency: string } | null; className?: string }) {
-  const placement: Placement = "listings-price-rows";
-  const { ref, state, now } = useListings({ region, context: `item:${slug}`, placement, min: 1 });
-  const [broken, setBroken] = useState<ReadonlySet<string>>(new Set());
+export function OfferRowsWithEbay({ rows, region, slug, query, floor, packs = null }: { rows: OfferRowSlot[]; region: Region; slug: string; query: string; floor: PriceFloor | null; packs?: number | null }) {
+  const placement: Placement = "listings-offer-row";
+  const { ref, state, now } = useListings({ region, context: `item:${slug}`, placement, min: 1, eager: true });
+  const [thumbOk, setThumbOk] = useState<Record<string, false>>({});
   const a = state.status === "ready" && state.a.feed === "item" ? state.a : null;
-  // A listing far under the product's cheapest store price (same currency) is almost always a part of it or a single card, which lowest
-  // price first would put on top: not shown here. An internal relevance check: nothing is computed for display or compared on the page.
-  const plausible = (i: AcceptedItem) => !floor || i.price.currency !== floor.currency || Number(i.price.value) >= floor.value;
-  const items = a ? a.items.filter((i) => !broken.has(i.id) && plausible(i)).slice(0, PRICE_ROWS) : [];
-  const settled = state.status === "none" || (state.status === "ready" && items.length < PRICE_ROWS);
-  const released = useCollapsed(ref, settled);
-  const none = state.status === "none" || (state.status === "ready" && items.length === 0);
-  if (none && released) return <div ref={ref} />;
-  const reserve = !released; // three rows' height until it is safe to let the block shrink
-  return (
-    <div ref={ref} className={`grid grid-cols-[minmax(0,1fr)] ${className}`}>
-      {reserve && (
-        <div aria-hidden="true" className="invisible col-start-1 row-start-1">
-          <PriceRowsFrame region={region} age="26 h ago" maxAgeMs={hoursToMs(DEFAULT_MAX_AGE_HOURS)}>
-            {Array.from({ length: PRICE_ROWS }, (_, i) => (
-              <PriceRowSkeleton key={i} />
-            ))}
-          </PriceRowsFrame>
-        </div>
-      )}
-      {(state.status === "idle" || items.length > 0) && (
-        <div
-          className="col-start-1 row-start-1 self-start"
-          {...(a && items.length ? { "data-ad": placement, "data-feed": "item", "data-state": "ready", role: "group", "aria-label": "Sponsored: this product's eBay listings (ads)" } : { "aria-hidden": true })}
-        >
-          <PriceRowsFrame region={region} age={a ? formatAge(now - a.fetchedAtMs) : null} maxAgeMs={a?.maxAgeMs ?? hoursToMs(DEFAULT_MAX_AGE_HOURS)}>
-            {a
-              ? items.map((it) => <PriceRow key={it.id} item={it} region={region} placement={placement} onBroken={(id) => setBroken((s) => new Set(s).add(id))} />)
-              : Array.from({ length: PRICE_ROWS }, (_, i) => <PriceRowSkeleton key={i} />)}
-          </PriceRowsFrame>
-        </div>
-      )}
-    </div>
+  const item = a ? pickListing(a.items, floor, packs) : null;
+  const currency = REGIONS[region]?.currency;
+  const cents = item && item.price.currency === currency ? listingCents(item.price.value) : null;
+  const at = ebayRowIndex(rows, cents);
+  // the cheapest store you can buy from: its badge says "store" when the eBay listing beats it
+  const best = rows.find((r) => r.open);
+  const cheaper = cents != null && best != null && cents < best.cents;
+  const row = (
+    <EbayOfferRow
+      key="ebay"
+      region={region}
+      placement={placement}
+      query={query}
+      item={item}
+      cents={cents}
+      age={a ? formatAge(now - a.fetchedAtMs) : ""}
+      thumb={item ? thumbOk[item.id] !== false : false}
+      onThumbError={(id) => setThumbOk((s) => ({ ...s, [id]: false }))}
+    />
   );
-}
-
-function PriceRowsFrame({ region, age, maxAgeMs, children }: { region: Region; age: string | null; maxAgeMs: number; children: ReactNode }) {
   return (
-    <div className="ad-box overflow-hidden">
-      <div className="flex items-center gap-2 border-b border-line px-4 py-2 sm:px-5">
-        <EbayMark className="text-base" />
-        <span className="ad-pill">Ad</span>
-        <span className="min-w-0 truncate text-[11px] font-semibold uppercase tracking-wide text-muted">Listings on {ebayLabel(region)}</span>
-        <span className="ml-auto shrink-0 text-[11px] text-muted">{age ? `Updated ${age}` : " "}</span>
-      </div>
-      <ul role="list" className="divide-y divide-line">
-        {children}
+    <div ref={ref}>
+      <ul className="group/offers divide-y divide-line" data-ebay={cheaper ? "cheaper" : undefined}>
+        {rows.slice(0, at).map((r) => (
+          <Fragment key={r.key}>{r.node}</Fragment>
+        ))}
+        {row}
+        {rows.slice(at).map((r) => (
+          <Fragment key={r.key}>{r.node}</Fragment>
+        ))}
       </ul>
-      <p className="border-t border-line px-4 py-2 text-[11px] leading-4 text-muted sm:px-5">
-        {AFFILIATE_NOTE_SHORT} Imported from eBay {importCadence(maxAgeMs)}{age ? ` (updated ${age})` : ""}, lowest price first, before shipping; check eBay.
-        {SHARED_FEED_SHORT[region] ? ` ${SHARED_FEED_SHORT[region]}` : ""}
-      </p>
     </div>
   );
 }
 
-const PRICE_ROW = "flex h-[84px] items-center gap-3 px-4 sm:px-5";
+const EBAY_BUTTON = "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[#3665f3] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2a50c8]";
 
-function PriceRow({ item, region, placement, onBroken }: { item: AcceptedItem; region: Region; placement: Placement; onBroken: (id: string) => void }) {
-  const ship = shipFor(region, item.ship);
-  const cond = conditionLabel(item.condition);
+/** Shaped like a store row (OfferTable): the same paddings, two lines on the left, a pill, a price over a small line, one button. */
+function EbayOfferRow({ region, placement, query, item, cents, age, thumb, onThumbError }: { region: Region; placement: Placement; query: string; item: AcceptedItem | null; cents: number | null; age: string; thumb: boolean; onThumbError: (id: string) => void }) {
+  const r = REGIONS[region];
+  const ship = item ? shipFor(region, item.ship) : null;
+  const cond = item ? conditionLabel(item.condition) : "";
+  const q = query.trim();
   return (
-    <li>
-      <OutboundLink href={item.href} rel={REL_SPONSORED} retailer={ebayRetailerForHref(item.href, region)} placement={placement} className={`group ${PRICE_ROW} transition-colors hover:bg-raised focus-visible:outline-offset-[-2px]`}>
-        <span className="relative h-14 w-14 shrink-0 overflow-hidden rounded-md bg-surface">
-          <img src={item.imageUrl} alt="" width={500} height={500} loading="lazy" decoding="async" referrerPolicy="no-referrer" onError={() => onBroken(item.id)} className="absolute inset-0 h-full w-full object-contain" />
+    <li
+      data-offer-row=""
+      data-ad={placement}
+      data-state={item ? "listing" : "search"}
+      className="flex flex-col gap-2.5 bg-ad px-4 py-3.5 shadow-[inset_3px_0_0_#3665f3] sm:flex-row sm:items-center sm:gap-4 sm:px-5"
+    >
+      <div className="flex min-w-0 flex-1 items-center gap-3">
+        <span className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-md border border-line bg-surface text-muted">
+          {item && thumb ? (
+            <img src={item.imageUrl} alt="" width={500} height={500} loading="lazy" decoding="async" referrerPolicy="no-referrer" onError={() => onThumbError(item.id)} className="absolute inset-0 h-full w-full object-contain" />
+          ) : (
+            <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <circle cx="8.5" cy="8.5" r="5.5" />
+              <path d="m13 13 4.5 4.5" />
+            </svg>
+          )}
         </span>
-        <span className="min-w-0 flex-1">
-          <span className="line-clamp-2 text-[13px] font-semibold leading-[18px] group-hover:text-brand">{item.title}</span>
-          <span className={`block truncate text-[11px] leading-4 ${ship.free ? "font-medium text-open" : "text-muted"}`}>
-            {cond ? <span className="font-normal text-muted">{cond} · </span> : null}
-            {ship.text}
-          </span>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <EbayMark className="text-lg" />
+            <span className="ad-pill">Ad</span>
+            {cond && <span className="shrink-0 truncate rounded-full border border-line bg-surface px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-muted">{cond}</span>}
+          </div>
+          <div className="mt-0.5 truncate text-xs text-faint" title={item?.title}>
+            {item ? (
+              <>
+                <span className="sm:hidden">updated {age} · </span>
+                {item.title}
+              </>
+            ) : (
+              `Search ${q.length > 48 ? `${q.slice(0, 47)}…` : q || "this product"} on ${ebayLabel(region)}`
+            )}
+          </div>
+        </div>
+      </div>
+      <div className="flex items-center justify-between gap-3 sm:justify-end sm:gap-4">
+        {/* the shipping: a pill like the stores' stock pill on a wide screen, plain text on a phone (where the row has less room) */}
+        <span
+          className={`min-w-0 truncate text-xs font-semibold sm:inline-flex sm:shrink-0 sm:items-center sm:whitespace-nowrap sm:rounded-full sm:px-2.5 sm:py-1 ${ship?.free ? "text-open sm:bg-open-soft" : "text-muted sm:border sm:border-line sm:bg-surface"}`}
+        >
+          {ship ? ship.text : "Marketplace"}
         </span>
-        <span className="shrink-0 text-right">
-          <span className="tabular block font-display text-base font-bold sm:text-lg">{formatPrice(item.price)}</span>
-          <span className="text-xs font-semibold text-brand">
-            View on eBay <Arrow />
-          </span>
-        </span>
-        <span className="sr-only"> (opens eBay in a new tab)</span>
-      </OutboundLink>
-    </li>
-  );
-}
-
-function PriceRowSkeleton() {
-  return (
-    <li aria-hidden="true" className={PRICE_ROW}>
-      <span className="h-14 w-14 shrink-0 rounded-md bg-raised" />
-      <span className="min-w-0 flex-1">
-        <span className="block h-3 w-4/5 rounded bg-raised" />
-        <span className="mt-2 block h-3 w-2/5 rounded bg-raised" />
-      </span>
-      <span className="block h-5 w-16 shrink-0 rounded bg-raised" />
+        <div className="flex shrink-0 items-center gap-3 sm:gap-4">
+          <div className="text-right sm:w-28">
+            <div className="tabular font-display text-lg font-bold">{item ? (cents != null ? money(cents, r.market) : formatPrice(item.price)) : "\u00a0"}</div>
+            <div className="tabular hidden whitespace-nowrap text-xs text-muted sm:block">{item ? `updated ${age}` : "\u00a0"}</div>
+          </div>
+          <OutboundLink
+            href={item ? item.href : ebaySearchUrl(q, region, placement)}
+            rel={REL_SPONSORED}
+            retailer={item ? ebayRetailerForHref(item.href, region) : ebayRetailer(region)}
+            placement={placement}
+            className={EBAY_BUTTON}
+          >
+            {item ? "View on eBay" : "Search eBay"} <Arrow />
+            <span className="sr-only">{item ? ` (ad): ${item.title}, opens eBay` : " (ad), opens eBay"}</span>
+          </OutboundLink>
+        </div>
+      </div>
     </li>
   );
 }
