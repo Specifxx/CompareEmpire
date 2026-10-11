@@ -28,8 +28,9 @@ export function OfferTable({
   preorder: boolean;
   /** Booster packs per unit (src/lib/packs.ts), for a per-pack price under each row's price. Null = not shown. */
   packs?: number | null;
-  /** The product's eBay row: its slug (its own listings), the eBay search used when it has none, and the store-price floor. Null = no eBay row. */
-  ebay?: { slug: string; query: string; floor: PriceFloor | null } | null;
+  /** The product's eBay row: its slug (its own listings), the eBay search used when it has none, the store-price floor and the pack count
+   *  listings are checked against (lib/ebay-offer-row.ts rowPacks). Null = no eBay row. */
+  ebay?: { slug: string; query: string; floor: PriceFloor | null; packs: number | null } | null;
 }) {
   const r = REGIONS[region];
   const now = Date.now();
@@ -89,7 +90,7 @@ export function OfferTable({
   return (
     <div className="card overflow-hidden">
       {ebay ? (
-        <OfferRowsWithEbay rows={rows} region={region} slug={ebay.slug} query={ebay.query} floor={ebay.floor} packs={packs} />
+        <OfferRowsWithEbay rows={rows} region={region} slug={ebay.slug} query={ebay.query} floor={ebay.floor} packs={ebay.packs} />
       ) : (
         <ul className="divide-y divide-line">{rows.map((row) => row.node)}</ul>
       )}

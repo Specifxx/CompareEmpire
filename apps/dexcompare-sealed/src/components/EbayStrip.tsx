@@ -723,14 +723,9 @@ export function OfferRowsWithEbay({ rows, region, slug, query, floor, packs = nu
   );
   return (
     <div ref={ref}>
+      {/* ONE keyed list (not three slots): when the eBay row changes place, React moves the store rows' nodes instead of rebuilding them (focus kept) */}
       <ul className="group/offers divide-y divide-line" data-ebay={cheaper ? "cheaper" : undefined}>
-        {rows.slice(0, at).map((r) => (
-          <Fragment key={r.key}>{r.node}</Fragment>
-        ))}
-        {row}
-        {rows.slice(at).map((r) => (
-          <Fragment key={r.key}>{r.node}</Fragment>
-        ))}
+        {[...rows.slice(0, at).map((r) => <Fragment key={r.key}>{r.node}</Fragment>), row, ...rows.slice(at).map((r) => <Fragment key={r.key}>{r.node}</Fragment>)]}
       </ul>
     </div>
   );

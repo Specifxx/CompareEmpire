@@ -16,6 +16,7 @@ test("ETB pack counts follow the series: 8 to Sword & Shield, 9 from Scarlet & V
   assert.equal(packsFor("pc-etb", "sv8"), 11);
   assert.equal(packsFor("pc-etb", "swsh12"), 10);
   assert.equal(packsFor("pc-etb", "sm12"), null); // none published for Sun & Moon
+  assert.equal(packsFor("pc-etb", "cel25"), null); // Celebrations: no honest count, as for its ETB
 });
 
 test("ETB pack counts by set: the 10-pack special sets, and Celebrations refuses a per-pack price", () => {

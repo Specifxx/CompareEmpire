@@ -8,7 +8,7 @@ import * as React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { EBAY_CAMPAIGN_ID, PLACEMENTS, REL_SPONSORED } from "../src/lib/affiliate";
 import type { OfferView } from "../src/lib/data";
-import { ebayRowIndex, ebayRowNote, listingCents, pickListing, statedPacks, wrongPackCount } from "../src/lib/ebay-offer-row";
+import { displayPacksFromCards, ebayRowIndex, ebayRowNote, listingCents, pickListing, rowPacks, statedPacks, wrongPackCount } from "../src/lib/ebay-offer-row";
 import { OfferTable } from "../src/components/OfferTable";
 
 (globalThis as unknown as { React: typeof React }).React = React;
@@ -51,6 +51,25 @@ test("a listing stating another pack count than the product's is not the product
   assert.equal(wrongPackCount("Pokemon Destined Rivals Booster Bundle 2 x Booster Packs", 6), true);
   assert.equal(wrongPackCount("Pokemon Surging Sparks Booster Box Sealed", 36), false, "no count stated: no opinion");
   assert.equal(wrongPackCount("Some Collection 4 Booster Packs", null), false, "no count known (collections, tins): no opinion");
+  // eBay UK, 2026-10-11, Pitch Black: 18-pack displays that say so another way
+  assert.deepEqual(statedPacks("Pokémon TCG Mega Evolution Pitch Black Sealed Booster Box pack of 18 cards"), [18]);
+  assert.deepEqual(displayPacksFromCards("Pokémon TCG Mega Evolution Pitch Black Booster Box 180 Cards English 2026"), [18]);
+  assert.equal(wrongPackCount("Pokémon TCG Mega Evolution Pitch Black Booster Box 180 Cards English 2026", 36), true);
+  assert.equal(wrongPackCount("Pokemon Surging Sparks Booster Box 36 Packs 360 Cards", 36), false);
+  // a card count is read only for a box-sized product, and only at a display's size
+  assert.equal(wrongPackCount("Pokémon TCG Evolutions Elite Trainer Box 1 Box English 2016 180 Cards", 8), false, "an ETB's card count says nothing");
+  assert.equal(wrongPackCount("Pokémon TCG Evolving Skies Sealed Booster Box 200 Cards English 2021", 36), false, "200 cards is no display size");
+  assert.deepEqual(statedPacks("Elite Trainer Box 9 Booster Packs 45 Energy Cards 65 Card Sleeves"), [9], "card counts and sleeves are not packs");
+  assert.deepEqual(statedPacks("Booster Box 18 Boosters 108 Cards"), [18]);
+  assert.deepEqual(displayPacksFromCards("Booster Box 18 Boosters 108 Cards"), []);
+  assert.deepEqual(statedPacks("Pokemon 2024 Booster Box Sealed"), [], "a year is not a count");
+  // a product of several units: its listings state one unit's packs, so the row does not check them
+  assert.equal(rowPacks("booster-box-case", 216), null);
+  assert.equal(rowPacks("etb-case", 90), null);
+  assert.equal(rowPacks("booster-bundle-case", null), null);
+  assert.equal(rowPacks("build-battle-stadium", 11), null);
+  assert.equal(rowPacks("booster-box", 36), 36);
+  assert.equal(rowPacks(undefined, 36), null);
   // the set named 151 is not a pack count
   assert.deepEqual(statedPacks("Pokemon 151 Booster Bundle Sealed"), []);
   assert.deepEqual(statedPacks("Pokemon Scarlet Violet 151 Booster Packs x1"), []);
@@ -97,7 +116,7 @@ const offer = (store: string, priceCents: number, inStock = true, extra: Partial
 
 test("the server table: store rows as before, the eBay row as a search after the in-stock stores (labelled Ad, sponsored, eBay's blue), the note under it", () => {
   const offers = [offer("alpha", 5000), offer("beta", 6000), offer("gamma", 4000, false)];
-  const html = render(React.createElement(OfferTable, { offers, region: "us", preorder: false, ebay: { slug: "x-etb", query: "Surging Sparks Elite Trainer Box", floor: null } }));
+  const html = render(React.createElement(OfferTable, { offers, region: "us", preorder: false, ebay: { slug: "x-etb", query: "Surging Sparks Elite Trainer Box", floor: null, packs: null } }));
   const rows = [...html.matchAll(/<li data-offer-row=""([^>]*)>/g)].map((m) => m[1]);
   assert.equal(rows.length, 4, "three stores and eBay");
   assert.match(rows[2], /data-ad="listings-offer-row"/, "after the two in-stock stores, before the sold-out one");
@@ -127,7 +146,7 @@ test("the server table: store rows as before, the eBay row as a search after the
 
 test("NZ and SG: the note says whose listings these are; no eBay row without `ebay`", () => {
   const offers = [offer("alpha", 5000)];
-  const nz = render(React.createElement(OfferTable, { offers, region: "nz", preorder: false, ebay: { slug: "x", query: "X", floor: null } }));
+  const nz = render(React.createElement(OfferTable, { offers, region: "nz", preorder: false, ebay: { slug: "x", query: "X", floor: null, packs: null } }));
   assert.match(nz, /eBay Australia listing/);
   assert.match(nz, /www\.ebay\.com\.au/);
   const plain = render(React.createElement(OfferTable, { offers, region: "us", preorder: false }));
@@ -137,7 +156,8 @@ test("NZ and SG: the note says whose listings these are; no eBay row without `eb
 
 test("the product page passes the eBay row to its table, and nothing else draws eBay rows; the row reads only the product's own feed", () => {
   const product = readFileSync(new URL("../src/app/[region]/p/[slug]/page.tsx", import.meta.url), "utf8");
-  assert.match(product, /<OfferTable [^>]*ebay=\{\{ slug: p\.slug, query: ebayQ, floor: ebayFloor \}\}/);
+  assert.match(product, /<OfferTable [^>]*ebay=\{\{ slug: p\.slug, query: ebayQ, floor: ebayFloor, packs: rowPacks\(type\?\.key, packs\) \}\}/);
+  assert.match(product, /const cheapestCents = best\?\.priceCents \?\?/, "the floor is the cheapest in-stock store's price");
   assert.doesNotMatch(product, /EbayPriceRows/);
   const strip = readFileSync(new URL("../src/components/EbayStrip.tsx", import.meta.url), "utf8");
   const src = strip.slice(strip.indexOf("export function OfferRowsWithEbay"));

@@ -14,6 +14,7 @@ import { Section } from "@/components/Section";
 import { StockPill } from "@/components/StockPill";
 import { offerLink, offerRetailer } from "@/lib/affiliate";
 import { productAdPlan } from "@/lib/ebay-ads";
+import { rowPacks } from "@/lib/ebay-offer-row";
 import { comparable, productPage, relatedProducts, type OfferView } from "@/lib/data";
 import { medianSaving, money, pctOf, plural } from "@/lib/format";
 import { thumb } from "@/lib/images";
@@ -140,8 +141,10 @@ export default async function ProductPage({ params }: { params: { region: string
   const ads = productAdPlan({ offerRows: p.offers.length, elsewhere: elsewhere.length, related: set ? related.length : 0 });
   const stripContext = `item:${p.slug}`;
   // The eBay row of the price table skips a listing under 40% of the cheapest store price, when the store prices are in the eBay site's
-  // currency (not NZ or SG, served the AU and US sites): such a listing is a part of the product or a single card, not the product.
-  const cheapestCents = p.offers.reduce<number | null>((m, o) => (m == null || o.priceCents < m ? o.priceCents : m), null);
+  // currency (not NZ or SG, served the AU and US sites): such a listing is a part of the product or a single card, not the product. The
+  // price is the cheapest IN-STOCK store's, the rows the listing is ranked among (a sold-out or stale price can be far below what the
+  // product sells for now); any store's when none is in stock.
+  const cheapestCents = best?.priceCents ?? p.offers.reduce<number | null>((m, o) => (m == null || o.priceCents < m ? o.priceCents : m), null);
   const ebayFloor = cheapestCents != null && marketplaceOf(r.region).currency === r.currency ? { value: (cheapestCents * 0.4) / 100, currency: r.currency } : null;
   // A product of one of the owner's hot sets (lib/popular.ts: 30th Celebration first), once the set is out: the marketplace panel makes
   // eBay its primary button with a "Popular set" chip, and the strip carries the highlighted "Shop <product> on eBay" button. Where
@@ -345,7 +348,7 @@ export default async function ProductPage({ params }: { params: { region: string
       <Section title={tableTitle}>
         {p.offers.length ? (
           // eBay is one of the websites compared: the product's cheapest own eBay listing is a row of the table, ranked by price (an ad, tinted).
-          <OfferTable offers={p.offers} region={r.region} preorder={pre} packs={packs} ebay={{ slug: p.slug, query: ebayQ, floor: ebayFloor }} />
+          <OfferTable offers={p.offers} region={r.region} preorder={pre} packs={packs} ebay={{ slug: p.slug, query: ebayQ, floor: ebayFloor, packs: rowPacks(type?.key, packs) }} />
         ) : (
           <div className="card px-6 py-8 text-muted">
             None of the {r.adjective} stores we track list {p.name} right now.

@@ -74,6 +74,8 @@ export function packsFor(type: TypeKey, setCode: string | null, name = ""): numb
       return series ? ETB_BY_SERIES[series] ?? null : null;
     }
     case "pc-etb":
+      // a set whose ETB has no honest count (Celebrations) has none for its Pokémon Center ETB either
+      if (setCode && ETB_BY_SET[setCode] === null) return null;
       return series ? PC_ETB_BY_SERIES[series] ?? null : null;
     case "etb-case": {
       const etb = packsFor("etb", setCode);
