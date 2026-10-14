@@ -87,16 +87,33 @@ In the existing **dexcompare** project (or a new one importing
    if they are there (they were, for the earlier on-demand listings): the website no longer calls
    eBay, so it needs no eBay credential, and keeping them there only widens who could read them
    (least privilege). They live in GitHub Actions now (see "eBay listings: the daily import").
+
+   Scoped to Preview as well, `DATABASE_URL` gives a preview deployment the
+   **production** database. That is why previews are off (below) and why a
+   preview build reads no database at all.
 4. Deployments → **Redeploy** the latest `main` commit (untick "use existing
    build cache"). The build does not need the database to be filled.
 
 The old app's Vercel crons (price alerts, newsletter) disappear with this
-deploy: the new `vercel.json` defines none. Its `ignoreCommand` skips builds
-for pushes that don't touch `apps/dexcompare-sealed` (every production build
-empties the page cache, so unrelated pushes shouldn't trigger one). If a
-deploy shows **"Canceled by Ignored Build Step"** when you wanted it, push any
-change under `apps/dexcompare-sealed`, or clear Settings → Git → Ignored Build
-Step for that one deploy.
+deploy: the new `vercel.json` defines none. Its `ignoreCommand`
+(`scripts/vercel-ignore-build.sh`) decides whether a push builds at all:
+
+- **Production** (`main`) builds when the pushed commit changes something under
+  `apps/dexcompare-sealed`, and skips otherwise (every production build empties
+  the page cache, so pushes to the other apps shouldn't trigger one).
+- **Preview deployments are off** (the owner, 2026-10-14). A push to any other
+  branch builds nothing unless its commit SUBJECT carries `[preview]` (any
+  case) and the commit changes the app; put the marker in only when a preview
+  is wanted. Before, every push of a branch touching the app built a preview
+  that prerendered the eight sitemap files against the production database.
+  A preview that is asked for still reads no database at build: its sitemap
+  files are written without products (`src/lib/build-env.ts`), and its pages
+  read the production database only when someone opens them, like any ISR page.
+
+`tests/vercel-ignore-build.test.ts` pins both. If a deploy shows **"Canceled by
+Ignored Build Step"** when you wanted it, push any change under
+`apps/dexcompare-sealed` (on a branch: with `[preview]` in the subject), or
+clear Settings → Git → Ignored Build Step for that one deploy.
 
 ## 5. Domains
 
@@ -706,7 +723,8 @@ Run `scripts/ebay-check.ts` once the keys are in, then one manual import, and re
 - `https://www.dexcompare.app/sitemap.xml` lists eight files, and
   `/sitemap/2.xml` (US) has a couple of thousand `/us/p/…` URLs. A regional
   file with no products means the database is empty or unreachable (the build
-  writes empty regional files when it cannot reach the database; the first
+  writes empty regional files when it cannot reach the database, and a preview
+  build always does; the first
   import's page refresh fills them).
 - `view-source:` of any page: `<link rel="canonical">` and every `hrefLang`
   say `https://www.dexcompare.app/…`. If they say another host, fix

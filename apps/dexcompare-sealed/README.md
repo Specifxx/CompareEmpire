@@ -153,8 +153,13 @@ GitHub Actions (once a day)                 /api/ebay/<region> reads EbayListing
   distinctive words. It prefers leaving a listing out to putting it on the
   wrong product.
 - **Egress**: the rules at the top of `src/lib/db.ts` (from Rift Compare). No
-  page is prerendered against the database at build, and no request reads a
-  whole table.
+  page is prerendered against the database at build (only the sitemap files
+  are, and only in a production build), and no request reads a whole table.
+- **Deploys** (`vercel.json` → `scripts/vercel-ignore-build.sh`): production
+  builds when a push to `main` changes this app. Preview deployments are off
+  (the owner, 2026-10-14): a branch builds only when its commit subject carries
+  `[preview]`, and even then the build reads no database, because a preview's
+  `DATABASE_URL` is production's (DEPLOY.md, step 4).
 - **Caching**: every region page and the sitemap files are ISR-cached for 24
   hours (`export const revalidate = 86400`), and each store import (twice a
   day) re-renders them through `/api/revalidate`, so the TTL is only the

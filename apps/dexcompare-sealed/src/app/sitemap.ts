@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { isPreviewBuild } from "@/lib/build-env";
 import { COMPARABLE } from "@/lib/data";
 import { prisma } from "@/lib/db";
 import { regionOfSitemapId, SITEMAP_IDS, STATIC_SITEMAP_ID, regionSitemap, staticSitemap } from "@/lib/sitemap";
@@ -15,12 +16,15 @@ export const revalidate = 86400;
 // which prerenders these files and must not fail when the database is
 // unreachable or empty (DEPLOY.md): it gets the static pages without lastmod
 // and empty regional files, and the first post-import refresh fills them in.
+// A preview build writes the same without asking: its DATABASE_URL is
+// production's, and a preview reads nothing at build (src/lib/build-env.ts).
 export function generateSitemaps() {
   return SITEMAP_IDS;
 }
 
 export default async function sitemap({ id }: { id: number }): Promise<MetadataRoute.Sitemap> {
   const n = Number(id);
+  if (isPreviewBuild()) return n === STATIC_SITEMAP_ID ? staticSitemap({}) : [];
   try {
     if (n === STATIC_SITEMAP_ID) return staticSitemap(await lastImportByMarket());
     const r = regionOfSitemapId(n);
