@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { REGION_LIST } from "@/lib/regions";
-import { CONTACT_EMAIL, OPERATOR, SITE_NAME } from "@/lib/site";
+import { CONTACT_EMAIL, OPERATOR, SISTER_SITES, SITE_NAME } from "@/lib/site";
 import { LogoMark } from "./Logo";
 
 export function Footer() {
   return (
     <footer className="mt-20 border-t border-line bg-surface">
-      <div className="page grid gap-10 py-12 md:grid-cols-[1.4fr_1fr_1fr]">
+      <div className="page grid gap-10 py-12 sm:grid-cols-2 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div className="max-w-sm">
           <div className="flex items-center gap-2 font-display text-lg font-extrabold">
             <LogoMark className="h-7 w-7" /> DexCompare
@@ -46,6 +46,19 @@ export function Footer() {
             <li><Link href="/terms" className="text-muted hover:text-ink">Terms</Link></li>
             <li><Link href="/privacy" className="text-muted hover:text-ink">Privacy</Link></li>
             <li><a href={`mailto:${CONTACT_EMAIL}`} className="text-muted hover:text-ink">{CONTACT_EMAIL}</a></li>
+          </ul>
+        </div>
+        <div>
+          <div className="eyebrow mb-3">Also from us</div>
+          <ul className="grid gap-2.5 text-sm">
+            {SISTER_SITES.map((s) => (
+              <li key={s.url}>
+                <a href={s.url} target="_blank" rel="noopener" className="font-semibold text-muted hover:text-ink">
+                  {s.name}
+                </a>
+                <span className="block text-xs text-faint">{s.what}</span>
+              </li>
+            ))}
           </ul>
         </div>
       </div>
