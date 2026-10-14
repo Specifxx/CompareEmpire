@@ -12,7 +12,9 @@ import { PrismaClient } from "@prisma/client";
 //      count isn't bounded by the entity.
 //   3. Whole-table reads belong in scripts/import.ts, never in a page.
 //   4. Pages are ISR-cached (`export const revalidate`, generateStaticParams
-//      returning []) and re-rendered after each import via /api/revalidate. No
+//      returning []) and re-rendered after each import via /api/revalidate. The
+//      TTL is 86400 and never under 21600 (6 h: the owner, 2026-10-14; pinned by
+//      tests/cache-ttl.test.ts): the import is what refreshes prices. No
 //      unstable_cache anywhere: its TTL leaks to the whole route segment, and a
 //      short one silently re-runs every query on the page.
 //   5. The eBay strips read the EbayListing table through /api/ebay/<region> (src/lib/ebay-read.ts): ONE indexed

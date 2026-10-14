@@ -155,6 +155,15 @@ GitHub Actions (once a day)                 /api/ebay/<region> reads EbayListing
 - **Egress**: the rules at the top of `src/lib/db.ts` (from Rift Compare). No
   page is prerendered against the database at build, and no request reads a
   whole table.
+- **Caching**: every region page and the sitemap files are ISR-cached for 24
+  hours (`export const revalidate = 86400`), and each store import (twice a
+  day) re-renders them through `/api/revalidate`, so the TTL is only the
+  backstop for a missed import. The floor is **6 hours**: never set a page,
+  layout, sitemap or fetch TTL under `21600` (the owner, 2026-10-14: prices
+  need refreshing every 6 to 24 hours, not more often; `tests/cache-ttl.test.ts`).
+  The landing and trust pages read no data and stay static until a deploy. The
+  only shorter cache is the eBay listings API (`/api/ebay/<region>`: CDN 5
+  minutes, 60 s when empty), which serves a strip's JSON, not a page.
 - **Regions in URLs** (`src/lib/regions.ts`): every page under `/[region]`
   starts with `regionOrNotFound(params.region)`, which 404s an unknown or
   upper-case segment before anything dereferences it; `src/middleware.ts`
