@@ -6,6 +6,7 @@
 // is the static pages and every store page; /sitemap/1.xml … /sitemap/7.xml
 // is one region each — its types, sets and comparable products.
 import type { MetadataRoute } from "next";
+import { openPreorderGuides } from "./preorder-guides";
 import { REGION_LIST, regionOfMarket, type Region, type RegionInfo } from "./regions";
 import { PRODUCT_TYPES } from "./sealed-title";
 import { SETS } from "./sets";
@@ -33,11 +34,12 @@ const url = (path: string, lastModified: Date | null | undefined, changeFrequenc
 });
 
 /**
- * The static pages, each region's landing pages and every store page.
+ * The static pages, each region's landing pages (its pre-order pages
+ * included, while their set is upcoming) and every store page.
  * `lastmod` is each market's last import (StoreStat max(updatedAt) — a
  * current-state column, not history).
  */
-export function staticSitemap(lastmod: Partial<Record<string, Date | null>>): MetadataRoute.Sitemap {
+export function staticSitemap(lastmod: Partial<Record<string, Date | null>>, today = new Date().toISOString().slice(0, 10)): MetadataRoute.Sitemap {
   const out: MetadataRoute.Sitemap = [
     url("", null, "daily", 1),
     url("/about", null, "monthly", 0.3),
@@ -52,6 +54,8 @@ export function staticSitemap(lastmod: Partial<Record<string, Date | null>>): Me
     out.push(url(`/${r.region}/releases`, m, "weekly", 0.6));
     out.push(url(`/${r.region}/sets`, m, "weekly", 0.6));
     out.push(url(`/${r.region}/stores`, m, "weekly", 0.5));
+    // Pre-order pages, until release day (they are noindexed from then on: lib/preorder-guides.ts).
+    for (const { set } of openPreorderGuides(today)) out.push(url(`/${r.region}/preorders/${set.slug}`, m, "daily", 0.8));
   }
   for (const s of STORES) {
     const r = regionOfMarket(s.market);

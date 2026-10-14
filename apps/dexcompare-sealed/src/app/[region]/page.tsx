@@ -9,6 +9,7 @@ import { Empty, Section } from "@/components/Section";
 import { homeRails, regionOverview } from "@/lib/data";
 import { cardOpen } from "@/lib/compact";
 import { money, plural, timeAgo } from "@/lib/format";
+import { openPreorderGuides } from "@/lib/preorder-guides";
 import { isPreorderSet, formatRelease } from "@/lib/release";
 import { regionOrNotFound } from "@/lib/regions";
 import { pageMeta, regionAlternates } from "@/lib/seo";
@@ -34,6 +35,8 @@ const QUICK_TYPES = ["booster-boxes", "elite-trainer-boxes", "booster-bundles", 
 export default async function RegionHome({ params }: { params: { region: string } }) {
   const r = regionOrNotFound(params.region);
   const [{ boxes, etbs, preorders, latestSets: bySet }, overview] = await Promise.all([homeRails(r.market), regionOverview(r.market)]);
+  // The soonest upcoming set with a pre-order page: the rail's "see all" goes there, not to a filtered browse list.
+  const preorderGuide = openPreorderGuides()[0] ?? null;
   const storeCount = storesInMarket(r.market).length;
   const latestSets = SETS.filter((s) => bySet.has(s.code)).slice(0, 4);
   // The owner's most wanted set that is out (lib/popular.ts HOT_SETS: 30th Celebration first) gets the sealed strip's highlighted
@@ -164,7 +167,12 @@ export default async function RegionHome({ params }: { params: { region: string 
         )}
 
         {preorders.length > 0 && (
-          <Section title="Open for pre-order" kicker="Upcoming sets" href={`/${r.region}/sealed?stock=in`}>
+          <Section
+            title="Open for pre-order"
+            kicker="Upcoming sets"
+            href={preorderGuide ? `/${r.region}/preorders/${preorderGuide.set.slug}` : `/${r.region}/sealed?stock=in`}
+            linkLabel={preorderGuide ? `Compare ${preorderGuide.set.name} pre-orders` : "See all"}
+          >
             <ProductGrid products={preorders} region={r.region} />
           </Section>
         )}

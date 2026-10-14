@@ -249,6 +249,23 @@ export interface ProductPageData {
   usMarketplace: UsMarketplaceOffer | null;
 }
 
+const offerSelect = { store: true, title: true, url: true, priceCents: true, inStock: true, lastSeen: true } as const;
+
+function toOfferView(o: { store: string; title: string; url: string; priceCents: number; inStock: boolean; lastSeen: Date }): OfferView {
+  const s = STORE_BY_KEY.get(o.store);
+  return {
+    store: o.store,
+    storeName: s?.name ?? o.store,
+    storeHost: s ? storeHost(s) : "",
+    title: o.title,
+    url: o.url,
+    priceCents: o.priceCents,
+    inStock: o.inStock,
+    lastSeen: o.lastSeen.toISOString(),
+    marketplace: !!s && isMarketplace(s),
+  };
+}
+
 export async function productPage(slug: string, market: Market): Promise<ProductPageData | null> {
   const p = await prisma.product.findUnique({
     where: { slug },
@@ -262,28 +279,13 @@ export async function productPage(slug: string, market: Market): Promise<Product
       offers: {
         where: { market },
         take: 80,
-        select: { store: true, title: true, url: true, priceCents: true, inStock: true, lastSeen: true },
+        select: offerSelect,
       },
       stats: { select: { market: true, lowestPriceCents: true, inStockStores: true, listedStores: true, marketplaceOpen: true, medianOpenCents: true } },
     },
   });
   if (!p) return null;
-  const offers = rankOffers(
-    p.offers.map((o) => {
-      const s = STORE_BY_KEY.get(o.store);
-      return {
-        store: o.store,
-        storeName: s?.name ?? o.store,
-        storeHost: s ? storeHost(s) : "",
-        title: o.title,
-        url: o.url,
-        priceCents: o.priceCents,
-        inStock: o.inStock,
-        lastSeen: o.lastSeen.toISOString(),
-        marketplace: !!s && isMarketplace(s),
-      };
-    }),
-  );
+  const offers = rankOffers(p.offers.map(toOfferView));
   // One row by its unique key, five columns: the cheapest read a page can make.
   const tcg =
     market === TCGPLAYER.market
@@ -356,6 +358,37 @@ export async function relatedProducts(market: Market, setCode: string, excludeSl
     select: cardSelect,
   });
   return sortCards(rows.map(toCard)).slice(0, take);
+}
+
+/** A product of one set and its offers in one market, ranked (open first, cheapest first). */
+export interface SetOfferGroup {
+  product: ProductCardData;
+  offers: OfferView[];
+}
+
+// Bounds for setOfferGroups: a set has about a dozen sealed products in a
+// market and a new set's product is listed by a few dozen stores at most.
+const SET_GROUPS_TAKE = 30;
+const SET_GROUP_OFFERS_TAKE = 40;
+
+/**
+ * Every product of one set listed in the market, each with its stores' offers —
+ * the pre-order pages' price lists. One scoped read (a set × a market), capped
+ * twice: the product count and the offers per product. Products in typeRank
+ * order (booster box first).
+ */
+export async function setOfferGroups(market: Market, setCode: string): Promise<SetOfferGroup[]> {
+  const rows = await prisma.productStat.findMany({
+    where: { market, product: { setCode } },
+    take: SET_GROUPS_TAKE,
+    select: {
+      ...cardSelect,
+      product: { select: { ...cardSelect.product.select, offers: { where: { market }, take: SET_GROUP_OFFERS_TAKE, select: offerSelect } } },
+    },
+  });
+  return rows
+    .map(({ product: { offers, ...product }, ...stat }) => ({ product: toCard({ ...stat, product }), offers: rankOffers(offers.map(toOfferView)) }))
+    .sort((a, b) => typeRank(a.product.productType) - typeRank(b.product.productType) || a.product.name.localeCompare(b.product.name));
 }
 
 // The headline set products a buyer prices a new set by. The release calendar

@@ -7,6 +7,7 @@ import { EbayStrip } from "@/components/EbayStrip";
 import { Empty } from "@/components/Section";
 import { calendarProducts, CALENDAR_TYPES, setCounts } from "@/lib/data";
 import { money, plural, relativeDay } from "@/lib/format";
+import { preorderPath } from "@/lib/preorder-guides";
 import { formatRelease } from "@/lib/release";
 import { jsonLd, pageMeta, regionAlternates } from "@/lib/seo";
 import { SETS, type PokemonSet } from "@/lib/sets";
@@ -86,6 +87,11 @@ export default async function ReleasesPage({ params }: { params: { region: strin
               `No ${r.adjective} store we track lists it yet.`
             )}
           </p>
+          {future && preorderPath(r.region, s.code) && (
+            <Link href={preorderPath(r.region, s.code)!} prefetch={false} className="mt-2 inline-block text-sm font-semibold text-pre hover:underline">
+              Compare {s.name} pre-orders store by store →
+            </Link>
+          )}
           {picks.length > 0 && (
             <ul className="mt-3 flex flex-wrap gap-2">
               {CALENDAR_TYPES.map((t) => picks.find((p) => p.productType === t)).map(

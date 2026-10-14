@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { OfferView } from "@/lib/data";
-import { offerLink, offerRetailer } from "@/lib/affiliate";
+import { offerLink, offerRetailer, type Placement } from "@/lib/affiliate";
 import { ebayRowNote, type PriceFloor } from "@/lib/ebay-offer-row";
 import { money, timeAgo } from "@/lib/format";
 import { perPackCents } from "@/lib/packs";
@@ -24,6 +24,7 @@ export function OfferTable({
   preorder,
   packs = null,
   ebay = null,
+  placement = "product-table",
 }: {
   offers: OfferView[];
   region: Region;
@@ -33,6 +34,8 @@ export function OfferTable({
   /** The product's eBay row: its slug (its own listings), the eBay search used when it has none, the store-price floor and the pack count
    *  listings are checked against (lib/ebay-offer-row.ts rowPacks). Null = no eBay row. */
   ebay?: { slug: string; query: string; floor: PriceFloor | null; packs: number | null } | null;
+  /** Whose buttons these are, for the affiliate sub-id and buy_click: the product page's table unless a page says otherwise. */
+  placement?: Placement;
 }) {
   const r = REGIONS[region];
   const now = Date.now();
@@ -40,7 +43,7 @@ export function OfferTable({
   const rows: OfferRowSlot[] = offers.map((o) => {
     const state = offerStock(o, now);
     const best = o === cheapestOpen;
-    const link = offerLink(o.store, o.url, region, "product-table");
+    const link = offerLink(o.store, o.url, region, placement);
     return {
       key: o.store,
       cents: o.priceCents,
@@ -78,7 +81,7 @@ export function OfferTable({
                 href={link.href}
                 rel={link.rel}
                 retailer={offerRetailer(o.store, o.storeName, r.market)}
-                placement="product-table"
+                placement={placement}
                 className={state === "open" ? "btn-primary" : "btn-ghost"}
               >
                 {state === "open" ? "View deal" : "View"} <span aria-hidden="true">↗</span>

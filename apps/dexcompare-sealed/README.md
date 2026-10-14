@@ -201,3 +201,19 @@ Add an entry at the top of `SETS` in `src/lib/sets.ts` (name, slug, release
 date). Products group under it from the next import. Until a new set is added,
 its set products are refused as "no set" rather than filed under the series'
 first set.
+
+## Pre-order pages
+
+An upcoming set can have a pre-order page at `/<region>/preorders/<set slug>`
+(`src/app/[region]/preorders/[set]/page.tsx`, ported from Rift Compare's
+`/radiance-preorders`): every store's live pre-order price per product,
+cheapest first, what is in each box, the key dates and an FAQ. To add one, add
+an entry to `PREORDER_GUIDES` in `src/lib/preorder-guides.ts` with facts from
+The Pokémon Company's announcement (sourced and dated; no prices — those come
+from the stores, and US MSRP from `src/lib/rrp.ts`). The set page, the release
+calendar, the region home's pre-order rail and the sitemap link it on their own.
+
+The page retires itself: from the set's `releaseDate` it says the set is out,
+points at the set page, is noindexed and leaves the sitemap
+(`tests/preorders.test.ts`). Its store buttons report under the `preorders`
+placement.

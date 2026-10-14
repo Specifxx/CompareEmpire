@@ -13,6 +13,7 @@ import { cardOpen } from "@/lib/compact";
 import { gridPageHasRoomForFooter } from "@/lib/ebay-ads";
 import { money, timeAgo } from "@/lib/format";
 import { packsForLabel, perPackCents } from "@/lib/packs";
+import { preorderPath } from "@/lib/preorder-guides";
 import { formatRelease, isPreorderSet } from "@/lib/release";
 import { regionOfMarket, regionOrNotFound, type Market, type RegionInfo } from "@/lib/regions";
 import { pageMeta, regionAlternates } from "@/lib/seo";
@@ -108,6 +109,19 @@ export default async function SetPage({ params }: { params: { region: string; se
           </p>
         </div>
       </div>
+      {pre && preorderPath(r.region, s.code) && (
+        <Link
+          href={preorderPath(r.region, s.code)!}
+          prefetch={false}
+          className="card mt-4 flex flex-wrap items-center justify-between gap-3 border-pre/40 bg-pre-soft/40 px-5 py-4 transition-shadow hover:shadow-lift"
+        >
+          <span>
+            <span className="font-semibold">{s.name} pre-orders, store by store</span>
+            <span className="block text-sm text-muted">Every {r.adjective} store taking pre-orders, cheapest first, with what is in each box and the key dates.</span>
+          </span>
+          <span className="shrink-0 text-sm font-semibold text-pre">Compare pre-orders →</span>
+        </Link>
+      )}
       {perPack.length > 0 && (
         <Section title={`Cheapest way to buy ${s.name} packs`} kicker={`Per booster pack, ${pre ? "cheapest pre-order" : "in stock now"}`}>
           <PerPackStrip r={r} items={perPack} />

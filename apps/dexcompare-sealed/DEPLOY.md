@@ -157,7 +157,7 @@ event, `buy_click`, with exactly two properties:
 | Property | Example values |
 | --- | --- |
 | `retailer` | `Pokebox (AU)`, `TCGplayer`, `eBay (ebay.com.au)` |
-| `placement` | `product-best`, `product-table`, `product-marketplace`, `product-soldout`, `browse-empty`, `region-home`, `store-page`, and the eBay listing strips below (every `listings-*` placement) |
+| `placement` | `product-best`, `product-table`, `product-marketplace`, `product-soldout`, `browse-empty`, `region-home`, `store-page`, `preorders`, and the eBay listing strips below (every `listings-*` placement) |
 
 The eBay units each have their own placement, and Vercel's `buy_click` ({retailer, placement}) says which
 surface earned. **EPN's `customid` report is coarser for listing tiles**, on purpose: eBay's spec says to use the
@@ -191,6 +191,7 @@ compact "search" CTA and the in-feed tile report under the strip's own placement
 | `listings-notfound` | the 404 page: a slim strip (on the eBay site of the region in the URL, US outside one) |
 | `hot-home`, `hot-set`, `hot-product` | the highlighted eBay search button of a popular set or product (`src/lib/popular.ts` HOT_SETS, 30th Celebration first): inside the top line of the region home's sealed strip (`hot-home`), a hot set's strip (`hot-set`) and a hot product's strip (`hot-product`), and the compact CTA those strips become (a search link, `dex-<region>-hot-<surface>`); a highlighted strip's CTA clicks report under its hot placement |
 | `product-best`, `product-table`, `product-marketplace`, `product-soldout`, `browse-empty`, `region-home`, `store-page` | the page's own store/TCGplayer buttons, and the functional marketplace rows of a product's "Marketplaces" panel (an eBay search and TCGplayer) |
+| `preorders` | a pre-order page (`/<region>/preorders/<set>`, `src/lib/preorder-guides.ts`): the store/TCGplayer buttons of each product's price list. No eBay row there: an unreleased set's eBay listings are pre-sales the importer refuses |
 
 When a strip has nothing to list (no import yet, a kill switch, rows older than the age bound) it is a single
 compact row: the eBay wordmark, "Ad", and a "Search Pokémon sealed on eBay" button (under the same

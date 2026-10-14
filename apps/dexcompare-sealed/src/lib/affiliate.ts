@@ -21,6 +21,7 @@ export const PLACEMENTS = [
   "product-marketplace", // product page: the Marketplaces panel under it
   "product-soldout", // product page: the sold-out callout
   "product-table", // product page: the offer table, stores and marketplaces
+  "preorders", // pre-order page (/[region]/preorders/[set]): each product's store price list
   "browse-empty", // /[region]/sealed with nothing matching the filters
   "region-home",
   "store-page", // a store's "Visit" link
