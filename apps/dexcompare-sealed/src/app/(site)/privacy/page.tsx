@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ADSENSE_CLIENT } from "@/lib/adsense";
 import { CONTACT_EMAIL, SITE_URL } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -9,7 +10,7 @@ export const metadata: Metadata = {
 };
 
 // Bump when what is collected changes, not for wording.
-const LAST_UPDATED = "14 October 2026";
+const LAST_UPDATED = ADSENSE_CLIENT ? "15 October 2026" : "14 October 2026";
 
 export default function Privacy() {
   return (
@@ -17,7 +18,10 @@ export default function Privacy() {
       <h1 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">Privacy</h1>
       <p className="mt-2 text-sm text-faint">Last updated {LAST_UPDATED}</p>
       <div className="prose-dex mt-6">
-        <p>DexCompare has no accounts, doesn&rsquo;t ask for your email, and sets no advertising cookies. Here is everything we collect.</p>
+        <p>
+          DexCompare has no accounts and doesn&rsquo;t ask for your email.{" "}
+          {ADSENSE_CLIENT ? "We show ads from Google AdSense, which uses cookies (below)." : "It sets no advertising cookies."} Here is everything we collect.
+        </p>
         <h2>Analytics</h2>
         <p>
           We use Vercel Web Analytics to count page views, and clicks on outbound buy links. A page view is recorded by its path only: what you
@@ -43,6 +47,20 @@ export default function Privacy() {
           imported listings only briefly (about a day) and then delete them; they hold nothing about visitors.
           <> Set logos on the set pages are loaded from the Pokémon TCG image catalogue (images.pokemontcg.io / images.scrydex.com), which can see that request.</>
         </p>
+        {ADSENSE_CLIENT && (
+          <>
+            <h2 id="ads">Advertising (Google AdSense)</h2>
+            <p>
+              Some pages show ads served by Google AdSense, labelled &ldquo;Advertisement&rdquo;. Google and its partners use cookies and similar technologies to serve
+              ads based on your visits to this and other websites, to limit how often you see an ad and to measure ads. Google&rsquo;s use of advertising cookies
+              lets it and its partners serve ads based on those visits. You can opt out of personalised advertising in{" "}
+              <a href="https://adssettings.google.com" rel="noopener noreferrer">Google&rsquo;s Ads Settings</a>, or opt out of some third-party vendors&rsquo; cookies at{" "}
+              <a href="https://www.aboutads.info/choices" rel="noopener noreferrer">aboutads.info</a>. How Google uses data from sites that use its services is explained at{" "}
+              <a href="https://policies.google.com/technologies/partner-sites" rel="noopener noreferrer">policies.google.com/technologies/partner-sites</a>. In the UK,
+              the EEA and Switzerland you are asked for consent before personalised ads are shown. DexCompare itself receives no personal data from these ads.
+            </p>
+          </>
+        )}
         <h2>Kept in your browser</h2>
         <p>
           The &ldquo;Recently viewed&rdquo; row remembers the last products you opened in each region. That list is kept only in this

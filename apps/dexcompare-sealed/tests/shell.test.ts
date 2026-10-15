@@ -242,8 +242,11 @@ test("landing page: static, a never-empty CTA box, a GET search form, real type 
 test("the share card exists as a route, with its bundled OFL face, and says the registry's numbers", () => {
   const og = src("app/opengraph-image.tsx");
   for (const f of ["BricolageGrotesque-ExtraBold.ttf", "BricolageGrotesque-SemiBold.ttf", "OFL.txt"]) assert.ok(existsSync(new URL(`../src/app/fonts/${f}`, import.meta.url)), f);
-  assert.match(og, /fonts: \[/);
-  assert.match(og, /weight: 800/);
+  const card = src("lib/og-card.tsx");
+  assert.match(og, /ogCard\(/, "drawn by lib/og-card.tsx");
+  assert.match(card, /fonts: \[/);
+  assert.match(card, /weight: 800/);
+  assert.doesNotMatch(card, /fetch\(|prisma|@\/lib\/db/, "no remote fetch, no database");
   assert.match(og, /Compare Pokémon[\s\S]*sealed prices across[\s\S]*\$\{STORES\.length\} stores[\s\S]*in \$\{REGION_LIST\.length\} regions/);
   assert.doesNotMatch(og, /fetch\(|prisma|@\/lib\/db/, "no remote fetch, no database");
   assert.equal(DEFAULT_OG_IMAGE.url, `${SITE_URL}/opengraph-image`);

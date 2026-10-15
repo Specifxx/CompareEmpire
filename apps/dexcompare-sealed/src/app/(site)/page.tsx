@@ -7,6 +7,10 @@ import { DEFAULT_OG_IMAGE } from "@/lib/seo";
 import { SITE_NAME, SITE_URL, sectionHref, type SectionKey } from "@/lib/site";
 import { STORES, storesInMarket } from "@/lib/stores";
 import { PRODUCT_TYPES } from "@/lib/sealed-title";
+import { guidesFor } from "@/content/guides";
+import { GuideCard } from "@/content/guides/kit";
+import { jsonLd } from "@/lib/seo";
+import { ADSENSE_CLIENT } from "@/lib/adsense";
 
 // Fully static: counts come from the store registry, not the database, so
 // this page costs nothing to serve and never depends on the database.
@@ -47,7 +51,43 @@ const HOW: { icon: IconName; t: string; d: string }[] = [
   { icon: "check", t: "Ranked by price and stock only", d: "Cheapest in stock first. No store pays to be listed or to rank, and every affiliate link is marked." },
 ];
 
+// The landing page's FAQ: what a first-time visitor (and a crawler) asks, answered from the same facts the page already states.
+const FAQ: { q: string; a: string }[] = [
+  {
+    q: "What is DexCompare?",
+    a: `A free price-comparison site for English-language Pokémon TCG sealed product: booster boxes, Elite Trainer Boxes, booster bundles, collections, tins and more. It reads ${STORES.length} independent stores in ${REGION_LIST.length} regions and ranks every product's listings in stock first, cheapest first.`,
+  },
+  {
+    q: "How often are prices and stock checked?",
+    a: "About twice a day. Every listing says when it was last read, and a store that hasn’t answered for three days is marked as not checked recently, never guessed.",
+  },
+  {
+    q: "Does DexCompare sell cards?",
+    a: "No. Every buy button goes to the store’s own website, and you buy from the store. DexCompare keeps no accounts and asks for no email.",
+  },
+  {
+    q: "Do stores pay to be listed?",
+    a: `No. Stores are ranked by price and stock only. The site earns from marked eBay and TCGplayer affiliate links${ADSENSE_CLIENT ? " and Google ads" : ""}, which never change the order of the stores.`,
+  },
+  {
+    q: "Which prices are shown?",
+    a: "Each store’s own listed price, in your region’s currency, before shipping. Add delivery before you compare two stores.",
+  },
+  {
+    q: "Why can’t I find singles or Japanese product?",
+    a: "DexCompare compares English-language sealed product only, so every product page compares like with like. Singles, graded cards, Japanese product, accessories and store-made bundles are left out on purpose.",
+  },
+];
+
+const faqLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: FAQ.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
+};
+
 export default function Landing() {
+  const guides = guidesFor(X_DEFAULT_REGION);
+  const gr = REGIONS[X_DEFAULT_REGION];
   return (
     <div>
       <section className="relative overflow-hidden">
@@ -144,6 +184,39 @@ export default function Landing() {
         </div>
       </section>
 
+      <section className="page mt-14" aria-labelledby="guides-h">
+        <div className="mb-5 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+          <h2 id="guides-h" className="font-display text-2xl font-bold tracking-tight">
+            Buying guides
+          </h2>
+          <Link href={sectionHref(X_DEFAULT_REGION, "guides")} prefetch={false} className="text-sm font-semibold text-brand hover:underline">
+            All guides →
+          </Link>
+        </div>
+        <p className="mb-5 max-w-2xl text-sm leading-6 text-muted">
+          Plain-English answers to what people ask before they buy Pokémon sealed product, each with today’s prices. Shown for {gr.inName}; every region has its own copy
+          with its own stores and currency.
+        </p>
+        <ul role="list" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {guides.slice(0, 3).map((g) => (
+            <li key={g.slug}>
+              <GuideCard r={gr} guide={g} headingLevel={3} />
+            </li>
+          ))}
+        </ul>
+        {guides.length > 3 && (
+          <ul role="list" className="mt-4 flex flex-wrap gap-2">
+            {guides.slice(3).map((g) => (
+              <li key={g.slug}>
+                <Link href={`/${X_DEFAULT_REGION}/guides/${g.slug}`} prefetch={false} className="chip min-h-10">
+                  {g.title}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
       <section className="page mt-14 text-center" aria-labelledby="compare-h">
         <h2 id="compare-h" className="eyebrow mb-3">
           What we compare
@@ -179,6 +252,26 @@ export default function Landing() {
           ))}
         </ul>
       </section>
+
+      <section className="page mt-16 max-w-3xl" aria-labelledby="faq-h">
+        <h2 id="faq-h" className="mb-5 font-display text-2xl font-bold tracking-tight">
+          Questions
+        </h2>
+        <div className="divide-y divide-line overflow-hidden rounded-xl border border-line bg-surface">
+          {FAQ.map((f) => (
+            <details key={f.q} className="group">
+              <summary className="flex min-h-12 cursor-pointer items-center justify-between gap-3 px-4 py-3 font-semibold">
+                {f.q}
+                <span aria-hidden="true" className="text-faint transition-transform group-open:rotate-45">
+                  +
+                </span>
+              </summary>
+              <p className="px-4 pb-4 text-[15px] leading-7 text-muted">{f.a}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(faqLd) }} />
     </div>
   );
 }

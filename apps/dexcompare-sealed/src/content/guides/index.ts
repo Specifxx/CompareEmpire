@@ -25,7 +25,12 @@ export type GuideSlug =
   | "are-pokemon-booster-boxes-worth-it"
   | "pokemon-sealed-products-explained"
   | "pokemon-tcg-msrp"
-  | "how-to-preorder-pokemon-tcg";
+  | "how-to-preorder-pokemon-tcg"
+  | "whats-in-a-pokemon-elite-trainer-box"
+  | "pokemon-center-etb-vs-elite-trainer-box"
+  | "cheapest-way-to-buy-pokemon-packs"
+  | "where-to-buy-pokemon-cards-online"
+  | "how-to-avoid-resealed-pokemon-products";
 
 export interface Guide {
   slug: GuideSlug;
@@ -112,6 +117,61 @@ export const GUIDES: readonly Guide[] = [
     regions: "all",
     topic: { types: ["booster-box", "etb", "booster-bundle"] },
     ebay: { context: "sealed", heading: "Sealed Pokémon on eBay" },
+  },
+  {
+    slug: "whats-in-a-pokemon-elite-trainer-box",
+    title: "What’s in a Pokémon Elite Trainer Box?",
+    description: "Everything inside a Pokémon Elite Trainer Box: how many packs by series, the extras, the sets that differ, and the cheapest ETB of each new set today.",
+    kicker: "Elite Trainer Boxes",
+    published: "2026-10-15",
+    updated: "2026-10-15",
+    regions: "all",
+    topic: { types: ["etb", "pc-etb", "etb-case"] },
+    ebay: { context: "type:elite-trainer-boxes", heading: "Elite Trainer Boxes on eBay" },
+  },
+  {
+    slug: "pokemon-center-etb-vs-elite-trainer-box",
+    title: "Pokémon Center ETB vs Elite Trainer Box: the difference",
+    description: "A Pokémon Center Elite Trainer Box against the retail ETB: the extra packs, the promo, and what a pack costs in each today, set by set.",
+    kicker: "Pokémon Center ETBs",
+    published: "2026-10-15",
+    updated: "2026-10-15",
+    regions: "all",
+    topic: { types: ["pc-etb", "etb"] },
+    ebay: { context: "type:pokemon-center-elite-trainer-boxes", heading: "Pokémon Center ETBs on eBay" },
+  },
+  {
+    slug: "cheapest-way-to-buy-pokemon-packs",
+    title: "The cheapest way to buy Pokémon packs",
+    description: "Which Pokémon TCG product gives the cheapest booster pack today: boxes, bundles, ETBs and loose packs ranked by price per pack, plus ways to pay less.",
+    kicker: "Price per pack",
+    published: "2026-10-15",
+    updated: "2026-10-15",
+    regions: "all",
+    topic: { types: ["booster-box", "booster-bundle", "etb", "booster-pack"] },
+    ebay: { context: "sealed", heading: "Sealed Pokémon on eBay" },
+  },
+  {
+    slug: "where-to-buy-pokemon-cards-online",
+    title: "Where to buy Pokémon cards online: sealed product",
+    description: "The independent stores that sell Pokémon TCG sealed product online in your region, who has the most in stock today, and what to check before you order.",
+    kicker: "Where to buy",
+    published: "2026-10-15",
+    updated: "2026-10-15",
+    regions: "all",
+    topic: { types: ["booster-box", "etb", "booster-bundle", "collection"] },
+    ebay: { context: "sealed", heading: "Sealed Pokémon on eBay" },
+  },
+  {
+    slug: "how-to-avoid-resealed-pokemon-products",
+    title: "How to avoid resealed or fake Pokémon sealed product",
+    description: "How to spot a resealed or fake Pokémon booster box or ETB: what to check on the listing, the price and the wrap, with today’s typical prices to compare.",
+    kicker: "Buying safely",
+    published: "2026-10-15",
+    updated: "2026-10-15",
+    regions: "all",
+    topic: { types: ["booster-box", "etb", "booster-bundle"] },
+    ebay: { context: "type:booster-boxes", heading: "Pokémon booster boxes on eBay" },
   },
 ];
 

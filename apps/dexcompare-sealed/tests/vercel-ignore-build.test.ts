@@ -167,6 +167,8 @@ test("a build prerenders nothing else that reads the database", () => {
     const s = readFileSync(f, "utf8");
     const all = s.match(/generateStaticParams/g)?.length ?? 0;
     const empty = s.match(/export function generateStaticParams\(\)\s*\{\s*return \[\];\s*\}/g)?.length ?? 0;
+    // A route that never reaches the database (the /og share cards) may list its params: that prerenders images, not data.
+    if (!reachesDatabase(f)) continue;
     assert.equal(all, empty, `${rel(f)}: generateStaticParams must return [] (no prewarming at build)`);
   }
   assert.ok(reachesDatabase(join(ROOT, "src/app/[region]/p/[slug]/page.tsx")), "the walker sees a region page's reads");

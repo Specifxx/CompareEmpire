@@ -82,6 +82,43 @@ function fixture(slug: GuideSlug): GuideData {
         .map((s) => s.code);
       return { ...d, sets: codes, bySet: Object.fromEntries(codes.map((c) => [c, headline(c, 1000)])), openCount: Object.fromEntries(codes.map((c) => [c, 7])) };
     }
+    case "whats-in-a-pokemon-elite-trainer-box":
+      return { ...d, sets: released, bySet: Object.fromEntries(released.map((c, i) => [c, [card(c, "Elite Trainer Box", 5999 + i * 300, 9)]])) };
+    case "pokemon-center-etb-vs-elite-trainer-box": {
+      const codes = newestReleased(TODAY, 3, (s) => packsFor("pc-etb", s.code) != null).map((s) => s.code);
+      return {
+        ...d,
+        sets: codes,
+        bySet: Object.fromEntries(codes.map((c) => [c, sorted([card(c, "Elite Trainer Box", 5999, 9), card(c, "Pokémon Center Elite Trainer Box", 8999, 2)])])),
+      };
+    }
+    case "cheapest-way-to-buy-pokemon-packs":
+      return {
+        ...d,
+        cards: [
+          card(released[0], "Booster Box", 21900, 12),
+          card(released[1], "Booster Bundle", 4500, 6),
+          card(released[0], "Elite Trainer Box", 6500, 9),
+          card(released[2], "Booster Pack", 699, 20),
+        ],
+      };
+    case "where-to-buy-pokemon-cards-online":
+      return {
+        ...d,
+        stores: [
+          { store: "acecollectibles", inStock: 210, listed: 340 },
+          { store: "adventurers", inStock: 120, listed: 180 },
+          { store: "no-such-store", inStock: 50, listed: 60 },
+        ],
+        types: [
+          { productType: "Booster Box", inStock: 52, preorder: 1, fromCents: 8082 },
+          { productType: "Elite Trainer Box", inStock: 61, preorder: 1, fromCents: 2999 },
+          { productType: "Tin", inStock: 457, preorder: 0, fromCents: 1100 },
+          { productType: "Deck", inStock: 0, preorder: 2, fromCents: null },
+        ],
+      };
+    case "how-to-avoid-resealed-pokemon-products":
+      return { ...d, sets: [released[0]], bySet: { [released[0]]: headline(released[0], 800).map((p) => ({ ...p, medianOpenCents: (p.lowestPriceCents ?? 0) + 1500 })) } };
   }
 }
 
@@ -107,7 +144,7 @@ const PAIRS = GUIDES.flatMap((g) => guideRegions(g).map((region) => ({ g, region
 
 test("registry: unique slugs, ISO editorial dates (updated ≥ published), descriptions ≤ 160, titles that fit a <title>", () => {
   assert.equal(new Set(GUIDES.map((g) => g.slug)).size, GUIDES.length);
-  assert.equal(GUIDES.length, 6);
+  assert.equal(GUIDES.length, 11);
   for (const g of GUIDES) {
     assert.match(g.slug, /^[a-z0-9]+(?:-[a-z0-9]+)*$/);
     for (const d of [g.published, g.updated]) {
@@ -142,9 +179,9 @@ test("the MSRP guide is US-only; every other guide is in all seven regions", () 
   for (const r of REGION_LIST.filter((x) => x.region !== "us")) {
     assert.equal(guideFor("pokemon-tcg-msrp", r.region), null, r.region);
     assert.ok(!guidesFor(r.region).some((g) => g.slug === "pokemon-tcg-msrp"), r.region);
-    assert.equal(guidesFor(r.region).length, 5);
+    assert.equal(guidesFor(r.region).length, 10);
   }
-  assert.equal(guidesFor("us").length, 6);
+  assert.equal(guidesFor("us").length, 11);
   for (const g of GUIDES.filter((x) => x.slug !== "pokemon-tcg-msrp")) assert.equal(guideRegions(g).length, 7, g.slug);
   assert.equal(guideFor("no-such-guide", "au"), null);
 });
