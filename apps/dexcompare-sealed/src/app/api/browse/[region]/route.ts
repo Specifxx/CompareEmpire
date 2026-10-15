@@ -9,7 +9,11 @@ import { browseIndexResponse, buildIndex } from "@/lib/search-index";
 //
 // An ISR route handler, like the pages: rendered on the first request after a deploy or an import (the importer's
 // revalidatePath("/", "layout") purges it with every page), then served from the cache and the CDN for a day. So the database
-// sees one whole-market read per region per import, however many visitors search. Nothing is built at deploy time (no
+// sees one whole-market read per region per import, however many visitors search.
+//
+// RiftCompare's Pokémon section reads this index too, server-side and cached six hours (its src/lib/pokemon/dexcompare.ts), for
+// each product's cheapest store and store counts, joined by the TCGplayer id in the image URL. It accepts INDEX_VERSION 1 only: a
+// change to the tuple or a new version hides its store lines until it is updated (its ops monitor flags that), so say so there. Nothing is built at deploy time (no
 // static params), so a build never needs the database. /api/ is disallowed in robots.txt.
 export const dynamic = "force-static";
 export const revalidate = 86400;

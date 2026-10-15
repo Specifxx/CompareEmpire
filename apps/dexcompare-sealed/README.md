@@ -213,6 +213,14 @@ current state only (`prisma/schema.prisma`). "Recently viewed" lives only in the
 | `EbayListing` | the eBay strips' data: ≤ 8 listings per feed, replaced per feed by the daily eBay import, deleted after the age bound + 4 h (transient, not history) |
 | `EbayCallDay` | eBay Browse calls made per budget day (one small row a day) |
 
+### Price history lives on RiftCompare
+
+RiftCompare's Pokémon section (riftcompare.com/pokemon, the owner's) keeps TCGplayer's market price history, which this site
+does not. The two are joined by TCGplayer's productId, taken from this site's TCGplayer product images (`src/lib/riftcompare.ts`):
+a product page links `riftcompare.com/pokemon/tcgplayer/<id>` ("Price history … on RiftCompare's Pokémon section", nofollow),
+and RiftCompare reads `/api/browse/<region>` for its "Independent stores" lines, which link back here with
+`utm_source=riftcompare`. Changing the index's tuple or `INDEX_VERSION` hides those lines there until RiftCompare is updated.
+
 ## How it works
 
 ```

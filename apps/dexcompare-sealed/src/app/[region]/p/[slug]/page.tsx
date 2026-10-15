@@ -30,6 +30,7 @@ import { inStockAlternatives, relatedWithFormats } from "@/lib/product-data";
 import { isPreorderSet } from "@/lib/release";
 import { regionOrNotFound, REGION_LIST, type Market, type RegionInfo } from "@/lib/regions";
 import { RRP_NOTE, usMsrpCents } from "@/lib/rrp";
+import { RIFT_REL, riftHistoryHref } from "@/lib/riftcompare";
 import { offerStock } from "@/lib/sealed-offers";
 import { TYPE_BY_LABEL } from "@/lib/sealed-title";
 import { jsonLd, pageMeta, productJsonLd, regionAlternates, withPokemon } from "@/lib/seo";
@@ -295,6 +296,7 @@ export default async function ProductPage({ params }: { params: { region: string
     : null;
 
   const heading = withPokemon(p.name);
+  const riftHref = riftHistoryHref({ imageUrl: p.imageUrl, setReleaseDate: set?.releaseDate, productType: p.productType, name: p.name });
   const typeLink = type ? { href: `/${r.region}/type/${type.slug}`, label: `See ${type.plural} in stock in ${r.inName}` } : { href: `/${r.region}/sealed`, label: `See sealed products in stock in ${r.inName}` };
   const chip = "rounded-full bg-raised px-2.5 py-1 text-xs font-semibold leading-4 text-muted";
   const img = p.imageUrl ? { big: thumb(p.imageUrl, 900)!, small: thumb(p.imageUrl, 240)! } : null;
@@ -490,6 +492,16 @@ export default async function ProductPage({ params }: { params: { region: string
           <div className="card px-6 py-8 text-muted">
             None of the {r.adjective} stores we track list {p.name} right now.
           </div>
+        )}
+        {riftHref && (
+          // The owner's other Pokémon site keeps what this one does not: TCGplayer's market price over time (lib/riftcompare.ts).
+          <p className="mt-4 text-sm text-muted">
+            <Icon name="clock" size={14} className="mr-1.5 inline align-[-2px]" />
+            Price history: TCGplayer&rsquo;s market price for this product over time, with its TCGplayer and eBay prices, is on{" "}
+            <a href={riftHref} rel={RIFT_REL} target="_blank" className="font-semibold text-ink underline decoration-line underline-offset-2 hover:decoration-ink">
+              RiftCompare&rsquo;s Pokémon section ↗
+            </a>
+          </p>
         )}
       </Section>
 
