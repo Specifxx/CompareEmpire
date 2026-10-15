@@ -1,0 +1,130 @@
+name: DexCompare migrate to DC2
+
+# One-time move of DexCompare's database to the new Neon project, DC2 (owner, 2026-10-16: the old project was at 80% of its
+# compute allowance). Copies every table of the old database (DEXCOMPARE_SEALED_DATABASE_URL) into DC2 with pg_dump/pg_restore,
+# checks every table's row count matches, then exports the public data from DC2 and commits it to main
+# (apps/dexcompare-sealed/data/public/), so the site starts reading files, not a database, from the release that commit makes.
+#
+# Runs once by itself when this file reaches main, and does nothing if DC2 already holds DexCompare's data (so a re-run never
+# overwrites newer imports), unless started by hand with "overwrite". The importers write to DC2 from the same release on
+# (dexcompare-sealed-import.yml, dexcompare-ebay-import.yml); this shares the sealed import's concurrency group, so the two never
+# overlap. The old project is left as it is: delete it in Neon once the site has run on DC2 for a few days.
+#
+# Needs: DC2 (secret or variable) and DEXCOMPARE_SEALED_DATABASE_URL (secret). Either may be the pooled or the direct string; the
+# job uses the direct host of both.
+
+on:
+  push:
+    branches: [main]
+    paths: [".github/workflows/dexcompare-migrate-dc2.yml"]
+  workflow_dispatch:
+    inputs:
+      overwrite:
+        description: "Copy even if DC2 already has data (replaces DC2's tables with the old database's)"
+        type: boolean
+        default: false
+
+concurrency:
+  group: dexcompare-sealed-import
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Resolve both databases
+        id: db
+        env:
+          DC2: ${{ secrets.DC2 || vars.DC2 }}
+          OLD: ${{ secrets.DEXCOMPARE_SEALED_DATABASE_URL }}
+        run: |
+          if [ -z "$DC2" ]; then echo "::error::DC2 is not set (Settings → Secrets and variables → Actions)."; exit 1; fi
+          if [ -z "$OLD" ]; then echo "::error::DEXCOMPARE_SEALED_DATABASE_URL (the old database) is not set."; exit 1; fi
+          direct() { printf '%s' "$1" | sed -E 's/-pooler\././'; }
+          NEW_URL="$(direct "$DC2")"; OLD_URL="$(direct "$OLD")"
+          if [ "$NEW_URL" = "$OLD_URL" ]; then echo "::error::DC2 and DEXCOMPARE_SEALED_DATABASE_URL are the same database."; exit 1; fi
+          echo "::add-mask::$NEW_URL"; echo "::add-mask::$OLD_URL"
+          echo "NEW_URL=$NEW_URL" >> "$GITHUB_ENV"
+          echo "OLD_URL=$OLD_URL" >> "$GITHUB_ENV"
+
+      - name: Install the Postgres 17 client
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-common >/dev/null
+          yes | sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh >/dev/null
+          sudo apt-get install -y -qq postgresql-client-17 >/dev/null
+          echo "/usr/lib/postgresql/17/bin" >> "$GITHUB_PATH"
+
+      - name: Is DC2 already migrated?
+        id: state
+        env:
+          OVERWRITE: ${{ inputs.overwrite }}
+        run: |
+          psql "$OLD_URL" -Atc "select version()"
+          psql "$NEW_URL" -Atc "select version()"
+          n="$(psql "$NEW_URL" -Atc "select count(*) from \"Product\"" 2>/dev/null || echo 0)"
+          echo "DC2 holds $n products."
+          if [ "${n:-0}" -gt 0 ] && [ "$OVERWRITE" != "true" ]; then
+            echo "DC2 already holds DexCompare's data ($n products): nothing copied. Run by hand with 'overwrite' to copy again." >> "$GITHUB_STEP_SUMMARY"
+            echo "copy=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "copy=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # A plain SQL dump (not the custom format): it restores into whichever Postgres version DC2 runs, older or newer than the
+      # old project's. A statement the target does not know (a newer SET) is reported and skipped; the row counts below are
+      # what decides whether the copy is complete.
+      - name: Copy the old database into DC2
+        if: steps.state.outputs.copy == 'true'
+        run: |
+          pg_dump --no-owner --no-privileges --clean --if-exists "$OLD_URL" -f dex.sql
+          ls -la dex.sql
+          psql -q -v ON_ERROR_STOP=0 "$NEW_URL" -f dex.sql 2> restore.log || true
+          if [ -s restore.log ]; then echo "Restore notes:"; head -40 restore.log; fi
+
+      - name: Check every table's row count
+        run: |
+          fail=0
+          for t in $(psql "$OLD_URL" -Atc "select tablename from pg_tables where schemaname='public' order by 1"); do
+            a="$(psql "$OLD_URL" -Atc "select count(*) from \"$t\"")"
+            b="$(psql "$NEW_URL" -Atc "select count(*) from \"$t\"" 2>/dev/null || echo missing)"
+            echo "| $t | $a | $b |" >> rows.md
+            [ "$a" = "$b" ] || fail=1
+          done
+          { echo "| Table | Old | DC2 |"; echo "|---|---|---|"; cat rows.md; } >> "$GITHUB_STEP_SUMMARY"
+          if [ "$fail" = 1 ] && [ "${{ steps.state.outputs.copy }}" = "true" ]; then echo "::error::Row counts differ after the copy."; exit 1; fi
+
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: apps/dexcompare-sealed/package-lock.json
+
+      - name: Install
+        working-directory: apps/dexcompare-sealed
+        run: npm ci --no-audit --no-fund
+
+      - name: Sync the schema on DC2
+        working-directory: apps/dexcompare-sealed
+        env:
+          DATABASE_URL: ${{ env.NEW_URL }}
+        # No --accept-data-loss: a no-op after the copy, and a loud failure if anything differs.
+        run: npx prisma db push --skip-generate && npx prisma generate
+
+      - name: Export the public data from DC2
+        working-directory: apps/dexcompare-sealed
+        env:
+          DATABASE_URL: ${{ env.NEW_URL }}
+          DB_SOURCE_NAME: DC2
+        run: npx tsx scripts/export-public-data.ts
+
+      - name: Publish it to main
+        run: bash apps/dexcompare-sealed/scripts/publish-public-data.sh "dexcompare-migrate-dc2.yml run ${{ github.run_id }}"

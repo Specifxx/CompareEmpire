@@ -41,7 +41,8 @@ name: DexCompare eBay import
 # run late; the 26 h bound leaves two hours for that, and a run that never comes only blanks the strips (to a search link).
 #
 # Secrets (Settings → Secrets and variables → Actions):
-#   DEXCOMPARE_SEALED_DATABASE_URL   required. Neon DIRECT connection string (the host WITHOUT "-pooler").
+#   DC2                              required (a secret or a variable): the Neon database (2026-10-16); the job uses
+#                                    its direct host. DEXCOMPARE_SEALED_DATABASE_URL, the old project, only while DC2 is unset.
 #   EBAY_CLIENT_ID, EBAY_CLIENT_SECRET   the Production keyset (App ID / Cert ID) of DexCompare's own eBay
 #                                    application. Without them the job writes a skip message and exits 0.
 #   DEXCOMPARE_EBAY_CLIENT_ID / _SECRET   optional overrides, used instead when set.
@@ -82,8 +83,9 @@ on:
         type: boolean
         default: false
 
+# write: the public data snapshot goes to main after the import (scripts/publish-public-data.sh).
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: dexcompare-ebay-import
@@ -102,13 +104,13 @@ jobs:
         working-directory: .
         env:
           # Only whether each secret is set (a boolean) reaches this step; the eBay keys themselves exist only in the Import step.
-          HAS_DB: ${{ secrets.DEXCOMPARE_SEALED_DATABASE_URL != '' }}
+          HAS_DB: ${{ secrets.DC2 != '' || vars.DC2 != '' || secrets.DEXCOMPARE_SEALED_DATABASE_URL != '' }}
           HAS_EBAY: ${{ (secrets.DEXCOMPARE_EBAY_CLIENT_ID != '' || secrets.EBAY_CLIENT_ID != '') && (secrets.DEXCOMPARE_EBAY_CLIENT_SECRET != '' || secrets.EBAY_CLIENT_SECRET != '') }}
           DRY: ${{ inputs.dry_run }}
           ONLY: ${{ inputs.only }}
         run: |
           if [ "$HAS_DB" != "true" ]; then
-            echo "DEXCOMPARE_SEALED_DATABASE_URL is not set — nothing to import into." >> "$GITHUB_STEP_SUMMARY"
+            echo "Neither DC2 nor DEXCOMPARE_SEALED_DATABASE_URL is set — nothing to import into." >> "$GITHUB_STEP_SUMMARY"
             echo "run=false" >> "$GITHUB_OUTPUT"
           elif [ "$DRY" != "true" ] && [ "$HAS_EBAY" != "true" ]; then
             echo "EBAY_CLIENT_ID / EBAY_CLIENT_SECRET are not set in this repository's Actions secrets — nothing imported. The site keeps showing the previous listings until they age out (then the compact eBay search link)." >> "$GITHUB_STEP_SUMMARY"
@@ -118,6 +120,28 @@ jobs:
             exit 1
           else
             echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Resolve the database (DC2)
+        if: steps.secrets.outputs.run == 'true'
+        working-directory: .
+        # The database is DC2 (owner, 2026-10-16), a secret or a repository variable; DEXCOMPARE_SEALED_DATABASE_URL (the old
+        # project) only while DC2 is not set. Its DIRECT host (no "-pooler") goes to every later step as DATABASE_URL, masked.
+        env:
+          DC2: ${{ secrets.DC2 || vars.DC2 }}
+          LEGACY: ${{ secrets.DEXCOMPARE_SEALED_DATABASE_URL }}
+        run: |
+          URL="${DC2:-$LEGACY}"
+          NAME=DC2; [ -z "$DC2" ] && NAME=DEXCOMPARE_SEALED_DATABASE_URL
+          if [ -z "$URL" ]; then
+            echo "found=false" >> "$GITHUB_OUTPUT"
+          else
+            DIRECT="$(printf '%s' "$URL" | sed -E 's/-pooler\././')"
+            echo "::add-mask::$DIRECT"
+            echo "DATABASE_URL=$DIRECT" >> "$GITHUB_ENV"
+            echo "DB_SOURCE_NAME=$NAME" >> "$GITHUB_ENV"
+            echo "Database: $NAME" >> "$GITHUB_STEP_SUMMARY"
+            echo "found=true" >> "$GITHUB_OUTPUT"
           fi
 
       - uses: actions/checkout@v4
@@ -136,8 +160,6 @@ jobs:
 
       - name: Sync the schema
         if: steps.secrets.outputs.run == 'true'
-        env:
-          DATABASE_URL: ${{ secrets.DEXCOMPARE_SEALED_DATABASE_URL }}
         # No --accept-data-loss: a schema change that would drop data fails here, loudly. (The importer also creates
         # its two tables itself if they are missing.)
         run: npx prisma db push --skip-generate && npx prisma generate
@@ -145,7 +167,6 @@ jobs:
       - name: Import
         if: steps.secrets.outputs.run == 'true'
         env:
-          DATABASE_URL: ${{ secrets.DEXCOMPARE_SEALED_DATABASE_URL }}
           # The eBay keys exist ONLY in this step's environment.
           EBAY_CLIENT_ID: ${{ secrets.DEXCOMPARE_EBAY_CLIENT_ID || secrets.EBAY_CLIENT_ID }}
           EBAY_CLIENT_SECRET: ${{ secrets.DEXCOMPARE_EBAY_CLIENT_SECRET || secrets.EBAY_CLIENT_SECRET }}
@@ -166,3 +187,14 @@ jobs:
           if [ "$DRY" = "true" ]; then args+=(--dry-run); fi
           if [ "$FORCE" = "true" ]; then args+=(--force); fi
           npx tsx scripts/ebay-import.ts "${args[@]}"
+
+      # The site reads these files, not the database (apps/dexcompare-sealed/src/lib/public-data/): export every public table and
+      # commit it to main, which is the release that puts this import's prices live.
+      - name: Export the public data
+        if: steps.secrets.outputs.run == 'true' && inputs.dry_run != true && inputs.probe != true
+        run: npx tsx scripts/export-public-data.ts
+
+      - name: Publish it to main
+        if: steps.secrets.outputs.run == 'true' && inputs.dry_run != true && inputs.probe != true
+        working-directory: .
+        run: bash apps/dexcompare-sealed/scripts/publish-public-data.sh "dexcompare-ebay-import.yml run ${{ github.run_id }}"

@@ -1,4 +1,19 @@
 import { PrismaClient } from "@prisma/client";
+import { routeQuery } from "./public-data/route";
+
+// ─── WHERE THE DATA LIVES (2026-10-16, owner: "everything can be on GitHub") ──────
+// Every public table is exported to data/public/ after each import and committed to main (scripts/export-public-data.ts), and
+// the site reads THOSE FILES (src/lib/public-data/, PUBLIC_DATA_MODE "files", the default): no page, route or build touches
+// Neon. Neon is the importers' working store only (scripts set DEXCOMPARE_SCRIPT=1 and always use it), so its compute wakes for
+// the imports and nothing else. A read the file engine cannot answer exactly falls through to Neon and logs
+// [public-data:unsupported] once, which tests/public-data.test.ts keeps at zero for the site's loaders.
+//
+// The database is DC2 (Vercel and GitHub, from 2026-10-16). The importers already use it (their workflows pass DC2's direct host as
+// DATABASE_URL). For the site's own fallback reads, DATABASE_URL (the old project) stays first until dexcompare-migrate-dc2.yml has
+// copied it into DC2: the release after that switches this to DC2 first.
+export function databaseUrl(env: Record<string, string | undefined> = process.env): string | undefined {
+  return env.DATABASE_URL?.trim() || env.DC2?.trim() || undefined;
+}
 
 // ─── DATA-EGRESS RULES (read before adding a query) ────────────────────────────
 // Neon's free tier allows 5 GB/month of network transfer. The old DexCompare
@@ -42,14 +57,14 @@ function withConnectTimeout(url: string | undefined): string | undefined {
 
 function makeClient() {
   const base = new PrismaClient({
-    datasourceUrl: withConnectTimeout(process.env.DATABASE_URL),
+    datasourceUrl: withConnectTimeout(databaseUrl()),
     log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
   });
   return base.$extends({
     query: {
       $allModels: {
         async $allOperations({ model, operation, args, query }) {
-          const res = await query(args);
+          const res = await routeQuery(model, operation, args, query as (a: unknown) => Promise<unknown>);
           if (process.env.DEXCOMPARE_SCRIPT !== "1" && Array.isArray(res) && res.length >= BIG_ROWS) {
             try {
               const bytes = JSON.stringify(res).length;

@@ -232,7 +232,9 @@ test("the importer's secrets reach only the import step of the workflow", () => 
   }
   assert.ok(/concurrency:\s*\n\s*group: dexcompare-ebay-import\s*\n\s*cancel-in-progress: false/.test(wf));
   assert.ok(/timeout-minutes: 90/.test(wf), "a bounded job (90 minutes: the sweep pages up to 1,800 calls on top of the fixed feeds)");
-  assert.ok(/\npermissions:\s*\n\s*contents: read/.test(wf), "least-privilege token");
+  // write, for one thing only: the public data snapshot it commits to main after the import (scripts/publish-public-data.sh).
+  assert.ok(/\npermissions:\s*\n\s*contents: write/.test(wf), "the token can publish the data snapshot");
+  assert.ok(/name: Publish it to main\n[\s\S]*publish-public-data\.sh/.test(wf), "and the publish step is what uses it");
   // the daily slot is the FIRST one after eBay's counter resets in BOTH seasons (midnight Pacific = 07:00 UTC in summer, 08:00 in winter):
   // 08:37 UTC is 01:37 PDT / 00:37 PST, so the scheduled run is always the first of its budget day and a manual "run now" earlier in the
   // Pacific day can never starve it (review F2 / SEC-1)

@@ -2,6 +2,8 @@
 // → ONE indexed read of the EbayListing table → the first feed with enough live rows. No eBay call, no token,
 // no secret: the rows were put there by the daily import (scripts/ebay-import.ts). Injectable reader and clock,
 // so tests/ run it with a fake and the route runs it with Prisma.
+import { routeRaw } from "./public-data/route";
+import { publicRowsBy } from "./public-data/store";
 import { Prisma } from "@prisma/client";
 import { listingHref } from "./affiliate";
 import { refusedForType, refusedListing } from "./ebay-rules";
@@ -157,8 +159,12 @@ export function prismaReadDeps(prisma: Db, env: ReadDeps["env"]): ReadDeps {
   return {
     env,
     now: () => Date.now(),
+    // Each read is routeRaw(files, sql): the public data files (src/lib/public-data/) in "files" mode, the SQL in "db" mode.
     async product(slug) {
-      const rows = await prisma.$queryRaw<{ id: string; productType: string }[]>(Prisma.sql`SELECT "id", "productType" FROM "Product" WHERE "slug" = ${slug} LIMIT 1`);
+      const rows = await routeRaw(
+        () => publicRowsBy("Product", "slug", [slug]).slice(0, 1).map((p) => ({ id: String(p.id), productType: String(p.productType) })),
+        () => prisma.$queryRaw<{ id: string; productType: string }[]>(Prisma.sql`SELECT "id", "productType" FROM "Product" WHERE "slug" = ${slug} LIMIT 1`),
+      );
       return rows[0] ?? null;
     },
     // One query: the rows of every feed in `feeds` that is fresh, the feeds' row counts as a window, and only the
@@ -166,7 +172,19 @@ export function prismaReadDeps(prisma: Db, env: ReadDeps["env"]): ReadDeps {
     async rows(feeds, cutoff, mins) {
       const list = [...feeds];
       const need = list.map((_, i) => Math.max(1, Math.floor(mins[i] ?? 2)));
-      return prisma.$queryRaw<ListingRow[]>(Prisma.sql`
+      const fromFiles = (): ListingRow[] => {
+        for (let i = 0; i < list.length; i++) {
+          const fresh = publicRowsBy("EbayListing", "feed", [list[i]]).filter((r) => (r.fetchedAt as Date).getTime() >= cutoff.getTime());
+          if (fresh.length >= need[i]) {
+            return [...fresh]
+              .sort((a, b) => (a.rank as number) - (b.rank as number))
+              .slice(0, MAX_FEED_ROWS)
+              .map((r) => ({ ...(r as unknown as ListingRow), fetchedAt: new Date((r.fetchedAt as Date).getTime()) }));
+          }
+        }
+        return [];
+      };
+      return routeRaw(fromFiles, () => prisma.$queryRaw<ListingRow[]>(Prisma.sql`
         WITH f AS (
           SELECT e.*, array_position(${list}::text[], e."feed") AS pos, count(*) OVER (PARTITION BY e."feed") AS n,
                  (${need}::int[])[array_position(${list}::text[], e."feed")] AS m
@@ -177,7 +195,7 @@ export function prismaReadDeps(prisma: Db, env: ReadDeps["env"]): ReadDeps {
         FROM f
         WHERE n >= m AND pos = (SELECT min(pos) FROM f WHERE n >= m)
         ORDER BY "rank"
-        LIMIT ${MAX_FEED_ROWS}`);
+        LIMIT ${MAX_FEED_ROWS}`));
     },
   };
 }

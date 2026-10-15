@@ -9,7 +9,7 @@
     "start": "next start -p 3003",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "test": "node --import tsx --test tests/*.test.ts",
+    "test": "PUBLIC_DATA_MODE=db node --import tsx --test tests/*.test.ts",
     "db:push": "prisma db push",
     "import": "tsx scripts/import.ts",
     "probe:stores": "tsx scripts/probe-stores.ts"

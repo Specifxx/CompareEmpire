@@ -30,6 +30,11 @@ const securityHeaders = [
 
 const nextConfig = {
   reactStrictMode: true,
+  // The public data files (data/public/, ~25 MB: src/lib/public-data/) ride with every server function, which reads them instead of
+  // Neon. Only when the build will read them (PUBLIC_DATA_MODE "files", the default, or "fallback").
+  experimental: {
+    outputFileTracingIncludes: (process.env.PUBLIC_DATA_MODE || "files").trim().toLowerCase() === "db" ? {} : { "/**": ["./data/public/**/*.json"] },
+  },
   poweredByHeader: false,
   // Product photos are plain <img> tags pointing at each store's own CDN. Never
   // route them through Vercel Image Optimization, which is metered.

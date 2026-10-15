@@ -304,8 +304,10 @@ test("deals.ts: tagged-template SQL only, every read capped or grouped, no unsta
   assert.doesNotMatch(s, /\$queryRawUnsafe|\$executeRaw|unstable_cache/);
   const reads = s.split("prisma.$queryRaw").slice(1);
   assert.equal(reads.length, 5, "dealsInMarket, perPackLeaders, belowMsrpUS, newlyTracked, productCountsBySets");
+  // Each SQL read is the database half of routeRaw(files, sql) (src/lib/public-data/route.ts): the files answer by default.
+  assert.equal((s.match(/routeRaw\(fromFiles, \(\) => prisma\.\$queryRaw/g) ?? []).length, 5, "every read also answers from the public data files");
   for (const r of reads) {
-    const sql = r.slice(0, r.indexOf("`;") + 1);
+    const sql = r.slice(0, r.indexOf("`)") + 1);
     assert.match(sql, /^<[^>]+>`/, "a tagged template");
     assert.match(sql, /LIMIT \$\{|LIMIT 120|GROUP BY p\."setCode"|rn <= \$\{n\}/, sql.slice(0, 120));
     assert.match(sql, /market = \$\{market\}|market = 'US'/, "one market");

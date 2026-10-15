@@ -21,6 +21,10 @@ import { usMsrpForCard } from "./rrp";
 import { floorCents, PRODUCT_TYPES, TYPE_BY_LABEL } from "./sealed-title";
 import { SETS } from "./sets";
 import { SITE_NAME } from "./site";
+import type { Row } from "./public-data/engine";
+import { cardRow, cmpC, isOpen, statsInMarket } from "./public-data/joins";
+import { routeRaw } from "./public-data/route";
+import { publicRows } from "./public-data/store";
 
 // ─── The deal bar (the same numbers as format.ts medianSaving) ──────────────────
 
@@ -237,6 +241,9 @@ interface RawCard {
 const CARD_COLUMNS = Prisma.sql`s."lowestPriceCents", s."inStockStores", s."listedStores", s."marketplaceOpen", s."medianOpenCents", p.slug, p.name, p."productType", p."setCode", p."imageUrl"`;
 const OPEN_SQL = Prisma.sql`(s."inStockStores" > 0 OR s."marketplaceOpen")`;
 
+// Each loader below is routeRaw(files, sql): the public data files answer in "files" mode (the default: src/lib/public-data/), the
+// SQL in "db" mode. The file version is the SQL's own conditions and order, over ProductStat ⨝ Product (public-data/joins.ts).
+
 function fromRaw(r: RawCard): ProductCardData {
   return toCard({
     lowestPriceCents: r.lowestPriceCents,
@@ -255,7 +262,21 @@ function fromRaw(r: RawCard): ProductCardData {
 export async function dealsInMarket(market: Market, { take = 48, types }: { take?: number; types?: readonly string[] } = {}): Promise<ProductCardData[]> {
   const n = Math.max(1, Math.min(100, Math.floor(take)));
   const typeFilter = types?.length ? Prisma.sql`AND p."productType" = ANY(${[...types]})` : Prisma.empty;
-  const rows = await prisma.$queryRaw<RawCard[]>`
+  const fromFiles = (): RawCard[] =>
+    statsInMarket(market)
+      .map(cardRow)
+      .filter(
+        (r) =>
+          r.inStockStores >= DEAL_MIN_STORES &&
+          r.medianOpenCents !== null &&
+          r.lowestPriceCents !== null &&
+          r.lowestPriceCents >= r.medianOpenCents * DEAL_MIN_RATIO &&
+          r.lowestPriceCents <= r.medianOpenCents * DEAL_MAX_RATIO &&
+          (!types?.length || types.includes(r.productType)),
+      )
+      .sort((a, b) => a.lowestPriceCents! / a.medianOpenCents! - b.lowestPriceCents! / b.medianOpenCents! || a.lowestPriceCents! - b.lowestPriceCents!)
+      .slice(0, n * 2);
+  const rows = await routeRaw(fromFiles, () => prisma.$queryRaw<RawCard[]>`
     SELECT ${CARD_COLUMNS}
     FROM "ProductStat" s JOIN "Product" p ON p.id = s."productId"
     WHERE s.market = ${market}
@@ -264,7 +285,7 @@ export async function dealsInMarket(market: Market, { take = 48, types }: { take
       AND s."lowestPriceCents" BETWEEN s."medianOpenCents" * ${DEAL_MIN_RATIO} AND s."medianOpenCents" * ${DEAL_MAX_RATIO}
       ${typeFilter}
     ORDER BY s."lowestPriceCents"::float / s."medianOpenCents", s."lowestPriceCents"
-    LIMIT ${n * 2}`;
+    LIMIT ${n * 2}`);
   return pickDeals(rows.map(fromRaw), market).slice(0, n);
 }
 
@@ -280,14 +301,25 @@ export async function dealsBySection(market: Market): Promise<{ section: DealSec
  */
 export async function perPackLeaders(market: Market, perType = 24): Promise<PerPackLeaders> {
   const n = Math.max(1, Math.min(25, Math.floor(perType)));
-  const rows = await prisma.$queryRaw<RawCard[]>`
+  const fromFiles = (): RawCard[] => {
+    const byType = new Map<string, RawCard[]>();
+    for (const sp of statsInMarket(market)) {
+      if (!isOpen(sp.s) || sp.s.lowestPriceCents === null || !PACK_TYPES.includes(String(sp.p.productType))) continue;
+      const r = cardRow(sp);
+      let list = byType.get(r.productType);
+      if (!list) byType.set(r.productType, (list = []));
+      list.push(r);
+    }
+    return [...byType.values()].flatMap((list) => list.sort((a, b) => a.lowestPriceCents! - b.lowestPriceCents! || cmpC(a.slug, b.slug)).slice(0, n));
+  };
+  const rows = await routeRaw(fromFiles, () => prisma.$queryRaw<RawCard[]>`
     SELECT "lowestPriceCents", "inStockStores", "listedStores", "marketplaceOpen", "medianOpenCents", slug, name, "productType", "setCode", "imageUrl"
     FROM (
       SELECT ${CARD_COLUMNS}, ROW_NUMBER() OVER (PARTITION BY p."productType" ORDER BY s."lowestPriceCents", p.slug) AS rn
       FROM "ProductStat" s JOIN "Product" p ON p.id = s."productId"
       WHERE s.market = ${market} AND ${OPEN_SQL} AND s."lowestPriceCents" IS NOT NULL AND p."productType" = ANY(${PACK_TYPES})
     ) ranked
-    WHERE rn <= ${n}`;
+    WHERE rn <= ${n}`);
   return perPackLeadersOf(rows.map(fromRaw), market);
 }
 
@@ -298,13 +330,23 @@ export async function perPackLeaders(market: Market, perType = 24): Promise<PerP
 export async function belowMsrpUS(take = 24): Promise<ProductCardData[]> {
   if (!MSRP_TYPES.size || !MSRP_SETS.length) return [];
   const msrp = Prisma.join([...MSRP_TYPES].map(([type, cents]) => Prisma.sql`(${type}::text, ${cents}::int)`));
-  const rows = await prisma.$queryRaw<RawCard[]>`
+  const fromFiles = (): RawCard[] =>
+    statsInMarket("US")
+      .filter(({ s, p }) => isOpen(s) && MSRP_SETS.includes(String(p.setCode)) && MSRP_TYPES.has(String(p.productType)))
+      .map(cardRow)
+      .filter((r) => r.lowestPriceCents !== null && r.lowestPriceCents < MSRP_TYPES.get(r.productType)!)
+      .sort(
+        (a, b) =>
+          a.lowestPriceCents! / MSRP_TYPES.get(a.productType)! - b.lowestPriceCents! / MSRP_TYPES.get(b.productType)! || a.lowestPriceCents! - b.lowestPriceCents!,
+      )
+      .slice(0, 120);
+  const rows = await routeRaw(fromFiles, () => prisma.$queryRaw<RawCard[]>`
     WITH m(type, msrp) AS (VALUES ${msrp})
     SELECT ${CARD_COLUMNS}
     FROM "ProductStat" s JOIN "Product" p ON p.id = s."productId" JOIN m ON m.type = p."productType"
     WHERE s.market = 'US' AND ${OPEN_SQL} AND p."setCode" = ANY(${MSRP_SETS}) AND s."lowestPriceCents" < m.msrp
     ORDER BY s."lowestPriceCents"::float / m.msrp, s."lowestPriceCents"
-    LIMIT 120`;
+    LIMIT 120`);
   return pickBelowMsrp(rows.map(fromRaw)).slice(0, Math.max(0, take));
 }
 
@@ -315,7 +357,19 @@ export async function belowMsrpUS(take = 24): Promise<ProductCardData[]> {
  */
 export async function newlyTracked(market: Market, take = 24, now = new Date()): Promise<ProductCardData[]> {
   const since = newSince(now).toISOString();
-  const rows = await prisma.$queryRaw<RawCard[]>`
+  const limit = Math.max(1, Math.min(48, Math.floor(take)));
+  const fromFiles = (): RawCard[] => {
+    const sinceMs = Date.parse(since);
+    const created = (p: Row) => (p.createdAt instanceof Date ? p.createdAt.getTime() : Date.parse(String(p.createdAt)));
+    const perDay = new Map<string, number>();
+    for (const p of publicRows("Product")) if (created(p) >= sinceMs) perDay.set(utcDay(new Date(created(p))), (perDay.get(utcDay(new Date(created(p)))) ?? 0) + 1);
+    return statsInMarket(market)
+      .filter(({ s, p }) => isOpen(s) && created(p) >= sinceMs && (perDay.get(utcDay(new Date(created(p)))) ?? 0) < BULK_DAY)
+      .sort((a, b) => created(b.p) - created(a.p) || cmpC(String(a.p.slug), String(b.p.slug)))
+      .slice(0, limit)
+      .map(cardRow);
+  };
+  const rows = await routeRaw(fromFiles, () => prisma.$queryRaw<RawCard[]>`
     WITH days AS (
       SELECT date_trunc('day', "createdAt") AS day, count(*) AS n
       FROM "Product"
@@ -328,7 +382,7 @@ export async function newlyTracked(market: Market, take = 24, now = new Date()):
     JOIN "ProductStat" s ON s."productId" = p.id AND s.market = ${market}
     WHERE days.n < ${BULK_DAY} AND ${OPEN_SQL}
     ORDER BY p."createdAt" DESC, p.slug
-    LIMIT ${Math.max(1, Math.min(48, Math.floor(take)))}`;
+    LIMIT ${limit}`);
   return rows.map(fromRaw);
 }
 
@@ -337,11 +391,23 @@ export async function productCountsBySets(market: Market, codes: readonly string
   const out = new Map<string, { products: number; open: number }>();
   const some = [...new Set(codes)].slice(0, 10);
   if (!some.length) return out;
-  const rows = await prisma.$queryRaw<{ code: string; products: number; open: number }[]>`
+  const fromFiles = () => {
+    const acc = new Map<string, { code: string; products: number; open: number }>();
+    for (const { s, p } of statsInMarket(market)) {
+      const code = p.setCode as string | null;
+      if (!code || !some.includes(code)) continue;
+      const a = acc.get(code) ?? { code, products: 0, open: 0 };
+      a.products++;
+      if (isOpen(s)) a.open++;
+      acc.set(code, a);
+    }
+    return [...acc.values()];
+  };
+  const rows = await routeRaw(fromFiles, () => prisma.$queryRaw<{ code: string; products: number; open: number }[]>`
     SELECT p."setCode" AS code, count(*)::int AS products, (count(*) FILTER (WHERE ${OPEN_SQL}))::int AS open
     FROM "ProductStat" s JOIN "Product" p ON p.id = s."productId"
     WHERE s.market = ${market} AND p."setCode" = ANY(${some})
-    GROUP BY p."setCode"`;
+    GROUP BY p."setCode"`);
   for (const r of rows) out.set(r.code, { products: r.products, open: r.open });
   return out;
 }

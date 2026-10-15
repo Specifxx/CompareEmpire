@@ -5,6 +5,9 @@
 import { cardSelect, OPEN, toCard, type ProductCardData } from "./data";
 import { prisma } from "./db";
 import type { Market } from "./regions";
+import { isOpen, statsInMarket } from "./public-data/joins";
+import { routeRaw } from "./public-data/route";
+import { publicRows } from "./public-data/store";
 
 export interface SetCount {
   products: number;
@@ -17,14 +20,26 @@ export interface SetCount {
  * than 80 sets; capped at 150), instead of data.ts setCounts' read of every product row in the market.
  */
 export async function setCountsGrouped(market: Market): Promise<Map<string, SetCount>> {
-  const rows = await prisma.$queryRaw<{ setCode: string; products: number; inStock: number }[]>`
+  const fromFiles = () => {
+    const acc = new Map<string, { setCode: string; products: number; inStock: number }>();
+    for (const { s, p } of statsInMarket(market)) {
+      const code = p.setCode as string | null;
+      if (!code) continue;
+      const a = acc.get(code) ?? { setCode: code, products: 0, inStock: 0 };
+      a.products++;
+      if (isOpen(s)) a.inStock++;
+      acc.set(code, a);
+    }
+    return [...acc.values()].slice(0, 150);
+  };
+  const rows = await routeRaw(fromFiles, () => prisma.$queryRaw<{ setCode: string; products: number; inStock: number }[]>`
     SELECT p."setCode" AS "setCode",
            count(*)::int AS "products",
            (count(*) FILTER (WHERE s."inStockStores" > 0 OR s."marketplaceOpen"))::int AS "inStock"
     FROM "ProductStat" s JOIN "Product" p ON p."id" = s."productId"
     WHERE s."market" = ${market} AND p."setCode" IS NOT NULL
     GROUP BY p."setCode"
-    LIMIT 150`;
+    LIMIT 150`);
   return new Map(rows.map((r) => [r.setCode, { products: Number(r.products), inStock: Number(r.inStock) }]));
 }
 
@@ -63,12 +78,24 @@ export async function typePageData(market: Market, label: string): Promise<TypeP
       take: TYPE_SOLD_TAKE,
       select: cardSelect,
     }),
-    prisma.$queryRaw<{ open: number; sold: number; tcgOnly: number }[]>`
+    routeRaw(
+      () => {
+        const c = { open: 0, sold: 0, tcgOnly: 0 };
+        for (const { s, p } of statsInMarket(market)) {
+          if (p.productType !== label) continue;
+          if (isOpen(s)) c.open++;
+          if (s.inStockStores === 0 && s.marketplaceOpen !== true) c.sold++;
+          if (s.listedStores === 0) c.tcgOnly++;
+        }
+        return [c];
+      },
+      () => prisma.$queryRaw<{ open: number; sold: number; tcgOnly: number }[]>`
       SELECT (count(*) FILTER (WHERE s."inStockStores" > 0 OR s."marketplaceOpen"))::int AS "open",
              (count(*) FILTER (WHERE s."inStockStores" = 0 AND NOT s."marketplaceOpen"))::int AS "sold",
              (count(*) FILTER (WHERE s."listedStores" = 0))::int AS "tcgOnly"
       FROM "ProductStat" s JOIN "Product" p ON p."id" = s."productId"
       WHERE s."market" = ${market} AND p."productType" = ${label}`,
+    ),
   ]);
   const c = counts[0];
   return {
@@ -85,7 +112,14 @@ export async function typePageData(market: Market, label: string): Promise<TypeP
  * store page's noindex rule). One row: the keys aggregated in SQL (a few KB, bounded by the store registry).
  */
 export async function activeStoreKeys(): Promise<string[]> {
-  const rows = await prisma.$queryRaw<{ keys: string[] | null }[]>`
-    SELECT array_agg("store" ORDER BY "store") AS "keys" FROM "StoreStat" WHERE "listed" > 0 AND NOT "dormant"`;
+  const fromFiles = () => {
+    const keys = publicRows("StoreStat")
+      .filter((r) => (r.listed as number) > 0 && r.dormant !== true)
+      .map((r) => String(r.store))
+      .sort();
+    return [{ keys: keys.length ? keys : null }];
+  };
+  const rows = await routeRaw(fromFiles, () => prisma.$queryRaw<{ keys: string[] | null }[]>`
+    SELECT array_agg("store" ORDER BY "store") AS "keys" FROM "StoreStat" WHERE "listed" > 0 AND NOT "dormant"`);
   return rows[0]?.keys ?? [];
 }

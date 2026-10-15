@@ -7,6 +7,8 @@
 import { calendarProducts, CALENDAR_TYPES, cardSelect, lastCheckedAt, OPEN, productsBySet, sortCards, toCard, type ProductCardData } from "@/lib/data";
 import { cardOpen } from "@/lib/compact";
 import { prisma } from "@/lib/db";
+import { isOpen, statsInMarket } from "@/lib/public-data/joins";
+import { routeRaw } from "@/lib/public-data/route";
 import type { Market, RegionInfo } from "@/lib/regions";
 import { packsFor, packsForLabel, perPackCents } from "@/lib/packs";
 import { usMsrpCents } from "@/lib/rrp";
@@ -70,7 +72,24 @@ export const BOX_GUIDE_TYPES = ["Booster Box", "Booster Bundle", "Sleeved Booste
  * 1 KB. Products of a set not yet released count as pre-orders, the rest as in stock; the from-price is the in-stock one.
  */
 export async function typeSummary(market: Market, upcoming: string[]): Promise<TypeSummaryRow[]> {
-  return prisma.$queryRaw<TypeSummaryRow[]>`
+  const fromFiles = (): TypeSummaryRow[] => {
+    const acc = new Map<string, TypeSummaryRow>();
+    for (const { s, p } of statsInMarket(market)) {
+      if (!isOpen(s)) continue;
+      const type = String(p.productType);
+      const a = acc.get(type) ?? ({ productType: type, inStock: 0, preorder: 0, fromCents: null } as TypeSummaryRow);
+      const pre = p.setCode != null && upcoming.includes(String(p.setCode));
+      if (pre) a.preorder++;
+      else {
+        a.inStock++;
+        const c = s.lowestPriceCents as number | null;
+        if (c !== null && (a.fromCents === null || c < a.fromCents)) a.fromCents = c;
+      }
+      acc.set(type, a);
+    }
+    return [...acc.values()].slice(0, 16);
+  };
+  return routeRaw(fromFiles, () => prisma.$queryRaw<TypeSummaryRow[]>`
     SELECT p."productType" AS "productType",
       (count(*) FILTER (WHERE NOT coalesce(p."setCode" = ANY(${upcoming}::text[]), false)))::int AS "inStock",
       (count(*) FILTER (WHERE coalesce(p."setCode" = ANY(${upcoming}::text[]), false)))::int AS "preorder",
@@ -78,7 +97,7 @@ export async function typeSummary(market: Market, upcoming: string[]): Promise<T
     FROM "ProductStat" s JOIN "Product" p ON p."id" = s."productId"
     WHERE s."market" = ${market} AND (s."inStockStores" > 0 OR s."marketplaceOpen")
     GROUP BY 1
-    LIMIT 16`;
+    LIMIT 16`);
 }
 
 /** The booster-box guide's one query: the open box, bundle, sleeved booster and loose pack listings of three sets (one per set and type, so about 12 rows). */

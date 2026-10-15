@@ -4,6 +4,29 @@ DexCompare now deploys from **`apps/dexcompare-sealed`** (sealed products only).
 Everything below uses free tiers. It takes about 30 minutes, most of which is
 waiting for the first import.
 
+## Where the data lives (2026-10-16): DC2, and the public data files
+
+**The site reads no database.** After every import (`dexcompare-sealed-import.yml`, twice a day; `dexcompare-ebay-import.yml`,
+daily) the job exports every public table to `data/public/` (`scripts/export-public-data.ts`, ~25 MB of JSON, one row per line)
+and commits it to `main` (`scripts/publish-public-data.sh`). That commit is the release that puts the new prices live: Vercel
+builds it, the build bundles the files, and every page, the browse index and the eBay strips read them through
+`src/lib/public-data/` (RiftCompare's query engine, ported). `PUBLIC_DATA_MODE` (Vercel, optional): `files` (default), `fallback`
+(database first, files if it cannot answer) or `db` (the database only, as before). A read the files cannot answer exactly falls
+through to the database and logs `[public-data:unsupported]`; `scripts/check-public-data.ts` compares every loader both ways and
+must report no difference but the order of ties.
+
+**The database is DC2**, a separate Neon project, used by the importers only (so its compute wakes for imports and nothing else):
+
+| Where | Name | Value |
+|---|---|---|
+| GitHub (secret or variable) | `DC2` | the DC2 connection string (pooled or direct: the jobs use its direct host) |
+| Vercel | `DC2` | the DC2 connection string (only a fallback for a read the files cannot answer) |
+
+`DEXCOMPARE_SEALED_DATABASE_URL` / `DATABASE_URL` (the old project) are used only while `DC2` is unset.
+`dexcompare-migrate-dc2.yml` copied the old project into DC2 once (pg_dump, every table's row count checked) and published the
+first snapshot. Once the site has run on DC2 for a few days: delete the old Neon project, and the `DEXCOMPARE_SEALED_DATABASE_URL`
+secret and Vercel's old `DATABASE_URL` with it.
+
 ## 1. Neon — a new, separate database
 
 Don't reuse an old DexCompare database, and don't share Rift Compare's projects:

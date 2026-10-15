@@ -138,7 +138,11 @@ test("the browse SQL is relevanceCompare: the same keys, in the same order, COLL
     order,
     '(s."inStockStores" > 0 OR s."marketplaceOpen") DESC, array_position(${SET_CODES_NEWEST_FIRST}::text[], p."setCode") NULLS LAST, array_position(${TYPE_LABELS_BY_RANK}::text[], p."productType") NULLS LAST, p.name COLLATE "C", p.slug COLLATE "C"',
   );
-  assert.match(src, /LIMIT \$\{PAGE_SIZE\} OFFSET \$\{\(page - 1\) \* PAGE_SIZE\}/, "a page is 48 rows in SQL");
+  assert.match(src, /const from = \(page - 1\) \* PAGE_SIZE;/);
+  assert.match(src, /LIMIT \$\{PAGE_SIZE\} OFFSET \$\{from\}/, "a page is 48 rows in SQL");
+  // The files answer the same page with the same order (relevanceCompare over the comparable rows), the SQL only in "db" mode.
+  assert.match(src, /comparableFromFiles\(market\)\.slice\(from, from \+ PAGE_SIZE\)/);
+  assert.match(src, /\.sort\(relevanceCompare\)/);
   assert.match(src, /LIMIT \$\{INDEX_CAP\}/, "the index read is capped");
   assert.doesNotMatch(src, /\$queryRawUnsafe|unstable_cache/);
 });

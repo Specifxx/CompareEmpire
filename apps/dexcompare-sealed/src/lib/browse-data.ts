@@ -8,7 +8,9 @@ import { Prisma } from "@prisma/client";
 import { PAGE_SIZE, toCard, type ProductCardData } from "./data";
 import { prisma } from "./db";
 import type { Market } from "./regions";
-import { SET_CODES_NEWEST_FIRST, TYPE_LABELS_BY_RANK } from "./search-index";
+import { relevanceCompare, SET_CODES_NEWEST_FIRST, TYPE_LABELS_BY_RANK } from "./search-index";
+import { routeRaw } from "./public-data/route";
+import { cardRow, isComparable, statsInMarket } from "./public-data/joins";
 
 /**
  * The most rows the index reads for one region (US lists about 2,200 today). A ceiling, not a page: past it the least relevant rows
@@ -48,13 +50,22 @@ function toCardData(r: Row): ProductCardData {
 }
 
 /** Page `page` (1-based) of /<region>/sealed: 48 rows in the browse order. The page count is data.ts marketProductCount (one COUNT). */
+/** The market's comparable rows in the browse order, from the public data files (the SQL below, for "db" mode). */
+function comparableFromFiles(market: Market): Row[] {
+  return statsInMarket(market)
+    .filter(({ s }) => isComparable(s))
+    .map(cardRow)
+    .sort(relevanceCompare);
+}
+
 export async function marketPage(market: Market, page: number): Promise<ProductCardData[]> {
-  const rows = await prisma.$queryRaw<Row[]>`
+  const from = (page - 1) * PAGE_SIZE;
+  const rows = await routeRaw(() => comparableFromFiles(market).slice(from, from + PAGE_SIZE), () => prisma.$queryRaw<Row[]>`
     SELECT ${COLUMNS}
     FROM "ProductStat" s JOIN "Product" p ON p.id = s."productId"
     WHERE ${comparableIn(market)}
     ORDER BY ${RELEVANCE}
-    LIMIT ${PAGE_SIZE} OFFSET ${(page - 1) * PAGE_SIZE}`;
+    LIMIT ${PAGE_SIZE} OFFSET ${from}`);
   return rows.map(toCardData);
 }
 
@@ -63,12 +74,12 @@ export async function marketPage(market: Market, page: number): Promise<ProductC
  * per import). About 0.5 MB from the database for the US; the CDN serves the JSON (~70 KB gzip) to every visitor after that.
  */
 export async function marketIndexCards(market: Market): Promise<ProductCardData[]> {
-  const rows = await prisma.$queryRaw<Row[]>`
+  const rows = await routeRaw(() => comparableFromFiles(market).slice(0, INDEX_CAP), () => prisma.$queryRaw<Row[]>`
     SELECT ${COLUMNS}
     FROM "ProductStat" s JOIN "Product" p ON p.id = s."productId"
     WHERE ${comparableIn(market)}
     ORDER BY ${RELEVANCE}
-    LIMIT ${INDEX_CAP}`;
+    LIMIT ${INDEX_CAP}`);
   if (rows.length >= INDEX_CAP) {
     console.warn(`[browse-index] ${market}: the index reached INDEX_CAP (${INDEX_CAP} rows); the least relevant products are left out of search and filters. Raise it in src/lib/browse-data.ts.`);
   }

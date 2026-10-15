@@ -199,7 +199,9 @@ have changed; check eBay."
 
 ## What this site does not store
 
-No price history, no stock history, no event log, no accounts, no emails, nothing about visitors. Every table is
+No price history, no stock history, no event log, no accounts, no emails, nothing about visitors. The current state is also
+published as files in `data/public/` after every import, and the site reads those, not the database (DEPLOY.md, "Where the data
+lives"). Every table is
 current state only (`prisma/schema.prisma`). "Recently viewed" lives only in the visitor's own browser (localStorage,
 `dex-recent-<region>`, the last 12 slugs), and the search index (`/api/browse/<region>`) is a CDN-cached rendering of
 `ProductStat`, not a table:

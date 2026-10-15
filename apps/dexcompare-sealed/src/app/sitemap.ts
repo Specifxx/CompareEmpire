@@ -2,6 +2,8 @@ import type { MetadataRoute } from "next";
 import { isPreviewBuild } from "@/lib/build-env";
 import { COMPARABLE } from "@/lib/data";
 import { prisma } from "@/lib/db";
+import { isComparable, statsInMarket } from "@/lib/public-data/joins";
+import { routeRaw } from "@/lib/public-data/route";
 import { activeStoreKeys } from "@/lib/hub-data";
 import { regionOfSitemapId, SITEMAP_IDS, STATIC_SITEMAP_ID, regionSitemap, staticSitemap } from "@/lib/sitemap";
 import type { Market } from "@/lib/regions";
@@ -55,18 +57,21 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
 // GROUP BY in SQL: Prisma's `distinct` dedupes client-side after fetching every row.
 
 async function typesInMarket(market: Market): Promise<string[]> {
-  const rows = await prisma.$queryRaw<{ productType: string }[]>`
+  const fromFiles = () => [...new Set(statsInMarket(market).filter(({ s }) => isComparable(s)).map(({ p }) => String(p.productType)))].map((productType) => ({ productType }));
+  const rows = await routeRaw(fromFiles, () => prisma.$queryRaw<{ productType: string }[]>`
     SELECT p."productType" FROM "ProductStat" s JOIN "Product" p ON p."id" = s."productId"
     WHERE s."market" = ${market} AND (s."inStockStores" > 0 OR s."marketplaceOpen" OR s."listedStores" >= 2)
-    GROUP BY 1`;
+    GROUP BY 1`);
   return rows.map((r) => r.productType);
 }
 
 async function setsInMarket(market: Market): Promise<string[]> {
-  const rows = await prisma.$queryRaw<{ setCode: string }[]>`
+  const fromFiles = () =>
+    [...new Set(statsInMarket(market).filter(({ s, p }) => isComparable(s) && p.setCode != null).map(({ p }) => String(p.setCode)))].map((setCode) => ({ setCode }));
+  const rows = await routeRaw(fromFiles, () => prisma.$queryRaw<{ setCode: string }[]>`
     SELECT p."setCode" FROM "ProductStat" s JOIN "Product" p ON p."id" = s."productId"
     WHERE s."market" = ${market} AND p."setCode" IS NOT NULL AND (s."inStockStores" > 0 OR s."marketplaceOpen" OR s."listedStores" >= 2)
-    GROUP BY 1`;
+    GROUP BY 1`);
   return rows.map((r) => r.setCode);
 }
 

@@ -6,6 +6,8 @@
 //   • relatedWithFormats: the same-set read the page always made (take 40), returned whole: the page's value check reads every format
 //     of the set from it, and the "More from <set>" grid shows the first eight. No new query.
 import { prisma } from "./db";
+import { ascNullsLast, cardRow, isOpen, positionIn, statsInMarket } from "./public-data/joins";
+import { routeRaw } from "./public-data/route";
 import { cheapestInStock, HEADLINE_TYPES, relatedProducts, toCard, type ProductCardData } from "./data";
 import type { Market } from "./regions";
 import { SETS } from "./sets";
@@ -60,14 +62,29 @@ export async function inStockAlternatives(
   const db = deps.db ?? (prisma as unknown as AltDb);
   const codes = setCodesNewestFirst(deps.today);
   const limit = Math.max(1, Math.min(take, 12));
-  // COALESCE: a product with no set compares NULL with the set, which must sort as "not the same set", not first.
-  const rows = await db.$queryRaw<AltRow[]>`
+  // The SQL's own order over the public data files (src/lib/public-data/), used unless a test injects its db.
+  const fromFiles = (): AltRow[] => {
+    const pos = positionIn(codes);
+    return statsInMarket(market)
+      .filter(({ s, p }) => isOpen(s) && p.productType === productType && p.slug !== excludeSlug)
+      .map(cardRow)
+      .sort(
+        (a, b) =>
+          Number(setCode !== null && b.setCode === setCode) - Number(setCode !== null && a.setCode === setCode) ||
+          pos(a.setCode) - pos(b.setCode) ||
+          ascNullsLast(a.lowestPriceCents, b.lowestPriceCents),
+      )
+      .slice(0, limit);
+  };
+  const sql = () => db.$queryRaw<AltRow[]>`
     SELECT p."slug", p."name", p."productType", p."setCode", p."imageUrl",
            s."lowestPriceCents", s."inStockStores", s."listedStores", s."marketplaceOpen", s."medianOpenCents"
     FROM "ProductStat" s JOIN "Product" p ON p."id" = s."productId"
     WHERE s."market" = ${market} AND (s."inStockStores" > 0 OR s."marketplaceOpen") AND p."productType" = ${productType} AND p."slug" <> ${excludeSlug}
     ORDER BY COALESCE(p."setCode" = ${setCode}, false) DESC, array_position(${codes}::text[], p."setCode") NULLS LAST, s."lowestPriceCents" ASC NULLS LAST
     LIMIT ${limit}`;
+  // COALESCE: a product with no set compares NULL with the set, which must sort as "not the same set", not first.
+  const rows = deps.db ? await sql() : await routeRaw(fromFiles, sql);
   if (rows.length) return rows.map(altToCard);
   const fallback = deps.fallback ?? cheapestInStock;
   return (await fallback(market, HEADLINE_TYPES, limit)).filter((c) => c.slug !== excludeSlug);
