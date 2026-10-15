@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ADSENSE_CLIENT } from "@/lib/adsense";
 import Link from "next/link";
 import { REGION_LIST } from "@/lib/regions";
 import { CONTACT_EMAIL, SITE_URL } from "@/lib/site";
@@ -125,10 +126,16 @@ export default function About() {
 
         <h2 id="money">How DexCompare makes money</h2>
         <p>
-          Through affiliate links, and only two kinds: <b>eBay</b> (the eBay Partner Network) and <b>TCGplayer</b> (through Impact). If you
+          {ADSENSE_CLIENT ? "Through one Google ad in some guides, and through affiliate links of only two kinds" : "Through affiliate links, and only two kinds"}: <b>eBay</b> (the eBay Partner Network) and <b>TCGplayer</b> (through Impact). If you
           buy through one we may earn a small commission, at no cost to you &mdash; the price is the same as going direct. Every one is
           marked where it appears: eBay with an &ldquo;Ad&rdquo; label, TCGplayer with &ldquo;affiliate link&rdquo;.
         </p>
+        {ADSENSE_CLIENT && (
+          <p>
+            Some guides also carry one Google AdSense ad, labelled &ldquo;Advertisement&rdquo;. Google chooses what it shows; no advertiser pays to change a price,
+            a ranking or a guide. <Link href="/privacy#ads">How Google uses cookies for these ads</Link>.
+          </p>
+        )}
         <p>
           We keep them out of your way: at most one ad on a phone screen at a time and two on a wide screen, no pop-ups or countdowns, space
           kept for every ad before it loads so nothing you are reading gets pushed aside, and no ads on this page or the Terms, Privacy or

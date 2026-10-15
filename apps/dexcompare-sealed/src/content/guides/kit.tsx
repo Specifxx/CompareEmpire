@@ -1,4 +1,4 @@
-// The pieces every guide is built from, so the six read and behave as one series: sections with anchored H2s (the table of
+// The pieces every guide is built from, so the guides read and behave as one series: sections with anchored H2s (the table of
 // contents is built from them), live blocks that say when the prices were checked, tables that stack on a phone, the one eBay
 // strip, and the closing "Where to buy" with the US TCGplayer link. Server components (Ago and EbayStrip are client islands).
 //
@@ -8,10 +8,12 @@
 // No JSX runs when this module loads (the tests set globalThis.React after their imports): everything here is a function.
 import Link from "next/link";
 import { Fragment, type ReactNode } from "react";
+import { AdSenseUnit } from "@/components/AdSenseUnit";
 import { Ago } from "@/components/Ago";
 import { EbayStrip } from "@/components/EbayStrip";
 import { Icon } from "@/components/Icon";
 import { OutboundLink } from "@/components/OutboundLink";
+import { ADSENSE_CLIENT, ADSENSE_GUIDE_SLOT } from "@/lib/adsense";
 import { AFFILIATE_NOTE_SHORT, REL_SPONSORED, TCGPLAYER_RETAILER, tcgplayerSearchUrl } from "@/lib/affiliate";
 import type { ProductCardData } from "@/lib/data";
 import { money, plural, timeAgo } from "@/lib/format";
@@ -57,9 +59,19 @@ export function stripIndex(sections: readonly GuideSection[]): number {
   return Math.max(0, sections.findIndex((s) => s.live));
 }
 
+/**
+ * Where the guide's AdSense unit goes (only when lib/adsense.ts has a guide slot): after the section two past the eBay strip, so the
+ * two units are at least two sections apart, and never after the closing "Where to buy". -1: the guide is too short for one.
+ */
+export function adsenseIndex(sections: readonly GuideSection[]): number {
+  const i = stripIndex(sections) + 2;
+  return i < sections.length - 1 ? i : -1;
+}
+
 /** The article's body: the intro, then each section under its anchored H2, with the guide's one eBay strip after the first live block. */
 export function GuideBody({ guide, r, outline }: { guide: Guide; r: RegionInfo; outline: GuideOutline }) {
   const at = stripIndex(outline.sections);
+  const adAt = ADSENSE_CLIENT && ADSENSE_GUIDE_SLOT ? adsenseIndex(outline.sections) : -1;
   return (
     <>
       <div className="mt-8">{outline.intro}</div>
@@ -72,6 +84,7 @@ export function GuideBody({ guide, r, outline }: { guide: Guide; r: RegionInfo; 
             {s.body}
           </section>
           {i === at && <GuideStrip guide={guide} r={r} />}
+          {i === adAt && <AdSenseUnit client={ADSENSE_CLIENT!} slot={ADSENSE_GUIDE_SLOT!} placement="adsense-guide" />}
         </Fragment>
       ))}
     </>

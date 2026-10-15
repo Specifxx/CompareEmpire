@@ -160,6 +160,34 @@ and goes red if the regional sitemaps total under 1,000 product URLs
 every region), resubmit `sitemap.xml` in Search Console (Sitemaps → the entry → resubmit) so the new URLs are read
 soon. Store pages with nothing listed, or whose store is dormant, are `noindex` and left out of the sitemap.
 
+## 7. Google AdSense
+
+Off until you set it; nothing Google loads before then.
+
+1. Apply at <https://adsense.google.com> with the site `dexcompare.app`. Your publisher ID looks like `pub-1234567890123456`.
+2. Vercel → the DexCompare project → Settings → Environment Variables (Production): `NEXT_PUBLIC_ADSENSE_CLIENT` = that ID
+   (`pub-…` or `ca-pub-…`). It is read at **build** time, so redeploy (Deployments → the latest → Redeploy).
+3. That turns on, site-wide (`src/lib/adsense.ts`): the AdSense script and the `google-adsense-account` meta in every page's
+   `<head>` (what AdSense's site review checks), `https://www.dexcompare.app/ads.txt` with Google's authorised-seller line, and the
+   AdSense paragraphs on `/privacy` (cookies, opt-outs) and `/about` ("how we make money"). In AdSense → Sites, press
+   **Verify** / **Request review**.
+4. Consent: AdSense → Privacy & messaging → create the **European regulations (GDPR)** message (Google's own certified consent
+   banner, served by the same script; no code needed) before ads serve in the UK, EEA and Switzerland. Add the **US state
+   regulations** message too.
+5. Once approved: AdSense → Ads → By ad unit → **In-article** → create one, copy its `data-ad-slot` number into
+   `NEXT_PUBLIC_ADSENSE_SLOT_GUIDE` and redeploy. Each guide then carries one labelled in-article unit two sections after its eBay
+   strip (`adsenseIndex` in `src/content/guides/kit.tsx`), `data-ad="adsense-guide"`, so the viewport sweep counts it.
+6. **Auto ads**: leave them off at first. They place ads anywhere, including product pages, where the eBay units already sit at
+   the density ceiling (see "Ad rules" below). If you try them, exclude product pages (AdSense → Ads → Overview → Edit → Page
+   exclusions: `/*/p/*`) and re-run the viewport sweep.
+
+## Social share cards
+
+Each region home (`/au`, `/us` …) and each guide has its own 1200×630 share card, drawn at build from the registry
+(`src/lib/og-card.tsx`; routes `/og/<region>` and `/og/guides/<slug>`; no database). It is the thumbnail Reddit, Discord and X
+show for a link. To preview one, open `https://www.dexcompare.app/og/au`. Reddit caches a link's thumbnail when it is first
+posted, so check the card before posting.
+
 ## Security headers
 
 `next.config.js` sends HSTS, `X-Content-Type-Options`, `X-Frame-Options`,
@@ -170,7 +198,8 @@ it to an enforcing `Content-Security-Policy`, browse the landing page, a region
 home, a product page and a store page with the console open and make sure it
 is silent — product photos are hotlinked from ~250 store CDNs (`img-src
 https:` covers them) and Vercel Analytics posts to `/_vercel/insights` on the
-same origin.
+same origin. Google AdSense's hosts (`*.googlesyndication.com`, `*.doubleclick.net`, `*.google.com`) are allowed in script,
+connect and frame sources for when it is switched on.
 
 ## Ad rules (the growth release, 2026-10)
 

@@ -37,8 +37,9 @@ place untouched; nothing deploys from it once the Vercel project points here.
   comparison and previous/next set; `/<region>/sets` lists every set in order; `/<region>/releases` has the next set,
   this year's and last year's sets and "Add to calendar" (an `.ics` built in the browser); `/<region>/stores` is a
   "where to buy" page; type pages are capped (48 in stock, 24 sold out) with a link to the full filtered list.
-- **Guides** (`/<region>/guides`): six evergreen guides (packs per product, box vs ETB vs bundle, are booster boxes
-  worth it, sealed products explained, US MSRP, pre-ordering) whose numbers come only from `packs.ts`, `rrp.ts`,
+- **Guides** (`/<region>/guides`): eleven evergreen guides (packs per product, box vs ETB vs bundle, are booster boxes
+  worth it, sealed products explained, US MSRP, pre-ordering, what's in an ETB, Pokémon Center ETB vs ETB, the cheapest way to
+  buy packs, where to buy online, avoiding resealed product), linked from the landing page with an FAQ, whose numbers come only from `packs.ts`, `rrp.ts`,
   `sets.ts`, `type-about.ts` and live blocks, each with "checked … ago". Old guide and blog URLs redirect to them.
 - **Search everywhere**: the 60 px header (64 px from lg) has a search box on every page, with typeahead over the
   region's whole catalogue (`/api/browse/<region>`: one CDN-cached index per region, rebuilt after each import, so a
@@ -49,6 +50,11 @@ place untouched; nothing deploys from it once the Vercel project points here.
   Clearing site data removes them; with storage blocked nothing is shown.
 - **Welcomes**: a landing page (`/`) that suggests the visitor's region, a phone menu with every section, and a footer
   of real links per region.
+- **Share cards**: each region home and each guide has its own 1200×630 og:image (`/og/<region>`, `/og/guides/<slug>`,
+  `src/lib/og-card.tsx`), static and drawn from the registry: the thumbnail a Reddit or Discord link shows.
+- **Google AdSense** (`src/lib/adsense.ts`), off until `NEXT_PUBLIC_ADSENSE_CLIENT` is set: then the script and meta in every
+  `<head>`, `/ads.txt`, the privacy and about paragraphs, and with `NEXT_PUBLIC_ADSENSE_SLOT_GUIDE` one in-article unit per guide
+  (DEPLOY.md, "Google AdSense").
 - **Earns** through affiliate links, and only two kinds (`src/lib/affiliate.ts`):
   - **eBay Partner Network**: *search links* (Buy It Now, the region's eBay site; NZ uses
     ebay.com.au, SG ebay.com) and **real eBay listings** as image strips and grid tiles. The listings are

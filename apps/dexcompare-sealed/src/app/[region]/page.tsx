@@ -20,7 +20,7 @@ import { hotRank } from "@/lib/popular";
 import { openPreorderGuides } from "@/lib/preorder-guides";
 import { isPreorderSet, formatRelease } from "@/lib/release";
 import { REGIONS, regionOrNotFound, type Market, type RegionInfo } from "@/lib/regions";
-import { pageMeta, regionAlternates } from "@/lib/seo";
+import { ogCardImage, pageMeta, regionAlternates } from "@/lib/seo";
 import { PRODUCT_TYPES } from "@/lib/sealed-title";
 import { SETS, type PokemonSet } from "@/lib/sets";
 import { storesInMarket } from "@/lib/stores";
@@ -38,14 +38,17 @@ export async function generateMetadata({ params }: { params: { region: string } 
   const r = regionOrNotFound(params.region);
   const n = storesInMarket(r.market).length;
   const overview = await getOverview(r.market);
+  const meta = pageMeta({
+    title: homeCopy.title(r, n),
+    description: homeCopy.description(r, n, overview.inStock),
+    path: `/${r.region}`,
+    alternates: regionAlternates(r.region, ""),
+  });
   return {
-    ...pageMeta({
-      title: homeCopy.title(r, n),
-      description: homeCopy.description(r, n, overview.inStock),
-      path: `/${r.region}`,
-      alternates: regionAlternates(r.region, ""),
-    }),
+    ...meta,
     title: fitTitle(homeCopy.title(r, n)),
+    // The region's own share card (app/og/[region]): what a link to /au or /us shows on Reddit, Discord or X.
+    openGraph: { ...meta.openGraph, images: [ogCardImage(`/og/${r.region}`, `DexCompare: Pokémon sealed prices across ${n} ${r.adjective} stores`)] },
   };
 }
 

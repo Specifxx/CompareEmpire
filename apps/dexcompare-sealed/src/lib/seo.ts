@@ -74,6 +74,11 @@ export function regionAlternates(a: string, b?: string | ReadonlyArray<Region | 
  */
 export const DEFAULT_OG_IMAGE = { url: `${SITE_URL}/opengraph-image`, width: 1200, height: 630, alt: SITE_NAME };
 
+/** A share card drawn by lib/og-card.tsx at one of the /og routes: a region home's (/og/au) or a guide's (/og/guides/<slug>). */
+export function ogCardImage(path: string, alt: string) {
+  return { url: `${SITE_URL}${path}`, width: 1200, height: 630, alt };
+}
+
 export function pageMeta(opts: {
   title: string;
   description: string;

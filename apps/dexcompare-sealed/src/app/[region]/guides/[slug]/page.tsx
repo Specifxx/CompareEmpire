@@ -13,7 +13,7 @@ import { timeAgo } from "@/lib/format";
 import { regionOrNotFound } from "@/lib/regions";
 import { formatRelease } from "@/lib/release";
 import { TYPE_BY_KEY } from "@/lib/sealed-title";
-import { articleJsonLd, jsonLd, pageMeta, regionAlternates } from "@/lib/seo";
+import { articleJsonLd, jsonLd, ogCardImage, pageMeta, regionAlternates } from "@/lib/seo";
 
 // A guide: evergreen prose from src/content/guides/<slug>.tsx and live blocks rendered from the region's prices at ISR time. Rendered on
 // its first visit and cached for a day (and refreshed after each import), never at build: a build must not depend on the database.
@@ -37,7 +37,7 @@ export function generateMetadata({ params }: { params: { region: string; slug: s
   return {
     ...meta,
     title: guideMetaTitle(g.title),
-    openGraph: { ...meta.openGraph, type: "article", publishedTime: g.published, modifiedTime: g.updated },
+    openGraph: { ...meta.openGraph, type: "article", publishedTime: g.published, modifiedTime: g.updated, images: [ogCardImage(`/og/guides/${g.slug}`, g.title)] },
   };
 }
 

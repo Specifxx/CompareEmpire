@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, Inter } from "next/font/google";
 import { SiteAnalytics } from "@/components/SiteAnalytics";
 import { IMPACT_SITE_VERIFICATIONS } from "@/lib/affiliate";
+import { ADSENSE_CLIENT, adsenseScriptSrc } from "@/lib/adsense";
 import { SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/lib/site";
 import { jsonLd, siteJsonLd } from "@/lib/seo";
 import "./globals.css";
@@ -40,6 +41,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {IMPACT_SITE_VERIFICATIONS.map((value) => (
           <meta key={value} {...({ name: "impact-site-verification", value } as React.MetaHTMLAttributes<HTMLMetaElement>)} />
         ))}
+        {/* Google AdSense (lib/adsense.ts): only once NEXT_PUBLIC_ADSENSE_CLIENT is set. The meta and the script are what AdSense's
+            site review looks for; ads only show in the units the site places, or wherever Auto ads put them if enabled in AdSense. */}
+        {ADSENSE_CLIENT && (
+          <>
+            <meta name="google-adsense-account" content={ADSENSE_CLIENT} />
+            <script async src={adsenseScriptSrc(ADSENSE_CLIENT)} crossOrigin="anonymous" />
+          </>
+        )}
       </head>
       <body className="flex min-h-screen flex-col">
         <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-surface focus:px-4 focus:py-2">
