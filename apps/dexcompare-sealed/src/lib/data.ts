@@ -25,7 +25,10 @@ export interface ProductCardData {
   releaseDate: string | null;
 }
 
-const cardSelect = {
+// The columns a product card renders, as a Prisma select (cardSelect) and the row it returns (CardRow), and the mapper to
+// ProductCardData (toCard). Exported so a page's own loader (a new file importing prisma, src/lib/db.ts rules) selects
+// exactly what a card shows and maps it the same way; a $queryRaw loader returns the same names and nests `product` itself.
+export const cardSelect = {
   lowestPriceCents: true,
   inStockStores: true,
   listedStores: true,
@@ -34,7 +37,7 @@ const cardSelect = {
   product: { select: { slug: true, name: true, productType: true, setCode: true, imageUrl: true } },
 } as const;
 
-type CardRow = {
+export type CardRow = {
   lowestPriceCents: number | null;
   inStockStores: number;
   listedStores: number;
@@ -43,7 +46,7 @@ type CardRow = {
   product: { slug: string; name: string; productType: string; setCode: string | null; imageUrl: string | null };
 };
 
-function toCard(r: CardRow): ProductCardData {
+export function toCard(r: CardRow): ProductCardData {
   return {
     ...r.product,
     lowestPriceCents: r.lowestPriceCents,
@@ -68,7 +71,7 @@ export function sortCards(cards: ProductCardData[]): ProductCardData[] {
 
 // Buyable now: a store has it in stock, or TCGplayer does (ProductStat's
 // store counts never include TCGplayer; marketplaceOpen says it has it).
-const OPEN = { OR: [{ inStockStores: { gt: 0 } }, { marketplaceOpen: true }] };
+export const OPEN = { OR: [{ inStockStores: { gt: 0 } }, { marketplaceOpen: true }] };
 
 // A ProductStat row exists only for a product something in that market lists
 // (a store or TCGplayer), so "listed in the region" needs no filter of its own:
@@ -129,7 +132,8 @@ export async function cheapestInStock(market: Market, typeLabels: string[], take
     .slice(0, take);
 }
 
-const HEADLINE_TYPES = ["Booster Box", "Elite Trainer Box", "Booster Bundle", "Pokémon Center Elite Trainer Box"];
+// The product types a buyer prices a set by, and the home page's "latest sets" cards show.
+export const HEADLINE_TYPES = ["Booster Box", "Elite Trainer Box", "Booster Bundle", "Pokémon Center Elite Trainer Box"];
 
 /**
  * The region home page's rails, from small targeted reads: in-stock booster

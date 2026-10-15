@@ -24,11 +24,18 @@ import { OutboundLink } from "./OutboundLink";
 // that is out), on a hot set's page, and on a hot product's page (whose marketplace panel also makes eBay its primary
 // button, and a "Popular set" chip outside the ad link: the owner's pick, not a claim about eBay's data or a trend).
 // A hot set that is not released yet gets nothing until it is out, as in the importer, which refuses pre-sale listings.
+// Every OTHER released set's page gets the same kind of button, "Shop <set> sealed on eBay", under its own placement, set-sealed
+// (setSealedHighlight): no new unit, only a button inside the strip the page already has.
 
 /** A highlighted eBay search: the button's words, and what it searches for (through ebaySearchUrl, so "sealed" is added). */
 export interface EbayHighlight {
   label: string;
   query: string;
+  /**
+   * The button's own placement (affiliate.ts PLACEMENTS), when it is not a hot one: a released set's "Shop <set> sealed on eBay" is
+   * set-sealed. Without it the strip picks its surface's hot placement (EbayStrip.tsx hotPlacement: hot-home / hot-set / hot-product).
+   */
+  placement?: Placement;
 }
 
 type SetName = Pick<PokemonSet, "code" | "name">;
@@ -52,6 +59,19 @@ export function isHotReleased(setCode: string | null | undefined, now: Date = ne
 export function hotSetHighlight(set: SetName | null | undefined, now: Date = new Date()): EbayHighlight | undefined {
   if (!set || !isHotReleased(set.code, now)) return undefined;
   return { label: `Shop ${set.name} on eBay`, query: hotSetQuery(set) };
+}
+
+/**
+ * A set page's highlighted button (the growth release: every released set's page, not only the hot ones'). A hot set that is out keeps
+ * its hot-set button ("Shop 30th Celebration on eBay"); any other released set gets "Shop <set> sealed on eBay", a search for the set's
+ * sealed product (what the page compares) under its own placement, set-sealed; a set that is not out yet gets none, as in the importer,
+ * which refuses pre-sale listings. A set whose name already says Pokémon is not searched as "Pokemon Pokémon …".
+ */
+export function setSealedHighlight(set: SetName | null | undefined, now: Date = new Date()): EbayHighlight | undefined {
+  if (!set || isPreorderSet(set.code, now)) return undefined;
+  if (isHotSet(set.code)) return hotSetHighlight(set, now);
+  const query = /pok[eé]mon/i.test(set.name) ? set.name : `Pokemon ${set.name}`;
+  return { label: `Shop ${set.name} sealed on eBay`, query, placement: "set-sealed" };
 }
 
 /** The most wanted hot set that is out (HOT_SETS order): the one the region home page highlights. */

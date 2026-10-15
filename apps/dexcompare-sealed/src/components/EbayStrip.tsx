@@ -19,12 +19,13 @@ import {
   type AcceptedItem,
   type FeedKind,
 } from "@/lib/ebay-context";
-import { preFooterPlan } from "@/lib/ebay-ads";
+import { FEED_FIRST_INDEX, preFooterPlan } from "@/lib/ebay-ads";
 import { ebayRowIndex, listingCents, pickListing, type PriceFloor } from "@/lib/ebay-offer-row";
 import { money } from "@/lib/format";
 import { isRegion, REGIONS, type Region } from "@/lib/regions";
 import type { EbayHighlight } from "./Ebay";
 import { EbayMark } from "./EbayMark";
+import { Icon } from "./Icon";
 import { OutboundLink } from "./OutboundLink";
 
 // The eBay listing strips: real listings from eBay's Browse API as image banners (the look of Rift Compare's
@@ -286,7 +287,7 @@ export function hotPlacement(strip: Placement): Placement {
  * always inside a unit labelled "Ad".
  */
 function HotLink({ region, highlight, placement, className = "" }: { region: Region; highlight: EbayHighlight; placement: Placement; className?: string }) {
-  const hot = hotPlacement(placement);
+  const hot = highlight.placement ?? hotPlacement(placement);
   // The label wraps rather than truncates: at 320 px a cut label would lose "eBay". It is the same element in the reserved box and
   // in the strip, so a two-line label is the same height in both (no shift).
   return (
@@ -512,7 +513,7 @@ export interface EbayStripProps {
   search?: StripSearch;
   /**
    * A popular product or set (components/Ebay.tsx hotSetHighlight / hotProductHighlight): an eBay-blue search button in the strip's
-   * top line, in every state, and the compact CTA's button (in place of `search`). Placement: hot-home / hot-set / hot-product.
+   * top line, in every state, and the compact CTA's button (in place of `search`). Placement: the highlight's own (set-sealed), else hot-home / hot-set / hot-product.
    */
   highlight?: EbayHighlight;
   /** "US" on the landing page (no region of its own): the strip says which eBay. */
@@ -624,50 +625,76 @@ export function PreFooterStrip({ region }: { region: Region }) {
   return <EbayStrip key={`${region}|${path}|${plan.context}`} region={region} context={plan.context} placement="listings-footer" variant="slim" search={{ kind: plan.context === "chase" ? "card" : "sealed", query: "" }} />;
 }
 
-// ─── The in-feed tile (browse grid) ────────────────────────────────────────────
+// ─── The in-feed tiles (product grids) ─────────────────────────────────────────
 
 /**
- * In /[region]/sealed's grid, after the 12th product: ONE real listing as a labelled sponsored card the size of a product card
- * (the 7th listing of the sealed feed: the strip at the top of the page shows the first six). Reserved as an invisible cell
- * until the data is known, so the cards after it do not shift; with no 7th listing it is removed once it is out of the viewport.
+ * A real eBay listing among a long product grid's products (ProductGrid `tiles`, placed by lib/ebay-ads.ts feedSlots): a labelled
+ * sponsored tile the size of a product card. The `nth` tile of a grid (0, then 1) shows the sealed feed's 7th, then 8th listing
+ * (lib/ebay-ads.ts tileSource), which no strip on the page shows; one request serves every tile and strip of the same feed.
+ *
+ * Nothing moves (CLS 0): the cell is a grid item whose content is positioned inside it, so it always takes the height of its row (the
+ * product cards beside it set it) and never makes a row taller; until the listing is known it is the same cell, invisible. With no
+ * listing for it (a feed with fewer rows, the kill switch, rows past the age bound, a photo that fails) it is removed, but only once it
+ * is entirely below the viewport, where the cards it moves up are out of sight (useCollapsed `belowOnly`). `className` "md:hidden" (a
+ * short grid, ProductGrid) hides it from md up in every state; hidden, it never comes near the viewport, so it fetches nothing.
+ *
+ * The whole tile is one sponsored link (a stretched link: its accessible name is the title, price and shipping), labelled "Ad" with the
+ * eBay wordmark and the listing's age at the top, eBay's own photo on a plate, the eBay-blue "View on eBay" button and the affiliate note.
  */
-export function EbayFeedTile({ region }: { region: Region }) {
-  const placement: Placement = "listings-browse-feed";
-  const { ref, state, now } = useListings({ region, context: "sealed", placement, min: 7 });
+export function EbayFeedTile({ region, nth, placement, className = "" }: { region: Region; nth: number; placement: Placement; className?: string }) {
+  const index = FEED_FIRST_INDEX + nth; // tileSource(surface, nth).index: the same listing on every surface
+  const { ref, state, now } = useListings({ region, context: "sealed", placement, min: index + 1 });
   const [broken, setBroken] = useState(false);
   const a = state.status === "ready" ? state.a : null;
-  const item = a && !broken ? a.items[6] ?? null : null;
+  const item = a && !broken ? a.items[index] ?? null : null;
   const none = state.status === "none" || (state.status === "ready" && !item);
   const collapsed = useCollapsed(ref, none, true);
   if (none && collapsed) return null;
-  if (!a || !item) return <div ref={ref} aria-hidden="true" className="invisible min-h-[16rem]" />;
+  if (!a || !item) return <div ref={ref} aria-hidden="true" className={`invisible ${className}`.trim()} />;
   const ship = shipFor(region, item.ship);
   const cond = conditionLabel(item.condition);
+  const age = formatAge(now - a.fetchedAtMs);
   return (
-    <div ref={ref} data-ad={placement} data-feed={a.feed} data-state="ready" role="group" aria-label="Sponsored: eBay listing (ad)" className="flex">
-      <OutboundLink href={item.href} rel={REL_SPONSORED} retailer={ebayRetailerForHref(item.href, region)} placement={placement} className="group ad-box flex flex-1 flex-col overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-lift">
-        <span className="relative block aspect-square bg-surface">
-          <img src={item.imageUrl} alt="" width={500} height={500} loading="lazy" decoding="async" referrerPolicy="no-referrer" onError={() => setBroken(true)} className="absolute inset-0 h-full w-full object-contain p-4" />
-          <span className="absolute left-3 top-3 flex items-center gap-1.5 rounded-full bg-surface/90 px-2 py-0.5 text-[11px] font-semibold text-muted shadow-card">
-            <EbayMark className="text-sm" /> Ad
+    <div ref={ref} data-ad={placement} data-feed={a.feed} data-state="ready" role="group" aria-label="Sponsored: eBay listing (ad)" className={`relative ${className}`.trim()}>
+      <div className="ad-box group absolute inset-0 flex flex-col p-2.5 transition-shadow hover:shadow-lift sm:p-3">
+        <div className="flex h-5 shrink-0 items-center gap-1.5">
+          <EbayMark className="text-[15px]" />
+          <span className="ad-pill">Ad</span>
+          <span className="ml-auto flex min-w-0 items-center gap-1 text-[11px] leading-4 text-muted">
+            <Icon name="clock" size={12} className="shrink-0" />
+            <span className="truncate">
+              <span className="sr-only sm:not-sr-only">Updated </span>
+              {age}
+            </span>
           </span>
+        </div>
+        <span className="plate relative mt-2 block min-h-0 flex-1">
+          {/* eBay's own picture, as eBay serves it (never proxied or resized by us); a failed one removes the tile. alt="" because the
+              title follows in the link. */}
+          <img src={item.imageUrl} alt="" width={500} height={500} loading="lazy" decoding="async" referrerPolicy="no-referrer" onError={() => setBroken(true)} className="absolute inset-0 h-full w-full object-contain p-2" />
+          {cond && <span className="absolute bottom-1.5 left-1.5 max-w-[calc(100%-0.75rem)] truncate rounded bg-surface/90 px-1.5 py-0.5 text-[10px] font-semibold leading-3 text-ink shadow-card">{cond}</span>}
         </span>
-        <span className="flex flex-1 flex-col gap-1 p-3 sm:p-4">
-          <span className="line-clamp-2 min-h-[2.5rem] text-sm font-semibold leading-snug group-hover:text-brand sm:text-[15px]">{item.title}</span>
-          <span className="tabular block font-display text-lg font-bold">{formatPrice(item.price)}</span>
-          <span className={`block text-xs ${ship.free ? "font-medium text-open" : "text-muted"}`}>
-            {ship.text}
-            {cond ? ` · ${cond}` : ""}
-          </span>
-          <span className="mt-auto block pt-1 text-xs font-semibold text-brand">
-            View on eBay <Arrow />
-          </span>
-          <span className="block text-[11px] leading-4 text-muted">
-            {AFFILIATE_NOTE_SHORT} Imported from eBay {importCadence(a.maxAgeMs)} (updated {formatAge(now - a.fetchedAtMs)}); check eBay.
-            {SHARED_FEED_SHORT[region] ? ` ${SHARED_FEED_SHORT[region]}` : ""}
-          </span>
+        <OutboundLink
+          href={item.href}
+          rel={REL_SPONSORED}
+          retailer={ebayRetailerForHref(item.href, region)}
+          placement={placement}
+          className="mt-2 block shrink-0 after:absolute after:inset-0 after:rounded-xl after:content-[''] focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-brand"
+        >
+          <span className="line-clamp-2 h-9 text-[13px] font-semibold leading-[18px] group-hover:text-brand sm:text-sm sm:leading-[18px]">{item.title}</span>
+          <span className="tabular mt-1 block truncate font-display text-lg font-bold leading-6">{formatPrice(item.price)}</span>
+          <span className={`block h-4 truncate text-[11px] leading-4 ${ship.free ? "font-medium text-open" : "text-muted"}`}>{ship.text}</span>
+          <span className="sr-only"> View on eBay (opens in a new tab)</span>
+        </OutboundLink>
+        <span aria-hidden="true" className="btn-ad mt-2 h-8 w-full shrink-0 whitespace-nowrap px-2 py-0 text-xs group-hover:bg-[#2a50c8]">
+          View on eBay <Arrow />
         </span>
-      </OutboundLink>
+        <p className="mt-1.5 shrink-0 text-[10.5px] leading-[14px] text-muted">
+          {AFFILIATE_NOTE_SHORT}
+          <span className="hidden sm:inline"> Imported from eBay {importCadence(a.maxAgeMs)}: the price may have changed, so check eBay.</span>
+          {SHARED_FEED_SHORT[region] ? ` ${SHARED_FEED_SHORT[region]}` : ""}
+        </p>
+      </div>
     </div>
   );
 }
@@ -701,6 +728,11 @@ export function useEbayPick({ region, slug, floor, packs, placement }: { region:
   return { ref, item, cents, bestable, age: a ? formatAge(now - a.fetchedAtMs) : "" };
 }
 
+// The price table's split into visible rows and collapsed groups, and its store rows (imported here, beside the two functions that use
+// them; OfferTable.tsx imports this module too, which is fine: neither uses the other while the modules load).
+import { EBAY_ROW_KEY, moreClosedLabel, moreOpenLabel, splitRows } from "@/lib/ebay-offer-row";
+import { StoreRow, type StoreRowData } from "./OfferTable";
+
 /**
  * The store rows of a product's price table with ONE eBay row among them (the owner's call, 2026-10-11: eBay is one of the websites
  * compared). The row is the product's useEbayPick listing, ranked by its price among the stores you can buy from now (ebayRowIndex),
@@ -710,10 +742,14 @@ export function useEbayPick({ region, slug, floor, packs, placement }: { region:
  *
  * The server HTML (and a visitor without script) has the row as an eBay SEARCH for the product, straight after the in-stock stores: the
  * place it keeps when the product has no listing of its own. The listing is fetched as soon as the page runs (not when the table nears
- * the viewport) so it is usually in place before the visitor reaches the table; it then moves to its rank. The row is in the table in
- * every state, so the page under the table never moves; only the store rows between its two places do, by one row.
+ * the viewport) so it is usually in place before the visitor reaches the table; it then moves to its rank.
+ *
+ * The growth release: only the first VISIBLE_ROWS (8) rows of the ranked list show; the rest are two server-rendered <details> (the other
+ * open rows, then the sold-out and not-checked ones: lib/ebay-offer-row.ts splitRows). The split comes AFTER ranking, so when the listing
+ * ranks into the first eight, the eighth store row moves into the first group: every row is the same height (88 px on a phone), so the
+ * visible part of the table, and everything under it, stays where it was.
  */
-export function OfferRowsWithEbay({ rows, region, slug, query, floor, packs = null, allowBest = true }: { rows: OfferRowSlot[]; region: Region; slug: string; query: string; floor: PriceFloor | null; packs?: number | null; allowBest?: boolean }) {
+export function OfferRowsWithEbay({ rows, region, slug, query, floor, packs = null, allowBest = true, preorder = false }: { rows: StoreRowData[]; region: Region; slug: string; query: string; floor: PriceFloor | null; packs?: number | null; allowBest?: boolean; preorder?: boolean }) {
   const placement: Placement = "listings-offer-row";
   const { ref, item, cents, bestable, age } = useEbayPick({ region, slug, floor, packs, placement });
   const [thumbOk, setThumbOk] = useState<Record<string, false>>({});
@@ -724,7 +760,7 @@ export function OfferRowsWithEbay({ rows, region, slug, query, floor, packs = nu
   const cheaper = allowBest && bestable && cents != null && best != null && cents < best.cents;
   const row = (
     <EbayOfferRow
-      key="ebay"
+      key={EBAY_ROW_KEY}
       region={region}
       placement={placement}
       query={query}
@@ -736,19 +772,43 @@ export function OfferRowsWithEbay({ rows, region, slug, query, floor, packs = nu
       onThumbError={(id) => setThumbOk((s) => ({ ...s, [id]: false }))}
     />
   );
+  // The eBay row is open: it sits among (or straight after) the open rows, so a hidden one goes in the first group.
+  type Slot = { key: string; open: boolean; d: StoreRowData | null };
+  const ranked: Slot[] = [...rows.slice(0, at).map((d) => ({ key: d.key, open: d.open, d })), { key: EBAY_ROW_KEY, open: true, d: null }, ...rows.slice(at).map((d) => ({ key: d.key, open: d.open, d }))];
+  const { shown, moreOpen, moreClosed } = splitRows(ranked);
+  const list = (part: Slot[]) => part.map((r) => (r.d ? <StoreRow key={r.key} d={r.d} preorder={preorder} /> : row));
+  const more = (label: string, part: Slot[]) => (
+    <details className="group/more px-4 py-1 sm:px-5">
+      <summary className="btn-ghost min-h-11 w-full cursor-pointer list-none justify-center [&::-webkit-details-marker]:hidden">
+        <span className="group-open/more:hidden">{label}</span>
+        <span className="hidden group-open/more:inline">Show fewer</span>
+        <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 transition-transform group-open/more:rotate-180 motion-reduce:transition-none">
+          <path d="m5 7.5 5 5 5-5" />
+        </svg>
+      </summary>
+      <ul className="-mx-4 -mb-1 mt-1 divide-y divide-line border-t border-line sm:-mx-5">{list(part)}</ul>
+    </details>
+  );
   return (
     <div ref={ref}>
-      {/* ONE keyed list (not three slots): when the eBay row changes place, React moves the store rows' nodes instead of rebuilding them (focus kept) */}
-      <ul className="group/offers divide-y divide-line" data-ebay={cheaper ? "cheaper" : undefined}>
-        {[...rows.slice(0, at).map((r) => <Fragment key={r.key}>{r.node}</Fragment>), row, ...rows.slice(at).map((r) => <Fragment key={r.key}>{r.node}</Fragment>)]}
-      </ul>
+      {/* Keyed lists: when the eBay row changes place within a list, React moves the store rows' nodes instead of rebuilding them (focus kept) */}
+      <div className="group/offers divide-y divide-line" data-ebay={cheaper ? "cheaper" : undefined}>
+        <ul className="divide-y divide-line">{list(shown)}</ul>
+        {moreOpen.length > 0 && more(moreOpenLabel(moreOpen, preorder), moreOpen)}
+        {moreClosed.length > 0 && more(moreClosedLabel(moreClosed.length, shown.some((r) => !r.open)), moreClosed)}
+      </div>
     </div>
   );
 }
 
-const EBAY_BUTTON = "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[#3665f3] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2a50c8]";
+const EBAY_BUTTON =
+  "inline-flex min-h-11 items-center justify-center gap-2 justify-self-end whitespace-nowrap rounded-full bg-[#3665f3] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2a50c8] [grid-area:2/2/4] sm:min-h-10 sm:[grid-area:1/5/3]";
 
-/** Shaped like a store row (OfferTable): the same paddings, two lines on the left, a pill, a price over a small line, one button. */
+/**
+ * Shaped like a store row (OfferTable): the same grid and line heights, so it is exactly as tall (88 px on a phone). On a phone: the eBay
+ * wordmark, "Ad" and its badges beside a shipping pill (where a store row has its stock pill); the price; how old the listing is and its
+ * title; the button beside the last two. From sm one line, with the listing's thumbnail in front.
+ */
 function EbayOfferRow({ region, placement, query, item, cents, age, best, thumb, onThumbError }: { region: Region; placement: Placement; query: string; item: AcceptedItem | null; cents: number | null; age: string; best: boolean; thumb: boolean; onThumbError: (id: string) => void }) {
   const r = REGIONS[region];
   const ship = item ? shipFor(region, item.ship) : null;
@@ -759,64 +819,56 @@ function EbayOfferRow({ region, placement, query, item, cents, age, best, thumb,
       data-offer-row=""
       data-ad={placement}
       data-state={item ? "listing" : "search"}
-      className="flex flex-col gap-2.5 bg-ad px-4 py-3.5 shadow-[inset_3px_0_0_#3665f3] sm:flex-row sm:items-center sm:gap-4 sm:px-5"
+      className="grid grid-cols-[1fr_auto] items-center gap-x-3 bg-ad px-4 py-3 shadow-[inset_3px_0_0_#3665f3] sm:grid-cols-[2.5rem_1fr_auto_7rem_auto] sm:gap-x-4 sm:px-5 sm:py-3.5"
     >
-      <div className="flex min-w-0 flex-1 items-center gap-3">
-        <span className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-md border border-line bg-surface text-muted">
-          {item && thumb ? (
-            <img src={item.imageUrl} alt="" width={500} height={500} loading="lazy" decoding="async" referrerPolicy="no-referrer" onError={() => onThumbError(item.id)} className="absolute inset-0 h-full w-full object-contain" />
-          ) : (
-            <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <circle cx="8.5" cy="8.5" r="5.5" />
-              <path d="m13 13 4.5 4.5" />
-            </svg>
-          )}
-        </span>
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <EbayMark className="text-lg" />
-            <span className="ad-pill">Ad</span>
-            {best && <span className="shrink-0 rounded-full bg-open px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-surface">Best price</span>}
-            {cond && <span className="min-w-0 max-w-[9rem] truncate rounded-full border border-line bg-surface px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-muted">{cond}</span>}
-          </div>
-          <div className="mt-0.5 truncate text-xs text-faint" title={item?.title}>
-            {item ? (
-              <>
-                <span className="sm:hidden">updated {age} · </span>
-                {item.title}
-              </>
-            ) : (
-              `Search ${q.length > 48 ? `${q.slice(0, 47)}…` : q || "this product"} on ${ebayLabel(region)}`
-            )}
-          </div>
-          {/* below md the shipping is a line of its own (beside the price and the button it would be cut to a partial price) */}
-          <div className={`truncate text-xs font-semibold md:hidden ${ship?.free ? "text-open" : "text-muted"}`}>{ship ? ship.text : "Prices from eBay sellers"}</div>
-        </div>
+      <span className="relative hidden h-10 w-10 items-center justify-center overflow-hidden rounded-md border border-line bg-surface text-muted sm:flex sm:[grid-area:1/1/3]">
+        {item && thumb ? (
+          <img src={item.imageUrl} alt="" width={500} height={500} loading="lazy" decoding="async" referrerPolicy="no-referrer" onError={() => onThumbError(item.id)} className="absolute inset-0 h-full w-full object-contain" />
+        ) : (
+          <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <circle cx="8.5" cy="8.5" r="5.5" />
+            <path d="m13 13 4.5 4.5" />
+          </svg>
+        )}
+      </span>
+      <div className="flex h-5 min-w-0 items-center gap-2 overflow-hidden [grid-area:1/1] sm:h-6 sm:[grid-area:1/2]">
+        <EbayMark className="text-lg" />
+        <span className="ad-pill">Ad</span>
+        {best && <span className="shrink-0 rounded-full bg-open px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-surface">Best price</span>}
+        {cond && <span className="min-w-0 max-w-[9rem] truncate rounded-full border border-line bg-surface px-2 py-0.5 text-[10px] font-bold uppercase leading-3 tracking-wide text-muted">{cond}</span>}
       </div>
-      <div className="flex items-center justify-end gap-3 sm:gap-4">
-        {/* from md, a pill where a store row has its stock pill */}
-        <span
-          className={`hidden whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold md:inline-flex md:shrink-0 md:items-center ${ship?.free ? "bg-open-soft text-open" : "border border-line bg-surface text-muted"}`}
-        >
-          {ship ? ship.text : "Marketplace"}
-        </span>
-        <div className="flex shrink-0 items-center gap-3 sm:gap-4">
-          <div className="text-right sm:w-28">
-            <div className="tabular font-display text-lg font-bold">{item ? (cents != null ? money(cents, r.market) : formatPrice(item.price)) : "\u00a0"}</div>
-            <div className="tabular hidden whitespace-nowrap text-xs text-muted sm:block">{item ? `updated ${age}` : "\u00a0"}</div>
-          </div>
-          <OutboundLink
-            href={item ? item.href : ebaySearchUrl(q, region, placement)}
-            rel={REL_SPONSORED}
-            retailer={item ? ebayRetailerForHref(item.href, region) : ebayRetailer(region)}
-            placement={placement}
-            className={EBAY_BUTTON}
-          >
-            {item ? "View on eBay" : "Search eBay"} <Arrow />
-            <span className="sr-only">{item ? ` (ad): ${item.title}, opens eBay` : " (ad), opens eBay"}</span>
-          </OutboundLink>
-        </div>
+      <div className="truncate text-[11px] leading-4 text-faint [grid-area:3/1] sm:text-xs sm:[grid-area:2/2]" title={item?.title}>
+        {item ? (
+          <>
+            updated {age} · {item.title}
+          </>
+        ) : (
+          `Search ${q.length > 48 ? `${q.slice(0, 47)}…` : q || "this product"} on ${ebayLabel(region)}`
+        )}
       </div>
+      {/* where a store row has its stock pill: the listing's shipping, or what the row is before there is one */}
+      <span
+        className={`block h-5 max-w-[10rem] justify-self-end truncate whitespace-nowrap rounded-full px-2.5 text-xs font-semibold leading-[18px] [grid-area:1/2] sm:h-6 sm:leading-[22px] sm:[grid-area:1/3/3] ${ship?.free ? "bg-open-soft text-open" : "border border-line bg-surface text-muted"}`}
+      >
+        {ship ? ship.text : "Marketplace"}
+      </span>
+      <div className="mt-1 min-w-0 [grid-area:2/1] sm:mt-0 sm:text-right sm:[grid-area:1/4/3]">
+        {item ? (
+          <span className="tabular font-display text-lg font-bold leading-6">{cents != null ? money(cents, r.market) : formatPrice(item.price)}</span>
+        ) : (
+          <span className="block truncate text-sm leading-6 text-muted sm:text-xs">eBay sellers&rsquo; prices</span>
+        )}
+      </div>
+      <OutboundLink
+        href={item ? item.href : ebaySearchUrl(q, region, placement)}
+        rel={REL_SPONSORED}
+        retailer={item ? ebayRetailerForHref(item.href, region) : ebayRetailer(region)}
+        placement={placement}
+        className={EBAY_BUTTON}
+      >
+        {item ? "View on eBay" : "Search eBay"} <Arrow />
+        <span className="sr-only">{item ? ` (ad): ${item.title}, opens eBay` : " (ad), opens eBay"}</span>
+      </OutboundLink>
     </li>
   );
 }

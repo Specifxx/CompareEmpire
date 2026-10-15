@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { cache } from "react";
 import type { Metadata } from "next";
 import { Ago } from "@/components/Ago";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
@@ -10,7 +11,9 @@ import { pageHref, Pagination } from "@/components/Pagination";
 import { StockPill } from "@/components/StockPill";
 import { REL_STORE, storeRetailer } from "@/lib/affiliate";
 import { PAGE_SIZE, storeOffers, storeStat } from "@/lib/data";
+import { listHasRoomForFooter } from "@/lib/ebay-ads";
 import { money, timeAgo } from "@/lib/format";
+import { hubTitle, storeIndexable, titleText } from "@/lib/hub-copy";
 import { thumb } from "@/lib/images";
 import { regionOfMarket, type RegionInfo } from "@/lib/regions";
 import { offerStock, offerStockLabel } from "@/lib/sealed-offers";
@@ -42,16 +45,30 @@ export function storeInRegion(key: string, r: RegionInfo): StoreConfig {
   return s;
 }
 
-export function storeMeta(r: RegionInfo, s: StoreConfig, page: number): Metadata {
-  return pageMeta({
-    title: `${s.name} — Pokémon sealed stock & prices${page > 1 ? ` — page ${page}` : ""}`,
-    description: `Pokémon booster boxes, ETBs and sealed product at ${s.name} (${storeHost(s)}), with stock and prices compared against other ${r.adjective} stores.`,
-    path: pageHref(`/${r.region}/stores/${s.key}`, page),
-  });
+// One read of the store's StoreStat row per render, shared by generateMetadata (the noindex rule) and the page.
+const getStoreStat = cache((key: string) => storeStat(key));
+
+/**
+ * A store that lists nothing, or is dormant, is a thin page: noindex (and hub-data.ts activeStoreKeys leaves it out of the
+ * sitemap). The page itself still renders, for the links product pages make to it.
+ */
+export async function storeMeta(r: RegionInfo, s: StoreConfig, page: number): Promise<Metadata> {
+  const st = await getStoreStat(s.key);
+  // A long store name pushes the title past 65 characters with " | DexCompare": then it goes out without the suffix.
+  const title = hubTitle(`${s.name} — Pokémon sealed stock & prices${page > 1 ? ` — page ${page}` : ""}`);
+  return {
+    ...pageMeta({
+      title: titleText(title),
+      description: `Pokémon booster boxes, ETBs and sealed product at ${s.name} (${storeHost(s)}), with stock and prices compared against other ${r.adjective} stores.`,
+      path: pageHref(`/${r.region}/stores/${s.key}`, page),
+      noindex: !storeIndexable(st),
+    }),
+    title,
+  };
 }
 
 export async function StorePage({ r, s, page }: { r: RegionInfo; s: StoreConfig; page: number }) {
-  const [offers, st] = await Promise.all([storeOffers(s.key, page), storeStat(s.key)]);
+  const [offers, st] = await Promise.all([storeOffers(s.key, page), getStoreStat(s.key)]);
   const listed = Math.max(st?.listed ?? 0, offers.length);
   const pages = Math.max(1, Math.ceil(listed / PAGE_SIZE));
   if (page > 1 && !offers.length) notFound();
@@ -97,14 +114,14 @@ export async function StorePage({ r, s, page }: { r: RegionInfo; s: StoreConfig;
               const state = offerStock(o, now);
               const pre = isPreorderSet(o.product.setCode);
               return (
-                <li key={o.product.slug} className="flex items-center gap-4 px-4 py-3 sm:px-5">
+                <li key={o.product.slug} className="relative flex items-center gap-4 px-4 py-3 hover:bg-raised sm:px-5">
                   <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-raised">
                     {o.product.imageUrl && (
                       <img src={thumb(o.product.imageUrl, 120)!} alt="" width={56} height={56} loading="lazy" decoding="async" className="h-full w-full object-contain p-1" />
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <Link href={`/${r.region}/p/${o.product.slug}`} prefetch={false} className="line-clamp-2 font-semibold hover:text-brand sm:line-clamp-1">
+                    <Link href={`/${r.region}/p/${o.product.slug}`} prefetch={false} className="line-clamp-2 font-semibold after:absolute after:inset-0 after:content-[''] hover:text-brand sm:line-clamp-1">
                       {o.product.name}
                     </Link>
                     <div className="text-xs text-muted">{o.product.productType}</div>
@@ -128,9 +145,10 @@ export async function StorePage({ r, s, page }: { r: RegionInfo; s: StoreConfig;
       )}
       <Pagination base={base} page={page} pages={pages} />
       <p className="mt-4 text-xs text-muted">In stock first, then cheapest first. Prices are the store&rsquo;s own, in {r.currency}, and exclude shipping.</p>
-      {/* After the store's list, not above it (the list is what the visitor came for). It is the page's one unit, so the strip above the footer is dropped. */}
+      {/* After the store's list, not above it (the list is what the visitor came for). It is the page's one unit, so the strip above the footer is
+          dropped. A short list gets no unit at all: a strip under a handful of rows would be over a quarter of the page (the §C4 density ceiling). */}
       <NoPreFooter />
-      <EbayStrip region={r.region} context="chase" placement="listings-store" className="mt-8" search={{ kind: "card", query: "" }} />
+      {listHasRoomForFooter(offers.length) && <EbayStrip region={r.region} context="chase" placement="listings-store" className="mt-8" search={{ kind: "card", query: "" }} />}
     </div>
   );
 }

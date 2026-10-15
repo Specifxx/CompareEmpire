@@ -4,7 +4,12 @@
 // in Vercel overrides the default; DEPLOY.md, "Domains" says what to set.
 export const SITE_NAME = "DexCompare";
 export const SITE_URL = normaliseOrigin(process.env.NEXT_PUBLIC_SITE_URL) ?? "https://www.dexcompare.app";
+// The mailbox the contact, terms and privacy pages (and the scrapers' From header) give. The fallback is a legacy
+// address from another brand that still reaches the owner: it stays only so those pages keep a working address until
+// NEXT_PUBLIC_CONTACT_EMAIL is set. Site chrome never prints it: the footer links to /contact, and shows an address only
+// when one has been set on purpose (CONTACT_EMAIL_SET).
 export const CONTACT_EMAIL = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "riftcompare@gmail.com";
+export const CONTACT_EMAIL_SET: string | null = process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim() || null;
 export const SITE_TAGLINE = "Pokémon sealed prices and stock, compared across independent stores.";
 
 // Who runs the site, for the Terms and the footer. Set NEXT_PUBLIC_OPERATOR in
@@ -24,6 +29,30 @@ export const SISTER_SITES = [
 // Public profiles for Organization.sameAs (an X account, a Bluesky handle…).
 // Empty until there are any: an empty list is left out of the JSON-LD.
 export const SOCIAL_LINKS: string[] = [];
+
+// The site's sections under /<region>, as the header's nav, the phone menu and the footer link to them: one list of paths,
+// so the three never disagree. Labels differ by place ("Stores" in the nav, "Where to buy" in the menu) and live there.
+export const SECTION_PATHS = {
+  deals: "/deals",
+  thisWeek: "/this-week",
+  sealed: "/sealed",
+  boosterBoxes: "/type/booster-boxes",
+  etbs: "/type/elite-trainer-boxes",
+  bundles: "/type/booster-bundles",
+  upcs: "/type/ultra-premium-collections",
+  tins: "/type/tins",
+  perPack: "/cheapest-packs",
+  sets: "/sets",
+  releases: "/releases",
+  guides: "/guides",
+  stores: "/stores",
+} as const;
+export type SectionKey = keyof typeof SECTION_PATHS;
+
+/** "/au" + a section's path: `sectionHref("au", "deals")` → "/au/deals". */
+export function sectionHref(region: string, key: SectionKey): string {
+  return `/${region}${SECTION_PATHS[key]}`;
+}
 
 /** "https://www.dexcompare.app/" → "https://www.dexcompare.app"; garbage → null. */
 function normaliseOrigin(v: string | undefined): string | null {

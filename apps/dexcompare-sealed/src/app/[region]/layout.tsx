@@ -1,4 +1,5 @@
 import { PreFooterStrip } from "@/components/EbayStrip";
+import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { regionOrNotFound } from "@/lib/regions";
 
@@ -28,6 +29,7 @@ export default function RegionLayout({ children, params }: { children: React.Rea
           <PreFooterStrip region={r.region} />
         </div>
       </main>
+      <Footer region={r.region} />
     </>
   );
 }

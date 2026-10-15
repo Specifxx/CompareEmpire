@@ -8,7 +8,7 @@ import { EBAY_CAMPAIGN_ID, ebaySearchUrl, PLACEMENTS, REL_SPONSORED } from "../s
 import { HOT_SETS, isHotSet } from "../src/lib/popular";
 import { REGION_LIST } from "../src/lib/regions";
 import { SET_BY_CODE } from "../src/lib/sets";
-import { firstHotSet, hotProductHighlight, hotSetHighlight, hotSetQuery, isHotReleased } from "../src/components/Ebay";
+import { firstHotSet, hotProductHighlight, hotSetHighlight, hotSetQuery, isHotReleased, setSealedHighlight } from "../src/components/Ebay";
 import { EbayCta, EbayStrip, hotPlacement } from "../src/components/EbayStrip";
 import { MarketplacePanel } from "../src/components/Marketplaces";
 
@@ -121,14 +121,55 @@ test("the compact CTA with a highlight: its words, its search, placement hot-pro
   assert.match(html, />Ad</);
 });
 
-test("a popular product's marketplace panel: eBay is the primary button, and a 'Popular set' chip sits OUTSIDE the ad link", () => {
+test("a set page's button: a hot set keeps hot-set, any other released set gets 'Shop <set> sealed on eBay' (set-sealed), a pre-order set none", () => {
+  const sv1 = SET_BY_CODE.get("sv1")!;
+  assert.equal(isHotSet("sv1"), false);
+  assert.deepEqual(setSealedHighlight(sv1, TODAY), { label: "Shop Scarlet & Violet sealed on eBay", query: "Pokemon Scarlet & Violet", placement: "set-sealed" });
+  assert.deepEqual(setSealedHighlight(cel30, TODAY), hotSetHighlight(cel30, TODAY), "a hot set that is out: its hot-set button, unchanged");
+  assert.equal(setSealedHighlight(cel30, TODAY)?.placement, undefined, "the strip picks hot-set for it (hotPlacement)");
+  const me6 = SET_BY_CODE.get("me6")!; // Delta Reign, out 2026-11-06
+  assert.equal(setSealedHighlight(me6, TODAY), undefined, "not out yet: no button, as in the importer");
+  assert.equal(setSealedHighlight(cel30, new Date("2026-09-01T00:00:00Z")), undefined, "a hot set before release: none either");
+  assert.equal(setSealedHighlight(null, TODAY), undefined);
+  // In the strip (the set page's own props): the reserved box and the CTA each hold it, under set-sealed, a sealed search, labelled Ad.
+  const html = render(
+    React.createElement(EbayStrip, {
+      region: "us",
+      context: `set:${sv1.slug}`,
+      placement: "listings-set",
+      search: { kind: "card", query: `${sv1.name} special illustration rare`, label: `Search ${sv1.name} on eBay` },
+      highlight: setSealedHighlight(sv1, TODAY),
+    }),
+  );
+  const links = [...html.matchAll(/<a ([^>]*)>([\s\S]*?)<\/a>/g)]
+    .map((m) => ({ href: (/href="([^"]*)"/.exec(m[1])?.[1] ?? "").replace(/&amp;/g, "&"), rel: /rel="([^"]*)"/.exec(m[1])?.[1] ?? "", text: m[2].replace(/<[^>]+>/g, "").trim() }))
+    .filter((l) => /customid=dex-us-set-sealed\b/.test(l.href));
+  assert.equal(links.length, 2, "one in the visible CTA, one in the reserved box");
+  for (const l of links) {
+    assert.equal(l.rel, REL_SPONSORED);
+    assert.equal(l.text, "Shop Scarlet &amp; Violet sealed on eBay ↗");
+    const u = new URL(l.href);
+    assert.equal(u.searchParams.get("_nkw"), "Pokemon Scarlet & Violet sealed");
+    assert.equal(u.searchParams.get("campid"), EBAY_CAMPAIGN_ID);
+  }
+  assert.equal(hotLinks(html).length, 0, "not a hot placement");
+  assert.doesNotMatch(html, /Search Scarlet &amp; Violet on eBay/, "the CTA's button is the highlight");
+  assert.match(html, /data-state="cta"[\s\S]*>Ad</, "still labelled Ad");
+  assert.ok((PLACEMENTS as readonly string[]).includes("set-sealed"));
+});
+
+test("the marketplace panel: eBay's row is always eBay's blue button (every product), and a popular product's 'Popular set' chip sits OUTSIDE the ad link", () => {
   const props = { region: "us" as const, productName: "30th Celebration Sylveon ex Box", preorder: false, tcgplayer: null };
-  const hot = render(React.createElement(MarketplacePanel, { ...props, ebayPrimary: true, popular: true }));
+  const hot = render(React.createElement(MarketplacePanel, { ...props, popular: true }));
   assert.match(hot, /Popular set/);
+  assert.match(hot, /class="[^"]*bg-brand-soft[^"]*text-brand-strong[^"]*">Popular set</, "the AA-contrast chip (brand-strong on brand-soft)");
   for (const m of hot.matchAll(/<a [^>]*>([\s\S]*?)<\/a>/g)) assert.doesNotMatch(m[1], /Popular/, "never part of the ad link's text");
-  assert.match(hot, /class="btn-ad[^"]*"[^>]*>Search eBay/);
   const plain = render(React.createElement(MarketplacePanel, props));
   assert.doesNotMatch(plain, /Popular/);
+  for (const html of [hot, plain, render(React.createElement(MarketplacePanel, { ...props, region: "nz" as const }))]) {
+    assert.match(html, /class="btn-ad[^"]*"[^>]*>Search eBay/, "eBay's blue button on every panel");
+    assert.match(html, /customid=dex-[a-z]+-product-marketplace/);
+  }
 });
 
 test("the pages pass the highlight where the owner asked, and add no unit for it", () => {
@@ -137,10 +178,10 @@ test("the pages pass the highlight where the owner asked, and add no unit for it
   assert.match(home, /placement="listings-home-sealed"[^\n]*highlight=\{hotHighlight\}/, "the home page's sealed strip");
   assert.doesNotMatch(home, /placement="listings-home" [^\n]*highlight=/, "not the chase strip under the stats");
   assert.match(home, /hotSetHighlight\(firstHotSet\(\)\)/);
-  assert.match(src("sets/[set]/page.tsx"), /highlight=\{hotSetHighlight\(s\)\}/);
+  assert.match(src("sets/[set]/page.tsx"), /highlight=\{setSealedHighlight\(s\)\}/, "every released set's page: hot sets keep hot-set, the others get set-sealed");
   const product = src("p/[slug]/page.tsx");
   assert.match(product, /const hot = isHotReleased\(p\.setCode\)/);
-  assert.match(product, /ebayPrimary=\{openStores <= 1 \|\| hot\}/);
+  assert.doesNotMatch(product, /ebayPrimary/, "the panel's eBay row is a button on every product now");
   assert.match(product, /popular=\{hot\}/);
   assert.match(product, /highlight=\{hot \? hotProductHighlight\(p\.name, ebayQ\) : undefined\}/);
   assert.equal((product.match(/<EbayStrip/g) ?? []).length, 1, "still one strip on a product page");

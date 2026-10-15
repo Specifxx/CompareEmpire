@@ -27,7 +27,8 @@ import {
   isEbayHost,
   parseEbayBanner,
 } from "../src/lib/affiliate";
-import { feedSlot, gridPageHasRoomForFooter, listHasRoomForFooter, preFooterPlan, productAdPlan, withFeed } from "../src/lib/ebay-ads";
+import { FEED_EVERY, FEED_FIRST_INDEX, FEED_MAX, FEED_MIN_TAIL, FEED_PLACEMENTS, FEED_WIDE_MIN_TAIL, feedSlots, gridPageHasRoomForFooter, listHasRoomForFooter, preFooterPlan, productAdPlan, soldOutAdPlan, tileSource, withFeed, type FeedSurface } from "../src/lib/ebay-ads";
+import { MAX_FEED_ROWS } from "../src/lib/ebay-context";
 import { REGION_LIST, type Region } from "../src/lib/regions";
 import { STORES, TCGPLAYER } from "../src/lib/stores";
 
@@ -62,8 +63,8 @@ test("eBay: every region's search carries the full EPN tag set, on the right sit
 });
 
 test("eBay: NZ lands on ebay.com.au and SG on ebay.com, and the labels say so", () => {
-  assert.equal(new URL(ebaySearchUrl("x", "nz", "region-home")).hostname, "www.ebay.com.au");
-  assert.equal(new URL(ebaySearchUrl("x", "sg", "region-home")).hostname, "www.ebay.com");
+  assert.equal(new URL(ebaySearchUrl("x", "nz", "browse-empty")).hostname, "www.ebay.com.au");
+  assert.equal(new URL(ebaySearchUrl("x", "sg", "browse-empty")).hostname, "www.ebay.com");
   assert.equal(ebayLabel("nz"), "ebay.com.au");
   assert.equal(ebayLabel("sg"), "ebay.com");
   assert.equal(ebayRetailer("au"), "eBay (ebay.com.au)");
@@ -131,7 +132,7 @@ test("TCGplayer: the search link is a wrapped Pokémon sealed search", () => {
   // "Pokémon Center" names a product; an empty name searches all sealed.
   const pc = new URL(new URL(tcgplayerSearchUrl("Pokémon Center Elite Trainer Box", "us", "product-table")).searchParams.get("u")!);
   assert.equal(pc.searchParams.get("q"), "Pokemon Center Elite Trainer Box");
-  const all = new URL(new URL(tcgplayerSearchUrl("", "us", "region-home")).searchParams.get("u")!);
+  const all = new URL(new URL(tcgplayerSearchUrl("", "us", "browse-empty")).searchParams.get("u")!);
   assert.equal(all.searchParams.has("q"), false);
 });
 
@@ -214,25 +215,98 @@ test("eBay units: DEPLOY.md lists every placement the events can carry", () => {
   for (const p of PLACEMENTS) assert.ok(doc.includes(`\`${p}\``), `DEPLOY.md names ${p}`);
 });
 
-test("in-feed listing tile: ONE, after the 12th product, only with eight products after it", () => {
-  assert.equal(feedSlot(48), 12);
-  assert.equal(feedSlot(20), 12);
-  assert.equal(feedSlot(19), null, "it needs eight products after it");
-  assert.equal(feedSlot(12), null, "a tile never ends the grid");
-  assert.equal(feedSlot(0), null);
+test("growth release placements (the base commit's contract): each new surface has its own, and the dead region-home is gone", () => {
+  const GROWTH = ["product-sticky", "soldout-ebay", "listings-soldout-best", "listings-marketplace", "browse-search", "listings-deals", "listings-deals-feed", "listings-packs", "listings-digest", "listings-guide", "guide-tcgplayer", "set-sealed", "set-tcgplayer", "listings-set-feed", "listings-type-feed"];
+  for (const p of GROWTH) assert.ok((PLACEMENTS as readonly string[]).includes(p), `${p} is a placement`);
+  assert.ok(!(PLACEMENTS as readonly string[]).includes("region-home"), "region-home rendered nothing and was removed");
+  // a TCGplayer placement is a sharedid too: the same dex-<region>-<placement> shape
+  assert.equal(new URL(tcgplayerSearchUrl("Pitch Black", "us", "set-tcgplayer")).searchParams.get("sharedid"), "dex-us-set-tcgplayer");
+  assert.equal(new URL(tcgplayerSearchUrl("", "us", "guide-tcgplayer")).searchParams.get("sharedid"), "dex-us-guide-tcgplayer");
+});
+
+test("in-feed tiles: feedSlots puts one after every 16 products, at most two, never within the last eight", () => {
+  assert.deepEqual([FEED_EVERY, FEED_MAX, FEED_MIN_TAIL], [16, 2, 8]);
+  assert.deepEqual(feedSlots(48), [16, 32], "a full page of 48: two tiles");
+  assert.deepEqual(feedSlots(40), [16, 32], "32 + 8: the second still has eight products after it");
+  assert.deepEqual(feedSlots(39), [16], "the second would sit within the last eight");
+  assert.deepEqual(feedSlots(24), [16]);
+  assert.deepEqual(feedSlots(23), []);
+  assert.deepEqual(feedSlots(20), [], "16 + 4: too close to the end");
+  assert.deepEqual(feedSlots(0), []);
+  assert.deepEqual(feedSlots(1000), [16, 32], "never a third (MAX_FEED_ROWS is 8: the 7th and 8th listings)");
+  assert.deepEqual(feedSlots(48, { every: 12, max: 3, minTail: 4 }), [12, 24, 36]);
+  assert.deepEqual(feedSlots(Number.NaN), []);
+  assert.deepEqual(feedSlots(48, { every: 0 }), [], "a zero step never loops");
   for (let n = 0; n <= 400; n++) {
-    const k = feedSlot(n);
-    if (k != null) assert.ok(k === 12 && n - k >= 8, `${n}`);
-    assert.equal(feedSlot(n), k, "deterministic");
+    const k = feedSlots(n);
+    assert.ok(k.length <= 2, `${n}`);
+    k.forEach((slot, i) => {
+      assert.equal(slot, 16 * (i + 1), `${n}`);
+      assert.ok(n - slot >= 8, `${n}: eight products after every tile`);
+    });
+    assert.ok(feedSlots(n + 1).length >= k.length, "a longer grid never loses a tile");
+    assert.deepEqual(feedSlots(n), k, "deterministic");
   }
+});
+
+test("in-feed tiles: withFeed emits the nth tile after products 16 and 32, keeps every product in order, and none without a surface", () => {
   const items = Array.from({ length: 48 }, (_, i) => i);
-  const entries = withFeed(items);
-  assert.equal(entries.length, 49, "one tile, not three");
-  assert.deepEqual(entries.flatMap((e, i) => (e.kind === "feed" ? [i] : [])), [12]);
-  assert.equal(entries[0].kind, "item");
-  assert.deepEqual(entries.flatMap((e) => (e.kind === "item" ? [e.item] : [])), items, "every product, in order, once");
-  assert.deepEqual(withFeed(items), entries, "same input, same output (server and client agree)");
-  assert.equal(withFeed(items, false).length, 48, "no tile where the grid does not ask for one");
+  for (const surface of ["browse", "set", "type", "deals"] as const) {
+    const entries = withFeed(items, surface);
+    assert.equal(entries.length, 50, `${surface}: two tiles`);
+    assert.deepEqual(entries.flatMap((e, i) => (e.kind === "feed" ? [[i, e.nth]] : [])), [[16, 0], [33, 1]], `${surface}: after the 16th and the 32nd`);
+    assert.deepEqual(entries.flatMap((e) => (e.kind === "item" ? [e.item] : [])), items, "every product, in order, once");
+    assert.deepEqual(entries.flatMap((e) => (e.kind === "item" ? [e.index] : [])), items, "each product keeps its own index");
+    assert.deepEqual(withFeed(items, surface), entries, "same input, same output (server and client agree)");
+  }
+  assert.equal(withFeed(items.slice(0, 24), "set").filter((e) => e.kind === "feed").length, 1, "24 products: one");
+  // from md up (3-4 cards a row) a tile is a whole row tall: it shows there only with 24 products after it (the 25% density ceiling)
+  assert.equal(FEED_WIDE_MIN_TAIL, 24);
+  const wide = (n: number) => withFeed(items.concat(items).slice(0, n), "deals").flatMap((e) => (e.kind === "feed" ? [e.wide] : []));
+  assert.deepEqual(wide(24), [false], "24 products: a phone tile only");
+  assert.deepEqual(wide(39), [false], "39: still phone only");
+  assert.deepEqual(wide(40), [true, false], "40: the first everywhere, the second on a phone");
+  assert.deepEqual(wide(48), [true, false]);
+  assert.deepEqual(wide(56), [true, true], "56: both everywhere");
+  for (let n = 0; n <= 120; n++) {
+    const e = withFeed(Array.from({ length: n }, (_, i) => i), "type").filter((x) => x.kind === "feed") as { nth: number; wide: boolean }[];
+    assert.deepEqual(e.filter((x) => x.wide).map((x) => x.nth), feedSlots(n, { minTail: 24 }).map((_, i) => i), `${n}: the wide tiles are the first ones`);
+  }
+  assert.equal(withFeed(items.slice(0, 20), "type").filter((e) => e.kind === "feed").length, 0, "20 products: none");
+  assert.equal(withFeed(items).length, 48, "no tile where the grid does not ask for one");
+  assert.equal(withFeed(items, undefined).length, 48);
+  assert.deepEqual(withFeed([], "browse"), []);
+});
+
+test("in-feed tiles: each a different listing that no strip or pre-footer strip shows, under its surface's own placement", () => {
+  const surfaces: FeedSurface[] = ["browse", "set", "type", "deals"];
+  for (const s of surfaces) {
+    const a = tileSource(s, 0);
+    const b = tileSource(s, 1);
+    assert.deepEqual(a, { context: "sealed", index: 6 }, `${s}: the sealed feed's 7th listing`);
+    assert.deepEqual(b, { context: "sealed", index: 7 }, `${s}: the 8th`);
+    assert.equal(a.index, FEED_FIRST_INDEX);
+    // a strip shows the 1st-6th listings (indexes 0-5) and the slim pre-footer strip the 1st-4th: neither reaches a tile's
+    for (const t of [a, b]) assert.ok(t.index >= 6 && t.index < MAX_FEED_ROWS, `${s}: index ${t.index} is past every strip and inside the stored rows`);
+  }
+  assert.equal(MAX_FEED_ROWS, 8, "the importer stores 8 rows a feed: two tiles at most, so it did not change");
+  assert.ok(FEED_FIRST_INDEX + FEED_MAX <= MAX_FEED_ROWS, "every tile a grid can have has a stored row to show");
+  assert.deepEqual(FEED_PLACEMENTS, { browse: "listings-browse-feed", set: "listings-set-feed", type: "listings-type-feed", deals: "listings-deals-feed" });
+  for (const p of Object.values(FEED_PLACEMENTS)) assert.ok((PLACEMENTS as readonly string[]).includes(p), `${p} is a placement`);
+  // pages whose own strip is sealed (deals, browse, type pages that cascade to it) get the chase pre-footer strip, so the tiles' sealed
+  // listings are never also above the footer; where the pre-footer strip IS sealed (set pages) it shows the 1st-4th only
+  assert.deepEqual(preFooterPlan("/us/deals", "us"), { context: "chase" });
+  assert.deepEqual(preFooterPlan("/us/sealed", "us"), { context: "chase" });
+  assert.deepEqual(preFooterPlan("/us/sets/pitch-black", "us"), { context: "sealed" });
+});
+
+test("in-feed tiles: the first lands 12 products after the strip (after product 4), over a screen apart on a phone and a desktop", () => {
+  const STRIP_AFTER = 4;
+  const [first, second] = feedSlots(48);
+  assert.equal(first - STRIP_AFTER, 12);
+  // rows of two cards on a phone (~330 px), four on a desktop (~446 px): both clear the 960 px gap between two units
+  assert.ok(((first - STRIP_AFTER) / 2) * 330 >= 960 && ((first - STRIP_AFTER) / 4) * 446 >= 960);
+  assert.ok(((second - first) / 2) * 330 >= 960 && ((second - first) / 4) * 446 >= 960);
 });
 
 test("pre-footer strip: the feed the page's own strip is not; a region's home page has none (two strips of its own, and a feed holds only 8 listings)", () => {
@@ -261,23 +335,31 @@ test("page budgets: pure, monotonic, and the pre-footer strip gives way on short
   assert.equal(gridPageHasRoomForFooter(40), true);
   assert.equal(listHasRoomForFooter(5), false);
   assert.equal(listHasRoomForFooter(48), true);
+  // The product page (growth release): the table shows eight rows at most, so the plan counts VISIBLE rows (min(offers + 1, 8): the
+  // eBay row is one) and the collapsed groups' summaries, then the "Quick facts" card, never every offer.
   const thin = productAdPlan({ offerRows: 1, elsewhere: 0, related: 0 });
   assert.deepEqual(thin, { tableGroup: false, preFooter: false });
-  assert.equal(productAdPlan({ offerRows: 6, elsewhere: 0, related: 0 }).tableGroup, false, "six phone rows are not a screen");
-  assert.equal(productAdPlan({ offerRows: 7, elsewhere: 0, related: 0 }).tableGroup, false, "a desktop table is shorter: seven rows are not a screen there");
-  // Measured at 1280x900: the panel to the closing group is 808px at 9 rows, 879 at 10, 950-970 at 11.
-  assert.equal(productAdPlan({ offerRows: 10, elsewhere: 0, related: 0 }).tableGroup, false, "ten desktop rows leave the two units under a screen apart");
-  assert.equal(productAdPlan({ offerRows: 11, elsewhere: 0, related: 0 }).tableGroup, true);
-  // A thin page with a few other regions: the phone fits a footer banner, the desktop would not.
-  assert.equal(productAdPlan({ offerRows: 4, elsewhere: 3, related: 0 }).preFooter, false);
-  const rich = productAdPlan({ offerRows: 12, elsewhere: 3, related: 8 });
-  assert.deepEqual(rich, { tableGroup: true, preFooter: true });
+  assert.equal(productAdPlan({ offerRows: 3, elsewhere: 0, related: 8 }).tableGroup, false, "four phone rows and the facts are not a screen");
+  assert.deepEqual(productAdPlan({ offerRows: 6, elsewhere: 0, related: 8 }), { tableGroup: false, preFooter: true }, "seven desktop rows and the facts are not a screen there: the strip goes to the bottom");
+  assert.deepEqual(productAdPlan({ offerRows: 6, elsewhere: 1, related: 8 }), { tableGroup: true, preFooter: false }, "…the other regions' tiles make it one");
+  assert.deepEqual(productAdPlan({ offerRows: 30, summaries: 2, elsewhere: 6, related: 8 }), productAdPlan({ offerRows: 9, summaries: 2, elsewhere: 6, related: 8 }), "30 offers or 9: the same eight visible rows");
+  assert.deepEqual(productAdPlan({ offerRows: 4, elsewhere: 0, related: 4 }), { tableGroup: false, preFooter: true }, "a short table: the strip at the bottom, in the pre-footer strip's place");
+  // Ad density (at most a quarter of <main>, at 390 and 1440): the collapsed table makes a page shorter, so it holds fewer units.
+  assert.deepEqual(productAdPlan({ offerRows: 12, summaries: 1, elsewhere: 3, related: 8 }), { tableGroup: true, preFooter: false }, "the pre-footer strip would take the desktop page past a quarter");
+  assert.deepEqual(productAdPlan({ offerRows: 7, elsewhere: 0, related: 0 }), { tableGroup: false, preFooter: false }, "nothing under the facts: one strip would be over a quarter of the page");
+  assert.deepEqual(productAdPlan({ offerRows: 12, summaries: 1, elsewhere: 3, related: 0, rail: 4 }), { tableGroup: true, preFooter: false }, "a product with no set: a rail of four");
   // More content never takes a unit away.
   for (let rows = 0; rows < 15; rows++) {
     const a = productAdPlan({ offerRows: rows, elsewhere: 2, related: 4 });
     const b = productAdPlan({ offerRows: rows + 1, elsewhere: 2, related: 4 });
     assert.ok(!a.tableGroup || b.tableGroup);
+    assert.ok(Number(b.tableGroup) + Number(b.preFooter) >= Number(a.tableGroup) + Number(a.preFooter), `${rows} rows`);
   }
+  // Sold out: the callout's eBay box is the first-screen unit; the strip goes after the table and "In stock instead", or at the bottom.
+  assert.deepEqual(soldOutAdPlan({ visibleRows: 8, summaries: 2, alternatives: 4, elsewhere: 6, related: 8 }), { strip: "table", preFooter: true });
+  assert.deepEqual(soldOutAdPlan({ visibleRows: 7, alternatives: 4, elsewhere: 5, related: 8 }), { strip: "table", preFooter: false }, "the pre-footer strip would take it past a quarter");
+  assert.deepEqual(soldOutAdPlan({ visibleRows: 3, alternatives: 0, elsewhere: 1, related: 8 }), { strip: "bottom", preFooter: false });
+  assert.deepEqual(soldOutAdPlan({ visibleRows: 2, alternatives: 0, elsewhere: 0, related: 0 }), { strip: null, preFooter: false });
 });
 
 test("EPN creative: https image and an eBay tracking link only; garbage is ignored, never half-applied", () => {

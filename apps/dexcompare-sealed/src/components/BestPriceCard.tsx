@@ -106,7 +106,11 @@ function StoreTop(props: BestPriceCardProps) {
       {/* on a phone the button is always on a line of its own, as in eBay's version (same height whichever is shown) */}
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
         <div>
-          <div className="text-sm font-medium text-muted">{preorder ? "Cheapest pre-order" : "Best price in stock"}</div>
+          {/* the shipping note sits by the price, as eBay's version says its shipping on the same line */}
+          <div className="text-sm font-medium text-muted">
+            {preorder ? "Cheapest pre-order" : "Best price in stock"}
+            <span className="font-normal"> · prices exclude shipping</span>
+          </div>
           <div className="tabular font-display text-4xl font-extrabold tracking-tight">{money(store.cents, market)}</div>
           {perPack != null && <div className="tabular mt-0.5 text-sm text-muted">≈ {money(perPack, market)} per pack</div>}
           <div className="mt-1 text-sm text-muted">
@@ -188,7 +192,7 @@ function Card({ top, ...p }: BestPriceCardProps & { top: ReactNode }) {
   const { market, preorder, store, median, medianStores, msrp } = p;
   const vsMsrp = msrp != null ? pctOf(store.cents, msrp) : null;
   return (
-    <div className="card mt-6 p-5">
+    <div className="card p-5">
       {top}
       <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-line pt-4 text-sm text-muted">
         <StockPill state="open" preorder={preorder}>

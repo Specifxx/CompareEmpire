@@ -1,7 +1,7 @@
+import Link from "next/link";
 import type { ReactNode } from "react";
 import {
   AFFILIATE_NOTE,
-  ebayLabel,
   ebayRetailer,
   ebaySearchUrl,
   offerLink,
@@ -16,7 +16,10 @@ import { money } from "@/lib/format";
 import { REGIONS, type Region } from "@/lib/regions";
 import { offerStock } from "@/lib/sealed-offers";
 import { AdPill } from "./Ebay";
+import { EbayMark } from "./EbayMark";
 import { OutboundLink } from "./OutboundLink";
+import { PanelEbayPrice, type PanelPick } from "./PanelEbayPrice";
+import { SoldOutEbay, type SoldOutPick } from "./SoldOutEbay";
 import { StockPill } from "./StockPill";
 
 // The marketplace links: eBay (EPN search) and TCGplayer (Impact). These are the
@@ -66,8 +69,9 @@ export function MarketplacePanel({
   preorder,
   tcgplayer,
   tcgplayerIsBest = false,
-  ebayPrimary = false,
   popular = false,
+  pick = null,
+  storeCents = null,
 }: {
   region: Region;
   productName: string;
@@ -76,13 +80,18 @@ export function MarketplacePanel({
   tcgplayer: TcgplayerMatch | null;
   /** US: TCGplayer is the best price above, so its button is already there. */
   tcgplayerIsBest?: boolean;
-  /** Only one store has it in stock, or the product is popular: the eBay row becomes a button, the page's one primary marketplace action. */
-  ebayPrimary?: boolean;
   /**
-   * A product of one of the owner's hot sets (lib/popular.ts; the page passes ebayPrimary with it): the eBay row carries a
-   * "Popular set" chip in the panel's heading, outside the ad link. The owner's pick (lib/popular.ts), so the words claim nothing about eBay's data.
+   * A product of one of the owner's hot sets (lib/popular.ts): the panel's heading carries a "Popular set" chip, outside the ad link.
+   * The owner's pick (lib/popular.ts), so the words claim nothing about eBay's data.
    */
   popular?: boolean;
+  /**
+   * The price table's eBay pick (its exact useEbayPick arguments), where the best-price card may show the listing (not a pre-order, not
+   * NZ or SG): the eBay row then shows the product's own new listing whenever the card does not (PanelEbayPrice.tsx). Null = a search.
+   */
+  pick?: PanelPick | null;
+  /** The best-price card's store price, for its `cheaper` rule. */
+  storeCents?: number | null;
 }) {
   const r = REGIONS[region];
   const us = r.market === "US";
@@ -124,37 +133,19 @@ export function MarketplacePanel({
       <h2 className="eyebrow flex items-center justify-between gap-3 border-b border-line bg-raised px-5 py-2.5">
         Marketplaces
         {/* Outside the ad link: the site's own pick (lib/popular.ts HOT_SETS), not eBay's data and not a claim of a trend. */}
-        {popular && <span className="rounded-full bg-brand/10 px-2 py-0.5 text-[11px] font-bold normal-case tracking-normal text-brand">Popular set</span>}
+        {popular && <span className="rounded-full bg-brand-soft px-2 py-0.5 text-[11px] font-bold normal-case tracking-normal text-brand-strong">Popular set</span>}
       </h2>
       <ul className="divide-y divide-line">
+        {/* eBay's row: always eBay's blue button (the growth release); its own new listing's price when the card above is not showing it */}
         <li className="bg-ad">
-          <OutboundLink
-            href={ebaySearchUrl(ebayQuery(productName, tcgplayer), region, "product-marketplace")}
-            rel={REL_SPONSORED}
-            retailer={ebayRetailer(region)}
-            placement="product-marketplace"
-            className={ROW}
-          >
-            <span className="min-w-0">
-              <b>eBay</b> <AdPill className="mx-0.5 align-middle" /> <span className="text-muted">— Buy It Now listings on {ebayLabel(region)}</span>
-            </span>
-            {ebayPrimary ? (
-              <span className="btn-ad ml-auto shrink-0">
-                Search eBay <span aria-hidden="true">↗</span>
-              </span>
-            ) : (
-              <span className="ml-auto shrink-0 font-semibold text-brand">
-                Search eBay <span aria-hidden="true">↗</span>
-              </span>
-            )}
-          </OutboundLink>
+          <PanelEbayPrice region={region} searchHref={ebaySearchUrl(ebayQuery(productName, tcgplayer), region, "product-marketplace")} pick={storeCents != null ? pick : null} storeCents={storeCents ?? 0} />
         </li>
         {showTcg && (
           <li>
             <OutboundLink href={tcg.href} rel={tcg.rel} retailer={TCGPLAYER_RETAILER} placement="product-marketplace" className={ROW}>
               <span className="min-w-0">{tcgText}</span>
               <span className="ml-auto flex shrink-0 items-center gap-3">
-                <span className="font-semibold text-brand">
+                <span className="font-semibold text-brand-strong">
                   {tcgplayer ? "View on TCGplayer" : "Search TCGplayer"} <span aria-hidden="true">↗</span>
                 </span>
               </span>
@@ -171,9 +162,12 @@ export function MarketplacePanel({
 }
 
 /**
- * Product page, in place of the best-price card when nothing in the region is
- * open (in stock or pre-order): say so plainly, with TCGplayer's link. The product's
- * eBay listings are the strip directly under it (EbayStrip.tsx), the page's one eBay unit there.
+ * Product page, in place of the best-price card when nothing in the region is open (in stock or pre-order): say so plainly, then where
+ * it may still be bought. 61% of product pages are sold out, so this box is the page's main action for most visitors: an eBay box first
+ * (one labelled unit, data-ad="soldout-ebay": eBay's blue "Find it on ebay.co.uk" search in the server HTML, the product's own new
+ * listing with its price and age once the browser has it, SoldOutEbay.tsx), TCGplayer as a second, quieter button inside the same box,
+ * the affiliate note under both; then an internal link to what is in stock instead. The product's listing strip sits further down the
+ * page (soldOutAdPlan), never next to this box.
  */
 export function SoldOutCallout({
   region,
@@ -181,6 +175,9 @@ export function SoldOutCallout({
   storesListing,
   notChecked,
   tcgplayer,
+  ebayQuery: query,
+  pick = null,
+  instead = null,
 }: {
   region: Region;
   productName: string;
@@ -189,26 +186,26 @@ export function SoldOutCallout({
   /** …of which we couldn't read recently, so "sold out" is a guess for them. */
   notChecked: number;
   tcgplayer: TcgplayerMatch | null;
+  /** What to search eBay for (ebayQuery). */
+  ebayQuery: string;
+  /** The price table's eBay pick, or null (a pre-order product, NZ, SG): the box then stays the search. */
+  pick?: SoldOutPick | null;
+  /** An internal link to in-stock products of the type ("See Elite Trainer Boxes in stock in the UK →"). */
+  instead?: { href: string; label: string } | null;
 }) {
   const r = REGIONS[region];
   const us = r.market === "US";
   const tcg = tcgplayerLink(region, productName, tcgplayer, "product-soldout");
   const tcgOpen = !us && tcgplayer && offerStock(tcgplayer) === "open";
-  const big = "px-6 py-3 text-base";
   const tcgBtn = (
-    <OutboundLink href={tcg.href} rel={tcg.rel} retailer={TCGPLAYER_RETAILER} placement="product-soldout" className={`btn-ghost ${big}`}>
-      {tcgOpen ? (
-        <span className="tabular">{usd(tcgplayer!.priceCents)} on TCGplayer (US)</span>
-      ) : (
-        <span>
-          {tcgplayer ? "Check" : "Search"} TCGplayer{us ? "" : " (US)"}
-        </span>
-      )}
-      <span aria-hidden="true">↗</span>
+    <OutboundLink href={tcg.href} rel={tcg.rel} retailer={TCGPLAYER_RETAILER} placement="product-soldout" className="btn-ghost mt-2 min-h-11 w-full px-4 py-2.5 text-center">
+      <span className="tabular">
+        {tcgOpen ? `${usd(tcgplayer!.priceCents)} on TCGplayer (US)` : `${tcgplayer ? "Check" : "Search"} TCGplayer${us ? "" : " (US)"}`} <span aria-hidden="true">↗</span>
+      </span>
     </OutboundLink>
   );
   return (
-    <div className="card mt-6 p-5 sm:p-6">
+    <div className="card p-5 sm:p-6">
       <StockPill state="soldout">Sold out</StockPill>
       <h2 className="mt-3 font-display text-2xl font-bold leading-tight tracking-tight">
         {storesListing ? `Sold out at every ${r.adjective} store we track` : `No ${r.adjective} store we track lists this yet`}
@@ -222,11 +219,26 @@ export function SoldOutCallout({
         )}
         Marketplaces may still have it.
       </p>
-      <div className="mt-5 flex flex-wrap gap-2.5">{tcgBtn}</div>
-      <p className={`mt-3 ${NOTE}`}>
-        {AFFILIATE_NOTE}
-        {!us && ` TCGplayer sells in US$ from the US; check it ships to ${r.name} before you buy.`}
-      </p>
+      <div data-ad="soldout-ebay" role="group" aria-label="Sponsored: eBay and TCGplayer" className="ad-box mt-4 p-3 sm:p-4">
+        <div className="flex items-center gap-2">
+          <EbayMark className="text-lg" />
+          <AdPill />
+          <span className="truncate text-[11px] font-semibold uppercase tracking-wide text-muted">Marketplaces</span>
+        </div>
+        <div className="mt-2">
+          <SoldOutEbay region={region} searchHref={ebaySearchUrl(query, region, "soldout-ebay")} pick={pick} />
+        </div>
+        {tcgBtn}
+        <p className={`mt-2.5 ${NOTE}`}>
+          {AFFILIATE_NOTE}
+          {!us && ` TCGplayer sells in US$ from the US; check it ships to ${r.name} before you buy.`}
+        </p>
+      </div>
+      {instead && (
+        <Link href={instead.href} prefetch={false} className="mt-3 inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-brand-strong hover:underline">
+          {instead.label} <span aria-hidden="true">→</span>
+        </Link>
+      )}
     </div>
   );
 }

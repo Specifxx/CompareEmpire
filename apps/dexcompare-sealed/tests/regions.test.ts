@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { isRegion, REGION_LIST, regionOrNotFound, X_DEFAULT_REGION, xDefaultRegion } from "../src/lib/regions";
-import { pageMeta, regionAlternates } from "../src/lib/seo";
+import { isRegion, REGION_LIST, REGIONS, regionOrNotFound, X_DEFAULT_REGION, xDefaultRegion } from "../src/lib/regions";
+import { EU_HREFLANGS, pageMeta, regionAlternates } from "../src/lib/seo";
 import { SITE_URL } from "../src/lib/site";
 
 // next/navigation's notFound() throws an error Next recognises by its digest.
@@ -36,7 +36,7 @@ test("regionAlternates: all regions by default, x-default → US; both call shap
   assert.equal(alt.canonical, `${SITE_URL}/au/sets`);
   assert.equal(alt.languages["x-default"], `${SITE_URL}/us/sets`);
   assert.equal(alt.languages["en-AU"], `${SITE_URL}/au/sets`);
-  assert.equal(Object.keys(alt.languages).length, REGION_LIST.length + 1);
+  assert.equal(Object.keys(alt.languages).length, REGION_LIST.length + EU_HREFLANGS.length + 1, "seven regions, the euro countries' keys for /eu, x-default");
   assert.deepEqual(regionAlternates("/au/sets"), alt);
   assert.deepEqual(regionAlternates("/au/p/x", ["ca"]), regionAlternates("au", "/p/x", ["ca"]));
 });
@@ -63,9 +63,33 @@ test("pageMeta: ogType product leaves openGraph.type out and sets og:type throug
 test("regionAlternates: advertises only the regions given, always the page's own, x-default never a region not advertised", () => {
   const alt = regionAlternates("uk", "/p/x", ["ca", "eu"]) as { canonical: string; languages: Record<string, string> };
   assert.equal(alt.canonical, `${SITE_URL}/uk/p/x`);
-  assert.deepEqual(Object.keys(alt.languages).sort(), ["en-CA", "en-GB", "en-IE", "x-default"]);
+  assert.deepEqual(Object.keys(alt.languages).sort(), ["en-CA", "en-GB", "en-IE", ...EU_HREFLANGS, "x-default"].sort());
   assert.equal(alt.languages["x-default"], `${SITE_URL}/uk/p/x`);
   const withUs = regionAlternates("uk", "/p/x", [{ ...REGION_LIST[0] }, { ...REGION_LIST[1] }]) as { languages: Record<string, string> };
   assert.equal(withUs.languages["x-default"], `${SITE_URL}/us/p/x`);
   for (const u of Object.values(alt.languages)) assert.ok(u.startsWith(`${SITE_URL}/`), u);
+});
+
+test("regionAlternates: the /eu copy is listed under en-IE and under each euro country's English (searchers in Germany are not en-IE)", () => {
+  assert.deepEqual([...EU_HREFLANGS], ["en-DE", "en-NL", "en-FR", "en-BE", "en-AT", "en-ES", "en-IT", "en-FI", "en-PT", "en-LU"]);
+  const alt = regionAlternates("eu", "/p/x") as { canonical: string; languages: Record<string, string> };
+  for (const h of ["en-IE", ...EU_HREFLANGS]) assert.equal(alt.languages[h], `${SITE_URL}/eu/p/x`, h);
+  // only where /eu is advertised: a page that is not indexable in the EU names none of them
+  const noEu = regionAlternates("au", "/p/x", ["us"]) as { languages: Record<string, string> };
+  for (const h of ["en-IE", ...EU_HREFLANGS]) assert.equal(noEu.languages[h], undefined, h);
+  // a region home: the same keys, and x-default stays the landing page
+  const home = regionAlternates("/eu") as { languages: Record<string, string> };
+  assert.equal(home.languages["en-DE"], `${SITE_URL}/eu`);
+  assert.equal(home.languages["x-default"], `${SITE_URL}/`);
+  // every key once, every URL on the site
+  for (const u of Object.values(home.languages)) assert.ok(u.startsWith(`${SITE_URL}/`), u);
+  assert.equal(new Set(REGION_LIST.map((r) => r.hreflang).concat(EU_HREFLANGS)).size, REGION_LIST.length + EU_HREFLANGS.length, "no euro key collides with a region's own");
+});
+
+test("inName: the region as it reads after 'in' (titles, H1s): 'the US' and 'the UK', plain 'Europe'", () => {
+  assert.deepEqual(
+    Object.fromEntries(REGION_LIST.map((r) => [r.region, r.inName])),
+    { au: "Australia", us: "the US", uk: "the UK", ca: "Canada", nz: "New Zealand", eu: "Europe", sg: "Singapore" },
+  );
+  assert.equal(`in ${REGIONS.us.inName}`, "in the US");
 });

@@ -6,6 +6,7 @@
 // is the static pages and every store page; /sitemap/1.xml … /sitemap/7.xml
 // is one region each — its types, sets and comparable products.
 import type { MetadataRoute } from "next";
+import { guidesFor } from "../content/guides";
 import { openPreorderGuides } from "./preorder-guides";
 import { REGION_LIST, regionOfMarket, type Region, type RegionInfo } from "./regions";
 import { PRODUCT_TYPES } from "./sealed-title";
@@ -37,9 +38,13 @@ const url = (path: string, lastModified: Date | null | undefined, changeFrequenc
  * The static pages, each region's landing pages (its pre-order pages
  * included, while their set is upcoming) and every store page.
  * `lastmod` is each market's last import (StoreStat max(updatedAt) — a
- * current-state column, not history).
+ * current-state column, not history). `activeStores`, when given, is the keys
+ * of the stores worth indexing (hub-data.ts activeStoreKeys: something listed,
+ * not dormant); a store outside it is noindex and gets no URL here. Without it
+ * (the build, with no database) every store is listed.
  */
-export function staticSitemap(lastmod: Partial<Record<string, Date | null>>, today = new Date().toISOString().slice(0, 10)): MetadataRoute.Sitemap {
+export function staticSitemap(lastmod: Partial<Record<string, Date | null>>, activeStores?: Iterable<string>, today = new Date().toISOString().slice(0, 10)): MetadataRoute.Sitemap {
+  const active = activeStores ? new Set(activeStores) : null;
   const out: MetadataRoute.Sitemap = [
     url("", null, "daily", 1),
     url("/about", null, "monthly", 0.3),
@@ -54,13 +59,23 @@ export function staticSitemap(lastmod: Partial<Record<string, Date | null>>, tod
     out.push(url(`/${r.region}/releases`, m, "weekly", 0.6));
     out.push(url(`/${r.region}/sets`, m, "weekly", 0.6));
     out.push(url(`/${r.region}/stores`, m, "weekly", 0.5));
+    // The pages built from each import's current state (deals, price per pack, the week's digest) change with it. The guides index
+    // changes only when a guide is added or edited, so the import time would be a false lastmod there: it has none.
+    out.push(url(`/${r.region}/deals`, m, "daily", 0.7));
+    out.push(url(`/${r.region}/cheapest-packs`, m, "daily", 0.6));
+    out.push(url(`/${r.region}/this-week`, m, "daily", 0.5));
+    out.push(url(`/${r.region}/guides`, null, "weekly", 0.5));
     // Pre-order pages, until release day (they are noindexed from then on: lib/preorder-guides.ts).
     for (const { set } of openPreorderGuides(today)) out.push(url(`/${r.region}/preorders/${set.slug}`, m, "daily", 0.8));
   }
   for (const s of STORES) {
+    if (active && !active.has(s.key)) continue;
     const r = regionOfMarket(s.market);
     if (r) out.push(url(`/${r.region}/stores/${s.key}`, lastmod[s.market], "daily", 0.4));
   }
+  // Every guide, in each region it is offered in (the registry is pure: no database read). No lastmod: a guide's live blocks
+  // change with each import, but its text only when it is edited.
+  for (const r of REGION_LIST) for (const g of guidesFor(r.region)) out.push(url(`/${r.region}/guides/${g.slug}`, null, "weekly", 0.6));
   return out;
 }
 

@@ -9,11 +9,15 @@ export function LogoMark({ className = "h-8 w-8" }: { className?: string }) {
   );
 }
 
-export function Logo() {
+/**
+ * The mark and the wordmark. `wordmark` sets when the word shows: the header passes "hidden sm:inline", so a phone's one row keeps
+ * its width for the search box (the mark alone is the home link there, named by the link's aria-label).
+ */
+export function Logo({ wordmark = "" }: { wordmark?: string }) {
   return (
     <span className="inline-flex items-center gap-2">
-      <LogoMark />
-      <span className="font-display text-[19px] font-extrabold tracking-tight">
+      <LogoMark className="h-8 w-8 shrink-0" />
+      <span className={`font-display text-[19px] font-extrabold tracking-tight ${wordmark}`}>
         Dex<span className="text-brand">Compare</span>
       </span>
     </span>

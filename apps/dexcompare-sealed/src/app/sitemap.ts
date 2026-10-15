@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { isPreviewBuild } from "@/lib/build-env";
 import { COMPARABLE } from "@/lib/data";
 import { prisma } from "@/lib/db";
+import { activeStoreKeys } from "@/lib/hub-data";
 import { regionOfSitemapId, SITEMAP_IDS, STATIC_SITEMAP_ID, regionSitemap, staticSitemap } from "@/lib/sitemap";
 import type { Market } from "@/lib/regions";
 
@@ -26,7 +27,11 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
   const n = Number(id);
   if (isPreviewBuild()) return n === STATIC_SITEMAP_ID ? staticSitemap({}) : [];
   try {
-    if (n === STATIC_SITEMAP_ID) return staticSitemap(await lastImportByMarket());
+    // Only stores that list something and are not dormant: the others' pages are noindex (StoreListing.tsx storeMeta).
+    if (n === STATIC_SITEMAP_ID) {
+      const [lastmod, active] = await Promise.all([lastImportByMarket(), activeStoreKeys()]);
+      return staticSitemap(lastmod, active);
+    }
     const r = regionOfSitemapId(n);
     if (!r) return [];
     const [typeLabels, setCodes, productSlugs, lastmod] = await Promise.all([

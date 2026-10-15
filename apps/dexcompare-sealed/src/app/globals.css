@@ -13,6 +13,7 @@
   --brand: 210 48 10; /* Dex red; white on it is 5.0:1, and it reads at 4.7:1 on --bg */
   --brand-ink: 255 255 255;
   --brand-soft: 253 236 231;
+  --brand-strong: 180 40 8; /* brand as TEXT on --brand-soft (5.6:1) and on --surface (6.5:1): chips and .btn-soft, where --brand is 4.4:1 */
   --spark: 255 203 5; /* used sparingly: highlights only */
   --open: 20 118 56; /* 5.0:1 on --open-soft, 5.7:1 on --surface: the 12px stock pill is AA */
   --open-soft: 226 245 232;
@@ -25,7 +26,15 @@
   --ad: 243 246 252; /* sponsored units: a cool tint no store row or product card uses. muted 5.8:1, brand 4.7:1 on it */
   --ad-line: 120 128 148;
   --shadow: 24 22 18;
+  /* The sticky header's height: sticky offsets (top-[var(--hdr)]) and anchor jumps (scroll-padding-top below) follow it. */
+  --hdr: 60px;
   color-scheme: light;
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --hdr: 64px;
+  }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -40,6 +49,7 @@
     --brand: 255 94 58;
     --brand-ink: 20 10 6;
     --brand-soft: 58 26 18;
+    --brand-strong: 255 140 110; /* 6.9:1 on --brand-soft, 7.8:1 on --surface */
     --open: 74 206 120;
     --open-soft: 20 48 30;
     --sold: 150 154 164;
@@ -58,6 +68,8 @@
 html {
   -webkit-text-size-adjust: 100%;
   text-rendering: optimizeLegibility;
+  /* An in-page link (#prices) or a focused element lands below the sticky header, not under it. */
+  scroll-padding-top: calc(var(--hdr) + 8px);
 }
 
 body {
@@ -92,6 +104,11 @@ body {
   .btn-ghost {
     @apply btn border border-line bg-surface text-ink hover:bg-raised;
   }
+  /* A secondary action that is still a buy action (an in-stock store that is not the cheapest): the brand's tint, quieter than
+     .btn-primary, louder than .btn-ghost. brand-strong on brand-soft is 5.6:1 (6.9:1 dark). */
+  .btn-soft {
+    @apply btn bg-brand-soft text-brand-strong hover:bg-brand/15;
+  }
   .chip {
     @apply inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-3 py-1.5 text-sm font-medium text-ink transition-colors hover:border-ink/30;
   }
@@ -102,11 +119,14 @@ body {
   .ad-box {
     @apply rounded-xl border border-dashed border-ad-line bg-ad;
   }
-  /* An ad's own button and chips: outlined and cool-toned, so they never pass for the site's red
-     actions (.btn-primary) or its internal navigation chips (.chip). */
+  /* An ad's own button: eBay's button blue, #3665f3 with white text (4.9:1; #2a50c8 on hover, 6.8:1), the blue of eBay's own
+     buttons, the price table's eBay row and the hot buttons. It never passes for the site's red actions (.btn-primary) and every
+     unit around one carries its "Ad" label. (Until the growth release it was a grey outline.) The transparent border keeps the
+     box the size the outline gave it. */
   .btn-ad {
-    @apply btn border border-ad-line bg-surface text-ink hover:border-ink;
+    @apply btn border border-transparent bg-[#3665f3] text-white hover:bg-[#2a50c8];
   }
+  /* An ad's chips: outlined and cool-toned, so they never pass for the site's internal navigation chips (.chip). */
   .ad-chip {
     @apply inline-flex items-center gap-1.5 rounded-full border border-dashed border-ad-line bg-surface px-3 py-1 text-xs font-medium text-ink transition-colors hover:border-ink;
   }
@@ -115,6 +135,36 @@ body {
   }
   .eyebrow {
     @apply text-xs font-semibold uppercase tracking-[0.12em] text-muted;
+  }
+  /* What a product photo sits on: white, rounded, a hairline ring. Store photos are shot on white, so in dark mode the plate stays
+     light (#f3f3f1) instead of putting a white rectangle on a dark card. */
+  .plate {
+    @apply isolate overflow-hidden rounded-lg bg-white ring-1 ring-line;
+  }
+  @media (prefers-color-scheme: dark) {
+    .plate {
+      background-color: #f3f3f1;
+    }
+  }
+  /* One row that scrolls sideways (chips, a product rail): snap to each child, no scrollbar, and a fade at the right edge that says
+     there is more. The 4px of block padding (cancelled by the margin) keeps focus rings from being clipped by the scroll box. */
+  .scroller {
+    display: flex;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    padding-block: 4px;
+    margin-block: -4px;
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 2rem), transparent);
+    mask-image: linear-gradient(to right, #000 calc(100% - 2rem), transparent);
+  }
+  .scroller::-webkit-scrollbar {
+    display: none;
+  }
+  .scroller > * {
+    flex: none;
+    scroll-snap-align: start;
   }
   .prose-dex p {
     @apply mb-4 leading-7 text-muted;
@@ -127,6 +177,78 @@ body {
   }
   .prose-dex ul {
     @apply mb-4 list-disc space-y-1 pl-5 text-muted;
+  }
+}
+
+/* ── The shell (components/Header.tsx, MobileMenu.tsx, Section.tsx) ─────────────────────────────────────────────── */
+
+/* The header's search box is components/SearchBox.tsx, unchanged; the header only fits it to its one row: a 44px target below
+   lg (40px from lg), and 16px text on a phone, where anything smaller makes iOS zoom the page on focus. */
+.hdr-search form[role="search"] {
+  min-height: 2.75rem;
+}
+@media (max-width: 639.98px) {
+  .hdr-search input {
+    font-size: 16px;
+  }
+}
+@media (min-width: 1024px) {
+  .hdr-search form[role="search"] {
+    min-height: 2.5rem;
+  }
+}
+
+/* The phone menu: a native modal <dialog> drawn as a sheet from the top. It slides in with a transform (no layout), the page behind
+   is dimmed, and it does not scroll under the sheet (the gutter stays, so nothing moves on a desktop with scrollbars). */
+.menu-sheet[open] {
+  animation: menu-sheet-in 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.menu-sheet::backdrop {
+  background: rgb(15 16 19 / 0.45);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+}
+@keyframes menu-sheet-in {
+  from {
+    transform: translateY(-16px);
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .menu-sheet[open] {
+    animation: none;
+  }
+}
+html:has(.menu-sheet[open]) {
+  overflow: hidden;
+  scrollbar-gutter: stable;
+}
+
+/* An empty state's action chip leads with an icon that sits beside its link (the link is just the chip and its words). */
+.empty-action {
+  position: relative;
+  display: inline-flex;
+}
+.empty-action > svg {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: rgb(var(--brand-strong));
+}
+.empty-action > .chip {
+  padding-left: 2.125rem;
+}
+
+/* A product card's body is a size container: on a card too narrow for "In stock · 12 stores" (a 2-up grid on a 320px phone) the
+   pill drops the unit ("In stock · 12"); its title still says it in full. */
+.card-body {
+  container-type: inline-size;
+}
+@container (max-width: 127.98px) {
+  .stock-unit {
+    display: none;
   }
 }
 

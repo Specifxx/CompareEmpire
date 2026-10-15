@@ -23,8 +23,12 @@ export const PLACEMENTS = [
   "product-table", // product page: the offer table, stores and marketplaces
   "preorders", // pre-order page (/[region]/preorders/[set]): each product's store price list
   "browse-empty", // /[region]/sealed with nothing matching the filters
-  "region-home",
+  "browse-search", // /[region]/sealed with a search query: the one query-matched eBay (and, in the US, TCGplayer) search box after the first results
   "store-page", // a store's "Visit" link
+  "product-sticky", // product page, phones only: the buy bar that repeats the top of the page's action once it has scrolled away
+  "soldout-ebay", // product page, sold out: the eBay search button in the sold-out callout's own eBay box (the server HTML)
+  "set-tcgplayer", // set page, US only: the labelled "Shop <set> on TCGplayer" search link in the hero card
+  "guide-tcgplayer", // a guide, US only: the labelled TCGplayer search link in its closing "Where to buy" section
   "header", // the "eBay" item in the site header (desktop nav, xl and up only)
   // eBay LISTING STRIPS (components/EbayStrip.tsx): real listings imported once a day (scripts/ebay-import.ts), read
   // from our database through /api/ebay/<region>. One placement per surface, so EPN's customid report and Vercel's
@@ -38,6 +42,15 @@ export const PLACEMENTS = [
   "listings-type", // type page: the type's listings (cascade: sealed), at the top
   "listings-browse", // /[region]/sealed page 1: the strip at the top
   "listings-browse-feed", // /[region]/sealed: the one in-feed listing tile after the 12th product
+  "listings-set-feed", // set page: an in-feed listing tile in the product grid
+  "listings-type-feed", // type page: an in-feed listing tile in the product grid
+  "listings-deals", // /[region]/deals: the sealed strip after the first products
+  "listings-deals-feed", // /[region]/deals: an in-feed listing tile in the first section's grid
+  "listings-packs", // /[region]/cheapest-packs: the sealed strip after the overall table
+  "listings-digest", // /[region]/this-week: the sealed strip after "Releasing soon"
+  "listings-guide", // a guide (/[region]/guides/<slug>): its one strip, after the first data block
+  "listings-soldout-best", // product page, sold out: the callout's eBay box when it shows the product's own new listing (its price and age)
+  "listings-marketplace", // product page: the Marketplaces panel's eBay row when it shows the product's own new listing (its price and age)
   "listings-offer-row", // product page: the eBay row of the price table (the product's cheapest own listing, ranked among the stores; an eBay search when it has none)
   "listings-best-price", // product page: the best-price card's eBay button, when the product's eBay listing is cheaper than every store
   "listings-store", // store directory and store page
@@ -50,6 +63,9 @@ export const PLACEMENTS = [
   "hot-home",
   "hot-set",
   "hot-product",
+  // Every other RELEASED set's page gets the same kind of button ("Shop <set> sealed on eBay", components/Ebay.tsx
+  // setSealedHighlight) in its strip's top line, under its own placement so it can be told apart from the hot sets'.
+  "set-sealed",
 ] as const;
 export type Placement = (typeof PLACEMENTS)[number];
 

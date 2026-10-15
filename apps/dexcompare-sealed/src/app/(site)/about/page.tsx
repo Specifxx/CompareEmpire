@@ -90,7 +90,7 @@ export default function About() {
           </li>
           <li>
             <b>Prices that cannot be real</b> — a listing far below every other store&rsquo;s price for the same product (a placeholder, or a
-            single pack filed as a box) is dropped rather than shown as the &ldquo;from&rdquo; price.
+            single pack filed as a box) is left out rather than shown as the &ldquo;from&rdquo; price.
           </li>
         </ul>
         <p>
@@ -106,7 +106,7 @@ export default function About() {
           &ldquo;from&rdquo; price; after two weeks they are removed. A store that lists twenty or more products and had none of them in stock
           at the last read is treated as dormant, and so is one whose &ldquo;in stock&rdquo; prices sat far below the other stores&rsquo; on many
           products (we do not trust those): its listings stay on product pages, marked sold out, but it no longer counts towards
-          &ldquo;listed by N stores&rdquo;. We keep nothing from earlier reads, so nothing here is a trend, a history or an all-time low.
+          &ldquo;listed by N stores&rdquo;. We keep nothing from earlier reads, so no figure here compares today with an earlier day.
         </p>
 
         <h2 id="report">Report a listing</h2>
@@ -125,47 +125,83 @@ export default function About() {
 
         <h2 id="money">How DexCompare makes money</h2>
         <p>
-          Through affiliate links, and only two kinds. If you buy through one we may earn a small commission, at no cost to you — the
-          price is the same as going direct.
+          Through affiliate links, and only two kinds: <b>eBay</b> (the eBay Partner Network) and <b>TCGplayer</b> (through Impact). If you
+          buy through one we may earn a small commission, at no cost to you &mdash; the price is the same as going direct. Every one is
+          marked where it appears: eBay with an &ldquo;Ad&rdquo; label, TCGplayer with &ldquo;affiliate link&rdquo;.
         </p>
+        <p>
+          We keep them out of your way: at most one ad on a phone screen at a time and two on a wide screen, no pop-ups or countdowns, space
+          kept for every ad before it loads so nothing you are reading gets pushed aside, and no ads on this page or the Terms, Privacy or
+          Contact pages.
+        </p>
+
+        <h3 id="ebay" className="mb-2 mt-6 font-display text-base font-bold text-ink">eBay</h3>
+        <p>
+          The eBay listings you see are <b>real Buy It Now listings</b>. On a schedule (once a day, in the default setting) our server asks
+          eBay&rsquo;s official listing service (its Browse API) for them and stores the latest few for each place they appear; your browser
+          fetches them after the page loads, and each unit says how old its listings are. Each listing is shown as eBay lists it &mdash; its
+          title, photo, price in the currency eBay shows, its shipping and, when it is not new, its condition &mdash; never converted, counted
+          or averaged, and it links to the listing on eBay. Because they are imported on a schedule, not live, a price or its availability
+          may have changed by the time you click: eBay&rsquo;s page is final. We keep a listing only while it can be shown (a day or so) and
+          then delete it. Where there is nothing to show, a unit is a single &ldquo;search eBay&rdquo; button.
+        </p>
+        <p>Where eBay appears:</p>
         <ul>
           <li>
-            <b>eBay</b> (eBay Partner Network): the eBay listing strips and links around the site, and one row of each product&rsquo;s price
-            table. Every one is an <b>ad</b> and says so: it carries an &ldquo;Ad&rdquo; label and links to eBay. The strips sit apart from
-            the store listings in a unit of their own (a dashed, tinted box). In a product&rsquo;s price table, eBay is compared as one more
-            website: its <b>lowest-priced listing of that product</b> is a tinted row with eBay&rsquo;s blue button, placed by its price among
-            the stores that have it in stock (after them when we have no listing and the row is an eBay search, and always in New Zealand and
-            Singapore, whose listings come from another country&rsquo;s eBay in its currency). When that listing is new and cheaper than every
-            store that has the product in stock (not for a pre-order), it is the product&rsquo;s best price, at the top of the page too, with
-            its per-pack price and how it compares with the median and MSRP, still marked &ldquo;Ad&rdquo; with how old it is, its shipping
-            and the cheapest store&rsquo;s price beside it. It is never counted in the number of stores or the median. The strips show <b>real eBay listings</b> (Buy It Now): on a schedule (once a day, in the default setting) our server asks eBay&rsquo;s official listing service
-            (its Browse API) for them and stores the latest few for each strip, and each strip says how old its listings are. Each is shown
-            as eBay lists it &mdash; its title, photo, price in the currency eBay shows, and the shipping cost eBay gives &mdash; never
-            converted, counted or averaged (only the price-table row is placed by its price, and it can be the best price), and every one
-            links to the listing on eBay. Because they are
-            imported on a schedule, not live, a price or its availability may have changed by the time you click: eBay&rsquo;s page is final. Where
-            there is nothing to show, the unit is a single &ldquo;search eBay&rdquo; link. We keep a listing only while it is shown (a day or
-            so) and then delete it. Those links open a <b>search</b> and show no eBay price, no count and no &ldquo;deal&rdquo;.
+            <b>Listing strips</b>, in a dashed, tinted box of their own: two on each region&rsquo;s home page (sealed Pokémon, then chase
+            cards further down), one on the landing page, and one on product, set, type, release, store, deals, cheapest-per-pack and
+            &ldquo;this week&rdquo; pages, the first page of the product list and each guide; most pages also have a slimmer strip above
+            the footer.
           </li>
           <li>
-            <b>TCGplayer</b> (through Impact): every link to tcgplayer.com. TCGplayer is a US marketplace. In the United States we
-            compare it alongside the stores, and it is ranked by price and stock like any store. Elsewhere it appears only as a separate,
-            labelled US marketplace in US$, never in your region&rsquo;s comparison or its &ldquo;from&rdquo; price.
+            <b>Listing tiles in long product grids</b> (browse, set, type and deals pages): a tile the size of a product card after every
+            16 products, at most two in a grid, framed and labelled the same way and never the same listing as the page&rsquo;s strips.
+          </li>
+          <li>
+            <b>On a product page</b>, the product&rsquo;s own eBay listing, when it has one, always marked &ldquo;Ad&rdquo; with how old it
+            is: a tinted row of the price table, placed by its price among the stores that have it in stock (after them when the row is an
+            eBay search, and always in New Zealand and Singapore, whose listings come from another country&rsquo;s eBay in its currency);
+            the best price at the top of the page, when that listing is new and cheaper than every store that has the product in stock (not
+            for a pre-order), with its per-pack price and how it compares with the median and MSRP, its shipping and the cheapest
+            store&rsquo;s price beside it; and the eBay-blue button in the Marketplaces box, which shows the listing&rsquo;s price when the
+            top of the page is not already showing it. Without a listing, the row and the button are searches for the product on eBay.
+          </li>
+          <li>
+            <b>When a product is sold out at every store</b>, the sold-out notice at the top of the page has an eBay box: a search for the
+            product on eBay or, where eBay has its own new listing (not for a pre-order, and not in New Zealand or Singapore), that listing
+            with its price, shipping and age. TCGplayer is the second choice under it, and products of the same kind that are in stock
+            follow the price table.
+          </li>
+          <li>
+            <b>A buy bar on phones</b>: on a product page, once the price at the top has scrolled out of view, a slim bar at the foot of the
+            screen repeats it &mdash; the same store, TCGplayer or eBay button the top of the page shows, labelled the same way. It hides
+            while the price table, another ad or the footer is on screen, and you can close it for the rest of your visit.
+          </li>
+          <li>
+            <b>Search buttons</b>: an &ldquo;eBay&rdquo; item in the header on wide screens, a &ldquo;Shop &hellip; sealed on eBay&rdquo;
+            button in the strip of every set that is out (popular sets say &ldquo;Shop &hellip; on eBay&rdquo;), and, when you search the
+            product list, one box that searches eBay for the same words. A search button opens eBay&rsquo;s own results.
           </li>
         </ul>
         <p>
-          eBay appears in a few set places: an &ldquo;eBay&rdquo; item in the header, a strip of chase-card listings under the stats on each
-          region&rsquo;s home page and on the landing page, a strip of sealed Pokémon listings further down the home page, a listing strip on
-          set, type, release, store and browse pages, one listing tile in the browse grid, the product&rsquo;s own listings on its page, a
-          slimmer strip above the footer, and the marketplace box on product pages. It is never in the About, Terms, Privacy or
-          Contact pages. Apart from that one tinted row of a product&rsquo;s price table, placed by its price, and the best price at the top of
-          the page when that listing is the cheapest, eBay is never part of a price table, a ranking or a headline price; it is never a store
-          count or a median, and it never changes the order of the stores.
+          Those product-page places are the only ones where eBay is part of the comparison: the one tinted row of the price table, placed by
+          its price, and the same listing shown at the top of the page, in the sold-out notice or in the Marketplaces box. eBay is never
+          counted in the number of stores or the median, never changes the order of the stores, and its listings never appear in what
+          search engines read of a page.
         </p>
+
+        <h3 id="tcgplayer" className="mb-2 mt-6 font-display text-base font-bold text-ink">TCGplayer</h3>
+        <p>
+          Every link to tcgplayer.com. TCGplayer is a US marketplace. In the United States we compare it alongside the stores, and it is
+          ranked by price and stock like any store; set pages, guides and searches of the product list also link to a TCGplayer search,
+          marked &ldquo;affiliate link&rdquo;. Elsewhere it appears only as a separate, labelled US marketplace in US$ (in a product&rsquo;s Marketplaces box and as
+          the second choice when a product is sold out), never in your region&rsquo;s comparison or its &ldquo;from&rdquo; price.
+        </p>
+
+        <h3 id="stores-pay-nothing" className="mb-2 mt-6 font-display text-base font-bold text-ink">Stores</h3>
         <p>
           Links to stores are plain links: stores pay us nothing. No one pays to be listed or to rank higher, and commissions never change the
-          order — it is price and stock, nothing else. Affiliate links and ads are marked as such next to where they appear. DexCompare is
-          not endorsed by eBay or TCGplayer.
+          order &mdash; it is price and stock, nothing else. DexCompare is not endorsed by eBay or TCGplayer.
         </p>
 
         <h2 id="stores">For stores</h2>

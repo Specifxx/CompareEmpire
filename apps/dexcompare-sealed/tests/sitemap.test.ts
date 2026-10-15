@@ -4,6 +4,7 @@ import { REGION_LIST, REGIONS } from "../src/lib/regions";
 import { regionOfSitemapId, regionSitemap, SITEMAP_IDS, sitemapIdOf, STATIC_SITEMAP_ID, staticSitemap } from "../src/lib/sitemap";
 import { SITE_URL } from "../src/lib/site";
 import { STORES } from "../src/lib/stores";
+import { GUIDES, guideRegions } from "../src/content/guides";
 
 const onSite = (entries: { url: string }[]) => {
   for (const e of entries) {
@@ -38,11 +39,28 @@ test("static sitemap: root, trust pages, every region's landing pages, every sto
   onSite(entries);
   const urls = new Set(entries.map((e) => e.url));
   for (const p of ["", "/about", "/terms", "/privacy", "/contact"]) assert.ok(urls.has(`${SITE_URL}${p}`), p);
-  for (const r of REGION_LIST) for (const p of ["", "/sealed", "/sets", "/stores", "/releases"]) assert.ok(urls.has(`${SITE_URL}/${r.region}${p}`), `${r.region}${p}`);
+  for (const r of REGION_LIST) for (const p of ["", "/sealed", "/sets", "/stores", "/releases", "/deals", "/cheapest-packs", "/this-week", "/guides"]) assert.ok(urls.has(`${SITE_URL}/${r.region}${p}`), `${r.region}${p}`);
+  const at = (p: string) => entries.find((e) => e.url === `${SITE_URL}${p}`)!;
+  assert.deepEqual([at("/au/deals").changeFrequency, at("/au/deals").priority, at("/au/deals").lastModified], ["daily", 0.7, when]);
+  assert.deepEqual([at("/au/cheapest-packs").changeFrequency, at("/au/cheapest-packs").priority], ["daily", 0.6]);
+  assert.deepEqual([at("/au/this-week").changeFrequency, at("/au/this-week").priority], ["daily", 0.5]);
+  assert.deepEqual([at("/au/guides").changeFrequency, at("/au/guides").priority, at("/au/guides").lastModified], ["weekly", 0.5, undefined], "an editorial index: no import-time lastmod");
   for (const s of STORES) assert.ok(urls.has(`${SITE_URL}/${s.market.toLowerCase()}/stores/${s.key}`), s.key);
   assert.equal(entries.find((e) => e.url === `${SITE_URL}/au`)?.lastModified, when);
   assert.equal(entries.find((e) => e.url === `${SITE_URL}/us`)?.lastModified, undefined);
   assert.equal(urls.size, entries.length, "no duplicate URLs");
+});
+
+test("static sitemap with activeStores: only the stores that list something and are not dormant get a URL", () => {
+  const [kept, dropped] = [STORES[0], STORES[1]];
+  const entries = staticSitemap({}, [kept.key, "not-a-store"]);
+  onSite(entries);
+  const storeUrls = entries.filter((e) => /\/stores\/[^/]+$/.test(e.url)).map((e) => e.url);
+  assert.deepEqual(storeUrls, [`${SITE_URL}/${kept.market.toLowerCase()}/stores/${kept.key}`]);
+  assert.ok(!entries.some((e) => e.url.endsWith(`/stores/${dropped.key}`)), "a store outside the active list is left out");
+  for (const r of REGION_LIST) assert.ok(entries.some((e) => e.url === `${SITE_URL}/${r.region}/stores`), "the directory pages stay");
+  assert.equal(staticSitemap({}).filter((e) => /\/stores\/[^/]+$/.test(e.url)).length, STORES.length, "without the list (the build), every store");
+  assert.equal(staticSitemap({}, []).filter((e) => /\/stores\/[^/]+$/.test(e.url)).length, 0);
 });
 
 test("region sitemap: known types and sets only, every comparable product, all on SITE_URL", () => {
@@ -66,4 +84,21 @@ test("region sitemap: known types and sets only, every comparable product, all o
 
 test("region sitemap: nothing comparable → empty, never a guess", () => {
   assert.deepEqual(regionSitemap(REGIONS.sg, { typeLabels: [], setCodes: [], productSlugs: [], lastmod: null }), []);
+});
+
+test("static sitemap: every guide in each region it is offered in, and nowhere else (the MSRP guide is US-only)", () => {
+  const entries = staticSitemap({});
+  onSite(entries);
+  const urls = new Set(entries.map((e) => e.url));
+  for (const g of GUIDES) {
+    for (const r of REGION_LIST) {
+      const u = `${SITE_URL}/${r.region}/guides/${g.slug}`;
+      assert.equal(urls.has(u), guideRegions(g).includes(r.region), u);
+    }
+  }
+  assert.ok(urls.has(`${SITE_URL}/us/guides/pokemon-tcg-msrp`));
+  assert.ok(!urls.has(`${SITE_URL}/au/guides/pokemon-tcg-msrp`));
+  const at = entries.find((e) => e.url === `${SITE_URL}/uk/guides/how-many-packs-in-pokemon-products`)!;
+  assert.deepEqual([at.changeFrequency, at.priority, at.lastModified], ["weekly", 0.6, undefined], "editorial: no import-time lastmod");
+  assert.equal(urls.size, entries.length, "no duplicate URLs");
 });

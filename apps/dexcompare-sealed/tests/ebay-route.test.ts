@@ -167,9 +167,13 @@ test("kill switch: EBAY_LISTINGS=off answers empty and reads nothing", async () 
   assert.equal((await (await call(fake(feedRows("EBAY_AU|chase", 6, 1), { EBAY_LISTINGS: "on" }).deps, "au", "chase")).json()).items.length, 6);
 });
 
-test("headers: public CDN 5 minutes for an answer, 60 s for an empty one, nosniff, JSON", async () => {
-  assert.equal(GOOD, "public, max-age=60, s-maxage=300");
-  assert.match(SHORT, /s-maxage=60$/);
+test("headers: public CDN an hour (then stale-while-revalidate) for an answer, 10 minutes for an empty one, nosniff, JSON", async () => {
+  assert.equal(GOOD, "public, max-age=60, s-maxage=3600, stale-while-revalidate=82800");
+  assert.equal(SHORT, "public, max-age=30, s-maxage=600");
+  assert.doesNotMatch(SHORT, /stale/, "an empty or failed answer is never served stale");
+  // the edge never keeps a good answer, stale copies included, past a day: the browser's age bound (26 h) still decides what is shown
+  const sec = (h: string, k: string) => Number(new RegExp(`${k}=(\\d+)`).exec(h)?.[1]);
+  assert.ok(sec(GOOD, "s-maxage") + sec(GOOD, "stale-while-revalidate") <= 24 * 3600);
   const good = await call(fake(feedRows("EBAY_AU|chase", 6, 1)).deps, "au", "chase");
   assert.equal(good.headers.get("cache-control"), GOOD);
   assert.match(good.headers.get("content-type")!, /application\/json/);

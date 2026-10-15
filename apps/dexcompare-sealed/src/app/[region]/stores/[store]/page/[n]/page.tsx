@@ -8,7 +8,7 @@ export function generateStaticParams() {
   return [];
 }
 
-export function generateMetadata({ params }: { params: { region: string; store: string; n: string } }): Metadata {
+export async function generateMetadata({ params }: { params: { region: string; store: string; n: string } }): Promise<Metadata> {
   const r = regionOrNotFound(params.region);
   return storeMeta(r, storeInRegion(params.store, r), pageNumber(params.n));
 }

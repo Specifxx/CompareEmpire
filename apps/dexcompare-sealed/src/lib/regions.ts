@@ -18,6 +18,9 @@ export interface RegionInfo {
   region: Region;
   market: Market;
   name: string; // "Australia"
+  // The region as it reads after "in" in a title, an H1 or a sentence: "in Australia", "in the US", "in the UK", "in Europe".
+  // `name` ("United States", "Europe (eurozone)") is the formal label for switchers and tables; this is the one people search.
+  inName: string;
   short: string; // "AU"
   adjective: string; // "Australian"
   flag: string;
@@ -31,13 +34,13 @@ export interface RegionInfo {
 }
 
 export const REGIONS: Record<Region, RegionInfo> = {
-  au: { region: "au", market: "AU", name: "Australia", short: "AU", adjective: "Australian", flag: "🇦🇺", currency: "AUD", locale: "en-AU", shopifyCountry: "AU", hreflang: "en-AU" },
-  nz: { region: "nz", market: "NZ", name: "New Zealand", short: "NZ", adjective: "New Zealand", flag: "🇳🇿", currency: "NZD", locale: "en-NZ", shopifyCountry: "NZ", hreflang: "en-NZ" },
-  us: { region: "us", market: "US", name: "United States", short: "US", adjective: "US", flag: "🇺🇸", currency: "USD", locale: "en-US", shopifyCountry: "US", hreflang: "en-US" },
-  uk: { region: "uk", market: "UK", name: "United Kingdom", short: "UK", adjective: "UK", flag: "🇬🇧", currency: "GBP", locale: "en-GB", shopifyCountry: "GB", hreflang: "en-GB" },
-  ca: { region: "ca", market: "CA", name: "Canada", short: "CA", adjective: "Canadian", flag: "🇨🇦", currency: "CAD", locale: "en-CA", shopifyCountry: "CA", hreflang: "en-CA" },
-  eu: { region: "eu", market: "EU", name: "Europe (eurozone)", short: "EU", adjective: "European", flag: "🇪🇺", currency: "EUR", locale: "en-IE", shopifyCountry: null, hreflang: "en-IE" },
-  sg: { region: "sg", market: "SG", name: "Singapore", short: "SG", adjective: "Singapore", flag: "🇸🇬", currency: "SGD", locale: "en-SG", shopifyCountry: "SG", hreflang: "en-SG" },
+  au: { region: "au", market: "AU", name: "Australia", inName: "Australia", short: "AU", adjective: "Australian", flag: "🇦🇺", currency: "AUD", locale: "en-AU", shopifyCountry: "AU", hreflang: "en-AU" },
+  nz: { region: "nz", market: "NZ", name: "New Zealand", inName: "New Zealand", short: "NZ", adjective: "New Zealand", flag: "🇳🇿", currency: "NZD", locale: "en-NZ", shopifyCountry: "NZ", hreflang: "en-NZ" },
+  us: { region: "us", market: "US", name: "United States", inName: "the US", short: "US", adjective: "US", flag: "🇺🇸", currency: "USD", locale: "en-US", shopifyCountry: "US", hreflang: "en-US" },
+  uk: { region: "uk", market: "UK", name: "United Kingdom", inName: "the UK", short: "UK", adjective: "UK", flag: "🇬🇧", currency: "GBP", locale: "en-GB", shopifyCountry: "GB", hreflang: "en-GB" },
+  ca: { region: "ca", market: "CA", name: "Canada", inName: "Canada", short: "CA", adjective: "Canadian", flag: "🇨🇦", currency: "CAD", locale: "en-CA", shopifyCountry: "CA", hreflang: "en-CA" },
+  eu: { region: "eu", market: "EU", name: "Europe (eurozone)", inName: "Europe", short: "EU", adjective: "European", flag: "🇪🇺", currency: "EUR", locale: "en-IE", shopifyCountry: null, hreflang: "en-IE" },
+  sg: { region: "sg", market: "SG", name: "Singapore", inName: "Singapore", short: "SG", adjective: "Singapore", flag: "🇸🇬", currency: "SGD", locale: "en-SG", shopifyCountry: "SG", hreflang: "en-SG" },
 };
 
 export const REGION_LIST: RegionInfo[] = ["au", "us", "uk", "ca", "nz", "eu", "sg"].map((r) => REGIONS[r as Region]);

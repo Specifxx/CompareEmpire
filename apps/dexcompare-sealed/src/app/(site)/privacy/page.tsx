@@ -9,12 +9,12 @@ export const metadata: Metadata = {
 };
 
 // Bump when what is collected changes, not for wording.
-const LAST_UPDATED = "5 October 2026";
+const LAST_UPDATED = "14 October 2026";
 
 export default function Privacy() {
   return (
     <div className="page max-w-3xl py-12">
-      <h1 className="font-display text-4xl font-extrabold tracking-tight">Privacy</h1>
+      <h1 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">Privacy</h1>
       <p className="mt-2 text-sm text-faint">Last updated {LAST_UPDATED}</p>
       <div className="prose-dex mt-6">
         <p>DexCompare has no accounts, doesn&rsquo;t ask for your email, and sets no advertising cookies. Here is everything we collect.</p>
@@ -42,6 +42,14 @@ export default function Privacy() {
           along (no-referrer). Nothing is loaded until the strip is near the screen, and eBay sets no cookie through it. We store the
           imported listings only briefly (about a day) and then delete them; they hold nothing about visitors.
           <> Set logos on the set pages are loaded from the Pokémon TCG image catalogue (images.pokemontcg.io / images.scrydex.com), which can see that request.</>
+        </p>
+        <h2>Kept in your browser</h2>
+        <p>
+          The &ldquo;Recently viewed&rdquo; row remembers the last products you opened in each region. That list is kept only in this
+          browser (in its local storage, as product addresses and nothing else), is never sent to DexCompare, and is removed when you
+          clear this site&rsquo;s data in your browser or press &ldquo;Clear&rdquo; on the row. Search suggestions work the same way: your
+          browser loads one list of products from DexCompare, the same list for every visitor, and matches what you type against it on
+          your device, so the letters you type are not sent to us while you type.
         </p>
         <h2>Server logs</h2>
         <p>

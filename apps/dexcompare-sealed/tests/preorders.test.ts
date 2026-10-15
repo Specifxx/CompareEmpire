@@ -49,9 +49,9 @@ test("pre-order pages retire themselves on release day", () => {
   assert.equal(isPreorderSet("me6", new Date("2026-11-05T23:59:00Z")), true);
   assert.equal(isPreorderSet("me6", new Date("2026-11-06T00:00:00Z")), false);
 
-  const before = new Set(staticSitemap({}, "2026-10-14").map((e) => e.url));
+  const before = new Set(staticSitemap({}, undefined, "2026-10-14").map((e) => e.url));
   for (const r of REGION_LIST) assert.ok(before.has(`${SITE_URL}/${r.region}/preorders/delta-reign`), r.region);
-  const after = staticSitemap({}, "2026-11-06").map((e) => e.url);
+  const after = staticSitemap({}, undefined, "2026-11-06").map((e) => e.url);
   assert.ok(!after.some((u) => u.includes("/preorders/")), "out of the sitemap once released");
 });
 

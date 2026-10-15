@@ -16,7 +16,7 @@ const config: Config = {
         ink: v("ink"),
         muted: v("muted"),
         faint: v("faint"),
-        brand: { DEFAULT: v("brand"), ink: v("brand-ink"), soft: v("brand-soft") },
+        brand: { DEFAULT: v("brand"), ink: v("brand-ink"), soft: v("brand-soft"), strong: v("brand-strong") },
         spark: v("spark"),
         open: { DEFAULT: v("open"), soft: v("open-soft") },
         sold: { DEFAULT: v("sold"), soft: v("sold-soft") },

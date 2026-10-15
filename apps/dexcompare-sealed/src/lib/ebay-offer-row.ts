@@ -9,6 +9,7 @@
 // bound). eBay's API License Agreement asks that eBay content not be "co-mingled or combined with non-eBay Content" (8.1(b)(2)) and that
 // nothing be derived from it (8.1(d)): the owner chose this knowing that (DEPLOY.md, "eBay's rules, and how each is met").
 
+import { TCGPLAYER_KEY } from "./affiliate";
 import type { TypeKey } from "./sealed-title";
 
 export interface PriceFloor {
@@ -118,4 +119,58 @@ export function ebayRowNote(region: string): string {
     " Its link is an eBay Partner Network affiliate link: we may earn a commission, at no extra cost to you." +
     (SHARED_SITE_NOTE[region] ?? "")
   );
+}
+
+// ─── The table's visible rows and its two collapsed groups ─────────────────────
+// A product with 30 offers was a 30-row table (4,700 px on a phone) that buried everything under it. The table now shows the first
+// VISIBLE_ROWS rows of the ranked list (the eBay row included, at its rank) and collapses the rest into two server-rendered <details>:
+// the other open rows ("Show 12 more in-stock stores"), then the sold-out and not-checked ones. Every store link stays in the HTML.
+//
+// The split happens AFTER ranking, so the eBay listing keeps its honest place: when it arrives in the browser and ranks into the first
+// eight, the eighth store row moves into the first group, and the visible part keeps its height (every row is the same height).
+
+/** Rows shown before the collapsed groups. */
+export const VISIBLE_ROWS = 8;
+/** The eBay row's key among the store rows (OfferRowsWithEbay). */
+export const EBAY_ROW_KEY = "ebay";
+
+/** The ranked rows split into the visible ones, the hidden open ones and the hidden sold-out / not-checked ones (order kept). */
+export function splitRows<T extends { open: boolean }>(rows: readonly T[], visible = VISIBLE_ROWS): { shown: T[]; moreOpen: T[]; moreClosed: T[] } {
+  const rest = rows.slice(visible);
+  return { shown: rows.slice(0, visible), moreOpen: rest.filter((r) => r.open), moreClosed: rest.filter((r) => !r.open) };
+}
+
+/**
+ * The table's shape from counts alone (the page's ad plan): `rows` store rows (TCGplayer included), `openRows` of them open, plus the eBay
+ * row (open: it sits among, or straight after, the open rows). The same whichever place the eBay row takes, so it holds in the server HTML
+ * and after the listing arrives.
+ */
+export function tableShape(rows: number, openRows: number, ebay = true): { visible: number; moreOpen: number; moreClosed: number; summaries: number } {
+  const total = rows + (ebay ? 1 : 0);
+  const open = Math.min(rows, openRows) + (ebay ? 1 : 0);
+  const visible = Math.min(total, VISIBLE_ROWS);
+  const moreOpen = Math.max(0, open - VISIBLE_ROWS);
+  const moreClosed = total - visible - moreOpen;
+  return { visible, moreOpen, moreClosed, summaries: (moreOpen > 0 ? 1 : 0) + (moreClosed > 0 ? 1 : 0) };
+}
+
+/**
+ * The first group's summary: "Show 12 more in-stock stores" (TCGplayer among them: "offers", a marketplace is not a store); the eBay row,
+ * when it is in the group, is not counted (it is not a store either). Only the eBay row: "Show eBay too".
+ */
+export function moreOpenLabel(rows: readonly { key: string }[], preorder = false): string {
+  const offers = rows.filter((r) => r.key !== EBAY_ROW_KEY);
+  if (!offers.length) return "Show eBay too";
+  const noun = offers.some((r) => r.key === TCGPLAYER_KEY) ? "offer" : "store";
+  return `Show ${offers.length} more ${preorder ? "pre-order" : "in-stock"} ${noun}${offers.length === 1 ? "" : "s"}`;
+}
+
+/** The second group's summary: "9 stores sold out or not checked" ("9 more …" when some are already among the visible rows). */
+export function moreClosedLabel(count: number, more: boolean): string {
+  return `${count} ${more ? "more " : ""}${count === 1 ? "store" : "stores"} sold out or not checked`;
+}
+
+/** The table's one-line footer, under the rows: how it is ranked, and that the tinted row is an ad. The long version is ebayRowNote. */
+export function tableFooter(ebay: boolean): { ranked: string; noPay: string; ad: string } {
+  return { ranked: "In stock first, then cheapest.", noPay: "No store pays to rank.", ad: ebay ? "Tinted eBay row = Ad." : "" };
 }

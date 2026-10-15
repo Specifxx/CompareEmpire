@@ -32,6 +32,7 @@ Repo **Specifxx/CompareEmpire** → Settings → Secrets and variables → Actio
 | `DEXCOMPARE_SEALED_DATABASE_URL` | the Neon **direct** string |
 | `DEXCOMPARE_REVALIDATE_SECRET` | a long random string — generate with `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`. Keep it for step 4. |
 | `EBAY_CLIENT_ID`, `EBAY_CLIENT_SECRET` | the Production keyset (App ID / Cert ID) of DexCompare's own eBay application. Used **only** by the daily eBay import (below), never by Vercel. |
+| `PSI_API_KEY` | optional: a Google Cloud API key with the PageSpeed Insights API enabled, for the weekly PageSpeed check (see "PageSpeed check"). Without it that job skips cleanly. |
 
 **Variables** tab: `DEXCOMPARE_SITE_URL` = `https://www.dexcompare.app` — the
 canonical origin with `www`, exactly as in Vercel below. The import job POSTs
@@ -69,8 +70,8 @@ In the existing **dexcompare** project (or a new one importing
    | `DATABASE_URL` | the Neon **pooled** string |
    | `NEXT_PUBLIC_SITE_URL` | `https://www.dexcompare.app` — with `www`, no trailing slash |
    | `REVALIDATE_SECRET` | the same value as `DEXCOMPARE_REVALIDATE_SECRET` |
-   | `NEXT_PUBLIC_OPERATOR` | who runs the site, as it should read in the Terms and the footer ("operated by …"): a trading name or a person. Optional; until it is set the site name stands in. The code never invents an entity or an address. |
-   | `NEXT_PUBLIC_CONTACT_EMAIL` | optional; default `riftcompare@gmail.com`. Keep it a mailbox someone reads: the contact page promises a reply. |
+   | `NEXT_PUBLIC_OPERATOR` | who runs the site, as it should read in the Terms and the footer ("Operated by …", shown only when it differs from the site name): a trading name or a person. Optional; until it is set the site name stands in. The code never invents an entity or an address. **Owner action**: set it. |
+   | `NEXT_PUBLIC_CONTACT_EMAIL` | optional; default `riftcompare@gmail.com`. Keep it a mailbox someone reads: the contact page promises a reply. **Owner action**: set a branded forwarding address (e.g. hello@ on the site's domain) so stores and visitors see DexCompare's name; the footer links to `/contact`, never a mailto. |
 
    `NEXT_PUBLIC_SITE_URL` is the origin every canonical, hreflang, JSON-LD,
    robots and sitemap URL is built on. The code defaults to
@@ -143,7 +144,8 @@ to the HTML-tag token and redeploy), then submit
 `https://www.dexcompare.app/sitemap.xml`.
 
 That URL is a **sitemap index** (`src/app/sitemap.xml/route.ts`) listing
-`/sitemap/0.xml` (the static pages and every store page) and `/sitemap/1.xml` …
+`/sitemap/0.xml` (the static pages, every active store page and, per region, `/deals`, `/cheapest-packs`, `/this-week`,
+`/guides` and each guide offered there) and `/sitemap/1.xml` …
 `/sitemap/7.xml`, one per region in the order AU, US, UK, CA, NZ, EU, SG
 (`src/lib/sitemap.ts`): a region's type pages, set pages and every product at
 least one store there has in stock or two stores list. Each file carries the
@@ -153,6 +155,10 @@ never cached with its products missing (the old single sitemap was, for 24
 hours at a time). The import job checks the live index after every full run
 and goes red if the regional sitemaps total under 1,000 product URLs
 (`scripts/import.ts`, `checkLiveSitemap`; a full import lists ~8,000).
+
+**After a release that adds pages** (the growth release added deals, cheapest per pack, this week and the guides in
+every region), resubmit `sitemap.xml` in Search Console (Sitemaps → the entry → resubmit) so the new URLs are read
+soon. Store pages with nothing listed, or whose store is dormant, are `noindex` and left out of the sitemap.
 
 ## Security headers
 
@@ -166,6 +172,62 @@ is silent — product photos are hotlinked from ~250 store CDNs (`img-src
 https:` covers them) and Vercel Analytics posts to `/_vercel/insights` on the
 same origin.
 
+## Ad rules (the growth release, 2026-10)
+
+The owner approved these changes to the site's own advertising rules; `src/lib/ebay-ads.ts` (its header), README.md
+("eBay listing strips") and the About page ("How DexCompare makes money") say the same.
+
+**Changed**
+
+1. **No sticky or overlay unit, with one exception**: the phone product buy bar (`product-sticky`): at most 64 px plus the
+   safe area (under 8% of an 844 px screen, far below the Better Ads 30% limit), slides in with a CSS transform (CLS 0),
+   shows only after the best-price card or the sold-out box has scrolled away, hides while the price table, any other unit or
+   the footer is visible, can be dismissed for the session, is keyboard-reachable and sets scroll-padding; it only repeats what
+   the top of the page offers, labelled "Ad" or "affiliate link". Because it hides whenever another unit is visible, the
+   one-unit-per-phone-viewport rule still holds literally.
+2. **eBay prices outside the table**: the sold-out box (`listings-soldout-best`) and the Marketplaces panel
+   (`listings-marketplace`, only when the best-price card is not already eBay) may show the product's own new eBay listing,
+   client-only, through the same request as the price-table row, with its age and "Ad". 61% of product pages are sold out, and
+   their only exit was a TCGplayer button priced in US$.
+3. **Sold-out page order**: the eBay box in the sold-out callout is the first-screen unit; the product's strip moved below the
+   price table and the in-stock alternatives (`soldOutAdPlan` keeps them at least 960 px apart).
+4. **The Marketplaces panel's eBay row** is an eBay-blue button on every product page (it was a red text link unless popular).
+5. **`.btn-ad`** is filled eBay blue (#3665f3, hover #2a50c8, white text 4.9:1) instead of a grey outline: eBay's own button
+   colour, distinct from the site's red. Every unit keeps its "Ad" label. Owner to confirm against the EPN brand guidelines.
+6. **In-feed tiles**: one after every 16 products, at most two per grid, never within the last eight, on the browse, set, type
+   and deals grids (it was one tile, after the 12th product, on `/sealed` only); each a different listing (the sealed feed's 7th
+   and 8th) that no strip shows; the first at least 12 products after the strip; from md up only with 24 products after it.
+   `MAX_FEED_ROWS` stays 8, so the importer did not change.
+7. **The highlight button** extends from hot sets to every released set's page ("Shop <set> sealed on eBay", `set-sealed`),
+   inside the existing strip's top line. Hot sets keep `hot-set`; the "Popular set" chip stays hot-only. No new unit.
+8. **Region home order**: the sealed strip (with the hot button) right after the deals rail, the chase strip after the
+   booster-box rail. Still two units, at least a viewport apart, and no pre-footer strip.
+9. **New pages and search**: deals, cheapest per pack, this week and every guide carry exactly one strip of their own (plus grid
+   tiles where a grid is long enough); US-only labelled TCGplayer searches on set pages and guides; a search result list gets one
+   query-matched box (`browse-search`) in the slot the unfiltered list's strip used.
+10. **`/api/ebay` edge cache**: an hour with stale-while-revalidate, instead of 5 minutes (see "Edge cache and the kill switch").
+11. **A density ceiling**: ad-unit height ÷ main content height at most 25% per page, at 390 and 1440 wide, checked by the
+    viewport sweep (README.md). A ceiling, never a target.
+
+**Unchanged**: an "Ad" or "affiliate link" label next to every unit and link; `rel="sponsored nofollow noopener noreferrer"` on
+every paid link; store links plain, and commissions never change the store order; at most ONE unit per phone viewport and TWO
+per desktop viewport (the header's eBay item counts as one); no pop-ups, interstitials, auto-redirects or countdowns; eBay listing
+data never in server HTML, JSON-LD, meta, OG or the sitemap, only through `/api/ebay` within the 26-hour bound with its age shown;
+eBay's affiliate URL exactly as returned, Buy It Now only, condition shown, eBay's images unmodified; no statistics derived from eBay
+data on the server; no eBay unit on the About, Terms, Privacy or Contact pages; the price table's eBay row and the best-price swap
+rules as they were; no incentivised clicks; no price-history wording.
+
+**Not adopted** (from the 2026-10 audits): two units per phone viewport or a 25% density *target* (it would trade the site's
+welcoming feel and Core Web Vitals for marginal clicks); `MAX_FEED_ROWS` 12 and a third tile per grid (an importer change);
+eBay buttons in release-calendar rows (the owner removed text call-to-action rows there); a per-store affiliate hook (no store
+programme has been joined yet); pinning the eBay row to the top of the price table (it would break the honest ranking).
+
+**Licence trade-offs the owner accepted** (eBay API License Agreement; details and how to revert each in "eBay's rules, and how
+each is met"): **8.1(b)(2)**, eBay content mixed with other content: the price-table row and the best-price card (2026-10-11),
+widened by the sold-out box's price, the Marketplaces panel's price and the buy bar that repeats them; **8.1(c)**, listing age: the
+daily import (26-hour bound) instead of six hours, now shown on more surfaces, with the six-hour compliant mode unchanged;
+**8.1(d)**, derived information: only the best-price card's per-pack price and median/MSRP comparison, computed in the browser.
+
 ## Click events (Vercel Web Analytics)
 
 Every outbound buy link — to a store, TCGplayer or eBay — sends one custom
@@ -174,7 +236,7 @@ event, `buy_click`, with exactly two properties:
 | Property | Example values |
 | --- | --- |
 | `retailer` | `Pokebox (AU)`, `TCGplayer`, `eBay (ebay.com.au)` |
-| `placement` | `product-best`, `product-table`, `product-marketplace`, `product-soldout`, `browse-empty`, `region-home`, `store-page`, `preorders`, and the eBay listing strips below (every `listings-*` placement) |
+| `placement` | every value of `PLACEMENTS` (`src/lib/affiliate.ts`), each in the table below: e.g. `product-best`, `product-table`, `product-sticky`, `soldout-ebay`, `listings-set-feed`, `browse-search`, `preorders` |
 
 The eBay units each have their own placement, and Vercel's `buy_click` ({retailer, placement}) says which
 surface earned. **EPN's `customid` report is coarser for listing tiles**, on purpose: eBay's spec says to use the
@@ -190,24 +252,36 @@ compact "search" CTA and the in-feed tile report under the strip's own placement
 
 | Placement | Where |
 | --- | --- |
-| `header` | the "eBay" item in the header (desktop nav, xl and up only): a search link |
-| `listings-home` | region home: the chase-card strip under the stats row (6 tiles) |
-| `listings-home-sealed` | region home: the sealed-Pokémon strip after the first rail (booster boxes) |
-| `listings-landing` | the root landing page (`/`): the chase strip from the US feed, labelled "eBay US" |
-| `listings-product` | product page, in stock: the product's own listings, on every product page (cascade: its type's, then, for box-class types only, generic sealed) directly below the offer table where the table is long enough to sit a screen below the marketplace panel, else at the bottom of the page in place of the pre-footer strip where the page has room; none on a page too short for either |
-| `listings-product-soldout` | product page, sold out: the same strip directly under the sold-out callout (the highest-intent spot) |
-| `listings-set` | set page: the set's chase cards (cascade: generic chase cards), on a row of its own after the first four products |
+| `header` | the "eBay" item in the header (desktop nav, xl and up only, region pages only): a search link |
+| `listings-home-sealed` | region home: the sealed-Pokémon strip right after the "Cheaper than most stores today" deals rail (the first unit on the page); it carries the hot-set button (`hot-home`) |
+| `listings-home` | region home: the chase-card strip after the "Booster boxes in stock" rail (at least a viewport below the sealed strip; the home page has no pre-footer strip) |
+| `listings-landing` | the root landing page (`/`): one strip, on the region the browser suggests once it has mounted (US until then), labelled with that region's eBay site; same height whichever region, so it never shifts |
+| `listings-product` | product page, in stock: the product's own listings, on every product page (cascade: its type's, then, for box-class types only, generic sealed) directly below the offer table where the table is long enough to sit a screen below the marketplace panel, else at the bottom of the page in place of the pre-footer strip where the page has room; none on a page too short for either (`productAdPlan` in `src/lib/ebay-ads.ts`) |
+| `listings-product-soldout` | product page, sold out: the same strip, now BELOW the price table and the "In stock instead" row (it used to sit directly under the callout, whose eBay box is now the first-screen unit), placed by `soldOutAdPlan` at least 960 px below the sold-out box's eBay unit, or at the bottom, or not at all on a page too short for it |
+| `soldout-ebay` | product page, sold out: the eBay box inside the sold-out callout, the page's first-screen unit. The server HTML is a full-width eBay-blue "Find it on <eBay site> ↗" search for the product (and the box stays that search without a listing, on pre-orders and in NZ/SG); TCGplayer is the secondary button under it, with the affiliate note |
+| `listings-soldout-best` | product page, sold out: the same box once the browser has the product's own NEW listing (through the price table row's request, `useEbayPick`: no extra fetch): "On eBay from <price> <shipping> · updated <age>", "View on eBay ↗" to the listing exactly as eBay returned it, labelled "Ad". The two states are stacked in one space, so the swap never shifts the page |
+| `listings-set` | set page: the set's chase cards (cascade: generic chase cards), on a row of its own after the first four products; on every RELEASED set its top line carries the "Shop <set> sealed on eBay" button (`set-sealed`; `hot-set` for a hot set) |
 | `listings-type` | type page: the type's listings (cascade: generic sealed), on a row of its own after the first four products |
 | `listings-browse` | `/<region>/sealed`, page 1 only (unfiltered list): the sealed strip on a row of its own after the first four products |
-| `listings-browse-feed` | `/<region>/sealed` and its pages: ONE real listing as a labelled sponsored card after the 12th product |
-| `listings-offer-row` | product page: the eBay ROW OF THE PRICE TABLE (the owner's call, 2026-10-11: DexCompare compares websites, and eBay is one). The product's lowest-priced OWN eBay listing (never its type's or generic listings; never one under 40% of the cheapest store price, where the stores price in the eBay site's currency), ranked by its price among the in-stock stores (a tie stays with the store; NZ/SG, whose listings are in A$/US$, after the in-stock stores), tinted (the sponsored tint, an eBay-blue edge), labelled "Ad", eBay's blue "View on eBay" button, "updated N h ago" on the row; with no listing it is an eBay search for the product after the in-stock stores (that is also the server HTML: the listing is fetched as the page runs and then moves to its rank). When it is a NEW listing cheaper than every in-stock store (not on a pre-order product) it IS the best price (the owner's call, 2026-10-11): "Best price" on it, "Best store price" on the cheapest store, and the best-price card shows it (`listings-best-price`). Never counted in the store count or the median, never in JSON-LD, meta, OG, the sitemap or the "from" prices elsewhere |
+| `listings-browse-feed`, `listings-set-feed`, `listings-type-feed`, `listings-deals-feed` | in-feed listing TILES in the product grids of `/<region>/sealed` (every page), set pages, type pages (the in-stock grid) and `/<region>/deals` (the first section's grid): one real listing as a labelled sponsored card the size of a product card after every 16 products, at most two per grid, never within the last eight, the first 12 products below the grid's strip. From md up a tile also needs 24 products after it (a whole row tall beside two or three cards, it would push a short page over the 25% density ceiling): 24-39 products, one tile on phones only; 40-55, one everywhere and a second on phones; 56 or more, two. Each is the sealed feed's 7th / 8th listing, which no strip or pre-footer strip on the page shows (`src/lib/ebay-ads.ts` feedSlots, tileSource). Invisible and reserved until its listing is known (no shift); with none, removed while below the viewport |
+| `listings-deals` | `/<region>/deals`: the sealed strip on a row of its own after the first four products of the first section |
+| `listings-packs` | `/<region>/cheapest-packs`: the sealed strip after the overall top-10 table |
+| `listings-digest` | `/<region>/this-week`: the sealed strip after "Releasing soon" |
+| `listings-guide` | a guide (`/<region>/guides/<slug>`): its one strip, after the first data block (the guide's own context: generic sealed or its type's feed) |
+| `browse-search` | `/<region>/sealed` with a search query and results: ONE query-matched box after the first four results (the slot the unfiltered list's strip uses, so a search page never has more units than the unfiltered one): "See "<query>" on eBay — Buy It Now ↗" and, in the US, "Search TCGplayer ↗" (Impact `sharedid`), with "Ad" and the affiliate note. Client-only: the query never reaches cached HTML or the database. Zero results keep `browse-empty` |
+| `listings-offer-row` | product page: the eBay ROW OF THE PRICE TABLE (the owner's call, 2026-10-11: DexCompare compares websites, and eBay is one). The product's lowest-priced OWN eBay listing (never its type's or generic listings; never one under 40% of the cheapest store price, where the stores price in the eBay site's currency), ranked by its price among the in-stock stores (a tie stays with the store; NZ/SG, whose listings are in A$/US$, after the in-stock stores), tinted (the sponsored tint, an eBay-blue edge), labelled "Ad", eBay's blue "View on eBay" button, "updated N h ago" on the row; with no listing it is an eBay search for the product after the in-stock stores (that is also the server HTML: the listing is fetched as the page runs and then moves to its rank). The table shows 8 rows (the eBay row ranked among them) and puts the rest in two server-rendered drawers, split after ranking so the visible height never changes. When it is a NEW listing cheaper than every in-stock store (not on a pre-order product) it IS the best price (the owner's call, 2026-10-11): "Best price" on it, "Best store price" on the cheapest store, and the best-price card shows it (`listings-best-price`). Never counted in the store count or the median, never in JSON-LD, meta, OG, the sitemap or the "from" prices elsewhere |
 | `listings-best-price` | product page: the best-price card's eBay button, when the product's eBay listing (the price-table row's) is NEW and cheaper than every in-stock store, and the product is not a pre-order: the TOP of the card turns to it (its price, per-pack price, "Best price in stock · <shipping>", "eBay · Ad · updated N h ago · vs <cheapest store price> <store>", and the median/MSRP badges for it, on one line, only where the store's card has them). Below the rule the card stays the stores' facts ("up to … — you save …", median, "best store price … MSRP"). Not in NZ or SG (A$/US$ listings are not compared). The server HTML is the store's card; the swap happens in the browser, the two tops stacked in one space of fixed lines (no layout shift); the Marketplaces panel keeps its TCGplayer row on such pages |
+| `product-marketplace` | product page: the Marketplaces panel's rows, a TCGplayer row and an eBay row that is the eBay-blue `.btn-ad` button on EVERY product page (it was a red text link unless the product was popular): a search for the product. The "Popular set" chip of a hot product stays outside the link |
+| `listings-marketplace` | product page: the Marketplaces panel's eBay row once the browser has the product's own NEW listing AND the best-price card is not already showing eBay: "eBay · from <price> · updated <age>", to the listing exactly as returned, labelled "Ad". Same height in both states; otherwise the row stays the `product-marketplace` search |
+| `product-sticky` | product page, phones only (below lg): the BUY BAR at the foot of the screen, the site's only sticky ad unit. At most 64 px plus the safe area; it slides in (a transform: no layout shift) only after the best-price card or the sold-out callout has scrolled above the viewport, and hides while the price table, any other `[data-ad]` unit or the footer is in view, so a phone screen still never shows two units; the visitor can dismiss it for the session; it sets `scroll-padding-bottom` so it never covers a focused element. It repeats the top of the page: in stock, the cheapest store's price and button (with "affiliate link" when that is TCGplayer); where the card shows the eBay listing, its price, "Ad" and the listing; sold out, the callout's eBay action (the listing or the search), with "Ad" |
 | `listings-store` | store directory and store pages: the chase strip, after the list (it replaces the pre-footer strip there) |
 | `listings-releases` | release calendar: the closing strip (it stands in for the pre-footer one) |
-| `listings-footer` | every content page: the slim four-tile strip above the footer (the feed the page's own strip is not; none on a region home, which has two strips of its own) |
+| `listings-footer` | every other content page: the slim four-tile strip above the footer (the feed the page's own strip is not: sealed under a set, store or release page, chase elsewhere; none on a region home, which has two strips of its own, and none where a page renders `<NoPreFooter/>` because it is too short for it beside its own units) |
 | `listings-notfound` | the 404 page: a slim strip (on the eBay site of the region in the URL, US outside one) |
 | `hot-home`, `hot-set`, `hot-product` | the highlighted eBay search button of a popular set or product (`src/lib/popular.ts` HOT_SETS, 30th Celebration first): inside the top line of the region home's sealed strip (`hot-home`), a hot set's strip (`hot-set`) and a hot product's strip (`hot-product`), and the compact CTA those strips become (a search link, `dex-<region>-hot-<surface>`); a highlighted strip's CTA clicks report under its hot placement |
-| `product-best`, `product-table`, `product-marketplace`, `product-soldout`, `browse-empty`, `region-home`, `store-page` | the page's own store/TCGplayer buttons, and the functional marketplace rows of a product's "Marketplaces" panel (an eBay search and TCGplayer) |
+| `set-sealed` | every RELEASED set's page that is not a hot set: the "Shop <set> sealed on eBay" button inside the top line of the set's strip, and the compact CTA it becomes (a search link, `dex-<region>-set-sealed`); hot sets keep `hot-set`, pre-order sets have none. Part of the strip, never a unit of its own |
+| `set-tcgplayer`, `guide-tcgplayer` | US only: the labelled TCGplayer search ("Shop <set> on TCGplayer ↗ · affiliate link") in a set page's hero card, and "Search <topic> on TCGplayer ↗ · affiliate link" in a guide's closing "Where to buy" section (Impact `sharedid` `dex-us-set-tcgplayer`, `dex-us-guide-tcgplayer`) |
+| `product-best`, `product-table`, `product-soldout`, `browse-empty`, `store-page` | the page's own store/TCGplayer buttons: the best-price card's button, the price table's rows, the sold-out callout's TCGplayer button (now the secondary choice under the eBay box), the browse page's "nothing matches" eBay/TCGplayer box, and a store page's "Visit" link |
 | `preorders` | a pre-order page (`/<region>/preorders/<set>`, `src/lib/preorder-guides.ts`): the store/TCGplayer buttons of each product's price list. No eBay row there: an unreleased set's eBay listings are pre-sales the importer refuses |
 
 When a strip has nothing to list (no import yet, a kill switch, rows older than the age bound) it is a single
@@ -228,6 +302,36 @@ placement). There are no text-only banners, chip rows or "Still deciding?" rows 
 No environment variables are needed. Optional overrides:
 `NEXT_PUBLIC_EBAY_CAMPAIGN_ID` and `NEXT_PUBLIC_TCGPLAYER_IMPACT_LINK` (the
 built-in defaults are the live campaign and deep link).
+
+## Monthly money check (10 minutes)
+
+Once a month, the same three reports, in this order (they need Vercel Pro with Web Analytics: on Hobby the clicks are not
+recorded at all):
+
+1. **Vercel → Analytics → Events → `buy_click`**, last 30 days. Break down by **`placement`**: clicks per surface (the table
+   above). Then by **`retailer`**: stores vs `eBay (…)` vs `TCGplayer`, and which stores get the most clicks (the list to approach
+   first if store affiliate programmes are ever joined). Note any placement with no clicks at all.
+2. **eBay Partner Network → Campaign Manager → Reports**, the same 30 days, by **custom ID** (`customid`): our search links report
+   as `dex-<region>-<placement>` (`soldout-ebay`, `product-marketplace`, `set-sealed`, `hot-*`, `browse-search`, `header`, the
+   compact CTAs); listing tiles as `dex-<market>-<feed kind>`: `item` (the product page's table row, best-price card, sold-out
+   box, panel price, buy bar and product strip), `sealed` (most strips and every grid tile), `chase`, `type`, `set`. Clicks,
+   earnings, earnings per click.
+3. **Impact → Reports → Performance by Shared ID** (`sharedid`) for TCGplayer: `dex-us-product-best`, `dex-us-product-table`,
+   `dex-<region>-product-marketplace`, `dex-<region>-product-soldout`, `dex-us-product-sticky`, `dex-us-set-tcgplayer`,
+   `dex-us-guide-tcgplayer`, `dex-us-browse-search`.
+
+Put each surface's clicks (Vercel) next to what it earned (EPN, Impact) and compare with last month. What to do when a surface
+underperforms:
+
+* **No clicks** where the surface should render: open a page that has it (the table says which) and check the unit is there
+  (`[data-ad="<placement>"]`, or the kill switch / empty feeds turned it into the compact search row: `scripts/ebay-budget.ts`).
+* **Clicks but no earnings for two months**: check one link's `campid` (5339155912) and `customid`, and that EPN still lists the
+  campaign as active; for TCGplayer, that the link goes through `partner.tcgplayer.com/c/7385758/…`.
+* **Few clicks and little money**: prefer removing or moving that unit over adding density elsewhere; the density ceiling and the
+  one-unit-per-phone-screen rule are not targets. A surface that earns well is a reason to look at why (format, position), not to
+  repeat it.
+* Write the month's numbers down (surface, clicks, earnings) wherever the owner keeps them: Vercel keeps events for a limited time
+  and the networks' reports are the record.
 
 ## eBay listings: the daily import
 
@@ -366,7 +470,8 @@ also cover every product.
    the budget and the plan without spending anything (the sweep's coverage shows only in a real run).
 6. **Vercel needs nothing eBay-related.** `EBAY_CLIENT_ID` / `EBAY_CLIENT_SECRET` are no longer read by the site: remove
    them from Vercel (least privilege). Optional there: `EBAY_LISTINGS=off` (a kill switch: the route answers empty and the
-   strips become the plain search row) and `EBAY_LISTING_MAX_AGE_HOURS` (the age bound; default 26).
+   strips become the plain search row) and `EBAY_LISTING_MAX_AGE_HOURS` (the age bound; default 26). Both need a redeploy, and
+   **the edge may keep serving the previous answers for up to an hour** (see "Edge cache and the kill switch").
 7. **Check the keys** (prints the token status and, per marketplace, how many listings two searches would keep; counts
    only, never the secrets; 10 calls, not recorded in the daily counter):
 
@@ -381,7 +486,7 @@ also cover every product.
 
 ### How it works
 
-* **Feeds.** A feed is up to 8 stored listings (a strip shows six, the slim one four, the browse page's in-feed card the seventh), keyed `<marketplace>|<kind>[:<arg>]` in `EbayListing`:
+* **Feeds.** A feed is up to 8 stored listings (a strip shows six, the slim one four, a product grid's in-feed tiles the sealed feed's seventh and eighth), keyed `<marketplace>|<kind>[:<arg>]` in `EbayListing`:
   `EBAY_US|chase`, `EBAY_AU|sealed`, `EBAY_GB|set:surging-sparks`, `EBAY_US|type:booster-boxes`, `EBAY_US|item:<productId>`.
   Marketplaces: au+nz share `EBAY_AU`, us+sg share `EBAY_US`, uk `EBAY_GB`, ca `EBAY_CA`, eu `EBAY_DE` (NZ and SG have no
   affiliate programme of their own). Rows hold the title, the eBay photo URL (upgraded from `s-l225` to `s-l500`), the
@@ -396,7 +501,8 @@ also cover every product.
   One indexed query (a unique-index lookup of the product first, for `item:` only). The response is
   `{ feed, items, fetchedAt (the OLDEST row used), maxAgeMs, reason? }`: whitelisted fields only. Region and context are
   whitelists (a product slug is checked against the database), the SQL is parameterised, an unknown product or a missing
-  table answers "empty" with no error text. CDN cache: 5 minutes (60 s for an empty answer).
+  table answers "empty" with no error text. CDN cache: an hour, then stale-while-revalidate (10 minutes for an empty answer; see
+  "Edge cache and the kill switch").
 * **The strips** (`src/components/EbayStrip.tsx`): the server-rendered page holds only the compact search row inside an
   invisible, strip-sized box (no layout shift); within about 300 px of the viewport the strip fetches and replaces it. Six
   tiles (four in the slim strip above the footer; a scroll-snap row inside itself on phones), the whole tile one sponsored
@@ -412,11 +518,37 @@ also cover every product.
   list below the fold and became the page's largest paint on a slow phone. Store directory and store pages carry theirs after the list. A region's
   home page carries two strips (chase cards under the stats row, sealed after the first rail) and no strip above the footer: a feed holds 8
   listings, too few for a third unit of four tiles the page does not already show.
-  The browse page's one in-feed listing card sits in the product grid (an ad-labelled, framed card): the one place an eBay listing is a
-  neighbour of store listings; it is not a table row and is visibly marked, but if eBay's "visually isolated" reading is strict, remove
-  `listingsTile` in `BrowseGrid.tsx`. On a product page: sold out, the strip sits directly under
-  the callout; in stock, below the offer table where the page is long enough, else at the bottom in place of the pre-footer strip.
-  A page too short for its units drops the pre-footer strip (`<NoPreFooter/>`).
+  The in-feed listing tiles sit in the product grids of the browse, set, type and deals pages (ad-labelled, framed cards the size of
+  a product card, every 16 products, at most two): there an eBay listing is a neighbour of the products the page lists; it is not a
+  table row and is visibly marked, but if eBay's "visually isolated" reading is strict, drop the `tiles` prop from those
+  `<ProductGrid>`s (the grids then render none). On a product page: sold out, the callout's eBay box is the first-screen unit and
+  the strip sits below the price table and the in-stock alternatives (`soldOutAdPlan`); in stock, below the offer table where the
+  page is long enough, else at the bottom in place of the pre-footer strip. A page too short for its units drops the pre-footer
+  strip (`<NoPreFooter/>`).
+
+### Edge cache and the kill switch
+
+`/api/ebay` answers are cached at Vercel's edge (`src/lib/ebay-route.ts`):
+
+| Answer | `Cache-Control` | Meaning |
+| --- | --- | --- |
+| listings | `public, max-age=60, s-maxage=3600, stale-while-revalidate=82800` | browsers 1 minute; the edge 1 hour, then it may serve that copy while it fetches a fresh one, for up to 23 more hours |
+| empty, failed or rejected | `public, max-age=30, s-maxage=600` | browsers 30 s; the edge 10 minutes; never served stale |
+
+It was 5 minutes (60 s for an empty answer). The rows change once a day, and every product page asks for its own `item:<slug>`
+context, so most of that long tail missed the edge and read Neon (two small queries, ~5 KB) on nearly every view. What the longer
+cache means:
+
+* **A fresh import reaches a given edge within about an hour** (the first request after the hour may still get the old copy while
+  the edge refreshes it). Nothing unsafe is shown meanwhile: the browser checks every answer, a stale copy included, against the
+  age bound it carries, so no listing older than 26 hours (5.5 in compliant mode) is ever displayed; a copy whose rows crossed
+  the bound shows the compact search row until the edge has the new one.
+* **The kill switch takes up to an hour too.** `EBAY_LISTINGS=off` (and a changed `EBAY_LISTING_MAX_AGE_HOURS`) needs a redeploy;
+  Vercel normally serves a new deployment from a cache of its own, so the redeploy usually takes effect at once, but plan on **up
+  to an hour** before no edge or browser shows listings (a tab already open keeps what it loaded until the age bound or a reload).
+  If it must be immediate, also purge the CDN cache in the Vercel dashboard where the plan offers it.
+* To go back to the short cache, change `GOOD` and `SHORT` in `src/lib/ebay-route.ts` (and their exact strings in
+  `tests/ebay-route.test.ts`).
 
 ### The catalogue sweep
 
@@ -675,7 +807,7 @@ compact search row.
   you see only `dex-listings` or no custom id, eBay did not echo the reference: check one stored URL (`SELECT "url" FROM "EbayListing" LIMIT 3`)
   and the importer's request header; the campaign id, and so the earnings, are unaffected either way. Which surface earned is in Vercel's
   `buy_click` placement.
-* **The route is public**: each distinct `?c=` value that is not cached reaches the database once; CDN caching covers the repeats. Put a Vercel
+* **The route is public**: each distinct `?c=` value that is not cached reaches the database once an hour per edge (10 minutes for an empty answer); CDN caching covers the repeats. Put a Vercel
   Firewall rate limit on `/api/ebay/*` (Security → Firewall → Rate limiting) if its traffic ever looks abnormal; each answer reads at most 8 rows
   (about 5 KB).
 * **A 429 in the log**: eBay's daily or burst limit; the run stopped and kept the old rows. Check the other site's use of the same keyset.
@@ -695,9 +827,9 @@ compact search row.
 
 | Rule (source) | How |
 | --- | --- |
-| "Displayed item listing information may not be more than six (6) hours older" (prong 1) and "other eBay Content ... no more than twenty-four (24) hours older" (prong 2) (API License Agreement 8.1(c), "Age of Displayed eBay Content") | **Not met in the default daily mode** (26 h bound): disclosed ("Updated 9 h ago", "imported about once a day"), bounded (26 h), and switchable to a compliant mode (above) |
+| "Displayed item listing information may not be more than six (6) hours older" (prong 1) and "other eBay Content ... no more than twenty-four (24) hours older" (prong 2) (API License Agreement 8.1(c), "Age of Displayed eBay Content") | **Not met in the default daily mode** (26 h bound): disclosed ("Updated 9 h ago", "imported about once a day"), bounded (26 h), and switchable to a compliant mode (above). The growth release shows listing prices on more surfaces (sold-out box, Marketplaces panel, buy bar, grid tiles), each with the listing's age; the hour of edge caching never shows a row past the bound (the browser re-checks it) |
 | Delete copies when no longer required (3.1(b)); delete eBay Content that is no longer publicly available (8.1(b)(1)) | Rows are deleted when older than the bound + 4 h, by the importer (start and end of each run) and the store import; a refresh replaces, never appends; no history |
-| eBay content not "co-mingled or combined with non-eBay Content" (8.1(b)(2)) | **Not met on the product page, by the owner's choice (2026-10-11)**: the product's cheapest eBay listing is a row of the store price table (`listings-offer-row`), ranked by price among the stores, because DexCompare compares websites and eBay is one. And when that listing is cheaper than every in-stock store it counts as the product's best price (`listings-best-price`), also the owner's call. Mitigations: the row and the card are visibly eBay's (tint, eBay-blue edge and button, the eBay wordmark, "Ad", the listing's age) and the listing is never counted (store count, median). Strips still hold eBay listings only, in a dashed unit of their own. To go back: drop `ebay=` from the product page's `<OfferTable>` (the row and its note go with it) and pass `ebay={null}` to its `<BestPriceCard>` |
+| eBay content not "co-mingled or combined with non-eBay Content" (8.1(b)(2)) | **Not met on the product page, by the owner's choice (2026-10-11, widened by the growth release, 2026-10)**: the product's cheapest eBay listing is a row of the store price table (`listings-offer-row`), ranked by price among the stores, because DexCompare compares websites and eBay is one; when that listing is cheaper than every in-stock store it counts as the product's best price (`listings-best-price`). The growth release extends the same listing (the same request, `useEbayPick`; never a second fetch) to three more places beside store content: the **sold-out box** shows its price (`listings-soldout-best`), the **Marketplaces panel** shows its price when the card is not already eBay (`listings-marketplace`), and the phone **buy bar** repeats whichever of those the top of the page shows (`product-sticky`). The in-feed **grid tiles** sit among product cards (framed, labelled, never in a table). Mitigations: every one is visibly eBay's (tint or frame, eBay-blue button, the eBay wordmark, "Ad", the listing's age) and the listing is never counted (store count, median). Strips still hold eBay listings only, in a dashed unit of their own. **To go back, per surface**: the table row and the card: drop `ebay=` from the product page's `<OfferTable>` (the row and its note go with it) and pass `ebay={null}` to its `<BestPriceCard>`; the sold-out box: remove `<SoldOutEbay>` from the callout (`src/components/Marketplaces.tsx`), leaving the server's `soldout-ebay` search button; the panel: remove `<PanelEbayPrice>`, leaving the `product-marketplace` search row; the buy bar: give it no eBay listing (it then repeats the store, TCGplayer or the eBay search), or remove `<StickyBuyBar>` from the product page; the grid tiles: drop the `tiles` prop from the `<ProductGrid>`s |
 | No derived statistics (8.1(d)) | None: no average, median, "% below"; prices shown as returned, never converted, counted, averaged, or in JSON-LD, meta, OG or the sitemap; the exceptions, the owner's calls: the price table's eBay row (above) is placed by its price among the stores', and when it is the cheapest it is the best price, with that card's per-pack price and median/MSRP comparisons computed from it in the browser (`listings-best-price`); never a count or a median, never server-rendered; the order within a product's feed is "lowest price first, before shipping" (shown on the strip) and says nothing else; the catalogue sweep's counts (listings matched, products found) stay in the job's log and summary, never on the site |
 | "Only surface FIXED PRICE items"; eBay's own image; shipping separate; "indicate when the item is not new" (Buy APIs Requirements) | `buyingOptions:{FIXED_PRICE}`; `*.ebayimg.com` thumbnails as plain `<img>`; the first shipping option is shown on the tile; the condition is shown when it is not new |
 | Use the URL returned in `itemAffiliateWebUrl` | Every link is that URL **exactly as returned** (the importer checks it is one eBay item page with our campaign id and stores eBay's own string; the browser checks an eBay item URL with a numeric `campid` and changes nothing in it). `customid` is the per-feed `affiliateReferenceId` the importer sent (`dex-<market>-<feed kind>`). Only when eBay sends no usable one is `itemWebUrl` tagged with the same EPN parameters |
@@ -731,9 +863,64 @@ Run `scripts/ebay-check.ts` once the keys are in, then one manual import, and re
   `NEXT_PUBLIC_SITE_URL` and redeploy.
 - `/AU` answers 308 to `/au`; `/foo` answers 404 with the branded page.
 - A product page lists stores with *In stock* / *Sold out* and "checked … ago".
+- `/us`, `/us/deals`, `/us/cheapest-packs`, `/us/this-week`, `/us/guides` and one guide, an in-stock and a sold-out product,
+  and `/api/browse/us` answer 200; `view-source:` of any of them holds no `ebayimg.com`, no `/itm/` and no eBay price (eBay
+  data only ever arrives in the browser).
+- `curl -sI "https://www.dexcompare.app/api/ebay/us?c=sealed"` shows `cache-control: public, max-age=60, s-maxage=3600,
+  stale-while-revalidate=82800` (or `public, max-age=30, s-maxage=600` while the feed is empty), and a second request within the
+  hour answers `x-vercel-cache: HIT` (the edge may rewrite the header it passes on, so if it looks different, read it in the
+  Vercel function logs).
 - Neon → Monitoring → **Network transfer**: expect a small fraction of the
   5 GB allowance; each import reads well under 10 MB, and each page render
   reads only its own product or region.
+
+## Egress of the new routes (the growth release)
+
+Neon transfer per uncached render (pages are ISR: rendered once after each import, `revalidate` 86400), estimated from each
+query's row cap and its card columns:
+
+| Route | What it reads | Per render |
+| --- | --- | ---: |
+| `/<region>/deals` | `dealsInMarket` (≤ 96 rows, take 48 after ranking), `perPackLeaders` (≤ 200 rows), US: `belowMsrpUS` (120 rows) | about 60 KB |
+| `/<region>/cheapest-packs` | `perPackLeaders` (≤ 200 rows, one window query) | about 45 KB |
+| `/<region>/this-week` | `productCountsBySets` (one `GROUP BY`, ≤ 10 sets), the calendar's products, `dealsInMarket` take 8, `newlyTracked` 12 | about 15 KB |
+| `/<region>/guides/<slug>` | at most about 40 rows (existing loaders, one `GROUP BY` by type) | ≤ 20 KB (the index: none) |
+| `/api/browse/<region>` | the search and filter index: one whole-market read per region | about 0.5 MB per region per import |
+| product pages | `inStockAlternatives` (LIMIT 4) added; related products unchanged (take 40) | about +1 KB |
+| `/<region>/sealed` and `/page/<n>` | 48 rows a page plus one `COUNT` (they read the whole market before) | down from about 0.5 MB |
+| set, type, sets index, releases | set counts as one `GROUP BY` (≤ 150 rows); type pages capped at 48 in stock + 24 sold out | down |
+| `/api/ebay/<region>` | unchanged per miss (≤ 8 rows, ~5 KB), but an edge keeps an answer an hour instead of 5 minutes | down |
+
+The index costs about 7 × 0.5 MB per import (about 200 MB a month at two imports a day), in place of the whole-market read every
+uncached browse page made. Check the effect the morning after a deploy: Neon → Monitoring → **Network transfer**, compared with
+the week before, should be flat or lower; the Vercel logs should have no `[egress-guard]` lines (`src/lib/db.ts`).
+
+## PageSpeed check
+
+`.github/workflows/psi-dexcompare.yml` runs Google PageSpeed Insights on `https://www.dexcompare.app` (`/us`, one in-stock product,
+`/us/sealed`, `/us/type/booster-boxes`; phone and desktop) **every Monday at 06:23 UTC** and on demand (Actions → **PageSpeed
+check DexCompare** → Run workflow; the `paths` input takes other paths). It needs the repository secret **`PSI_API_KEY`**
+(Google Cloud console → APIs & Services → enable "PageSpeed Insights API" → Credentials → API key; restrict it to that API).
+Without the secret the job writes "skipped" to its summary and succeeds. A run makes 8 API calls and takes about two minutes;
+it fails only when every call fails (a wrong key). Read the job summary: the lab score, LCP, CLS and TBT, and the real-user (field)
+LCP, INP and CLS when Chrome has enough data. Lab numbers move from run to run: compare weeks, not single runs.
+
+## After the growth release: owner actions
+
+1. Set **`NEXT_PUBLIC_CONTACT_EMAIL`** to a branded forwarding address and **`NEXT_PUBLIC_OPERATOR`** to who runs the site
+   (Vercel, Production and Preview; redeploy).
+2. Add the **`PSI_API_KEY`** repository secret (see "PageSpeed check").
+3. Confirm the Vercel project is on **Pro with Web Analytics enabled**, or `buy_click` events (every placement above) are not
+   recorded.
+4. Check the **eBay-blue buttons** (`.btn-ad`, #3665f3) against the EPN brand guidelines in Campaign Manager; if EPN asks for
+   something else, the colour lives in one class in `src/app/globals.css`.
+5. **Resubmit the sitemap** in Search Console (see "Search Console").
+6. Run the **monthly money check** (above) a month after the release, and every month after.
+
+The integrator's same-day checks after the deploy: the Vercel production build is green; `/`, `/us`, `/us/deals`,
+`/us/cheapest-packs`, `/us/this-week`, `/us/guides`, one guide, an in-stock and a sold-out product and `/api/browse/us` answer 200;
+`/sitemap/0.xml` lists the new pages; view-source shows no eBay data; the Vercel logs have no `[egress-guard]` lines. The next
+morning: Neon's network transfer, as above.
 
 ## Costs and limits to know
 

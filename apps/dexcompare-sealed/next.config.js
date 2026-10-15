@@ -47,7 +47,22 @@ const nextConfig = {
       { source: "/stores", destination: "/au/stores", permanent: true },
       { source: "/restock", destination: "/au", permanent: true },
       { source: "/restock/:slug", destination: "/au", permanent: true },
-      { source: "/deals", destination: "/au/sealed", permanent: true },
+      { source: "/deals", destination: "/au/deals", permanent: true },
+      // The old site's guides and blog posts whose subject the sealed site now covers, each to the page that answers it. Only
+      // slugs that existed under that prefix (apps/dexcompare/src/lib/articles.ts: category "guide" → /guides, "blog" → /blog)
+      // are mapped; tests/guides.test.ts checks every one. They come before the blanket rule below, which matches /guides too.
+      { source: "/guides", destination: "/au/guides", permanent: true },
+      { source: "/guides/pokemon-sealed-products-explained", destination: "/au/guides/pokemon-sealed-products-explained", permanent: true },
+      { source: "/guides/where-to-buy-pokemon-cards", destination: "/au/stores", permanent: true },
+      { source: "/guides/how-to-buy-pokemon-sealed-product-for-less", destination: "/au/cheapest-packs", permanent: true },
+      { source: "/guides/pokemon-card-sets-and-eras-explained", destination: "/au/sets", permanent: true },
+      { source: "/blog", destination: "/au/guides", permanent: true },
+      { source: "/blog/are-booster-boxes-worth-it", destination: "/au/guides/are-pokemon-booster-boxes-worth-it", permanent: true },
+      { source: "/blog/cheapest-way-to-buy-pokemon-cards", destination: "/au/cheapest-packs", permanent: true },
+      { source: "/blog/pokemon-30th-celebration-preorder-guide", destination: "/au/sets/30th-celebration", permanent: true },
+      { source: "/blog/pitch-black-preorder-guide", destination: "/au/sets/pitch-black", permanent: true },
+      { source: "/blog/chaos-rising-restock-playbook", destination: "/au/sets/chaos-rising", permanent: true },
+      // The singles-only guides (grading, fakes, rarities, card values) have no sealed equivalent: the About page. Keep this last.
       { source: "/guides/:path*", destination: "/about", permanent: true },
     ];
   },

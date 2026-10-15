@@ -11,6 +11,20 @@ export function jsonLd(data: unknown): string {
 }
 
 /**
+ * A name as a title or H1 says it: "Pokémon " in front, unless the name already says Pokémon (or Pokemon, any case, accented or
+ * not): "Pitch Black" → "Pokémon Pitch Black", "Pokémon Center Elite Trainer Box" stays as it is. Searchers type the word; a set
+ * or product name alone ("Perfect Order") is ambiguous outside the hobby, and "Pokémon Pokémon Center…" reads as a bug.
+ */
+export function withPokemon(name: string): string {
+  const plain = name.normalize("NFKD").replace(/[\u0300-\u036f]/g, "");
+  return /pokemon/i.test(plain) ? name : `Pokémon ${name}`;
+}
+
+// The eurozone is one market with one page per URL (/eu/…), but nobody in Germany searches with en-IE. These are the euro
+// countries whose English-language searches DexCompare's EU stores serve: the same /eu URL is listed under each, beside en-IE.
+export const EU_HREFLANGS: readonly string[] = ["en-DE", "en-NL", "en-FR", "en-BE", "en-AT", "en-ES", "en-IT", "en-FI", "en-PT", "en-LU"];
+
+/**
  * Canonical + hreflang alternates for a page that exists at /<region><rest>.
  * Two call shapes, same result:
  *   regionAlternates("/au/p/slug", regions?)      — the page's own path
@@ -44,10 +58,21 @@ export function regionAlternates(a: string, b?: string | ReadonlyArray<Region | 
   const codes = regions.map((r) => (typeof r === "string" ? r : r.region)).filter(isRegion);
   if (!codes.includes(region)) codes.unshift(region);
   const languages: Record<string, string> = {};
-  for (const r of REGION_LIST) if (codes.includes(r.region)) languages[r.hreflang] = `${SITE_URL}/${r.region}${rest}`;
+  for (const r of REGION_LIST) {
+    if (!codes.includes(r.region)) continue;
+    languages[r.hreflang] = `${SITE_URL}/${r.region}${rest}`;
+    if (r.region === "eu") for (const h of EU_HREFLANGS) languages[h] = `${SITE_URL}/eu${rest}`;
+  }
   languages["x-default"] = rest ? `${SITE_URL}/${xDefaultRegion(codes)}${rest}` : `${SITE_URL}/`;
   return { canonical: `${SITE_URL}/${region}${rest}`, languages };
 }
+
+/**
+ * The site's own share card (src/app/opengraph-image.tsx, 1200×630), for every page that has no image of its own. Named
+ * explicitly: a page's openGraph object replaces its parents' whole, so the root's file-based image would be lost on any page
+ * that sets openGraph, which is every page that goes through pageMeta.
+ */
+export const DEFAULT_OG_IMAGE = { url: `${SITE_URL}/opengraph-image`, width: 1200, height: 630, alt: SITE_NAME };
 
 export function pageMeta(opts: {
   title: string;
@@ -75,10 +100,11 @@ export function pageMeta(opts: {
       url: `${SITE_URL}${opts.path}`,
       siteName: SITE_NAME,
       ...(product ? {} : { type: "website" }),
-      ...(opts.image ? { images: [{ url: opts.image }] } : {}),
+      images: opts.image ? [{ url: opts.image }] : [DEFAULT_OG_IMAGE],
     },
     ...(product ? { other: { "og:type": "product" } } : {}),
-    twitter: { card: opts.image ? "summary_large_image" : "summary", title: opts.title, description: opts.description },
+    // Every page has a large image now (its own, or the site's card), so every share gets the large card.
+    twitter: { card: "summary_large_image", title: opts.title, description: opts.description },
     ...(opts.noindex ? { robots: { index: false, follow: true } } : {}),
   };
 }
@@ -155,11 +181,14 @@ export function productJsonLd(p: {
   highCents: number;
   offerCount: number;
   preorder?: boolean;
+  /** One sentence of the page's own facts (the product page's value check), never eBay's data or a claim about the past. */
+  description?: string | null;
 }) {
   return {
     "@context": "https://schema.org",
     "@type": "Product",
     name: p.name,
+    ...(p.description ? { description: p.description } : {}),
     ...(p.image ? { image: p.image } : {}),
     brand: { "@type": "Brand", name: "Pokémon" },
     category: `Pokémon TCG ${p.productType}`,
@@ -173,6 +202,8 @@ export function productJsonLd(p: {
       highPrice: (p.highCents / 100).toFixed(2),
       offerCount: p.offerCount,
       availability: p.preorder ? "https://schema.org/PreOrder" : "https://schema.org/InStock",
+      // Sealed product from stores (and TCGplayer's sealed listings): every offer compared is new. eBay is never in here.
+      itemCondition: "https://schema.org/NewCondition",
     },
   };
 }
@@ -197,6 +228,29 @@ export function itemListJsonLd(opts: { name: string; path: string; items: { path
       name: it.name,
       ...(it.image ? { image: it.image } : {}),
     })),
+  };
+}
+
+/**
+ * A guide's Article. Author and publisher are DexCompare (the Organization), never an invented person. `published` and
+ * `updated` are ISO editorial dates ("2026-10-14"), never the data refresh time. The image is the site's share card unless the
+ * guide has its own.
+ */
+export function articleJsonLd(a: { title: string; description: string; path: string; published: string; updated: string; image?: string | null }) {
+  const org = { "@type": "Organization", "@id": ORG_ID, name: SITE_NAME, url: SITE_URL };
+  return {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: a.title,
+    description: a.description,
+    url: `${SITE_URL}${a.path}`,
+    mainEntityOfPage: { "@type": "WebPage", "@id": `${SITE_URL}${a.path}` },
+    datePublished: a.published,
+    dateModified: a.updated,
+    image: a.image || DEFAULT_OG_IMAGE.url,
+    inLanguage: "en",
+    author: org,
+    publisher: { ...org, logo: { "@type": "ImageObject", url: `${SITE_URL}/logo.svg` } },
   };
 }
 

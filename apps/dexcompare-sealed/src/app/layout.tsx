@@ -1,14 +1,16 @@
 import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, Inter } from "next/font/google";
-import { Footer } from "@/components/Footer";
 import { SiteAnalytics } from "@/components/SiteAnalytics";
 import { IMPACT_SITE_VERIFICATIONS } from "@/lib/affiliate";
 import { SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/lib/site";
 import { jsonLd, siteJsonLd } from "@/lib/seo";
 import "./globals.css";
 
-const sans = Inter({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
-const display = Bricolage_Grotesque({ subsets: ["latin"], variable: "--font-display", display: "swap", weight: ["600", "700", "800"] });
+// Font display is optional, not swap: both faces are preloaded, so a warm visit renders in them from the first paint, and a slow
+// first visit keeps the size-adjusted fallback for that page instead of re-wrapping every line when the font lands (that swap
+// measured CLS 0.209 on /us/type/booster-boxes; 0 with "optional").
+const sans = Inter({ subsets: ["latin"], variable: "--font-sans", display: "optional" });
+const display = Bricolage_Grotesque({ subsets: ["latin"], variable: "--font-display", display: "optional", weight: ["600", "700", "800"] });
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -43,8 +45,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-surface focus:px-4 focus:py-2">
           Skip to content
         </a>
+        {/* Each layout under this one (and the 404 and error pages) draws the Header, its <main> and the Footer itself: the
+            footer's links depend on the page's region. */}
         {children}
-        <Footer />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(siteJsonLd()) }} />
         <SiteAnalytics />
       </body>

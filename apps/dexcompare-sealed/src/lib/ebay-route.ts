@@ -3,16 +3,24 @@
 //
 // No eBay call, no token, no secret: a READ of the rows the daily import stored (ebay-read.ts). Region and
 // context are whitelisted (ebay-context-parse.ts), the response holds only whitelisted fields, and nothing
-// older than the age bound (EBAY_LISTING_MAX_AGE_HOURS, default 26) is ever returned. Caching: CDN 5 minutes
-// for a good answer, 60 s for an empty or failed one (a blip is never cached for long). EBAY_LISTINGS=off is
-// the kill switch.
+// older than the age bound (EBAY_LISTING_MAX_AGE_HOURS, default 26) is ever returned. EBAY_LISTINGS=off is the kill switch.
+//
+// Caching (the growth release; it was 5 minutes and 60 s): the rows change once a day, so a good answer is kept by the CDN for an
+// HOUR and may then be served stale for up to 23 hours more while the CDN fetches a fresh copy in the background
+// (stale-while-revalidate); browsers keep it a minute. Every product page asks for its own item:<slug> context, so a long tail of
+// contexts used to miss a 5-minute cache and reach Neon on almost every view. An empty or failed answer is kept 10 minutes at the
+// edge (a blip is never cached for long). The cost: a fresh import, or the kill switch, can take up to an hour to reach a given edge
+// (DEPLOY.md, "Edge cache and the kill switch"). Safety does not depend on the cache: the browser re-checks every answer, a stale
+// copy included, against the age bound it carries (ebay-context.ts acceptResponse), so no listing past the bound is ever shown.
 import { NextResponse } from "next/server";
 import { hoursToMs, parseMaxAgeHours, parseRegion, type ListingsResponse } from "./ebay-context";
 import { parseContext } from "./ebay-context-parse";
 import { listingsFor, type ReadDeps } from "./ebay-read";
 
-export const GOOD = "public, max-age=60, s-maxage=300";
-export const SHORT = "public, max-age=30, s-maxage=60";
+/** A good answer: browsers 1 minute, the CDN 1 hour, then served stale for up to 23 hours while it revalidates. */
+export const GOOD = "public, max-age=60, s-maxage=3600, stale-while-revalidate=82800";
+/** An empty, failed or rejected answer: browsers 30 s, the CDN 10 minutes, never stale. */
+export const SHORT = "public, max-age=30, s-maxage=600";
 
 function reply(body: ListingsResponse, status: number, cache: string) {
   return NextResponse.json(body, { status, headers: { "Cache-Control": cache, "X-Content-Type-Options": "nosniff" } });
