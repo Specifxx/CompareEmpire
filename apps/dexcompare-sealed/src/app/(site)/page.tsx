@@ -128,10 +128,47 @@ export default function Landing() {
         </div>
       </section>
 
-      <section id="regions" className="page" aria-labelledby="regions-h">
-        <h2 id="regions-h" className="mb-5 text-center font-display text-2xl font-bold tracking-tight">
+      {/* Content first (owner, 2026-10-15: "the best chance for AdSense approval, considering Google has lazy crawlers"). A reviewer
+          or crawler that reads only the first screens of the server HTML meets original text, not a wall of links: what the site is
+          and how it works, then the regions, the guides with their summaries, and every answer written out (no collapsed details).
+          Navigation chips come after the text, and the page's one ad unit (the eBay strip) is last, below all of it. Everything
+          here is server-rendered: no text waits on a script. */}
+      <section className="page" aria-labelledby="about-h">
+        <div className="mx-auto max-w-3xl">
+          <h2 id="about-h" className="font-display text-2xl font-bold tracking-tight">
+            What {SITE_NAME} does
+          </h2>
+          <div className="mt-4 space-y-4 text-[15px] leading-7 text-muted">
+            <p>
+              {SITE_NAME} is a free price comparison for English-language Pokémon TCG sealed product: booster boxes, Elite Trainer Boxes,
+              booster bundles, collections, tins, blisters and decks. It reads the shelves of {STORES.length} independent hobby stores in{" "}
+              {REGION_LIST.length} regions about twice a day and puts each product&rsquo;s listings side by side, the ones in stock first and
+              the cheapest of those at the top, in your own currency.
+            </p>
+            <p>
+              The same Elite Trainer Box is often priced very differently from one shop to the next on the same day, and one shop&rsquo;s
+              sold-out page says nothing about the next one&rsquo;s stock. Every listing here carries the time it was last read, so you can see how fresh a
+              price is before you click through, and a store that has not answered for three days is marked rather than guessed.
+            </p>
+            <p>
+              No store pays to be listed or to rank higher: the order is price and stock, nothing else. The site is paid for by marked eBay
+              and TCGplayer affiliate links{ADSENSE_CLIENT ? " and by Google ads" : ""}, which never move a store up or down.{" "}
+              <Link href="/about" className="font-semibold text-ink underline underline-offset-2 hover:text-brand">
+                Who runs it, and how
+              </Link>
+              .
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="regions" className="page mt-14" aria-labelledby="regions-h">
+        <h2 id="regions-h" className="mb-2 text-center font-display text-2xl font-bold tracking-tight">
           Choose your region
         </h2>
+        <p className="mx-auto mb-5 max-w-xl text-center text-sm leading-6 text-muted">
+          Each region compares its own stores in its own currency, so a price is one you can actually pay, before shipping.
+        </p>
         <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
           {REGION_LIST.map((r) => {
             const n = storesInMarket(r.market).length;
@@ -155,6 +192,84 @@ export default function Landing() {
             );
           })}
         </ul>
+      </section>
+
+      <section className="page mt-14" aria-labelledby="guides-h">
+        <div className="mb-5 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+          <h2 id="guides-h" className="font-display text-2xl font-bold tracking-tight">
+            Buying guides
+          </h2>
+          <Link href={sectionHref(X_DEFAULT_REGION, "guides")} prefetch={false} className="text-sm font-semibold text-brand hover:underline">
+            All guides →
+          </Link>
+        </div>
+        <p className="mb-5 max-w-2xl text-sm leading-6 text-muted">
+          Plain-English answers to what people ask before they buy Pokémon sealed product, each with today’s prices. Shown for {gr.inName}; every region has its own copy
+          with its own stores and currency.
+        </p>
+        <ul role="list" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {guides.slice(0, 6).map((g) => (
+            <li key={g.slug}>
+              <GuideCard r={gr} guide={g} headingLevel={3} />
+            </li>
+          ))}
+        </ul>
+        {guides.length > 6 && (
+          <ul role="list" className="mt-4 flex flex-wrap gap-2">
+            {guides.slice(6).map((g) => (
+              <li key={g.slug}>
+                <Link href={`/${X_DEFAULT_REGION}/guides/${g.slug}`} prefetch={false} className="chip min-h-10">
+                  {g.title}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section className="page mt-14" aria-labelledby="how-h">
+        <h2 id="how-h" className="mb-6 font-display text-2xl font-bold tracking-tight">
+          How the comparison works
+        </h2>
+        <ul className="grid gap-6 sm:grid-cols-3 sm:gap-8">
+          {HOW.map((f) => (
+            <li key={f.t} className="flex gap-4 sm:flex-col sm:gap-3">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-soft text-brand-strong" aria-hidden="true">
+                <Icon name={f.icon} size={22} />
+              </span>
+              <span>
+                <span className="block font-display text-lg font-bold">{f.t}</span>
+                <span className="mt-1 block text-sm leading-6 text-muted">{f.d}</span>
+              </span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="page mt-16 max-w-3xl" aria-labelledby="faq-h">
+        <h2 id="faq-h" className="mb-5 font-display text-2xl font-bold tracking-tight">
+          Questions
+        </h2>
+        {/* Written out, not collapsed: every answer is visible text in the first render. */}
+        <dl className="divide-y divide-line overflow-hidden rounded-xl border border-line bg-surface">
+          {FAQ.map((f) => (
+            <div key={f.q} className="px-4 py-4">
+              <dt className="font-semibold">{f.q}</dt>
+              <dd className="mt-1.5 text-[15px] leading-7 text-muted">{f.a}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+
+      <section className="page mt-14 text-center" aria-labelledby="compare-h">
+        <h2 id="compare-h" className="eyebrow mb-3">
+          What we compare
+        </h2>
+        <SuggestedTypeLinks types={PRODUCT_TYPES.slice(0, 13).map((t) => ({ slug: t.slug, label: t.plural }))} />
+        <p className="mx-auto mt-6 max-w-xl text-sm leading-6 text-muted">
+          English-language Pokémon TCG sealed product only. Singles, graded cards, Japanese product, accessories and store-made bundles are
+          left out on purpose — <Link href="/about#refuse" className="underline underline-offset-2 hover:text-ink">what we refuse, and why</Link>.
+        </p>
       </section>
 
       <section className="page mt-14" aria-labelledby="popular-h">
@@ -184,92 +299,11 @@ export default function Landing() {
         </div>
       </section>
 
-      <section className="page mt-14" aria-labelledby="guides-h">
-        <div className="mb-5 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-          <h2 id="guides-h" className="font-display text-2xl font-bold tracking-tight">
-            Buying guides
-          </h2>
-          <Link href={sectionHref(X_DEFAULT_REGION, "guides")} prefetch={false} className="text-sm font-semibold text-brand hover:underline">
-            All guides →
-          </Link>
-        </div>
-        <p className="mb-5 max-w-2xl text-sm leading-6 text-muted">
-          Plain-English answers to what people ask before they buy Pokémon sealed product, each with today’s prices. Shown for {gr.inName}; every region has its own copy
-          with its own stores and currency.
-        </p>
-        <ul role="list" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {guides.slice(0, 3).map((g) => (
-            <li key={g.slug}>
-              <GuideCard r={gr} guide={g} headingLevel={3} />
-            </li>
-          ))}
-        </ul>
-        {guides.length > 3 && (
-          <ul role="list" className="mt-4 flex flex-wrap gap-2">
-            {guides.slice(3).map((g) => (
-              <li key={g.slug}>
-                <Link href={`/${X_DEFAULT_REGION}/guides/${g.slug}`} prefetch={false} className="chip min-h-10">
-                  {g.title}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-
-      <section className="page mt-14 text-center" aria-labelledby="compare-h">
-        <h2 id="compare-h" className="eyebrow mb-3">
-          What we compare
-        </h2>
-        <SuggestedTypeLinks types={PRODUCT_TYPES.slice(0, 13).map((t) => ({ slug: t.slug, label: t.plural }))} />
-        <p className="mx-auto mt-6 max-w-xl text-sm leading-6 text-muted">
-          English-language Pokémon TCG sealed product only. Singles, graded cards, Japanese product, accessories and store-made bundles are
-          left out on purpose — <Link href="/about#refuse" className="underline underline-offset-2 hover:text-ink">what we refuse, and why</Link>.
-        </p>
-      </section>
-
-      {/* The landing page's one eBay unit: the visitor's suggested region's eBay (the US until known, and with no suggestion), and it
-          says which. Real listings imported once a day; with none, the compact CTA row. */}
+      {/* The landing page's one ad unit, last: below every piece of the page's own content. The visitor's suggested region's eBay
+          (the US until known, and with no suggestion), and it says which. Real listings imported once a day; with none, the compact
+          CTA row. */}
       <section className="page mt-16" aria-label="Chase cards on eBay">
         <SuggestedEbayStrip />
-      </section>
-
-      <section className="page mt-14" aria-labelledby="how-h">
-        <h2 id="how-h" className="sr-only">
-          How it works
-        </h2>
-        <ul className="grid gap-6 sm:grid-cols-3 sm:gap-8">
-          {HOW.map((f) => (
-            <li key={f.t} className="flex gap-4 sm:flex-col sm:gap-3">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-soft text-brand-strong" aria-hidden="true">
-                <Icon name={f.icon} size={22} />
-              </span>
-              <span>
-                <span className="block font-display text-lg font-bold">{f.t}</span>
-                <span className="mt-1 block text-sm leading-6 text-muted">{f.d}</span>
-              </span>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <section className="page mt-16 max-w-3xl" aria-labelledby="faq-h">
-        <h2 id="faq-h" className="mb-5 font-display text-2xl font-bold tracking-tight">
-          Questions
-        </h2>
-        <div className="divide-y divide-line overflow-hidden rounded-xl border border-line bg-surface">
-          {FAQ.map((f) => (
-            <details key={f.q} className="group">
-              <summary className="flex min-h-12 cursor-pointer items-center justify-between gap-3 px-4 py-3 font-semibold">
-                {f.q}
-                <span aria-hidden="true" className="text-faint transition-transform group-open:rotate-45">
-                  +
-                </span>
-              </summary>
-              <p className="px-4 pb-4 text-[15px] leading-7 text-muted">{f.a}</p>
-            </details>
-          ))}
-        </div>
       </section>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(faqLd) }} />
     </div>

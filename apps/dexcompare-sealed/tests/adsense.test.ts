@@ -1,14 +1,25 @@
-// Google AdSense (src/lib/adsense.ts): off until NEXT_PUBLIC_ADSENSE_CLIENT is set, a publisher ID in either form, and ads.txt's line.
+// Google AdSense (src/lib/adsense.ts): on with the owner's publisher ID unless NEXT_PUBLIC_ADSENSE_CLIENT says otherwise ("off" switches
+// it off), a publisher ID in either form, and ads.txt's line.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { ADSENSE_CLIENT, ADSENSE_GUIDE_SLOT, adsTxt, normaliseClient } from "../src/lib/adsense";
+import { ADSENSE_CLIENT, ADSENSE_GUIDE_SLOT, DEFAULT_ADSENSE_CLIENT, adsTxt, normaliseClient, resolveClient } from "../src/lib/adsense";
 import { wrapWords } from "../src/lib/og-card";
 
-test("AdSense is off without NEXT_PUBLIC_ADSENSE_CLIENT: no client, no slot, no ads.txt", () => {
-  assert.equal(ADSENSE_CLIENT, null);
-  assert.equal(ADSENSE_GUIDE_SLOT, null);
+test("AdSense is on with the owner's publisher ID by default; the variable overrides it, and \"off\" switches it off", () => {
+  assert.equal(DEFAULT_ADSENSE_CLIENT, "ca-pub-6842128782879909");
+  assert.equal(ADSENSE_CLIENT, DEFAULT_ADSENSE_CLIENT);
+  assert.equal(ADSENSE_GUIDE_SLOT, null, "the guide unit still needs its own slot ID");
+  assert.equal(resolveClient(undefined), DEFAULT_ADSENSE_CLIENT);
+  assert.equal(resolveClient("pub-1234567890123456"), "ca-pub-1234567890123456");
+  assert.equal(resolveClient("off"), null);
   assert.equal(adsTxt(null), null);
+  assert.equal(adsTxt(ADSENSE_CLIENT), "google.com, pub-6842128782879909, DIRECT, f08c47fec0942fa0\n");
+});
+
+test("the google-adsense-account meta carries the publisher ID in every page's head", () => {
+  const layout = readFileSync(new URL("../src/app/layout.tsx", import.meta.url), "utf8");
+  assert.match(layout, /<meta name="google-adsense-account" content=\{ADSENSE_CLIENT\} \/>/);
 });
 
 test("a publisher ID is accepted as pub-… or ca-pub-…, and anything else is refused", () => {

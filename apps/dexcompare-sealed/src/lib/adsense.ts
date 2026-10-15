@@ -1,6 +1,7 @@
-// Google AdSense, switched on by environment only: until NEXT_PUBLIC_ADSENSE_CLIENT is set (Vercel → Settings → Environment
-// Variables, then redeploy), the site loads no Google script, /ads.txt is a 404 and the privacy page says no advertising cookies are
-// set. DEPLOY.md, "Google AdSense", has the steps. Pure: safe in the browser (NEXT_PUBLIC_ values are inlined at build).
+// Google AdSense. On by default with the owner's publisher ID (DEFAULT_ADSENSE_CLIENT, owner 2026-10-15: "add this meta tag",
+// for the AdSense site review); NEXT_PUBLIC_ADSENSE_CLIENT overrides it with another ID, and "off" switches AdSense off (no Google
+// script, /ads.txt a 404, the privacy page saying no advertising cookies are set). DEPLOY.md, "Google AdSense", has the steps.
+// Pure: safe in the browser (NEXT_PUBLIC_ values are inlined at build).
 //
 // What it turns on:
 //   • the AdSense script and the google-adsense-account meta in every page's <head> (app/layout.tsx): what AdSense's site review
@@ -9,8 +10,17 @@
 //   • with NEXT_PUBLIC_ADSENSE_SLOT_GUIDE too, one in-article unit in each guide (content/guides/kit.tsx), well clear of its eBay strip;
 //   • the AdSense paragraphs on the privacy and about pages.
 
-/** "ca-pub-1234567890123456", from NEXT_PUBLIC_ADSENSE_CLIENT ("pub-…" or "ca-pub-…" both accepted), or null when unset or malformed. */
-export const ADSENSE_CLIENT: string | null = normaliseClient(process.env.NEXT_PUBLIC_ADSENSE_CLIENT);
+/** The owner's AdSense publisher ID (the google-adsense-account meta the owner gave, 2026-10-15). */
+export const DEFAULT_ADSENSE_CLIENT = "ca-pub-6842128782879909";
+
+/** The publisher ID in use: NEXT_PUBLIC_ADSENSE_CLIENT ("pub-…" or "ca-pub-…"), else the default; null when the variable is "off". */
+export const ADSENSE_CLIENT: string | null = resolveClient(process.env.NEXT_PUBLIC_ADSENSE_CLIENT);
+
+export function resolveClient(v: string | undefined): string | null {
+  const s = v?.trim() ?? "";
+  if (/^off$/i.test(s)) return null;
+  return normaliseClient(s) ?? DEFAULT_ADSENSE_CLIENT;
+}
 
 /** The ad unit ID of the guides' in-article unit (AdSense → Ads → By ad unit → In-article), or null: no unit. */
 export const ADSENSE_GUIDE_SLOT: string | null = ADSENSE_CLIENT ? normaliseSlot(process.env.NEXT_PUBLIC_ADSENSE_SLOT_GUIDE) : null;

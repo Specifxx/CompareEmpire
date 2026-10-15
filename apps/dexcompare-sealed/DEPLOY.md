@@ -162,15 +162,17 @@ soon. Store pages with nothing listed, or whose store is dormant, are `noindex` 
 
 ## 7. Google AdSense
 
-Off until you set it; nothing Google loads before then.
+On by default with the owner's publisher ID, `ca-pub-6842128782879909` (`DEFAULT_ADSENSE_CLIENT` in `src/lib/adsense.ts`).
+`NEXT_PUBLIC_ADSENSE_CLIENT` in Vercel overrides it (`pub-…` or `ca-pub-…`), and `off` switches AdSense off; it is read at
+**build** time, so redeploy after changing it.
 
-1. Apply at <https://adsense.google.com> with the site `dexcompare.app`. Your publisher ID looks like `pub-1234567890123456`.
-2. Vercel → the DexCompare project → Settings → Environment Variables (Production): `NEXT_PUBLIC_ADSENSE_CLIENT` = that ID
-   (`pub-…` or `ca-pub-…`). It is read at **build** time, so redeploy (Deployments → the latest → Redeploy).
-3. That turns on, site-wide (`src/lib/adsense.ts`): the AdSense script and the `google-adsense-account` meta in every page's
-   `<head>` (what AdSense's site review checks), `https://www.dexcompare.app/ads.txt` with Google's authorised-seller line, and the
-   AdSense paragraphs on `/privacy` (cookies, opt-outs) and `/about` ("how we make money"). In AdSense → Sites, press
-   **Verify** / **Request review**.
+1. Site-wide this gives: the `google-adsense-account` meta and the AdSense script in every page's `<head>` (what AdSense's site
+   review checks), `https://www.dexcompare.app/ads.txt` with Google's authorised-seller line, and the AdSense paragraphs on
+   `/privacy` (cookies, opt-outs) and `/about` ("how we make money").
+2. In AdSense → Sites, add `dexcompare.app` and press **Verify** / **Request review**. The landing page (`/`) is what the reviewer
+   reads first: its original text (what the site is, how it compares, the buying guides, the questions answered in full) sits in
+   the first screens of the server HTML, and its one eBay unit is last.
+3. Nothing to set in Vercel for this: the ID is in the code.
 4. Consent: AdSense → Privacy & messaging → create the **European regulations (GDPR)** message (Google's own certified consent
    banner, served by the same script; no code needed) before ads serve in the UK, EEA and Switzerland. Add the **US state
    regulations** message too.

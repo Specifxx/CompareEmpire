@@ -41,8 +41,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {IMPACT_SITE_VERIFICATIONS.map((value) => (
           <meta key={value} {...({ name: "impact-site-verification", value } as React.MetaHTMLAttributes<HTMLMetaElement>)} />
         ))}
-        {/* Google AdSense (lib/adsense.ts): only once NEXT_PUBLIC_ADSENSE_CLIENT is set. The meta and the script are what AdSense's
-            site review looks for; ads only show in the units the site places, or wherever Auto ads put them if enabled in AdSense. */}
+        {/* Google AdSense (lib/adsense.ts): the owner's publisher ID unless NEXT_PUBLIC_ADSENSE_CLIENT says otherwise ("off": none).
+            The meta and the script are what AdSense's site review looks for; ads only show in the units the site places, or wherever
+            Auto ads put them if enabled in AdSense. */}
         {ADSENSE_CLIENT && (
           <>
             <meta name="google-adsense-account" content={ADSENSE_CLIENT} />
