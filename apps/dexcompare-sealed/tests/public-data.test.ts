@@ -110,8 +110,8 @@ test("with no files, a read goes to the database as before; with files, it never
   }
 });
 
-test("until DC2 holds the data, the site's fallback reads stay on DATABASE_URL", () => {
-  assert.equal(databaseUrl({ DC2: "postgres://dc2", DATABASE_URL: "postgres://old" }), "postgres://old");
-  assert.equal(databaseUrl({ DC2: "postgres://dc2" }), "postgres://dc2");
+test("the database is DC2, with DATABASE_URL only while DC2 is unset", () => {
+  assert.equal(databaseUrl({ DC2: "postgres://dc2", DATABASE_URL: "postgres://old" }), "postgres://dc2");
+  assert.equal(databaseUrl({ DATABASE_URL: "postgres://old" }), "postgres://old");
   assert.equal(databaseUrl({ DC2: " ", DATABASE_URL: "" }), undefined);
 });

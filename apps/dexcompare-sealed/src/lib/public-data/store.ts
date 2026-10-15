@@ -100,6 +100,16 @@ export function publicRowsBy(model: ModelName, field: string, values: readonly u
   return publicDataSource().byField(model, field, values);
 }
 
+/** Where public reads come from right now, for the x-dex-data header: "files <snapshot time> <source>", or "db" when they cannot be read. */
+export function publicDataStatus(): string {
+  try {
+    const { generatedAt, source } = publicDataSource().meta;
+    return `files ${generatedAt} ${source}`;
+  } catch {
+    return "db";
+  }
+}
+
 /** Forget the loaded files (tests). */
 export function resetPublicData(): void {
   g.__dexPublicData = undefined;

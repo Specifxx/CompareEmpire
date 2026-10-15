@@ -1,6 +1,7 @@
 import { marketIndexCards } from "@/lib/browse-data";
 import { lastCheckedAt } from "@/lib/data";
 import { REGIONS } from "@/lib/regions";
+import { publicDataStatus } from "@/lib/public-data/store";
 import { browseIndexResponse, buildIndex } from "@/lib/search-index";
 
 // GET /api/browse/<region>: the region's browse index (lib/search-index.ts), every product /<region>/sealed lists, as compact
@@ -23,9 +24,13 @@ export function generateStaticParams() {
 }
 
 export async function GET(_req: Request, { params }: { params: { region: string } }) {
-  return browseIndexResponse(params.region, async (region) => {
+  const res = await browseIndexResponse(params.region, async (region) => {
     const { market } = REGIONS[region];
     const [cards, checked] = await Promise.all([marketIndexCards(market), lastCheckedAt(market)]);
     return buildIndex(region, cards, checked);
   });
+  // Which source answered (src/lib/public-data/): "files <snapshot time> <database>" or "db". The check that a release reads the
+  // bundled files and not Neon: curl -I https://www.dexcompare.app/api/browse/au
+  res.headers.set("x-dex-data", publicDataStatus());
+  return res;
 }

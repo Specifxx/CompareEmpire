@@ -8,11 +8,11 @@ import { routeQuery } from "./public-data/route";
 // the imports and nothing else. A read the file engine cannot answer exactly falls through to Neon and logs
 // [public-data:unsupported] once, which tests/public-data.test.ts keeps at zero for the site's loaders.
 //
-// The database is DC2 (Vercel and GitHub, from 2026-10-16). The importers already use it (their workflows pass DC2's direct host as
-// DATABASE_URL). For the site's own fallback reads, DATABASE_URL (the old project) stays first until dexcompare-migrate-dc2.yml has
-// copied it into DC2: the release after that switches this to DC2 first.
+// The database is DC2 (Vercel and GitHub, from 2026-10-16; dexcompare-migrate-dc2.yml copied the old project into it, every table's
+// row count checked), with DATABASE_URL (the old project) only while DC2 is unset. The importers' workflows pass DC2's direct host as
+// DATABASE_URL, so scripts reach DC2 either way.
 export function databaseUrl(env: Record<string, string | undefined> = process.env): string | undefined {
-  return env.DATABASE_URL?.trim() || env.DC2?.trim() || undefined;
+  return env.DC2?.trim() || env.DATABASE_URL?.trim() || undefined;
 }
 
 // ─── DATA-EGRESS RULES (read before adding a query) ────────────────────────────
