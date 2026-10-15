@@ -51,23 +51,26 @@ jobs:
           echo "NEW_URL=$NEW_URL" >> "$GITHUB_ENV"
           echo "OLD_URL=$OLD_URL" >> "$GITHUB_ENV"
 
-      - name: Install the Postgres 17 client
+      # pg_dump refuses a server newer than itself: install the client of the newer of the two servers (17 at least).
+      - name: Install the matching Postgres client
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq postgresql-common >/dev/null
           yes | sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh >/dev/null
-          sudo apt-get install -y -qq postgresql-client-17 >/dev/null
-          echo "/usr/lib/postgresql/17/bin" >> "$GITHUB_PATH"
+          major() { psql "$1" -Atc "show server_version_num" | awk '{print int($1/10000)}'; }
+          OLD_V="$(major "$OLD_URL")"; NEW_V="$(major "$NEW_URL")"
+          V=17; [ "$OLD_V" -gt "$V" ] && V="$OLD_V"; [ "$NEW_V" -gt "$V" ] && V="$NEW_V"
+          echo "::notice::Old database: Postgres $OLD_V. DC2: Postgres $NEW_V. Client: $V."
+          sudo apt-get install -y -qq "postgresql-client-$V" >/dev/null
+          echo "/usr/lib/postgresql/$V/bin" >> "$GITHUB_PATH"
 
       - name: Is DC2 already migrated?
         id: state
         env:
           OVERWRITE: ${{ inputs.overwrite }}
         run: |
-          psql "$OLD_URL" -Atc "select version()"
-          psql "$NEW_URL" -Atc "select version()"
           n="$(psql "$NEW_URL" -Atc "select count(*) from \"Product\"" 2>/dev/null || echo 0)"
-          echo "DC2 holds $n products."
+          echo "::notice::DC2 holds $n products before the copy."
           if [ "${n:-0}" -gt 0 ] && [ "$OVERWRITE" != "true" ]; then
             echo "DC2 already holds DexCompare's data ($n products): nothing copied. Run by hand with 'overwrite' to copy again." >> "$GITHUB_STEP_SUMMARY"
             echo "copy=false" >> "$GITHUB_OUTPUT"
@@ -81,10 +84,13 @@ jobs:
       - name: Copy the old database into DC2
         if: steps.state.outputs.copy == 'true'
         run: |
-          pg_dump --no-owner --no-privileges --clean --if-exists "$OLD_URL" -f dex.sql
-          ls -la dex.sql
+          if ! pg_dump --no-owner --no-privileges --clean --if-exists "$OLD_URL" -f dex.sql 2> dump.log; then
+            echo "::error::pg_dump failed: $(head -c 600 dump.log | tr '\n' ' ')"
+            exit 1
+          fi
+          echo "::notice::Dump: $(du -h dex.sql | cut -f1)."
           psql -q -v ON_ERROR_STOP=0 "$NEW_URL" -f dex.sql 2> restore.log || true
-          if [ -s restore.log ]; then echo "Restore notes:"; head -40 restore.log; fi
+          if [ -s restore.log ]; then echo "::warning::Restore notes ($(wc -l < restore.log) lines): $(head -c 600 restore.log | tr '\n' ' ')"; fi
 
       - name: Check every table's row count
         run: |
@@ -96,6 +102,7 @@ jobs:
             [ "$a" = "$b" ] || fail=1
           done
           { echo "| Table | Old | DC2 |"; echo "|---|---|---|"; cat rows.md; } >> "$GITHUB_STEP_SUMMARY"
+          echo "::notice::Rows (table old/DC2): $(tr -d ' ' < rows.md | tr '\n' ' ')"
           if [ "$fail" = 1 ] && [ "${{ steps.state.outputs.copy }}" = "true" ]; then echo "::error::Row counts differ after the copy."; exit 1; fi
 
       - uses: actions/checkout@v4
