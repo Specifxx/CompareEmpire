@@ -10,6 +10,8 @@ import { lastCheckedAt, setOfferGroups, type SetOfferGroup } from "@/lib/data";
 import { cardOpen } from "@/lib/compact";
 import { money, plural, relativeDay, timeAgo } from "@/lib/format";
 import { packsForLabel, perPackCents } from "@/lib/packs";
+import { titleText } from "@/lib/hub-copy";
+import { glanceFacts, msrpPerPack, msrpValueSentence, preorderDescription, preorderFaqs, preorderTitle, type CheapestByType, type GlanceFact } from "@/lib/preorder-copy";
 import { guideShowsMsrp, preorderGuideBySlug, type PreorderGuide } from "@/lib/preorder-guides";
 import { formatRelease, isPreorderSet } from "@/lib/release";
 import { regionOrNotFound, type RegionInfo } from "@/lib/regions";
@@ -50,61 +52,30 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const r = regionOrNotFound(params.region);
   const found = preorderGuideBySlug(params.set);
   if (!found) return {};
-  const { set } = found;
+  const { guide, set } = found;
   const pre = isPreorderSet(set.code);
-  return pageMeta({
-    title: `${set.name} pre-order prices in ${r.name}: booster box & ETB`,
-    description: pre
-      ? `Pokémon ${set.name} pre-orders at every ${r.adjective} store we track — booster boxes, Elite Trainer Boxes and bundles, cheapest first in ${r.currency}. Out ${formatRelease(set.releaseDate)}.`
-      : `Pokémon ${set.name} released on ${formatRelease(set.releaseDate)}. See live ${set.name} sealed prices across ${r.adjective} stores.`,
-    path: `/${r.region}/preorders/${set.slug}`,
-    // Every region's copy carries the facts, the dates and that market's price
-    // lists, so all seven are advertised while the set is upcoming.
-    alternates: pre ? regionAlternates(r.region, `/preorders/${set.slug}`) : undefined,
-    image: set.logo,
-    noindex: !pre,
-  });
+  // The title and description lead with the release date as well as the pre-order prices: "delta reign release date" is the
+  // search people make before they pre-order (lib/preorder-copy.ts).
+  const title = preorderTitle(set, r, pre);
+  return {
+    ...pageMeta({
+      title: titleText(title),
+      description: preorderDescription(set, guide, r, pre),
+      path: `/${r.region}/preorders/${set.slug}`,
+      // Every region's copy carries the facts, the dates and that market's price
+      // lists, so all seven are advertised while the set is upcoming.
+      alternates: pre ? regionAlternates(r.region, `/preorders/${set.slug}`) : undefined,
+      image: set.logo,
+      noindex: !pre,
+    }),
+    title,
+  };
 }
 
 /** The cheapest open offer of a product, from its ranked offers (open first, cheapest first). */
 function cheapestOpen(g: SetOfferGroup, now: number) {
   const o = g.offers[0];
   return o && offerStock(o, now) === "open" ? o : null;
-}
-
-function faqs(set: PokemonSet, guide: PreorderGuide, r: RegionInfo) {
-  const boxMsrp = r.market === "US" ? usMsrpCents("booster-box", set.code) : null;
-  const etb = guide.products.find((p) => p.type === "etb");
-  return [
-    {
-      q: `When does Pokémon ${set.name} release?`,
-      a: `${formatRelease(set.releaseDate)} in English, per The Pokémon Company.${guide.prereleaseFrom ? ` Prerelease events at participating stores start ${formatRelease(guide.prereleaseFrom)}` : ""}${guide.liveDate ? `${guide.prereleaseFrom ? ", and" : ""} Pokémon TCG Live gets the set on ${formatRelease(guide.liveDate)}` : ""}${guide.prereleaseFrom || guide.liveDate ? "." : ""} Stores may ship pre-orders a few days either side of the street date.`,
-    },
-    {
-      q: `How much does a ${set.name} booster box cost to pre-order?`,
-      a: `Each store sets its own pre-order price, and they differ more before release than at any other time, because nothing has shipped and every store is picking an opening number. This page lists every ${r.adjective} store we track that is taking ${set.name} pre-orders, cheapest first, in ${r.currency}.${boxMsrp ? ` The Pokémon Company's US list price for the 36-pack booster display is ${money(boxMsrp, "US")}.` : ""}`,
-    },
-    {
-      q: "Is it cheaper to pre-order or to wait until release?",
-      a: "It depends what you want. Sealed product usually sits at or near its list price during pre-orders and can climb at launch if demand outruns a store's allocation; single cards are almost always cheapest a few weeks after release, once supply settles. If you want to open product, pre-ordering at a fair price is reasonable; if you want particular cards, waiting for singles is usually cheaper.",
-    },
-    {
-      q: "Are pre-order prices final?",
-      a: "No. A pre-order price is what the store asks today, and stores change them before release, up or down, as their allocation firms up; a store can also cut or delay an allocation. We read the stores about twice a day, and nothing here is a promise from the store or from us. Confirm the price and the store's pre-order terms at checkout.",
-    },
-    ...(etb
-      ? [
-          {
-            q: `What comes in the ${set.name} Elite Trainer Box?`,
-            a: `${etb.contents.replace(/^./, (c) => c.toUpperCase())}, as The Pokémon Company announced it for the set.`,
-          },
-        ]
-      : []),
-    {
-      q: "Do these prices include shipping?",
-      a: "No. They are each store's listed item price in its own currency. A sealed box ships as a parcel, so check the store's checkout for postage before comparing two close prices.",
-    },
-  ];
 }
 
 export default async function PreorderPage({ params }: Params) {
@@ -118,7 +89,15 @@ export default async function PreorderPage({ params }: Params) {
   const today = new Date(now).toISOString().slice(0, 10);
   const listed = groups.filter((g) => g.offers.length > 0);
   const open = listed.filter((g) => cardOpen(g.product));
-  const FAQS = faqs(set, guide, r);
+  // The FAQ's live answers: the cheapest open pre-order of each type, from the price lists this page renders (no extra read).
+  const cheapest: CheapestByType = {};
+  for (const g of open) {
+    const t = TYPE_BY_LABEL.get(g.product.productType)?.key;
+    const c = g.product.lowestPriceCents;
+    if (t && c != null && (cheapest[t] == null || c < cheapest[t]!)) cheapest[t] = c;
+  }
+  const FAQS = preorderFaqs(set, guide, r, cheapest, pre);
+  const msrpRows = msrpPerPack(set, guide, r);
   const path = `/${r.region}/preorders/${set.slug}`;
 
   const ld = [
@@ -195,6 +174,8 @@ export default async function PreorderPage({ params }: Params) {
         </p>
       )}
 
+      <ReleaseGlance set={set} facts={glanceFacts(set, guide)} today={today} />
+
       {pre && open.length > 0 && <AtAGlance r={r} groups={open} now={now} />}
 
       {pre &&
@@ -231,17 +212,50 @@ export default async function PreorderPage({ params }: Params) {
           {guide.products.map((p) => {
             const t = TYPE_BY_KEY.get(p.type);
             const msrp = r.market === "US" && p.msrp !== false ? usMsrpCents(p.type, set.code) : null;
+            const perPack = msrpRows.find((x) => x.type === p.type)?.perPack;
             return (
               <div key={p.type} className="card p-4">
                 <dt className="font-semibold">{t?.label ?? p.type}</dt>
-                {msrp != null && <dd className="mt-0.5 text-xs font-semibold text-pre">US MSRP {money(msrp, "US")}</dd>}
+                {msrp != null && (
+                  <dd className="mt-0.5 text-xs font-semibold text-pre">
+                    US MSRP {money(msrp, "US")}
+                    {perPack != null && <span className="font-normal text-muted"> · {money(perPack, "US")} a pack</span>}
+                  </dd>
+                )}
                 <dd className="mt-1.5 text-sm leading-6 text-muted">{p.contents}.</dd>
+                {p.type === "build-battle" && guide.prerelease && (
+                  <dd className="mt-1.5 text-sm leading-6 text-muted">
+                    The promos: {guide.prerelease.promos.slice(0, -1).join(", ")} or {guide.prerelease.promos.at(-1)} ({guide.prerelease.source}).
+                  </dd>
+                )}
               </div>
             );
           })}
         </dl>
+        {msrpValueSentence(msrpRows) && <p className="mt-4 max-w-3xl text-sm leading-6 text-muted">{msrpValueSentence(msrpRows)}</p>}
         {r.market === "US" && <p className="mt-3 text-xs text-muted">{RRP_NOTE}</p>}
       </Section>
+
+      {guide.makeup.length > 0 && (
+        <Section title={`What’s in ${set.name}`} kicker={`The set · ${guide.cardCount}`}>
+          <div className="card max-w-3xl p-6 text-sm leading-6 text-muted">
+            <p>
+              Pokémon TCG: {guide.fullName} has {guide.cardCount}, headlined by {guide.headliners[0]}. It includes:
+            </p>
+            <ul className="mt-3 grid list-disc gap-1 pl-5">
+              {guide.makeup.map((m) => (
+                <li key={m}>{m}</li>
+              ))}
+            </ul>
+            {guide.newFeature && (
+              <p className="mt-4">
+                <strong className="text-ink">New in this set: {guide.newFeature.name}.</strong> {guide.newFeature.text} ({guide.newFeature.source}).
+              </p>
+            )}
+            <p className="mt-4 text-xs text-faint">Per {guide.makeupSource}.</p>
+          </div>
+        </Section>
+      )}
 
       {pre && (
         <Section title={`When to pre-order ${set.name} — and when to wait`}>
@@ -273,21 +287,21 @@ export default async function PreorderPage({ params }: Params) {
                 charges, whether it ships on release day, and what happens if its allocation is cut.
               </li>
             </ul>
+            {guide.notes.map((n) => (
+              <p key={n.text} className="mt-4">
+                <strong className="text-ink">Reported:</strong> {n.text} ({n.source}).
+              </p>
+            ))}
             <p className="mt-4">
               We don&rsquo;t forecast prices and won&rsquo;t tell you the number is going up. What this page can tell you is what every store we
-              track is asking right now, in your currency.
+              track is asking right now, in your currency.{" "}
+              <Link href={`/${r.region}/guides/how-to-preorder-pokemon-tcg`} prefetch={false} className="font-semibold text-brand hover:underline">
+                How to pre-order Pokémon TCG sets →
+              </Link>
             </p>
           </div>
         </Section>
       )}
-
-      <Section title={`${set.name} key dates`}>
-        <ul className="card max-w-3xl divide-y divide-line">
-          {guide.prereleaseFrom && <DateRow label="Prerelease events begin" iso={guide.prereleaseFrom} today={today} />}
-          {guide.liveDate && <DateRow label="Pokémon TCG Live" iso={guide.liveDate} today={today} />}
-          <DateRow label="Release (English)" iso={set.releaseDate} today={today} />
-        </ul>
-      </Section>
 
       <div className="mt-10 flex flex-wrap gap-2 text-sm">
         <Link href={`/${r.region}/sets/${set.slug}`} prefetch={false} className="chip py-2">
@@ -335,17 +349,34 @@ export default async function PreorderPage({ params }: Params) {
   );
 }
 
-function DateRow({ label, iso, today }: { label: string; iso: string; today: string }) {
+/**
+ * The release date at a glance, under the H1: the answer to "when does <set> come out", with the prerelease, Pokémon TCG Live and the
+ * set's size (lib/preorder-copy.ts glanceFacts). Two columns on a phone, four from sm.
+ */
+function ReleaseGlance({ set, facts, today }: { set: PokemonSet; facts: GlanceFact[]; today: string }) {
   return (
-    <li className="flex items-center justify-between gap-4 px-5 py-3 text-sm">
-      <span className="text-muted">{label}</span>
-      <span className="text-right">
-        <time dateTime={iso} className="font-semibold">
-          {formatRelease(iso)}
-        </time>{" "}
-        <span className="text-xs text-faint">({relativeDay(iso, today)})</span>
-      </span>
-    </li>
+    <section aria-labelledby="release-date" className="card mt-6 max-w-4xl p-4 sm:p-5">
+      <h2 id="release-date" className="font-display text-lg font-bold tracking-tight">
+        Pokémon {set.name} release date
+      </h2>
+      <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-4 sm:grid-cols-4">
+        {facts.map((f) => (
+          <div key={f.key} className="min-w-0">
+            <dt className="text-xs font-medium text-muted">{f.label}</dt>
+            <dd className="mt-0.5 font-display text-base font-bold leading-snug text-ink sm:text-lg">
+              {f.iso ? <time dateTime={f.iso}>{formatRelease(f.iso)}</time> : f.value}
+            </dd>
+            {(f.iso || f.note) && (
+              <dd className="mt-0.5 text-xs leading-5 text-muted">
+                {f.iso && relativeDay(f.iso, today).replace(/^./, (c) => c.toUpperCase())}
+                {f.iso && f.note && " · "}
+                {f.note}
+              </dd>
+            )}
+          </div>
+        ))}
+      </dl>
+    </section>
   );
 }
 
