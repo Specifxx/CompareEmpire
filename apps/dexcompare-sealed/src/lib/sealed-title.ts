@@ -384,6 +384,10 @@ export function classify(title: string): TypeKey | null {
   // which the singular-only rule let through as the set's booster box at S$135
   // (2026-10-16).
   if (/\bhalf\s*(?:booster\s*)?(?:box(?:es)?|displays?)\b|\benhanced\s*(?:booster\s*)?(?:box(?:es)?|displays?)\b/.test(t)) return null;
+  // An 18-pack box or display is the half display under another name: a
+  // eurozone store's "Pitch Black Booster Box (18 Boosters)" was ranked as the
+  // set's €132.99 booster box (2026-10-16).
+  if (/booster\s*(?:box|display)|display\s*box/.test(t) && /\b18\s*x?\s*(?:booster\s*)?(?:packs?|boosters?)\b|\(\s*18\s*\)/.test(t)) return null;
 
   // "Elite Trainer Box Plus" (more packs, a different price) and cases of
   // Pokémon Center ETBs are not the plain ETB or its case.
