@@ -129,4 +129,4 @@ jobs:
       - name: Publish it to main
         if: steps.db.outputs.found == 'true'
         working-directory: .
-        run: bash apps/dexcompare-sealed/scripts/publish-public-data.sh "dexcompare-sealed-import.yml run ${{ github.run_id }}"
+        run: bash apps/dexcompare-sealed/scripts/publish-public-data.sh "dexcompare-sealed-import.yml run ${{ github.run_id }}" release

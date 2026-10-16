@@ -134,4 +134,4 @@ jobs:
         run: npx tsx scripts/export-public-data.ts
 
       - name: Publish it to main
-        run: bash apps/dexcompare-sealed/scripts/publish-public-data.sh "dexcompare-migrate-dc2.yml run ${{ github.run_id }}"
+        run: bash apps/dexcompare-sealed/scripts/publish-public-data.sh "dexcompare-migrate-dc2.yml run ${{ github.run_id }}" release

@@ -25,11 +25,15 @@ const opt = (name: string) => {
 // A marketplace that hasn't been read for this long fails the job (see main).
 const MARKETPLACE_STALE_MS = 48 * 3600_000;
 
+const FILES_RELEASE = "not needed: the data commit's deploy refreshes every page";
+
 async function revalidate(): Promise<string> {
   const secret = process.env.REVALIDATE_SECRET;
   if (!secret) return "skipped (REVALIDATE_SECRET not set)";
   try {
     const res = await fetch(`${SITE_URL}/api/revalidate`, { method: "POST", headers: { Authorization: `Bearer ${secret}` } });
+    // 202: the site serves its bundled files, so this import reaches the pages with the publish step's deploy, not a purge.
+    if (res.status === 202) return FILES_RELEASE;
     return res.ok ? "ok" : `failed: HTTP ${res.status}`;
   } catch (e) {
     return `failed: ${(e as Error).message}`;
@@ -97,7 +101,7 @@ async function main() {
   const purged = await purgeEbayListings();
   console.log(purged);
   const reval = await revalidate();
-  const sitemapProblem = reval === "ok" && !only ? await checkLiveSitemap() : null;
+  const sitemapProblem = (reval === "ok" || reval === FILES_RELEASE) && !only ? await checkLiveSitemap() : null;
 
   // "N stores" counts independent stores only; a marketplace is reported by name.
   const marketplaces = summary.marketplaces.map((m) => `${m.name} ${m.ok ? `read (${m.offers} offers)` : "NOT read"}`);
