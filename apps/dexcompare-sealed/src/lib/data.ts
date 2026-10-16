@@ -395,6 +395,29 @@ export async function setOfferGroups(market: Market, setCode: string): Promise<S
     .sort((a, b) => typeRank(a.product.productType) - typeRank(b.product.productType) || a.product.name.localeCompare(b.product.name));
 }
 
+/**
+ * A set's TCGplayer offers (the US marketplace, priced in US$), by product slug: the pre-order page's marketplace row outside the US,
+ * where TCGplayer is never one of the region's offers. One read scoped to the set and to TCGplayer, capped like setOfferGroups.
+ */
+export async function setMarketplaceOffers(setCode: string): Promise<Map<string, UsMarketplaceOffer>> {
+  const rows = await prisma.offer.findMany({
+    where: { store: TCGPLAYER.key, product: { setCode } },
+    take: SET_GROUPS_TAKE,
+    select: { title: true, url: true, priceCents: true, inStock: true, lastSeen: true, product: { select: { slug: true } } },
+  });
+  return new Map(rows.map(({ product, lastSeen, ...o }) => [product.slug, { ...o, lastSeen: lastSeen.toISOString() }]));
+}
+
+/**
+ * How far a set reaches across all seven markets: the distinct stores (never a marketplace) that list any of its products, and the
+ * markets those stores are in. One GROUP BY by store, scoped to the set: at most one small row per store.
+ */
+export async function setStoreReach(setCode: string): Promise<{ stores: number; markets: number }> {
+  const rows = await prisma.offer.groupBy({ by: ["store"], where: { store: { not: TCGPLAYER.key }, product: { setCode } } });
+  const markets = new Set(rows.flatMap((r) => STORE_BY_KEY.get(r.store)?.market ?? []));
+  return { stores: rows.length, markets: markets.size };
+}
+
 // The headline set products a buyer prices a new set by. The release calendar
 // and the set page's "cheapest way to buy packs" strip read these.
 export const CALENDAR_TYPES = ["Booster Box", "Elite Trainer Box", "Booster Bundle"];

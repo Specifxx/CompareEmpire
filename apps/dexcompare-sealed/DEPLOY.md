@@ -262,6 +262,16 @@ The owner approved these changes to the site's own advertising rules; `src/lib/e
 10. **`/api/ebay` edge cache**: an hour with stale-while-revalidate, instead of 5 minutes (see "Edge cache and the kill switch").
 11. **A density ceiling**: ad-unit height ÷ main content height at most 25% per page, at 390 and 1440 wide, checked by the
     viewport sweep (README.md). A ceiling, never a target.
+12. **Pre-order pages: marketplaces pinned on top** (the owner, 2026-10-16: "make sure the eBay links stay at the very top,
+    alongside the TCG ones, and everything else is priced in order"). Each product's price list on `/<region>/preorders/<set>`
+    opens with a labelled "Marketplaces" group: eBay first (`preorders-ebay`: the region's eBay Buy It Now SEARCH for the
+    product, eBay blue, "Ad", worded "Search on ebay.com.au, not a price we checked": the importer refuses eBay pre-sales of an
+    unreleased set, so there is no listing to price), then TCGplayer (`preorders-tcgplayer`: in the US its offer with its price
+    and stock; elsewhere its US$ offer, labelled "US marketplace, prices in US$", or a search). Neither is numbered, badged,
+    counted as a store or compared with a price. Below them come the stores alone, numbered in price order (open pre-orders
+    cheapest first, "Cheapest store" on #1, sold out and not checked last, `preorders`); TCGplayer left the store ranking there.
+    The group is part of each price list, like the product page's `listings-offer-row`: the viewport sweep treats it as the
+    comparison, not a unit. The product page's table is unchanged.
 
 **Unchanged**: an "Ad" or "affiliate link" label next to every unit and link; `rel="sponsored nofollow noopener noreferrer"` on
 every paid link; store links plain, and commissions never change the store order; at most ONE unit per phone viewport and TWO
@@ -274,7 +284,8 @@ rules as they were; no incentivised clicks; no price-history wording.
 **Not adopted** (from the 2026-10 audits): two units per phone viewport or a 25% density *target* (it would trade the site's
 welcoming feel and Core Web Vitals for marginal clicks); `MAX_FEED_ROWS` 12 and a third tile per grid (an importer change);
 eBay buttons in release-calendar rows (the owner removed text call-to-action rows there); a per-store affiliate hook (no store
-programme has been joined yet); pinning the eBay row to the top of the price table (it would break the honest ranking).
+programme has been joined yet); pinning the eBay row to the top of the product page's price table (it would break the honest ranking; the pre-order page's pinned
+marketplace group, item 12, sits above the ranking and outside it, so the store order stays honest).
 
 **Licence trade-offs the owner accepted** (eBay API License Agreement; details and how to revert each in "eBay's rules, and how
 each is met"): **8.1(b)(2)**, eBay content mixed with other content: the price-table row and the best-price card (2026-10-11),
@@ -336,7 +347,9 @@ compact "search" CTA and the in-feed tile report under the strip's own placement
 | `set-sealed` | every RELEASED set's page that is not a hot set: the "Shop <set> sealed on eBay" button inside the top line of the set's strip, and the compact CTA it becomes (a search link, `dex-<region>-set-sealed`); hot sets keep `hot-set`, pre-order sets have none. Part of the strip, never a unit of its own |
 | `set-tcgplayer`, `guide-tcgplayer` | US only: the labelled TCGplayer search ("Shop <set> on TCGplayer ↗ · affiliate link") in a set page's hero card, and "Search <topic> on TCGplayer ↗ · affiliate link" in a guide's closing "Where to buy" section (Impact `sharedid` `dex-us-set-tcgplayer`, `dex-us-guide-tcgplayer`) |
 | `product-best`, `product-table`, `product-soldout`, `browse-empty`, `store-page` | the page's own store/TCGplayer buttons: the best-price card's button, the price table's rows, the sold-out callout's TCGplayer button (now the secondary choice under the eBay box), the browse page's "nothing matches" eBay/TCGplayer box, and a store page's "Visit" link |
-| `preorders` | a pre-order page (`/<region>/preorders/<set>`, `src/lib/preorder-guides.ts`): the store/TCGplayer buttons of each product's price list. No eBay row there: an unreleased set's eBay listings are pre-sales the importer refuses |
+| `preorders` | a pre-order page (`/<region>/preorders/<set>`, `src/lib/preorder-guides.ts`): the STORE buttons of each product's price list, the stores alone, numbered in price order (TCGplayer moved to `preorders-tcgplayer` on 2026-10-16) |
+| `preorders-ebay` | a pre-order page: the eBay row pinned at the very top of each product's price list, in its "Marketplaces" group (`PreorderMarketplaces` in `src/components/Marketplaces.tsx`): the region's eBay Buy It Now search for the product (an unreleased set's eBay listings are pre-sales the importer refuses, so it is a search, never a price), eBay blue, "Ad"; unnumbered and never compared |
+| `preorders-tcgplayer` | a pre-order page: the TCGplayer row under it in the same group: in the US TCGplayer's own offer (price, pre-order or sold out), elsewhere its US$ offer (labelled "US marketplace, prices in US$", one read of the set's TCGplayer offers) or a TCGplayer search; "affiliate link"; unnumbered, never a store, never compared with local prices (Impact `sharedid` `dex-<region>-preorders-tcgplayer`) |
 
 When a strip has nothing to list (no import yet, a kill switch, rows older than the age bound) it is a single
 compact row: the eBay wordmark, "Ad", and a "Search Pokémon sealed on eBay" button (under the same
@@ -939,6 +952,7 @@ query's row cap and its card columns:
 | `/<region>/cheapest-packs` | `perPackLeaders` (≤ 200 rows, one window query) | about 45 KB |
 | `/<region>/this-week` | `productCountsBySets` (one `GROUP BY`, ≤ 10 sets), the calendar's products, `dealsInMarket` take 8, `newlyTracked` 12 | about 15 KB |
 | `/<region>/guides/<slug>` | at most about 40 rows (existing loaders, one `GROUP BY` by type) | ≤ 20 KB (the index: none) |
+| `/<region>/preorders/<set>` | `setOfferGroups` (≤ 30 products × ≤ 40 offers, as before); added 2026-10-16: outside the US the set's TCGplayer offers (≤ 30 rows) and, for the "across all markets" line, one `GROUP BY` of the set's offers by store (one small row per store, ≤ ~400) | about +10 KB |
 | `/guides/pokemon-booster-box-prices-by-country` | every market's open booster boxes of ≤ 7 candidate sets (take ≤ 98), then the lead set's open ETB and bundle (take ≤ 28), one `StoreStat` aggregate; rendered on first visit, never at build | ≤ 20 KB |
 | `/api/browse/<region>` | the search and filter index: one whole-market read per region | about 0.5 MB per region per import |
 | product pages | `inStockAlternatives` (LIMIT 4) added; related products unchanged (take 40) | about +1 KB |

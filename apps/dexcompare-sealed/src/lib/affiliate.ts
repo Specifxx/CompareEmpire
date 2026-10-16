@@ -21,7 +21,9 @@ export const PLACEMENTS = [
   "product-marketplace", // product page: the Marketplaces panel under it
   "product-soldout", // product page: the sold-out callout
   "product-table", // product page: the offer table, stores and marketplaces
-  "preorders", // pre-order page (/[region]/preorders/[set]): each product's store price list
+  "preorders", // pre-order page (/[region]/preorders/[set]): each product's store price list (the stores only, numbered by price)
+  "preorders-ebay", // pre-order page: the pinned eBay row at the top of each product's price list (a search: pre-sale listings are refused)
+  "preorders-tcgplayer", // pre-order page: the pinned TCGplayer row under it (US: its offer; elsewhere its US$ offer or a search)
   "browse-empty", // /[region]/sealed with nothing matching the filters
   "browse-search", // /[region]/sealed with a search query: the one query-matched eBay (and, in the US, TCGplayer) search box after the first results
   "store-page", // a store's "Visit" link

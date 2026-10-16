@@ -4,20 +4,36 @@ import { cache } from "react";
 import type { Metadata } from "next";
 import { Ago } from "@/components/Ago";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { PreorderMarketplaces } from "@/components/Marketplaces";
 import { OfferTable } from "@/components/OfferTable";
 import { Empty, Section } from "@/components/Section";
-import { lastCheckedAt, setOfferGroups, type SetOfferGroup } from "@/lib/data";
+import { lastCheckedAt, setMarketplaceOffers, setOfferGroups, setStoreReach, type SetOfferGroup, type UsMarketplaceOffer } from "@/lib/data";
 import { cardOpen } from "@/lib/compact";
 import { money, plural, relativeDay, timeAgo } from "@/lib/format";
 import { packsForLabel, perPackCents } from "@/lib/packs";
 import { COUNTRY_GUIDE } from "@/content/guides/country-prices";
 import { titleText } from "@/lib/hub-copy";
-import { glanceFacts, msrpPerPack, msrpValueSentence, preorderDescription, preorderFaqs, preorderTitle, type CheapestByType, type GlanceFact } from "@/lib/preorder-copy";
+import {
+  cheapestStoreByType,
+  cheapestStoreOffer,
+  glanceFacts,
+  msrpPerPack,
+  msrpValueSentence,
+  preorderDescription,
+  preorderFaqs,
+  preorderSummary,
+  preorderTitle,
+  reachLine,
+  storeOffers,
+  type GlanceFact,
+  type PreorderSummary,
+} from "@/lib/preorder-copy";
 import { guideShowsMsrp, preorderGuideBySlug, type PreorderGuide } from "@/lib/preorder-guides";
 import { formatRelease, isPreorderSet } from "@/lib/release";
 import { regionOrNotFound, type RegionInfo } from "@/lib/regions";
 import { RRP_NOTE, usMsrpCents } from "@/lib/rrp";
 import { offerStock } from "@/lib/sealed-offers";
+import { storesInMarket } from "@/lib/stores";
 import { jsonLd, pageMeta, regionAlternates } from "@/lib/seo";
 import { TYPE_BY_KEY, TYPE_BY_LABEL } from "@/lib/sealed-title";
 import { type PokemonSet } from "@/lib/sets";
@@ -73,31 +89,30 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   };
 }
 
-/** The cheapest open offer of a product, from its ranked offers (open first, cheapest first). */
-function cheapestOpen(g: SetOfferGroup, now: number) {
-  const o = g.offers[0];
-  return o && offerStock(o, now) === "open" ? o : null;
-}
-
 export default async function PreorderPage({ params }: Params) {
   const r = regionOrNotFound(params.region);
   const found = preorderGuideBySlug(params.set);
   if (!found) notFound();
   const { guide, set } = found;
   const pre = isPreorderSet(set.code);
-  const [groups, checked] = await Promise.all([pre ? getGroups(r.market, set.code) : Promise.resolve([]), lastCheckedAt(r.market)]);
+  const us = r.market === "US";
+  // Three scoped reads while the set is upcoming: the market's price lists (setOfferGroups), outside the US the set's TCGplayer offers
+  // in US$ for the marketplace rows (≤ 30 rows), and the set's reach across every market (one GROUP BY by store).
+  const [groups, checked, tcgOffers, reach] = await Promise.all([
+    pre ? getGroups(r.market, set.code) : Promise.resolve([]),
+    lastCheckedAt(r.market),
+    pre && !us ? setMarketplaceOffers(set.code) : Promise.resolve(new Map<string, UsMarketplaceOffer>()),
+    pre ? setStoreReach(set.code) : Promise.resolve(null),
+  ]);
   const now = Date.now();
   const today = new Date(now).toISOString().slice(0, 10);
   const listed = groups.filter((g) => g.offers.length > 0);
   const open = listed.filter((g) => cardOpen(g.product));
-  // The FAQ's live answers: the cheapest open pre-order of each type, from the price lists this page renders (no extra read).
-  const cheapest: CheapestByType = {};
-  for (const g of open) {
-    const t = TYPE_BY_LABEL.get(g.product.productType)?.key;
-    const c = g.product.lowestPriceCents;
-    if (t && c != null && (cheapest[t] == null || c < cheapest[t]!)) cheapest[t] = c;
-  }
-  const FAQS = preorderFaqs(set, guide, r, cheapest, pre);
+  // The FAQ's live answers and the summary strip: the cheapest open STORE pre-order of each type and who has it, from the price lists
+  // this page renders (no extra read). TCGplayer is a marketplace row, never the "cheapest store".
+  const FAQS = preorderFaqs(set, guide, r, cheapestStoreByType(listed, now), pre);
+  const summary = preorderSummary(listed, storesInMarket(r.market).length, set, today, now);
+  const reachText = reachLine(set, reach);
   const msrpRows = msrpPerPack(set, guide, r);
   const path = `/${r.region}/preorders/${set.slug}`;
 
@@ -175,6 +190,8 @@ export default async function PreorderPage({ params }: Params) {
         </p>
       )}
 
+      {pre && <SummaryStrip r={r} s={summary} reach={reachText} />}
+
       <ReleaseGlance set={set} facts={glanceFacts(set, guide)} today={today} />
 
       {pre && open.length > 0 && <AtAGlance r={r} groups={open} now={now} />}
@@ -184,7 +201,7 @@ export default async function PreorderPage({ params }: Params) {
           <Section title={`${set.name} pre-orders by product`} kicker={`${plural(listed.length, "product")} listed in ${r.name}`}>
             <div className="grid gap-8">
               {listed.map((g) => (
-                <ProductPrices key={g.product.slug} g={g} r={r} guide={guide} />
+                <ProductPrices key={g.product.slug} g={g} r={r} guide={guide} tcgplayer={us ? null : tcgOffers.get(g.product.slug) ?? null} now={now} />
               ))}
             </div>
             <p className="mt-4 max-w-3xl text-xs text-muted">
@@ -391,22 +408,23 @@ function ReleaseGlance({ set, facts, today }: { set: PokemonSet; facts: GlanceFa
 }
 
 /** One row per product: its cheapest pre-order, per pack where the pack count is fixed, and how many stores have it open. */
+/** One row per product: its cheapest open STORE pre-order (never TCGplayer: it sits above the stores), per pack, and how many stores have it open. */
 function AtAGlance({ r, groups, now }: { r: RegionInfo; groups: SetOfferGroup[]; now: number }) {
   return (
     <div className="card mt-6 overflow-hidden">
       <table className="w-full text-sm">
-        <caption className="sr-only">Cheapest pre-order per product</caption>
+        <caption className="sr-only">Cheapest store pre-order per product</caption>
         <thead className="border-b border-line text-left text-xs uppercase tracking-wide text-muted">
           <tr>
             <th scope="col" className="px-4 py-2.5 font-semibold">Product</th>
-            <th scope="col" className="px-4 py-2.5 text-right font-semibold">Cheapest pre-order</th>
+            <th scope="col" className="px-4 py-2.5 text-right font-semibold">Cheapest store</th>
             <th scope="col" className="hidden px-4 py-2.5 text-right font-semibold sm:table-cell">Per pack</th>
             <th scope="col" className="hidden px-4 py-2.5 text-right font-semibold sm:table-cell">Stores</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-line">
           {groups.map((g) => {
-            const best = cheapestOpen(g, now);
+            const best = cheapestStoreOffer(g.offers, now);
             const packs = packsForLabel(g.product.productType, g.product.setCode, g.product.name);
             const perPack = best ? perPackCents(best.priceCents, packs) : null;
             return (
@@ -416,12 +434,11 @@ function AtAGlance({ r, groups, now }: { r: RegionInfo; groups: SetOfferGroup[];
                     {g.product.name}
                   </a>
                 </th>
-                <td className="tabular px-4 py-2.5 text-right font-semibold">{best ? money(best.priceCents, r.market) : "—"}</td>
-                <td className="tabular hidden px-4 py-2.5 text-right text-muted sm:table-cell">{perPack != null ? money(perPack, r.market) : "—"}</td>
-                <td className="tabular hidden px-4 py-2.5 text-right text-muted sm:table-cell">
-                  {g.product.inStockStores}
-                  {g.product.marketplaceOpen ? " + TCGplayer" : ""}
+                <td className="tabular px-4 py-2.5 text-right font-semibold">
+                  {best ? money(best.priceCents, r.market) : <span className="font-normal text-muted">{g.product.marketplaceOpen ? "TCGplayer only" : "—"}</span>}
                 </td>
+                <td className="tabular hidden px-4 py-2.5 text-right text-muted sm:table-cell">{perPack != null ? money(perPack, r.market) : "—"}</td>
+                <td className="tabular hidden px-4 py-2.5 text-right text-muted sm:table-cell">{g.product.inStockStores}</td>
               </tr>
             );
           })}
@@ -431,11 +448,50 @@ function AtAGlance({ r, groups, now }: { r: RegionInfo; groups: SetOfferGroup[];
   );
 }
 
-function ProductPrices({ g, r, guide }: { g: SetOfferGroup; r: RegionInfo; guide: PreorderGuide }) {
+/**
+ * The strip under the intro: the comparison in four numbers (stores checked in the market, how many take pre-orders, the cheapest booster
+ * box pre-order and who has it, days to release), then the set's reach across every market. Every number is the page's own data or the
+ * store registry (lib/preorder-copy.ts preorderSummary): it is what a link post quotes.
+ */
+function SummaryStrip({ r, s, reach }: { r: RegionInfo; s: PreorderSummary; reach: string | null }) {
+  const tiles: { key: string; value: string; label: string }[] = [
+    { key: "checked", value: s.storesChecked.toLocaleString("en"), label: `stores checked in ${r.inName}` },
+    { key: "taking", value: s.taking.toLocaleString("en"), label: s.taking === 1 ? "store taking pre-orders" : "stores taking pre-orders" },
+    {
+      key: "box",
+      value: s.cheapestBox ? money(s.cheapestBox.cents, r.market) : "—",
+      label: s.cheapestBox
+        ? `cheapest booster box, at ${s.cheapestBox.store}${s.cheapestBox.perPack != null ? ` (${money(s.cheapestBox.perPack, r.market)} a pack)` : ""}`
+        : "no booster box pre-order open yet",
+    },
+    { key: "days", value: String(Math.max(0, s.days)), label: s.days === 1 ? "day to release" : "days to release" },
+  ];
+  return (
+    <section aria-label="Pre-orders at a glance" className="mt-6 max-w-4xl">
+      <dl className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
+        {tiles.map((t) => (
+          <div key={t.key} data-summary={t.key} className="flex min-w-0 flex-col-reverse justify-end rounded-xl border border-line bg-surface px-3.5 py-3">
+            <dt className="mt-0.5 text-xs leading-4 text-muted">{t.label}</dt>
+            <dd className="tabular font-display text-2xl font-extrabold leading-tight text-ink">{t.value}</dd>
+          </div>
+        ))}
+      </dl>
+      {reach && <p className="mt-2 text-xs text-muted">{reach}</p>}
+    </section>
+  );
+}
+
+/**
+ * One product's price list: the pinned marketplace rows at the top (eBay's search, then TCGplayer: labelled, unnumbered, never compared),
+ * then the stores alone, numbered by price (open pre-orders cheapest first, the cheapest marked), sold out and not checked last.
+ */
+function ProductPrices({ g, r, guide, tcgplayer, now }: { g: SetOfferGroup; r: RegionInfo; guide: PreorderGuide; tcgplayer: UsMarketplaceOffer | null; now: number }) {
   const type = TYPE_BY_LABEL.get(g.product.productType);
   const packs = packsForLabel(g.product.productType, g.product.setCode, g.product.name);
   const msrp = r.market === "US" && type && guideShowsMsrp(guide, type.key) ? usMsrpCents(type.key, guide.setCode) : null;
-  const stores = g.offers.filter((o) => !o.marketplace).length;
+  const stores = storeOffers(g.offers, now);
+  // In the US TCGplayer is one of the market's offers; elsewhere its US$ offer comes from the set's TCGplayer read (or none: a search).
+  const tcg = r.market === "US" ? g.offers.find((o) => o.marketplace) ?? null : tcgplayer;
   return (
     <section id={g.product.slug} className="scroll-mt-24">
       <div className="mb-3 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
@@ -446,14 +502,36 @@ function ProductPrices({ g, r, guide }: { g: SetOfferGroup; r: RegionInfo; guide
         </h3>
         <span className="text-sm text-muted">
           {g.product.inStockStores
-            ? `Pre-order open at ${plural(g.product.inStockStores, "store")}${g.product.marketplaceOpen ? " + TCGplayer" : ""}`
-            : g.product.marketplaceOpen
-              ? `On TCGplayer${stores ? "; sold out at every store" : ""}`
-              : "Sold out everywhere we track"}
+            ? `Pre-order open at ${plural(g.product.inStockStores, "store")}`
+            : stores.length
+              ? "Sold out at every store we track"
+              : `No ${r.adjective} store we track lists it yet`}
           {msrp != null && ` · US MSRP ${money(msrp, "US")}`}
         </span>
       </div>
-      <OfferTable offers={g.offers} region={r.region} preorder packs={packs} placement="preorders" />
+      <OfferTable
+        offers={stores}
+        region={r.region}
+        preorder
+        packs={packs}
+        placement="preorders"
+        numbered
+        bestLabel={{ short: "Cheapest", full: "Cheapest store" }}
+        ranked="Stores only: open pre-orders first, cheapest first."
+        notes={["eBay and TCGplayer sit above the stores and are not ranked with them."]}
+        top={
+          <>
+            <PreorderMarketplaces region={r.region} productName={g.product.name} tcgplayer={tcg} />
+            <div className="flex items-center justify-between gap-3 border-b border-line bg-raised px-4 py-2 sm:px-5">
+              <span className="eyebrow">Stores, cheapest first</span>
+              <span className="text-[11px] text-muted">
+                {plural(stores.length, "store")} {stores.length === 1 ? "lists" : "list"} it
+              </span>
+            </div>
+            {stores.length === 0 && <p className="border-b border-line px-4 py-3 text-sm text-muted sm:px-5">No {r.adjective} store we track lists it yet.</p>}
+          </>
+        }
+      />
     </section>
   );
 }

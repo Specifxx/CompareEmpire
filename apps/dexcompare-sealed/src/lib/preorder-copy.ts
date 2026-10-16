@@ -2,14 +2,15 @@
 // per-pack list prices and the FAQ (with its FAQPage JSON-LD). Facts come from lib/preorder-guides.ts (sourced and dated), dates
 // from lib/sets.ts, pack counts from lib/packs.ts and US MSRP from lib/rrp.ts (US page only); the only live numbers are the page's
 // own cheapest pre-orders, passed in. Pure (no database, no React), so tests/preorders.test.ts reads every sentence.
-import { money } from "./format";
+import { money, plural } from "./format";
 import { hubTitle, type HubTitle } from "./hub-copy";
-import { packsFor, perPackCents } from "./packs";
+import { packsFor, packsForLabel, perPackCents } from "./packs";
 import { guideShowsMsrp, type PreorderGuide } from "./preorder-guides";
 import { formatRelease } from "./release";
-import type { RegionInfo } from "./regions";
+import { REGION_LIST, type RegionInfo } from "./regions";
 import { usMsrpCents } from "./rrp";
-import type { TypeKey } from "./sealed-title";
+import { offerStock, rankOffers, type SealedOffer } from "./sealed-offers";
+import { TYPE_BY_LABEL, type TypeKey } from "./sealed-title";
 import type { PokemonSet } from "./sets";
 
 type R = Pick<RegionInfo, "market" | "inName" | "adjective" | "currency">;
@@ -178,4 +179,79 @@ export function preorderFaqs(set: Pick<PokemonSet, "code" | "name" | "releaseDat
     },
   );
   return faqs;
+}
+
+// ─── The stores, ranked, and the summary strip (2026-10-16, the owner: "make sure the eBay links stay at the very top, alongside the
+// TCG ones, and everything else is priced in order") ───────────────────────────────────────────────────────────────────────────
+
+/** What the page needs of one offer (an OfferView). */
+export type PreorderOffer = SealedOffer & { store: string; storeName: string; marketplace: boolean };
+
+/** What the page needs of one product's price list (a SetOfferGroup). */
+export interface PreorderGroup<O extends PreorderOffer = PreorderOffer> {
+  product: { name: string; productType: string; setCode: string | null };
+  offers: O[];
+}
+
+/**
+ * A product's STORES, ranked: open pre-orders first, cheapest first, then sold out and not checked. TCGplayer is never among them: a
+ * marketplace sits in the pinned marketplace rows above the stores, unnumbered and unranked.
+ */
+export function storeOffers<O extends PreorderOffer>(offers: readonly O[], now: number = Date.now()): O[] {
+  return rankOffers(
+    offers.filter((o) => !o.marketplace),
+    now,
+  );
+}
+
+/** The cheapest open STORE offer of a product, or null. */
+export function cheapestStoreOffer<O extends PreorderOffer>(offers: readonly O[], now: number = Date.now()): O | null {
+  const first = storeOffers(offers, now)[0];
+  return first && offerStock(first, now) === "open" ? first : null;
+}
+
+/** Per product type, the cheapest open store pre-order on the page (cents): what the FAQ's live answers quote. */
+export function cheapestStoreByType(groups: readonly PreorderGroup[], now: number = Date.now()): CheapestByType {
+  const out: CheapestByType = {};
+  for (const g of groups) {
+    const t = TYPE_BY_LABEL.get(g.product.productType)?.key;
+    const o = cheapestStoreOffer(g.offers, now);
+    if (t && o && (out[t] == null || o.priceCents < out[t]!)) out[t] = o.priceCents;
+  }
+  return out;
+}
+
+/** The strip under the H1: the comparison in four numbers, every one from the page's own data or the store registry. */
+export interface PreorderSummary {
+  /** Stores DexCompare checks in the market (the registry: storesInMarket). */
+  storesChecked: number;
+  /** Distinct stores with an open pre-order of the set in the market (never a marketplace). */
+  taking: number;
+  /** The cheapest open booster box pre-order at a store, who has it, and per pack (packs.ts). */
+  cheapestBox: { cents: number; store: string; perPack: number | null } | null;
+  /** Whole days to the release date (0 on the day, negative after). */
+  days: number;
+}
+
+export function preorderSummary(groups: readonly PreorderGroup[], storesChecked: number, set: Pick<PokemonSet, "releaseDate">, today: string, now: number = Date.now()): PreorderSummary {
+  const taking = new Set<string>();
+  let cheapestBox: PreorderSummary["cheapestBox"] = null;
+  for (const g of groups) {
+    for (const o of storeOffers(g.offers, now)) if (offerStock(o, now) === "open") taking.add(o.store);
+    if (g.product.productType !== "Booster Box") continue;
+    const o = cheapestStoreOffer(g.offers, now);
+    if (o && (!cheapestBox || o.priceCents < cheapestBox.cents)) {
+      cheapestBox = { cents: o.priceCents, store: o.storeName, perPack: perPackCents(o.priceCents, packsForLabel(g.product.productType, g.product.setCode, g.product.name)) };
+    }
+  }
+  const days = Math.round((Date.parse(`${set.releaseDate}T00:00:00Z`) - Date.parse(`${today}T00:00:00Z`)) / 86400_000);
+  return { storesChecked, taking: taking.size, cheapestBox, days };
+}
+
+/** The line under the strip: how far the set reaches across every market (setStoreReach), or null without data. */
+export function reachLine(set: Pick<PokemonSet, "name">, reach: { stores: number; markets: number } | null): string | null {
+  if (!reach || !reach.stores) return null;
+  const all = reach.markets === REGION_LIST.length;
+  const seven = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"][REGION_LIST.length] ?? String(REGION_LIST.length);
+  return `Across ${all ? "all" : "the"} ${seven} markets we compare, ${plural(reach.stores, "store")} ${reach.stores === 1 ? "lists" : "list"} ${set.name}${all ? "" : `, in ${reach.markets} of them`}.`;
 }

@@ -187,7 +187,8 @@ have changed; check eBay."
   The rules that keep units apart live in `src/lib/ebay-ads.ts` (pure, tested; its header lists every rule). **When adding a
   unit, run the viewport sweep**: a Playwright scroll at 390×844 and 1440×900 with `/api/ebay` served from saved live JSON,
   counting the outermost `[data-ad]` elements in view at each stop (the price table's own rows, `listings-offer-row` and
-  `listings-best-price`, are the comparison, not units), the ad density, a visible "Ad" on every unit, `rel` containing
+  `listings-best-price`, and the pre-order page's pinned marketplace group in each price list, `preorders-ebay`, are the
+  comparison, not units), the ad density, a visible "Ad" on every unit, `rel` containing
   `sponsored` on every eBay and TCGplayer link, no horizontal overflow at 320, and the layout-shift total (under 0.02, network
   throttled).
 * **Licence**: eBay's API License Agreement 8.1(c) asks listing information to be at most six hours old (and other eBay Content 24 hours); a daily import is not, which
@@ -378,9 +379,15 @@ Guides are typed TSX modules, not MDX (`src/content/guides/`):
 
 An upcoming set can have a pre-order page at `/<region>/preorders/<set slug>`
 (`src/app/[region]/preorders/[set]/page.tsx`, ported from Rift Compare's
-`/radiance-preorders`): the release date at a glance (release, prerelease,
-Pokémon TCG Live, set size), every store's live pre-order price per product,
-cheapest first, what is in each box (in the US with its MSRP and per-pack
+`/radiance-preorders`): a summary strip (stores checked in the market, stores
+taking pre-orders, the cheapest booster box pre-order and who has it, days to
+release, and how many stores list the set across all seven markets), the
+release date at a glance (release, prerelease, Pokémon TCG Live, set size),
+then each product's price list: a pinned, labelled "Marketplaces" group at the
+very top (eBay's search for the product, then TCGplayer: its offer in the US,
+its US$ offer or a search elsewhere; unnumbered, never compared) and below it
+the stores alone, numbered by price, open pre-orders cheapest first (the
+owner's call, 2026-10-16; DEPLOY.md, "Ad rules", 12), what is in each box (in the US with its MSRP and per-pack
 price), what is in the set and an FAQ that leads with the release date. Its
 title serves both searches, "<set> pre-orders in <region>: prices & release
 date". To add one, add an entry to `PREORDER_GUIDES` in
@@ -395,7 +402,8 @@ link it on their own.
 The page retires itself: from the set's `releaseDate` it says the set is out,
 points at the set page, is noindexed and leaves the sitemap
 (`tests/preorders.test.ts`). Its store buttons report under the `preorders`
-placement.
+placement, its marketplace rows under `preorders-ebay` and
+`preorders-tcgplayer`.
 
 ## IndexNow (Bing, Yandex)
 

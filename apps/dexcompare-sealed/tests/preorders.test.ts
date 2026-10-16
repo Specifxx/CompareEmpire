@@ -1,11 +1,34 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import fs, { readFileSync } from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import * as React from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { PreorderMarketplaces } from "../src/components/Marketplaces";
+import { OfferTable } from "../src/components/OfferTable";
+import { PLACEMENTS } from "../src/lib/affiliate";
+import type { OfferView } from "../src/lib/data";
+import { buildPublicFiles, type Tables } from "../src/lib/public-data/export";
+import { resetPublicData } from "../src/lib/public-data/store";
+import { STORES, storesInMarket } from "../src/lib/stores";
 import { findBannedCopy } from "../src/lib/copy-rules";
 import { money } from "../src/lib/format";
 import { titleText } from "../src/lib/hub-copy";
 import { packsFor, perPackCents } from "../src/lib/packs";
-import { glanceFacts, msrpPerPack, msrpValueSentence, preorderDescription, preorderFaqs, preorderTitle } from "../src/lib/preorder-copy";
+import {
+  cheapestStoreByType,
+  cheapestStoreOffer,
+  glanceFacts,
+  msrpPerPack,
+  msrpValueSentence,
+  preorderDescription,
+  preorderFaqs,
+  preorderSummary,
+  preorderTitle,
+  reachLine,
+  storeOffers,
+} from "../src/lib/preorder-copy";
 import { guideShowsMsrp, openPreorderGuides, preorderGuide, preorderGuideBySlug, preorderPath, PREORDER_GUIDES } from "../src/lib/preorder-guides";
 import { formatRelease, isPreorderSet } from "../src/lib/release";
 import { REGION_LIST, REGIONS } from "../src/lib/regions";
@@ -192,8 +215,209 @@ test("the FAQ: the release date first, the prerelease kit, live cheapest pre-ord
 test("the page renders the merged content: the release-date box, the set's make-up and the FAQ from preorder-copy.ts", () => {
   const page = src("src/app/[region]/preorders/[set]/page.tsx");
   assert.match(page, /<ReleaseGlance /);
-  assert.match(page, /preorderFaqs\(set, guide, r, cheapest, pre\)/);
+  assert.match(page, /preorderFaqs\(set, guide, r, cheapestStoreByType\(listed, now\), pre\)/, "the FAQ quotes the cheapest STORE");
   assert.match(page, /preorderTitle\(set, r, pre\)/);
   assert.match(page, /guide\.makeup\.map/);
   assert.match(page, /"@type": "FAQPage"/);
+});
+
+// ─── The pre-order price lists, marketplaces first (the owner, 2026-10-16) ───────────────────────────────────────────────────
+
+(globalThis as unknown as { React: typeof React }).React = React;
+const quiet = (el: React.ReactElement) => {
+  const err = console.error;
+  console.error = () => {};
+  try {
+    return renderToStaticMarkup(el);
+  } finally {
+    console.error = err;
+  }
+};
+const NOW = Date.now();
+const fresh = new Date(NOW - 3_600_000).toISOString();
+const stale = new Date(NOW - 100 * 3_600_000).toISOString();
+const off = (store: string, priceCents: number, inStock = true, extra: Partial<OfferView> = {}): OfferView => ({
+  store,
+  storeName: store.replace(/^./, (c) => c.toUpperCase()),
+  storeHost: `${store}.example`,
+  title: `${store} title`,
+  url: `https://${store}.example/p`,
+  priceCents,
+  inStock,
+  lastSeen: fresh,
+  marketplace: false,
+  ...extra,
+});
+const tcgOffer = (priceCents: number, inStock = true) =>
+  off("tcgplayer", priceCents, inStock, { storeName: "TCGplayer", title: "Delta Reign Booster Box", url: "https://www.tcgplayer.com/product/1", marketplace: true });
+// A booster box: TCGplayer cheapest of all, three open stores (out of price order), one sold out, one not checked for 100 hours.
+const BOX_OFFERS = [off("cherry", 34900), tcgOffer(19990), off("pokebox", 33500), off("gone", 30000, false), off("stale", 29000, true, { lastSeen: stale }), off("zeta", 36999)];
+const GROUPS = [
+  { product: { name: "Delta Reign Booster Box", productType: "Booster Box", setCode: "me6" }, offers: BOX_OFFERS },
+  { product: { name: "Delta Reign Elite Trainer Box", productType: "Elite Trainer Box", setCode: "me6" }, offers: [off("cherry", 16999), off("north", 15999), tcgOffer(8999)] },
+  { product: { name: "Delta Reign Booster Bundle", productType: "Booster Bundle", setCode: "me6" }, offers: [tcgOffer(4999)] },
+];
+
+test("the stores alone, ranked: open pre-orders cheapest first, then sold out and not checked; TCGplayer is never one of them", () => {
+  const ranked = storeOffers(BOX_OFFERS, NOW);
+  assert.deepEqual(
+    ranked.map((o) => o.store),
+    ["pokebox", "cherry", "zeta", "stale", "gone"],
+  );
+  assert.ok(!ranked.some((o) => o.marketplace));
+  assert.equal(cheapestStoreOffer(BOX_OFFERS, NOW)?.store, "pokebox", "the cheapest STORE, though TCGplayer is cheaper");
+  assert.equal(cheapestStoreOffer([tcgOffer(100)], NOW), null);
+  assert.deepEqual(cheapestStoreByType(GROUPS, NOW), { "booster-box": 33500, etb: 15999 }, "a type only TCGplayer has open gets no store price");
+});
+
+test("the summary strip: stores checked (the registry), distinct stores taking pre-orders, the cheapest box at a store with per pack, days to release", () => {
+  const s = preorderSummary(GROUPS, storesInMarket("AU").length, SET_BY_CODE.get("me6")!, "2026-10-16", NOW);
+  assert.equal(s.storesChecked, STORES.filter((x) => x.market === "AU").length);
+  assert.equal(s.taking, 4, "pokebox, cherry, zeta, north: distinct, open, never TCGplayer, never the sold-out or unchecked store");
+  assert.deepEqual(s.cheapestBox, { cents: 33500, store: "Pokebox", perPack: perPackCents(33500, packsFor("booster-box", "me6")) });
+  assert.equal(s.days, 21);
+  assert.equal(preorderSummary([], 60, SET_BY_CODE.get("me6")!, "2026-10-16", NOW).cheapestBox, null);
+  assert.equal(reachLine(DR_SET, { stores: 75, markets: 7 }), "Across all seven markets we compare, 75 stores list Delta Reign.");
+  assert.equal(reachLine(DR_SET, { stores: 1, markets: 1 }), "Across the seven markets we compare, 1 store lists Delta Reign, in 1 of them.");
+  assert.equal(reachLine(DR_SET, null), null);
+  assert.equal(reachLine(DR_SET, { stores: 0, markets: 0 }), null);
+});
+
+const text = (html: string) => html.replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/&#x27;/g, "'").replace(/\s+/g, " ");
+const anchors = (html: string) =>
+  [...html.matchAll(/<a ([^>]*)>([\s\S]*?)<\/a>/g)].map((m) => ({ href: (/href="([^"]*)"/.exec(m[1])?.[1] ?? "").replace(/&amp;/g, "&"), rel: /rel="([^"]*)"/.exec(m[1])?.[1] ?? "", text: text(m[2]).trim() }));
+
+test("marketplace rows: eBay first (the region's search, eBay blue, Ad, not a price), then TCGplayer; both sponsored, neither numbered nor 'best'", () => {
+  assert.ok((PLACEMENTS as readonly string[]).includes("preorders-ebay") && (PLACEMENTS as readonly string[]).includes("preorders-tcgplayer"));
+  const cases = [
+    { region: "us" as const, tcg: tcgOffer(19990), host: "www.ebay.com", price: "$199.90" },
+    { region: "au" as const, tcg: { title: "Delta Reign Booster Box", url: "https://www.tcgplayer.com/product/1", priceCents: 24494, inStock: true, lastSeen: fresh }, host: "www.ebay.com.au", price: "US$244.94" },
+    { region: "nz" as const, tcg: null, host: "www.ebay.com.au", price: null },
+    { region: "sg" as const, tcg: null, host: "www.ebay.com", price: null },
+  ];
+  for (const c of cases) {
+    const html = quiet(React.createElement(PreorderMarketplaces, { region: c.region, productName: "Delta Reign Booster Box", tcgplayer: c.tcg }));
+    const t = text(html);
+    assert.match(html, /^<div data-ad="preorders-ebay"/);
+    const [ebay, tcg] = anchors(html);
+    assert.equal(new URL(ebay.href).hostname, c.host, `${c.region}: the region's eBay`);
+    assert.equal(new URL(ebay.href).searchParams.get("customid"), `dex-${c.region}-preorders-ebay`);
+    assert.equal(new URL(ebay.href).searchParams.get("LH_BIN"), "1");
+    assert.match(new URL(ebay.href).searchParams.get("_nkw")!, /Delta Reign Booster Box sealed/);
+    assert.match(ebay.text, /Search eBay/);
+    assert.match(t, /not a price we checked/, "labelled a search, not a price");
+    assert.match(html, /btn-ad/);
+    assert.match(t, /\bAd\b/);
+    assert.match(tcg.href, /^https:\/\/partner\.tcgplayer\.com\//);
+    assert.match(decodeURIComponent(tcg.href), new RegExp(`sharedid=dex-${c.region}-preorders-tcgplayer`));
+    for (const a of [ebay, tcg]) assert.match(a.rel, /^sponsored /, "a paid link");
+    assert.ok(html.indexOf("ebay.") < html.indexOf("tcgplayer.com"), "eBay first");
+    if (c.price) assert.ok(t.includes(c.price), `${c.region}: TCGplayer's price`);
+    else assert.match(tcg.text, /Search on TCGplayer/);
+    if (c.region === "us") assert.doesNotMatch(t, /US\$|prices in US\$/);
+    else assert.match(t, /US marketplace, prices in US\$/);
+    assert.doesNotMatch(t, /Best price|Cheapest|\b1\./, "never ranked, numbered or badged");
+    assert.match(t, /Affiliate links — we may earn a commission/);
+  }
+});
+
+test("a pre-order price list: marketplaces pinned on top, then the stores numbered 1, 2, 3 by price, 'Cheapest store' on #1, closed rows unnumbered", () => {
+  const stores = storeOffers(BOX_OFFERS, NOW);
+  const html = quiet(
+    React.createElement(OfferTable, {
+      offers: stores,
+      region: "au",
+      preorder: true,
+      packs: 36,
+      placement: "preorders",
+      numbered: true,
+      bestLabel: { short: "Cheapest", full: "Cheapest store" },
+      ranked: "Stores only: open pre-orders first, cheapest first.",
+      top: React.createElement(PreorderMarketplaces, { region: "au", productName: "Delta Reign Booster Box", tcgplayer: null }),
+    }),
+  );
+  const t = text(html);
+  const firstRow = html.indexOf("data-offer-row");
+  assert.ok(html.indexOf('data-ad="preorders-ebay"') < firstRow && html.indexOf("tcgplayer.com") < firstRow, "the marketplaces sit above every store row");
+  const rows = [...html.matchAll(/<li data-offer-row=""[\s\S]*?<\/li>/g)].map((m) => text(m[0]));
+  assert.deepEqual(
+    rows.map((r) => /^\s*(\d+)\./.exec(r)?.[1] ?? "-"),
+    ["1", "2", "3", "-", "-"],
+  );
+  assert.match(rows[0], /Pokebox/);
+  assert.match(rows[0], /Cheapest store/);
+  assert.equal((t.match(/Cheapest store/g) ?? []).length, 1);
+  assert.doesNotMatch(t, /Best (?:store )?price/);
+  const prices = rows.slice(0, 3).map((r) => Number(/A\$([\d.,]+)/.exec(r)![1].replace(/,/g, "")));
+  assert.deepEqual(prices, [...prices].sort((a, b) => a - b), "ascending");
+  for (const a of anchors(html).filter((x) => /example\/p/.test(x.href))) assert.equal(a.rel, "nofollow noopener", "store links stay plain");
+  assert.match(t, /Stores only: open pre-orders first, cheapest first\./);
+  assert.ok(!rows.some((r) => /TCGplayer/.test(r)), "TCGplayer is not in the store ranking");
+  // The product page's table, without the new props, is as it was: no numbers, "Best price".
+  const product = quiet(React.createElement(OfferTable, { offers: stores, region: "au", preorder: false }));
+  assert.doesNotMatch(product, /aria-label="Number|Cheapest store/);
+  assert.match(text(product), /Best (?:store )?price/);
+  assert.match(text(product), /In stock first, then cheapest\./);
+});
+
+test("the page: marketplaces on top of every product, the stores numbered under placement 'preorders', the summary strip, PreOrder kept", () => {
+  const page = src("src/app/[region]/preorders/[set]/page.tsx");
+  assert.match(page, /<PreorderMarketplaces region=\{r\.region\}/);
+  assert.match(page, /offers=\{stores\}/);
+  assert.match(page, /const stores = storeOffers\(g\.offers, now\)/);
+  assert.match(page, /numbered\s/);
+  assert.match(page, /bestLabel=\{\{ short: "Cheapest", full: "Cheapest store" \}\}/);
+  assert.match(page, /placement="preorders"/);
+  assert.match(page, /<SummaryStrip /);
+  assert.match(page, /storesInMarket\(r\.market\)\.length/);
+  assert.match(page, /setStoreReach\(set\.code\)/);
+  assert.match(page, /pre && !us \? setMarketplaceOffers\(set\.code\)/, "the US$ TCGplayer offers are read only outside the US");
+  assert.match(page, /schema\.org\/PreOrder/);
+  assert.doesNotMatch(page, /schema\.org\/InStock/);
+  assert.match(DEPLOY, /`preorders-ebay`/);
+  assert.match(DEPLOY, /`preorders-tcgplayer`/);
+});
+const DEPLOY = readFileSync(new URL("../DEPLOY.md", import.meta.url), "utf8");
+
+test("the new reads run on the public data files alone: the set's TCGplayer offers and its reach by store", async () => {
+  const T0 = new Date("2026-10-15T23:18:41.716Z");
+  const [au1, au2, ca1] = [STORES.find((x) => x.market === "AU")!, STORES.filter((x) => x.market === "AU")[1], STORES.find((x) => x.market === "CA")!];
+  const tables: Tables = {
+    Product: [
+      { id: "p1", groupKey: "me6|booster-box", slug: "delta-reign-booster-box", name: "Delta Reign Booster Box", productType: "Booster Box", setCode: "me6", imageUrl: null, createdAt: T0 },
+      { id: "p2", groupKey: "me6|etb", slug: "delta-reign-elite-trainer-box", name: "Delta Reign Elite Trainer Box", productType: "Elite Trainer Box", setCode: "me6", imageUrl: null, createdAt: T0 },
+      { id: "p3", groupKey: "me5|booster-box", slug: "pitch-black-booster-box", name: "Pitch Black Booster Box", productType: "Booster Box", setCode: "me5", imageUrl: null, createdAt: T0 },
+    ],
+    Offer: [
+      { id: "o1", productId: "p1", store: "tcgplayer", market: "US", title: "Delta Reign Booster Box", url: "https://www.tcgplayer.com/product/1", priceCents: 24494, inStock: true, imageUrl: null, lastSeen: T0 },
+      { id: "o2", productId: "p1", store: au1.key, market: "AU", title: "DR box", url: "https://a/1", priceCents: 33500, inStock: true, imageUrl: null, lastSeen: T0 },
+      { id: "o3", productId: "p2", store: au1.key, market: "AU", title: "DR etb", url: "https://a/2", priceCents: 16999, inStock: true, imageUrl: null, lastSeen: T0 },
+      { id: "o4", productId: "p2", store: au2.key, market: "AU", title: "DR etb", url: "https://b/2", priceCents: 17999, inStock: false, imageUrl: null, lastSeen: T0 },
+      { id: "o5", productId: "p1", store: ca1.key, market: "CA", title: "DR box", url: "https://c/1", priceCents: 27999, inStock: true, imageUrl: null, lastSeen: T0 },
+      { id: "o6", productId: "p3", store: "tcgplayer", market: "US", title: "PB box", url: "https://www.tcgplayer.com/product/3", priceCents: 15049, inStock: true, imageUrl: null, lastSeen: T0 },
+    ],
+    ProductStat: [],
+    StoreStat: [],
+    EbayListing: [],
+  };
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "dex-preorders-"));
+  for (const [name, body] of buildPublicFiles(tables, { generatedAt: T0, source: "test" })) fs.writeFileSync(path.join(dir, name), body);
+  const saved = { PUBLIC_DATA_MODE: process.env.PUBLIC_DATA_MODE, PUBLIC_DATA_DIR: process.env.PUBLIC_DATA_DIR, DATABASE_URL: process.env.DATABASE_URL, DC2: process.env.DC2 };
+  Object.assign(process.env, { PUBLIC_DATA_MODE: "files", PUBLIC_DATA_DIR: dir, DATABASE_URL: "postgresql://nobody:nothing@127.0.0.1:1/none" });
+  delete process.env.DC2;
+  resetPublicData();
+  try {
+    const { setMarketplaceOffers, setStoreReach } = await import("../src/lib/data");
+    const tcg = await setMarketplaceOffers("me6");
+    assert.deepEqual([...tcg.keys()], ["delta-reign-booster-box"], "the set's TCGplayer offers only, by slug");
+    assert.equal(tcg.get("delta-reign-booster-box")!.priceCents, 24494);
+    assert.equal(tcg.get("delta-reign-booster-box")!.lastSeen, T0.toISOString());
+    assert.deepEqual(await setStoreReach("me6"), { stores: 3, markets: 2 }, "distinct stores (never TCGplayer) in two markets");
+  } finally {
+    for (const [k, v] of Object.entries(saved)) {
+      if (v === undefined) delete process.env[k];
+      else process.env[k] = v;
+    }
+    resetPublicData();
+  }
 });

@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import {
   AFFILIATE_NOTE,
+  ebayLabel,
   ebayRetailer,
   ebaySearchUrl,
   offerLink,
@@ -239,6 +240,74 @@ export function SoldOutCallout({
           {instead.label} <span aria-hidden="true">→</span>
         </Link>
       )}
+    </div>
+  );
+}
+
+/**
+ * The pre-order page's marketplace rows (the owner, 2026-10-16: "make sure the eBay links stay at the very top, alongside the TCG ones,
+ * and everything else is priced in order"): pinned at the top of each product's price list, above the numbered stores, labelled, never
+ * numbered, never "Best price", never counted as a store.
+ *   • eBay first: the region's eBay SEARCH for the product (preorders-ebay). The importer refuses eBay pre-sales of an unreleased set, so
+ *     there is no listing to price: the row says it is a search, not a price we checked. eBay blue, "Ad".
+ *   • TCGplayer second (preorders-tcgplayer). In the US its own offer (price and stock, a pre-order like any row); elsewhere its US$ offer
+ *     (usMarketplace, labelled US$ and never compared with the region's prices) or, with none, a search.
+ * Server-rendered links only: nothing here fetches.
+ */
+export function PreorderMarketplaces({ region, productName, tcgplayer }: { region: Region; productName: string; tcgplayer: TcgplayerMatch | null }) {
+  const r = REGIONS[region];
+  const us = r.market === "US";
+  const tcg = tcgplayerLink(region, productName, tcgplayer, "preorders-tcgplayer");
+  const state = tcgplayer ? offerStock(tcgplayer) : null;
+  const price = tcgplayer && state === "open" ? (us ? money(tcgplayer.priceCents, "US") : usd(tcgplayer.priceCents)) : null;
+  const ROW_M = "flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3 sm:px-5";
+  return (
+    <div data-ad="preorders-ebay" role="group" aria-label="Marketplaces: eBay and TCGplayer (affiliate links, not ranked with the stores)" className="border-b border-line">
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-0.5 bg-raised px-4 py-2 sm:px-5">
+        <span className="eyebrow">Marketplaces</span>
+        <span className="text-[11px] text-muted">Not ranked with the stores · affiliate links</span>
+      </div>
+      <ul className="divide-y divide-line">
+        <li className={`${ROW_M} bg-ad`}>
+          <span className="flex min-w-0 items-center gap-2">
+            <EbayMark className="text-lg" />
+            <AdPill />
+            <span className="min-w-0 text-sm text-muted">Search on {ebayLabel(region)}, not a price we checked</span>
+          </span>
+          <OutboundLink
+            href={ebaySearchUrl(ebayQuery(productName, tcgplayer), region, "preorders-ebay")}
+            rel={REL_SPONSORED}
+            retailer={ebayRetailer(region)}
+            placement="preorders-ebay"
+            className="btn-ad ml-auto min-h-11 shrink-0 whitespace-nowrap px-4 sm:min-h-10"
+          >
+            Search eBay <span aria-hidden="true">↗</span>
+          </OutboundLink>
+        </li>
+        <li className={ROW_M}>
+          <span className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+            <b className="font-semibold">TCGplayer</b>
+            {price ? (
+              <span className="tabular font-display text-base font-bold">{price}</span>
+            ) : (
+              <span className="text-muted">{tcgplayer ? (state === "soldout" ? "sold out" : "not checked recently") : "search its sealed listings"}</span>
+            )}
+            {tcgplayer && state === "open" && (
+              <StockPill state="open" preorder>
+                Pre-order
+              </StockPill>
+            )}
+            {!us && <span className="text-[11px] text-muted">US marketplace, prices in US$</span>}
+          </span>
+          <OutboundLink href={tcg.href} rel={tcg.rel} retailer={TCGPLAYER_RETAILER} placement="preorders-tcgplayer" className="btn-ghost ml-auto min-h-11 shrink-0 whitespace-nowrap px-4 sm:min-h-10">
+            {tcgplayer ? "View" : "Search"} on TCGplayer <span aria-hidden="true">↗</span>
+          </OutboundLink>
+        </li>
+      </ul>
+      <p className={`px-4 pb-2.5 pt-1 sm:px-5 ${NOTE}`}>
+        {AFFILIATE_NOTE}
+        {!us && ` TCGplayer sells in US$ from the US; check it ships to ${r.name} before you buy.`}
+      </p>
     </div>
   );
 }

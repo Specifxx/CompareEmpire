@@ -36,6 +36,10 @@ export function OfferTable({
   ebay = null,
   notes = [],
   placement = "product-table",
+  top = null,
+  numbered = false,
+  bestLabel,
+  ranked,
 }: {
   offers: OfferView[];
   region: Region;
@@ -49,6 +53,15 @@ export function OfferTable({
   notes?: string[];
   /** Whose buttons these are, for the affiliate sub-id and buy_click: the product page's table unless a page says otherwise (the pre-order page: "preorders"). */
   placement?: Placement;
+  /** Rows pinned at the top of the card, above the ranked rows (the pre-order page's marketplace rows and its "Stores" label). */
+  top?: ReactNode;
+  /** Number the open rows 1, 2, 3… in price order (the pre-order page). The product page's table is not numbered. */
+  numbered?: boolean;
+  /** The cheapest open row's badge, when "Best price" would say more than the table knows (the pre-order page: "Cheapest" on a phone,
+   *  "Cheapest store" from sm, so a long store name keeps its room). */
+  bestLabel?: { short: string; full: string };
+  /** The footer's ranking sentence, when the page ranks differently from "In stock first, then cheapest." */
+  ranked?: string;
 }) {
   const r = REGIONS[region];
   const now = Date.now();
@@ -56,11 +69,14 @@ export function OfferTable({
   // Each row as data (prices formatted, stock state and links decided here, on the server): the browser's list (OfferRowsWithEbay)
   // renders the rows from it. Passing data, not rendered rows, keeps the page's RSC payload small: a row is ~350 bytes of data where
   // its element tree was ~1.5 KB, on top of the same row in the HTML.
+  let rank = 0;
   const rows: StoreRowData[] = offers.map((o) => {
     const state = offerStock(o, now);
     const link = offerLink(o.store, o.url, region, placement);
     const open = state === "open";
     return {
+      ...(numbered && open ? { rank: ++rank } : {}),
+      ...(bestLabel && o === cheapestOpen ? { badge: bestLabel } : {}),
       key: o.store,
       cents: o.priceCents,
       open,
@@ -87,13 +103,14 @@ export function OfferTable({
   return (
     <>
       <div className="card overflow-hidden">
+        {top}
         {ebay ? (
           <OfferRowsWithEbay rows={rows} region={region} slug={ebay.slug} query={ebay.query} floor={ebay.floor} packs={ebay.packs} allowBest={!preorder} preorder={preorder} />
         ) : (
           <StoreRows rows={rows} preorder={preorder} />
         )}
         <p className="border-t border-line px-4 py-2.5 text-xs text-muted sm:px-5">
-          {footer.ranked}{" "}
+          {ranked ?? footer.ranked}{" "}
           <Link href="/about" prefetch={false} className="underline underline-offset-2 hover:text-ink">
             {footer.noPay}
           </Link>
@@ -173,6 +190,10 @@ export interface StoreRowData {
   retailer: string;
   /** The table's placement (product-table unless the page says otherwise). */
   placement?: Placement;
+  /** Its place among the open rows, 1 = cheapest, when the table is numbered (the pre-order page). */
+  rank?: number;
+  /** The best row's badge in place of "Best price": `short` on a phone, `full` from sm (the pre-order page: "Cheapest" / "Cheapest store"). */
+  badge?: { short: string; full: string };
   price: string;
   perPack: string | null;
   lastSeen: string;
@@ -190,16 +211,27 @@ export function StoreRow({ d, preorder }: { d: StoreRowData; preorder: boolean }
   return (
     <li data-offer-row="" className={`${ROW_GRID} ${d.best ? "bg-open-soft/40" : ""}`}>
       <div className="flex h-5 items-center gap-2 overflow-hidden sm:h-6">
+        {d.rank != null && (
+          <span className="tabular -mr-0.5 shrink-0 text-sm font-bold text-muted" aria-label={`Number ${d.rank} by price`}>
+            {d.rank}.
+          </span>
+        )}
         <span className="truncate text-[15px] font-semibold sm:text-base">{d.name}</span>
         {d.marketplace && (
           <span className="shrink-0 rounded-full border border-line bg-raised px-2 py-0.5 text-[10px] font-bold uppercase leading-3 tracking-wide text-muted">Marketplace</span>
         )}
-        {d.best && (
-          <span className="shrink-0 rounded-full bg-open px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-surface">
-            Best <span className="hidden group-data-[ebay=cheaper]/offers:inline">store </span>
-            price
-          </span>
-        )}
+        {d.best &&
+          (d.badge ? (
+            <span className="shrink-0 rounded-full bg-open px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-surface">
+              <span className="sm:hidden">{d.badge.short}</span>
+              <span className="hidden sm:inline">{d.badge.full}</span>
+            </span>
+          ) : (
+            <span className="shrink-0 rounded-full bg-open px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-surface">
+              Best <span className="hidden group-data-[ebay=cheaper]/offers:inline">store </span>
+              price
+            </span>
+          ))}
       </div>
       <div className="truncate text-[11px] leading-4 text-faint sm:text-xs" title={d.title}>
         {d.host} · checked <Ago iso={d.lastSeen} initial={d.ago} />
