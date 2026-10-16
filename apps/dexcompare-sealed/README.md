@@ -380,3 +380,12 @@ The page retires itself: from the set's `releaseDate` it says the set is out,
 points at the set page, is noindexed and leaves the sitemap
 (`tests/preorders.test.ts`). Its store buttons report under the `preorders`
 placement.
+
+## IndexNow (Bing, Yandex)
+
+`/indexnow.txt` serves the IndexNow key (`src/lib/indexnow.ts`; `INDEXNOW_KEY` in
+Vercel overrides the built-in one). `.github/workflows/indexnow-submit.yml` (repository
+root) runs daily at 22:37 UTC, after the evening import, and by hand: it follows the
+live sitemap index and submits every page URL for the host the sitemap's URLs are on
+(www.dexcompare.app), with the key the live key file serves. The run fails, with
+IndexNow's answer in the log, when anything is refused. Google does not take IndexNow.
