@@ -30,7 +30,8 @@ export type GuideSlug =
   | "pokemon-center-etb-vs-elite-trainer-box"
   | "cheapest-way-to-buy-pokemon-packs"
   | "where-to-buy-pokemon-cards-online"
-  | "how-to-avoid-resealed-pokemon-products";
+  | "how-to-avoid-resealed-pokemon-products"
+  | "pokemon-build-and-battle-box";
 
 export interface Guide {
   slug: GuideSlug;
@@ -172,6 +173,19 @@ export const GUIDES: readonly Guide[] = [
     regions: "all",
     topic: { types: ["booster-box", "etb", "booster-bundle"] },
     ebay: { context: "type:booster-boxes", heading: "Pokémon booster boxes on eBay" },
+  },
+  {
+    // The growth pack's Build & Battle piece (2026-10-16). Its eBay strip is generic sealed: Build & Battle Boxes have no feed of
+    // their own (ebay-import.ts TYPE_FEEDS), and a type context without one would show only the compact CTA.
+    slug: "pokemon-build-and-battle-box",
+    title: "Pokémon Build & Battle Box: what’s inside, and is it worth it?",
+    description: "What’s in a Pokémon Build & Battle Box, how it’s used at a Prerelease, and what a pack in one costs today against a bundle or ETB of the same set.",
+    kicker: "Build & Battle",
+    published: "2026-10-16",
+    updated: "2026-10-16",
+    regions: "all",
+    topic: { types: ["build-battle", "booster-bundle", "etb", "build-battle-stadium"], sets: ["delta-reign"] },
+    ebay: { context: "sealed", heading: "Sealed Pokémon on eBay" },
   },
 ];
 

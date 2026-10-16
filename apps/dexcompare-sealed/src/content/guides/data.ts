@@ -13,7 +13,7 @@ import type { Market, RegionInfo } from "@/lib/regions";
 import { packsFor, packsForLabel, perPackCents } from "@/lib/packs";
 import { usMsrpCents } from "@/lib/rrp";
 import type { GuideSlug } from "./index";
-import { newestReleased, upcomingSets } from "./facts";
+import { buildBattleSets, isReleased, newestReleased, upcomingSets } from "./facts";
 
 /** One product type's open listings in a market (typeSummary): in stock and on pre-order counted apart, and the in-stock from-price. */
 export interface TypeSummaryRow {
@@ -110,6 +110,9 @@ async function packTypesOfSets(market: Market, setCodes: string[], types: string
   });
   return sortCards(rows.map(toCard));
 }
+
+/** What the Build & Battle guide compares a Build & Battle Box with, within one set: its bundle, its ETB and its booster box. */
+export const BB_COMPARE_TYPES = ["Build & Battle Box", "Booster Bundle", "Elite Trainer Box", "Booster Box"];
 
 /** The pack types the cheapest-packs guide ranks: every type with a fixed or per-set pack count (packs.ts). */
 export const PACK_GUIDE_TYPES = ["Booster Box", "Booster Bundle", "Elite Trainer Box", "Build & Battle Box", "Sleeved Booster", "Booster Pack"];
@@ -231,6 +234,16 @@ export async function loadGuideData(slug: GuideSlug, r: RegionInfo, now: Date = 
       const upcoming = upcomingSets(today).map((s) => s.code);
       const [stores, types] = await Promise.all([topStores(r.market), typeSummary(r.market, upcoming)]);
       return done({ stores, types });
+    }
+    case "pokemon-build-and-battle-box": {
+      // The open Build & Battle Boxes of the soonest upcoming set and the seven newest released ones (about one per set, ≤ 16 rows
+      // read), then, for the newest released set with one open here, its bundle, ETB and booster box beside it (≤ 12 rows).
+      const sets = buildBattleSets(today);
+      const codes = sets.map((s) => s.code);
+      const bySet = group(await packTypesOfSets(r.market, codes, ["Build & Battle Box"], 16));
+      const pick = sets.find((s) => isReleased(s, today) && bySet[s.code]?.length)?.code;
+      const cards = pick ? await packTypesOfSets(r.market, [pick], BB_COMPARE_TYPES, 12) : [];
+      return done({ sets: codes, bySet, cards });
     }
     case "how-to-avoid-resealed-pokemon-products": {
       // As the pack-count guide: the newest released set with headline product in stock here (≤ 27 rows read).

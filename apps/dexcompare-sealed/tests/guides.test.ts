@@ -3,7 +3,7 @@
 // carries exactly one eBay unit plus, in the US only, one labelled TCGplayer link), and the old site's guide and blog redirects.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import * as React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -18,9 +18,11 @@ import { TYPE_ABOUT } from "../src/lib/type-about";
 import { SET_BY_CODE, SET_BY_SLUG, SETS } from "../src/lib/sets";
 import { GUIDE_BY_SLUG, GUIDES, guideFor, guideMetaTitle, guideRegions, guidesFor, type GuideSlug } from "../src/content/guides";
 import { emptyGuideData, type GuideData } from "../src/content/guides/data";
-import { newestReleased, specialEtbSets, upcomingSets } from "../src/content/guides/facts";
+import { buildBattleSets, newestReleased, specialEtbSets, upcomingSets } from "../src/content/guides/facts";
 import { GUIDE_MODULES } from "../src/content/guides/modules";
 import { stripIndex } from "../src/content/guides/kit";
+import { daysBetween, kitOf, perPackVerdict } from "../src/content/guides/pokemon-build-and-battle-box";
+import { preorderGuide } from "../src/lib/preorder-guides";
 
 (globalThis as unknown as { React: typeof React }).React = React;
 
@@ -119,6 +121,16 @@ function fixture(slug: GuideSlug): GuideData {
       };
     case "how-to-avoid-resealed-pokemon-products":
       return { ...d, sets: [released[0]], bySet: { [released[0]]: headline(released[0], 800).map((p) => ({ ...p, medianOpenCents: (p.lowestPriceCents ?? 0) + 1500 })) } };
+    case "pokemon-build-and-battle-box": {
+      // Delta Reign's on pre-order, three released sets' in stock, 30th Celebration with none; the comparison is Pitch Black's four products.
+      const codes = buildBattleSets(TODAY).map((s) => s.code);
+      return {
+        ...d,
+        sets: codes,
+        bySet: { me6: [card("me6", "Build & Battle Box", 3999, 2, true)], me5: [card("me5", "Build & Battle Box", 2500, 15)], me4: [card("me4", "Build & Battle Box", 3799, 7)], me3: [card("me3", "Build & Battle Box", 3500, 7)] },
+        cards: sorted([card("me5", "Build & Battle Box", 2500, 15), card("me5", "Booster Bundle", 3000, 16), card("me5", "Elite Trainer Box", 6499, 22), card("me5", "Booster Box", 15049, 21)]),
+      };
+    }
   }
 }
 
@@ -144,7 +156,7 @@ const PAIRS = GUIDES.flatMap((g) => guideRegions(g).map((region) => ({ g, region
 
 test("registry: unique slugs, ISO editorial dates (updated ≥ published), descriptions ≤ 160, titles that fit a <title>", () => {
   assert.equal(new Set(GUIDES.map((g) => g.slug)).size, GUIDES.length);
-  assert.equal(GUIDES.length, 11);
+  assert.equal(GUIDES.length, 12);
   for (const g of GUIDES) {
     assert.match(g.slug, /^[a-z0-9]+(?:-[a-z0-9]+)*$/);
     for (const d of [g.published, g.updated]) {
@@ -179,9 +191,9 @@ test("the MSRP guide is US-only; every other guide is in all seven regions", () 
   for (const r of REGION_LIST.filter((x) => x.region !== "us")) {
     assert.equal(guideFor("pokemon-tcg-msrp", r.region), null, r.region);
     assert.ok(!guidesFor(r.region).some((g) => g.slug === "pokemon-tcg-msrp"), r.region);
-    assert.equal(guidesFor(r.region).length, 10);
+    assert.equal(guidesFor(r.region).length, 11);
   }
-  assert.equal(guidesFor("us").length, 11);
+  assert.equal(guidesFor("us").length, 12);
   for (const g of GUIDES.filter((x) => x.slug !== "pokemon-tcg-msrp")) assert.equal(guideRegions(g).length, 7, g.slug);
   assert.equal(guideFor("no-such-guide", "au"), null);
 });
@@ -377,6 +389,65 @@ test("live blocks with nothing in stock say so plainly, and the page still rende
     assert.equal((html.match(/data-ad=/g) ?? []).length, 1, `${g.slug}/${region}`);
   }
   assert.match(text(render("are-pokemon-booster-boxes-worth-it", "nz", { ...fixture("are-pokemon-booster-boxes-worth-it"), bySet: {} })), /No .* booster box is in stock in New Zealand right now/);
+});
+
+test("Build & Battle Box: packs.ts's count, Delta Reign's deck and promos with their source, live prices per set, and no US list price", () => {
+  const data = fixture("pokemon-build-and-battle-box");
+  const kit = kitOf(data)!;
+  assert.equal(kit.set.code, "me6");
+  for (const region of ["au", "us", "uk"] as const) {
+    const r = REGIONS[region];
+    const html = render("pokemon-build-and-battle-box", region, data);
+    const t = text(html);
+    assert.match(t, new RegExp(`${packsFor("build-battle", "me6")} booster packs`), "the pack count is packs.ts's");
+    assert.match(t, /Masquerain, Magmortar, Enamorus or Kommo-o \(ICv2, 1 October 2026\)/);
+    assert.match(t, /40-card deck/);
+    assert.ok(t.includes(TYPE_ABOUT["build-and-battle-boxes"]), "type-about.ts word for word");
+    // the live table: one row per set, its price and per-pack price in the region's currency
+    for (const code of data.sets.filter((c) => data.bySet[c]?.length)) {
+      const s = SET_BY_CODE.get(code)!;
+      const p = data.bySet[code][0];
+      assert.match(html, new RegExp(`href="/${region}/sets/${s.slug}"`), s.name);
+      assert.match(html, new RegExp(`href="/${region}/p/${p.slug}"`), `${s.name}: its product page`);
+      assert.ok(t.includes(money(p.lowestPriceCents, r.market)), `${region} ${s.name} price`);
+      assert.ok(t.includes(money(perPackCents(p.lowestPriceCents, packsFor("build-battle", code)), r.market)), `${region} ${s.name} per pack`);
+    }
+    assert.doesNotMatch(html, /href="\/[a-z]{2}\/sets\/30th-celebration"/, "a set with no box open gets no row");
+    assert.match(text(render("pokemon-build-and-battle-box", region, { ...data, bySet: {} })), new RegExp(`No Build & Battle Box is in stock in ${r.inName} right now`));
+    // the next box: its dates, days early, and its pre-order page
+    assert.match(t, /It’s sold from 24 October 2026 at participating Play! Pokémon stores/);
+    assert.match(t, new RegExp(`${daysBetween("2026-10-24", "2026-11-06")} days before Delta Reign is released on 6 November 2026`));
+    assert.match(html, new RegExp(`href="/${region}/preorders/delta-reign"`), "links the pre-order page");
+    // the comparison: Pitch Black's four products, the cheapest per pack marked, and the verdict from the same numbers
+    assert.equal((html.match(/Cheapest per pack/g) ?? []).length, 1);
+    assert.ok(t.includes(perPackVerdict(data.cards, SET_BY_CODE.get("me5")!, r)!), "the verdict sentence");
+    // no Build & Battle list price, anywhere
+    assert.ok(!t.includes(money(usMsrpCents("build-battle", "me6"), "US")), `${region}: no $29.99`);
+    assert.doesNotMatch(t, /\$21\.99|MSRP/);
+  }
+  assert.match(text(render("pokemon-build-and-battle-box", "us", data)), /We don’t print a US list price for this box/);
+  assert.doesNotMatch(text(render("pokemon-build-and-battle-box", "au", data)), /list price/, "the US note is US-only");
+  // after Delta Reign's release: no "next box" section, the rest still renders
+  const later = { ...data, today: "2026-11-10" };
+  assert.doesNotMatch(text(render("pokemon-build-and-battle-box", "au", later)), /It’s sold from 24 October/);
+  assert.equal(preorderGuide("me6")?.prerelease?.deckCards, 40);
+});
+
+test("Build & Battle verdict: the cheaper product per pack is named only when the numbers say so", () => {
+  const me5 = SET_BY_CODE.get("me5")!;
+  const v = perPackVerdict([card("me5", "Build & Battle Box", 2500), card("me5", "Booster Box", 15049)], me5, REGIONS.us)!;
+  assert.equal(v, `In Pitch Black today, the booster box works out cheaper per pack (${money(perPackCents(15049, 36), "US")}) than the Build & Battle Box (${money(625, "US")}).`);
+  const bbWins = perPackVerdict([card("me5", "Build & Battle Box", 1600), card("me5", "Booster Bundle", 3000)], me5, REGIONS.au)!;
+  assert.match(bbWins, /the Build & Battle Box is the cheapest per pack of the two \(A\$4\.00\)/);
+  assert.equal(perPackVerdict([card("me5", "Booster Bundle", 3000)], me5, REGIONS.au), null, "no box, no verdict");
+});
+
+test("no growth-pack placeholder survives anywhere in the app's source", () => {
+  const walk = (dir: URL): string[] =>
+    readdirSync(dir, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(new URL(`${e.name}/`, dir)) : /\.(tsx?|md)$/.test(e.name) ? [new URL(e.name, dir).pathname] : []));
+  for (const f of walk(new URL("../src/", import.meta.url))) {
+    assert.doesNotMatch(readFileSync(f, "utf8"), /\[VERIFY|\[live price|\[live count|\[publish date\]/i, f);
+  }
 });
 
 // ─── The old site's URLs ───────────────────────────────────────────────────────

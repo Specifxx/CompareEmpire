@@ -21,6 +21,14 @@ export function upcomingSets(today: string): PokemonSet[] {
   return SETS.filter((s) => !isReleased(s, today)).sort((a, b) => a.releaseDate.localeCompare(b.releaseDate));
 }
 
+/**
+ * The Build & Battle guide's candidate sets: the soonest upcoming set (its box is sold at the Prerelease, before release) and the seven
+ * newest out. Not every set has a Build & Battle Box (the special sets mostly don't), so the guide shows the ones open in the region.
+ */
+export function buildBattleSets(today: string): PokemonSet[] {
+  return [...upcomingSets(today).slice(0, 1), ...newestReleased(today, 7)];
+}
+
 /** Sets sold without a booster box (sets.ts noBoosterBox), newest first. */
 export function setsWithoutBox(): PokemonSet[] {
   return SETS.filter((s) => s.noBoosterBox);

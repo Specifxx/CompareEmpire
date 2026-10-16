@@ -37,9 +37,9 @@ place untouched; nothing deploys from it once the Vercel project points here.
   comparison and previous/next set; `/<region>/sets` lists every set in order; `/<region>/releases` has the next set,
   this year's and last year's sets and "Add to calendar" (an `.ics` built in the browser); `/<region>/stores` is a
   "where to buy" page; type pages are capped (48 in stock, 24 sold out) with a link to the full filtered list.
-- **Guides** (`/<region>/guides`): eleven evergreen guides (packs per product, box vs ETB vs bundle, are booster boxes
+- **Guides** (`/<region>/guides`): twelve evergreen guides (packs per product, box vs ETB vs bundle, are booster boxes
   worth it, sealed products explained, US MSRP, pre-ordering, what's in an ETB, Pokémon Center ETB vs ETB, the cheapest way to
-  buy packs, where to buy online, avoiding resealed product), linked from the landing page with an FAQ, whose numbers come only from `packs.ts`, `rrp.ts`,
+  buy packs, where to buy online, avoiding resealed product, the Build & Battle Box), linked from the landing page with an FAQ, whose numbers come only from `packs.ts`, `rrp.ts`,
   `sets.ts`, `type-about.ts` and live blocks, each with "checked … ago". Old guide and blog URLs redirect to them.
 - **Search everywhere**: the 60 px header (64 px from lg) has a search box on every page, with typeahead over the
   region's whole catalogue (`/api/browse/<region>`: one CDN-cached index per region, rebuilt after each import, so a

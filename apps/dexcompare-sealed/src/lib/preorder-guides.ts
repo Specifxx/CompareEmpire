@@ -52,8 +52,11 @@ export interface PreorderGuide {
   makeupSource: string;
   /** A card type or rule new with the set (Delta Reign: Legendary Stadiums), or null. */
   newFeature: { name: string; text: string; source: string } | null;
-  /** Prerelease: where it is played and the promo cards of its Build & Battle Box (its contents are the build-battle product's). */
-  prerelease: { where: string; promos: string[]; source: string } | null;
+  /**
+   * Prerelease: where it is played, the size of its Build & Battle Box's ready-to-play deck and the box's promo cards (the box's
+   * contents are the build-battle product's), with who reported them.
+   */
+  prerelease: { where: string; deckCards: number; promos: string[]; source: string } | null;
   /** Dated reports about buying the set (a sold-out first wave, say), each attributed. Never a price. */
   notes: Attributed[];
   products: PreorderProduct[];
@@ -94,6 +97,7 @@ export const PREORDER_GUIDES: PreorderGuide[] = [
     },
     prerelease: {
       where: "participating Play! Pokémon stores",
+      deckCards: 40,
       promos: ["Masquerain", "Magmortar", "Enamorus", "Kommo-o"],
       source: "ICv2, 1 October 2026",
     },

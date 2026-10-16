@@ -225,7 +225,10 @@ export default async function PreorderPage({ params }: Params) {
                 <dd className="mt-1.5 text-sm leading-6 text-muted">{p.contents}.</dd>
                 {p.type === "build-battle" && guide.prerelease && (
                   <dd className="mt-1.5 text-sm leading-6 text-muted">
-                    The promos: {guide.prerelease.promos.slice(0, -1).join(", ")} or {guide.prerelease.promos.at(-1)} ({guide.prerelease.source}).
+                    The promos: {guide.prerelease.promos.slice(0, -1).join(", ")} or {guide.prerelease.promos.at(-1)} ({guide.prerelease.source}).{" "}
+                    <Link href={`/${r.region}/guides/pokemon-build-and-battle-box`} prefetch={false} className="font-semibold text-brand hover:underline">
+                      What’s in a Build & Battle Box →
+                    </Link>
                   </dd>
                 )}
               </div>
@@ -315,6 +318,9 @@ export default async function PreorderPage({ params }: Params) {
         </Link>
         <Link href={`/${r.region}/type/elite-trainer-boxes`} prefetch={false} className="chip py-2">
           Elite Trainer Boxes in stock
+        </Link>
+        <Link href={`/${r.region}/guides/pokemon-build-and-battle-box`} prefetch={false} className="chip py-2">
+          Build &amp; Battle Box guide
         </Link>
       </div>
 

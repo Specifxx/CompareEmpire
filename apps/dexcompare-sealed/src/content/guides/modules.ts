@@ -13,6 +13,7 @@ import * as pcEtb from "./pokemon-center-etb-vs-elite-trainer-box";
 import * as cheapest from "./cheapest-way-to-buy-pokemon-packs";
 import * as whereToBuy from "./where-to-buy-pokemon-cards-online";
 import * as resealed from "./how-to-avoid-resealed-pokemon-products";
+import * as buildBattle from "./pokemon-build-and-battle-box";
 
 export const GUIDE_MODULES: Record<GuideSlug, GuideModule> = {
   "how-many-packs-in-pokemon-products": howManyPacks,
@@ -26,4 +27,5 @@ export const GUIDE_MODULES: Record<GuideSlug, GuideModule> = {
   "cheapest-way-to-buy-pokemon-packs": cheapest,
   "where-to-buy-pokemon-cards-online": whereToBuy,
   "how-to-avoid-resealed-pokemon-products": resealed,
+  "pokemon-build-and-battle-box": buildBattle,
 };

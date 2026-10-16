@@ -10,7 +10,7 @@ export const TYPE_ABOUT: Readonly<Record<string, string>> = {
   "ultra-premium-collections": "Ultra-Premium Collections are the top-end collector boxes: many packs, metal or foil promo cards and premium accessories.",
   collections: "Collection boxes pair booster packs with promo cards, figures, pins or binders — often themed on a single Pokémon.",
   tins: "Tins hold booster packs and a promo card in a collectable metal case; mini tins hold fewer packs and a coin or art card.",
-  "build-and-battle-boxes": "Build & Battle Boxes are the prerelease kit: four booster packs, an evolution pack and a promo card, built to play a deck on day one.",
+  "build-and-battle-boxes": "Build & Battle Boxes are the prerelease kit: four booster packs, a promo card and the cards to build a deck around them, made to play on day one.",
   "build-and-battle-stadiums": "A Build & Battle Stadium is two Build & Battle kits plus extra packs, for two players.",
   blisters: "Blister packs hold one to three booster packs with a promo card or coin, sold on pegs at most retailers.",
   "sleeved-boosters": "Sleeved boosters are single booster packs in a retail sleeve.",
