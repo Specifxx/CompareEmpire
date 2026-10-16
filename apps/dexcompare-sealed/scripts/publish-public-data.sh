@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
-# Commits apps/dexcompare-sealed/data/public/ (just written by scripts/export-public-data.ts) to main and pushes it. That commit is
-# what puts the new prices live: it changes the app, so Vercel builds it (scripts/vercel-ignore-build.sh), and the build bundles the
-# files the site reads. Run from the repository root, in a checkout of main, after the export.
+# Commits apps/dexcompare-sealed/data/public/ (just written by scripts/export-public-data.ts) to main and pushes it. With the second
+# argument "release", that commit is what puts the new prices live: its subject carries [deploy], so Vercel builds it
+# (scripts/vercel-ignore-build.sh) and the build bundles the files the site reads. Without it (the eBay import) the commit rides the
+# next release, which carries the newest snapshot anyway: production builds once per sealed import, twice a day, not once per
+# workflow (DEPLOY.md, "Where the data lives"). Run from the repository root, in a checkout of main,
+# after the export.
 #
 # Another workflow may have pushed meanwhile (the sealed and eBay imports both publish): on a rejected push the fresh files are set
 # aside, main is fetched again, the files go back on top and the push is retried. A snapshot is a whole-database export, so the
@@ -9,6 +12,8 @@
 set -euo pipefail
 DIR="apps/dexcompare-sealed/data/public"
 WHY="${1:-export}"
+MARK=""
+[ "${2:-}" = "release" ] && MARK=" [deploy]"
 git config user.name "dexcompare-data[bot]"
 git config user.email "dexcompare-data@users.noreply.github.com"
 if git diff --quiet -- "$DIR" && [ -z "$(git ls-files --others --exclude-standard -- "$DIR")" ]; then
@@ -28,7 +33,7 @@ for attempt in 1 2 3 4 5; do
     echo "[publish] main already has this snapshot."
     exit 0
   fi
-  git commit -q -m "DexCompare data: $(date -u +%Y-%m-%dT%H:%MZ) ($WHY)" -m "Public data export (apps/dexcompare-sealed/data/public/), the files the site reads instead of the database."
+  git commit -q -m "DexCompare data: $(date -u +%Y-%m-%dT%H:%MZ) ($WHY)$MARK" -m "Public data export (apps/dexcompare-sealed/data/public/), the files the site reads instead of the database."
   if git push -q origin HEAD:main; then
     echo "[publish] pushed $(git rev-parse --short HEAD) on attempt $attempt."
     exit 0

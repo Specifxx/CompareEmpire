@@ -8,8 +8,11 @@ waiting for the first import.
 
 **The site reads no database.** After every import (`dexcompare-sealed-import.yml`, twice a day; `dexcompare-ebay-import.yml`,
 daily) the job exports every public table to `data/public/` (`scripts/export-public-data.ts`, ~25 MB of JSON, one row per line)
-and commits it to `main` (`scripts/publish-public-data.sh`). That commit is the release that puts the new prices live: Vercel
-builds it, the build bundles the files, and every page, the browse index and the eBay strips read them through
+and commits it to `main` (`scripts/publish-public-data.sh`). The sealed import's commit is the release that puts the new prices
+live: its subject carries `[deploy]`, the only thing production builds since 2026-10-16 (`scripts/vercel-ignore-build.sh`); the
+eBay import's commit and every code commit ride the next one, and "DexCompare release" (`dexcompare-release.yml`) releases out of
+turn. The import no longer purges the page cache first: the deploy does. Vercel builds the release, the build bundles the files,
+and every page, the browse index and the eBay strips read them through
 `src/lib/public-data/` (RiftCompare's query engine, ported). `PUBLIC_DATA_MODE` (Vercel, optional): `files` (default), `fallback`
 (database first, files if it cannot answer) or `db` (the database only, as before). A read the files cannot answer exactly falls
 through to the database and logs `[public-data:unsupported]`; `scripts/check-public-data.ts` compares every loader both ways and

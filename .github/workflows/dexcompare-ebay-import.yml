@@ -83,7 +83,9 @@ on:
         type: boolean
         default: false
 
-# write: the public data snapshot goes to main after the import (scripts/publish-public-data.sh).
+# write: the public data snapshot goes to main after the import (scripts/publish-public-data.sh). That commit
+# carries no [deploy] marker, so it rides the next release: the sealed import's data commit, which exports
+# the whole database again and is the only data commit production builds (2026-10-16).
 permissions:
   contents: write
 

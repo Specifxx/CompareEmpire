@@ -3,8 +3,8 @@
 // build's DATABASE_URL is production's: every push to a branch that touched the app built a preview
 // that prerendered the sitemap files against it. Two things stop that, pinned here:
 //   1. scripts/vercel-ignore-build.sh (vercel.json's ignoreCommand) skips a preview or development
-//      build unless the commit SUBJECT carries [preview]; production still builds exactly when the
-//      pushed commit changed the app (the old `git diff --quiet HEAD^ HEAD -- .`).
+//      build unless the commit SUBJECT carries [preview]; production builds only a release, a [deploy]
+//      SUBJECT that changed the app (or an empty [deploy] commit), since 2026-10-16.
 //   2. A preview that does build reads no database: the sitemap is the only thing a build prerenders
 //      against it, and it skips the reads (src/lib/build-env.ts).
 import { after, test } from "node:test";
@@ -72,23 +72,56 @@ test("vercel.json runs the gate", () => {
   assert.equal(vercel.ignoreCommand, "bash scripts/vercel-ignore-build.sh");
 });
 
-test("production is unchanged: it builds exactly when the pushed commit changed the app", () => {
+test("production builds a release only: [deploy] in the SUBJECT and the app changed (2026-10-16)", () => {
   for (const env of ["production", null]) {
     const label = env ?? "VERCEL_ENV unset";
-    assert.equal(gate(repo(true, "Fix the product page"), env, "Fix the product page").status, BUILD, label);
-    assert.equal(gate(repo(false, "Other app only"), env, "Other app only").status, SKIP, label);
-    // The preview marker means nothing to production, either way.
-    assert.equal(gate(repo(true, "Fix [preview]"), env, "Fix [preview]").status, BUILD, label);
-    assert.equal(gate(repo(false, "Other app [preview]"), env, "Other app [preview]").status, SKIP, label);
+    // Code commits and the eBay import's data commit ride the next release.
+    assert.equal(gate(repo(true, "Fix the product page"), env, "Fix the product page").status, SKIP, label);
+    const ebay = "DexCompare data: 2026-10-16T08:40Z (dexcompare-ebay-import.yml run 1)";
+    assert.equal(gate(repo(true, ebay), env, ebay).status, SKIP, label);
+    // The sealed import's data commit is the release (scripts/publish-public-data.sh ... release).
+    const data = "DexCompare data: 2026-10-16T08:52Z (dexcompare-sealed-import.yml run 2) [deploy]";
+    assert.equal(gate(repo(true, data), env, data).status, BUILD, label);
+    assert.equal(gate(repo(true, "Urgent fix [DEPLOY]"), env, "Urgent fix [DEPLOY]").status, BUILD, `${label}: any case`);
+    assert.equal(gate(repo(true, "Fix"), env, "Fix\n\nThe body says [deploy] in prose.").status, SKIP, `${label}: subject only`);
+    assert.equal(gate(repo(false, "Other app [deploy]"), env, "Other app [deploy]").status, SKIP, `${label}: another app's commit`);
+    // The preview marker means nothing to production.
+    assert.equal(gate(repo(true, "Fix [preview]"), env, "Fix [preview]").status, SKIP, label);
   }
 });
 
-test("production fails open when git cannot compare HEAD^ with HEAD", () => {
+test("an empty [deploy] commit is a release (dexcompare-release.yml)", () => {
+  const dir = join(TMP, `repo${n++}`);
+  mkdirSync(join(dir, "apps/dex"), { recursive: true });
+  writeFileSync(join(dir, "apps/dex/a.txt"), "1");
+  git(dir, "init", "-q", "-b", "main");
+  git(dir, "add", ".");
+  git(dir, "commit", "-q", "-m", "base");
+  git(dir, "commit", "-q", "--allow-empty", "-m", "DexCompare release [deploy]");
+  const app = join(dir, "apps/dex");
+  assert.equal(gate(app, "production", "DexCompare release [deploy]").status, BUILD);
+  assert.equal(gate(app, "production", "DexCompare release").status, SKIP, "an empty commit without the marker is nothing");
+  const wf = readFileSync(join(ROOT, "../../.github/workflows/dexcompare-release.yml"), "utf8");
+  assert.match(wf, /git commit --allow-empty -m "DexCompare release \[deploy\]"/);
+  assert.doesNotMatch(wf, /^\s+schedule:/m, "the imports are the schedule");
+});
+
+test("the sealed import's data commit carries the marker; the eBay import's does not", () => {
+  const pub = src("scripts/publish-public-data.sh");
+  assert.match(pub, /\[ "\$\{2:-\}" = "release" \] && MARK=" \[deploy\]"/);
+  assert.match(pub, /git commit -q -m "DexCompare data: [^"]*\$MARK"/);
+  const wf = (f: string) => readFileSync(join(ROOT, "../../.github/workflows", f), "utf8");
+  assert.match(wf("dexcompare-sealed-import.yml"), /publish-public-data\.sh "[^"]*" release/);
+  assert.doesNotMatch(wf("dexcompare-ebay-import.yml"), /publish-public-data\.sh "[^"]*" release/);
+});
+
+test("production fails open when the subject cannot be read, or git cannot compare a [deploy] commit", () => {
   const empty = join(TMP, "no-git");
   mkdirSync(empty, { recursive: true });
-  const r = gate(empty, "production", "Fix");
+  const r = gate(empty, "production", "Fix [deploy]");
   assert.equal(r.status, BUILD, r.out);
-  assert.equal(gate(empty, null, null).status, BUILD);
+  assert.equal(gate(empty, null, null).status, BUILD, "no message and no git: build");
+  assert.equal(gate(empty, "production", "Fix").status, SKIP, "a readable subject without the marker still skips");
 });
 
 test("previews are off: a preview or development build needs [preview] in the SUBJECT and an app change", () => {
