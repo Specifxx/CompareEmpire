@@ -104,6 +104,11 @@ test("wholesale displays and odd pack counts are not the set's booster box", () 
   assert.equal(classify("Pokemon Sleeved Booster Display (24)"), null);
   assert.equal(classify("Pokemon TCG ME01 Mega Evolution Enhanced Booster Box"), null);
   assert.equal(classify("Pokemon Pitch Black Half Booster Box"), null);
+  // Plurals, as a Singapore store titles it (it was ranked as the S$135 "booster box").
+  assert.equal(classify("Pitch Black Half Booster Boxes"), null);
+  assert.equal(classify("Pokemon Mega Evolution Enhanced Booster Displays"), null);
+  // A real 36-pack box is still a booster box.
+  assert.equal(classify("Pokemon TCG Pitch Black Booster Box - ME05: Pitch Black (ME05) 36 packs"), "booster-box");
 });
 
 test("named boxes and calendars are collections", () => {

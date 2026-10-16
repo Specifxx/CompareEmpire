@@ -380,7 +380,10 @@ export function classify(title: string): TypeKey | null {
 
   // Half boxes and "enhanced" displays are different pack counts from the
   // set's real booster box, so they can't share its price.
-  if (/\bhalf\s*(?:booster\s*)?(?:box|display)\b|\benhanced\s*(?:booster\s*)?(?:box|display)\b/.test(t)) return null;
+  // Plurals too: Team Card Game (SG) titles one "Pitch Black Half Booster Boxes",
+  // which the singular-only rule let through as the set's booster box at S$135
+  // (2026-10-16).
+  if (/\bhalf\s*(?:booster\s*)?(?:box(?:es)?|displays?)\b|\benhanced\s*(?:booster\s*)?(?:box(?:es)?|displays?)\b/.test(t)) return null;
 
   // "Elite Trainer Box Plus" (more packs, a different price) and cases of
   // Pokémon Center ETBs are not the plain ETB or its case.
