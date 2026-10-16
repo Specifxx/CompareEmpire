@@ -5,6 +5,7 @@ import { regionOfSitemapId, regionSitemap, SITEMAP_IDS, sitemapIdOf, STATIC_SITE
 import { SITE_URL } from "../src/lib/site";
 import { STORES } from "../src/lib/stores";
 import { GUIDES, guideRegions } from "../src/content/guides";
+import { COUNTRY_GUIDE } from "../src/content/guides/country-prices";
 
 const onSite = (entries: { url: string }[]) => {
   for (const e of entries) {
@@ -97,6 +98,10 @@ test("static sitemap: every guide in each region it is offered in, and nowhere e
     }
   }
   assert.ok(urls.has(`${SITE_URL}/us/guides/pokemon-tcg-msrp`));
+  // The new guides: Build & Battle in every region, and the one by-country page at its region-less URL.
+  for (const r of REGION_LIST) assert.ok(urls.has(`${SITE_URL}/${r.region}/guides/pokemon-build-and-battle-box`), r.region);
+  assert.equal(entries.filter((e) => e.url === `${SITE_URL}/guides/pokemon-booster-box-prices-by-country`).length, 1);
+  assert.equal(`${SITE_URL}${COUNTRY_GUIDE.path}`, `${SITE_URL}/guides/pokemon-booster-box-prices-by-country`);
   assert.ok(!urls.has(`${SITE_URL}/au/guides/pokemon-tcg-msrp`));
   const at = entries.find((e) => e.url === `${SITE_URL}/uk/guides/how-many-packs-in-pokemon-products`)!;
   assert.deepEqual([at.changeFrequency, at.priority, at.lastModified], ["weekly", 0.6, undefined], "editorial: no import-time lastmod");

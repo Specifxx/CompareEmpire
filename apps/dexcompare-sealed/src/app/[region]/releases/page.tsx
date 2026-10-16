@@ -13,6 +13,7 @@ import { isoDay, nextSet, releasesTitle, setsOfYear, shortDate, titleText } from
 import { setCountsGrouped, type SetCount } from "@/lib/hub-data";
 import { formatRelease, isPreorderSet } from "@/lib/release";
 import { jsonLd, pageMeta, regionAlternates, withPokemon } from "@/lib/seo";
+import { COUNTRY_GUIDE } from "@/content/guides/country-prices";
 import { preorderPath } from "@/lib/preorder-guides";
 import { SETS, type PokemonSet } from "@/lib/sets";
 import { SITE_URL } from "@/lib/site";
@@ -190,6 +191,23 @@ export default async function ReleasesPage({ params }: { params: { region: strin
         </Link>
         .
       </p>
+      <ul role="list" className="mt-4 flex flex-wrap gap-2 text-sm">
+        <li>
+          <Link href={`/${r.region}/guides/pokemon-build-and-battle-box`} prefetch={false} className="chip min-h-10">
+            Prerelease kits: the Build &amp; Battle Box
+          </Link>
+        </li>
+        <li>
+          <Link href={COUNTRY_GUIDE.path} prefetch={false} className="chip min-h-10">
+            Booster box prices by country
+          </Link>
+        </li>
+        <li>
+          <Link href={`/${r.region}/guides/how-to-preorder-pokemon-tcg`} prefetch={false} className="chip min-h-10">
+            How to pre-order
+          </Link>
+        </li>
+      </ul>
       {/* The page's closing strip stands in for the pre-footer one, so two never sit back to back. */}
       <NoPreFooter />
       <EbayStrip region={r.region} context="chase" placement="listings-releases" className="mt-10" search={{ kind: "card", query: "" }} />

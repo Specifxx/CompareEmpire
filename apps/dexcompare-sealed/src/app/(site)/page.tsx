@@ -8,6 +8,7 @@ import { SITE_NAME, SITE_URL, sectionHref, type SectionKey } from "@/lib/site";
 import { STORES, storesInMarket } from "@/lib/stores";
 import { PRODUCT_TYPES } from "@/lib/sealed-title";
 import { guidesFor } from "@/content/guides";
+import { COUNTRY_GUIDE } from "@/content/guides/country-prices";
 import { GuideCard } from "@/content/guides/kit";
 import { jsonLd } from "@/lib/seo";
 import { ADSENSE_CLIENT } from "@/lib/adsense";
@@ -192,6 +193,12 @@ export default function Landing() {
             );
           })}
         </ul>
+        <p className="mt-4 text-center text-sm text-muted">
+          The same booster box in all seven, side by side:{" "}
+          <Link href={COUNTRY_GUIDE.path} prefetch={false} className="font-semibold text-brand hover:underline">
+            booster box prices by country →
+          </Link>
+        </p>
       </section>
 
       <section className="page mt-14" aria-labelledby="guides-h">

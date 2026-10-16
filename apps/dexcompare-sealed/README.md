@@ -41,6 +41,14 @@ place untouched; nothing deploys from it once the Vercel project points here.
   worth it, sealed products explained, US MSRP, pre-ordering, what's in an ETB, Pokémon Center ETB vs ETB, the cheapest way to
   buy packs, where to buy online, avoiding resealed product, the Build & Battle Box), linked from the landing page with an FAQ, whose numbers come only from `packs.ts`, `rrp.ts`,
   `sets.ts`, `type-about.ts` and live blocks, each with "checked … ago". Old guide and blog URLs redirect to them.
+- **Booster box prices by country** (`/guides/pokemon-booster-box-prices-by-country`, `src/app/(site)/guides/[slug]`): the one
+  page that compares all seven markets, so it has one region-less URL (no hreflang). The newest booster-box set (the upcoming one
+  while it is on pre-order) and the three before it, each market's cheapest open box with its per-pack price, the lead set's ETB
+  and bundle, and US MSRP on the US row only. **Prices are never converted** (the site has no exchange-rate source it could print),
+  so the page never names a "cheapest country": it says how to compare (your card's rate, tax, shipping, import charges). Facts,
+  selection and sentences are `src/content/guides/country-prices.ts` (pure), the read `country-prices-data.ts` (≤ about 60 rows),
+  the body `country-prices-body.tsx`; linked from every footer, the region home, releases, the guides index, the landing page and
+  the pre-order page. No ad unit and no affiliate link on it.
 - **Search everywhere**: the 60 px header (64 px from lg) has a search box on every page, with typeahead over the
   region's whole catalogue (`/api/browse/<region>`: one CDN-cached index per region, rebuilt after each import, so a
   keystroke never reaches the database). Browse pages (`/<region>/sealed`) are paged in SQL, 48 at a time; filtering,
@@ -362,7 +370,8 @@ Guides are typed TSX modules, not MDX (`src/content/guides/`):
    (`guide-tcgplayer`) in the closing "Where to buy" section.
 4. The sitemap (`staticSitemap`) and the `/guides` index pick it up from the registry; `tests/guides.test.ts` checks
    the dates, description length, links, `BANNED_COPY` and the pack and MSRP numbers. To win back an old URL, add a
-   redirect in `next.config.js` above the blanket `/guides/:path*` rule, only for a slug that existed under that prefix
+   redirect in `next.config.js` above the blanket `/guides/:path(...)` rule (it sends every other `/guides/<slug>` to `/about`,
+   except the by-country guide's slug, which it skips), only for a slug that existed under that prefix
    in `apps/dexcompare/src/lib/articles.ts`.
 
 ## Pre-order pages

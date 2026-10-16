@@ -17,6 +17,7 @@ import { cardOpen } from "@/lib/compact";
 import { money, plural, timeAgo } from "@/lib/format";
 import { thumb } from "@/lib/images";
 import { hotRank } from "@/lib/popular";
+import { COUNTRY_GUIDE } from "@/content/guides/country-prices";
 import { openPreorderGuides } from "@/lib/preorder-guides";
 import { isPreorderSet, formatRelease } from "@/lib/release";
 import { REGIONS, regionOrNotFound, type Market, type RegionInfo } from "@/lib/regions";
@@ -179,6 +180,12 @@ export default async function RegionHome({ params }: { params: { region: string 
               No booster boxes in stock right now.
             </Empty>
           )}
+          <p className="mt-4 text-sm text-muted">
+            How do booster box prices in {r.inName} compare with the other six markets?{" "}
+            <Link href={COUNTRY_GUIDE.path} prefetch={false} className="font-semibold text-brand hover:underline">
+              Booster box prices by country →
+            </Link>
+          </p>
         </Section>
 
         {/* The second unit: chase cards, after the booster-box rail (a viewport and more below the sealed strip). */}

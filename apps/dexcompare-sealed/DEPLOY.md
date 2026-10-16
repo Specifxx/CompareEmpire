@@ -168,7 +168,7 @@ to the HTML-tag token and redeploy), then submit
 
 That URL is a **sitemap index** (`src/app/sitemap.xml/route.ts`) listing
 `/sitemap/0.xml` (the static pages, every active store page and, per region, `/deals`, `/cheapest-packs`, `/this-week`,
-`/guides` and each guide offered there) and `/sitemap/1.xml` …
+`/guides` and each guide offered there, plus the one region-less guide, `/guides/pokemon-booster-box-prices-by-country`) and `/sitemap/1.xml` …
 `/sitemap/7.xml`, one per region in the order AU, US, UK, CA, NZ, EU, SG
 (`src/lib/sitemap.ts`): a region's type pages, set pages and every product at
 least one store there has in stock or two stores list. Each file carries the
@@ -208,8 +208,8 @@ On by default with the owner's publisher ID, `ca-pub-6842128782879909` (`DEFAULT
 
 ## Social share cards
 
-Each region home (`/au`, `/us` …) and each guide has its own 1200×630 share card, drawn at build from the registry
-(`src/lib/og-card.tsx`; routes `/og/<region>` and `/og/guides/<slug>`; no database). It is the thumbnail Reddit, Discord and X
+Each region home (`/au`, `/us` …) and each guide (the by-country one included) has its own 1200×630 share card, drawn at build
+from the registry (`src/lib/og-card.tsx`; routes `/og/<region>` and `/og/guides/<slug>`; no database). It is the thumbnail Reddit, Discord and X
 show for a link. To preview one, open `https://www.dexcompare.app/og/au`. Reddit caches a link's thumbnail when it is first
 posted, so check the card before posting.
 
@@ -939,6 +939,7 @@ query's row cap and its card columns:
 | `/<region>/cheapest-packs` | `perPackLeaders` (≤ 200 rows, one window query) | about 45 KB |
 | `/<region>/this-week` | `productCountsBySets` (one `GROUP BY`, ≤ 10 sets), the calendar's products, `dealsInMarket` take 8, `newlyTracked` 12 | about 15 KB |
 | `/<region>/guides/<slug>` | at most about 40 rows (existing loaders, one `GROUP BY` by type) | ≤ 20 KB (the index: none) |
+| `/guides/pokemon-booster-box-prices-by-country` | every market's open booster boxes of ≤ 7 candidate sets (take ≤ 98), then the lead set's open ETB and bundle (take ≤ 28), one `StoreStat` aggregate; rendered on first visit, never at build | ≤ 20 KB |
 | `/api/browse/<region>` | the search and filter index: one whole-market read per region | about 0.5 MB per region per import |
 | product pages | `inStockAlternatives` (LIMIT 4) added; related products unchanged (take 40) | about +1 KB |
 | `/<region>/sealed` and `/page/<n>` | 48 rows a page plus one `COUNT` (they read the whole market before) | down from about 0.5 MB |

@@ -70,7 +70,9 @@ const nextConfig = {
       { source: "/blog/pitch-black-preorder-guide", destination: "/au/sets/pitch-black", permanent: true },
       { source: "/blog/chaos-rising-restock-playbook", destination: "/au/sets/chaos-rising", permanent: true },
       // The singles-only guides (grading, fakes, rarities, card values) have no sealed equivalent: the About page. Keep this last.
-      { source: "/guides/:path*", destination: "/about", permanent: true },
+      // It skips the guides that live at /guides/<slug> now, the ones that compare every market at once
+      // (src/app/(site)/guides/[slug]: "pokemon-booster-box-prices-by-country"): a redirect runs before the page would.
+      { source: "/guides/:path((?!pokemon-booster-box-prices-by-country$).*)", destination: "/about", permanent: true },
     ];
   },
   async headers() {

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { COUNTRY_GUIDE } from "@/content/guides/country-prices";
 import { REGION_LIST, REGIONS, type Region } from "@/lib/regions";
 import { SETS } from "@/lib/sets";
 import { CONTACT_EMAIL_SET, OPERATOR, SISTER_SITES, SITE_NAME, sectionHref, type SectionKey } from "@/lib/site";
@@ -17,7 +18,7 @@ export function footerColumns(region: Region | null): { title: string; links: Fo
   ];
   if (!region) {
     return [
-      { title: "Regions", links: REGION_LIST.map((r) => ({ href: `/${r.region}`, label: r.name })) },
+      { title: "Regions", links: [...REGION_LIST.map((r) => ({ href: `/${r.region}`, label: r.name })), { href: COUNTRY_GUIDE.path, label: "Prices by country" }] },
       { title: "DexCompare", links: site },
     ];
   }
@@ -28,7 +29,10 @@ export function footerColumns(region: Region | null): { title: string; links: Fo
       links: [s("boosterBoxes", "Booster boxes"), s("etbs", "Elite Trainer Boxes"), s("bundles", "Booster bundles"), s("upcs", "Ultra-Premium Collections"), s("tins", "Tins"), s("perPack", "Cheapest per pack")],
     },
     { title: "Latest sets", links: SETS.slice(0, 6).map((set) => ({ href: `/${region}/sets/${set.slug}`, label: set.name })) },
-    { title: "Explore", links: [s("deals", "Deals"), s("thisWeek", "This week"), s("releases", "Releases"), s("guides", "Guides"), s("stores", "Where to buy"), s("sealed", "All sealed")] },
+    {
+      title: "Explore",
+      links: [s("deals", "Deals"), s("thisWeek", "This week"), s("releases", "Releases"), s("guides", "Guides"), s("stores", "Where to buy"), s("sealed", "All sealed"), { href: COUNTRY_GUIDE.path, label: "Prices by country" }],
+    },
     { title: "DexCompare", links: site },
   ];
 }

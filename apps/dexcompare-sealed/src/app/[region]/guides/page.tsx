@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { guidesFor } from "@/content/guides";
+import { COUNTRY_GUIDE } from "@/content/guides/country-prices";
 import { andList, fixedPacks, newestReleased, packsBySeries, upcomingSets } from "@/content/guides/facts";
 import { GuideCard, guideHref, setHref, typeHref } from "@/content/guides/kit";
 import { regionOrNotFound } from "@/lib/regions";
@@ -88,6 +89,15 @@ export default function GuidesIndex({ params }: { params: { region: string } }) 
             <GuideCard r={r} guide={g} />
           </li>
         ))}
+        {/* The one guide that compares every market: the same page from every region's index. */}
+        <li>
+          <Link href={COUNTRY_GUIDE.path} prefetch={false} className="card group flex h-full flex-col p-5 transition-shadow hover:shadow-lift sm:p-6">
+            <span className="eyebrow">{COUNTRY_GUIDE.kicker}</span>
+            <h2 className="mt-2 font-display text-xl font-bold leading-snug tracking-tight group-hover:text-brand">{COUNTRY_GUIDE.h1}</h2>
+            <p className="mt-2 flex-1 text-[15px] leading-6 text-muted">{COUNTRY_GUIDE.description}</p>
+            <span className="mt-4 flex items-center justify-end gap-1 text-xs font-semibold text-brand">Compare all seven markets →</span>
+          </Link>
+        </li>
       </ul>
 
       <div className="mt-14 grid gap-10 lg:grid-cols-2">

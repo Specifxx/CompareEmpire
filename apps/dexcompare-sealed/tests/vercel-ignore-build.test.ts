@@ -172,8 +172,13 @@ test("a build prerenders nothing else that reads the database", () => {
     assert.equal(all, empty, `${rel(f)}: generateStaticParams must return [] (no prewarming at build)`);
   }
   assert.ok(reachesDatabase(join(ROOT, "src/app/[region]/p/[slug]/page.tsx")), "the walker sees a region page's reads");
-  // Everything outside [region], the API and the sitemap is prerendered at build: it must not reach the database.
-  const prerendered = app.filter((f) => !rel(f).startsWith("src/app/[region]/") && !rel(f).startsWith("src/app/api/") && rel(f) !== "src/app/sitemap.ts");
+  // A page under a dynamic segment whose generateStaticParams returns [] renders on its first visit, like a region page (the
+  // by-country guide, src/app/(site)/guides/[slug]). Everything else outside [region], the API and the sitemap is prerendered at
+  // build: it must not reach the database.
+  const onFirstVisit = (f: string) => /\/\[[^/\]]+\]\//.test(rel(f)) && /export function generateStaticParams\(\)\s*\{\s*return \[\];\s*\}/.test(readFileSync(f, "utf8"));
+  const byCountry = join(ROOT, "src/app/(site)/guides/[slug]/page.tsx");
+  assert.ok(onFirstVisit(byCountry) && reachesDatabase(byCountry), "the by-country guide reads data, on its first visit only");
+  const prerendered = app.filter((f) => !rel(f).startsWith("src/app/[region]/") && !rel(f).startsWith("src/app/api/") && rel(f) !== "src/app/sitemap.ts" && !onFirstVisit(f));
   assert.ok(prerendered.some((f) => rel(f) === "src/app/(site)/page.tsx"));
   for (const f of prerendered) assert.equal(reachesDatabase(f), false, `${rel(f)} is prerendered at build and reaches src/lib/db.ts or data.ts`);
 });

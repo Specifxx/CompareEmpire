@@ -10,6 +10,7 @@ import { lastCheckedAt, setOfferGroups, type SetOfferGroup } from "@/lib/data";
 import { cardOpen } from "@/lib/compact";
 import { money, plural, relativeDay, timeAgo } from "@/lib/format";
 import { packsForLabel, perPackCents } from "@/lib/packs";
+import { COUNTRY_GUIDE } from "@/content/guides/country-prices";
 import { titleText } from "@/lib/hub-copy";
 import { glanceFacts, msrpPerPack, msrpValueSentence, preorderDescription, preorderFaqs, preorderTitle, type CheapestByType, type GlanceFact } from "@/lib/preorder-copy";
 import { guideShowsMsrp, preorderGuideBySlug, type PreorderGuide } from "@/lib/preorder-guides";
@@ -321,6 +322,9 @@ export default async function PreorderPage({ params }: Params) {
         </Link>
         <Link href={`/${r.region}/guides/pokemon-build-and-battle-box`} prefetch={false} className="chip py-2">
           Build &amp; Battle Box guide
+        </Link>
+        <Link href={COUNTRY_GUIDE.path} prefetch={false} className="chip py-2">
+          Booster box prices by country
         </Link>
       </div>
 

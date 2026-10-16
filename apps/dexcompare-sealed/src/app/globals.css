@@ -178,6 +178,9 @@ body {
   .prose-dex ul {
     @apply mb-4 list-disc space-y-1 pl-5 text-muted;
   }
+  .prose-dex ol {
+    @apply mb-4 list-decimal space-y-1 pl-5 text-muted;
+  }
 }
 
 /* ── The shell (components/Header.tsx, MobileMenu.tsx, Section.tsx) ─────────────────────────────────────────────── */

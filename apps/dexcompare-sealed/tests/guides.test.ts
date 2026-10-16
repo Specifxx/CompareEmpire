@@ -471,12 +471,12 @@ function served(path: string): boolean {
   return existsSync(new URL(`[region]/${section}/page.tsx`, APP)) || RELEASE_ROUTES.has(section);
 }
 
-/** Next's first matching redirect for a path (the sources here use only literal segments, :param and :param*). */
+/** Next's first matching redirect for a path, matched exactly as Next matches a redirect's source (its own path matcher). */
+const nextMatch = require("next/dist/shared/lib/router/utils/path-match") as {
+  getPathMatch: (source: string, opts: { strict: boolean; removeUnnamedParams: boolean; sensitive: boolean }) => (path: string) => false | object;
+};
 function firstMatch(rules: Redirect[], path: string): Redirect | null {
-  for (const rule of rules) {
-    const re = new RegExp(`^${rule.source.replace(/\/:[a-z]+\*/gi, "(?:/.*)?").replace(/:[a-z]+/gi, "[^/]+")}$`, "i");
-    if (re.test(path)) return rule;
-  }
+  for (const rule of rules) if (nextMatch.getPathMatch(rule.source, { strict: true, removeUnnamedParams: true, sensitive: false })(path)) return rule;
   return null;
 }
 
@@ -491,7 +491,7 @@ test("legacy redirects: every specific source was a real old guide or blog post,
     if (m) assert.equal(old.get(m[2]), m[1] === "guides" ? "guide" : "blog", `${rule.source}: not an old ${m[1]} URL`);
     if (!rule.destination.includes(":")) assert.ok(served(rule.destination), `${rule.source} → ${rule.destination}: no such page`);
   }
-  assert.equal(rules.at(-1)!.source, "/guides/:path*", "the blanket rule stays last");
+  assert.match(rules.at(-1)!.source, /^\/guides\/:path\(/, "the blanket rule stays last");
   assert.equal(rules.at(-1)!.destination, "/about");
   const to = (p: string) => firstMatch(rules, p)?.destination;
   assert.equal(to("/guides"), "/au/guides");
@@ -508,4 +508,10 @@ test("legacy redirects: every specific source was a real old guide or blog post,
   assert.equal(to("/guides/how-to-spot-fake-pokemon-cards"), "/about", "a singles-only guide still goes to About");
   assert.equal(to("/blog/pokemon-cards-as-an-investment"), undefined, "a singles-only blog post is left alone");
   assert.equal(to("/au/guides/pokemon-tcg-msrp"), undefined, "the new hub is never redirected");
+  // The by-country guide lives at /guides/<slug>: the blanket rule skips it, and only it.
+  assert.equal(to("/guides/pokemon-booster-box-prices-by-country"), undefined, "the by-country guide is served, not redirected");
+  assert.ok(existsSync(new URL("(site)/guides/[slug]/page.tsx", APP)));
+  assert.equal(to("/guides/pokemon-booster-box-prices-by-country-old"), "/about");
+  assert.equal(to("/guides/pokemon-booster-box-prices-by-country/x"), "/about");
+  assert.equal(to("/guides/how-to-grade-pokemon-cards/deep/path"), "/about");
 });
