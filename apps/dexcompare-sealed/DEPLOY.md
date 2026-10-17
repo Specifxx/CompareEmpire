@@ -8,10 +8,16 @@ waiting for the first import.
 
 **The site reads no database.** After every import (`dexcompare-sealed-import.yml`, twice a day; `dexcompare-ebay-import.yml`,
 daily) the job exports every public table to `data/public/` (`scripts/export-public-data.ts`, ~25 MB of JSON, one row per line)
-and commits it to `main` (`scripts/publish-public-data.sh`). The sealed import's commit is the release that puts the new prices
-live: its subject carries `[deploy]`, the only thing production builds since 2026-10-16 (`scripts/vercel-ignore-build.sh`); the
-eBay import's commit and every code commit ride the next one, and "DexCompare release" (`dexcompare-release.yml`) releases out of
-turn. The import no longer purges the page cache first: the deploy does. Vercel builds the release, the build bundles the files,
+and commits it to `main` (`scripts/publish-public-data.sh`). Since 2026-10-17 ONE release a day puts new prices live: the 20:47
+UTC sealed import's commit, whose subject carries `[deploy]`, the only thing production builds (`scripts/vercel-ignore-build.sh`).
+The 08:47 import's commit, the eBay import's and every code commit ride it; a manual import run, the schema sync and "DexCompare
+release" (`dexcompare-release.yml`) release out of turn. The import no longer purges anything first: the deploy does.
+
+**Caching (2026-10-17).** Every data page is `force-dynamic` and Vercel's CDN keeps each response for a day (`next.config.js`
+`CDN_PAGES`, `Vercel-CDN-Cache-Control: public, s-maxage=86400, stale-while-revalidate=86400`), never ISR. An ISR write is
+billed per 8 KB of the page and every release empties the ISR cache, so ISR wrote each visited page again after every release:
+about twenty times the cost of rendering it. The CDN copy is free to keep and a release empties it too. It is safe only because
+no page reads a cookie, a header or the session (`tests/cache-ttl.test.ts`). Vercel builds the release, the build bundles the files,
 and every page, the browse index and the eBay strips read them through
 `src/lib/public-data/` (RiftCompare's query engine, ported). `PUBLIC_DATA_MODE` (Vercel, optional): `files` (default), `fallback`
 (database first, files if it cannot answer) or `db` (the database only, as before). A read the files cannot answer exactly falls

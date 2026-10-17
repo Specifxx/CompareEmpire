@@ -15,13 +15,11 @@ import { formatRelease } from "@/lib/release";
 import { TYPE_BY_KEY } from "@/lib/sealed-title";
 import { articleJsonLd, jsonLd, ogCardImage, pageMeta, regionAlternates } from "@/lib/seo";
 
-// A guide: evergreen prose from src/content/guides/<slug>.tsx and live blocks rendered from the region's prices at ISR time. Rendered on
-// its first visit and cached for a day (and refreshed after each import), never at build: a build must not depend on the database.
-export const revalidate = 86400;
-
-export function generateStaticParams() {
-  return [];
-}
+// A guide: evergreen prose from src/content/guides/<slug>.tsx and live blocks rendered from the region's prices at render time. Never
+// at build: a build must not depend on the database.
+// Rendered per request and kept by Vercel's CDN for a day (next.config.js, CDN_PAGES), never ISR: an ISR write
+// costs about twenty renders, and the data only changes with a release, which empties the CDN anyway.
+export const dynamic = "force-dynamic";
 
 export function generateMetadata({ params }: { params: { region: string; slug: string } }): Metadata {
   const r = regionOrNotFound(params.region);

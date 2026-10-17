@@ -55,11 +55,9 @@ import { SITE_URL } from "@/lib/site";
 //
 // The facts (dates, contents) are lib/preorder-guides.ts's, sourced and dated;
 // US MSRP is lib/rrp.ts's and printed on the US page only, as everywhere else.
-export const revalidate = 86400;
-
-export function generateStaticParams() {
-  return [];
-}
+// Rendered per request and kept by Vercel's CDN for a day (next.config.js, CDN_PAGES), never ISR: an ISR write
+// costs about twenty renders, and the data only changes with a release, which empties the CDN anyway.
+export const dynamic = "force-dynamic";
 
 type Params = { params: { region: string; set: string } };
 

@@ -28,6 +28,15 @@ const securityHeaders = [
   { key: "Content-Security-Policy-Report-Only", value: CSP_REPORT_ONLY },
 ];
 
+// THE PAGES ARE CACHED BY VERCEL'S CDN, NOT ISR (2026-10-17, DEPLOY.md "Caching"). An ISR write is billed per 8 KB of the page
+// (~45 units for a product page's HTML + RSC) and every release empties the ISR cache, so each visited page was written again after
+// every release: about twenty times what rendering it costs. Every data page is force-dynamic and this header keeps its response at
+// the CDN for a day: Vercel-CDN-Cache-Control is read by Vercel's CDN before the page's own `private, no-store` and never reaches the
+// browser. The data only changes with a release, and a release empties the CDN. Safe because no page reads a cookie, a header or
+// the session: one copy is right for every visitor (tests/cache-ttl.test.ts walks them).
+const CDN_CACHE = "public, s-maxage=86400, stale-while-revalidate=86400";
+const CDN_PAGES = ["/:region(au|us|uk|ca|nz|eu|sg)", "/:region(au|us|uk|ca|nz|eu|sg)/:path*", "/guides/:slug"];
+
 const nextConfig = {
   reactStrictMode: true,
   // The public data files (data/public/, ~25 MB: src/lib/public-data/) ride with every server function, which reads them instead of
@@ -76,7 +85,10 @@ const nextConfig = {
     ];
   },
   async headers() {
-    return [{ source: "/:path*", headers: securityHeaders }];
+    return [
+      { source: "/:path*", headers: securityHeaders },
+      ...CDN_PAGES.map((source) => ({ source, headers: [{ key: "Vercel-CDN-Cache-Control", value: CDN_CACHE }] })),
+    ];
   },
 };
 

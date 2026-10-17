@@ -20,13 +20,11 @@ import type { PokemonSet } from "@/lib/sets";
 // /[region]/this-week: a digest that changes every day, built only from today's state: sets releasing in the next 45 days (with
 // their open pre-orders and cheapest box / ETB / bundle), sets out in the last 30, what is cheaper than most stores today, and what
 // DexCompare started tracking in the last 14 days (labelled as exactly that: Product.createdAt is not a release date). Five small
-// capped reads; ISR, re-rendered after each import. One eBay strip, after the first block.
+// capped reads; cached at the CDN until the next release. One eBay strip, after the first block.
 
-export const revalidate = 86400;
-
-export function generateStaticParams() {
-  return [];
-}
+// Rendered per request and kept by Vercel's CDN for a day (next.config.js, CDN_PAGES), never ISR: an ISR write
+// costs about twenty renders, and the data only changes with a release, which empties the CDN anyway.
+export const dynamic = "force-dynamic";
 
 export function generateMetadata({ params }: { params: { region: string } }): Metadata {
   const r = regionOrNotFound(params.region);

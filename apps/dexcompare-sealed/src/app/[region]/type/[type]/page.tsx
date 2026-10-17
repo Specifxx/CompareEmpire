@@ -21,11 +21,9 @@ import { itemListJsonLd, jsonLd, pageMeta, regionAlternates } from "@/lib/seo";
 import { SET_BY_CODE } from "@/lib/sets";
 import { TYPE_ABOUT } from "@/lib/type-about";
 
-export const revalidate = 86400;
-
-export function generateStaticParams() {
-  return [];
-}
+// Rendered per request and kept by Vercel's CDN for a day (next.config.js, CDN_PAGES), never ISR: an ISR write
+// costs about twenty renders, and the data only changes with a release, which empties the CDN anyway.
+export const dynamic = "force-dynamic";
 
 // At most 72 product rows (the 48 cheapest open, the 24 most-listed sold out) and one count: US Collections alone have ~530 open
 // products, and the page used to render every one (2.6 MB of HTML). The rest is one tap away on the browse page's filtered view.

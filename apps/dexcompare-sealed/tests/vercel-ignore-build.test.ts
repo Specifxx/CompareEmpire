@@ -111,7 +111,10 @@ test("the sealed import's data commit carries the marker; the eBay import's does
   assert.match(pub, /\[ "\$\{2:-\}" = "release" \] && MARK=" \[deploy\]"/);
   assert.match(pub, /git commit -q -m "DexCompare data: [^"]*\$MARK"/);
   const wf = (f: string) => readFileSync(join(ROOT, "../../.github/workflows", f), "utf8");
-  assert.match(wf("dexcompare-sealed-import.yml"), /publish-public-data\.sh "[^"]*" release/);
+  // One release a day (2026-10-17): the 20:47 UTC run, a manual run and the schema sync; the 08:47 run rides it.
+  const sealed = wf("dexcompare-sealed-import.yml");
+  assert.match(sealed, /RELEASE: \$\{\{ \(github\.event_name != 'schedule' \|\| github\.event\.schedule == '47 20 \* \* \*'\) && 'release' \|\| '' \}\}/);
+  assert.match(sealed, /publish-public-data\.sh "[^"]*" \$RELEASE/);
   assert.doesNotMatch(wf("dexcompare-ebay-import.yml"), /publish-public-data\.sh "[^"]*" release/);
 });
 
@@ -208,9 +211,10 @@ test("a build prerenders nothing else that reads the database", () => {
   // A page under a dynamic segment whose generateStaticParams returns [] renders on its first visit, like a region page (the
   // by-country guide, src/app/(site)/guides/[slug]). Everything else outside [region], the API and the sitemap is prerendered at
   // build: it must not reach the database.
-  const onFirstVisit = (f: string) => /\/\[[^/\]]+\]\//.test(rel(f)) && /export function generateStaticParams\(\)\s*\{\s*return \[\];\s*\}/.test(readFileSync(f, "utf8"));
+  // Or a force-dynamic page (every data page since 2026-10-17, cached by the CDN): never prerendered.
+  const onFirstVisit = (f: string) => /^export const dynamic = "force-dynamic"/m.test(readFileSync(f, "utf8")) || (/\/\[[^/\]]+\]\//.test(rel(f)) && /export function generateStaticParams\(\)\s*\{\s*return \[\];\s*\}/.test(readFileSync(f, "utf8")));
   const byCountry = join(ROOT, "src/app/(site)/guides/[slug]/page.tsx");
-  assert.ok(onFirstVisit(byCountry) && reachesDatabase(byCountry), "the by-country guide reads data, on its first visit only");
+  assert.ok(onFirstVisit(byCountry) && reachesDatabase(byCountry), "the by-country guide reads data, per request only (never at build)");
   const prerendered = app.filter((f) => !rel(f).startsWith("src/app/[region]/") && !rel(f).startsWith("src/app/api/") && rel(f) !== "src/app/sitemap.ts" && !onFirstVisit(f));
   assert.ok(prerendered.some((f) => rel(f) === "src/app/(site)/page.tsx"));
   for (const f of prerendered) assert.equal(reachesDatabase(f), false, `${rel(f)} is prerendered at build and reaches src/lib/db.ts or data.ts`);

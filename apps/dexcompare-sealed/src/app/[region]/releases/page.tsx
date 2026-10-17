@@ -18,7 +18,9 @@ import { preorderPath } from "@/lib/preorder-guides";
 import { SETS, type PokemonSet } from "@/lib/sets";
 import { SITE_URL } from "@/lib/site";
 
-export const revalidate = 86400;
+// Rendered per request and kept by Vercel's CDN for a day (next.config.js, CDN_PAGES), never ISR: an ISR write
+// costs about twenty renders, and the data only changes with a release, which empties the CDN anyway.
+export const dynamic = "force-dynamic";
 
 // How far back the calendar's rich rows look: a set is "new" for four months, long enough
 // for the second wave and the pre-orders to settle into stock. The year tables below list the rest.
@@ -26,7 +28,7 @@ const RECENT_DAYS = 120;
 
 export function generateMetadata({ params }: { params: { region: string } }): Metadata {
   const r = regionOrNotFound(params.region);
-  // The year is the render's: the page re-renders at least daily (ISR), so it rolls over on its own on 1 January.
+  // The year is the render's: the page re-renders at least daily (its CDN copy lasts a day), so it rolls over on its own on 1 January.
   const year = new Date().getUTCFullYear();
   const title = releasesTitle(r, year);
   const next = nextSet();

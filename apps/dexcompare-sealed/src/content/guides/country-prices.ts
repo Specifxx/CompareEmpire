@@ -126,7 +126,7 @@ export function countryFaqs(lead: { set: Pick<PokemonSet, "name" | "releaseDate"
     },
     {
       q: "How often are these prices updated?",
-      a: "We read each store’s listings about twice a day, and this page is rebuilt from the latest read. A store’s own page is final: prices and stock can change between reads.",
+      a: "We read each store’s listings about twice a day, and this page is updated from the latest read once a day. A store’s own page is final: prices and stock can change between reads.",
     },
   ];
 }

@@ -275,7 +275,7 @@ test("nearestRegion: Australia and New Zealand point at each other, the US at Ca
 
 const src = (p: string) => readFileSync(new URL(`../src/${p}`, import.meta.url), "utf8");
 
-test("the new routes are ISR with no static params, read no request state, and carry exactly one strip with their own placement", () => {
+test("the new routes are CDN-cached per-request renders with no static params, read no request state, and carry exactly one strip with their own placement", () => {
   const pages: [string, string][] = [
     ["app/[region]/deals/page.tsx", "listings-deals"],
     ["app/[region]/cheapest-packs/page.tsx", "listings-packs"],
@@ -283,8 +283,9 @@ test("the new routes are ISR with no static params, read no request state, and c
   ];
   for (const [file, placement] of pages) {
     const s = src(file);
-    assert.match(s, /export const revalidate = 86400;/, file);
-    assert.match(s, /export function generateStaticParams\(\) \{\s*return \[\];\s*\}/, file);
+    // CDN-cached, not ISR (2026-10-17, tests/cache-ttl.test.ts): rendered per request, nothing prerendered.
+    assert.match(s, /export const dynamic = "force-dynamic";/, file);
+    assert.doesNotMatch(s, /generateStaticParams|export const revalidate/, file);
     assert.match(s, /regionOrNotFound\(params\.region\)/, file);
     assert.doesNotMatch(s, /searchParams|from "next\/headers"|cookies\(|headers\(|unstable_cache/, file);
     assert.equal((s.match(/<EbayStrip\b/g) ?? []).length, 1, `${file}: one strip`);
