@@ -13,7 +13,7 @@ import type { RegionInfo } from "@/lib/regions";
 import { pageMeta, regionAlternates } from "@/lib/seo";
 import { storesInMarket } from "@/lib/stores";
 
-// Shared by /[region]/sealed (page 1) and /[region]/sealed/page/[n]. Both are ISR renders of the same list: a page segment, not
+// Shared by /[region]/sealed (page 1) and /[region]/sealed/page/[n]. Both are CDN-cached renders of the same list: a page segment, not
 // ?page=, because reading searchParams would make the route dynamic and re-query the database on every request (src/lib/db.ts,
 // rule 4).
 //

@@ -101,7 +101,7 @@ export default function About() {
 
         <h2 id="freshness">Freshness</h2>
         <p>
-          Every store is read about twice a day, and every figure on the site is from the latest read: a &ldquo;from&rdquo; price, a stock
+          Every store is read about twice a day, and the site is updated from the latest read once a day: a &ldquo;from&rdquo; price, a stock
           status, a store&rsquo;s listing count, the median a region&rsquo;s stores are asking. Each listing shows how long ago its store was
           read. When a store cannot be read for three days its listings are marked &ldquo;not checked recently&rdquo; and drop out of the
           &ldquo;from&rdquo; price; after two weeks they are removed. A store that lists twenty or more products and had none of them in stock

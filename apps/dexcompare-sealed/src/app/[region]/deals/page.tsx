@@ -19,13 +19,11 @@ import { itemListJsonLd, jsonLd, pageMeta, regionAlternates } from "@/lib/seo";
 // /[region]/deals: products whose cheapest in-stock price is at least 10% under the median of the 3+ stores that have it, today
 // (lib/deals.ts: the same bar as every card's "N% below the median" badge, so the page and the badges always agree). One section per
 // type, then the cheapest per pack and, in the US, what sits under TPCi's MSRP. Every read is one capped query (48 deals from at most
-// 96 rows, at most 192 per-pack rows); the page is ISR and re-renders after each import. One eBay strip, after the first products.
+// 96 rows, at most 192 per-pack rows); the page is cached at the CDN until the next release. One eBay strip, after the first products.
 
-export const revalidate = 86400;
-
-export function generateStaticParams() {
-  return [];
-}
+// Rendered per request and kept by Vercel's CDN for a day (next.config.js, CDN_PAGES), never ISR: an ISR write
+// costs about twenty renders, and the data only changes with a release, which empties the CDN anyway.
+export const dynamic = "force-dynamic";
 
 // Shared by generateMetadata and the page (noindex and the description need the counts): one read each per render.
 const getSections = cache((market: Market) => dealsBySection(market));

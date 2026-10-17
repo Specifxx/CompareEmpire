@@ -15,13 +15,10 @@ import { articleJsonLd, jsonLd, ogCardImage, pageMeta } from "@/lib/seo";
 // there is one, "Pokémon booster box prices by country" (src/content/guides/country-prices*.ts{,x}); any other slug is a 404, and
 // next.config.js still sends every other /guides/<old slug> of the old site to /about before it gets here.
 //
-// Rendered on its first visit and cached for a day (refreshed after each import through /api/revalidate's layout purge), never at
-// build: no params are listed below, so a build reads no data (src/lib/build-env.ts).
-export const revalidate = 86400;
-
-export function generateStaticParams() {
-  return [];
-}
+// Never at build, so a build reads no data (src/lib/build-env.ts).
+// Rendered per request and kept by Vercel's CDN for a day (next.config.js, CDN_PAGES), never ISR: an ISR write
+// costs about twenty renders, and the data only changes with a release, which empties the CDN anyway.
+export const dynamic = "force-dynamic";
 
 type Params = { params: { slug: string } };
 

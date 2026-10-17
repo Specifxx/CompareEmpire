@@ -129,4 +129,10 @@ jobs:
       - name: Publish it to main
         if: steps.db.outputs.found == 'true'
         working-directory: .
-        run: bash apps/dexcompare-sealed/scripts/publish-public-data.sh "dexcompare-sealed-import.yml run ${{ github.run_id }}" release
+        # ONE RELEASE A DAY (owner, 2026-10-17: "reduce the cost"). The 20:47 UTC run (early morning in Australia,
+        # afternoon in the Americas), a manual run and the schema sync release ("release": the commit subject carries
+        # [deploy]); the 08:47 run commits its snapshot without the marker and it rides the next release, which carries a
+        # newer whole-database snapshot anyway. Every release empties Vercel's CDN; the 08:47 read still feeds the alerts.
+        env:
+          RELEASE: ${{ (github.event_name != 'schedule' || github.event.schedule == '47 20 * * *') && 'release' || '' }}
+        run: bash apps/dexcompare-sealed/scripts/publish-public-data.sh "dexcompare-sealed-import.yml run ${{ github.run_id }}" $RELEASE

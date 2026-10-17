@@ -11,7 +11,9 @@ import { jsonLd, pageMeta, regionAlternates } from "@/lib/seo";
 import { SITE_URL } from "@/lib/site";
 
 // The guides index: the region's guides as cards. Built from the registry alone: no database read.
-export const revalidate = 86400;
+// Rendered per request and kept by Vercel's CDN for a day (next.config.js, CDN_PAGES), never ISR: an ISR write
+// costs about twenty renders, and the data only changes with a release, which empties the CDN anyway.
+export const dynamic = "force-dynamic";
 
 export function generateMetadata({ params }: { params: { region: string } }): Metadata {
   const r = regionOrNotFound(params.region);

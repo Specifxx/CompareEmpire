@@ -3,13 +3,9 @@ import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { regionOrNotFound } from "@/lib/regions";
 
-// Empty on purpose: region pages render on their first visit and are then
-// cached (ISR), never at build. A build must not depend on the database being
-// reachable — when Rift Compare's database ran out of transfer, every deploy
-// failed until it was replaced.
-export function generateStaticParams() {
-  return [];
-}
+// Nothing here is prerendered at build: every region page is force-dynamic and kept by Vercel's CDN
+// (next.config.js, CDN_PAGES; ISR until 2026-10-17). A build must not depend on the database being
+// reachable — when Rift Compare's database ran out of transfer, every deploy failed until it was replaced.
 
 // The 404 here is not enough on its own: a page's generateMetadata and body run
 // alongside the layout, so every page under [region] resolves its region the

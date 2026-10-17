@@ -26,11 +26,9 @@ import { PRODUCT_TYPES } from "@/lib/sealed-title";
 import { SETS, type PokemonSet } from "@/lib/sets";
 import { storesInMarket } from "@/lib/stores";
 
-export const revalidate = 86400;
-
-export function generateStaticParams() {
-  return [];
-}
+// Rendered per request and kept by Vercel's CDN for a day (next.config.js, CDN_PAGES), never ISR: an ISR write
+// costs about twenty renders, and the data only changes with a release, which empties the CDN anyway.
+export const dynamic = "force-dynamic";
 
 // The overview's counts go into the description ("1,591 in stock today") and the hero's trust line: one read, shared.
 const getOverview = cache((market: Market) => regionOverview(market));

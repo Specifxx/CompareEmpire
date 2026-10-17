@@ -36,13 +36,9 @@ import { TYPE_BY_LABEL } from "@/lib/sealed-title";
 import { jsonLd, pageMeta, productJsonLd, regionAlternates, withPokemon } from "@/lib/seo";
 import { SET_BY_CODE } from "@/lib/sets";
 
-export const revalidate = 86400;
-
-// Rendered on first visit, then cached until the next import (see
-// src/app/[region]/layout.tsx for why nothing is prerendered at build).
-export function generateStaticParams() {
-  return [];
-}
+// Rendered per request and kept by Vercel's CDN for a day (next.config.js, CDN_PAGES), never ISR: an ISR write
+// costs about twenty renders, and the data only changes with a release, which empties the CDN anyway.
+export const dynamic = "force-dynamic";
 
 const getPage = cache((slug: string, market: Market) => productPage(slug, market));
 // The same-set read (take 40), shared by the title's value check and the page: one query per render.

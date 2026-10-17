@@ -424,7 +424,7 @@ test("the hub pages use the hub copy and the capped reads", () => {
     assert.doesNotMatch(src(p), /\bsetCounts\(/, p);
   }
   for (const p of ["sets/[set]/page.tsx", "type/[type]/page.tsx", "sets/page.tsx", "releases/page.tsx", "stores/page.tsx"]) {
-    assert.match(src(p), /export const revalidate = 86400;/, p);
+    assert.match(src(p), /export const dynamic = "force-dynamic";/, p); // CDN-cached, not ISR (tests/cache-ttl.test.ts)
     assert.doesNotMatch(src(p), /searchParams|headers\(\)|cookies\(\)|unstable_cache/, p);
   }
 });

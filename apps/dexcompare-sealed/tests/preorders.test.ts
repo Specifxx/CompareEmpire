@@ -90,7 +90,7 @@ test("the pre-order page says PreOrder, never InStock, and uses its own placemen
   assert.doesNotMatch(page, /schema\.org\/InStock/);
   assert.match(page, /placement="preorders"/);
   assert.match(page, /regionOrNotFound\(params\.region\)/);
-  assert.match(page, /export const revalidate = 86400/);
+  assert.match(page, /export const dynamic = "force-dynamic"/); // CDN-cached, not ISR (tests/cache-ttl.test.ts)
   assert.match(page, /noindex: !pre/);
 });
 

@@ -20,14 +20,12 @@ import { SET_BY_CODE } from "@/lib/sets";
 
 // /[region]/cheapest-packs: every product that holds a fixed number of booster packs, ranked by today's cheapest price ÷ its packs
 // (packs.ts), overall and per type. One capped read (lib/deals.ts perPackLeaders: the 24 cheapest open products of each pack type, at
-// most 192 rows); ISR, re-rendered after each import. In the US, TPCi's MSRP per pack beside each row (rrp.ts, with RRP_NOTE).
+// most 192 rows); cached at the CDN until the next release. In the US, TPCi's MSRP per pack beside each row (rrp.ts, with RRP_NOTE).
 // One eBay strip, after the overall table. Below sm each table row stacks into its product cell: no sideways scrolling at 320 px.
 
-export const revalidate = 86400;
-
-export function generateStaticParams() {
-  return [];
-}
+// Rendered per request and kept by Vercel's CDN for a day (next.config.js, CDN_PAGES), never ISR: an ISR write
+// costs about twenty renders, and the data only changes with a release, which empties the CDN anyway.
+export const dynamic = "force-dynamic";
 
 const getLeaders = cache((market: Market) => perPackLeaders(market));
 

@@ -2,11 +2,9 @@ import type { Metadata } from "next";
 import { regionOrNotFound } from "@/lib/regions";
 import { pageNumber, StorePage, storeInRegion, storeMeta } from "../../StoreListing";
 
-export const revalidate = 86400;
-
-export function generateStaticParams() {
-  return [];
-}
+// Rendered per request and kept by Vercel's CDN for a day (next.config.js, CDN_PAGES), never ISR: an ISR write
+// costs about twenty renders, and the data only changes with a release, which empties the CDN anyway.
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: { region: string; store: string; n: string } }): Promise<Metadata> {
   const r = regionOrNotFound(params.region);
