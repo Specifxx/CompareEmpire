@@ -59,7 +59,7 @@ place untouched; nothing deploys from it once the Vercel project points here.
 - **Welcomes**: a landing page (`/`) that suggests the visitor's region, a phone menu with every section, and a footer
   of real links per region.
 - **Share cards**: each region home and each guide has its own 1200×630 og:image (`/og/<region>`, `/og/guides/<slug>`,
-  `src/lib/og-card.tsx`), static and drawn from the registry: the thumbnail a Reddit or Discord link shows.
+  `src/lib/og-card.tsx`), static and drawn from the registry: the thumbnail a Reddit or Discord link shows. Each pre-order page (`/<region>/preorders/<set>`) has its own (`/og/preorders/<set>`): date, set name and the product photos in `public/preorders/<set>/`, drawn on request and kept a day by the CDN.
 - **Google AdSense** (`src/lib/adsense.ts`), off until `NEXT_PUBLIC_ADSENSE_CLIENT` is set: then the script and meta in every
   `<head>`, `/ads.txt`, the privacy and about paragraphs, and with `NEXT_PUBLIC_ADSENSE_SLOT_GUIDE` one in-article unit per guide
   (DEPLOY.md, "Google AdSense").
