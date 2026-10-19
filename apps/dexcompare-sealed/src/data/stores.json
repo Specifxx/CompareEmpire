@@ -36,6 +36,17 @@
     ]
   },
   {
+    "key": "beachestcg",
+    "name": "Beaches TCG",
+    "base": "https://beachestcg.com.au",
+    "market": "AU",
+    "platform": "shopify",
+    "country": "AU",
+    "collections": [
+      "pokemon-tcg"
+    ]
+  },
+  {
     "key": "cardbot",
     "name": "Cardbot",
     "base": "https://cardbot.com.au",

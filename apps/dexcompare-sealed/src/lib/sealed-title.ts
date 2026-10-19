@@ -466,6 +466,15 @@ const KEEP_SHORT = new Set(["ex", "v", "gx", "mega", "mini", "super"]);
 // Collection" is part of the identity. Keys are the rest of the signature.
 const SPECIAL_AND_PREMIUM = new Set(["charizard-ex", "kleavor-vstar", "lucario-vstar", "pikachu-vmax"]);
 
+// Set-less titles that name a Pokémon but no product, as `<type>|<signature>`:
+// refused, never given a page of their own (Beaches TCG, 2026-10-19). "Pokemon
+// Kyurem ex box": Kyurem's ex boxes are Black Kyurem's and White Kyurem's (the
+// store's photo is the Black). "Mega Gengar tin": Mega Gengar's tin is the Mega
+// Moonlit Tin; no tin is called "Mega Gengar". Exact signatures, not a rule for
+// every Pokémon: "Mega Charizard Tin" is a tin's own name, and "Mega Gengar ex
+// Tin" already has a page of its own.
+const UNQUALIFIED = new Set(["collection|ex-kyurem", "tin|gengar-mega"]);
+
 // Mega Charizard Y and Mega Mewtwo Y are different products from their X
 // forms. "y" marks the Y form only in a Charizard or Mewtwo title that names no
 // X ("Mega Charizard X & Y Tin", "X/Y", "(X & Y Assorted)" are the assorted
@@ -475,6 +484,25 @@ const SPECIAL_AND_PREMIUM = new Set(["charizard-ex", "kleavor-vstar", "lucario-v
 // "xy", not "x", so it is still Y.)
 function megaY(t: string): boolean {
   return /\b(?:charizard|mewtwo|glurak)\b/.test(t) && /\by\b/.test(t) && !/\bx\b/.test(t) && !/\b(?:assorted|random)\b/.test(t);
+}
+
+/**
+ * An "assorted" listing of a line sold as one product per featured Pokémon,
+ * naming none of them: the store ships one of several products, so it is none
+ * of them. Two lines only, both kept here as separate products: an ex Box that
+ * names no Pokémon ("Pokemon 30th anniversary ex box assorted": the 30th
+ * Celebration Greninja ex and Sylveon ex Boxes; Ascended Heroes' three Mega ex
+ * Boxes), and a Mega Charizard or Mega Mewtwo product that is X or Y ("Mega
+ * Charizard Tin - Assorted", which the unmarked key filed as the X tin). Beaches
+ * TCG, 2026-10-19. A set's assorted mini tins and blisters still file as the
+ * set's mini tin or blister, as the "either" blisters do: here each of those is
+ * one product.
+ */
+function assortedOfDistinct(t: string, type: TypeKey, tokens: string[]): boolean {
+  const s = t.toLowerCase();
+  if (!/\bassorted\b/.test(s)) return false;
+  if (type === "collection" && tokens.length > 0 && tokens.every((w) => w === "ex" || w === "mega")) return true;
+  return /\bmega\b/.test(s) && /\b(?:charizard|mewtwo|glurak)\b/.test(s);
 }
 
 // Words that describe a KIND of product rather than which one it is. A title
@@ -874,6 +902,17 @@ export function identify(title: string, opts: { strict?: boolean } = {}): Sealed
   const tokens = signatureTokens(t, set, type);
   // "Mega Evolution Ultra Premium Collection" names a series, not which UPC.
   if ((!set || (type === "upc" && set.generic)) && !tokens.some((w) => !DESCRIPTORS.has(w))) return "vague";
+  if (assortedOfDistinct(t, type, tokens)) return "vague";
+  // For the Pokémon sold as both a Special and a Premium Collection, a
+  // collection naming neither, and no set, could be either: Beaches TCG's
+  // "Pokemon - Charizard Ex Box" is, by its photo, the Special Collection, and
+  // four "Charizard EX Box" listings at C$360 and up were filed as the Premium
+  // Collection with it (2026-10-19). ("Special Collection" adds a marker, so the
+  // key no longer matches; "Super-Premium" keeps the word "super"; a set's own
+  // box, "Evolutions Charizard EX Box" or "Crown Zenith Pikachu VMAX Box", is
+  // named by its set.)
+  if (type === "collection" && !set && SPECIAL_AND_PREMIUM.has(tokens.join("-")) && !/\bpremium\b/i.test(t)) return "vague";
+  if (!set && UNQUALIFIED.has(`${type}|${tokens.join("-")}`)) return "vague";
   const name = cleanName(title);
   return {
     groupKey: `${type}|${set?.code ?? "-"}|${tokens.join("-")}`,
