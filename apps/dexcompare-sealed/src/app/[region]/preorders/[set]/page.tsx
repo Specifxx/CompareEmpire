@@ -28,6 +28,7 @@ import {
   type GlanceFact,
   type PreorderSummary,
 } from "@/lib/preorder-copy";
+import { preorderOgPath } from "@/lib/preorder-og";
 import { guideShowsMsrp, preorderGuideBySlug, type PreorderGuide } from "@/lib/preorder-guides";
 import { formatRelease, isPreorderSet } from "@/lib/release";
 import { regionOrNotFound, type RegionInfo } from "@/lib/regions";
@@ -80,7 +81,8 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
       // Every region's copy carries the facts, the dates and that market's price
       // lists, so all seven are advertised while the set is upcoming.
       alternates: pre ? regionAlternates(r.region, `/preorders/${set.slug}`) : undefined,
-      image: set.logo,
+      // Its own share card (app/og/preorders/[set]): the date, the set and its products, the same image in every region.
+      image: `${SITE_URL}${preorderOgPath(set.slug)}`,
       noindex: !pre,
     }),
     title,
