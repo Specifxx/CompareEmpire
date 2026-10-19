@@ -118,6 +118,9 @@ const ALIASES: Record<string, string[]> = {
   // Store misspellings seen in the 2026-09 import: "Shinning Fates", "Guardian Rising".
   swsh45: ["shin+ing\\s*fates"],
   sm2: ["guardian'?s?\\s*rising"],
+  // "Stella Crown Booster pack" (Beaches TCG, 2026-10-19; its photo is the English pack). Japan's set is
+  // Stellar Miracle, and a Japanese listing is refused as foreign before the set is read.
+  sv7: ["\\bstella\\s*crown\\b"],
   pgo: ["pok[eé]mon\\s*go\\b"],
   cel25: ["25th\\s*anniversary"],
   // Stores also write it "30th Celebrations", which must not read as

@@ -300,6 +300,18 @@ test("'Special Collection' is only identity for the Pokémon sold as both a Spec
   assert.notEqual(key("Lucario VSTAR Special Collection"), key("Lucario VSTAR Premium Collection"));
 });
 
+test("a set-less collection of a Special-and-Premium Pokémon that names neither is too vague to file", () => {
+  // Beaches TCG (2026-10-19): its photo is the Special Collection; with four Canadian "Charizard EX Box" listings
+  // at C$360 and up, it was being filed as the Premium Collection.
+  for (const t of ["Pokemon - Charizard Ex Box", "Charizard EX Box", "Pokemon Charizard EX Box"]) assert.equal(key(t), "REJECT:vague", t);
+  assert.equal(key("Pokémon TCG: Charizard ex Premium Collection"), "collection|-|charizard-ex");
+  assert.equal(key("Pokémon TCG: Charizard ex Special Collection"), "collection|-|charizard-ex-special");
+  assert.equal(key("Pokemon Charizard EX Super-Premium Collection Box"), "collection|-|charizard-ex-super");
+  // A set's own box is named by its set.
+  assert.equal(key("XY: Evolutions - Charizard EX Box"), "collection|xy12|charizard-ex");
+  assert.equal(key("Pokémon TCG: Crown Zenith Pikachu VMAX Box"), "collection|swsh12pt5|pikachu-vmax");
+});
+
 test("the Mega Y marker: only a Charizard or Mewtwo title that names no X", () => {
   const y = key("Mega Charizard Tin (Mega Charizard Y)");
   // The assorted listing is not the Y product.
@@ -310,6 +322,24 @@ test("the Mega Y marker: only a Charizard or Mewtwo title that names no X", () =
   // The "X & Y" series and the Spanish "y" are not the Y form.
   assert.equal(key("X & Y - Kangaskhan EX Box"), key("Kangaskhan EX Box"));
   assert.equal(key("Cyrus y Klara Premium Tournament Collection"), key("Klara & Cyrus Premium Tournament Collection"));
+});
+
+test("an 'assorted' ex Box naming no Pokémon, or an assorted Mega Charizard X/Y product, is none of the line's products", () => {
+  // Beaches TCG (2026-10-19) and the listings the same rule caught elsewhere.
+  for (const t of [
+    "Pokemon 30th anniversary ex box assorted",
+    "Pokémon TCG: Mega Evolution - Ascended Heroes Mega Ex Box (Assorted)",
+    "Mega Charizard Tin - Assorted",
+    "Pokémon TCG: Mega Charizard ex Tin (X & Y Assorted)",
+  ]) {
+    assert.equal(key(t), "REJECT:vague", t);
+  }
+  // Each box or tin of the line is its own product.
+  assert.equal(key("Pokemon TCG 30th Celebration Greninja ex Box"), "collection|cel30|ex-greninja");
+  assert.equal(key("Mega Charizard Tin (Mega Charizard Y)"), "tin|-|charizard-mega-y");
+  // A set's assorted mini tins and tech sticker collections still file as the set's product, as the "either" blisters do.
+  assert.equal(key("Pokémon TCG: 30th Celebration Mini Tin (Assorted)"), "tin|cel30|mini");
+  assert.equal(key("Pokémon TCG: 30th Celebration Tech Sticker Collection (Assorted)"), "collection|cel30|sticker-tech");
 });
 
 test("pack counts in either word order: 'Blister Pack - Single Booster', 'Two-Booster Blister'", () => {
@@ -508,6 +538,9 @@ test("sets sold without a booster box refuse a 'booster box' or '36 pack bundle'
   assert.equal(key("Pokemon Shining Fates Elite Trainer Box"), "swsh45|etb");
   assert.equal(key("Pokemon Shinning Fates Elite Trainer Box"), "swsh45|etb");
   assert.equal(key("Pokemon Guardian Rising Booster Box"), "sm2|booster-box");
+  // Beaches TCG, 2026-10-19 (its photo is the English pack); Japan's Stellar Miracle stays foreign.
+  assert.equal(key("Stella Crown Booster pack"), "sv7|booster-pack");
+  assert.equal(key("Stella miracle Japanese pack"), "REJECT:foreign");
   assert.equal(key("Pokemon TCG - Mega Evolution - Base Set - Booster Box (36x Packs)"), "me1|booster-box");
   assert.equal(key("Pokemon Scarlet & Violet Standard Booster Box"), "sv1|booster-box");
 });

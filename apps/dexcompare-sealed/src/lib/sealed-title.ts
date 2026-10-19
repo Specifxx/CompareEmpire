@@ -477,6 +477,25 @@ function megaY(t: string): boolean {
   return /\b(?:charizard|mewtwo|glurak)\b/.test(t) && /\by\b/.test(t) && !/\bx\b/.test(t) && !/\b(?:assorted|random)\b/.test(t);
 }
 
+/**
+ * An "assorted" listing of a line sold as one product per featured Pokémon,
+ * naming none of them: the store ships one of several products, so it is none
+ * of them. Two lines only, both kept here as separate products: an ex Box that
+ * names no Pokémon ("Pokemon 30th anniversary ex box assorted": the 30th
+ * Celebration Greninja ex and Sylveon ex Boxes; Ascended Heroes' three Mega ex
+ * Boxes), and a Mega Charizard or Mega Mewtwo product that is X or Y ("Mega
+ * Charizard Tin - Assorted", which the unmarked key filed as the X tin). Beaches
+ * TCG, 2026-10-19. A set's assorted mini tins and blisters still file as the
+ * set's mini tin or blister, as the "either" blisters do: here each of those is
+ * one product.
+ */
+function assortedOfDistinct(t: string, type: TypeKey, tokens: string[]): boolean {
+  const s = t.toLowerCase();
+  if (!/\bassorted\b/.test(s)) return false;
+  if (type === "collection" && tokens.length > 0 && tokens.every((w) => w === "ex" || w === "mega")) return true;
+  return /\bmega\b/.test(s) && /\b(?:charizard|mewtwo|glurak)\b/.test(s);
+}
+
 // Words that describe a KIND of product rather than which one it is. A title
 // whose only remaining words are these ("Pokémon Mini Tin", "Poster
 // Collection") could be any of a dozen products, so without a set it is too
@@ -874,6 +893,16 @@ export function identify(title: string, opts: { strict?: boolean } = {}): Sealed
   const tokens = signatureTokens(t, set, type);
   // "Mega Evolution Ultra Premium Collection" names a series, not which UPC.
   if ((!set || (type === "upc" && set.generic)) && !tokens.some((w) => !DESCRIPTORS.has(w))) return "vague";
+  if (assortedOfDistinct(t, type, tokens)) return "vague";
+  // For the Pokémon sold as both a Special and a Premium Collection, a
+  // collection naming neither, and no set, could be either: Beaches TCG's
+  // "Pokemon - Charizard Ex Box" is, by its photo, the Special Collection, and
+  // four "Charizard EX Box" listings at C$360 and up were filed as the Premium
+  // Collection with it (2026-10-19). ("Special Collection" adds a marker, so the
+  // key no longer matches; "Super-Premium" keeps the word "super"; a set's own
+  // box, "Evolutions Charizard EX Box" or "Crown Zenith Pikachu VMAX Box", is
+  // named by its set.)
+  if (type === "collection" && !set && SPECIAL_AND_PREMIUM.has(tokens.join("-")) && !/\bpremium\b/i.test(t)) return "vague";
   const name = cleanName(title);
   return {
     groupKey: `${type}|${set?.code ?? "-"}|${tokens.join("-")}`,
