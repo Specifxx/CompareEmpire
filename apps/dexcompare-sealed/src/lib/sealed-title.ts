@@ -466,6 +466,15 @@ const KEEP_SHORT = new Set(["ex", "v", "gx", "mega", "mini", "super"]);
 // Collection" is part of the identity. Keys are the rest of the signature.
 const SPECIAL_AND_PREMIUM = new Set(["charizard-ex", "kleavor-vstar", "lucario-vstar", "pikachu-vmax"]);
 
+// Set-less titles that name a Pokémon but no product, as `<type>|<signature>`:
+// refused, never given a page of their own (Beaches TCG, 2026-10-19). "Pokemon
+// Kyurem ex box": Kyurem's ex boxes are Black Kyurem's and White Kyurem's (the
+// store's photo is the Black). "Mega Gengar tin": Mega Gengar's tin is the Mega
+// Moonlit Tin; no tin is called "Mega Gengar". Exact signatures, not a rule for
+// every Pokémon: "Mega Charizard Tin" is a tin's own name, and "Mega Gengar ex
+// Tin" already has a page of its own.
+const UNQUALIFIED = new Set(["collection|ex-kyurem", "tin|gengar-mega"]);
+
 // Mega Charizard Y and Mega Mewtwo Y are different products from their X
 // forms. "y" marks the Y form only in a Charizard or Mewtwo title that names no
 // X ("Mega Charizard X & Y Tin", "X/Y", "(X & Y Assorted)" are the assorted
@@ -903,6 +912,7 @@ export function identify(title: string, opts: { strict?: boolean } = {}): Sealed
   // box, "Evolutions Charizard EX Box" or "Crown Zenith Pikachu VMAX Box", is
   // named by its set.)
   if (type === "collection" && !set && SPECIAL_AND_PREMIUM.has(tokens.join("-")) && !/\bpremium\b/i.test(t)) return "vague";
+  if (!set && UNQUALIFIED.has(`${type}|${tokens.join("-")}`)) return "vague";
   const name = cleanName(title);
   return {
     groupKey: `${type}|${set?.code ?? "-"}|${tokens.join("-")}`,

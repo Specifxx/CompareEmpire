@@ -342,6 +342,20 @@ test("an 'assorted' ex Box naming no Pokémon, or an assorted Mega Charizard X/Y
   assert.equal(key("Pokémon TCG: 30th Celebration Tech Sticker Collection (Assorted)"), "collection|cel30|sticker-tech");
 });
 
+test("a title naming a Pokémon but no product is refused, never a page of its own", () => {
+  // Beaches TCG (2026-10-19): Black or White Kyurem's ex box? Mega Gengar's tin is the Mega Moonlit Tin.
+  assert.equal(key("Pokemon Kyurem ex box"), "REJECT:vague");
+  assert.equal(key("Mega Gengar tin"), "REJECT:vague");
+  // The products those titles could be, and the shapes left alone.
+  assert.equal(key("Pokémon TCG: Black Kyurem ex Box"), "collection|-|black-ex-kyurem");
+  assert.equal(key("White Kyurem Box"), "collection|-|kyurem-white");
+  assert.equal(key("Kyurem V Box"), "collection|-|kyurem-v");
+  assert.equal(key("EX Tin [Kyurem]"), "tin|-|ex-kyurem");
+  assert.equal(key("Pokemon Mega Moonlit Tin - Mega Gengar ex"), "tin|-|ex-gengar-mega-moonlit");
+  assert.equal(key("Mega Gengar ex Tin"), "tin|-|ex-gengar-mega");
+  assert.equal(key("Pokémon TCG: Mega Charizard Tin"), "tin|-|charizard-mega");
+});
+
 test("pack counts in either word order: 'Blister Pack - Single Booster', 'Two-Booster Blister'", () => {
   assert.equal(key("Surging Sparks - Blister Pack - Single Booster - Wooper"), key("Surging Sparks Single Pack Blister [Wooper]"));
   assert.equal(key("Journey Together - Blister Pack - Single Booster - Scraggy Promo Card"), key("Journey Together Single Pack Blister [Scraggy]"));

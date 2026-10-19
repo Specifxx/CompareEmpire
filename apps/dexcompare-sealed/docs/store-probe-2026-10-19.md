@@ -9,10 +9,10 @@ through `identify()` and at least one in stock at probe time. Its row is in
 
 | Region | Key | Store | Base | Listed | In stock | Collection read |
 | --- | --- | --- | --- | ---: | ---: | --- |
-| AU | `beachestcg` | Beaches TCG | beachestcg.com.au | 34 | 1 | pokemon-tcg |
+| AU | `beachestcg` | Beaches TCG | beachestcg.com.au | 32 | 1 | pokemon-tcg |
 
 - **Counts**: the probe found 36 sealed products (1 in stock) before the rules
-  below; with them, 34 (the fixture test below). A second probe the same morning got
+  below; with them, 32 (the fixture test below). A second probe the same morning got
   a 429: Shopify throttles per IP, and the import then keeps the store's previous
   rows and carries on.
 - **Feed**: Shopify (`qf1nsm-k0.myshopify.com`); `/meta.json` says AUD, country AU,
@@ -27,20 +27,15 @@ The live feed of 19 October is saved as
 [`tests/fixtures/beachestcg-pokemon-tcg-2026-10-19.json`](../tests/fixtures/beachestcg-pokemon-tcg-2026-10-19.json)
 (handle, title, variants), and `tests/importer.test.ts` ("a new store's live feed")
 runs it through `readShopifyCollection` and `rowsFromReads` and pins every title's
-product key or refusal. Of 54 products, 34 are listed (one in stock: "Chaos rising
-toxel blister", A$11.99) and 20 refused: 13 Japanese (foreign), "Pokemon Ninja
+product key or refusal. Of 54 products, 32 are listed (one in stock: "Chaos rising
+toxel blister", A$11.99) and 22 refused: 13 Japanese (foreign), "Pokemon Ninja
 Spinner booster pack" (Japanese by its description; no English set has the name,
 so `no-set`), 3 accessories (top loaders, a playmat, assorted tech sticker packs)
-and the 3 refusals below.
+and the 5 refusals below.
 
-Worth knowing about the listed ones:
-
-- "Chaos rising toxel blister" (a single-pack blister by its description) joins
-  "Chaos Rising Blister - Toxel", where two other stores' listings worded the same
-  way already sit.
-- "Pokemon Kyurem ex box" (the Black Kyurem ex Box by its photo) and "Mega Gengar
-  tin" make pages of their own: the titles alone do not say which product. Both are
-  sold out, so the pages are noindex and out of the sitemap.
+Worth knowing: "Chaos rising toxel blister" (a single-pack blister by its
+description) joins "Chaos Rising Blister - Toxel", where two other stores' listings
+worded the same way already sit.
 
 ## Classifier rules added
 
@@ -56,6 +51,15 @@ Worth knowing about the listed ones:
   a Premium Collection that names neither is refused as vague. "Pokemon - Charizard
   Ex Box" is the Special Collection by its photo but was being filed as the Premium
   Collection.
+- `sealed-title.ts`, `UNQUALIFIED`: two set-less titles that name a Pokémon but no
+  product are refused as vague instead of making pages of their own: an
+  unqualified Kyurem ex box ("Pokemon Kyurem ex box": Black or White Kyurem? The
+  photo is the Black Kyurem ex Box) and a tin named only "Mega Gengar" ("Mega
+  Gengar tin": no tin has that name; Mega Gengar's is the Mega Moonlit Tin). Exact
+  signatures, not a rule for every Pokémon: "Mega Charizard Tin", "Mega Forces Tin"
+  and "Mega Moonlit Tin" are tins' own names, and "Mega Gengar ex Tin" and "Mega
+  Clefable ex Tin" (Psydeck TCG's listings, the only offer on each page) keep the
+  pages they have.
 
 Against the published catalogue of 18 October (49,084 offers, old and new
 `identify()` side by side), 9 other offers change, all to refused: four Canadian
@@ -63,7 +67,8 @@ Against the published catalogue of 18 October (49,084 offers, old and new
 Premium Collection page, three assorted Mega Charizard tins (AU Collectors
 Colosseum, AU Grailborne in stock at A$99, NZ Pop Stop) and two assorted Ascended
 Heroes Mega ex Boxes (AU PokéBox, AU The Wandering Collector). No product loses its
-last offer and no product name changes key, so no page moves or disappears.
+last offer and no product name changes key, so no page moves or disappears. The
+`UNQUALIFIED` signatures change none of the 49,084.
 
 ## Postage
 
@@ -79,4 +84,4 @@ location and chosen shipping method". It ships within Australia only.
   their descriptions, not their titles. All were sold out on 19 October. The import
   reads titles, so if they come back orderable they will show as in stock.
 - With one product in stock, the store turns dormant (20+ listings, none in stock)
-  as soon as that sells out. `prune-registry.ts` keeps it: it lists 34.
+  as soon as that sells out. `prune-registry.ts` keeps it: it lists 32.

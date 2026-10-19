@@ -362,9 +362,7 @@ test("a new store's live feed: Beaches TCG lists its English sealed product and 
     "Pokemon 30th Anniversary Knock Out Collection": "collection|cel30|knock-out",
     "Pokemon 30th anniversary ETB": "cel30|etb",
     "Pokémon TCG: First Partner Illustration Collection—Series 2- 2 PER PERSON LIMIT": "collection|-|first-illustration-partner-series2",
-    "Pokemon Kyurem ex box": "collection|-|ex-kyurem",
     "journey together 3 pk blister": "blister|sv9|",
-    "Mega Gengar tin": "tin|-|gengar-mega",
     "Pokemon Mega Greninja ex Premium Collection": "collection|-|ex-greninja-mega",
     "Pokemon Pitch Black Elite Trainer Box": "me5|etb",
     "Pokemon Pitch Black Booster Box": "me5|booster-box",
@@ -410,7 +408,11 @@ test("a new store's live feed: Beaches TCG lists its English sealed product and 
     "Pokemon 30th anniversary Tech Sticker Pack": "accessory",
     // The Charizard ex Special Collection by its photo, which the title alone would file as the Premium Collection.
     "Pokemon - Charizard Ex Box": "vague",
+    // Black or White Kyurem? (The photo is the Black.) Never a page of its own.
+    "Pokemon Kyurem ex box": "vague",
     "Stella miracle Japanese pack": "foreign",
+    // No tin is called "Mega Gengar" (it is probably the Mega Moonlit Tin): never a page of its own.
+    "Mega Gengar tin": "vague",
     "mega brave Japanese booster box": "foreign",
     "Mega Dream Booster box  Japanese": "foreign",
     "Ninja Spinner Booster Box Japanese": "foreign",
