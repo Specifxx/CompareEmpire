@@ -91,12 +91,10 @@ export default function Landing() {
   const gr = REGIONS[X_DEFAULT_REGION];
   return (
     <div>
-      <section className="relative overflow-hidden">
-        <div aria-hidden="true" className="pointer-events-none absolute -left-24 -top-16 h-96 w-96 rounded-full bg-brand/15 blur-3xl" />
-        <div aria-hidden="true" className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-spark/20 blur-3xl" />
+      <section>
         <div className="page relative pb-12 pt-8 text-center sm:pb-16 sm:pt-20">
-          <p className="eyebrow hidden sm:block">Booster boxes · ETBs · bundles · collections · tins</p>
-          <h1 className="mx-auto max-w-3xl font-display text-4xl font-bold leading-[1.05] tracking-tight sm:mt-4 sm:text-6xl">
+          <p className="eyebrow">Booster boxes · ETBs · bundles · collections · tins</p>
+          <h1 className="mx-auto max-w-3xl font-display text-4xl font-bold leading-[1.05] tracking-tight mt-3 sm:mt-4 sm:text-6xl">
             Pokémon sealed, in stock, <span className="text-brand">cheapest first.</span>
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-muted sm:mt-6 sm:text-lg sm:leading-8">
