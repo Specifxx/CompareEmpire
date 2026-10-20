@@ -71,8 +71,6 @@ export default async function RegionHome({ params }: { params: { region: string 
   return (
     <div>
       <section className="relative overflow-hidden border-b border-line bg-surface">
-        <div aria-hidden="true" className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full bg-brand/10 blur-3xl" />
-        <div aria-hidden="true" className="pointer-events-none absolute -bottom-40 left-1/3 h-80 w-80 rounded-full bg-spark/15 blur-3xl" />
         <div className="page relative grid gap-10 py-8 sm:py-12 lg:grid-cols-[minmax(0,1fr)_400px] lg:items-center">
           <div className="min-w-0">
             <div className="eyebrow">
@@ -90,7 +88,7 @@ export default async function RegionHome({ params }: { params: { region: string 
             </div>
             <nav
               aria-label="Shop by type"
-              className="scroller -mx-4 mt-4 gap-2 px-4 sm:mx-0 sm:px-0 lg:flex-wrap lg:overflow-visible lg:[-webkit-mask-image:none] lg:[mask-image:none]"
+              className="mt-4 flex flex-wrap gap-2"
             >
               <Link href={`/${r.region}/deals`} prefetch={false} className="chip min-h-10 border-brand/30 bg-brand-soft font-semibold text-brand-strong hover:border-brand/60">
                 <Icon name="tag" size={16} /> Deals
@@ -119,7 +117,7 @@ export default async function RegionHome({ params }: { params: { region: string 
             </p>
           </div>
           {hot.length > 0 && (
-            <aside aria-labelledby="hot-now" className="hidden lg:block">
+            <aside aria-labelledby="hot-now">
               <h2 id="hot-now" className="eyebrow mb-3">
                 Hot right now
               </h2>
