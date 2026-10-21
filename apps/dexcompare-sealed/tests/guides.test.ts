@@ -23,6 +23,8 @@ import { GUIDE_MODULES } from "../src/content/guides/modules";
 import { stripIndex } from "../src/content/guides/kit";
 import { daysBetween, kitOf, perPackVerdict } from "../src/content/guides/pokemon-build-and-battle-box";
 import { preorderGuide } from "../src/lib/preorder-guides";
+import { TOOL_BY_SLUG } from "../src/content/tools";
+import { setsAround } from "../src/lib/deals";
 
 (globalThis as unknown as { React: typeof React }).React = React;
 
@@ -131,8 +133,70 @@ function fixture(slug: GuideSlug): GuideData {
         cards: sorted([card("me5", "Build & Battle Box", 2500, 15), card("me5", "Booster Bundle", 3000, 16), card("me5", "Elite Trainer Box", 6499, 22), card("me5", "Booster Box", 15049, 21)]),
       };
     }
+    // The SEO release's guides (2026-10-21).
+    case "where-to-buy-pokemon-cards-australia":
+    case "ebay-vs-australian-stores-pokemon-fees":
+      return {
+        ...fixture("where-to-buy-pokemon-cards-online"),
+        sets: [released[0]],
+        bySet: { [released[0]]: headline(released[0], 800).map((p) => ({ ...p, medianOpenCents: (p.lowestPriceCents ?? 0) + 1500 })) },
+      };
+    case "pokemon-mega-evolution-sealed-price-guide": {
+      const codes = SETS.filter((s) => s.series === "Mega Evolution").map((s) => s.code);
+      return { ...d, sets: codes, bySet: Object.fromEntries(codes.filter((c) => c !== "me6").map((c, i) => [c, headline(c, 700 + i * 30)])) };
+    }
+    case "pokemon-chaos-rising-vs-perfect-order":
+      return {
+        ...d,
+        sets: ["me4", "me3"],
+        bySet: { me4: headline("me4", 760).map((p) => ({ ...p, medianOpenCents: (p.lowestPriceCents ?? 0) + 2000 })), me3: headline("me3", 720) },
+        openCount: { me4: 14, me3: 11 },
+      };
+    case "pokemon-booster-box-vs-etb-value": {
+      const codes = newestReleased(TODAY, 8, (s) => !s.noBoosterBox).map((s) => s.code);
+      return {
+        ...d,
+        sets: codes,
+        bySet: Object.fromEntries(codes.slice(0, 6).map((c, i) => [c, sorted([card(c, "Booster Box", 21900 + i * 900, 10), card(c, "Elite Trainer Box", 6499 + i * 200, 8)])])),
+      };
+    }
+    case "is-pokemon-card-grading-worth-it":
+      return { ...fixture("cheapest-way-to-buy-pokemon-packs") };
+    case "how-to-check-pokemon-card-value":
+      return {
+        ...d,
+        sets: [released[0]],
+        bySet: { [released[0]]: headline(released[0], 800).map((p) => ({ ...p, medianOpenCents: (p.lowestPriceCents ?? 0) + 1500 })) },
+        deals: [card(released[1], "Booster Box", 19900, 9), card(released[2], "Elite Trainer Box", 5499, 6)].map((p) => ({ ...p, medianOpenCents: (p.lowestPriceCents ?? 0) + 2500 })),
+      };
+    case "pokemon-tcg-market-wrap": {
+      const around = setsAround(TODAY);
+      const soon = around.soon.map((s) => s.code);
+      const recent = around.recent.map((s) => s.code);
+      const codes = [...soon, ...recent];
+      return {
+        ...d,
+        sets: codes,
+        bySet: Object.fromEntries(codes.map((c, i) => [c, headline(c, 780 + i * 20)])),
+        openCount: Object.fromEntries(codes.map((c, i) => [c, 6 + i])),
+        deals: [card(released[1], "Booster Box", 19900, 9), card(released[2], "Booster Bundle", 3999, 7)].map((p) => ({ ...p, medianOpenCents: (p.lowestPriceCents ?? 0) + 2500 })),
+        fresh: [card(released[0], "Collection", 3499, 3), card(released[0], "Tin", 2499, 4)],
+      };
+    }
   }
 }
+
+/** The guides of the SEO release (2026-10-21): 900 words or more each, and each links three tools or set pages at least. */
+const SEO_GUIDES: GuideSlug[] = [
+  "where-to-buy-pokemon-cards-australia",
+  "pokemon-mega-evolution-sealed-price-guide",
+  "pokemon-chaos-rising-vs-perfect-order",
+  "pokemon-booster-box-vs-etb-value",
+  "is-pokemon-card-grading-worth-it",
+  "how-to-check-pokemon-card-value",
+  "ebay-vs-australian-stores-pokemon-fees",
+  "pokemon-tcg-market-wrap",
+];
 
 const render = (slug: GuideSlug, region: Region, data: GuideData = fixture(slug)) => renderToStaticMarkup(React.createElement(GUIDE_MODULES[slug].Body, { r: REGIONS[region], data }));
 const text = (html: string) =>
@@ -150,13 +214,15 @@ const rowText = (html: string, type: string): string => {
   return text(m[2]).trim();
 };
 /** Every (guide, region) pair the site serves. */
-const PAIRS = GUIDES.flatMap((g) => guideRegions(g).map((region) => ({ g, region })));
+// GUIDE_ONLY=slug,slug narrows the per-guide loops while a guide is being written (unset in CI: every guide).
+const ONLY = process.env.GUIDE_ONLY ? new Set(process.env.GUIDE_ONLY.split(",")) : null;
+const PAIRS = GUIDES.filter((g) => !ONLY || ONLY.has(g.slug)).flatMap((g) => guideRegions(g).map((region) => ({ g, region })));
 
 // ─── The registry ──────────────────────────────────────────────────────────────
 
 test("registry: unique slugs, ISO editorial dates (updated ≥ published), descriptions ≤ 160, titles that fit a <title>", () => {
   assert.equal(new Set(GUIDES.map((g) => g.slug)).size, GUIDES.length);
-  assert.equal(GUIDES.length, 12);
+  assert.equal(GUIDES.length, 20);
   for (const g of GUIDES) {
     assert.match(g.slug, /^[a-z0-9]+(?:-[a-z0-9]+)*$/);
     for (const d of [g.published, g.updated]) {
@@ -184,17 +250,19 @@ test("registry: every topic type and set, and every eBay context, exists", () =>
   }
 });
 
-test("the MSRP guide is US-only; every other guide is in all seven regions", () => {
+test("the MSRP guide is US-only, the two Australian guides AU-only; every other guide is in all seven regions", () => {
   const msrp = GUIDE_BY_SLUG.get("pokemon-tcg-msrp")!;
+  const AU_ONLY = ["where-to-buy-pokemon-cards-australia", "ebay-vs-australian-stores-pokemon-fees"];
   assert.deepEqual(guideRegions(msrp), ["us"]);
+  for (const slug of AU_ONLY) assert.deepEqual(guideRegions(GUIDE_BY_SLUG.get(slug)!), ["au"], slug);
   assert.equal(guideFor("pokemon-tcg-msrp", "us")?.slug, "pokemon-tcg-msrp");
   for (const r of REGION_LIST.filter((x) => x.region !== "us")) {
     assert.equal(guideFor("pokemon-tcg-msrp", r.region), null, r.region);
     assert.ok(!guidesFor(r.region).some((g) => g.slug === "pokemon-tcg-msrp"), r.region);
-    assert.equal(guidesFor(r.region).length, 11);
+    assert.equal(guidesFor(r.region).length, r.region === "au" ? 19 : 17, r.region);
   }
-  assert.equal(guidesFor("us").length, 12);
-  for (const g of GUIDES.filter((x) => x.slug !== "pokemon-tcg-msrp")) assert.equal(guideRegions(g).length, 7, g.slug);
+  assert.equal(guidesFor("us").length, 18);
+  for (const g of GUIDES.filter((x) => x.slug !== "pokemon-tcg-msrp" && !AU_ONLY.includes(x.slug))) assert.equal(guideRegions(g).length, 7, g.slug);
   assert.equal(guideFor("no-such-guide", "au"), null);
 });
 
@@ -230,7 +298,9 @@ test("every guide has exactly one eBay unit (the listings-guide strip) and, in t
       assert.doesNotMatch(html, /tcgplayer\.com/i);
     }
     // every outbound paid link is sponsored
-    for (const m of html.matchAll(/<a [^>]*href="https:\/\/[^"]*(?:ebay|tcgplayer)\.[^"]*"[^>]*>/g)) assert.match(m[0], /rel="sponsored/, `${g.slug}/${region}`);
+    // (eBay's own fee pages, lib/fees.ts sources, are references, not affiliate links.)
+    for (const m of html.matchAll(/<a [^>]*href="https:\/\/[^"]*(?:ebay|tcgplayer)\.[^"]*"[^>]*>/g))
+      if (!/href="https:\/\/www\.ebay\.com(?:\.au)?\/(?:help|sellercenter)\//.test(m[0])) assert.match(m[0], /rel="sponsored/, `${g.slug}/${region}`);
   }
 });
 
@@ -249,6 +319,22 @@ test("the strip sits after the first live block, and the table of contents is th
     assert.ok(strip > html.indexOf(`<h2 id="${outline.sections[at].id}"`), `${g.slug}: after the live section's heading`);
     if (outline.sections[at + 1]) assert.ok(strip < html.indexOf(`<h2 id="${outline.sections[at + 1].id}"`), `${g.slug}: before the next section`);
     assert.equal(outline.sections.at(-1)!.id, "where-to-buy", `${g.slug}: closes with Where to buy`);
+  }
+});
+
+test("the SEO release's guides: 900 words or more of body in every region, three or more tool or set links, and every tool linked exists", () => {
+  for (const slug of SEO_GUIDES.filter((x) => !ONLY || ONLY.has(x))) {
+    for (const region of guideRegions(GUIDE_BY_SLUG.get(slug)!)) {
+      const html = render(slug, region);
+      const words = text(html).trim().split(/\s+/).filter((w) => /[A-Za-z0-9]/.test(w)).length;
+      assert.ok(words >= 900, `${slug}/${region}: ${words} words`);
+      const hrefs = [...html.matchAll(/href="([^"]+)"/g)].map((m) => m[1]);
+      const tools = hrefs.filter((h) => h.startsWith(`/${region}/tools/`));
+      const sets = hrefs.filter((h) => h.startsWith(`/${region}/sets/`));
+      assert.ok(new Set(tools).size + new Set(sets).size >= 3, `${slug}/${region}: ${tools.length} tool and ${sets.length} set links`);
+      assert.ok(tools.length >= 1, `${slug}/${region}: links a tool`);
+      for (const h of tools) assert.ok(TOOL_BY_SLUG.has(h.split("/")[3].split("#")[0]), `${slug}/${region}: tool ${h}`);
+    }
   }
 });
 
@@ -383,7 +469,7 @@ test("pre-orders: upcoming sets with their dates and open counts; a checklist of
 
 test("live blocks with nothing in stock say so plainly, and the page still renders whole", () => {
   for (const { g, region } of PAIRS) {
-    const data = { ...fixture(g.slug), bySet: {}, openCount: {}, types: [] };
+    const data = { ...fixture(g.slug), bySet: {}, openCount: {}, types: [], cards: [], stores: [], deals: [], fresh: [] };
     const html = render(g.slug, region, data);
     assert.equal(findBannedCopy(text(html)), null);
     assert.equal((html.match(/data-ad=/g) ?? []).length, 1, `${g.slug}/${region}`);

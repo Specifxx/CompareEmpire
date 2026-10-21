@@ -14,6 +14,14 @@ import * as cheapest from "./cheapest-way-to-buy-pokemon-packs";
 import * as whereToBuy from "./where-to-buy-pokemon-cards-online";
 import * as resealed from "./how-to-avoid-resealed-pokemon-products";
 import * as buildBattle from "./pokemon-build-and-battle-box";
+import * as whereToBuyAu from "./where-to-buy-pokemon-cards-australia";
+import * as megaEvolution from "./pokemon-mega-evolution-sealed-price-guide";
+import * as chaosVsPerfect from "./pokemon-chaos-rising-vs-perfect-order";
+import * as boxVsEtbValue from "./pokemon-booster-box-vs-etb-value";
+import * as grading from "./is-pokemon-card-grading-worth-it";
+import * as checkValue from "./how-to-check-pokemon-card-value";
+import * as ebayVsAuStores from "./ebay-vs-australian-stores-pokemon-fees";
+import * as marketWrap from "./pokemon-tcg-market-wrap";
 
 export const GUIDE_MODULES: Record<GuideSlug, GuideModule> = {
   "how-many-packs-in-pokemon-products": howManyPacks,
@@ -28,4 +36,12 @@ export const GUIDE_MODULES: Record<GuideSlug, GuideModule> = {
   "where-to-buy-pokemon-cards-online": whereToBuy,
   "how-to-avoid-resealed-pokemon-products": resealed,
   "pokemon-build-and-battle-box": buildBattle,
+  "where-to-buy-pokemon-cards-australia": whereToBuyAu,
+  "pokemon-mega-evolution-sealed-price-guide": megaEvolution,
+  "pokemon-chaos-rising-vs-perfect-order": chaosVsPerfect,
+  "pokemon-booster-box-vs-etb-value": boxVsEtbValue,
+  "is-pokemon-card-grading-worth-it": grading,
+  "how-to-check-pokemon-card-value": checkValue,
+  "ebay-vs-australian-stores-pokemon-fees": ebayVsAuStores,
+  "pokemon-tcg-market-wrap": marketWrap,
 };

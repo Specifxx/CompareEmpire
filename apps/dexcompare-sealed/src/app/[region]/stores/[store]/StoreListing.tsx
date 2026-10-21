@@ -10,16 +10,16 @@ import { OutboundLink } from "@/components/OutboundLink";
 import { pageHref, Pagination } from "@/components/Pagination";
 import { StockPill } from "@/components/StockPill";
 import { REL_STORE, storeRetailer } from "@/lib/affiliate";
-import { PAGE_SIZE, storeOffers, storeStat } from "@/lib/data";
+import { PAGE_SIZE, storeOffers, storeStat, storeTypeRows } from "@/lib/data";
 import { listHasRoomForFooter } from "@/lib/ebay-ads";
 import { money, timeAgo } from "@/lib/format";
-import { hubTitle, storeIndexable, titleText } from "@/lib/hub-copy";
+import { hubTitle, storeIndexable, storeIntro, titleText } from "@/lib/hub-copy";
 import { thumb } from "@/lib/images";
 import { regionOfMarket, type RegionInfo } from "@/lib/regions";
 import { offerStock, offerStockLabel } from "@/lib/sealed-offers";
 import { isPreorderSet } from "@/lib/release";
 import { pageMeta } from "@/lib/seo";
-import { isMarketplace, STORE_BY_KEY, storeHost, type StoreConfig } from "@/lib/stores";
+import { isMarketplace, STORE_BY_KEY, storeHost, storesInMarket, type StoreConfig } from "@/lib/stores";
 
 // Shared by /[region]/stores/[store] (page 1) and …/page/[n]: a big store has
 // 1,400 listings, so each page of 48 is its own cached render reading only its
@@ -59,7 +59,9 @@ export async function storeMeta(r: RegionInfo, s: StoreConfig, page: number): Pr
   return {
     ...pageMeta({
       title: titleText(title),
-      description: `Pokémon booster boxes, ETBs and sealed product at ${s.name} (${storeHost(s)}), with stock and prices compared against other ${r.adjective} stores.`,
+      description: st?.listed
+        ? `${s.name} (${storeHost(s)}) lists ${st.listed} Pokémon sealed products, ${st.inStock} in stock today: prices in ${r.currency}, compared with other ${r.adjective} stores.`
+        : `Pokémon booster boxes, ETBs and sealed product at ${s.name} (${storeHost(s)}), with stock and prices compared against other ${r.adjective} stores.`,
       path: pageHref(`/${r.region}/stores/${s.key}`, page),
       noindex: !storeIndexable(st),
     }),
@@ -68,7 +70,8 @@ export async function storeMeta(r: RegionInfo, s: StoreConfig, page: number): Pr
 }
 
 export async function StorePage({ r, s, page }: { r: RegionInfo; s: StoreConfig; page: number }) {
-  const [offers, st] = await Promise.all([storeOffers(s.key, page), getStoreStat(s.key)]);
+  // The intro (page 1 only: later pages are the same store's list, and say so) reads the store's listings by type: one store's rows.
+  const [offers, st, typeRows] = await Promise.all([storeOffers(s.key, page), getStoreStat(s.key), page === 1 ? storeTypeRows(s.key) : Promise.resolve([])]);
   const listed = Math.max(st?.listed ?? 0, offers.length);
   const pages = Math.max(1, Math.ceil(listed / PAGE_SIZE));
   if (page > 1 && !offers.length) notFound();
@@ -107,6 +110,13 @@ export async function StorePage({ r, s, page }: { r: RegionInfo; s: StoreConfig;
           Visit {storeHost(s)} <span aria-hidden="true">↗</span>
         </OutboundLink>
       </div>
+      {page === 1 && (
+        <div className="mt-6 max-w-3xl space-y-3 leading-7 text-muted">
+          {storeIntro({ name: s.name, host: storeHost(s), platform: s.platform, r, rows: typeRows, storesInRegion: storesInMarket(s.market).length, dormant: !!st?.dormant }).map((t) => (
+            <p key={t}>{t}</p>
+          ))}
+        </div>
+      )}
       {offers.length ? (
         <div className="card mt-6 overflow-hidden">
           <ul className="divide-y divide-line">

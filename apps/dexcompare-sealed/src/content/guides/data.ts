@@ -12,6 +12,8 @@ import { routeRaw } from "@/lib/public-data/route";
 import type { Market, RegionInfo } from "@/lib/regions";
 import { packsFor, packsForLabel, perPackCents } from "@/lib/packs";
 import { usMsrpCents } from "@/lib/rrp";
+import { dealsInMarket, newlyTracked, productCountsBySets, setsAround } from "@/lib/deals";
+import { SETS } from "@/lib/sets";
 import type { GuideSlug } from "./index";
 import { buildBattleSets, isReleased, newestReleased, upcomingSets } from "./facts";
 
@@ -44,6 +46,10 @@ export interface GuideData {
   cards: ProductCardData[];
   /** The where-to-buy guide: the region's stores with the most Pokémon sealed in stock (StoreStat, at most 12 rows). */
   stores: StoreRow[];
+  /** Products whose cheapest in-stock price is under the median of three or more stores today (lib/deals.ts), at most 8. */
+  deals: ProductCardData[];
+  /** Products first tracked in the last 14 days and open today (lib/deals.ts newlyTracked), at most 8. */
+  fresh: ProductCardData[];
 }
 
 /** One store's current counts (StoreStat), for the where-to-buy guide. */
@@ -62,6 +68,8 @@ export const emptyGuideData = (today: string, checked: string | null = null): Gu
   types: [],
   cards: [],
   stores: [],
+  deals: [],
+  fresh: [],
 });
 
 /** The pack-bearing types the booster-box guide prices within a set: a box against a bundle and against single packs. */
@@ -244,6 +252,67 @@ export async function loadGuideData(slug: GuideSlug, r: RegionInfo, now: Date = 
       const pick = sets.find((s) => isReleased(s, today) && bySet[s.code]?.length)?.code;
       const cards = pick ? await packTypesOfSets(r.market, [pick], BB_COMPARE_TYPES, 12) : [];
       return done({ sets: codes, bySet, cards });
+    }
+    case "where-to-buy-pokemon-cards-australia":
+    case "ebay-vs-australian-stores-pokemon-fees": {
+      // AU only. The region's stores with the most in stock (≤ 12 rows), the type summary (≤ 16 rows), and the newest released set
+      // with headline product in stock here (≤ 27 rows), as the pack-count guide reads it.
+      const upcoming = upcomingSets(today).map((s) => s.code);
+      const codes = newestReleased(today, 3).map((s) => s.code);
+      const [stores, types, cal] = await Promise.all([topStores(r.market), typeSummary(r.market, upcoming), calendarProducts(r.market, codes)]);
+      const bySet = Object.fromEntries(cal);
+      const pick = codes.find((c) => bySet[c]?.length) ?? codes[0];
+      return done({ stores, types, sets: pick ? [pick] : [], bySet: pick && bySet[pick] ? { [pick]: bySet[pick] } : {} });
+    }
+    case "pokemon-mega-evolution-sealed-price-guide": {
+      // Every Mega Evolution set, released and upcoming, newest first (sets.ts order): the cheapest open box, ETB and bundle of each
+      // (calendarProducts, about 9 rows a set, ≤ 72 rows).
+      const codes = SETS.filter((s) => s.series === "Mega Evolution").map((s) => s.code);
+      return done({ sets: codes, bySet: Object.fromEntries(await calendarProducts(r.market, codes)) });
+    }
+    case "pokemon-chaos-rising-vs-perfect-order": {
+      // The two sets, each read whole (productsBySet: one set in one market), open products only, cheapest first.
+      const codes = ["me4", "me3"];
+      const lists = await Promise.all(codes.map((c) => productsBySet(r.market, c)));
+      const bySet: Record<string, ProductCardData[]> = {};
+      const openCount: Record<string, number> = {};
+      codes.forEach((c, i) => {
+        bySet[c] = sortCards(lists[i].filter(cardOpen));
+        openCount[c] = bySet[c].length;
+      });
+      return done({ sets: codes, bySet, openCount });
+    }
+    case "pokemon-booster-box-vs-etb-value": {
+      // The eight newest released sets sold with a booster box, their open boxes and ETBs (≤ 80 rows).
+      const codes = newestReleased(today, 8, (s) => !s.noBoosterBox).map((s) => s.code);
+      return done({ sets: codes, bySet: group(await packTypesOfSets(r.market, codes, ["Booster Box", "Elite Trainer Box"], 80)) });
+    }
+    case "is-pokemon-card-grading-worth-it": {
+      const upcoming = upcomingSets(today).map((s) => s.code);
+      return done({ cards: await cheapestPerPackByType(r.market, upcoming) });
+    }
+    case "how-to-check-pokemon-card-value": {
+      // Today's deals (≤ 16 rows read, 8 kept) and the newest released set's headline products (≤ 27 rows), each with its median.
+      const codes = newestReleased(today, 3).map((s) => s.code);
+      const [deals, cal] = await Promise.all([dealsInMarket(r.market, { take: 8 }), calendarProducts(r.market, codes)]);
+      const bySet = Object.fromEntries(cal);
+      const pick = codes.find((c) => bySet[c]?.length) ?? codes[0];
+      return done({ deals, sets: pick ? [pick] : [], bySet: pick && bySet[pick] ? { [pick]: bySet[pick] } : {} });
+    }
+    case "pokemon-tcg-market-wrap": {
+      // As /<region>/this-week: the sets releasing in the next 45 days and out in the last 30 (≤ 10), their cheapest box, ETB and
+      // bundle and open counts, then today's deals and the products first tracked in the last 14 days (≤ 8 each).
+      const { soon, recent } = setsAround(today);
+      const codes = [...soon, ...recent].map((s) => s.code).slice(0, 10);
+      const [cal, counts, deals, fresh] = await Promise.all([
+        calendarProducts(r.market, codes),
+        productCountsBySets(r.market, codes),
+        dealsInMarket(r.market, { take: 8 }),
+        newlyTracked(r.market, 8, now),
+      ]);
+      const openCount: Record<string, number> = {};
+      for (const [c, v] of counts) openCount[c] = v.open;
+      return done({ sets: codes, bySet: Object.fromEntries(cal), openCount, deals, fresh });
     }
     case "how-to-avoid-resealed-pokemon-products": {
       // As the pack-count guide: the newest released set with headline product in stock here (≤ 27 rows read).

@@ -45,6 +45,7 @@ export const SECTION_PATHS = {
   sets: "/sets",
   releases: "/releases",
   guides: "/guides",
+  tools: "/tools",
   stores: "/stores",
 } as const;
 export type SectionKey = keyof typeof SECTION_PATHS;

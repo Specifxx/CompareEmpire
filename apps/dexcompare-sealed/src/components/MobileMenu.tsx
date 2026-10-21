@@ -83,6 +83,7 @@ export const MENU_ROWS: { key: SectionKey; label: string; glyph: IconName | Glyp
   { key: "sets", label: "Sets", glyph: "layers" },
   { key: "releases", label: "Releases", glyph: "calendar" },
   { key: "guides", label: "Guides", glyph: "book" },
+  { key: "tools", label: "Tools", glyph: "check" },
   { key: "stores", label: "Where to buy", glyph: "store" },
 ];
 

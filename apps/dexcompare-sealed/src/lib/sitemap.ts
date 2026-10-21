@@ -8,6 +8,7 @@
 import type { MetadataRoute } from "next";
 import { guidesFor } from "../content/guides";
 import { COUNTRY_GUIDE } from "../content/guides/country-prices";
+import { TOOLS, toolRegions } from "../content/tools";
 import { openPreorderGuides } from "./preorder-guides";
 import { REGION_LIST, regionOfMarket, type Region, type RegionInfo } from "./regions";
 import { PRODUCT_TYPES } from "./sealed-title";
@@ -77,6 +78,11 @@ export function staticSitemap(lastmod: Partial<Record<string, Date | null>>, act
   // Every guide, in each region it is offered in (the registry is pure: no database read). No lastmod: a guide's live blocks
   // change with each import, but its text only when it is edited.
   for (const r of REGION_LIST) for (const g of guidesFor(r.region)) out.push(url(`/${r.region}/guides/${g.slug}`, null, "weekly", 0.6));
+  // The tools (src/content/tools): the index and every tool, in every region. No lastmod: their copy changes only when edited.
+  for (const r of REGION_LIST) {
+    out.push(url(`/${r.region}/tools`, null, "monthly", 0.5));
+    for (const t of TOOLS) if (toolRegions(t).includes(r.region)) out.push(url(`/${r.region}/tools/${t.slug}`, null, "monthly", 0.6));
+  }
   // The one guide that compares every market, at its single region-less URL.
   out.push(url(COUNTRY_GUIDE.path, null, "weekly", 0.6));
   return out;

@@ -28,6 +28,8 @@ import { ShareButton } from "@/components/ShareButton";
 import { PRODUCT_TYPES } from "@/lib/sealed-title";
 import { SET_BY_SLUG, type PokemonSet } from "@/lib/sets";
 import { SITE_URL } from "@/lib/site";
+import { guidesFor } from "@/content/guides";
+import { toolHref } from "@/content/tools";
 
 // Rendered per request and kept by Vercel's CDN for a day (next.config.js, CDN_PAGES), never ISR: an ISR write
 // costs about twenty renders, and the data only changes with a release, which empties the CDN anyway.
@@ -85,6 +87,13 @@ export default async function SetPage({ params }: { params: { region: string; se
       .slice(0, 4)
       .map((t) => ({ href: `/${r.region}/type/${t.slug}`, label: `${t.plural} in ${r.inName}` })),
     { href: `/${r.region}/stores`, label: `Stores in ${r.inName}` },
+    // The guides about this set or its series (SEO release, 2026-10-21), then the tools that read a price or a trade.
+    ...guidesFor(r.region)
+      .filter((g) => g.topic.sets?.includes(s.slug))
+      .map((g) => ({ href: `/${r.region}/guides/${g.slug}`, label: g.title })),
+    { href: `/${r.region}/guides/booster-box-vs-etb-vs-booster-bundle`, label: "Booster box vs ETB vs bundle" },
+    { href: toolHref(r.region, "value-checker"), label: "Value checker" },
+    { href: toolHref(r.region, "trade-calculator"), label: "Trade calculator" },
   ];
   // This set's chase cards as an image strip of real listings (cascade: generic chase cards for a set with no feed of its own); with none
   // to list, the compact CTA row. It sits on a row of its own after the first products (ProductGrid `strip`), so the products come first.
@@ -130,6 +139,8 @@ export default async function SetPage({ params }: { params: { region: string; se
             <SetChips s={s} pre={pre} open={open.length} total={products.length} />
           </ul>
         </div>
+        {/* The page's answer in a sentence, above the grid (the longer "About" sits below it). */}
+        <p className="mt-4 max-w-3xl text-[15px] leading-7 text-muted">{setDescription(s, r, products)}</p>
 
         {(way || pre || us) && (
           // Two fixed columns from sm (the cheapest pack; then the calendar and the labelled TCGplayer link stacked), so no line

@@ -9,6 +9,7 @@ import { loadGuideData } from "@/content/guides/data";
 import { guideFor, guideMetaTitle, guideRegions, guidesFor } from "@/content/guides";
 import { GuideCard, Toc, TocDisclosure, typeHref } from "@/content/guides/kit";
 import { GUIDE_MODULES } from "@/content/guides/modules";
+import { TOOL_BY_SLUG, toolHref } from "@/content/tools";
 import { timeAgo } from "@/lib/format";
 import { regionOrNotFound } from "@/lib/regions";
 import { formatRelease } from "@/lib/release";
@@ -119,6 +120,20 @@ export default async function GuidePage({ params }: { params: { region: string; 
                 </Link>
               </li>
             ))}
+          </ul>
+        )}
+        {(g.tools ?? []).length > 0 && (
+          <ul role="list" aria-label="Tools" className="mt-4 flex flex-wrap gap-2">
+            {(g.tools ?? [])
+              .map((slug) => TOOL_BY_SLUG.get(slug))
+              .filter((t): t is NonNullable<typeof t> => !!t)
+              .map((t) => (
+                <li key={t.slug}>
+                  <Link href={toolHref(r.region, t.slug)} prefetch={false} className="chip min-h-10">
+                    <Icon name="check" size={14} className="text-muted" /> {t.title}
+                  </Link>
+                </li>
+              ))}
           </ul>
         )}
         {more.length > 0 && (

@@ -176,16 +176,16 @@ test("NavLink's current-section logic (aria-current='page'): whole segments, and
   assert.equal(isActivePath("/au/sets", "/us/sets"), false);
 });
 
-test("the phone menu: the eleven sections in order, under the region; the regions switch to the same page", () => {
+test("the phone menu: the twelve sections in order, under the region; the regions switch to the same page", () => {
   assert.deepEqual(
     MENU_ROWS.map((r) => r.label),
-    ["Deals", "This week", "All sealed", "Booster boxes", "ETBs", "Booster bundles", "Cheapest per pack", "Sets", "Releases", "Guides", "Where to buy"],
+    ["Deals", "This week", "All sealed", "Booster boxes", "ETBs", "Booster bundles", "Cheapest per pack", "Sets", "Releases", "Guides", "Tools", "Where to buy"],
   );
   // The sheet's contents render on the first open: the header's server HTML has the empty <dialog> only.
   assert.match(render(React.createElement(Header, { region: "ca" })), /<dialog id="site-menu" data-menu="" aria-label="Menu" class="menu-sheet [^"]*"><\/dialog>/);
   const sheet = render(React.createElement(MenuSheet, { region: "ca", pathname: "/ca/stores", onClose() {} }));
   assert.match(sheet, /aria-current="page"[^>]*href="\/ca\/stores"|href="\/ca\/stores"[^>]*aria-current="page"/, "the current section is marked");
-  for (const p of ["/deals", "/this-week", "/sealed", "/type/booster-boxes", "/type/elite-trainer-boxes", "/type/booster-bundles", "/cheapest-packs", "/sets", "/releases", "/guides", "/stores"])
+  for (const p of ["/deals", "/this-week", "/sealed", "/type/booster-boxes", "/type/elite-trainer-boxes", "/type/booster-bundles", "/cheapest-packs", "/sets", "/releases", "/guides", "/tools", "/stores"])
     assert.ok(hrefs(sheet).includes(`/ca${p}`), p);
   assert.equal(sheet.match(/class="text-2xl leading-none" aria-hidden="true">/g)?.length, 7, "seven flag tiles");
   assert.equal(pathAfterRegion("/au/sets/pitch-black"), "/sets/pitch-black");

@@ -25,7 +25,11 @@ import { plural, timeAgo } from "@/lib/format";
 import { thumb } from "@/lib/images";
 import { packsFor } from "@/lib/packs";
 import { cheapestPerPackByType } from "@/lib/per-pack";
-import { openWhere, productDescription, productTitle, quickFacts, releaseChip, valueCheck } from "@/lib/product-copy";
+import { openWhere, productDescription, productIntro, productTitle, quickFacts, releaseChip, valueCheck } from "@/lib/product-copy";
+import { guidesFor } from "@/content/guides";
+import { toolHref } from "@/content/tools";
+import { prevNextSet } from "@/lib/hub-copy";
+import { TYPE_ABOUT } from "@/lib/type-about";
 import { inStockAlternatives, relatedWithFormats } from "@/lib/product-data";
 import { isPreorderSet } from "@/lib/release";
 import { regionOrNotFound, REGION_LIST, type Market, type RegionInfo } from "@/lib/regions";
@@ -115,7 +119,9 @@ export async function generateMetadata({ params }: { params: { region: string; s
   // Thin pages stay reachable but out of the index: nothing to compare (one
   // store, sold out). A noindex page carries no hreflang set either, and the
   // set only names the regional copies that are themselves indexable.
-  const noindex = open.length === 0 && p.offers.length < 2;
+  // A product the sitemap lists (data.ts COMPARABLE, from the import's ProductStat) is never noindex, even when a store's read went stale
+  // since the import: the sitemap and the page agree (SEO release, 2026-10-21).
+  const noindex = !(loaded.here && comparable(loaded.here)) && open.length === 0 && p.offers.length < 2;
   const path = `/${r.region}/p/${p.slug}`;
   const indexable = REGION_LIST.filter((x) => {
     if (x.region === r.region) return !noindex;
@@ -296,6 +302,38 @@ export default async function ProductPage({ params }: { params: { region: string
   const typeLink = type ? { href: `/${r.region}/type/${type.slug}`, label: `See ${type.plural} in stock in ${r.inName}` } : { href: `/${r.region}/sealed`, label: `See sealed products in stock in ${r.inName}` };
   const chip = "rounded-full bg-raised px-2.5 py-1 text-xs font-semibold leading-4 text-muted";
   const img = p.imageUrl ? { big: thumb(p.imageUrl, 900)!, small: thumb(p.imageUrl, 240)! } : null;
+  // "About" (SEO release, 2026-10-21): the page's own words under the facts, and where to go next: the set, its neighbours, the type,
+  // the guides about this type, and the tools. All internal links, all pure (no read).
+  const intro = productIntro({
+    name: p.name,
+    productType: p.productType,
+    about: type ? TYPE_ABOUT[type.slug] ?? null : null,
+    set: set ? { name: set.name, series: set.series, releaseDate: set.releaseDate } : null,
+    preorder: pre,
+    packs,
+    market: r.market,
+    inName: r.inName,
+    adjective: r.adjective,
+    cheapest: best ? { cents: best.priceCents, storeName: best.storeName, marketplace: best.marketplace } : null,
+    medianCents: median,
+    openStores,
+    storeCount: stores.length,
+    elsewhere: elsewhere.length,
+  });
+  const { prev: prevSet, next: nextSet } = set ? prevNextSet(set.code) : { prev: null, next: null };
+  const aboutGuides = guidesFor(r.region)
+    .filter((g) => type && g.topic.types?.includes(type.key))
+    .slice(0, 3);
+  const explore = [
+    ...(set ? [{ href: `/${r.region}/sets/${set.slug}`, label: `All ${set.name} sealed` }] : []),
+    ...(prevSet ? [{ href: `/${r.region}/sets/${prevSet.slug}`, label: prevSet.name }] : []),
+    ...(nextSet ? [{ href: `/${r.region}/sets/${nextSet.slug}`, label: nextSet.name }] : []),
+    { href: typeLink.href, label: type ? `${type.plural} in ${r.inName}` : `Sealed in ${r.inName}` },
+    ...aboutGuides.map((g) => ({ href: `/${r.region}/guides/${g.slug}`, label: g.title })),
+    { href: toolHref(r.region, "value-checker"), label: "Value checker" },
+    { href: toolHref(r.region, "trade-calculator"), label: "Trade calculator" },
+    { href: toolHref(r.region, "selling-fee-calculator"), label: "Selling-fee calculator" },
+  ];
 
   // "Quick facts": the value check, then short facts side by side, then the cheapest offer, the stock, and the other regions as links.
   // In stock it comes before the strip (between the panel and it); sold out, after it (the order the brief sets: strip, other regions).
@@ -518,6 +556,29 @@ export default async function ProductPage({ params }: { params: { region: string
           {factsCard}
         </>
       )}
+
+      <section aria-labelledby="about-h" className="mt-14 max-w-3xl">
+        <h2 id="about-h" className="font-display text-2xl font-bold tracking-tight">
+          About {heading}
+        </h2>
+        <div className="mt-4 space-y-3 leading-7 text-muted">
+          {intro.map((t) => (
+            <p key={t}>{t}</p>
+          ))}
+        </div>
+        <nav aria-label="Keep exploring" className="mt-6">
+          <h3 className="eyebrow">Keep exploring</h3>
+          <ul className="mt-3 flex flex-wrap gap-2">
+            {explore.map((l) => (
+              <li key={l.href}>
+                <Link href={l.href} prefetch={false} className="chip min-h-10">
+                  {l.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </section>
 
       {grid.length > 0 && set && (
         <Section title={`More from ${set.name}`} href={`/${r.region}/sets/${set.slug}`} linkLabel="Whole set">

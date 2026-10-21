@@ -31,7 +31,15 @@ export type GuideSlug =
   | "cheapest-way-to-buy-pokemon-packs"
   | "where-to-buy-pokemon-cards-online"
   | "how-to-avoid-resealed-pokemon-products"
-  | "pokemon-build-and-battle-box";
+  | "pokemon-build-and-battle-box"
+  | "where-to-buy-pokemon-cards-australia"
+  | "pokemon-mega-evolution-sealed-price-guide"
+  | "pokemon-chaos-rising-vs-perfect-order"
+  | "pokemon-booster-box-vs-etb-value"
+  | "is-pokemon-card-grading-worth-it"
+  | "how-to-check-pokemon-card-value"
+  | "ebay-vs-australian-stores-pokemon-fees"
+  | "pokemon-tcg-market-wrap";
 
 export interface Guide {
   slug: GuideSlug;
@@ -50,6 +58,8 @@ export interface Guide {
   topic: { types?: readonly TypeKey[]; sets?: readonly string[] };
   /** The guide's one eBay strip: the feed it asks for (type:<type slug> cascades to sealed) and its heading. */
   ebay: { context: "sealed" | `type:${string}`; heading: string };
+  /** The tools it pairs with (src/content/tools slugs): the Related block links them. */
+  tools?: readonly string[];
 }
 
 export const GUIDES: readonly Guide[] = [
@@ -186,6 +196,103 @@ export const GUIDES: readonly Guide[] = [
     regions: "all",
     topic: { types: ["build-battle", "booster-bundle", "etb", "build-battle-stadium"], sets: ["delta-reign"] },
     ebay: { context: "sealed", heading: "Sealed Pokémon on eBay" },
+  },
+  {
+    // The SEO release (2026-10-21): eight guides, each linked to the tools (src/content/tools) and to set and type pages.
+    slug: "where-to-buy-pokemon-cards-australia",
+    title: "Where to buy Pokémon cards in Australia: sealed stores",
+    description: "The Australian stores selling Pokémon TCG sealed product online, who has the most in stock today, prices in A$ with GST, and what to check before you order.",
+    kicker: "Australia",
+    published: "2026-10-21",
+    updated: "2026-10-21",
+    regions: ["au"],
+    topic: { types: ["booster-box", "etb", "booster-bundle", "collection"] },
+    ebay: { context: "sealed", heading: "Sealed Pokémon on eBay" },
+    tools: ["value-checker", "selling-fee-calculator", "trade-calculator"],
+  },
+  {
+    slug: "pokemon-mega-evolution-sealed-price-guide",
+    title: "Pokémon Mega Evolution sealed price guide",
+    description: "Every Mega Evolution set's booster box, Elite Trainer Box and bundle at today's cheapest store price, with the price per pack and release dates.",
+    kicker: "Mega Evolution",
+    published: "2026-10-21",
+    updated: "2026-10-21",
+    regions: "all",
+    topic: { types: ["booster-box", "etb", "booster-bundle"], sets: ["mega-evolution", "phantasmal-flames", "ascended-heroes", "perfect-order", "chaos-rising", "pitch-black", "30th-celebration", "delta-reign"] },
+    ebay: { context: "type:booster-boxes", heading: "Pokémon booster boxes on eBay" },
+    tools: ["value-checker", "trade-calculator"],
+  },
+  {
+    slug: "pokemon-chaos-rising-vs-perfect-order",
+    title: "Pokémon Chaos Rising vs Perfect Order: sealed value",
+    description: "Chaos Rising and Perfect Order side by side: what each set's booster box, ETB and bundle costs today, the price per pack, and how many stores have them.",
+    kicker: "Set comparison",
+    published: "2026-10-21",
+    updated: "2026-10-21",
+    regions: "all",
+    topic: { types: ["booster-box", "etb", "booster-bundle"], sets: ["chaos-rising", "perfect-order"] },
+    ebay: { context: "type:booster-boxes", heading: "Pokémon booster boxes on eBay" },
+    tools: ["value-checker", "trade-calculator"],
+  },
+  {
+    slug: "pokemon-booster-box-vs-etb-value",
+    title: "Pokémon booster box vs ETB: value per pack, set by set",
+    description: "For each recent Pokémon set, today's cheapest booster box and Elite Trainer Box per pack, and what the ETB's extras have to be worth to you.",
+    kicker: "Box or ETB",
+    published: "2026-10-21",
+    updated: "2026-10-21",
+    regions: "all",
+    topic: { types: ["booster-box", "etb", "pc-etb"] },
+    ebay: { context: "type:elite-trainer-boxes", heading: "Elite Trainer Boxes on eBay" },
+    tools: ["value-checker"],
+  },
+  {
+    slug: "is-pokemon-card-grading-worth-it",
+    title: "Is grading Pokémon cards worth it? Do the maths first",
+    description: "When grading a Pokémon card pays and when it doesn't: the costs, the break-even graded price, and how to check the numbers for your own card.",
+    kicker: "Grading",
+    published: "2026-10-21",
+    updated: "2026-10-21",
+    regions: "all",
+    topic: { types: ["booster-pack", "booster-box", "etb"] },
+    ebay: { context: "sealed", heading: "Sealed Pokémon on eBay" },
+    tools: ["grading-value-calculator", "selling-fee-calculator", "value-checker"],
+  },
+  {
+    slug: "how-to-check-pokemon-card-value",
+    title: "How to check a Pokémon card’s value",
+    description: "How to check what a Pokémon card or sealed product is worth: sold listings, condition, store prices and the median, step by step with today's data.",
+    kicker: "Valuing cards",
+    published: "2026-10-21",
+    updated: "2026-10-21",
+    regions: "all",
+    topic: { types: ["booster-box", "etb", "booster-bundle"] },
+    ebay: { context: "sealed", heading: "Sealed Pokémon on eBay" },
+    tools: ["value-checker", "trade-calculator", "grading-value-calculator"],
+  },
+  {
+    slug: "ebay-vs-australian-stores-pokemon-fees",
+    title: "eBay vs Australian stores: Pokémon fees and costs",
+    description: "What buying or selling Pokémon cards costs on eBay Australia against an Australian store: eBay's fees, postage, GST, and today's store prices.",
+    kicker: "Fees in Australia",
+    published: "2026-10-21",
+    updated: "2026-10-21",
+    regions: ["au"],
+    topic: { types: ["booster-box", "etb", "booster-bundle"] },
+    ebay: { context: "sealed", heading: "Sealed Pokémon on eBay" },
+    tools: ["selling-fee-calculator", "value-checker", "trade-calculator"],
+  },
+  {
+    slug: "pokemon-tcg-market-wrap",
+    title: "Pokémon TCG market wrap: this week in sealed",
+    description: "This week in Pokémon sealed: sets releasing and just out, today's cheapest box, ETB and bundle of each, deals under the median, and new listings.",
+    kicker: "Weekly wrap",
+    published: "2026-10-21",
+    updated: "2026-10-21",
+    regions: "all",
+    topic: { types: ["booster-box", "etb", "booster-bundle"] },
+    ebay: { context: "sealed", heading: "Sealed Pokémon on eBay" },
+    tools: ["value-checker", "trade-calculator"],
   },
 ];
 

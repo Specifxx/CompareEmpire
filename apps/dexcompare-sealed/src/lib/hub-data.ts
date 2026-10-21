@@ -8,6 +8,7 @@ import type { Market } from "./regions";
 import { isOpen, statsInMarket } from "./public-data/joins";
 import { routeRaw } from "./public-data/route";
 import { publicRows } from "./public-data/store";
+import { STORE_MIN_LISTED } from "./hub-copy";
 
 export interface SetCount {
   products: number;
@@ -114,12 +115,12 @@ export async function typePageData(market: Market, label: string): Promise<TypeP
 export async function activeStoreKeys(): Promise<string[]> {
   const fromFiles = () => {
     const keys = publicRows("StoreStat")
-      .filter((r) => (r.listed as number) > 0 && r.dormant !== true)
+      .filter((r) => (r.listed as number) >= STORE_MIN_LISTED && r.dormant !== true)
       .map((r) => String(r.store))
       .sort();
     return [{ keys: keys.length ? keys : null }];
   };
   const rows = await routeRaw(fromFiles, () => prisma.$queryRaw<{ keys: string[] | null }[]>`
-    SELECT array_agg("store" ORDER BY "store") AS "keys" FROM "StoreStat" WHERE "listed" > 0 AND NOT "dormant"`);
+    SELECT array_agg("store" ORDER BY "store") AS "keys" FROM "StoreStat" WHERE "listed" >= ${STORE_MIN_LISTED} AND NOT "dormant"`);
   return rows[0]?.keys ?? [];
 }

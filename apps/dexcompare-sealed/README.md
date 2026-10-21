@@ -41,6 +41,16 @@ place untouched; nothing deploys from it once the Vercel project points here.
   worth it, sealed products explained, US MSRP, pre-ordering, what's in an ETB, Pokémon Center ETB vs ETB, the cheapest way to
   buy packs, where to buy online, avoiding resealed product, the Build & Battle Box), linked from the landing page with an FAQ, whose numbers come only from `packs.ts`, `rrp.ts`,
   `sets.ts`, `type-about.ts` and live blocks, each with "checked … ago". Old guide and blog URLs redirect to them.
+- **SEO release (2026-10-21)**: eight more guides (twenty in all; two are Australia-only): where to buy in Australia, the Mega
+  Evolution sealed price guide, Chaos Rising vs Perfect Order, booster box vs ETB value set by set, is grading worth it, how to check a
+  card's value, eBay vs Australian stores' fees, and a weekly market wrap whose every week-dependent word comes from the live data.
+  **Tools** (`/<region>/tools`, `src/content/tools`, `src/components/tools`, arithmetic in `src/lib/tools.ts`): a sealed value checker
+  (the CDN-cached browse index, searched in the browser), a trade calculator, a selling-fee calculator (eBay's published AU and US rates
+  in `src/lib/fees.ts`, each with the day it was checked and its source; Custom elsewhere), a grading value calculator and a deck
+  builder / list checker; each page has its own copy, steps, FAQ (FAQPage + WebApplication JSON-LD) and links. Product pages carry an
+  "About" intro and "Keep exploring" links (set, neighbouring sets, type, guides, tools); set pages a lede; store pages an intro built
+  from the store's own listings (`storeTypeRows`, one store's rows), and a store page needs three listings to be indexed
+  (`STORE_MIN_LISTED`, the sitemap uses the same rule). A product the sitemap lists is never noindex.
 - **Booster box prices by country** (`/guides/pokemon-booster-box-prices-by-country`, `src/app/(site)/guides/[slug]`): the one
   page that compares all seven markets, so it has one region-less URL (no hreflang). The newest booster-box set (the upcoming one
   while it is on pre-order) and the three before it, each market's cheapest open box with its per-pack price, the lead set's ETB
