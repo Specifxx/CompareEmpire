@@ -31,9 +31,13 @@ function render(el: React.ReactElement): string {
 }
 
 /** Every <a> of the markup: its href (entities decoded), rel, class and text. */
+/** An offer button's destination: the store URL itself, or the `u` of the first-party /go redirect it now goes through. */
+const dest = (href: string) => (href.startsWith("/go?") ? new URLSearchParams(href.slice(4)).get("u") ?? href : href);
+
 function links(html: string) {
   return [...html.matchAll(/<a ([^>]*)>([\s\S]*?)<\/a>/g)].map((m) => ({
-    href: (/href="([^"]*)"/.exec(m[1])?.[1] ?? "").replace(/&amp;/g, "&"),
+    raw: (/href="([^"]*)"/.exec(m[1])?.[1] ?? "").replace(/&amp;/g, "&"),
+    href: dest((/href="([^"]*)"/.exec(m[1])?.[1] ?? "").replace(/&amp;/g, "&")),
     rel: /rel="([^"]*)"/.exec(m[1])?.[1] ?? "",
     cls: /class="([^"]*)"/.exec(m[1])?.[1] ?? "",
     text: m[2].replace(/<[^>]+>/g, "").replace(/&#x27;/g, "'").trim(),
@@ -84,6 +88,15 @@ test("the table: eight rows of the ranked list (eBay's among them), the rest in 
   assert.ok(a.find((l) => l.href === "https://open5.example/p")!.cls.startsWith("btn-soft"));
   assert.ok(a.find((l) => l.href === "https://sold0.example/p")!.cls.startsWith("btn-ghost"));
   for (const o of offers) assert.ok(a.some((l) => l.href === o.url), `${o.store}'s link is in the server HTML`);
+  // every store button goes through the first-party /go redirect, naming its store and region, and keeps its rel
+  for (const o of offers) {
+    const l = a.find((x) => x.href === o.url)!;
+    assert.match(l.raw, /^\/go\?u=/, `${o.store}: through /go`);
+    const q = new URLSearchParams(l.raw.slice(4));
+    assert.equal(q.get("s"), o.store);
+    assert.equal(q.get("r"), "us");
+    assert.match(l.rel, /nofollow/);
+  }
   // the footer keeps the short version; the long one is in the details, whole
   assert.match(html, /In stock first, then cheapest\./);
   assert.match(html, /No store pays to rank\./);

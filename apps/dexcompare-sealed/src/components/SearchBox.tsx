@@ -1,5 +1,7 @@
 "use client";
 
+import { searchEvent } from "@/lib/click-events";
+import { send } from "@/lib/track-client";
 import { track } from "@vercel/analytics";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -221,6 +223,7 @@ export function SearchBox({ region, size = "sm", autoFocus = false }: { region: 
       window.dispatchEvent(new CustomEvent(BROWSE_QUERY_EVENT, { detail: t }));
       return;
     }
+    send(searchEvent(region, "submit"));
     router.push(searchHref(region, t));
   };
 

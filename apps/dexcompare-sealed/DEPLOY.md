@@ -304,8 +304,9 @@ daily import (26-hour bound) instead of six hours, now shown on more surfaces, w
 
 ## Click events (Vercel Web Analytics)
 
-Every outbound buy link — to a store, TCGplayer or eBay — sends one custom
-event, `buy_click`, with exactly two properties:
+**Where to read them, every event and the `/go` redirect: [docs/analytics.md](docs/analytics.md).** Every outbound buy link — to
+a store, TCGplayer or eBay — sends `buy_click` with these two properties (and, for a product's offer, `buy_product
+{product, region}`; with Web Analytics Plus, one `buy_click` with eight):
 
 | Property | Example values |
 | --- | --- |

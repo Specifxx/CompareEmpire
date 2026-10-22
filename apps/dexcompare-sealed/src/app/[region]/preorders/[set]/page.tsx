@@ -515,6 +515,7 @@ function ProductPrices({ g, r, guide, tcgplayer, now }: { g: SetOfferGroup; r: R
         preorder
         packs={packs}
         placement="preorders"
+        product={g.product.slug}
         numbered
         bestLabel={{ short: "Cheapest", full: "Cheapest store" }}
         ranked="Stores only: open pre-orders first, cheapest first."

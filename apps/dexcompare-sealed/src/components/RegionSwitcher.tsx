@@ -4,6 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { REGION_LIST, isRegion, type Region } from "@/lib/regions";
+import { regionSwitchEvent } from "@/lib/click-events";
+import { send } from "@/lib/track-client";
 
 /** The path after the region segment: "/au/sets/pitch-black" → "/sets/pitch-black", "/au" → "", "/about" → "/about". */
 export function pathAfterRegion(pathname: string): string {
@@ -86,7 +88,10 @@ export function RegionSwitcher({ region, compact = false }: { region: Region | n
                 href={regionSwitchHref(pathname, r.region, region)}
                 prefetch={false}
                 aria-current={r.region === region ? "true" : undefined}
-                onClick={() => ref.current && (ref.current.open = false)}
+                onClick={() => {
+                  if (r.region !== region) send(regionSwitchEvent(region ?? null, r.region));
+                  if (ref.current) ref.current.open = false;
+                }}
                 className={`flex min-h-11 items-center gap-3 rounded-lg px-3 py-2 text-sm hover:bg-raised ${r.region === region ? "bg-raised font-semibold" : ""}`}
               >
                 <span className="text-lg" aria-hidden="true">

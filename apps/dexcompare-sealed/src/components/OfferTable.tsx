@@ -40,6 +40,7 @@ export function OfferTable({
   numbered = false,
   bestLabel,
   ranked,
+  product,
 }: {
   offers: OfferView[];
   region: Region;
@@ -62,6 +63,8 @@ export function OfferTable({
   bestLabel?: { short: string; full: string };
   /** The footer's ranking sentence, when the page ranks differently from "In stock first, then cheapest." */
   ranked?: string;
+  /** The product's slug: the rows' buttons go through /go and their click events name it (lib/click-events.ts). */
+  product?: string;
 }) {
   const r = REGIONS[region];
   const now = Date.now();
@@ -70,7 +73,7 @@ export function OfferTable({
   // renders the rows from it. Passing data, not rendered rows, keeps the page's RSC payload small: a row is ~350 bytes of data where
   // its element tree was ~1.5 KB, on top of the same row in the HTML.
   let rank = 0;
-  const rows: StoreRowData[] = offers.map((o) => {
+  const rows: StoreRowData[] = offers.map((o, i) => {
     const state = offerStock(o, now);
     const link = offerLink(o.store, o.url, region, placement);
     const open = state === "open";
@@ -91,6 +94,9 @@ export function OfferTable({
       sponsored: link.sponsored,
       retailer: offerRetailer(o.store, o.storeName, r.market),
       placement,
+      region,
+      product,
+      position: i + 1,
       price: money(o.priceCents, r.market),
       // packs.ts perPackCents, inlined: this module is also in the browser's bundle (StoreRow), and packs.ts brings sets.ts and the
       // title classifier with it
@@ -192,6 +198,10 @@ export interface StoreRowData {
   placement?: Placement;
   /** Its place among the open rows, 1 = cheapest, when the table is numbered (the pre-order page). */
   rank?: number;
+  /** For the click events and /go: the region, the product's slug and the row's place in the ranked list (1 = top). */
+  region?: Region;
+  product?: string;
+  position?: number;
   /** The best row's badge in place of "Best price": `short` on a phone, `full` from sm (the pre-order page: "Cheapest" / "Cheapest store"). */
   badge?: { short: string; full: string };
   price: string;
@@ -246,7 +256,14 @@ export function StoreRow({ d, preorder }: { d: StoreRowData; preorder: boolean }
         <span className={`tabular font-display text-lg font-bold leading-6 ${d.open ? "" : "text-faint line-through decoration-1"}`}>{d.price}</span>
         {d.perPack && <span className="tabular truncate text-[11px] leading-4 text-muted sm:block sm:text-xs">≈ {d.perPack} / pack</span>}
       </div>
-      <OutboundLink href={d.href} rel={d.rel} retailer={d.retailer} placement={d.placement ?? "product-table"} className={`${d.best ? "btn-primary" : d.open ? "btn-soft" : "btn-ghost"} ${ROW_BUTTON}`}>
+      <OutboundLink
+        href={d.href}
+        rel={d.rel}
+        retailer={d.retailer}
+        placement={d.placement ?? "product-table"}
+        item={{ product: d.product, store: d.key, priceCents: d.cents, position: d.position }}
+        go={d.region ? { region: d.region, store: d.key } : undefined}
+        className={`${d.best ? "btn-primary" : d.open ? "btn-soft" : "btn-ghost"} ${ROW_BUTTON}`}>
         {d.open ? "View deal" : "View"} <span aria-hidden="true">↗</span>
       </OutboundLink>
     </li>

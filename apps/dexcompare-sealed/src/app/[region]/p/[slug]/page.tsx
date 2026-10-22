@@ -473,6 +473,8 @@ export default async function ProductPage({ params }: { params: { region: string
                     sponsored: bestLink.sponsored,
                     retailer: offerRetailer(best.store, best.storeName, r.market),
                     button: best.marketplace ? `Buy on ${best.storeName}` : `Go to ${best.storeName}`,
+                    storeKey: best.store,
+                    product: p.slug,
                   }}
                   packs={packs}
                   median={median}
@@ -521,7 +523,7 @@ export default async function ProductPage({ params }: { params: { region: string
       <Section id="prices" title={tableTitle}>
         {p.offers.length ? (
           // eBay is one of the websites compared: the product's cheapest own eBay listing is a row of the table, ranked by price (an ad, tinted).
-          <OfferTable offers={p.offers} region={r.region} preorder={pre} packs={packs} ebay={{ slug: p.slug, query: ebayQ, floor: ebayFloor, packs: rowPacks(type?.key, packs) }} notes={notes} />
+          <OfferTable offers={p.offers} region={r.region} product={p.slug} preorder={pre} packs={packs} ebay={{ slug: p.slug, query: ebayQ, floor: ebayFloor, packs: rowPacks(type?.key, packs) }} notes={notes} />
         ) : (
           <div className="card px-6 py-8 text-muted">
             None of the {r.adjective} stores we track list {p.name} right now.
@@ -604,7 +606,7 @@ export default async function ProductPage({ params }: { params: { region: string
           region={r.region}
           anchor="best"
           preorder={pre}
-          store={{ cents: best.priceCents, storeName: best.storeName, href: bestLink.href, rel: bestLink.rel, retailer: offerRetailer(best.store, best.storeName, r.market), marketplace: best.marketplace }}
+          store={{ cents: best.priceCents, storeName: best.storeName, href: bestLink.href, rel: bestLink.rel, retailer: offerRetailer(best.store, best.storeName, r.market), marketplace: best.marketplace, storeKey: best.store, product: p.slug }}
           pick={ebayPick}
         />
       ) : (

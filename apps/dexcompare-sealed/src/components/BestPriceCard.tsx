@@ -39,6 +39,9 @@ export interface BestStore {
   sponsored: boolean;
   retailer: string;
   button: string;
+  /** The store's key and the product's slug: the button goes through /go and its click events name both (lib/click-events.ts). */
+  storeKey?: string;
+  product?: string;
 }
 
 export interface BestPriceCardProps {
@@ -118,7 +121,14 @@ function StoreTop(props: BestPriceCardProps) {
             {store.sponsored && <span> · marketplace · affiliate link</span>}
           </div>
         </div>
-        <OutboundLink href={store.href} rel={store.rel} retailer={store.retailer} placement="product-best" className="btn-primary self-start px-6 py-3 text-base sm:self-auto">
+        <OutboundLink
+          href={store.href}
+          rel={store.rel}
+          retailer={store.retailer}
+          placement="product-best"
+          item={{ product: store.product, store: store.storeKey, priceCents: store.cents, position: 1 }}
+          go={store.storeKey ? { region: props.region, store: store.storeKey } : undefined}
+          className="btn-primary self-start px-6 py-3 text-base sm:self-auto">
           {store.button} <span aria-hidden="true">↗</span>
         </OutboundLink>
       </div>

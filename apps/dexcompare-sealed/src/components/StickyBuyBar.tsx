@@ -37,6 +37,9 @@ export interface BarStore {
   retailer: string;
   /** TCGplayer (a marketplace, an affiliate link), not a store. */
   marketplace: boolean;
+  /** The store's key and the product's slug: the button goes through /go (lib/click-events.ts). */
+  storeKey?: string;
+  product?: string;
 }
 
 export interface StickyBuyBarProps {
@@ -72,7 +75,7 @@ interface Content {
   ad: boolean;
   top: ReactNode;
   bottom: ReactNode;
-  link: { href: string; rel: string; retailer: string; label: string; className: string };
+  link: { href: string; rel: string; retailer: string; label: string; className: string; storeKey?: string; product?: string; cents?: number };
 }
 
 function staticContent({ region, store, search, preorder }: StickyBuyBarProps): Content {
@@ -87,7 +90,16 @@ function staticContent({ region, store, search, preorder }: StickyBuyBarProps): 
         </>
       ),
       bottom: store.marketplace ? "Marketplace · affiliate link" : `${preorder ? "Cheapest pre-order" : "Best price in stock"} · excl. shipping`,
-      link: { href: store.href, rel: store.rel, retailer: store.retailer, label: store.marketplace ? "View offer" : "Go to store", className: "btn-primary" },
+      link: {
+        href: store.href,
+        rel: store.rel,
+        retailer: store.retailer,
+        label: store.marketplace ? "View offer" : "Go to store",
+        className: "btn-primary",
+        storeKey: store.storeKey,
+        product: store.product,
+        cents: store.cents,
+      },
     };
   }
   return {
@@ -124,7 +136,7 @@ function listingContent(region: Region, item: { href: string; ship?: Parameters<
   };
 }
 
-function Bar({ anchor, content }: StickyBuyBarProps & { content: Content }) {
+function Bar({ anchor, content, region }: StickyBuyBarProps & { content: Content }) {
   const ref = useRef<HTMLDivElement>(null);
   const [shown, setShown] = useState(false);
   const [dismissed, setDismissed] = useState(false);
@@ -239,7 +251,14 @@ function Bar({ anchor, content }: StickyBuyBarProps & { content: Content }) {
           <div className="flex h-6 min-w-0 items-center gap-1.5 whitespace-nowrap">{content.top}</div>
           <div className="flex h-5 min-w-0 items-center gap-1.5 whitespace-nowrap text-[11px] text-muted">{content.bottom}</div>
         </div>
-        <OutboundLink href={link.href} rel={link.rel} retailer={link.retailer} placement={placement} className={`${link.className} min-h-11 shrink-0 whitespace-nowrap px-4`}>
+        <OutboundLink
+          href={link.href}
+          rel={link.rel}
+          retailer={link.retailer}
+          placement={placement}
+          item={link.storeKey ? { product: link.product, store: link.storeKey, priceCents: link.cents, position: 1 } : undefined}
+          go={link.storeKey ? { region, store: link.storeKey } : undefined}
+          className={`${link.className} min-h-11 shrink-0 whitespace-nowrap px-4`}>
           {link.label} <span aria-hidden="true">↗</span>
         </OutboundLink>
         <button

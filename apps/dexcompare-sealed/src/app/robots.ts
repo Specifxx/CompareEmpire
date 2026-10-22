@@ -20,7 +20,8 @@ const QUERY_ALLOWS = ["/_next/", "/og/", "/*opengraph-image", "/icon"];
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
-      { userAgent: "*", allow: ["/", ...QUERY_ALLOWS], disallow: ["/api/", "/*?"] },
+      // /go is the first-party click redirect (src/app/go/route.ts): never a page to crawl.
+      { userAgent: "*", allow: ["/", ...QUERY_ALLOWS], disallow: ["/api/", "/go", "/*?"] },
       { userAgent: BLOCKED_BOTS, disallow: "/" },
     ],
     sitemap: `${SITE_URL}/sitemap.xml`,
