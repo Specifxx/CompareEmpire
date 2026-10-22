@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { Icon, type IconName } from "@/components/Icon";
 import { RegionSuggest, SuggestedEbayStrip, SuggestedTypeLinks } from "@/components/RegionSuggest";
+import { HomeRegionGrid } from "@/components/HomeRegionGrid";
 import { REGION_LIST, REGIONS, X_DEFAULT_REGION, type Region } from "@/lib/regions";
 import { DEFAULT_OG_IMAGE } from "@/lib/seo";
 import { SITE_NAME, SITE_URL, sectionHref, type SectionKey } from "@/lib/site";
@@ -127,6 +128,11 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* The visitor's region's products (their country through Vercel's geo header, else language or time zone), with a region
+          switcher: filled in the browser, so this HTML stays one static page for everyone and every region link stays crawlable. */}
+      <div className="mb-14">
+        <HomeRegionGrid />
+      </div>
       {/* Content first (owner, 2026-10-15: "the best chance for AdSense approval, considering Google has lazy crawlers"). A reviewer
           or crawler that reads only the first screens of the server HTML meets original text, not a wall of links: what the site is
           and how it works, then the regions, the guides with their summaries, and every answer written out (no collapsed details).

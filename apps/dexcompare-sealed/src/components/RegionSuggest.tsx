@@ -5,13 +5,28 @@ import { useEffect, useState } from "react";
 import { REGIONS, X_DEFAULT_REGION, isRegion, regionFromTimeZone, type Region } from "@/lib/regions";
 import { EbayStrip } from "./EbayStrip";
 
+/** Where the guess came from: a region the visitor browsed before, Vercel's geo header, Accept-Language, or the time zone. */
+export type RegionSource = "saved" | "geo" | "language" | "timezone" | "picked";
+
+let geoAnswer: Promise<{ region: Region | null; source: RegionSource | null }> | null = null;
+
+/** /api/geo (Vercel's x-vercel-ip-country, else Accept-Language), asked once per page however many components want it. */
+function askGeo(): Promise<{ region: Region | null; source: RegionSource | null }> {
+  geoAnswer ??= fetch("/api/geo", { headers: { accept: "application/json" } })
+    .then((r) => (r.ok ? (r.json() as Promise<{ region: string | null; source: RegionSource | null }>) : { region: null, source: null }))
+    .then((j) => (isRegion(j.region) ? { region: j.region, source: j.source } : { region: null, source: null }))
+    .catch(() => ({ region: null, source: null }));
+  return geoAnswer;
+}
+
 /**
- * The landing page's guess at the visitor's region: the one they last browsed (RegionSwitcher remembers it), else their time
- * zone's. A suggestion, never a redirect: the landing page stays crawlable and a traveller can pick another region. Unknown
- * until mount (the page is static, the same HTML for everyone), and null when the time zone maps to no region (UTC, Asia/Tokyo).
+ * The landing page's guess at the visitor's region: the one they last browsed (RegionSwitcher remembers it), else their country
+ * (Vercel's geo header, through /api/geo; Accept-Language when there is none), else their time zone. A suggestion, never a
+ * redirect: the landing page stays the same crawlable HTML for everyone, and a traveller can pick another region. Unknown until
+ * mount; the geo answer is waited for at most 1.2 s before the time zone stands in. Null when nothing maps to a region.
  */
-export function useSuggestedRegion(): { known: boolean; region: Region | null } {
-  const [s, setS] = useState<{ known: boolean; region: Region | null }>({ known: false, region: null });
+export function useSuggestedRegion(): { known: boolean; region: Region | null; source: RegionSource | null } {
+  const [s, setS] = useState<{ known: boolean; region: Region | null; source: RegionSource | null }>({ known: false, region: null, source: null });
   useEffect(() => {
     let saved: string | null = null;
     try {
@@ -19,13 +34,28 @@ export function useSuggestedRegion(): { known: boolean; region: Region | null } 
     } catch {
       /* storage blocked */
     }
+    if (isRegion(saved)) {
+      setS({ known: true, region: saved, source: "saved" });
+      return;
+    }
     let tz: string | undefined;
     try {
       tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
     } catch {
       /* no Intl time zone */
     }
-    setS({ known: true, region: isRegion(saved) ? saved : regionFromTimeZone(tz) });
+    const byZone = regionFromTimeZone(tz);
+    let live = true;
+    const fallback = window.setTimeout(() => live && setS({ known: true, region: byZone, source: byZone ? "timezone" : null }), 1200);
+    askGeo().then((g) => {
+      if (!live) return;
+      window.clearTimeout(fallback);
+      setS(g.region ? { known: true, region: g.region, source: g.source } : { known: true, region: byZone, source: byZone ? "timezone" : null });
+    });
+    return () => {
+      live = false;
+      window.clearTimeout(fallback);
+    };
   }, []);
   return s;
 }
