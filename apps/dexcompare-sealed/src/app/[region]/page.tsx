@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { inSeason } from "@/lib/black-friday";
 import { PreorderBanner } from "@/components/PreorderBanner";
 import { cache } from "react";
 import type { Metadata } from "next";
@@ -138,8 +139,21 @@ export default async function RegionHome({ params }: { params: { region: string 
       <NoPreFooter />
       <div className="page">
         {/* The next set on pre-order, when there is one: its hub, the page people compare pre-orders on (components/PreorderBanner). */}
-        <div className="mt-8">
+        <div className="mt-8 grid gap-3">
           <PreorderBanner region={r.region} />
+          {inSeason(new Date().toISOString().slice(0, 10)) && (
+            <Link
+              href={`/${r.region}/black-friday`}
+              prefetch={false}
+              className="card flex flex-wrap items-center justify-between gap-3 px-5 py-4 transition-shadow hover:shadow-lift"
+            >
+              <span>
+                <span className="font-display text-lg font-bold">Black Friday deals in {r.inName}</span>
+                <span className="block text-sm text-muted">Every product furthest under the median store price today, biggest gap first.</span>
+              </span>
+              <span className="shrink-0 text-sm font-semibold text-brand-strong">See the deals →</span>
+            </Link>
+          )}
         </div>
         {deals.length > 0 && (
           <Section title={dealsCopy.rail} kicker={dealsCopy.railKicker} href={`/${r.region}/deals`} linkLabel="All deals">

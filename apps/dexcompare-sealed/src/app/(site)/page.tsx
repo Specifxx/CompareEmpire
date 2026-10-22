@@ -43,6 +43,7 @@ const POPULAR_LINKS: { key: SectionKey; label: string }[] = [
   { key: "boosterBoxes", label: "Booster boxes" },
   { key: "etbs", label: "Elite Trainer Boxes" },
   { key: "deals", label: "Deals" },
+  { key: "blackFriday", label: "Black Friday deals" },
   { key: "perPack", label: "Cheapest per pack" },
   { key: "releases", label: "Releases" },
   { key: "guides", label: "Guides" },

@@ -34,6 +34,7 @@ export const SOCIAL_LINKS: string[] = [];
 // so the three never disagree. Labels differ by place ("Stores" in the nav, "Where to buy" in the menu) and live there.
 export const SECTION_PATHS = {
   deals: "/deals",
+  blackFriday: "/black-friday",
   thisWeek: "/this-week",
   sealed: "/sealed",
   boosterBoxes: "/type/booster-boxes",

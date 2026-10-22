@@ -64,6 +64,7 @@ export function staticSitemap(lastmod: Partial<Record<string, Date | null>>, act
     // The pages built from each import's current state (deals, price per pack, the week's digest) change with it. The guides index
     // changes only when a guide is added or edited, so the import time would be a false lastmod there: it has none.
     out.push(url(`/${r.region}/deals`, m, "daily", 0.7));
+    out.push(url(`/${r.region}/black-friday`, m, "daily", 0.7));
     out.push(url(`/${r.region}/cheapest-packs`, m, "daily", 0.6));
     out.push(url(`/${r.region}/this-week`, m, "daily", 0.5));
     out.push(url(`/${r.region}/guides`, null, "weekly", 0.5));

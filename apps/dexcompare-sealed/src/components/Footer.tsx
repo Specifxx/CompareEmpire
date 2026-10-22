@@ -31,7 +31,7 @@ export function footerColumns(region: Region | null): { title: string; links: Fo
     { title: "Latest sets", links: SETS.slice(0, 6).map((set) => ({ href: `/${region}/sets/${set.slug}`, label: set.name })) },
     {
       title: "Explore",
-      links: [s("deals", "Deals"), s("thisWeek", "This week"), s("releases", "Releases"), s("guides", "Guides"), s("tools", "Tools"), s("stores", "Where to buy"), s("sealed", "All sealed"), { href: COUNTRY_GUIDE.path, label: "Prices by country" }],
+      links: [s("deals", "Deals"), s("blackFriday", "Black Friday deals"), s("thisWeek", "This week"), s("releases", "Releases"), s("guides", "Guides"), s("tools", "Tools"), s("stores", "Where to buy"), s("sealed", "All sealed"), { href: COUNTRY_GUIDE.path, label: "Prices by country" }],
     },
     { title: "DexCompare", links: site },
   ];
