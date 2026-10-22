@@ -511,3 +511,12 @@ export async function storeTypeRows(store: string): Promise<StoreTypeRow[]> {
     GROUP BY 1
     LIMIT 32`);
 }
+
+/** The cards of the given products in one market, in the order given (at most 48: a section's worth). */
+export async function cardsBySlugs(market: Market, slugs: readonly string[]): Promise<ProductCardData[]> {
+  const some = [...new Set(slugs)].slice(0, 48);
+  if (!some.length) return [];
+  const rows = await prisma.productStat.findMany({ where: { market, product: { slug: { in: some } } }, take: some.length, select: cardSelect });
+  const bySlug = new Map(rows.map(toCard).map((c) => [c.slug, c]));
+  return some.map((s) => bySlug.get(s)).filter((c): c is ProductCardData => !!c);
+}

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { readPriceHistory, underOwnTypical } from "@/lib/price-history";
 import { cache } from "react";
 import type { Metadata } from "next";
 import { Ago } from "@/components/Ago";
@@ -10,9 +11,9 @@ import { PreorderBanner } from "@/components/PreorderBanner";
 import { ProductGrid } from "@/components/ProductGrid";
 import { Empty, Section } from "@/components/Section";
 import { bfCopy, blackFriday, cyberMonday, seasonYear } from "@/lib/black-friday";
-import { lastCheckedAt, type ProductCardData } from "@/lib/data";
+import { cardsBySlugs, lastCheckedAt, type ProductCardData } from "@/lib/data";
 import { belowMsrpUS, dealPct, dealsInMarket, fitTitle } from "@/lib/deals";
-import { plural, relativeDay, timeAgo } from "@/lib/format";
+import { money, plural, relativeDay, timeAgo } from "@/lib/format";
 import { formatRelease } from "@/lib/release";
 import { regionOrNotFound, type Market } from "@/lib/regions";
 import { RRP_NOTE } from "@/lib/rrp";
@@ -52,6 +53,10 @@ export default async function BlackFridayPage({ params }: { params: { region: st
   const us = r.market === "US";
   const [deals, checked, msrp] = await Promise.all([getDeals(r.market), lastCheckedAt(r.market), us ? belowMsrpUS(8) : Promise.resolve([] as ProductCardData[])]);
   const best = deals.length ? Math.max(...deals.map(dealPct)) : null;
+  // Under its own recent typical price (lib/price-history.ts): only products with a week or more of daily snapshots here.
+  const history = readPriceHistory();
+  const under = history ? underOwnTypical(history, r.market, { days: 30, minPct: 10, take: 12 }) : [];
+  const underCards = await cardsBySlugs(r.market, under.map((u) => u.slug));
   const when = today < bf ? `Black Friday is ${formatRelease(bf)} (${relativeDay(bf, today)}) and Cyber Monday ${formatRelease(cm)}.` : today <= cm ? `It's Black Friday weekend: Cyber Monday is ${formatRelease(cm)}.` : `Black Friday ${year} was ${formatRelease(bf)}.`;
   const strip = <EbayStrip region={r.region} context="sealed" placement="listings-deals" search={{ kind: "sealed", query: "" }} />;
   const ld = deals.length ? itemListJsonLd({ name: bfCopy.h1(r), path: `/${r.region}/black-friday`, items: deals.map((p) => ({ path: `/${r.region}/p/${p.slug}`, name: p.name, image: p.imageUrl })) }) : null;
@@ -100,6 +105,33 @@ export default async function BlackFridayPage({ params }: { params: { region: st
           before you buy.
         </p>
       </Section>
+
+      {underCards.length > 0 && (
+        <Section id="under-typical" title="Under their own 30-day typical price" kicker="From our daily price snapshots">
+          <ol className="grid gap-2">
+            {under
+              .filter((u) => underCards.some((c) => c.slug === u.slug))
+              .map((u) => {
+                const c = underCards.find((x) => x.slug === u.slug)!;
+                return (
+                  <li key={u.slug} className="card flex flex-wrap items-center justify-between gap-x-4 gap-y-1 px-4 py-3">
+                    <Link href={`/${r.region}/p/${u.slug}`} prefetch={false} className="min-w-0 font-semibold hover:text-brand">
+                      {c.name}
+                    </Link>
+                    <span className="tabular text-sm">
+                      <b className="font-display text-base">{money(u.cents, r.market)}</b> <span className="text-muted">vs {money(u.typical, r.market)} typical</span>{" "}
+                      <span className="font-semibold text-open">{u.pct}% under</span>
+                    </span>
+                  </li>
+                );
+              })}
+          </ol>
+          <p className="mt-3 text-sm leading-6 text-muted">
+            The typical price is the median of the product’s cheapest in-stock price over the last 30 days of our daily snapshots (a week of snapshots at
+            least). It describes what stores asked on those days, not what any store will charge next.
+          </p>
+        </Section>
+      )}
 
       {us && msrp.length > 0 && (
         <Section id="below-msrp" title="Under US MSRP today" kicker="TPCi's US list price">

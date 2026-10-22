@@ -119,8 +119,9 @@ export default function About() {
 
         <h2>What we don&rsquo;t keep</h2>
         <p>
-          DexCompare keeps no price history and no stock history — only what each store lists right now — and no data about you: no
-          accounts, no emails, no cookies. We count page views and clicks on buy links, without knowing who made them. See{" "}
+          DexCompare keeps one snapshot a day of each product&rsquo;s cheapest in-stock price and how many stores have it in stock
+          (the price history on product pages, from 15 October 2026), and nothing more about the stores&rsquo; past listings. It keeps no
+          data about you: no accounts, no emails, no cookies. We count page views and clicks on buy links, without knowing who made them. See{" "}
           <Link href="/privacy">privacy</Link>.
         </p>
 

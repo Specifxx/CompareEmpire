@@ -112,8 +112,8 @@ export function outline(r: RegionInfo, data: GuideData): GuideOutline {
           {soon.length ? <>{plural(soon.length, "set")} releasing in the next {SOON_DAYS} days</> : <>no set releasing in the next {SOON_DAYS} days</>},{" "}
           {recent.length ? <>{plural(recent.length, "set")} out in the last {JUST_RELEASED_DAYS} days</> : <>none out in the last {JUST_RELEASED_DAYS} days</>},{" "}
           {deals.length ? <>products priced under the median of {r.adjective} stores</> : <>no product {bar}% under the median of {r.adjective} stores</>} and{" "}
-          {fresh.length ? <>products we’ve started tracking</> : <>nothing newly tracked</>}. Every number is today’s. We keep no price history, so this wrap tells you
-          where things stand, not how they got there.
+          {fresh.length ? <>products we’ve started tracking</> : <>nothing newly tracked</>}. Every number is today’s: this wrap tells you where things stand, not how they got
+          there (each product page has its own daily price chart).
         </Lede>
       </>
     ),

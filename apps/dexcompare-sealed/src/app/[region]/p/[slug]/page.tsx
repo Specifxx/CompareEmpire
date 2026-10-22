@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { PriceHistoryChart } from "@/components/PriceHistoryChart";
+import { dailySeries, daysOfHistory, MIN_DAYS, readPriceHistory } from "@/lib/price-history";
 import { preorderPath } from "@/lib/preorder-guides";
 import { notFound } from "next/navigation";
 import { cache } from "react";
@@ -299,6 +301,9 @@ export default async function ProductPage({ params }: { params: { region: string
     : null;
 
   const heading = withPokemon(p.name);
+  // The daily price history (lib/price-history.ts): a chart once the product has MIN_DAYS of snapshots here, nothing before.
+  const history = readPriceHistory();
+  const historyDays = history && daysOfHistory(history, r.market, p.slug) >= MIN_DAYS ? dailySeries(history, r.market, p.slug, 90) : [];
   const riftHref = riftHistoryHref({ imageUrl: p.imageUrl, setReleaseDate: set?.releaseDate, productType: p.productType, name: p.name });
   const typeLink = type ? { href: `/${r.region}/type/${type.slug}`, label: `See ${type.plural} in stock in ${r.inName}` } : { href: `/${r.region}/sealed`, label: `See sealed products in stock in ${r.inName}` };
   const chip = "rounded-full bg-raised px-2.5 py-1 text-xs font-semibold leading-4 text-muted";
@@ -561,6 +566,12 @@ export default async function ProductPage({ params }: { params: { region: string
           {stripAt === "table" && strip}
           {factsCard}
         </>
+      )}
+
+      {historyDays.length >= MIN_DAYS && (
+        <Section id="history" title="Price history" kicker={`Cheapest in-stock price in ${r.inName}`}>
+          <PriceHistoryChart values={historyDays} market={r.market} />
+        </Section>
       )}
 
       <section aria-labelledby="about-h" className="mt-14 max-w-3xl">
