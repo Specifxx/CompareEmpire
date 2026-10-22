@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PreorderBanner } from "@/components/PreorderBanner";
 import { cache } from "react";
 import type { Metadata } from "next";
 import { Ago } from "@/components/Ago";
@@ -136,6 +137,10 @@ export default async function RegionHome({ params }: { params: { region: string 
       {/* The page carries two strips of its own (sealed, chase cards): no third one above the footer. */}
       <NoPreFooter />
       <div className="page">
+        {/* The next set on pre-order, when there is one: its hub, the page people compare pre-orders on (components/PreorderBanner). */}
+        <div className="mt-8">
+          <PreorderBanner region={r.region} />
+        </div>
         {deals.length > 0 && (
           <Section title={dealsCopy.rail} kicker={dealsCopy.railKicker} href={`/${r.region}/deals`} linkLabel="All deals">
             <ProductRail products={deals} region={r.region} eager={4} label={dealsCopy.rail} />

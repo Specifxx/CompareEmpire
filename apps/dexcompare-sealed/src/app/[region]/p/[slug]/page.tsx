@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { preorderPath } from "@/lib/preorder-guides";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 import type { Metadata } from "next";
@@ -324,7 +325,9 @@ export default async function ProductPage({ params }: { params: { region: string
   const aboutGuides = guidesFor(r.region)
     .filter((g) => type && g.topic.types?.includes(type.key))
     .slice(0, 3);
+  const hub = pre && set ? preorderPath(r.region, set.code) : null;
   const explore = [
+    ...(hub && set ? [{ href: hub, label: `${set.name} pre-orders, store by store` }] : []),
     ...(set ? [{ href: `/${r.region}/sets/${set.slug}`, label: `All ${set.name} sealed` }] : []),
     ...(prevSet ? [{ href: `/${r.region}/sets/${prevSet.slug}`, label: prevSet.name }] : []),
     ...(nextSet ? [{ href: `/${r.region}/sets/${nextSet.slug}`, label: nextSet.name }] : []),

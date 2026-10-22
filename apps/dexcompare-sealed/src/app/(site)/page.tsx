@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PreorderRegionLinks } from "@/components/PreorderBanner";
 import type { Metadata } from "next";
 import { Icon, type IconName } from "@/components/Icon";
 import { RegionSuggest, SuggestedEbayStrip, SuggestedTypeLinks } from "@/components/RegionSuggest";
@@ -132,6 +133,9 @@ export default function Landing() {
           switcher: filled in the browser, so this HTML stays one static page for everyone and every region link stays crawlable. */}
       <div className="mb-14">
         <HomeRegionGrid />
+        <div className="page mt-6">
+          <PreorderRegionLinks />
+        </div>
       </div>
       {/* Content first (owner, 2026-10-15: "the best chance for AdSense approval, considering Google has lazy crawlers"). A reviewer
           or crawler that reads only the first screens of the server HTML meets original text, not a wall of links: what the site is
