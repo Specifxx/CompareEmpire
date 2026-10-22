@@ -10,7 +10,7 @@
 import { SET_BY_CODE } from "./sets";
 import { TYPE_BY_LABEL, type TypeKey } from "./sealed-title";
 
-export const RRP_AS_OF = "2026-09";
+export { RRP_AS_OF, RRP_NOTE } from "./rrp-note";
 
 const TIERS: Record<string, Partial<Record<TypeKey, number>>> = {
   // Pokémon Center list prices, 2023–2025: booster pack $4.49, booster display
@@ -54,5 +54,4 @@ export function usMsrpForCard(market: string, typeLabel: string, setCode: string
   return t ? usMsrpCents(t.key, setCode) : null;
 }
 
-/** The one-line disclosure that goes wherever an MSRP is printed. */
-export const RRP_NOTE = `MSRP is TPCi's US list price (as of ${RRP_AS_OF}); stores set their own.`;
+

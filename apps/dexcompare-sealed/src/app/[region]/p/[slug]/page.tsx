@@ -475,6 +475,7 @@ export default async function ProductPage({ params }: { params: { region: string
                     button: best.marketplace ? `Buy on ${best.storeName}` : `Go to ${best.storeName}`,
                     storeKey: best.store,
                     product: p.slug,
+                    checked: best.lastSeen,
                   }}
                   packs={packs}
                   median={median}
