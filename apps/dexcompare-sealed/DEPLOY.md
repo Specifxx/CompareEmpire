@@ -1036,3 +1036,29 @@ morning: Neon's network transfer, as above.
   sealed import** went green after such a merge; until the column exists, new
   pages that aren't cached yet fail to render. An added column with a default
   is safe for the old code.
+
+## Deal and restock feed (Discord, Telegram)
+
+After each sealed import, `scripts/feed-notify.ts` (a step of `dexcompare-sealed-import.yml`, between the export and the publish)
+posts the notable changes to a Discord channel and/or a Telegram channel (`src/lib/feed.ts`):
+
+- **deal**: a product whose cheapest in-stock price is at least 10% under the median of 3+ stores with it in stock (the `/deals` rule);
+- **restock**: a popular product (a box, ETB, bundle, Pokémon Center ETB or UPC of a set in `src/lib/popular.ts` HOT_SETS) that no store
+  had in stock at the previous daily snapshot and one or more stores have now (`data/public/price-history.json`).
+
+**Off by default.** It runs in GitHub Actions (where the import runs), so its settings are GitHub ones, not Vercel's:
+
+| Where (GitHub → Settings → Secrets and variables → Actions) | Name | Value |
+| --- | --- | --- |
+| Variable | `FEED_ENABLED` | `1` to switch it on |
+| Secret | `DISCORD_WEBHOOK_URL` | a channel webhook (Discord → channel settings → Integrations → Webhooks → Copy URL) |
+| Secret | `TELEGRAM_BOT_TOKEN` | from @BotFather; add the bot to the channel as an admin |
+| Variable | `TELEGRAM_CHAT_ID` | the channel, e.g. `@dexcompare_deals` |
+| Variable (optional) | `FEED_REGIONS` | e.g. `au,us,uk` (all seven when unset) |
+| Variable (optional) | `FEED_MAX_POSTS` | messages per run, default 6, at most 20 |
+
+Dedupe and rate limit: an event is posted when it becomes true (not every run it stays true), at most once per 7 days, at most
+`FEED_MAX_POSTS` a run (restocks first, then the deepest deals), 1.5 s apart. The first run after switching it on only records what is
+true then and posts nothing, so the feed starts with changes, not a backlog. The state is `data/public/feed-state.json` (product slugs
+and days only), committed with the data; the eBay import's publish leaves it alone. A failed send is logged, never fails the import.
+Try it without sending: `npx tsx scripts/feed-notify.ts --dry-run` in `apps/dexcompare-sealed`.

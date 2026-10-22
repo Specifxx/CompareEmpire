@@ -126,6 +126,21 @@ jobs:
         if: steps.db.outputs.found == 'true'
         run: npx tsx scripts/export-public-data.ts
 
+      # The deal and restock feed (apps/dexcompare-sealed/src/lib/feed.ts): OFF unless the repository variable FEED_ENABLED is 1 and a
+      # destination is set (secret DISCORD_WEBHOOK_URL; secret TELEGRAM_BOT_TOKEN with variable TELEGRAM_CHAT_ID). It reads the files
+      # just exported, posts at most FEED_MAX_POSTS (default 6) new events, and writes data/public/feed-state.json, which the publish
+      # step commits with the data. Never fails the import.
+      - name: Deal and restock feed
+        if: steps.db.outputs.found == 'true'
+        continue-on-error: true
+        env:
+          FEED_ENABLED: ${{ vars.FEED_ENABLED }}
+          FEED_REGIONS: ${{ vars.FEED_REGIONS }}
+          FEED_MAX_POSTS: ${{ vars.FEED_MAX_POSTS }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ vars.TELEGRAM_CHAT_ID }}
+        run: npx tsx scripts/feed-notify.ts
       - name: Publish it to main
         if: steps.db.outputs.found == 'true'
         working-directory: .
@@ -134,5 +149,6 @@ jobs:
         # [deploy]); the 08:47 run commits its snapshot without the marker and it rides the next release, which carries a
         # newer whole-database snapshot anyway. Every release empties Vercel's CDN; the 08:47 read still feeds the alerts.
         env:
+          PUBLISH_FEED_STATE: "1"
           RELEASE: ${{ (github.event_name != 'schedule' || github.event.schedule == '47 20 * * *') && 'release' || '' }}
         run: bash apps/dexcompare-sealed/scripts/publish-public-data.sh "dexcompare-sealed-import.yml run ${{ github.run_id }}" $RELEASE

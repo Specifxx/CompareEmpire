@@ -28,6 +28,10 @@ for attempt in 1 2 3 4 5; do
   mkdir -p "$DIR"
   rm -f "$DIR"/*.json
   cp -r "$TMP/." "$DIR/"
+  # The feed's state (src/lib/feed.ts) belongs to the sealed import's feed step: any other publisher (the eBay import) keeps main's.
+  if [ "${PUBLISH_FEED_STATE:-}" != "1" ]; then
+    git checkout -q origin/main -- "$DIR/feed-state.json" 2>/dev/null || rm -f "$DIR/feed-state.json"
+  fi
   git add -A -- "$DIR"
   if git diff --cached --quiet; then
     echo "[publish] main already has this snapshot."
