@@ -44,7 +44,7 @@ test("/api/geo: the header first, then the language; private and uncached", asyn
 
 test("the landing page: the region grid's server HTML has every region link and reserved slots; nothing redirects", async () => {
   const { default: Landing } = await import("../src/app/(site)/page");
-  const html = renderToStaticMarkup(React.createElement(Landing));
+  const html = renderToStaticMarkup(await Landing());
   assert.match(html, /data-home-grid=""/);
   for (const r of REGION_LIST) assert.match(html, new RegExp(`href="/${r.region}"`), r.region);
   const grid = html.slice(html.indexOf("data-home-grid"));

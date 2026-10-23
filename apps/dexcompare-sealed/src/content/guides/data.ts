@@ -152,6 +152,20 @@ async function cheapestPerPackByType(market: Market, upcoming: string[]): Promis
   return out;
 }
 
+/**
+ * The booster-box guides' read (SEO sprint, 2026-10-23): the market's open, priced booster boxes, cheapest first (one capped read,
+ * at most 120 small rows: a market has about 30 to 60). Pre-orders included; the guides tell them apart by the set's release date.
+ */
+async function openBoxes(market: Market): Promise<ProductCardData[]> {
+  const rows = await prisma.productStat.findMany({
+    where: { market, ...OPEN, lowestPriceCents: { gt: 0 }, product: { productType: "Booster Box", setCode: { not: null } } },
+    orderBy: { lowestPriceCents: "asc" },
+    take: 120,
+    select: cardSelect,
+  });
+  return rows.map(toCard);
+}
+
 /** The where-to-buy guide's read: the region's active stores, most in stock first (at most 12 small rows). */
 async function topStores(market: Market): Promise<StoreRow[]> {
   return prisma.storeStat.findMany({
@@ -313,6 +327,16 @@ export async function loadGuideData(slug: GuideSlug, r: RegionInfo, now: Date = 
       const openCount: Record<string, number> = {};
       for (const [c, v] of counts) openCount[c] = v.open;
       return done({ sets: codes, bySet: Object.fromEntries(cal), openCount, deals, fresh });
+    }
+    case "cheapest-pokemon-booster-box":
+    case "pokemon-booster-box-price-australia":
+      return done({ cards: await openBoxes(r.market) });
+    case "delta-reign-booster-box-price": {
+      // Delta Reign read whole (one set in one market, open products only, cheapest first), and the set before it, Pitch Black, for
+      // its cheapest box, ETB and bundle beside them (calendarProducts, ≤ 9 rows).
+      const [list, cal] = await Promise.all([productsBySet(r.market, "me6"), calendarProducts(r.market, ["me5"])]);
+      const open = sortCards(list.filter(cardOpen));
+      return done({ sets: ["me6", "me5"], bySet: { me6: open, me5: cal.get("me5") ?? [] }, openCount: { me6: open.length } });
     }
     case "how-to-avoid-resealed-pokemon-products": {
       // As the pack-count guide: the newest released set with headline product in stock here (≤ 27 rows read).

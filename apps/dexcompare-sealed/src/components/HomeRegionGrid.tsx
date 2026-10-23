@@ -15,7 +15,7 @@ import { REGION_LIST, REGIONS, X_DEFAULT_REGION, type Region } from "@/lib/regio
 import { send } from "@/lib/track-client";
 import { useSuggestedRegion, type RegionSource } from "./RegionSuggest";
 
-interface Pick {
+export interface Pick {
   slug: string;
   name: string;
   type: string;
@@ -40,12 +40,17 @@ function picksFor(region: Region): Promise<Pick[]> {
 
 const SLOTS = 8;
 
-export function HomeRegionGrid() {
+/**
+ * `initial`: the x-default region's picks, rendered on the server (SEO sprint, 2026-10-23: the listings are in the initial HTML for
+ * crawlers and for a visitor without script). The grid shows them until the visitor's region is known, then swaps if it differs.
+ */
+export function HomeRegionGrid({ initial }: { initial?: { region: Region; picks: Pick[] } } = {}) {
   const suggested = useSuggestedRegion();
   const [picked, setPicked] = useState<Region | null>(null);
-  const region: Region | null = picked ?? (suggested.known ? suggested.region ?? X_DEFAULT_REGION : null);
+  if (initial && !cache.has(initial.region)) cache.set(initial.region, Promise.resolve(initial.picks.slice(0, SLOTS)));
+  const region: Region | null = picked ?? (suggested.known ? suggested.region ?? X_DEFAULT_REGION : initial?.region ?? null);
   const source: RegionSource | null = picked ? "picked" : suggested.source;
-  const [picks, setPicks] = useState<{ region: Region; list: Pick[] } | null>(null);
+  const [picks, setPicks] = useState<{ region: Region; list: Pick[] } | null>(initial ? { region: initial.region, list: initial.picks.slice(0, SLOTS) } : null);
 
   useEffect(() => {
     if (!region) return;
@@ -53,12 +58,13 @@ export function HomeRegionGrid() {
     picksFor(region).then((list) => {
       if (!live) return;
       setPicks({ region, list });
-      send(homeRegionEvent(region, source ?? "default"));
+      // the server-rendered region shown before the visitor's is known is not a region view
+      if (picked || suggested.known) send(homeRegionEvent(region, source ?? "default"));
     });
     return () => {
       live = false;
     };
-  }, [region, source]);
+  }, [region, source, picked, suggested.known]);
 
   const r = region ? REGIONS[region] : null;
   const list = picks && picks.region === region ? picks.list : null;

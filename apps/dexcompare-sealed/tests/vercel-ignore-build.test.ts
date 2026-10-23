@@ -216,6 +216,7 @@ test("a build prerenders nothing else that reads the database", () => {
   const byCountry = join(ROOT, "src/app/(site)/guides/[slug]/page.tsx");
   assert.ok(onFirstVisit(byCountry) && reachesDatabase(byCountry), "the by-country guide reads data, per request only (never at build)");
   const prerendered = app.filter((f) => !rel(f).startsWith("src/app/[region]/") && !rel(f).startsWith("src/app/api/") && rel(f) !== "src/app/sitemap.ts" && !onFirstVisit(f));
-  assert.ok(prerendered.some((f) => rel(f) === "src/app/(site)/page.tsx"));
+  assert.ok(prerendered.some((f) => rel(f) === "src/app/(site)/about/page.tsx"));
+  assert.ok(onFirstVisit(join(ROOT, "src/app/(site)/page.tsx")), "the landing page reads data per request (force-dynamic), never at build");
   for (const f of prerendered) assert.equal(reachesDatabase(f), false, `${rel(f)} is prerendered at build and reaches src/lib/db.ts or data.ts`);
 });

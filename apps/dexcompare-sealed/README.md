@@ -51,6 +51,12 @@ place untouched; nothing deploys from it once the Vercel project points here.
   "About" intro and "Keep exploring" links (set, neighbouring sets, type, guides, tools); set pages a lede; store pages an intro built
   from the store's own listings (`storeTypeRows`, one store's rows), and a store page needs three listings to be indexed
   (`STORE_MIN_LISTED`, the sitemap uses the same rule). A product the sitemap lists is never noindex.
+- **SEO sprint (2026-10-23)**: the landing page is now force-dynamic behind the CDN (`/` in `CDN_PAGES`) and server-renders the
+  x-default region's "In stock" grid, a seven-region price report and a live FAQ (questions as `<h3>`, FAQPage JSON-LD); each region
+  home closes with its own report (`src/lib/market-report.ts`, `src/components/MarketReport.tsx`: price ranges, cheapest per pack,
+  pre-orders and a week of stock moves from the daily snapshots, all from the public data at render). A "Compare other TCGs" block
+  (`CompareOtherTcgs`) on the landing, region and product pages; breadcrumbs on the region homes and trust pages; three query
+  guides (cheapest booster box, AU booster box prices, Delta Reign booster box price).
 - **Booster box prices by country** (`/guides/pokemon-booster-box-prices-by-country`, `src/app/(site)/guides/[slug]`): the one
   page that compares all seven markets, so it has one region-less URL (no hreflang). The newest booster-box set (the upcoming one
   while it is on pre-order) and the three before it, each market's cheapest open box with its per-pack price, the lead set's ETB

@@ -1,3 +1,4 @@
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import type { Metadata } from "next";
 import { ADSENSE_CLIENT } from "@/lib/adsense";
 import Link from "next/link";
@@ -15,6 +16,7 @@ export const metadata: Metadata = {
 export default function About() {
   return (
     <div className="page max-w-3xl py-12">
+      <Breadcrumbs items={[{ href: "/", label: "DexCompare" }, { label: "About" }]} />
       <h1 className="font-display text-4xl font-extrabold tracking-tight">How DexCompare works</h1>
       <div className="prose-dex mt-6">
         <p>

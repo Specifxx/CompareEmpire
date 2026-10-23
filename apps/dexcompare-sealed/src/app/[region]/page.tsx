@@ -27,6 +27,10 @@ import { ogCardImage, pageMeta, regionAlternates } from "@/lib/seo";
 import { PRODUCT_TYPES } from "@/lib/sealed-title";
 import { SETS, type PokemonSet } from "@/lib/sets";
 import { storesInMarket } from "@/lib/stores";
+import { loadMarketReport } from "@/lib/market-report";
+import { RegionReport } from "@/components/MarketReport";
+import { CompareOtherTcgs } from "@/components/CompareOtherTcgs";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 
 // Rendered per request and kept by Vercel's CDN for a day (next.config.js, CDN_PAGES), never ISR: an ISR write
 // costs about twenty renders, and the data only changes with a release, which empties the CDN anyway.
@@ -58,7 +62,7 @@ const HEADLINE = ["Booster Box", "Elite Trainer Box", "Booster Bundle"];
 
 export default async function RegionHome({ params }: { params: { region: string } }) {
   const r = regionOrNotFound(params.region);
-  const [{ boxes, etbs, preorders, latestSets: bySet }, overview, deals] = await Promise.all([homeRails(r.market), getOverview(r.market), dealsInMarket(r.market, { take: 8 })]);
+  const [{ boxes, etbs, preorders, latestSets: bySet }, overview, deals, report] = await Promise.all([homeRails(r.market), getOverview(r.market), dealsInMarket(r.market, { take: 8 }), loadMarketReport(r.market)]);
   // The soonest upcoming set with a pre-order page: the rail's "see all" goes there.
   const preorderGuide = openPreorderGuides()[0] ?? null;
   const storeCount = storesInMarket(r.market).length;
@@ -75,6 +79,7 @@ export default async function RegionHome({ params }: { params: { region: string 
       <section className="relative overflow-hidden border-b border-line bg-surface">
         <div className="page relative grid gap-10 py-8 sm:py-12 lg:grid-cols-[minmax(0,1fr)_400px] lg:items-center">
           <div className="min-w-0">
+            <Breadcrumbs items={[{ href: "/", label: "DexCompare" }, { label: r.name }]} />
             <div className="eyebrow">
               <span aria-hidden="true">{r.flag}</span> {r.name} · prices in {r.currency}
             </div>
@@ -216,7 +221,9 @@ export default async function RegionHome({ params }: { params: { region: string 
           )}
         </Section>
 
+        <RegionReport rep={report} />
         <HowItWorks r={r} stores={storeCount} />
+        <CompareOtherTcgs />
         {/* The visitor's own recently viewed products, from this browser's storage: rendered at the end, so nothing above moves. */}
         <RecentlyViewed region={r.region} />
 

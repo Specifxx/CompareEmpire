@@ -38,6 +38,7 @@ import { isPreorderSet } from "@/lib/release";
 import { regionOrNotFound, REGION_LIST, type Market, type RegionInfo } from "@/lib/regions";
 import { RRP_NOTE, usMsrpCents } from "@/lib/rrp";
 import { RIFT_REL, riftHistoryHref } from "@/lib/riftcompare";
+import { CompareOtherTcgs } from "@/components/CompareOtherTcgs";
 import { offerStock } from "@/lib/sealed-offers";
 import { TYPE_BY_LABEL } from "@/lib/sealed-title";
 import { jsonLd, pageMeta, productJsonLd, regionAlternates, withPokemon } from "@/lib/seo";
@@ -327,9 +328,11 @@ export default async function ProductPage({ params }: { params: { region: string
     elsewhere: elsewhere.length,
   });
   const { prev: prevSet, next: nextSet } = set ? prevNextSet(set.code) : { prev: null, next: null };
-  const aboutGuides = guidesFor(r.region)
-    .filter((g) => type && g.topic.types?.includes(type.key))
-    .slice(0, 3);
+  // The guides about this product's set first (the set price guides), then those about its type: back-links from the product to them.
+  const aboutGuides = [
+    ...guidesFor(r.region).filter((g) => set && g.topic.sets?.includes(set.slug)),
+    ...guidesFor(r.region).filter((g) => type && g.topic.types?.includes(type.key) && !(set && g.topic.sets?.includes(set.slug))),
+  ].slice(0, 4);
   const hub = pre && set ? preorderPath(r.region, set.code) : null;
   const explore = [
     ...(hub && set ? [{ href: hub, label: `${set.name} pre-orders, store by store` }] : []),
@@ -596,6 +599,8 @@ export default async function ProductPage({ params }: { params: { region: string
           </ul>
         </nav>
       </section>
+
+      <CompareOtherTcgs />
 
       {grid.length > 0 && set && (
         <Section title={`More from ${set.name}`} href={`/${r.region}/sets/${set.slug}`} linkLabel="Whole set">
