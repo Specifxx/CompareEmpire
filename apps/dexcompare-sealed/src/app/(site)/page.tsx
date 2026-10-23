@@ -130,6 +130,13 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* The landing page's one ad unit, near the top (owner, 2026-10-23: "near the top and not at the bottom"), right under the
+          hero. The visitor's suggested region's eBay (the US until known, and with no suggestion), and it says which. Real listings
+          imported once a day; with none, the compact CTA row. Same height whichever region, so nothing under it shifts. */}
+      <section className="page mb-12" aria-label="Chase cards on eBay">
+        <SuggestedEbayStrip />
+      </section>
+
       {/* The visitor's region's products (their country through Vercel's geo header, else language or time zone), with a region
           switcher: filled in the browser, so this HTML stays one static page for everyone and every region link stays crawlable. */}
       <div className="mb-14">
@@ -141,8 +148,8 @@ export default function Landing() {
       {/* Content first (owner, 2026-10-15: "the best chance for AdSense approval, considering Google has lazy crawlers"). A reviewer
           or crawler that reads only the first screens of the server HTML meets original text, not a wall of links: what the site is
           and how it works, then the regions, the guides with their summaries, and every answer written out (no collapsed details).
-          Navigation chips come after the text, and the page's one ad unit (the eBay strip) is last, below all of it. Everything
-          here is server-rendered: no text waits on a script. */}
+          Navigation chips come after the text. The page's one ad unit (the eBay strip) sits above it all, under the hero, since
+          2026-10-23 (owner). Everything here is server-rendered: no text waits on a script. */}
       <section className="page" aria-labelledby="about-h">
         <div className="mx-auto max-w-3xl">
           <h2 id="about-h" className="font-display text-2xl font-bold tracking-tight">
@@ -315,12 +322,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* The landing page's one ad unit, last: below every piece of the page's own content. The visitor's suggested region's eBay
-          (the US until known, and with no suggestion), and it says which. Real listings imported once a day; with none, the compact
-          CTA row. */}
-      <section className="page mt-16" aria-label="Chase cards on eBay">
-        <SuggestedEbayStrip />
-      </section>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(faqLd) }} />
     </div>
   );
