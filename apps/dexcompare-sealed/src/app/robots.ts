@@ -3,10 +3,12 @@ import { SITE_URL } from "@/lib/site";
 
 // Backlink, data and minor-engine crawlers that render page after page of the
 // long tail for someone else's index and send no visitors (2026-10-16, as on
-// RiftCompare). A bot that ignores robots.txt needs the Vercel Firewall instead.
+// RiftCompare). A bot that ignores robots.txt needs the Vercel Firewall instead. AhrefsBot and SemrushBot joined them on 2026-10-23
+// (COST.md): SEO-tool crawlers, each page they render a billed function call and CDN transfer. Search engines (Googlebot, Bingbot…)
+// and AI assistants' crawlers stay allowed under "*", as before.
 const BLOCKED_BOTS = [
   "Bytespider", "meta-externalagent", "Meta-ExternalAgent",
-  "MJ12bot", "DotBot", "PetalBot", "DataForSeoBot", "BLEXBot", "Barkrowler", "serpstatbot", "SeekportBot", "ImagesiftBot", "Timpibot",
+  "AhrefsBot", "SemrushBot", "MJ12bot", "DotBot", "PetalBot", "DataForSeoBot", "BLEXBot", "Barkrowler", "serpstatbot", "SeekportBot", "ImagesiftBot", "Timpibot",
 ];
 
 // QUERY-STRING URLS ARE NOT CRAWLED (2026-10-16). No page reads a query string

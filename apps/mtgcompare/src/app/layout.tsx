@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Sora, Space_Grotesk } from "next/font/google";
-import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/next";
+import { SiteAnalytics } from "@/components/SiteAnalytics";
 import Link from "next/link";
 import "./globals.css";
 import { Navbar } from "@/components/Navbar";
@@ -185,8 +184,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             Magic: The Gathering is a trademark of Wizards of the Coast LLC.
           </p>
         </footer>
-        <Analytics />
-        <SpeedInsights />
+        <SiteAnalytics />
       </body>
     </html>
   );
