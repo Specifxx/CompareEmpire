@@ -14,9 +14,16 @@ import { COUNTRY_GUIDE } from "@/content/guides/country-prices";
 import { GuideCard } from "@/content/guides/kit";
 import { jsonLd } from "@/lib/seo";
 import { ADSENSE_CLIENT } from "@/lib/adsense";
+import { homeRails } from "@/lib/data";
+import { loadMarketReport } from "@/lib/market-report";
+import { CompareOtherTcgs } from "@/components/CompareOtherTcgs";
+import { liveFaqs, RegionsCompared } from "@/components/MarketReport";
+import type { Pick } from "@/components/HomeRegionGrid";
 
-// Fully static: counts come from the store registry, not the database, so
-// this page costs nothing to serve and never depends on the database.
+// Rendered per request and kept by Vercel's CDN for a day (next.config.js CDN_PAGES), never at build: since the SEO sprint
+// (2026-10-23) the page carries today's listings and the seven regions' market report (lib/market-report.ts), read from the public
+// data files, so a crawler's first fetch has the products and the numbers. It reads no cookie, header or session: one copy for all.
+export const dynamic = "force-dynamic";
 
 const TITLE = `${SITE_NAME} — Pokémon sealed prices & stock from ${STORES.length} stores`;
 const DESCRIPTION = `Compare Pokémon sealed prices and stock across ${STORES.length} independent stores in ${REGION_LIST.length} regions. Booster boxes, ETBs and more, cheapest in stock first.`;
@@ -83,15 +90,37 @@ const FAQ: { q: string; a: string }[] = [
   },
 ];
 
-const faqLd = {
+const faqLdOf = (faq: readonly { q: string; a: string }[]) => ({
   "@context": "https://schema.org",
   "@type": "FAQPage",
-  mainEntity: FAQ.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
-};
+  mainEntity: faq.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
+});
 
-export default function Landing() {
+/** The landing page's reads: every region's report and the x-default region's grid picks. A failed read renders the page without them. */
+async function loadLanding(): Promise<{ reports: Awaited<ReturnType<typeof loadMarketReport>>[]; picks: Pick[] }> {
+  try {
+    const [reports, rails] = await Promise.all([Promise.all(REGION_LIST.map((r) => loadMarketReport(r.market))), homeRails(REGIONS[X_DEFAULT_REGION].market)]);
+    const picks: Pick[] = [...rails.boxes.slice(0, 4), ...rails.etbs.slice(0, 4)].map((p) => ({
+      slug: p.slug,
+      name: p.name,
+      type: p.productType,
+      img: p.imageUrl,
+      cents: p.lowestPriceCents,
+      stores: p.inStockStores,
+      tcg: p.marketplaceOpen,
+    }));
+    return { reports, picks };
+  } catch (e) {
+    console.error("[landing] data read failed", e);
+    return { reports: [], picks: [] };
+  }
+}
+
+export default async function Landing() {
   const guides = guidesFor(X_DEFAULT_REGION);
   const gr = REGIONS[X_DEFAULT_REGION];
+  const { reports, picks } = await loadLanding();
+  const faq = [...liveFaqs(reports.find((x) => x.r.region === X_DEFAULT_REGION)), ...FAQ];
   return (
     <div>
       <section>
@@ -133,7 +162,7 @@ export default function Landing() {
       {/* The visitor's region's products (their country through Vercel's geo header, else language or time zone), with a region
           switcher: filled in the browser, so this HTML stays one static page for everyone and every region link stays crawlable. */}
       <div className="mb-14">
-        <HomeRegionGrid />
+        <HomeRegionGrid initial={picks.length ? { region: X_DEFAULT_REGION, picks } : undefined} />
         <div className="page mt-6">
           <PreorderRegionLinks />
         </div>
@@ -210,6 +239,8 @@ export default function Landing() {
         </p>
       </section>
 
+      <RegionsCompared reports={reports} />
+
       <section className="page mt-14" aria-labelledby="guides-h">
         <div className="mb-5 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
           <h2 id="guides-h" className="font-display text-2xl font-bold tracking-tight">
@@ -266,15 +297,15 @@ export default function Landing() {
         <h2 id="faq-h" className="mb-5 font-display text-2xl font-bold tracking-tight">
           Questions
         </h2>
-        {/* Written out, not collapsed: every answer is visible text in the first render. */}
-        <dl className="divide-y divide-line overflow-hidden rounded-xl border border-line bg-surface">
-          {FAQ.map((f) => (
+        {/* Written out, not collapsed: every answer is visible text in the first render, each question a real <h3>. */}
+        <div className="divide-y divide-line overflow-hidden rounded-xl border border-line bg-surface">
+          {faq.map((f) => (
             <div key={f.q} className="px-4 py-4">
-              <dt className="font-semibold">{f.q}</dt>
-              <dd className="mt-1.5 text-[15px] leading-7 text-muted">{f.a}</dd>
+              <h3 className="font-semibold">{f.q}</h3>
+              <p className="mt-1.5 text-[15px] leading-7 text-muted">{f.a}</p>
             </div>
           ))}
-        </dl>
+        </div>
       </section>
 
       <section className="page mt-14 text-center" aria-labelledby="compare-h">
@@ -318,10 +349,14 @@ export default function Landing() {
       {/* The landing page's one ad unit, last: below every piece of the page's own content. The visitor's suggested region's eBay
           (the US until known, and with no suggestion), and it says which. Real listings imported once a day; with none, the compact
           CTA row. */}
+      <div className="page">
+        <CompareOtherTcgs />
+      </div>
+
       <section className="page mt-16" aria-label="Chase cards on eBay">
         <SuggestedEbayStrip />
       </section>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(faqLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(faqLdOf(faq)) }} />
     </div>
   );
 }

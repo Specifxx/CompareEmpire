@@ -39,7 +39,10 @@ export type GuideSlug =
   | "is-pokemon-card-grading-worth-it"
   | "how-to-check-pokemon-card-value"
   | "ebay-vs-australian-stores-pokemon-fees"
-  | "pokemon-tcg-market-wrap";
+  | "pokemon-tcg-market-wrap"
+  | "cheapest-pokemon-booster-box"
+  | "pokemon-booster-box-price-australia"
+  | "delta-reign-booster-box-price";
 
 export interface Guide {
   slug: GuideSlug;
@@ -292,6 +295,43 @@ export const GUIDES: readonly Guide[] = [
     regions: "all",
     topic: { types: ["booster-box", "etb", "booster-bundle"] },
     ebay: { context: "sealed", heading: "Sealed Pokémon on eBay" },
+    tools: ["value-checker", "trade-calculator"],
+  },
+  // The SEO sprint (2026-10-23): one guide per search query, each from the region's live booster-box rows.
+  {
+    slug: "cheapest-pokemon-booster-box",
+    title: "The cheapest Pokémon booster box right now",
+    description: "Every Pokémon booster box in stock today ranked by price, with the price per pack, the cheapest box of each recent set, and what to check before you buy.",
+    kicker: "Cheapest box",
+    published: "2026-10-23",
+    updated: "2026-10-23",
+    regions: "all",
+    topic: { types: ["booster-box", "booster-box-case"] },
+    ebay: { context: "type:booster-boxes", heading: "Pokémon booster boxes on eBay" },
+    tools: ["value-checker", "trade-calculator"],
+  },
+  {
+    slug: "pokemon-booster-box-price-australia",
+    title: "Pokémon booster box prices in Australia today",
+    description: "What a Pokémon booster box costs in Australia today, set by set: the cheapest in-stock box at Australian stores, the price per pack, and pre-orders.",
+    kicker: "Australia",
+    published: "2026-10-23",
+    updated: "2026-10-23",
+    regions: ["au"],
+    topic: { types: ["booster-box"] },
+    ebay: { context: "type:booster-boxes", heading: "Pokémon booster boxes on eBay" },
+    tools: ["value-checker", "selling-fee-calculator"],
+  },
+  {
+    slug: "delta-reign-booster-box-price",
+    title: "Pokémon Delta Reign booster box price, store by store",
+    description: "What the Pokémon TCG Delta Reign booster box, Elite Trainer Box and booster bundle cost today, store by store, with the price per pack and the release date.",
+    kicker: "Delta Reign",
+    published: "2026-10-23",
+    updated: "2026-10-23",
+    regions: "all",
+    topic: { types: ["booster-box", "etb", "booster-bundle"], sets: ["delta-reign", "pitch-black"] },
+    ebay: { context: "type:booster-boxes", heading: "Pokémon booster boxes on eBay" },
     tools: ["value-checker", "trade-calculator"],
   },
 ];

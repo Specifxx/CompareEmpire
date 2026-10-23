@@ -35,7 +35,7 @@ const securityHeaders = [
 // browser. The data only changes with a release, and a release empties the CDN. Safe because no page reads a cookie, a header or
 // the session: one copy is right for every visitor (tests/cache-ttl.test.ts walks them).
 const CDN_CACHE = "public, s-maxage=86400, stale-while-revalidate=86400";
-const CDN_PAGES = ["/:region(au|us|uk|ca|nz|eu|sg)", "/:region(au|us|uk|ca|nz|eu|sg)/:path*", "/guides/:slug"];
+const CDN_PAGES = ["/", "/:region(au|us|uk|ca|nz|eu|sg)", "/:region(au|us|uk|ca|nz|eu|sg)/:path*", "/guides/:slug"];
 
 const nextConfig = {
   reactStrictMode: true,

@@ -22,6 +22,9 @@ import * as grading from "./is-pokemon-card-grading-worth-it";
 import * as checkValue from "./how-to-check-pokemon-card-value";
 import * as ebayVsAuStores from "./ebay-vs-australian-stores-pokemon-fees";
 import * as marketWrap from "./pokemon-tcg-market-wrap";
+import * as cheapestBox from "./cheapest-pokemon-booster-box";
+import * as boxPriceAu from "./pokemon-booster-box-price-australia";
+import * as deltaReignBox from "./delta-reign-booster-box-price";
 
 export const GUIDE_MODULES: Record<GuideSlug, GuideModule> = {
   "how-many-packs-in-pokemon-products": howManyPacks,
@@ -44,4 +47,7 @@ export const GUIDE_MODULES: Record<GuideSlug, GuideModule> = {
   "how-to-check-pokemon-card-value": checkValue,
   "ebay-vs-australian-stores-pokemon-fees": ebayVsAuStores,
   "pokemon-tcg-market-wrap": marketWrap,
+  "cheapest-pokemon-booster-box": cheapestBox,
+  "pokemon-booster-box-price-australia": boxPriceAu,
+  "delta-reign-booster-box-price": deltaReignBox,
 };
