@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Sora, Space_Grotesk } from "next/font/google";
-import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/next";
+import { SiteAnalytics } from "@/components/SiteAnalytics";
 import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { QuickViewProvider } from "@/components/QuickView";
@@ -118,8 +117,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             or endorsed by Riot Games.
           </p>
         </footer>
-        <Analytics />
-        <SpeedInsights />
+        <SiteAnalytics />
       </body>
     </html>
   );

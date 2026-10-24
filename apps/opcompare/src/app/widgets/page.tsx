@@ -6,7 +6,7 @@ import { cardDisplayName } from "@/lib/card-name";
 import { SITE_URL, SITE_NAME } from "@/lib/site";
 import { EmbedSnippet } from "@/components/EmbedSnippet";
 
-export const revalidate = 3600;
+export const revalidate = 21600;
 
 export const metadata: Metadata = {
   title: "Free One Piece Price Widget — Embed Live Card Prices",
