@@ -237,5 +237,5 @@ export function outline(r: RegionInfo, data: GuideData): GuideOutline {
 const whereFor = (stores: number, tcg: boolean) => (stores > 0 ? `in stock at ${plural(stores, "store")}${tcg ? " and TCGplayer" : ""}` : "on TCGplayer");
 
 export function Body({ r, data }: BodyProps) {
-  return <GuideBody guide={GUIDE} r={r} outline={outline(r, data)} />;
+  return <GuideBody data={data} guide={GUIDE} r={r} outline={outline(r, data)} />;
 }

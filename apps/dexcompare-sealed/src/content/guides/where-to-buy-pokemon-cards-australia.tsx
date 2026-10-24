@@ -422,5 +422,5 @@ export function outline(r: RegionInfo, data: GuideData): GuideOutline {
 }
 
 export function Body({ r, data }: BodyProps) {
-  return <GuideBody guide={GUIDE} r={r} outline={outline(r, data)} />;
+  return <GuideBody data={data} guide={GUIDE} r={r} outline={outline(r, data)} />;
 }

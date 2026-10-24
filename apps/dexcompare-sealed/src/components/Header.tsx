@@ -8,6 +8,7 @@ import { MobileMenu } from "./MobileMenu";
 import { NavLink } from "./NavLink";
 import { RegionSwitcher } from "./RegionSwitcher";
 import { SearchBox } from "./SearchBox";
+import { ThemeToggle } from "./ThemeToggle";
 
 /**
  * The desktop nav (lg and up), in order. `also`: other paths (under the region) that count as the section, for its current
@@ -64,15 +65,17 @@ export function Header({ region }: { region: Region | null }) {
               {/* A discreet, labelled sponsored item (xl and up only): eBay's search, tagged. Not a section of the site. */}
               <EbayNavLink region={region} />
             </nav>
-            <div className="hdr-search min-w-0 flex-1 lg:ml-auto lg:w-56 lg:flex-none xl:w-64">
+            <div className="hdr-search min-w-0 flex-1 lg:ml-auto lg:w-44 lg:flex-none xl:w-48">
               <SearchBox region={region} size="sm" />
             </div>
+            <ThemeToggle className="hidden sm:flex" />
             <RegionSwitcher region={region} compact />
             <MobileMenu region={region} className="lg:hidden" />
           </>
         ) : (
           <>
             <div className="ml-auto" />
+            <ThemeToggle />
             <RegionSwitcher region={null} />
             <MobileMenu region={null} />
           </>
