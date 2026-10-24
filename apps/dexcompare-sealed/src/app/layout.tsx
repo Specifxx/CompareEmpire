@@ -6,6 +6,7 @@ import { IMPACT_SITE_VERIFICATIONS } from "@/lib/affiliate";
 import { ADSENSE_CLIENT, adsenseScriptSrc } from "@/lib/adsense";
 import { SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/lib/site";
 import { jsonLd, siteJsonLd } from "@/lib/seo";
+import { SEASON_BOOT_SCRIPT } from "@/lib/season";
 import "./globals.css";
 
 // Font display is optional, not swap: both faces are preloaded, so a warm visit renders in them from the first paint, and a slow
@@ -31,8 +32,11 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${sans.variable} ${display.variable}`}>
+    <html lang="en" className={`${sans.variable} ${display.variable}`} suppressHydrationWarning>
       <head>
+        {/* Seasonal theme (Halloween, 16–31 October): data-season on <html> from the visitor's own date, before first paint, so the
+            CDN's one copy needs no cookie or header. lib/season.ts. */}
+        <script dangerouslySetInnerHTML={{ __html: SEASON_BOOT_SCRIPT }} />
         {/* Product photos: 96% are on Shopify's CDN, most of the rest on TCGplayer's.
             Warming those two connections is the cheapest LCP win there is. */}
         <link rel="preconnect" href="https://cdn.shopify.com" />

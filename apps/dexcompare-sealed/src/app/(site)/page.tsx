@@ -19,6 +19,7 @@ import { loadMarketReport } from "@/lib/market-report";
 import { CompareOtherTcgs } from "@/components/CompareOtherTcgs";
 import { liveFaqs, RegionsCompared } from "@/components/MarketReport";
 import type { Pick } from "@/components/HomeRegionGrid";
+import { GhostTeaser, HalloweenDecor } from "@/components/season/HalloweenDecor";
 
 // Rendered per request and kept by Vercel's CDN for a day (next.config.js CDN_PAGES), never at build: since the SEO sprint
 // (2026-10-23) the page carries today's listings and the seven regions' market report (lib/market-report.ts), read from the public
@@ -125,6 +126,8 @@ export default async function Landing() {
     <div>
       <section>
         <div className="page relative pb-12 pt-8 text-center sm:pb-16 sm:pt-20">
+          <HalloweenDecor />
+          <GhostTeaser />
           <p className="eyebrow">Booster boxes · ETBs · bundles · collections · tins</p>
           <h1 className="mx-auto max-w-3xl font-display text-4xl font-bold leading-[1.05] tracking-tight mt-3 sm:mt-4 sm:text-6xl">
             Pokémon sealed, in stock, <span className="text-brand">cheapest first.</span>
