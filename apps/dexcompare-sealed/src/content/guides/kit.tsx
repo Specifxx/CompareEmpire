@@ -13,6 +13,7 @@ import { Ago } from "@/components/Ago";
 import { EbayStrip } from "@/components/EbayStrip";
 import { Icon } from "@/components/Icon";
 import { OutboundLink } from "@/components/OutboundLink";
+import { ProductRail } from "@/components/ProductRail";
 import { ADSENSE_CLIENT, ADSENSE_GUIDE_SLOT } from "@/lib/adsense";
 import { AFFILIATE_NOTE_SHORT, REL_SPONSORED, TCGPLAYER_RETAILER, tcgplayerSearchUrl } from "@/lib/affiliate";
 import type { ProductCardData } from "@/lib/data";
@@ -20,6 +21,7 @@ import { money, plural, timeAgo } from "@/lib/format";
 import { packsForLabel, perPackCents } from "@/lib/packs";
 import type { RegionInfo } from "@/lib/regions";
 import { formatRelease } from "@/lib/release";
+import { thumb, thumbSet } from "@/lib/images";
 import { RRP_NOTE } from "@/lib/rrp";
 import { TYPE_BY_KEY, TYPE_BY_LABEL, TYPE_BY_SLUG, type TypeKey } from "@/lib/sealed-title";
 import { SET_BY_CODE, type PokemonSet } from "@/lib/sets";
@@ -69,12 +71,13 @@ export function adsenseIndex(sections: readonly GuideSection[]): number {
 }
 
 /** The article's body: the intro, then each section under its anchored H2, with the guide's one eBay strip after the first live block. */
-export function GuideBody({ guide, r, outline }: { guide: Guide; r: RegionInfo; outline: GuideOutline }) {
+export function GuideBody({ guide, r, outline, data }: { guide: Guide; r: RegionInfo; outline: GuideOutline; data?: GuideData }) {
   const at = stripIndex(outline.sections);
   const adAt = ADSENSE_CLIENT && ADSENSE_GUIDE_SLOT ? adsenseIndex(outline.sections) : -1;
   return (
     <>
       <div className="mt-8">{outline.intro}</div>
+      <GuideProducts r={r} data={data} />
       {outline.sections.map((s, i) => (
         <Fragment key={s.id}>
           <section aria-labelledby={s.id} className="mt-12">
@@ -323,16 +326,24 @@ export function cheapestPerPack(lines: readonly PriceLine[]): number | null {
 
 /** A row's header cell: the type, then the product's own name as the link to its page. */
 export function ProductTh({ r, label, p, badge }: { r: RegionInfo; label: string; p: ProductCardData | null; badge?: ReactNode }) {
+  const img = p ? thumb(p.imageUrl, 200) : null;
   return (
-    <span className="flex min-w-0 flex-col gap-0.5">
-      <span className="flex flex-wrap items-center gap-x-2 gap-y-1 font-semibold text-ink">
-        {label} {badge}
-      </span>
-      {p && (
-        <Link href={productHref(r, p)} prefetch={false} className="truncate text-xs font-medium text-brand underline-offset-2 hover:underline">
-          {p.name}
-        </Link>
+    <span className="flex min-w-0 items-center gap-3">
+      {p && img && (
+        <span aria-hidden="true" className="plate relative h-12 w-12 shrink-0">
+          <img src={img} alt="" width={96} height={96} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-contain p-1 mix-blend-multiply" />
+        </span>
       )}
+      <span className="flex min-w-0 flex-col gap-0.5">
+        <span className="flex flex-wrap items-center gap-x-2 gap-y-1 font-semibold text-ink">
+          {label} {badge}
+        </span>
+        {p && (
+          <Link href={productHref(r, p)} prefetch={false} className="truncate text-xs font-medium text-brand underline-offset-2 hover:underline">
+            {p.name}
+          </Link>
+        )}
+      </span>
     </span>
   );
 }
@@ -549,23 +560,93 @@ export function TocDisclosure({ sections }: { sections: readonly Pick<GuideSecti
   );
 }
 
-/** A guide as a card (the index, and "More guides"). */
-export function GuideCard({ r, guide, headingLevel = 2 }: { r: RegionInfo; guide: Guide; headingLevel?: 2 | 3 }) {
+/**
+ * A guide's thumbnail: the photo of the product it is about, on the site's white plate, with that product's price today (the index
+ * reads them, thumbs.ts); without one, the guide's own share image (/og/guides/<slug>, a static PNG made at build).
+ */
+export function GuideThumb({ r, guide, product }: { r: RegionInfo; guide: { slug: string }; product?: ProductCardData | null }) {
+  const img = product ? thumb(product.imageUrl, 400) : null;
+  if (!product || !img) {
+    return (
+      <div className="relative aspect-[1200/630] overflow-hidden rounded-xl bg-raised ring-1 ring-line">
+        <img src={`/og/guides/${guide.slug}`} alt="" width={1200} height={630} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />
+      </div>
+    );
+  }
+  return (
+    <div className="plate relative aspect-[1200/630]">
+      <img
+        src={img}
+        srcSet={thumbSet(product.imageUrl, [200, 400]) ?? undefined}
+        sizes="(min-width: 1024px) 200px, 50vw"
+        alt=""
+        width={400}
+        height={400}
+        loading="lazy"
+        decoding="async"
+        className="absolute inset-0 h-full w-full object-contain p-3 mix-blend-multiply transition-transform duration-300 group-hover:scale-[1.04]"
+      />
+      {product.lowestPriceCents != null && (
+        <span className="tabular absolute bottom-2 right-2 rounded-full bg-[#15171c]/85 px-2.5 py-1 text-xs font-bold text-white">
+          {TYPE_SHORT[product.productType] ?? product.productType} · {money(product.lowestPriceCents, r.market)}
+        </span>
+      )}
+    </div>
+  );
+}
+
+const TYPE_SHORT: Record<string, string> = { "Elite Trainer Box": "ETB", "Pokémon Center Elite Trainer Box": "PC ETB", "Booster Bundle": "Bundle" };
+
+/** A guide as a card (the index, and "More guides"), its thumbnail on top. */
+export function GuideCard({ r, guide, headingLevel = 2, product }: { r: RegionInfo; guide: Guide; headingLevel?: 2 | 3; product?: ProductCardData | null }) {
   const H = headingLevel === 2 ? "h2" : "h3";
   return (
-    <Link href={guideHref(r, guide.slug)} prefetch={false} className="card group flex h-full flex-col p-5 transition-shadow hover:shadow-lift sm:p-6">
-      <span className="eyebrow">{guide.kicker}</span>
-      <H className="mt-2 font-display text-xl font-bold leading-snug tracking-tight group-hover:text-brand">{guide.title}</H>
-      <p className="mt-2 flex-1 text-[15px] leading-6 text-muted">{guide.description}</p>
-      <span className="mt-4 flex items-center justify-between gap-3 text-xs text-muted">
-        <span>
-          Updated <time dateTime={guide.updated}>{formatRelease(guide.updated)}</time>
+    <Link href={guideHref(r, guide.slug)} prefetch={false} className="card group flex h-full flex-col overflow-hidden transition-shadow hover:shadow-lift">
+      <div className="p-2 pb-0">
+        <GuideThumb r={r} guide={guide} product={product} />
+      </div>
+      <div className="flex flex-1 flex-col p-4 pt-3 sm:p-5 sm:pt-4">
+        <span className="eyebrow">{guide.kicker}</span>
+        <H className="mt-2 font-display text-lg font-bold leading-snug tracking-tight group-hover:text-brand sm:text-xl">{guide.title}</H>
+        <p className="mt-2 line-clamp-3 flex-1 text-[15px] leading-6 text-muted">{guide.description}</p>
+        <span className="mt-4 flex items-center justify-between gap-3 text-xs text-muted">
+          <span>
+            Updated <time dateTime={guide.updated}>{formatRelease(guide.updated)}</time>
+          </span>
+          <span className="flex items-center gap-1 font-semibold text-brand">
+            Read <Icon name="arrow-right" size={14} />
+          </span>
         </span>
-        <span className="flex items-center gap-1 font-semibold text-brand">
-          Read <Icon name="arrow-right" size={14} />
-        </span>
-      </span>
+      </div>
     </Link>
+  );
+}
+
+/**
+ * The products a guide prices, as tiles with their photos and prices (the cards every grid on the site uses): the open products in
+ * its live data, in the order its blocks show them, at most four. Nothing when the guide has under two.
+ */
+export function guideProducts(data: GuideData | undefined, take = 4): ProductCardData[] {
+  if (!data) return [];
+  const all = [...data.sets.flatMap((c) => data.bySet[c] ?? []), ...data.cards, ...data.deals, ...data.fresh];
+  const seen = new Set<string>();
+  return all.filter((p) => p.imageUrl && p.lowestPriceCents != null && !seen.has(p.slug) && seen.add(p.slug)).slice(0, take);
+}
+
+/** "In this guide": the tiles of the products the guide prices, under its intro. */
+export function GuideProducts({ r, data }: { r: RegionInfo; data?: GuideData }) {
+  const products = guideProducts(data);
+  if (!data || products.length < 2) return null;
+  return (
+    <aside aria-label="Products in this guide" className="mt-8">
+      <p className="mb-3 flex flex-wrap items-baseline justify-between gap-x-3">
+        <span className="font-display text-base font-bold text-ink">In this guide</span>
+        <span className="text-xs text-muted">
+          <Checked iso={data.checked} />
+        </span>
+      </p>
+      <ProductRail products={products} region={r.region} />
+    </aside>
   );
 }
 

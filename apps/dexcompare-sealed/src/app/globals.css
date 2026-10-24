@@ -37,33 +37,33 @@
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: 15 16 19;
-    --surface: 23 24 29;
-    --raised: 29 31 37;
-    --line: 45 47 55;
-    --ink: 238 238 241;
-    --muted: 166 170 181;
-    --faint: 140 144 156; /* 6.0:1 on --bg, 5.6:1 on --surface */
-    --brand: 255 94 58;
-    --brand-ink: 20 10 6;
-    --brand-soft: 58 26 18;
-    --brand-strong: 255 140 110; /* 6.9:1 on --brand-soft, 7.8:1 on --surface */
-    --open: 74 206 120;
-    --open-soft: 20 48 30;
-    --sold: 150 154 164;
-    --sold-soft: 38 40 46;
-    --stale: 240 180 60;
-    --stale-soft: 52 40 14;
-    --pre: 160 150 255;
-    --pre-soft: 36 32 70;
-    --ad: 26 31 45;
-    --ad-line: 120 130 156;
-    --shadow: 0 0 0;
-    color-scheme: dark;
-  }
+/* Dark is the default (owner, 2026-10-24); a saved "light" choice sets data-theme="light" before first paint (lib/theme.ts). */
+:root:not([data-theme="light"]) {
+  --bg: 15 16 19;
+  --surface: 23 24 29;
+  --raised: 29 31 37;
+  --line: 45 47 55;
+  --ink: 238 238 241;
+  --muted: 166 170 181;
+  --faint: 140 144 156; /* 6.0:1 on --bg, 5.6:1 on --surface */
+  --brand: 255 94 58;
+  --brand-ink: 20 10 6;
+  --brand-soft: 58 26 18;
+  --brand-strong: 255 140 110; /* 6.9:1 on --brand-soft, 7.8:1 on --surface */
+  --open: 74 206 120;
+  --open-soft: 20 48 30;
+  --sold: 150 154 164;
+  --sold-soft: 38 40 46;
+  --stale: 240 180 60;
+  --stale-soft: 52 40 14;
+  --pre: 160 150 255;
+  --pre-soft: 36 32 70;
+  --ad: 26 31 45;
+  --ad-line: 120 130 156;
+  --shadow: 0 0 0;
+  color-scheme: dark;
 }
+
 
 html {
   -webkit-text-size-adjust: 100%;
@@ -141,11 +141,10 @@ body {
   .plate {
     @apply isolate overflow-hidden rounded-lg bg-white ring-1 ring-line;
   }
-  @media (prefers-color-scheme: dark) {
-    .plate {
-      background-color: #f3f3f1;
-    }
+  :root:not([data-theme="light"]) .plate {
+    background-color: #f3f3f1;
   }
+
   /* One row that scrolls sideways (chips, a product rail): snap to each child, no scrollbar, and a fade at the right edge that says
      there is more. The 4px of block padding (cancelled by the margin) keeps focus rings from being clipped by the scroll box. */
   .scroller {
@@ -273,13 +272,12 @@ body:has([data-ebay-no-prefooter]) [data-ebay-prefooter] {
   --bg: 246 243 240;
   --spark: 245 130 20;
 }
-@media (prefers-color-scheme: dark) {
-  :root[data-season="halloween"] {
-    --bg: 17 14 24;
-    --surface: 26 22 34;
-    --raised: 32 28 42;
-  }
+:root[data-season="halloween"]:not([data-theme="light"]) {
+  --bg: 17 14 24;
+  --surface: 26 22 34;
+  --raised: 32 28 42;
 }
+
 :root[data-season="halloween"] body {
   background-image: radial-gradient(60rem 26rem at 50% -6rem, rgb(124 72 190 / 0.12), transparent 70%);
   background-repeat: no-repeat;
@@ -317,11 +315,10 @@ body:has([data-ebay-no-prefooter]) [data-ebay-prefooter] {
 .hw-teaser b {
   color: rgb(88 46 140);
 }
-@media (prefers-color-scheme: dark) {
-  .hw-teaser b {
-    color: rgb(196 160 240);
-  }
+:root:not([data-theme="light"]) .hw-teaser b {
+  color: rgb(196 160 240);
 }
+
 .hw-web {
   position: absolute;
   top: 0;
@@ -341,11 +338,10 @@ body:has([data-ebay-no-prefooter]) [data-ebay-prefooter] {
   width: 26px;
   color: rgb(60 40 90 / 0.75);
 }
-@media (prefers-color-scheme: dark) {
-  .hw-bat {
-    color: rgb(170 140 220 / 0.6);
-  }
+:root:not([data-theme="light"]) .hw-bat {
+  color: rgb(170 140 220 / 0.6);
 }
+
 .hw-bat-1 {
   top: 6px;
   left: 30%;

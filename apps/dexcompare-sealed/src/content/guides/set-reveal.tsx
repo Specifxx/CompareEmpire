@@ -451,6 +451,6 @@ export function revealOutline(guide: Guide, angle: RevealAngle, rv: Reveal, r: R
 /** A guide's Body from its outline: the shared shell. */
 export function revealBody(guide: Guide, angle: RevealAngle, rv: Reveal) {
   return function Body({ r, data }: { r: RegionInfo; data: GuideData }) {
-    return <GuideBody guide={guide} r={r} outline={revealOutline(guide, angle, rv, r, data)} />;
+    return <GuideBody data={data} guide={guide} r={r} outline={revealOutline(guide, angle, rv, r, data)} />;
   };
 }

@@ -7,6 +7,7 @@ import { ADSENSE_CLIENT, adsenseScriptSrc } from "@/lib/adsense";
 import { SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/lib/site";
 import { jsonLd, siteJsonLd } from "@/lib/seo";
 import { SEASON_BOOT_SCRIPT } from "@/lib/season";
+import { THEME_BOOT_SCRIPT, THEME_COLOR } from "@/lib/theme";
 import "./globals.css";
 
 // Font display is optional, not swap: both faces are preloaded, so a warm visit renders in them from the first paint, and a slow
@@ -24,10 +25,8 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#17181d" },
-  ],
+  // Dark by default (lib/theme.ts); the toggle rewrites it for a visitor who picks light.
+  themeColor: THEME_COLOR.dark,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -37,6 +36,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Seasonal theme (Halloween, 16–31 October): data-season on <html> from the visitor's own date, before first paint, so the
             CDN's one copy needs no cookie or header. lib/season.ts. */}
         <script dangerouslySetInnerHTML={{ __html: SEASON_BOOT_SCRIPT }} />
+        {/* Theme: dark unless this browser saved "light" (lib/theme.ts), applied before first paint; no cookie, so one CDN copy. */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }} />
         {/* Product photos: 96% are on Shopify's CDN, most of the rest on TCGplayer's.
             Warming those two connections is the cheapest LCP win there is. */}
         <link rel="preconnect" href="https://cdn.shopify.com" />

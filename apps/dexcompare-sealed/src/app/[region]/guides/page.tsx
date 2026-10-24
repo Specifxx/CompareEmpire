@@ -4,13 +4,15 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { guidesFor } from "@/content/guides";
 import { COUNTRY_GUIDE } from "@/content/guides/country-prices";
 import { andList, fixedPacks, newestReleased, packsBySeries, upcomingSets } from "@/content/guides/facts";
-import { GuideCard, guideHref, setHref, typeHref } from "@/content/guides/kit";
+import { GuideCard, GuideThumb, guideHref, setHref, typeHref } from "@/content/guides/kit";
+import { guideThumbs } from "@/content/guides/thumbs";
 import { regionOrNotFound } from "@/lib/regions";
 import { PRODUCT_TYPES } from "@/lib/sealed-title";
 import { jsonLd, pageMeta, regionAlternates } from "@/lib/seo";
 import { SITE_URL } from "@/lib/site";
 
-// The guides index: the region's guides as cards. Built from the registry alone: no database read.
+// The guides index: the region's guides as cards, each with a thumbnail: a photo of the product it is about and its price today
+// (content/guides/thumbs.ts: one scoped read), or the guide's static share image.
 // Rendered per request and kept by Vercel's CDN for a day (next.config.js, CDN_PAGES), never ISR: an ISR write
 // costs about twenty renders, and the data only changes with a release, which empties the CDN anyway.
 export const dynamic = "force-dynamic";
@@ -25,11 +27,12 @@ export function generateMetadata({ params }: { params: { region: string } }): Me
   });
 }
 
-export default function GuidesIndex({ params }: { params: { region: string } }) {
+export default async function GuidesIndex({ params }: { params: { region: string } }) {
   const r = regionOrNotFound(params.region);
   const list = guidesFor(r.region);
   const [etbNow, etbBefore] = packsBySeries("etb");
   const today = new Date().toISOString().slice(0, 10);
+  const thumbs = await guideThumbs(r, list, today);
   // Where the guides lead: the product types and the newest sets (sets.ts), as plain internal links.
   const sets = [...upcomingSets(today).slice(0, 2), ...newestReleased(today, 6)];
   // The answer most people come for, before they pick a guide: pack counts from packs.ts.
@@ -88,16 +91,21 @@ export default function GuidesIndex({ params }: { params: { region: string } }) 
       <ul role="list" className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {list.map((g) => (
           <li key={g.slug}>
-            <GuideCard r={r} guide={g} />
+            <GuideCard r={r} guide={g} product={thumbs.get(g.slug)} />
           </li>
         ))}
         {/* The one guide that compares every market: the same page from every region's index. */}
         <li>
-          <Link href={COUNTRY_GUIDE.path} prefetch={false} className="card group flex h-full flex-col p-5 transition-shadow hover:shadow-lift sm:p-6">
-            <span className="eyebrow">{COUNTRY_GUIDE.kicker}</span>
-            <h2 className="mt-2 font-display text-xl font-bold leading-snug tracking-tight group-hover:text-brand">{COUNTRY_GUIDE.h1}</h2>
-            <p className="mt-2 flex-1 text-[15px] leading-6 text-muted">{COUNTRY_GUIDE.description}</p>
-            <span className="mt-4 flex items-center justify-end gap-1 text-xs font-semibold text-brand">Compare all seven markets →</span>
+          <Link href={COUNTRY_GUIDE.path} prefetch={false} className="card group flex h-full flex-col overflow-hidden transition-shadow hover:shadow-lift">
+            <div className="p-2 pb-0">
+              <GuideThumb r={r} guide={COUNTRY_GUIDE} />
+            </div>
+            <div className="flex flex-1 flex-col p-4 pt-3 sm:p-5 sm:pt-4">
+              <span className="eyebrow">{COUNTRY_GUIDE.kicker}</span>
+              <h2 className="mt-2 font-display text-lg font-bold leading-snug tracking-tight group-hover:text-brand sm:text-xl">{COUNTRY_GUIDE.h1}</h2>
+              <p className="mt-2 line-clamp-3 flex-1 text-[15px] leading-6 text-muted">{COUNTRY_GUIDE.description}</p>
+              <span className="mt-4 flex items-center justify-end gap-1 text-xs font-semibold text-brand">Compare all seven markets →</span>
+            </div>
           </Link>
         </li>
       </ul>

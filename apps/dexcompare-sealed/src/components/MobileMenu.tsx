@@ -6,6 +6,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { flushSync } from "react-dom";
 import { REGION_LIST, REGIONS, type Region } from "@/lib/regions";
 import { sectionHref, type SectionKey } from "@/lib/site";
+import { ThemeToggle } from "./ThemeToggle";
 import { Icon, type IconName } from "./Icon";
 import { LogoMark } from "./Logo";
 import { isActivePath } from "./NavLink";
@@ -158,6 +159,7 @@ export function MenuSheet({ region, pathname, onClose: close }: { region: Region
             "DexCompare"
           )}
         </span>
+        <ThemeToggle className="border border-line" />
         <button
           type="button"
           onClick={close}
