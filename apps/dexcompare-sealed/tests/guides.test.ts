@@ -206,6 +206,20 @@ function fixture(slug: GuideSlug): GuideData {
         },
         openCount: { me6: 4 },
       };
+    case "delta-reign-chase-cards":
+    case "delta-reign-card-list":
+    case "delta-reign-booster-box-vs-etb":
+      return fixture("delta-reign-booster-box-price");
+    case "pitch-black-chase-cards":
+      return {
+        ...d,
+        sets: ["me5", "me4"],
+        bySet: {
+          me5: sorted([card("me5", "Booster Box", 15049, 21), card("me5", "Elite Trainer Box", 6499, 22), card("me5", "Booster Bundle", 3000, 16), card("me5", "Booster Pack", 549, 9)]),
+          me4: sorted([card("me4", "Booster Box", 14999, 18), card("me4", "Elite Trainer Box", 5999, 20), card("me4", "Booster Bundle", 2899, 12)]),
+        },
+        openCount: { me5: 4 },
+      };
   }
 }
 
@@ -248,7 +262,7 @@ const PAIRS = GUIDES.filter((g) => !ONLY || ONLY.has(g.slug)).flatMap((g) => gui
 
 test("registry: unique slugs, ISO editorial dates (updated ≥ published), descriptions ≤ 160, titles that fit a <title>", () => {
   assert.equal(new Set(GUIDES.map((g) => g.slug)).size, GUIDES.length);
-  assert.equal(GUIDES.length, 23);
+  assert.equal(GUIDES.length, 27);
   for (const g of GUIDES) {
     assert.match(g.slug, /^[a-z0-9]+(?:-[a-z0-9]+)*$/);
     for (const d of [g.published, g.updated]) {
@@ -285,9 +299,9 @@ test("the MSRP guide is US-only, the three Australian guides AU-only; every othe
   for (const r of REGION_LIST.filter((x) => x.region !== "us")) {
     assert.equal(guideFor("pokemon-tcg-msrp", r.region), null, r.region);
     assert.ok(!guidesFor(r.region).some((g) => g.slug === "pokemon-tcg-msrp"), r.region);
-    assert.equal(guidesFor(r.region).length, r.region === "au" ? 22 : 19, r.region);
+    assert.equal(guidesFor(r.region).length, r.region === "au" ? 26 : 23, r.region);
   }
-  assert.equal(guidesFor("us").length, 20);
+  assert.equal(guidesFor("us").length, 24);
   for (const g of GUIDES.filter((x) => x.slug !== "pokemon-tcg-msrp" && !AU_ONLY.includes(x.slug))) assert.equal(guideRegions(g).length, 7, g.slug);
   assert.equal(guideFor("no-such-guide", "au"), null);
 });
