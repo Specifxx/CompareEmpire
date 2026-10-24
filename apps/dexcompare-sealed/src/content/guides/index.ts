@@ -42,7 +42,11 @@ export type GuideSlug =
   | "pokemon-tcg-market-wrap"
   | "cheapest-pokemon-booster-box"
   | "pokemon-booster-box-price-australia"
-  | "delta-reign-booster-box-price";
+  | "delta-reign-booster-box-price"
+  | "delta-reign-chase-cards"
+  | "delta-reign-card-list"
+  | "delta-reign-booster-box-vs-etb"
+  | "pitch-black-chase-cards";
 
 export interface Guide {
   slug: GuideSlug;
@@ -331,6 +335,55 @@ export const GUIDES: readonly Guide[] = [
     updated: "2026-10-23",
     regions: "all",
     topic: { types: ["booster-box", "etb", "booster-bundle"], sets: ["delta-reign", "pitch-black"] },
+    ebay: { context: "type:booster-boxes", heading: "Pokémon booster boxes on eBay" },
+    tools: ["value-checker", "trade-calculator"],
+  },
+  // The set-reveal guides (2026-10-24): the publisher's announced cards for the newest sets, tied to which sealed product to buy.
+  {
+    slug: "delta-reign-chase-cards",
+    title: "Pokémon Delta Reign chase cards: the Mega ex",
+    description: "The Pokémon TCG Delta Reign chase cards the publisher has revealed, led by Mega Rayquaza ex, and which booster box, ETB or bundle to buy today.",
+    kicker: "Delta Reign",
+    published: "2026-10-24",
+    updated: "2026-10-24",
+    regions: "all",
+    topic: { types: ["booster-box", "etb", "booster-bundle"], sets: ["delta-reign", "pitch-black"] },
+    ebay: { context: "type:booster-boxes", heading: "Pokémon booster boxes on eBay" },
+    tools: ["value-checker", "trade-calculator"],
+  },
+  {
+    slug: "delta-reign-card-list",
+    title: "Pokémon Delta Reign card list and secret rares",
+    description: "What the Pokémon TCG Delta Reign card list holds so far: the card counts, special illustration rares and Mega ex announced, with today's sealed prices.",
+    kicker: "Delta Reign",
+    published: "2026-10-24",
+    updated: "2026-10-24",
+    regions: "all",
+    topic: { types: ["booster-box", "etb", "booster-bundle"], sets: ["delta-reign", "pitch-black"] },
+    ebay: { context: "type:booster-boxes", heading: "Pokémon booster boxes on eBay" },
+    tools: ["value-checker", "trade-calculator"],
+  },
+  {
+    slug: "delta-reign-booster-box-vs-etb",
+    title: "Pokémon Delta Reign booster box vs ETB: which?",
+    description: "Delta Reign booster box or Elite Trainer Box? What each holds, what a pack costs in each today, and which suits how you buy Pokémon TCG.",
+    kicker: "Delta Reign",
+    published: "2026-10-24",
+    updated: "2026-10-24",
+    regions: "all",
+    topic: { types: ["booster-box", "etb", "booster-bundle"], sets: ["delta-reign", "pitch-black"] },
+    ebay: { context: "type:booster-boxes", heading: "Pokémon booster boxes on eBay" },
+    tools: ["value-checker", "trade-calculator"],
+  },
+  {
+    slug: "pitch-black-chase-cards",
+    title: "Pokémon Pitch Black chase cards: the Mega ex",
+    description: "The Pokémon TCG Pitch Black chase cards: Mega Darkrai ex, Mega Zeraora ex and more, and which Pitch Black box, ETB or bundle to buy today.",
+    kicker: "Pitch Black",
+    published: "2026-10-24",
+    updated: "2026-10-24",
+    regions: "all",
+    topic: { types: ["booster-box", "etb", "booster-bundle"], sets: ["pitch-black", "chaos-rising"] },
     ebay: { context: "type:booster-boxes", heading: "Pokémon booster boxes on eBay" },
     tools: ["value-checker", "trade-calculator"],
   },

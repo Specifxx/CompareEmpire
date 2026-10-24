@@ -338,6 +338,17 @@ export async function loadGuideData(slug: GuideSlug, r: RegionInfo, now: Date = 
       const open = sortCards(list.filter(cardOpen));
       return done({ sets: ["me6", "me5"], bySet: { me6: open, me5: cal.get("me5") ?? [] }, openCount: { me6: open.length } });
     }
+    case "delta-reign-chase-cards":
+    case "delta-reign-card-list":
+    case "delta-reign-booster-box-vs-etb":
+    case "pitch-black-chase-cards": {
+      // The set-reveal guides: the set read whole (one set, one market, open only, cheapest first) and the set before it for its
+      // cheapest box, ETB and bundle (calendarProducts, ≤ 9 rows), as the Delta Reign box guide.
+      const [code, prev] = slug === "pitch-black-chase-cards" ? ["me5", "me4"] : ["me6", "me5"];
+      const [list, cal] = await Promise.all([productsBySet(r.market, code), calendarProducts(r.market, [prev])]);
+      const open = sortCards(list.filter(cardOpen));
+      return done({ sets: [code, prev], bySet: { [code]: open, [prev]: cal.get(prev) ?? [] }, openCount: { [code]: open.length } });
+    }
     case "how-to-avoid-resealed-pokemon-products": {
       // As the pack-count guide: the newest released set with headline product in stock here (≤ 27 rows read).
       const codes = newestReleased(today, 3).map((s) => s.code);

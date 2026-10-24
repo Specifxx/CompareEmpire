@@ -25,6 +25,10 @@ import * as marketWrap from "./pokemon-tcg-market-wrap";
 import * as cheapestBox from "./cheapest-pokemon-booster-box";
 import * as boxPriceAu from "./pokemon-booster-box-price-australia";
 import * as deltaReignBox from "./delta-reign-booster-box-price";
+import * as deltaReignChase from "./delta-reign-chase-cards";
+import * as deltaReignList from "./delta-reign-card-list";
+import * as deltaReignBoxVsEtb from "./delta-reign-booster-box-vs-etb";
+import * as pitchBlackChase from "./pitch-black-chase-cards";
 
 export const GUIDE_MODULES: Record<GuideSlug, GuideModule> = {
   "how-many-packs-in-pokemon-products": howManyPacks,
@@ -50,4 +54,8 @@ export const GUIDE_MODULES: Record<GuideSlug, GuideModule> = {
   "cheapest-pokemon-booster-box": cheapestBox,
   "pokemon-booster-box-price-australia": boxPriceAu,
   "delta-reign-booster-box-price": deltaReignBox,
+  "delta-reign-chase-cards": deltaReignChase,
+  "delta-reign-card-list": deltaReignList,
+  "delta-reign-booster-box-vs-etb": deltaReignBoxVsEtb,
+  "pitch-black-chase-cards": pitchBlackChase,
 };
