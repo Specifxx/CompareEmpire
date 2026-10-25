@@ -42,7 +42,7 @@ async function revalidate(): Promise<string> {
 
 // Fewer product URLs than this across every region's sitemap means the live
 // sitemap is broken (a failed query, a stale copy, the wrong database), not
-// quiet: the local import lists ~8,000. A full import is the only run that can
+// quiet: the sitemap lists the strong product pages only (lib/index-tiers.ts, ~2,900 on 2026-10-25; ~7,900 before). A full import is the only run that can
 // judge it, so --only runs skip the check.
 const MIN_SITEMAP_PRODUCTS = 1000;
 

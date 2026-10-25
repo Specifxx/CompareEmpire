@@ -131,17 +131,31 @@ export const setHref = (r: RegionInfo, s: Pick<PokemonSet, "slug">) => `/${r.reg
 export const productHref = (r: RegionInfo, p: Pick<ProductCardData, "slug">) => `/${r.region}/p/${p.slug}`;
 export const guideHref = (r: RegionInfo, slug: string) => `/${r.region}/guides/${slug}`;
 
-/** A set as a chip: its name and release year, linking to its page. */
-export function SetChips({ r, sets }: { r: RegionInfo; sets: readonly PokemonSet[] }) {
+/**
+ * A set as a chip: its name and release year, linking to its page. `listed` (GuideData.listedSets): only those sets link; a set with
+ * nothing listed in the region has no page there (a 404), so its chip names it without a link.
+ */
+export function SetChips({ r, sets, listed }: { r: RegionInfo; sets: readonly PokemonSet[]; listed?: readonly string[] }) {
   return (
     <ul role="list" className="my-5 flex flex-wrap gap-2">
-      {sets.map((s) => (
-        <li key={s.code}>
-          <Link href={setHref(r, s)} prefetch={false} className="chip min-h-10">
+      {sets.map((s) => {
+        const label = (
+          <>
             {s.name} <span className="text-xs font-normal text-faint">{s.releaseDate.slice(0, 4)}</span>
-          </Link>
-        </li>
-      ))}
+          </>
+        );
+        return (
+          <li key={s.code}>
+            {!listed || listed.includes(s.code) ? (
+              <Link href={setHref(r, s)} prefetch={false} className="chip min-h-10">
+                {label}
+              </Link>
+            ) : (
+              <span className="chip min-h-10">{label}</span>
+            )}
+          </li>
+        );
+      })}
     </ul>
   );
 }

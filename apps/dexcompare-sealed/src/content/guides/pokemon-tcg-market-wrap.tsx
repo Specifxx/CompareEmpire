@@ -229,7 +229,7 @@ export function outline(r: RegionInfo, data: GuideData): GuideOutline {
                 No set came out in the last {JUST_RELEASED_DAYS} days. The newest sets already out are below, each with every {r.adjective} store’s price on its page.
               </Note>
             )}
-            {!recent.length && <SetChips r={r} sets={newest} />}
+            {!recent.length && <SetChips r={r} listed={data.listedSets} sets={newest} />}
             <p className="text-xs leading-5 text-muted">
               Each store’s listed price, excluding shipping. Per pack: a booster box holds {box} packs, an Elite Trainer Box {etbNow.packs} in the newest sets and a
               booster bundle {bundle}, as recorded in our data from the publisher’s product listings.
@@ -366,7 +366,7 @@ export function outline(r: RegionInfo, data: GuideData): GuideOutline {
                 the full lists behind it, see the weekly digest, the deals page and the release calendar. The newest sets out, each with every product and price:
               </p>
             </Prose>
-            <SetChips r={r} sets={newest} />
+            <SetChips r={r} listed={data.listedSets} sets={newest} />
             <NextLinks
               links={[
                 { href: `/${r.region}/this-week`, label: "This week in sealed", icon: "calendar" },

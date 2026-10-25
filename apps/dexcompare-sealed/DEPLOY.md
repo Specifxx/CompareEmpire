@@ -179,18 +179,49 @@ That URL is a **sitemap index** (`src/app/sitemap.xml/route.ts`) listing
 `/sitemap/0.xml` (the static pages, every active store page and, per region, `/deals`, `/cheapest-packs`, `/this-week`,
 `/guides` and each guide offered there, plus the one region-less guide, `/guides/pokemon-booster-box-prices-by-country`) and `/sitemap/1.xml` …
 `/sitemap/7.xml`, one per region in the order AU, US, UK, CA, NZ, EU, SG
-(`src/lib/sitemap.ts`): a region's type pages, set pages and every product at
-least one store there has in stock or two stores list. Each file carries the
+(`src/lib/sitemap.ts`): a region's type and set pages with three or more comparable products there, and its **strong** product
+pages only (see "Indexing" below). Each file carries the
 market's last import as `lastmod`. If a query fails while a file is being
 regenerated, the request errors and ISR keeps the previous copy — a sitemap is
 never cached with its products missing (the old single sitemap was, for 24
 hours at a time). The import job checks the live index after every full run
 and goes red if the regional sitemaps total under 1,000 product URLs
-(`scripts/import.ts`, `checkLiveSitemap`; a full import lists ~8,000).
+(`scripts/import.ts`, `checkLiveSitemap`; ~2,900 since 2026-10-25, ~7,900 before).
 
 **After a release that adds pages** (the growth release added deals, cheapest per pack, this week and the guides in
 every region), resubmit `sitemap.xml` in Search Console (Sitemaps → the entry → resubmit) so the new URLs are read
 soon. Store pages with nothing listed, or whose store is dormant, are `noindex` and left out of the sitemap.
+
+### Indexing: what Google is asked to index (2026-10-25)
+
+Search Console showed 5,332 URLs "Crawled – currently not indexed", 1,067 server errors, 37 404s, 14 soft 404s and 194 indexed,
+from a sitemap of ~9,100 URLs, 7,907 of them product pages. What changed, and why:
+
+- **One host.** `dexcompare.app/*` → `https://www.dexcompare.app/*`, path and query kept: Vercel's domain setting (308) answers
+  before the app; `next.config.js` has the same redirect as a **301** in case that setting is ever removed. `src/lib/site.ts`
+  turns an apex `NEXT_PUBLIC_SITE_URL` into www, so a canonical, hreflang, sitemap, OG or JSON-LD URL can never be the apex.
+  Optional: Vercel → Domains → `dexcompare.app` → Edit lets you pick 301 instead of 308; Google treats both as permanent.
+- **The 5xx were the old database.** Until 2026-10-15 every uncached render queried the old Neon project, which ran out of
+  network transfer: those renders failed (500) until the move to DC2 and the public data files ("Where the data lives"). Since
+  then no page reads Neon. On 2026-10-25, 200 sitemap URLs fetched as Googlebot (40 of them forced past the CDN) all answered 200,
+  median 0.36 s uncached. In Search Console, open the 5xx report → **Validate fix**.
+- **Product tiers** (`src/lib/index-tiers.ts`, one function for the sitemap and the page's robots tag):
+  *strong* (in stock at 2+ stores; in stock at 1 that 3+ list; a booster box / ETB / bundle / UPC that 3+ list) is in the sitemap;
+  *thin* (fewer than two listings: one store, or TCGplayer alone) is `noindex`; *middle* (the rest) is indexable but out of the
+  sitemap. On 2026-10-25: 2,881 strong, 3,127 middle, 1,899 thin. **Adding pages back**: once most strong URLs show "Indexed"
+  in Search Console (Pages report, filter by the sitemap), loosen `productTier` (e.g. middle with 1+ in stock → strong) and resubmit.
+- **Real 404s.** A set or type page with nothing listed in the region is a 404 (it was an empty 200 with noindex: the soft
+  404s). Nothing links one: the previous/next set links skip them, the type row lists only types sold there, and the region
+  switcher's links to another region's product/set/type/store page are `nofollow` (the page's hreflang set names the copies that
+  exist). Deals, cheapest per pack and price moves are `noindex` and out of the sitemap when thin (`src/lib/section-thin.ts`).
+- **Internal links** (measured by crawling a local build from `/`, followed links only): the region home ends with every set and
+  product type listed there (`src/components/SetIndex.tsx`), so a set page is two clicks from `/` and every product in it three; a
+  type page lists its strong products that belong to no set and that its grids do not show (`typeIndexRows`); a guide's set chips
+  and type links point only at pages that exist in the region; the where-to-buy guide no longer links TCGplayer as a store. Before:
+  2,130 of 2,881 strong product pages within three clicks, and the crawl met 24,004 links to 404s (the region switcher's links to
+  regional copies that do not exist). After: see the commit message of the change.
+- **Product pages say more, from data only**: "Questions about …" (`src/lib/product-faq.ts`): stock here, price per pack, the
+  last 30 days of daily snapshots, the other regions' prices in their own currencies. A question with no data is left out.
 
 ## 7. Google AdSense
 

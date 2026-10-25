@@ -28,6 +28,7 @@ import { itemListJsonLd, jsonLd, pageMeta, regionAlternates, withPokemon } from 
 import { ShareButton } from "@/components/ShareButton";
 import { PRODUCT_TYPES } from "@/lib/sealed-title";
 import { SET_BY_SLUG, type PokemonSet } from "@/lib/sets";
+import { setCountsGrouped } from "@/lib/hub-data";
 import { SITE_URL } from "@/lib/site";
 import { guidesFor } from "@/content/guides";
 import { toolHref } from "@/content/tools";
@@ -47,9 +48,10 @@ export async function generateMetadata({ params }: { params: { region: string; s
   const s = SET_BY_SLUG.get(params.set);
   if (!s) return {};
   const products = await getProducts(r.market, s.code);
-  // Empty here: noindex, and no hreflang set. Otherwise advertise only the
-  // regions that list the set (their copies are the indexable ones).
-  const regions = products.length ? (await marketsWithSet(s.code)).map(regionOfMarket).filter((x): x is RegionInfo => !!x) : [];
+  // Nothing listed here: a real 404 (it was an empty 200 with noindex, which Search Console reports as a soft 404). Otherwise
+  // advertise only the regions that list the set (their copies are the indexable ones).
+  if (!products.length) notFound();
+  const regions = (await marketsWithSet(s.code)).map(regionOfMarket).filter((x): x is RegionInfo => !!x);
   // The title follows the release state (pre-order wording and the date until the set is out; never "booster box" for a set sold
   // without one), and the description is built from the products loaded above. No image: the site's share card (pageMeta's default).
   const title = setTitle(s, r);
@@ -58,8 +60,7 @@ export async function generateMetadata({ params }: { params: { region: string; s
       title: titleText(title),
       description: setDescription(s, r, products),
       path: `/${r.region}/sets/${s.slug}`,
-      alternates: products.length ? regionAlternates(r.region, `/sets/${s.slug}`, regions) : undefined,
-      noindex: products.length === 0,
+      alternates: regionAlternates(r.region, `/sets/${s.slug}`, regions),
     }),
     title,
   };
@@ -69,7 +70,8 @@ export default async function SetPage({ params }: { params: { region: string; se
   const r = regionOrNotFound(params.region);
   const s = SET_BY_SLUG.get(params.set);
   if (!s) notFound();
-  const [products, checked] = await Promise.all([getProducts(r.market, s.code), lastCheckedAt(r.market)]);
+  const [products, checked, listedSets] = await Promise.all([getProducts(r.market, s.code), lastCheckedAt(r.market), setCountsGrouped(r.market)]);
+  if (!products.length) notFound();
   const pre = isPreorderSet(s.code);
   const open = products.filter(cardOpen);
   const perPack = cheapestPerPackByType(products);
@@ -79,7 +81,7 @@ export default async function SetPage({ params }: { params: { region: string; se
   const us = r.market === "US";
   const listedTypes = new Set(products.map((p) => p.productType));
   const facts = setFacts(s, listedTypes, r.market);
-  const { prev, next } = prevNextSet(s.code);
+  const { prev, next } = prevNextSet(s.code, (c) => (listedSets.get(c)?.products ?? 0) > 0);
   // Where a reader goes next from a set: the other sets, the calendar, and the product types this set is listed in here.
   const explore = [
     { href: `/${r.region}/sets`, label: "Every set in order" },

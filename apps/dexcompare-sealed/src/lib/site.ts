@@ -3,6 +3,8 @@
 // a wrong value here is a wrong value in every one of them. NEXT_PUBLIC_SITE_URL
 // in Vercel overrides the default; DEPLOY.md, "Domains" says what to set.
 export const SITE_NAME = "DexCompare";
+/** The canonical host: www (2026-10-25, Search Console had the apex and www as two properties). The apex 308s/301s to it. */
+export const CANONICAL_HOST = "www.dexcompare.app";
 export const SITE_URL = normaliseOrigin(process.env.NEXT_PUBLIC_SITE_URL) ?? "https://www.dexcompare.app";
 // The mailbox the contact, terms and privacy pages (and the scrapers' From header) give. The fallback is a legacy
 // address from another brand that still reaches the owner: it stays only so those pages keep a working address until
@@ -60,11 +62,17 @@ export function sectionHref(region: string, key: SectionKey): string {
 }
 
 /** "https://www.dexcompare.app/" → "https://www.dexcompare.app"; garbage → null. */
-function normaliseOrigin(v: string | undefined): string | null {
+/**
+ * The origin of NEXT_PUBLIC_SITE_URL, or null when it is not a URL. The site's own apex (dexcompare.app, http or https) is always
+ * the canonical https://www.dexcompare.app: the apex only redirects (Vercel's domain setting, next.config.js as a fallback), so a
+ * canonical on it would point every crawler at a redirect.
+ */
+export function normaliseOrigin(v: string | undefined): string | null {
   if (!v) return null;
   try {
     const u = new URL(v.trim());
     if (u.protocol !== "https:" && u.protocol !== "http:") return null;
+    if (u.hostname.toLowerCase() === "dexcompare.app" || u.hostname.toLowerCase() === CANONICAL_HOST) return `https://${CANONICAL_HOST}`;
     return u.origin;
   } catch {
     return null;

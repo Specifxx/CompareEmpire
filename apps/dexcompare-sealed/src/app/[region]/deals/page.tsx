@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { dealsThin } from "@/lib/section-thin";
 import { cache } from "react";
 import type { Metadata } from "next";
 import { Ago } from "@/components/Ago";
@@ -43,7 +44,7 @@ export async function generateMetadata({ params }: { params: { region: string } 
       description: dealsCopy.description(r, deals.length, best),
       path: `/${r.region}/deals`,
       alternates: regionAlternates(r.region, "/deals"),
-      noindex: deals.length < THIN && leaders.top10.length < THIN,
+      noindex: dealsThin(deals.length, leaders.top10.length),
     }),
     title: fitTitle(dealsCopy.title(r)),
   };

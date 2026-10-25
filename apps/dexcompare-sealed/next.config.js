@@ -55,6 +55,9 @@ const nextConfig = {
   // would match /au too and loop.
   async redirects() {
     return [
+      // One host: www (src/lib/site.ts CANONICAL_HOST). Vercel's domain setting already sends the apex to www with a 308 before the
+      // app runs; this is the fallback if that setting is ever changed or removed: a 301 that keeps the path and the query string.
+      { source: "/:path*", has: [{ type: "host", value: "dexcompare.app" }], destination: "https://www.dexcompare.app/:path*", statusCode: 301 },
       { source: "/sealed", destination: "/au/sealed", permanent: true },
       { source: "/sealed/:slug", destination: "/au/sealed", permanent: true },
       { source: "/browse", destination: "/au/sealed", permanent: true },

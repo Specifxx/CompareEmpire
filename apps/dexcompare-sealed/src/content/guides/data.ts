@@ -4,6 +4,7 @@
 //
 // Sources, and nothing else: the existing loaders (calendarProducts, productsBySet, lastCheckedAt), typeSummary below (one GROUP BY,
 // at most 16 rows) and, for the booster-box guide only, one query for the pack types of three sets.
+import { setCountsGrouped, typeLabelsInMarket } from "@/lib/hub-data";
 import { calendarProducts, CALENDAR_TYPES, cardSelect, lastCheckedAt, OPEN, productsBySet, sortCards, toCard, type ProductCardData } from "@/lib/data";
 import { cardOpen } from "@/lib/compact";
 import { prisma } from "@/lib/db";
@@ -50,6 +51,10 @@ export interface GuideData {
   deals: ProductCardData[];
   /** Products first tracked in the last 14 days and open today (lib/deals.ts newlyTracked), at most 8. */
   fresh: ProductCardData[];
+  /** The set codes and product type labels the region lists anything of: a set or type page with nothing here is a 404, so a guide
+   * names those without linking them. Absent (a test fixture): every set and type is linked. */
+  listedSets?: string[];
+  listedTypes?: string[];
 }
 
 /** One store's current counts (StoreStat), for the where-to-buy guide. */
@@ -195,7 +200,11 @@ export function cheapestHeadline(products: ProductCardData[]): ProductCardData[]
 export async function loadGuideData(slug: GuideSlug, r: RegionInfo, now: Date = new Date()): Promise<GuideData> {
   const today = now.toISOString().slice(0, 10);
   const checkedAt = lastCheckedAt(r.market).then((d) => d?.toISOString() ?? null);
-  const done = async (d: Partial<Omit<GuideData, "checked" | "today">>): Promise<GuideData> => ({ ...emptyGuideData(today, await checkedAt), ...d });
+  const listed = Promise.all([setCountsGrouped(r.market), typeLabelsInMarket(r.market)]);
+  const done = async (d: Partial<Omit<GuideData, "checked" | "today">>): Promise<GuideData> => {
+    const [sets, types] = await listed;
+    return { ...emptyGuideData(today, await checkedAt), listedSets: [...sets].filter(([, c]) => c.products > 0).map(([code]) => code), listedTypes: [...types], ...d };
+  };
 
   switch (slug) {
     case "how-many-packs-in-pokemon-products": {

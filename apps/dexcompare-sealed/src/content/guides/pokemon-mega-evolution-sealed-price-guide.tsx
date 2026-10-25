@@ -259,7 +259,7 @@ export function outline(r: RegionInfo, data: GuideData): GuideOutline {
               </p>
             )}
           </Prose>
-          <SetChips r={r} sets={sets} />
+          <SetChips r={r} listed={data.listedSets} sets={sets} />
         </>
       ),
     },
