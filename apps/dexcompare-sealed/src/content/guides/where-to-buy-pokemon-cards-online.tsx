@@ -6,7 +6,7 @@ import Link from "next/link";
 import { money, plural } from "@/lib/format";
 import type { RegionInfo } from "@/lib/regions";
 import { TYPE_BY_LABEL } from "@/lib/sealed-title";
-import { STORE_BY_KEY, storesInMarket } from "@/lib/stores";
+import { STORE_BY_KEY, STORES, storesInMarket } from "@/lib/stores";
 import type { GuideData } from "./data";
 import { GUIDE_BY_SLUG } from "./index";
 import {
@@ -64,10 +64,13 @@ export function outline(r: RegionInfo, data: GuideData): GuideOutline {
                   head={["Store", "In stock", "Listed"]}
                   rows={stores.map((s) => ({
                     key: s.store,
-                    th: (
+                    // A marketplace (TCGplayer) has no store page: its name, not a link to a 404.
+                    th: STORES.some((x) => x.key === s.store) ? (
                       <Link href={`/${r.region}/stores/${s.store}`} prefetch={false} className="font-semibold text-ink hover:text-brand hover:underline">
                         {STORE_BY_KEY.get(s.store)!.name}
                       </Link>
+                    ) : (
+                      <span className="font-semibold text-ink">{STORE_BY_KEY.get(s.store)!.name}</span>
                     ),
                     cells: [<span key="i" className="font-semibold">{s.inStock}</span>, <span key="l" className="text-muted">{s.listed}</span>],
                   }))}

@@ -158,7 +158,7 @@ export function outline(r: RegionInfo, data: GuideData): GuideOutline {
               collections. A “booster box” of one of them is a lot a store has made up itself, so we don’t list it.
             </p>
           </Prose>
-          <SetChips r={r} sets={noBox} />
+          <SetChips r={r} listed={data.listedSets} sets={noBox} />
         </>
       ),
     },

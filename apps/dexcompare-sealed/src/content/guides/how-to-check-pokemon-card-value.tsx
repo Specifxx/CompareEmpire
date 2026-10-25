@@ -244,7 +244,7 @@ export function outline(r: RegionInfo, data: GuideData): GuideOutline {
                 <Link href={typeHref(r, "booster-bundle")}>booster bundles</Link>, or the newest sets:
               </p>
             </Prose>
-            <SetChips r={r} sets={newest} />
+            <SetChips r={r} listed={data.listedSets} sets={newest} />
           </>
         ),
       },

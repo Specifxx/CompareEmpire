@@ -176,7 +176,7 @@ export function outline(r: RegionInfo, data: GuideData): GuideOutline {
                 )}
               </p>
             </Prose>
-            <SetChips r={r} sets={tens.map((x) => x.set)} />
+            <SetChips r={r} listed={data.listedSets} sets={tens.map((x) => x.set)} />
             {noCount.length > 0 && (
               <Prose>
                 <p>

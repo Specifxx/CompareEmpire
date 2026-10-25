@@ -57,7 +57,7 @@ function liveLine(r: RegionInfo, row: TypeSummaryRow | undefined): ReactNode {
   );
 }
 
-function TypeCard({ r, t, row }: { r: RegionInfo; t: ProductTypeInfo; row: TypeSummaryRow | undefined }) {
+function TypeCard({ r, t, row, listed }: { r: RegionInfo; t: ProductTypeInfo; row: TypeSummaryRow | undefined; listed: boolean }) {
   const { figure, detail } = packFigure(t.key);
   const varies = figure === "Varies";
   return (
@@ -77,9 +77,12 @@ function TypeCard({ r, t, row }: { r: RegionInfo; t: ProductTypeInfo; row: TypeS
           <span aria-hidden="true" className="mr-2 inline-block h-2 w-2 rounded-full bg-open align-middle" />
           Right now: {liveLine(r, row)}
         </span>
-        <Link href={typeHref(r, t.key)} prefetch={false} className="font-semibold text-brand hover:underline">
-          {t.plural} in {r.inName} →
-        </Link>
+        {/* A type with nothing listed here has no page in the region (a 404): no link to it. */}
+        {listed && (
+          <Link href={typeHref(r, t.key)} prefetch={false} className="font-semibold text-brand hover:underline">
+            {t.plural} in {r.inName} →
+          </Link>
+        )}
       </div>
     </div>
   );
@@ -91,7 +94,7 @@ export function outline(r: RegionInfo, data: GuideData): GuideOutline {
     id: t.slug,
     title: t.plural,
     live: i === 0,
-    body: <TypeCard r={r} t={t} row={byLabel.get(t.label)} />,
+    body: <TypeCard r={r} t={t} row={byLabel.get(t.label)} listed={!data.listedTypes || data.listedTypes.includes(t.label)} />,
   }));
   sections.push(whereToBuy(r, { tcg: { query: "", label: "Pokémon sealed product" }, links: [{ href: `/${r.region}/sealed`, label: `All sealed in ${r.inName}` }] }));
   return {

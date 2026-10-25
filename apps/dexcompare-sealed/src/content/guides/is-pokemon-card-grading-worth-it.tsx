@@ -249,7 +249,7 @@ export function outline(r: RegionInfo, data: GuideData): GuideOutline {
                 <Link href={typeHref(r, "etb")}>Elite Trainer Boxes</Link>, among others; the newest sets out are below.
               </p>
             </Prose>
-            <SetChips r={r} sets={newest} />
+            <SetChips r={r} listed={data.listedSets} sets={newest} />
           </>
         ),
       },

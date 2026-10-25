@@ -73,7 +73,7 @@ export function outline(r: RegionInfo, data: GuideData): GuideOutline {
               </p>
             )}
           </Prose>
-          <SetChips r={r} sets={recent.map((x) => x.set)} />
+          <SetChips r={r} listed={data.listedSets} sets={recent.map((x) => x.set)} />
         </>
       ),
     },

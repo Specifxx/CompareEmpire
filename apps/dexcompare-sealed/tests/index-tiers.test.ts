@@ -157,9 +157,11 @@ test("product FAQ: answers from the page's data only, none without data, nothing
 
 test("internal links: every listed set from the region home, set-less strong products from their type page", () => {
   const home = src("app/[region]/page.tsx");
-  assert.match(home, /<SetIndex r=\{r\} counts=\{setCounts\} \/>/);
+  assert.match(home, /<SetIndex r=\{r\} counts=\{setCounts\} types=\{listedTypes\} \/>/);
   const idx = src("components/SetIndex.tsx");
   assert.match(idx, /if \(!n\) continue;/, "only sets listed here (an empty set page is a 404)");
+  assert.match(idx, /PRODUCT_TYPES\.filter\(\(t\) => types\.has\(t\.label\)\)/, "only types listed here");
+  assert.match(src("content/guides/kit.tsx"), /!listed \|\| listed\.includes\(s\.code\)/, "a guide's set chip links only a set listed here");
   const type = src("app/[region]/type/[type]/page.tsx");
   assert.match(type, /typeIndexRows\(r\.market, t\.label\)/);
   assert.match(type, /indexAll\.filter\(\(x\) => !shown\.has\(x\.slug\)\)/);

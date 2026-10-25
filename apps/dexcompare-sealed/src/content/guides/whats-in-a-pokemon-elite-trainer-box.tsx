@@ -144,7 +144,7 @@ export function outline(r: RegionInfo, data: GuideData): GuideOutline {
               </p>
             </Prose>
           )}
-          <SetChips r={r} sets={specialCounted.map((x) => x.set)} />
+          <SetChips r={r} listed={data.listedSets} sets={specialCounted.map((x) => x.set)} />
           <p className="text-xs leading-5 text-muted">
             {PACK_SOURCE}{" "}
             <Link href={guideHref(r, "how-many-packs-in-pokemon-products")} className="font-medium text-brand underline underline-offset-2">

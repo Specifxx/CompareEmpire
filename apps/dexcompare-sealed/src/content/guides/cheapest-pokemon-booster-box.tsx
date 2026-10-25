@@ -93,7 +93,7 @@ export function outline(r: RegionInfo, data: GuideData): GuideOutline {
               <p className="text-sm leading-6 text-muted">No recent set has a booster box in stock in {r.inName} right now.</p>
             )}
           </LiveBlock>
-          <SetChips r={r} sets={bySet.map((x) => x.set)} />
+          <SetChips r={r} listed={data.listedSets} sets={bySet.map((x) => x.set)} />
         </>
       ),
     },

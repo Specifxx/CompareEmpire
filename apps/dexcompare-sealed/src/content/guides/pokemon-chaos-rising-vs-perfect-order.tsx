@@ -311,7 +311,7 @@ export function outline(r: RegionInfo, data: GuideData): GuideOutline {
               cheapest price from whichever store has it, rather than one store’s shelf, and why it pays to compare before you buy either.
             </p>
           </Prose>
-          <SetChips r={r} sets={[newer, older]} />
+          <SetChips r={r} listed={data.listedSets} sets={[newer, older]} />
         </>
       ),
     },
@@ -469,7 +469,7 @@ export function outline(r: RegionInfo, data: GuideData): GuideOutline {
               its cheapest pack today.
             </p>
           </Prose>
-          <SetChips r={r} sets={[...series].reverse()} />
+          <SetChips r={r} listed={data.listedSets} sets={[...series].reverse()} />
         </>
       ),
     },

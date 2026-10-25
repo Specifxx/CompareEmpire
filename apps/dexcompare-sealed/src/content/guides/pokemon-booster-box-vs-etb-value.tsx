@@ -472,7 +472,7 @@ export function outline(r: RegionInfo, data: GuideData): GuideOutline {
               today, so you can check the box and the ETB from more than one store, and see the set’s other products too.
             </p>
           </Prose>
-          <SetChips r={r} sets={sets} />
+          <SetChips r={r} listed={data.listedSets} sets={sets} />
           <Prose>
             <p>
               Sets sold without a booster box aren’t here, because there’s no box to compare with: they’re listed in{" "}

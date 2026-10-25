@@ -214,6 +214,12 @@ from a sitemap of ~9,100 URLs, 7,907 of them product pages. What changed, and wh
   404s). Nothing links one: the previous/next set links skip them, the type row lists only types sold there, and the region
   switcher's links to another region's product/set/type/store page are `nofollow` (the page's hreflang set names the copies that
   exist). Deals, cheapest per pack and price moves are `noindex` and out of the sitemap when thin (`src/lib/section-thin.ts`).
+- **Internal links** (measured by crawling a local build from `/`, followed links only): the region home ends with every set and
+  product type listed there (`src/components/SetIndex.tsx`), so a set page is two clicks from `/` and every product in it three; a
+  type page lists its strong products that belong to no set and that its grids do not show (`typeIndexRows`); a guide's set chips
+  and type links point only at pages that exist in the region; the where-to-buy guide no longer links TCGplayer as a store. Before:
+  2,130 of 2,881 strong product pages within three clicks, and the crawl met 24,004 links to 404s (the region switcher's links to
+  regional copies that do not exist). After: see the commit message of the change.
 - **Product pages say more, from data only**: "Questions about …" (`src/lib/product-faq.ts`): stock here, price per pack, the
   last 30 days of daily snapshots, the other regions' prices in their own currencies. A question with no data is left out.
 
