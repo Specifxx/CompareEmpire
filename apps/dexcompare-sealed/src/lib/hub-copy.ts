@@ -208,11 +208,19 @@ export function setFacts(set: PokemonSet, listed?: Iterable<string>, market?: st
   return facts;
 }
 
-/** The sets either side in SETS order (newest first): `prev` released before this one, `next` after it. */
-export function prevNextSet(code: string): { prev: PokemonSet | null; next: PokemonSet | null } {
+/**
+ * The sets either side in SETS order (newest first): `prev` released before this one, `next` after it. With `listed`, the nearest
+ * neighbours it accepts: a region's set page with nothing listed is a 404, so pages pass the region's listed sets and never link one.
+ */
+export function prevNextSet(code: string, listed?: (code: string) => boolean): { prev: PokemonSet | null; next: PokemonSet | null } {
   const i = SETS.findIndex((s) => s.code === code);
   if (i < 0) return { prev: null, next: null };
-  return { prev: SETS[i + 1] ?? null, next: SETS[i - 1] ?? null };
+  const ok = (s: PokemonSet | undefined) => !!s && (!listed || listed(s.code));
+  let prev: PokemonSet | null = null;
+  for (let j = i + 1; j < SETS.length && !prev; j++) if (ok(SETS[j])) prev = SETS[j];
+  let next: PokemonSet | null = null;
+  for (let j = i - 1; j >= 0 && !next; j--) if (ok(SETS[j])) next = SETS[j];
+  return { prev, next };
 }
 
 // ─── Type pages ────────────────────────────────────────────────────────────────

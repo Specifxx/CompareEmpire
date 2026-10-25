@@ -33,6 +33,8 @@ import { storesInMarket } from "@/lib/stores";
 import { loadMarketReport } from "@/lib/market-report";
 import { RegionReport, RegionsCompared } from "@/components/MarketReport";
 import { CompareOtherTcgs } from "@/components/CompareOtherTcgs";
+import { SetIndex } from "@/components/SetIndex";
+import { setCountsGrouped } from "@/lib/hub-data";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 
 // Rendered per request and kept by Vercel's CDN for a day (next.config.js, CDN_PAGES), never ISR: an ISR write
@@ -64,7 +66,14 @@ const QUICK_TYPES = ["booster-boxes", "elite-trainer-boxes", "booster-bundles", 
 
 export default async function RegionHome({ params }: { params: { region: string } }) {
   const r = regionOrNotFound(params.region);
-  const [{ boxes, etbs, preorders, latestSets: bySet }, overview, deals, report, older] = await Promise.all([homeRails(r.market), getOverview(r.market), dealsInMarket(r.market, { take: 8 }), loadMarketReport(r.market), olderInStockData(r.market).catch(() => [])]);
+  const [{ boxes, etbs, preorders, latestSets: bySet }, overview, deals, report, older, setCounts] = await Promise.all([
+    homeRails(r.market),
+    getOverview(r.market),
+    dealsInMarket(r.market, { take: 8 }),
+    loadMarketReport(r.market),
+    olderInStockData(r.market).catch(() => []),
+    setCountsGrouped(r.market),
+  ]);
   // The seven regions side by side, moved here from the landing page (2026-10-25).
   const reports = await Promise.all(REGION_LIST.map((x) => (x.region === r.region ? report : loadMarketReport(x.market)))).catch(() => [report]);
   // The soonest upcoming set with a pre-order page: the rail's "see all" goes there.
@@ -252,6 +261,8 @@ export default async function RegionHome({ params }: { params: { region: string 
           </Section>
         )}
 
+        {/* Every set listed here, so every set page is two clicks from the landing page and its products three (2026-10-25). */}
+        <SetIndex r={r} counts={setCounts} />
         <HowItWorks r={r} stores={storeCount} />
         <CompareOtherTcgs />
         {/* The visitor's own recently viewed products, from this browser's storage: rendered at the end, so nothing above moves. */}
