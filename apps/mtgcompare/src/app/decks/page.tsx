@@ -8,7 +8,7 @@ import { getCountry } from "@/lib/get-country";
 import { COUNTRIES } from "@/lib/country";
 import { SITE_NAME } from "@/lib/site";
 
-export const revalidate = 900;
+export const revalidate = 21600;
 
 export const metadata: Metadata = {
   title: "Magic: The Gathering Top Meta Decks & Build Cost (Australia)",

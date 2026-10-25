@@ -10,7 +10,7 @@ import { GAME_LIST, gameBySlug } from "@/lib/games";
 
 // One SEO hub per game (/pokemon, /magic, /yugioh, /one-piece, /riftbound):
 // chase cards, newest sets, sealed — each section links into the filtered browse.
-export const revalidate = 3600;
+export const revalidate = 21600;
 
 export function generateStaticParams() {
   return GAME_LIST.map((g) => ({ game: g.slug }));

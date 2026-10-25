@@ -1,13 +1,11 @@
 # Analytics: where the clicks are counted
 
-All on Vercel: **Web Analytics** (page views and custom events), **Speed Insights** (real visitors' Core Web Vitals) and a
-first-party click redirect, **`/go`**. No third-party analytics, no cookies, no accounts, nothing a visitor types.
+All on Vercel: **Web Analytics** (page views and custom events) and a first-party click redirect, **`/go`**. No third-party analytics, no cookies, no accounts, nothing a visitor types.
 
 ## Turn it on (once, in the Vercel dashboard)
 
 1. **Project → Analytics → Enable** (Web Analytics). Page views work on every plan.
-2. **Project → Speed Insights → Enable**. The `<SpeedInsights />` component is already in `src/app/layout.tsx`.
-3. **Custom events need a Pro (or Enterprise) plan.** On Hobby, Vercel records page views only: none of the events below
+2. **Custom events need a Pro (or Enterprise) plan.** On Hobby, Vercel records page views only: none of the events below
    appear. How many properties an event keeps depends on the plan:
 
    | Plan | Custom events | Properties kept per event |
@@ -74,8 +72,16 @@ The link keeps its `rel` (`sponsored nofollow noopener noreferrer` on TCGplayer,
 "affiliate link" label. `robots.txt` disallows `/go`, and no `/go` URL is in the sitemap. eBay listings and eBay searches
 are **not** routed through `/go`: eBay's terms ask for its URL exactly as returned, so those count in `buy_click` only.
 
-## Speed Insights
+## What is not counted (2026-10-23)
 
-**Vercel → Project → Speed Insights**: LCP, INP, CLS, FCP and TTFB from real visits, by page and device. Compare the week
-before and after a release. Speed Insights bills per data point on Pro (Hobby has a monthly allowance); the component uses
-Vercel's default sampling.
+Pro bills every page view and event, so `src/components/SiteAnalytics.tsx` (`beforeSend`, rules in `src/lib/analytics-filter.ts`)
+sends nothing from previews and local runs (`localhost`, `127.0.0.1`, `*.vercel.app`), automated browsers (`navigator.webdriver`),
+bot-looking user agents (headless Chrome, Lighthouse/PageSpeed, crawlers that run scripts) or the owner's own browser. **Owner:
+open any page with `?notrack=1` once** on each browser you use (it sets `localStorage` `va-disable` = `1`); `?notrack=0` undoes it.
+The server-side `go_click` is unaffected (it already skips known bots).
+
+## Speed Insights: removed (2026-10-23)
+
+The `@vercel/speed-insights` package and component are gone, to cut a metered product (COST.md at the repository root). Core Web
+Vitals are still checked weekly by the PageSpeed job (DEPLOY.md, "PageSpeed check"). In the dashboard, Project → Speed Insights →
+Disable as well.

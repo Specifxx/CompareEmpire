@@ -12,7 +12,7 @@ import { SITE_URL, SITE_NAME } from "@/lib/site";
 // Built as a route handler (not a page) so it escapes the root layout entirely,
 // and /embed is carved out of X-Frame-Options in next.config.js so it can be
 // framed cross-origin.
-export const revalidate = 300;
+export const revalidate = 21600;
 
 const esc = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -42,7 +42,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
   return new Response(body, {
     headers: {
       "Content-Type": "text/html; charset=utf-8",
-      "Cache-Control": "public, s-maxage=300, stale-while-revalidate=900",
+      "Cache-Control": "public, s-maxage=21600, stale-while-revalidate=86400",
     },
   });
 }

@@ -12,7 +12,7 @@ const CSP_REPORT_ONLY = [
   "script-src 'self' 'unsafe-inline' https://pagead2.googlesyndication.com https://*.googlesyndication.com https://*.google.com https://*.gstatic.com https://*.adtrafficquality.google",
   "style-src 'self' 'unsafe-inline'",
   "font-src 'self'",
-  "connect-src 'self' https://vitals.vercel-insights.com https://*.googlesyndication.com https://*.google.com https://*.doubleclick.net https://*.adtrafficquality.google",
+  "connect-src 'self' https://*.googlesyndication.com https://*.google.com https://*.doubleclick.net https://*.adtrafficquality.google",
   "frame-src https://*.googlesyndication.com https://*.doubleclick.net https://*.google.com",
   "frame-ancestors 'self'",
   "base-uri 'self'",
