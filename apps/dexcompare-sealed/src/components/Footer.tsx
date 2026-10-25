@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { COUNTRY_GUIDE } from "@/content/guides/country-prices";
 import { REGION_LIST, REGIONS, type Region } from "@/lib/regions";
-import { SETS } from "@/lib/sets";
+import { featureOrder } from "@/lib/release";
+import { SET_BY_CODE, SETS } from "@/lib/sets";
 import { CONTACT_EMAIL_SET, OPERATOR, SISTER_SITES, SITE_NAME, sectionHref, type SectionKey } from "@/lib/site";
 import { LogoMark } from "./Logo";
 
@@ -28,10 +29,11 @@ export function footerColumns(region: Region | null): { title: string; links: Fo
       title: "Shop",
       links: [s("boosterBoxes", "Booster boxes"), s("etbs", "Elite Trainer Boxes"), s("bundles", "Booster bundles"), s("upcs", "Ultra-Premium Collections"), s("tins", "Tins"), s("perPack", "Cheapest per pack")],
     },
-    { title: "Latest sets", links: SETS.slice(0, 6).map((set) => ({ href: `/${region}/sets/${set.slug}`, label: set.name })) },
+    // The newest released set first, the one on pre-order second (release.ts featureOrder): never a pre-order at the top.
+    { title: "Latest sets", links: featureOrder(SETS.slice(0, 6).map((x) => x.code)).map((c) => SET_BY_CODE.get(c)!).map((set) => ({ href: `/${region}/sets/${set.slug}`, label: set.name })) },
     {
       title: "Explore",
-      links: [s("deals", "Deals"), s("blackFriday", "Black Friday deals"), s("thisWeek", "This week"), s("releases", "Releases"), s("guides", "Guides"), s("tools", "Tools"), s("stores", "Where to buy"), s("sealed", "All sealed"), { href: COUNTRY_GUIDE.path, label: "Prices by country" }],
+      links: [s("deals", "Deals"), s("blackFriday", "Black Friday deals"), s("thisWeek", "This week"), s("backInStock", "Back in stock"), s("priceMoves", "Price moves"), s("outOfPrint", "Older sets in stock"), s("releases", "Releases"), s("guides", "Guides"), s("tools", "Tools"), s("stores", "Where to buy"), s("sealed", "All sealed"), { href: COUNTRY_GUIDE.path, label: "Prices by country" }],
     },
     { title: "DexCompare", links: site },
   ];

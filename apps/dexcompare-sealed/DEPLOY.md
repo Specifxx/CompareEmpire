@@ -1073,3 +1073,23 @@ not measured keeps its last measurement 42 days) and the job commits it to main 
 The price table shows each row's measured shipping ("Shipping at checkout" without one) and a "Price + shipping" ranking the visitor can
 pick (default: price). Never edit the file by hand; never put a guessed rate in it. Ported from MTG Compare (its DECISIONS.md,
 2026-10-25).
+
+## Stock first, and three stock pages (ported from MTG Compare, 2026-10-25)
+
+- Cards, the hero's "Hot right now", the latest-set rows, the landing picks and the best-price card lead with stock before price:
+  "In stock at 12 of 15 stores" (`lib/stock.ts stockHeadline`): of the independent stores that LIST the product; TCGplayer is
+  "+ TCGplayer", never counted. A sold-out product page says so in the price slot.
+- `/<region>/back-in-stock` (price history: nothing open in one daily snapshot, open in a later one in the last 7 days, still
+  open; a first snapshot is never a return; a day with > max(25, 10% of the market) returns is treated as a failed read and
+  dropped; "Newly listed" from deals.ts newlyTracked below). `copy-rules.ts` allows "back in stock" only on history-built pages
+  and the links to them (`findBannedCopy(text, { history: true })`).
+- `/<region>/price-moves`: cheapest in-stock price today vs 7 days ago, both open, >=10% and >=5.00, ratio within x2, only
+  booster boxes / ETBs / PC ETBs / booster bundles / UPCs of popular sets (released HOT_SETS, 6 newest released, 8 most stocked).
+  Empty state under 8 days of snapshots.
+- `/<region>/out-of-print` ("Older sets in stock"): those types from sets released 18+ months ago, in stock at a store, by set.
+  No claim about print status or future value.
+- "In stock only" toggle (`StockFilter`, ON by default, both lists in the one cached HTML) on type and set pages; the browse
+  grid's toggle stays off by default (on would load the whole index every visit).
+- Featuring by date (`release.ts featureOrder/featureSort`, `popular.ts hotSetsByFeature/featureRank`): newest released set first,
+  the pre-order set second. `hotRank` (the eBay importer's spending order) is unchanged.
+- Titles/descriptions of the three pages: `lib/stock-copy.ts` (Dex has no seo-titles.ts).

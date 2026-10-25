@@ -1,3 +1,5 @@
+import { featureOrder } from "./release";
+
 // What the owner wants pushed hardest on eBay: the sets people are buying NOW, and the markets that matter most.
 // Pure and tiny, shared by the daily eBay import (which searches these first) and the pages (which highlight their eBay link).
 //
@@ -17,9 +19,21 @@ export const HOT_SET_QUERY: Readonly<Record<string, string>> = { cel30: "30th", 
 /** Is this set one of the hot ones? */
 export const isHotSet = (code: string | null | undefined): boolean => !!code && HOT_SETS.includes(code);
 
-/** A hot set's rank (0 = the most wanted), or Infinity for any other set: the order the importer spends in. */
+/**
+ * The hot sets in the order pages feature them (release.ts featureOrder): the newest released set first, the set on pre-order
+ * second, then the owner's order. By date, so it moves on by itself on release day.
+ */
+export const hotSetsByFeature = (today: string = new Date().toISOString().slice(0, 10)): string[] => featureOrder(HOT_SETS, today);
+
+/** A hot set's rank in the owner's order (0 = the most wanted), or Infinity for any other set: the order the eBay importer spends in. */
 export const hotRank = (code: string | null | undefined): number => {
   const i = code ? HOT_SETS.indexOf(code) : -1;
+  return i < 0 ? Infinity : i;
+};
+
+/** A hot set's rank in featuring order (hotSetsByFeature), or Infinity: the order pages lead with. */
+export const featureRank = (code: string | null | undefined, today?: string): number => {
+  const i = code ? hotSetsByFeature(today).indexOf(code) : -1;
   return i < 0 ? Infinity : i;
 };
 
