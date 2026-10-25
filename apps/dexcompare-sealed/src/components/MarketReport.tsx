@@ -1,5 +1,5 @@
 // The homepages' market report (lib/market-report.ts): server components, so every sentence and every product link is in the
-// initial HTML. RegionReport closes a region home; RegionsCompared sets the seven regions side by side on the landing page.
+// initial HTML. RegionReport closes a region home; RegionsCompared sets the seven regions side by side after it.
 import Link from "next/link";
 import type { ProductCardData } from "@/lib/data";
 import { money, plural } from "@/lib/format";
@@ -243,13 +243,3 @@ export function RegionsCompared({ reports }: { reports: MarketReport[] }) {
   );
 }
 
-/** Live FAQ entries for the landing page, from the US report (the x-default region): each answer is also on the page. */
-export function liveFaqs(rep: MarketReport | undefined): { q: string; a: string }[] {
-  if (!rep) return [];
-  const out: { q: string; a: string }[] = [];
-  const box = rep.types.find((t) => t.label === "Booster Box");
-  if (box) out.push({ q: `What is the cheapest Pokémon booster box in ${rep.r.inName} right now?`, a: `${box.cheapest.name}, at ${money(box.cheapest.lowestPriceCents, rep.r.market)} today (${where(box.cheapest)}). ${rangeSentence(box, rep.r)}` });
-  const pp = perPackSentence(rep.types, rep.r);
-  if (pp) out.push({ q: "What is the cheapest way to buy Pokémon packs?", a: `${pp} Prices are each store's own, before shipping, and change as stock moves.` });
-  return out;
-}

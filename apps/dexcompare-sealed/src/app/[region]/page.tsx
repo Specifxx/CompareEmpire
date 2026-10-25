@@ -22,13 +22,13 @@ import { hotRank } from "@/lib/popular";
 import { COUNTRY_GUIDE } from "@/content/guides/country-prices";
 import { openPreorderGuides } from "@/lib/preorder-guides";
 import { isPreorderSet, formatRelease } from "@/lib/release";
-import { REGIONS, regionOrNotFound, type Market, type RegionInfo } from "@/lib/regions";
+import { REGION_LIST, REGIONS, regionOrNotFound, type Market, type RegionInfo } from "@/lib/regions";
 import { ogCardImage, pageMeta, regionAlternates } from "@/lib/seo";
 import { PRODUCT_TYPES } from "@/lib/sealed-title";
 import { SETS, type PokemonSet } from "@/lib/sets";
 import { storesInMarket } from "@/lib/stores";
 import { loadMarketReport } from "@/lib/market-report";
-import { RegionReport } from "@/components/MarketReport";
+import { RegionReport, RegionsCompared } from "@/components/MarketReport";
 import { CompareOtherTcgs } from "@/components/CompareOtherTcgs";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 
@@ -63,6 +63,8 @@ const HEADLINE = ["Booster Box", "Elite Trainer Box", "Booster Bundle"];
 export default async function RegionHome({ params }: { params: { region: string } }) {
   const r = regionOrNotFound(params.region);
   const [{ boxes, etbs, preorders, latestSets: bySet }, overview, deals, report] = await Promise.all([homeRails(r.market), getOverview(r.market), dealsInMarket(r.market, { take: 8 }), loadMarketReport(r.market)]);
+  // The seven regions side by side, moved here from the landing page (2026-10-25).
+  const reports = await Promise.all(REGION_LIST.map((x) => (x.region === r.region ? report : loadMarketReport(x.market)))).catch(() => [report]);
   // The soonest upcoming set with a pre-order page: the rail's "see all" goes there.
   const preorderGuide = openPreorderGuides()[0] ?? null;
   const storeCount = storesInMarket(r.market).length;
@@ -222,6 +224,7 @@ export default async function RegionHome({ params }: { params: { region: string 
         </Section>
 
         <RegionReport rep={report} />
+        <RegionsCompared reports={reports} />
         <HowItWorks r={r} stores={storeCount} />
         <CompareOtherTcgs />
         {/* The visitor's own recently viewed products, from this browser's storage: rendered at the end, so nothing above moves. */}

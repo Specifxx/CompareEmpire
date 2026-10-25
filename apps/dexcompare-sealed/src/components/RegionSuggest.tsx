@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { REGIONS, X_DEFAULT_REGION, isRegion, regionFromTimeZone, type Region } from "@/lib/regions";
-import { EbayStrip } from "./EbayStrip";
 
 /** Where the guess came from: a region the visitor browsed before, Vercel's geo header, Accept-Language, or the time zone. */
 export type RegionSource = "saved" | "geo" | "language" | "timezone" | "picked";
@@ -89,44 +88,18 @@ export function RegionSuggest({ formId }: { formId?: string }) {
 }
 
 /** "What we compare": each type is a link to its page in the suggested region (the US in the server's HTML and with no suggestion). */
-export function SuggestedTypeLinks({ types }: { types: { slug: string; label: string }[] }) {
+export function SuggestedTypeLinks({ types, align = "center" }: { types: { slug: string; label: string }[]; align?: "center" | "start" }) {
   const { region } = useSuggestedRegion();
   const to = region ?? X_DEFAULT_REGION;
   return (
-    <ul className="flex flex-wrap justify-center gap-2" aria-label={`Product types in ${REGIONS[to].inName}`}>
+    <ul className={`flex flex-wrap gap-2 ${align === "center" ? "justify-center" : ""}`} aria-label={`Product types in ${REGIONS[to].inName}`}>
       {types.map((t) => (
         <li key={t.slug}>
-          <Link href={`/${to}/type/${t.slug}`} prefetch={false} className="chip min-h-10">
+          <Link href={`/${to}/type/${t.slug}`} prefetch={false} className="chip min-h-11">
             {t.label}
           </Link>
         </li>
       ))}
     </ul>
-  );
-}
-
-// Which eBay a region's links go to (affiliate.ts EBAY_FOR_REGION), as the strip's top line names it: the landing page has no
-// region of its own, so the strip always says whose eBay it is ("Live listings on eBay Australia" for a New Zealand visitor).
-const EBAY_SITE_LABEL: Record<Region, string> = { au: "Australia", nz: "Australia", us: "US", uk: "UK", ca: "Canada", eu: "Germany", sg: "US" };
-
-/**
- * The landing page's one eBay unit, for the suggested region, exactly as the 404's (NotFoundEbay): laid out but invisible until the
- * region is known, then shown in the same render, with nothing in it whose height depends on the region (regionKnown={false}).
- * It fetches only near the viewport, by which time the region is known. No suggestion: the US.
- */
-export function SuggestedEbayStrip() {
-  const { known, region } = useSuggestedRegion();
-  const to = region ?? X_DEFAULT_REGION;
-  return (
-    <div style={{ visibility: known ? "visible" : "hidden" }}>
-      <EbayStrip
-        region={to}
-        context="chase"
-        placement="listings-landing"
-        site={EBAY_SITE_LABEL[to]}
-        regionKnown={false}
-        search={{ kind: "card", query: "" }}
-      />
-    </div>
   );
 }

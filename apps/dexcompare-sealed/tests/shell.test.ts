@@ -224,21 +224,35 @@ test("landing metadata: hreflang for the seven region homes plus x-default '/', 
   assert.ok(title.length <= 65, title);
 });
 
-test("landing page: per request behind the CDN, a never-empty CTA box, a GET search form, real type links, the strip by suggested region", () => {
+test("landing page: per request behind the CDN, short: hero, one fair paragraph, the region's five, the hot buttons, nothing else", () => {
   const page = src("app/(site)/page.tsx");
-  // Since the SEO sprint (2026-10-23) it reads today's listings and the market report: per request, never at build, kept by the CDN.
+  // It reads today's listings (the default region's five): per request, never at build, kept by the CDN.
   assert.match(page, /^export const dynamic = "force-dynamic";/m);
   assert.doesNotMatch(page, /prisma|@\/lib\/db"/, "no direct database client: the loaders only");
   assert.match(page, /text-4xl[^"]*sm:text-6xl/);
   assert.match(page, /Pokémon sealed, in stock, <span className="text-brand">cheapest first\.<\/span>/);
   assert.match(page, /<div className="mt-6 flex h-12 justify-center sm:mt-8">\s*<RegionSuggest formId="landing-search" \/>/);
   assert.match(page, /<form\s+id="landing-search"\s+action=\{`\/\$\{X_DEFAULT_REGION\}\/sealed`\}\s+method="get"/);
-  assert.match(page, /lg:grid-cols-7/);
+  assert.match(page, /ranked by price and stock only[\s\S]*No store pays to be listed or to rank, and every affiliate link is marked\.[\s\S]*href="\/about"[\s\S]*How it works/);
+  assert.match(page, /<HomeRegionGrid initial=\{picks\} preorder=\{preorder\} \/>/);
+  // What moved to /about, the guides index and the region homes stays off the landing page.
+  assert.doesNotMatch(page, /FAQPage|faqLdOf|GuideCard|RegionsCompared|SuggestedTypeLinks|EbayStrip|AdSlot/);
+  assert.equal((page.match(/<section/g) ?? []).length, 2, "the hero and the fair paragraph; the grid is its own section");
   const suggest = src("components/RegionSuggest.tsx");
   assert.match(suggest, /Choose your region <span aria-hidden="true">↓<\/span>/);
+  assert.match(suggest, /href="#regions"/);
+  assert.match(src("components/HomeRegionGrid.tsx"), /<section id="regions"/, "the CTA's fallback jump lands on the region switcher");
   assert.match(suggest, /setAttribute\("action", `\/\$\{region \?\? X_DEFAULT_REGION\}\/sealed`\)/);
-  assert.match(suggest, /placement="listings-landing"[\s\S]*regionKnown=\{false\}/);
   assert.match(suggest, /href=\{`\/\$\{to\}\/type\/\$\{t\.slug\}`\}/);
+});
+
+test("/about carries what the landing page used to: the FAQ with its FAQPage JSON-LD, what we compare, the regions", () => {
+  const about = src("app/(site)/about/page.tsx");
+  assert.match(about, /<SuggestedTypeLinks types=\{PRODUCT_TYPES/);
+  assert.match(about, /COUNTRY_GUIDE\.path/);
+  assert.match(about, /href=\{`\/\$\{r\.region\}\/stores`\}/);
+  assert.doesNotMatch(about, /one on the landing page/, "the landing page carries no eBay strip now");
+  assert.match(src("app/[region]/page.tsx"), /<RegionsCompared reports=\{reports\} \/>/, "the seven-region comparison lives on each region home");
 });
 
 test("the share card exists as a route, with its bundled OFL face, and says the registry's numbers", () => {

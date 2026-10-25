@@ -1062,3 +1062,14 @@ Dedupe and rate limit: an event is posted when it becomes true (not every run it
 true then and posts nothing, so the feed starts with changes, not a backlog. The state is `data/public/feed-state.json` (product slugs
 and days only), committed with the data; the eBay import's publish leaves it alone. A failed send is logged, never fails the import.
 Try it without sending: `npx tsx scripts/feed-notify.ts --dry-run` in `apps/dexcompare-sealed`.
+
+## Shipping rates (weekly, measured)
+
+`.github/workflows/dexcompare-shipping-rates.yml` (repository root) runs `scripts/probe-shipping-rates.ts` once a week, one runner per
+market: each Shopify store's own storefront quote for ONE sealed item (its cheapest, then items near 40/80/150/300 in its currency) to
+8 AU capitals, 4 NZ cities, 4 US/UK/CA cities, 4 eurozone capitals and Singapore; 3 stores at once, ≥1 s between a store's requests.
+`scripts/build-shipping-rates.ts` merges the runs into `src/data/shipping-rates.json` (bundled; no database, no runtime fetch; a store
+not measured keeps its last measurement 42 days) and the job commits it to main WITHOUT `[deploy]`: it rides the next daily release.
+The price table shows each row's measured shipping ("Shipping at checkout" without one) and a "Price + shipping" ranking the visitor can
+pick (default: price). Never edit the file by hand; never put a guessed rate in it. Ported from MTG Compare (its DECISIONS.md,
+2026-10-25).

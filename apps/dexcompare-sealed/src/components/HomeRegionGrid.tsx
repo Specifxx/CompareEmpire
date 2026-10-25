@@ -1,29 +1,24 @@
 "use client";
 
-// The landing page's region grid: eight products in stock in the visitor's region (the region home's newest booster boxes and ETBs,
-// /api/picks/<region>), with a switcher for the seven regions right above it. Which region: the visitor's last one, else their
-// country (Vercel's x-vercel-ip-country through /api/geo, Accept-Language when there is none), else their time zone
-// (RegionSuggest.tsx useSuggestedRegion). Nothing is redirected and the server HTML is the same for everyone, crawlers included:
-// a heading, the seven region links and eight reserved card slots, filled in the browser. The slots are sized before anything
-// loads, so filling them moves nothing.
+// The landing page's region block (cut to the owner's short shape 2026-10-25): a switcher for the seven regions, "Most stocked in
+// <region> today" (five in-stock products, lib/picks.ts: the newest booster boxes and Elite Trainer Boxes ordered by how many of
+// the region's stores have them in stock), then the hot buttons, the region's most-used pages. The
+// server HTML is the same for everyone, crawlers included, and already filled with the default region's (the US) picks; in the
+// browser it moves to the visitor's region (RegionSuggest.tsx useSuggestedRegion: saved, language, time zone, then /api/geo) through
+// the CDN-cached /api/picks/<region>. The slots and the buttons are fixed-size, so the swap moves nothing.
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { homeRegionEvent } from "@/lib/click-events";
+import { send } from "@/lib/track-client";
 import { money, plural } from "@/lib/format";
 import { thumb } from "@/lib/images";
 import { REGION_LIST, REGIONS, X_DEFAULT_REGION, type Region } from "@/lib/regions";
-import { send } from "@/lib/track-client";
+import { sectionHref, type SectionKey } from "@/lib/site";
+import type { Pick } from "@/lib/picks";
+import { Icon, type IconName } from "./Icon";
 import { useSuggestedRegion, type RegionSource } from "./RegionSuggest";
 
-export interface Pick {
-  slug: string;
-  name: string;
-  type: string;
-  img: string | null;
-  cents: number | null;
-  stores: number;
-  tcg: boolean;
-}
+const SLOTS = 5;
 
 const cache = new Map<Region, Promise<Pick[]>>();
 function picksFor(region: Region): Promise<Pick[]> {
@@ -31,29 +26,39 @@ function picksFor(region: Region): Promise<Pick[]> {
   if (!p) {
     p = fetch(`/api/picks/${region}`)
       .then((r) => (r.ok ? (r.json() as Promise<{ picks: Pick[] }>) : { picks: [] }))
-      .then((j) => (Array.isArray(j.picks) ? j.picks.slice(0, 8) : []))
+      .then((j) => (Array.isArray(j.picks) ? j.picks.slice(0, SLOTS) : []))
       .catch(() => []);
     cache.set(region, p);
   }
   return p;
 }
 
-const SLOTS = 8;
+/** A set on pre-order (lib/preorder-guides.ts openPreorderGuides), worked out on the server; its hub is /<region>/preorders/<slug>. */
+export interface HotPreorder {
+  slug: string;
+  name: string;
+}
 
-/**
- * `initial`: the x-default region's picks, rendered on the server (SEO sprint, 2026-10-23: the listings are in the initial HTML for
- * crawlers and for a visitor without script). The grid shows them until the visitor's region is known, then swaps if it differs.
- */
-export function HomeRegionGrid({ initial }: { initial?: { region: Region; picks: Pick[] } } = {}) {
+// The pages people come for, in this order. With a set on pre-order its hub takes the booster bundles' place, so the row is always six.
+const HOT: { key: SectionKey; label: string; icon?: IconName }[] = [
+  { key: "deals", label: "Deals", icon: "tag" },
+  { key: "boosterBoxes", label: "Booster Boxes" },
+  { key: "etbs", label: "Elite Trainer Boxes" },
+  { key: "bundles", label: "Booster bundles" },
+  { key: "guides", label: "Buying guides", icon: "info" },
+  { key: "stores", label: "Stores", icon: "store" },
+];
+
+export function HomeRegionGrid({ initial, preorder = null }: { initial: Pick[]; preorder?: HotPreorder | null }) {
   const suggested = useSuggestedRegion();
   const [picked, setPicked] = useState<Region | null>(null);
-  if (initial && !cache.has(initial.region)) cache.set(initial.region, Promise.resolve(initial.picks.slice(0, SLOTS)));
-  const region: Region | null = picked ?? (suggested.known ? suggested.region ?? X_DEFAULT_REGION : initial?.region ?? null);
+  // The default region until the suggestion is known (the server HTML's), so the first paint is a full grid, never skeletons.
+  const region: Region = picked ?? (suggested.known ? suggested.region ?? X_DEFAULT_REGION : X_DEFAULT_REGION);
   const source: RegionSource | null = picked ? "picked" : suggested.source;
-  const [picks, setPicks] = useState<{ region: Region; list: Pick[] } | null>(initial ? { region: initial.region, list: initial.picks.slice(0, SLOTS) } : null);
+  const [picks, setPicks] = useState<{ region: Region; list: Pick[] }>({ region: X_DEFAULT_REGION, list: initial.slice(0, SLOTS) });
 
   useEffect(() => {
-    if (!region) return;
+    if (picks.region === region) return;
     let live = true;
     picksFor(region).then((list) => {
       if (!live) return;
@@ -64,30 +69,24 @@ export function HomeRegionGrid({ initial }: { initial?: { region: Region; picks:
     return () => {
       live = false;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [region, source, picked, suggested.known]);
 
-  const r = region ? REGIONS[region] : null;
-  const list = picks && picks.region === region ? picks.list : null;
+  const r = REGIONS[region];
+  const list = picks.region === region ? picks.list : null;
+  const hot = HOT.map((h) =>
+    h.key === "bundles" && preorder
+      ? { href: `/${r.region}/preorders/${preorder.slug}`, label: `${preorder.name} pre-orders`, icon: "calendar" as IconName, pre: true }
+      : { href: sectionHref(r.region, h.key), label: h.label, icon: h.icon, pre: false },
+  );
 
   return (
-    <section aria-labelledby="home-grid-h" className="page" data-home-grid="">
-      <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-2">
-        <h2 id="home-grid-h" className="font-display text-2xl font-bold tracking-tight">
-          {/* fixed text width while the region is unknown: the heading never reflows the switcher under it */}
-          In stock {r ? `in ${r.inName}` : "near you"} today
-        </h2>
-        {/* always laid out (hidden until the region is known), so its arrival never moves the heading or the switcher */}
-        <Link
-          href={`/${(r ?? REGIONS[X_DEFAULT_REGION]).region}`}
-          prefetch={false}
-          style={{ visibility: r ? "visible" : "hidden" }}
-          className="text-sm font-semibold text-brand hover:underline"
-        >
-          Everything in {(r ?? REGIONS[X_DEFAULT_REGION]).inName} →
-        </Link>
-      </div>
+    <section id="regions" aria-labelledby="home-grid-h" className="page scroll-mt-20" data-home-grid="">
+      <h2 id="home-grid-h" className="font-display text-2xl font-bold tracking-tight">
+        Most stocked in {r.inName} today
+      </h2>
       {/* The region switcher: real links (they work without script, and crawl to every region home); with script, a click
-          swaps the grid in place and remembers the choice, as the header's switcher does. */}
+          swaps the grid and the buttons in place and remembers the choice, as the header's switcher does. */}
       <ul className="mt-3 flex flex-wrap gap-2" aria-label="Choose your region">
         {REGION_LIST.map((x) => (
           <li key={x.region}>
@@ -104,40 +103,43 @@ export function HomeRegionGrid({ initial }: { initial?: { region: Region; picks:
                   /* storage blocked */
                 }
               }}
-              className={`chip min-h-10 ${x.region === region ? "chip-on" : ""}`}
+              className={`chip min-h-11 ${x.region === region ? "chip-on" : ""}`}
             >
               <span aria-hidden="true">{x.flag}</span> {x.short}
             </a>
           </li>
         ))}
       </ul>
-      <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4" aria-busy={list ? undefined : true}>
+      {/* Phones: five rows of fixed height; from sm, five cards in a row. */}
+      <ol className="mt-4 grid gap-2 sm:grid-cols-5 sm:gap-3" aria-busy={list ? undefined : true}>
         {Array.from({ length: SLOTS }, (_, i) => {
           const p = list?.[i];
           return (
-            <li key={i} className="card h-[17.5rem] overflow-hidden sm:h-[18.5rem]">
-              {p && r ? (
-                <Link href={`/${r.region}/p/${p.slug}`} prefetch={false} className="group flex h-full flex-col">
-                  <div className="flex h-36 items-center justify-center bg-raised p-3 sm:h-40">
+            <li key={i} className="card h-[5.5rem] overflow-hidden sm:h-[18.5rem]">
+              {p ? (
+                <Link href={`/${r.region}/p/${p.slug}`} prefetch={false} className="group flex h-full items-center sm:flex-col sm:items-stretch">
+                  <div className="plate m-2 flex h-[4.5rem] w-[4.5rem] shrink-0 items-center justify-center p-1.5 sm:h-36 sm:w-auto sm:p-3">
                     {p.img ? (
-                      <img src={thumb(p.img, 240)!} alt="" width={140} height={140} loading="lazy" decoding="async" className="h-full w-full object-contain" />
+                      <img src={thumb(p.img, 240)!} alt={p.name} width={140} height={140} loading="eager" decoding="async" className="h-full w-full object-contain mix-blend-multiply" />
                     ) : (
-                      <span className="text-xs font-semibold text-faint">{p.type}</span>
+                      <span className="text-[10px] font-semibold text-faint">{p.type}</span>
                     )}
                   </div>
-                  <div className="flex flex-1 flex-col p-3">
-                    <span className="text-[11px] font-semibold uppercase tracking-wide text-muted">{p.type}</span>
-                    <span className="mt-0.5 line-clamp-2 text-sm font-semibold leading-5 group-hover:text-brand">{p.name}</span>
-                    <span className="mt-auto pt-1.5">
+                  <div className="flex min-w-0 flex-1 flex-col justify-center py-2 pr-3 sm:items-stretch sm:p-3">
+                    <span className="min-w-0">
+                      <span className="hidden text-[11px] sm:block font-semibold uppercase tracking-wide text-muted">{p.type}</span>
+                      <span className="line-clamp-1 text-sm font-semibold leading-5 group-hover:text-brand sm:mt-0.5 sm:line-clamp-2">{p.name}</span>
+                    </span>
+                    <span className="mt-1 flex items-baseline gap-2 sm:mt-auto sm:block sm:pt-1.5">
                       <span className="tabular block font-display text-lg font-extrabold">{p.cents != null ? money(p.cents, r.market) : "—"}</span>
-                      <span className="block text-xs text-muted">
-                        {p.stores > 0 ? `in stock at ${plural(p.stores, "store")}` : "in stock"}
+                      <span className="block truncate text-xs text-muted">
+                        {p.stores > 0 ? `${plural(p.stores, "store")} in stock` : "in stock"}
                         {p.tcg && r.market === "US" ? " + TCGplayer" : ""}
                       </span>
                     </span>
                   </div>
                 </Link>
-              ) : list && r ? (
+              ) : list ? (
                 i === 0 ? (
                   <div className="flex h-full items-center justify-center p-4 text-center text-sm text-muted">Nothing in stock to show here right now.</div>
                 ) : null
@@ -147,13 +149,28 @@ export function HomeRegionGrid({ initial }: { initial?: { region: Region; picks:
             </li>
           );
         })}
+      </ol>
+      <p className="mt-2 text-xs leading-5 text-muted">
+        The newest booster boxes and Elite Trainer Boxes, by how many {r.adjective} stores have them in stock. Cheapest in-stock price in {r.currency}, before shipping.{" "}
+        {source === "geo" || source === "language" ? "Region suggested from your location." : null}
+      </p>
+
+      <h2 className="mt-10 font-display text-xl font-bold tracking-tight">Jump to</h2>
+      <ul className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-6" aria-label={`Popular pages in ${r.inName}`}>
+        {hot.map((h) => (
+          <li key={h.label} className="flex">
+            <Link
+              href={h.href}
+              prefetch={false}
+              data-hot-button=""
+              className={`card flex min-h-14 flex-1 items-center gap-2 px-4 py-3 text-[15px] font-semibold leading-5 transition-shadow hover:shadow-lift ${h.pre ? "border-pre/40 bg-pre-soft/40 text-pre" : "hover:text-brand"}`}
+            >
+              {h.icon && <Icon name={h.icon} size={18} className="shrink-0" />}
+              <span className="min-w-0">{h.label}</span>
+            </Link>
+          </li>
+        ))}
       </ul>
-      {r && (
-        <p className="mt-3 text-xs text-muted">
-          Cheapest in-stock price at the {r.adjective} stores we compare, in {r.currency}, excluding shipping.{" "}
-          {source === "geo" || source === "language" ? "Region suggested from your location; pick another above." : "Pick another region above."}
-        </p>
-      )}
     </section>
   );
 }

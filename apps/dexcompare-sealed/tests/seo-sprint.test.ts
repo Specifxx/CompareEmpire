@@ -107,7 +107,7 @@ test("Compare other TCGs: the three sister sites, each with a descriptive anchor
     ["https://mtgcompare.app", "Magic: The Gathering card prices"],
   ])
     assert.match(html, new RegExp(`<a href="${url}"[^>]*>${anchor}</a>`), url);
-  for (const f of ["src/app/(site)/page.tsx", "src/app/[region]/page.tsx", "src/app/[region]/p/[slug]/page.tsx"]) assert.match(readFileSync(f, "utf8"), /<CompareOtherTcgs/, f);
+  for (const f of ["src/app/[region]/page.tsx", "src/app/[region]/p/[slug]/page.tsx"]) assert.match(readFileSync(f, "utf8"), /<CompareOtherTcgs/, f);
 });
 
 test("breadcrumbs (and their BreadcrumbList) on the region home and the trust pages", () => {
@@ -115,9 +115,9 @@ test("breadcrumbs (and their BreadcrumbList) on the region home and the trust pa
     assert.match(readFileSync(f, "utf8"), /<Breadcrumbs items=\{\[\{ href: "\/", label: "DexCompare" \}/, f);
 });
 
-test("the landing FAQ: each question a real <h3>, the same list as its FAQPage JSON-LD", () => {
-  const page = readFileSync("src/app/(site)/page.tsx", "utf8");
+test("the FAQ (on /about since the landing page was cut short): each question a real <h3>, the same list as its FAQPage JSON-LD", () => {
+  const page = readFileSync("src/app/(site)/about/page.tsx", "utf8");
   assert.match(page, /<h3 className="font-semibold">\{f\.q\}<\/h3>/);
-  assert.match(page, /jsonLd\(faqLdOf\(faq\)\)/);
+  assert.match(page, /jsonLd\(faqLdOf\(FAQ\)\)/);
   assert.doesNotMatch(page, /<dt/);
 });
