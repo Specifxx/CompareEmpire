@@ -1,0 +1,340 @@
+{
+ "products": [
+  {
+   "id": 600,
+   "title": "Battle Spirits Saga Set 01 Booster Box",
+   "handle": "battle-spirits-saga-set-01-booster-box",
+   "url": "https://ateliertcg.com/en/product/battle-spirits-saga-set-01-booster-box/",
+   "vendor": "Bandai",
+   "variants": [
+    {
+     "id": 600,
+     "title": "Default Title",
+     "price": "135.69",
+     "available": true
+    }
+   ],
+   "images": [
+    {
+     "id": 600,
+     "src": "https://ateliertcg.com/img/600/l.webp"
+    }
+   ]
+  },
+  {
+   "id": 601,
+   "title": "Dragon Ball Super Fusion World FS05 Starter Deck 5 Bardock",
+   "handle": "dragon-ball-super-fusion-world-fs05-starter-deck-5-bardock",
+   "url": "https://ateliertcg.com/en/product/dragon-ball-super-fusion-world-fs05-starter-deck-5-bardock/",
+   "vendor": "Bandai",
+   "variants": [
+    {
+     "id": 601,
+     "title": "Default Title",
+     "price": "24.99",
+     "available": true
+    }
+   ],
+   "images": [
+    {
+     "id": 601,
+     "src": "https://ateliertcg.com/img/601/l.webp"
+    }
+   ]
+  },
+  {
+   "id": 602,
+   "title": "MTG Aetherdrift Play Booster Box",
+   "handle": "mtg-aetherdrift-play-booster-box",
+   "url": "https://ateliertcg.com/en/product/mtg-aetherdrift-play-booster-box/",
+   "vendor": "Wizards of the Coast",
+   "variants": [
+    {
+     "id": 602,
+     "title": "Default Title",
+     "price": "191.40",
+     "available": true
+    }
+   ],
+   "images": [
+    {
+     "id": 602,
+     "src": "https://ateliertcg.com/img/602/l.webp"
+    }
+   ]
+  },
+  {
+   "id": 603,
+   "title": "Disney Lorcana Set 7 Archazia's Island Trove",
+   "handle": "disney-lorcana-set-7-archazia-s-island-trove",
+   "url": "https://ateliertcg.com/en/product/disney-lorcana-set-7-archazia-s-island-trove/",
+   "vendor": "Ravensburger",
+   "variants": [
+    {
+     "id": 603,
+     "title": "Default Title",
+     "price": "63.47",
+     "available": true
+    }
+   ],
+   "images": [
+    {
+     "id": 603,
+     "src": "https://ateliertcg.com/img/603/l.webp"
+    }
+   ]
+  },
+  {
+   "id": 604,
+   "title": "Pokémon SV8.5 Prismatic Evolutions Super Premium Collection",
+   "handle": "pokemon-sv8-5-prismatic-evolutions-super-premium-collection",
+   "url": "https://ateliertcg.com/en/product/pokemon-sv8-5-prismatic-evolutions-super-premium-collection/",
+   "vendor": "The Pokémon Company",
+   "variants": [
+    {
+     "id": 604,
+     "title": "Default Title",
+     "price": "450.00",
+     "available": true
+    }
+   ],
+   "images": [
+    {
+     "id": 604,
+     "src": "https://ateliertcg.com/img/604/l.webp"
+    }
+   ]
+  },
+  {
+   "id": 605,
+   "title": "Pokémon SV8.5 Prismatic Evolutions Surprise Box",
+   "handle": "pokemon-sv8-5-prismatic-evolutions-surprise-box",
+   "url": "https://ateliertcg.com/en/product/pokemon-sv8-5-prismatic-evolutions-surprise-box/",
+   "vendor": "The Pokémon Company",
+   "variants": [
+    {
+     "id": 605,
+     "title": "Default Title",
+     "price": "110.07",
+     "available": true
+    }
+   ],
+   "images": [
+    {
+     "id": 605,
+     "src": "https://ateliertcg.com/img/605/l.webp"
+    }
+   ]
+  },
+  {
+   "id": 606,
+   "title": "Pokémon SV9 Journey Together 3PK Blister",
+   "handle": "pokemon-sv9-journey-together-3pk-blister",
+   "url": "https://ateliertcg.com/en/product/pokemon-sv9-journey-together-3pk-blister/",
+   "vendor": "The Pokémon Company",
+   "variants": [
+    {
+     "id": 606,
+     "title": "Default Title",
+     "price": "35.02",
+     "available": true
+    }
+   ],
+   "images": [
+    {
+     "id": 606,
+     "src": "https://ateliertcg.com/img/606/l.webp"
+    }
+   ]
+  },
+  {
+   "id": 607,
+   "title": "Pokémon SV9 Journey Together Booster Box",
+   "handle": "pokemon-sv9-journey-together-booster-box",
+   "url": "https://ateliertcg.com/en/product/pokemon-sv9-journey-together-booster-box/",
+   "vendor": "The Pokémon Company",
+   "variants": [
+    {
+     "id": 607,
+     "title": "Default Title",
+     "price": "420.29",
+     "available": true
+    }
+   ],
+   "images": [
+    {
+     "id": 607,
+     "src": "https://ateliertcg.com/img/607/l.webp"
+    }
+   ]
+  },
+  {
+   "id": 608,
+   "title": "Pokémon SV9 Journey Together Booster Bundle",
+   "handle": "pokemon-sv9-journey-together-booster-bundle",
+   "url": "https://ateliertcg.com/en/product/pokemon-sv9-journey-together-booster-bundle/",
+   "vendor": "The Pokémon Company",
+   "variants": [
+    {
+     "id": 608,
+     "title": "Default Title",
+     "price": "99.07",
+     "available": true
+    }
+   ],
+   "images": [
+    {
+     "id": 608,
+     "src": "https://ateliertcg.com/img/608/l.webp"
+    }
+   ]
+  },
+  {
+   "id": 609,
+   "title": "Pokémon SWSH11 Lost Origin Elite Trainer",
+   "handle": "pokemon-swsh11-lost-origin-elite-trainer",
+   "url": "https://ateliertcg.com/en/product/pokemon-swsh11-lost-origin-elite-trainer/",
+   "vendor": "The Pokémon Company",
+   "variants": [
+    {
+     "id": 609,
+     "title": "Default Title",
+     "price": "305.21",
+     "available": true
+    }
+   ],
+   "images": [
+    {
+     "id": 609,
+     "src": "https://ateliertcg.com/img/609/l.webp"
+    }
+   ]
+  },
+  {
+   "id": 610,
+   "title": "Pokémon SWSH5 Battle Styles Booster Box",
+   "handle": "pokemon-swsh5-battle-styles-booster-box",
+   "url": "https://ateliertcg.com/en/product/pokemon-swsh5-battle-styles-booster-box/",
+   "vendor": "The Pokémon Company",
+   "variants": [
+    {
+     "id": 610,
+     "title": "Default Title",
+     "price": "400.27",
+     "available": true
+    }
+   ],
+   "images": [
+    {
+     "id": 610,
+     "src": "https://ateliertcg.com/img/610/l.webp"
+    }
+   ]
+  },
+  {
+   "id": 611,
+   "title": "Pokémon SWSH9 Brilliant Stars Booster Box",
+   "handle": "pokemon-swsh9-brilliant-stars-booster-box",
+   "url": "https://ateliertcg.com/en/product/pokemon-swsh9-brilliant-stars-booster-box/",
+   "vendor": "The Pokémon Company",
+   "variants": [
+    {
+     "id": 611,
+     "title": "Default Title",
+     "price": "915.62",
+     "available": true
+    }
+   ],
+   "images": [
+    {
+     "id": 611,
+     "src": "https://ateliertcg.com/img/611/l.webp"
+    }
+   ]
+  },
+  {
+   "id": 612,
+   "title": "Pokémon Trainer's Toolkit 2023",
+   "handle": "pokemon-trainer-s-toolkit-2023",
+   "url": "https://ateliertcg.com/en/product/pokemon-trainer-s-toolkit-2023/",
+   "vendor": "The Pokémon Company",
+   "variants": [
+    {
+     "id": 612,
+     "title": "Default Title",
+     "price": "95.06",
+     "available": true
+    }
+   ],
+   "images": [
+    {
+     "id": 612,
+     "src": "https://ateliertcg.com/img/612/l.webp"
+    }
+   ]
+  },
+  {
+   "id": 613,
+   "title": "Pokémon Celebrations Ultra-Premium Collection",
+   "handle": "pokemon-celebrations-ultra-premium-collection",
+   "url": "https://ateliertcg.com/en/product/pokemon-celebrations-ultra-premium-collection/",
+   "vendor": "The Pokémon Company",
+   "variants": [
+    {
+     "id": 613,
+     "title": "Default Title",
+     "price": "1611.55",
+     "available": false
+    }
+   ],
+   "images": [
+    {
+     "id": 613,
+     "src": "https://ateliertcg.com/img/613/l.webp"
+    }
+   ]
+  },
+  {
+   "id": 614,
+   "title": "Pokémon Unova Mini Tin",
+   "handle": "pokemon-unova-mini-tin",
+   "url": "https://ateliertcg.com/en/product/pokemon-unova-mini-tin/",
+   "vendor": "The Pokémon Company",
+   "variants": [
+    {
+     "id": 614,
+     "title": "Default Title",
+     "price": "42.04",
+     "available": false
+    }
+   ],
+   "images": [
+    {
+     "id": 614,
+     "src": "https://ateliertcg.com/img/614/l.webp"
+    }
+   ]
+  },
+  {
+   "id": 615,
+   "title": "Sleeved Pokemon ME02 Phantasmal Flames Pack",
+   "handle": "sleeved-pokemon-me02-phantasmal-flames-pack",
+   "url": "https://ateliertcg.com/en/product/sleeved-pokemon-me02-phantasmal-flames-pack/",
+   "vendor": "The Pokémon Company",
+   "variants": [
+    {
+     "id": 615,
+     "title": "Default Title",
+     "price": "20.01",
+     "available": true
+    }
+   ],
+   "images": [
+    {
+     "id": 615,
+     "src": "https://ateliertcg.com/img/615/l.webp"
+    }
+   ]
+  }
+ ]
+}
