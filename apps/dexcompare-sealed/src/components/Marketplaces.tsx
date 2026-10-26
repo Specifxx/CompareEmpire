@@ -192,6 +192,30 @@ export function MarketplacePanel({
 }
 
 /**
+ * Product page, in stock, Australia and New Zealand: the Amazon AU link that used to be the marketplaces panel's third row. eBay and
+ * TCGplayer are rows of the price table now (pinned at its top, owner 2026-10-26), so only Amazon is left here; nothing elsewhere.
+ */
+export function AmazonPanel({ region, productName, productSlug }: { region: Region; productName: string; productSlug: string }) {
+  if (!showsAmazonAu(region)) return null;
+  return (
+    <div className="card mt-10 overflow-hidden">
+      <h2 className="eyebrow border-b border-line bg-raised px-5 py-2.5">Also on Amazon AU</h2>
+      <AmazonLink href={amazonAuHref(productSlug, productName)} product={productSlug} placement="amazon-product" className={ROW}>
+        <span className="min-w-0">
+          <b>Amazon AU</b> <span className="text-muted">— amazon.com.au, in Australian dollars</span>
+        </span>
+        <span className="ml-auto flex shrink-0 items-center gap-3">
+          <span className="font-semibold text-brand-strong">
+            Check price on Amazon AU <span aria-hidden="true">↗</span>
+          </span>
+        </span>
+      </AmazonLink>
+      <p className={`border-t border-line px-5 py-2.5 ${NOTE}`}>{amazonNote(region)}</p>
+    </div>
+  );
+}
+
+/**
  * Product page, in place of the best-price card when nothing in the region is open (in stock or pre-order): say so plainly, then where
  * it may still be bought. 61% of product pages are sold out, so this box is the page's main action for most visitors: an eBay box first
  * (one labelled unit, data-ad="soldout-ebay": eBay's blue "Find it on ebay.co.uk" search in the server HTML, the product's own new

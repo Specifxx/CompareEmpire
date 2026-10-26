@@ -70,7 +70,7 @@ test("real product pages (from data/public): valid JSON-LD, and every price, cou
     }
     assert.equal(product.offers.priceCurrency, { au: "AUD", us: "USD", uk: "GBP" }[c.region]);
     // offerCount: the open offers, each a row of the price table with an open stock pill
-    const openRows = (html.match(/<li data-offer-row=""[\s\S]*?<\/li>/g) ?? []).filter((r) => !/line-through/.test(r) && !/data-ad=/.test(r)).length; // the eBay row (data-ad) is not an offer
+    const openRows = (html.match(/<li data-offer-row=""[\s\S]*?<\/li>/g) ?? []).filter((r) => !/line-through/.test(r) && !/data-ad=/.test(r) && !(c.region !== "us" && /data-row="tcgplayer"/.test(r))).length; // the eBay row (data-ad) is not an offer, nor TCGplayer's US$ row outside the US
     assert.equal(product.offers.offerCount, openRows, `${c.slug}: offerCount = the table's open rows`);
   }
 });

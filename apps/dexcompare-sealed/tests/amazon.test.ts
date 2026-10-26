@@ -20,7 +20,7 @@ import {
 import { amazonClickEvent, amazonGa4Params } from "../src/lib/click-events";
 import { CONSENT_REGIONS, ga4BootScript, ga4Id } from "../src/lib/ga4";
 import { REGION_LIST } from "../src/lib/regions";
-import { MarketplacePanel, PreorderMarketplaces, SoldOutCallout } from "../src/components/Marketplaces";
+import { AmazonPanel, MarketplacePanel, PreorderMarketplaces, SoldOutCallout } from "../src/components/Marketplaces";
 import { Footer } from "../src/components/Footer";
 import { staticSitemap } from "../src/lib/sitemap";
 
@@ -139,4 +139,13 @@ test("GA4: off unless a measurement ID is set; consent defaults to denied in the
   for (const c of ["GB", "DE", "FR", "CH", "NO"]) assert.ok(CONSENT_REGIONS.includes(c), c);
   assert.match(boot, /page_location:location\.origin\+location\.pathname/);
   assert.match(src("app/layout.tsx"), /\{GA4_ID && \(/);
+});
+
+test("in stock, the product page keeps Amazon AU in its own panel (eBay and TCGplayer are rows of the table): AU and NZ only", () => {
+  const props = { productName: "Phantasmal Flames Elite Trainer Box", productSlug: "phantasmal-flames-elite-trainer-box" };
+  assert.match(render(React.createElement(AmazonPanel, { region: "au", ...props })), /Check price on Amazon AU/);
+  assert.match(render(React.createElement(AmazonPanel, { region: "nz", ...props })), /delivers to New Zealand/);
+  assert.equal(render(React.createElement(AmazonPanel, { region: "us", ...props })), "");
+  const page = readFileSync(new URL("../src/app/[region]/p/[slug]/page.tsx", import.meta.url), "utf8");
+  assert.match(page, /<AmazonPanel region=\{r\.region\}/);
 });
