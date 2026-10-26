@@ -7,6 +7,8 @@ import { existsSync, readFileSync } from "node:fs";
 import * as React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import {
+  AMAZON_AU_ASINS,
+  amazonAuHref,
   AMAZON_ASSOCIATE_STATEMENT,
   AMAZON_AU_DEFAULT_TAG,
   AMAZON_AU_REGIONS,
@@ -139,4 +141,16 @@ test("GA4: off unless a measurement ID is set; consent defaults to denied in the
   for (const c of ["GB", "DE", "FR", "CH", "NO"]) assert.ok(CONSENT_REGIONS.includes(c), c);
   assert.match(boot, /page_location:location\.origin\+location\.pathname/);
   assert.match(src("app/layout.tsx"), /\{GA4_ID && \(/);
+});
+
+test("known ASINs: each a real ASIN for a product we track, linked as /dp/<ASIN> with the tag; everything else stays a search", () => {
+  const products = new Set((JSON.parse(readFileSync(new URL("../data/public/products.json", import.meta.url), "utf8")) as { slug: string }[]).map((p) => p.slug));
+  assert.ok(Object.keys(AMAZON_AU_ASINS).length > 0);
+  for (const [slug, asin] of Object.entries(AMAZON_AU_ASINS)) {
+    assert.ok(isAsin(asin), `${slug}: ${asin}`);
+    assert.ok(products.has(slug), `${slug}: a product we track`);
+    assert.equal(amazonAuHref(slug, "x", "compareempire-22"), `https://www.amazon.com.au/dp/${asin}?tag=compareempire-22`);
+  }
+  assert.equal(new Set(Object.values(AMAZON_AU_ASINS)).size, Object.keys(AMAZON_AU_ASINS).length, "one product per ASIN");
+  assert.match(amazonAuHref("chaos-rising-booster-box", "Chaos Rising Booster Box", "compareempire-22"), /^https:\/\/www\.amazon\.com\.au\/s\?k=/);
 });
