@@ -766,6 +766,17 @@
     ]
   },
   {
+    "key": "ateliertcg",
+    "name": "L'Atelier TCG",
+    "base": "https://ateliertcg.com",
+    "market": "CA",
+    "platform": "shopify",
+    "country": "CA",
+    "collections": [
+      "*"
+    ]
+  },
+  {
     "key": "bananagames",
     "name": "Banana Games & Hobby",
     "base": "https://bananagames.ca",
