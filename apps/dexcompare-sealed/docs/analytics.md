@@ -46,6 +46,7 @@ All values are ids, slugs, codes and numbers (at most 255 characters): never a n
 | --- | --- | --- | --- |
 | `buy_click` | any outbound buy link: a store, TCGplayer or eBay (`src/components/OutboundLink.tsx`) | `retailer` ("Pokebox (AU)", "TCGplayer", "eBay (ebay.com.au)"), `placement` | `product`, `store` (store key, "tcgplayer" or the eBay retailer), `region`, `price` (the button's price, in the region's currency), `position` (1 = top of the list), `page` (product, preorders, deals, black-friday, set, home…), `affiliate` (true for TCGplayer and eBay), `placement` |
 | `buy_product` | the same click, when the link is a product's offer (Pro only) | `product` (slug), `region` | — (in `buy_click`) |
+| `amazon_click` | an Amazon AU link (Australia and New Zealand: `src/components/AmazonLink.tsx`); the same click also sends `buy_click` with `retailer` "Amazon AU" and an `amazon-…` placement | `product` (slug, or `set:<slug>`, `type:<slug>`, `guide:<query>` for a search), `region` | `product`, `region`, `page`. **GA4** (once `NEXT_PUBLIC_GA4_ID` is set) gets all three as event parameters |
 | `go_click` | **server-side**, from `/go` (below): a store or TCGplayer offer's click | `store`, `placement` | the same eight as `buy_click` |
 | `search` | a search submitted from a search box | `region`, `kind` (`submit`) | same |
 | `search_select` | a typeahead result picked | `kind` (`product`, `all`) | same |

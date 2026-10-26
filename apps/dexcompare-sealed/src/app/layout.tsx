@@ -4,6 +4,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { SiteAnalytics } from "@/components/SiteAnalytics";
 import { IMPACT_SITE_VERIFICATIONS } from "@/lib/affiliate";
 import { ADSENSE_CLIENT, adsenseScriptSrc } from "@/lib/adsense";
+import { GA4_ID, ga4BootScript, ga4ScriptSrc } from "@/lib/ga4";
 import { SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/lib/site";
 import { jsonLd, siteJsonLd } from "@/lib/seo";
 import { SEASON_BOOT_SCRIPT } from "@/lib/season";
@@ -54,6 +55,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <>
             <meta name="google-adsense-account" content={ADSENSE_CLIENT} />
             <script async src={adsenseScriptSrc(ADSENSE_CLIENT)} crossOrigin="anonymous" />
+          </>
+        )}
+        {/* Google Analytics 4 (lib/ga4.ts): only once NEXT_PUBLIC_GA4_ID is set; consent defaults first, for the amazon_click event. */}
+        {GA4_ID && (
+          <>
+            <script dangerouslySetInnerHTML={{ __html: ga4BootScript(GA4_ID) }} />
+            <script async src={ga4ScriptSrc(GA4_ID)} />
           </>
         )}
       </head>

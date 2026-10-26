@@ -1,4 +1,5 @@
 import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { AMAZON_ASSOCIATE_STATEMENT } from "@/lib/amazon";
 import type { Metadata } from "next";
 import { ADSENSE_CLIENT } from "@/lib/adsense";
 import Link from "next/link";
@@ -194,9 +195,11 @@ export default function About() {
 
         <h2 id="money">How DexCompare makes money</h2>
         <p>
-          {ADSENSE_CLIENT ? "Through one Google ad in some guides, and through affiliate links of only two kinds" : "Through affiliate links, and only two kinds"}: <b>eBay</b> (the eBay Partner Network) and <b>TCGplayer</b> (through Impact). If you
-          buy through one we may earn a small commission, at no cost to you &mdash; the price is the same as going direct. Every one is
-          marked where it appears: eBay with an &ldquo;Ad&rdquo; label, TCGplayer with &ldquo;affiliate link&rdquo;.
+          {ADSENSE_CLIENT ? "Through one Google ad in some guides, and through affiliate links of three kinds" : "Through affiliate links of three kinds"}: <b>eBay</b> (the eBay Partner Network), <b>TCGplayer</b> (through Impact) and,
+          in Australia and New Zealand, <b>Amazon AU</b> (the Amazon Associates programme). If you buy through one we may earn a small
+          commission, at no cost to you &mdash; the price is the same as going direct. Every one is marked where it appears: eBay with an
+          &ldquo;Ad&rdquo; label, TCGplayer with &ldquo;affiliate link&rdquo;, Amazon with the Associates statement beside it.{" "}
+          {AMAZON_ASSOCIATE_STATEMENT} <Link href="/affiliate-disclosure">The full affiliate disclosure</Link>.
         </p>
         {ADSENSE_CLIENT && (
           <p>
@@ -208,6 +211,13 @@ export default function About() {
           We keep them out of your way: at most one ad on a phone screen at a time and two on a wide screen, no pop-ups or countdowns, space
           kept for every ad before it loads so nothing you are reading gets pushed aside, and no ads on this page or the Terms, Privacy or
           Contact pages.
+        </p>
+
+        <h3 id="amazon" className="mb-2 mt-6 font-display text-base font-bold text-ink">Amazon AU</h3>
+        <p>
+          On Australian and New Zealand pages, product, set and type pages, pre-orders and the guides carry a &ldquo;Check price on Amazon AU&rdquo;
+          link to amazon.com.au. We show no Amazon price, rating or stock: we don&rsquo;t read Amazon, so the link opens Amazon&rsquo;s own page
+          (or its search for the product) and Amazon&rsquo;s page is final. Amazon is never ranked with the stores.
         </p>
 
         <h3 id="ebay" className="mb-2 mt-6 font-display text-base font-bold text-ink">eBay</h3>

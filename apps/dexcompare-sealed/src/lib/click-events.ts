@@ -129,3 +129,19 @@ export const searchEvent = (region: Region | null, kind: "submit" | "select" | "
 
 /** home_region { region, source }: the landing page showed a region's products (geo, language, saved choice or time zone). */
 export const homeRegionEvent = (region: Region, source: string): AnalyticsEvent => ["home_region", { region, source: clip(source) }];
+
+/**
+ * amazon_click { product, region, page }: a click on an Amazon AU link (lib/amazon.ts). `product` is the product's slug, or for a link
+ * with no product (a set, a type, a guide's closing search) what it searches for, as a slug ("set:phantasmal-flames"). On Vercel's
+ * Pro plan (two properties kept) it is { product, region }: the page is in the same click's buy_click placement. GA4 always gets all
+ * three (components/AmazonLink.tsx).
+ */
+export function amazonClickEvent(o: { product: string; pathname: string }, props = ANALYTICS_PROPS): AnalyticsEvent {
+  const all: Props = { product: clip(o.product), region: regionOfPath(o.pathname), page: pageTypeOf(o.pathname) };
+  return ["amazon_click", props >= 8 ? all : { product: all.product, region: all.region }];
+}
+
+/** The same click as GA4 parameters: all three, always. */
+export function amazonGa4Params(o: { product: string; pathname: string }): Record<string, string> {
+  return { product: clip(o.product), region: regionOfPath(o.pathname) ?? "none", page: pageTypeOf(o.pathname) };
+}

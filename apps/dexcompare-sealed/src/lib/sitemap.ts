@@ -58,6 +58,7 @@ export function staticSitemap(
     url("/terms", null, "yearly", 0.1),
     url("/privacy", null, "yearly", 0.1),
     url("/contact", null, "yearly", 0.1),
+    url("/affiliate-disclosure", null, "yearly", 0.1),
   ];
   for (const r of REGION_LIST) {
     const m = lastmod[r.market];

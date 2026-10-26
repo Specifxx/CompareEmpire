@@ -29,6 +29,8 @@ import * as deltaReignChase from "./delta-reign-chase-cards";
 import * as deltaReignList from "./delta-reign-card-list";
 import * as deltaReignBoxVsEtb from "./delta-reign-booster-box-vs-etb";
 import * as pitchBlackChase from "./pitch-black-chase-cards";
+import * as bestEtbAu from "./best-pokemon-elite-trainer-boxes-australia";
+import * as giftAu from "./pokemon-tcg-gift-guide-australia";
 
 export const GUIDE_MODULES: Record<GuideSlug, GuideModule> = {
   "how-many-packs-in-pokemon-products": howManyPacks,
@@ -58,4 +60,6 @@ export const GUIDE_MODULES: Record<GuideSlug, GuideModule> = {
   "delta-reign-card-list": deltaReignList,
   "delta-reign-booster-box-vs-etb": deltaReignBoxVsEtb,
   "pitch-black-chase-cards": pitchBlackChase,
+  "best-pokemon-elite-trainer-boxes-australia": bestEtbAu,
+  "pokemon-tcg-gift-guide-australia": giftAu,
 };

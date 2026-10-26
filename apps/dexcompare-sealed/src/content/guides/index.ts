@@ -46,7 +46,9 @@ export type GuideSlug =
   | "delta-reign-chase-cards"
   | "delta-reign-card-list"
   | "delta-reign-booster-box-vs-etb"
-  | "pitch-black-chase-cards";
+  | "pitch-black-chase-cards"
+  | "best-pokemon-elite-trainer-boxes-australia"
+  | "pokemon-tcg-gift-guide-australia";
 
 export interface Guide {
   slug: GuideSlug;
@@ -386,6 +388,30 @@ export const GUIDES: readonly Guide[] = [
     topic: { types: ["booster-box", "etb", "booster-bundle"], sets: ["pitch-black", "chaos-rising"] },
     ebay: { context: "type:booster-boxes", heading: "Pokémon booster boxes on eBay" },
     tools: ["value-checker", "trade-calculator"],
+  },
+  {
+    slug: "best-pokemon-elite-trainer-boxes-australia",
+    title: "Best Pokémon Elite Trainer Boxes to buy in Australia",
+    description: "Which Pokémon Elite Trainer Box to buy in Australia today: the cheapest per pack, the most widely stocked, each set's cheapest ETB and the Pokémon Center ETBs.",
+    kicker: "Australia",
+    published: "2026-10-26",
+    updated: "2026-10-26",
+    regions: ["au"],
+    topic: { types: ["etb", "pc-etb"] },
+    ebay: { context: "type:elite-trainer-boxes", heading: "Elite Trainer Boxes on eBay" },
+    tools: ["value-checker", "trade-calculator"],
+  },
+  {
+    slug: "pokemon-tcg-gift-guide-australia",
+    title: "Pokémon TCG gift guide for Australia, by budget",
+    description: "Pokémon TCG gifts in stock at Australian stores today, by budget: blisters and tins under A$50, bundles, ETBs, boxes, and what each one holds.",
+    kicker: "Gift guide",
+    published: "2026-10-26",
+    updated: "2026-10-26",
+    regions: ["au"],
+    topic: { types: ["booster-bundle", "etb", "tin", "collection", "build-battle", "booster-box", "blister"] },
+    ebay: { context: "sealed", heading: "Pokémon sealed on eBay" },
+    tools: ["value-checker"],
   },
 ];
 

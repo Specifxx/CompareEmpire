@@ -87,7 +87,7 @@ test("Footer: no mailto (Contact goes to /contact), the two-line disclosure, and
     const html = render(React.createElement(Footer, { region }));
     assert.doesNotMatch(html, /mailto:/i);
     assert.doesNotMatch(html, /@[a-z0-9.-]*riftcompare|riftcompare[a-z0-9.-]*@/i, "another brand's email address never shows in the chrome (the RiftCompare sister-site link may)");
-    assert.match(html, /eBay and TCGplayer links are affiliate links and are marked where they appear\.<br\/>No store pays to be listed or to rank\./);
+    assert.match(html, /eBay, TCGplayer and Amazon links are affiliate links and are marked where they appear\.<br\/>No store pays to be listed or to rank\./);
     assert.match(html, /How we make money/);
     assert.match(html, /Prices and stock are read from each store about twice a day; the store’s own page is final\./);
     // the footer links the history-backed /back-in-stock page by its name; nothing else history-backed is allowed

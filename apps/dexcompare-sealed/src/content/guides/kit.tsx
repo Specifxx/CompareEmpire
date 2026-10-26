@@ -6,6 +6,8 @@
 // styles every descendant <a>, <p> and <ul>, which would underline a card's link and put bullets on a row of chips.
 //
 // No JSX runs when this module loads (the tests set globalThis.React after their imports): everything here is a function.
+import { AmazonLink } from "@/components/AmazonLink";
+import { AMAZON_ASSOCIATE_STATEMENT, amazonAuHref, amazonAuUrl, showsAmazonAu } from "@/lib/amazon";
 import Link from "next/link";
 import { Fragment, type ReactNode } from "react";
 import { AdSenseUnit } from "@/components/AdSenseUnit";
@@ -484,8 +486,14 @@ export function GuideStrip({ guide, r }: { guide: Guide; r: RegionInfo }) {
  * the US one labelled TCGplayer search (guide-tcgplayer). TCGplayer is a link, not a unit: it carries no data-ad, and its label says
  * "affiliate link" beside it.
  */
-export function whereToBuy(r: RegionInfo, opts: { tcg?: { query: string; label: string }; links?: { href: string; label: string }[] } = {}): GuideSection {
+export function whereToBuy(
+  r: RegionInfo,
+  opts: { tcg?: { query: string; label: string }; amazon?: { query: string; label: string }; links?: { href: string; label: string }[] } = {},
+): GuideSection {
   const us = r.market === "US";
+  // Australia and New Zealand: Amazon AU (lib/amazon.ts), a search for the guide's subject (its own, else the TCGplayer one, else
+  // Pokémon sealed), with the Associates statement beside it. Never a price.
+  const amazon = showsAmazonAu(r.region) ? opts.amazon ?? opts.tcg ?? { query: "Pokemon TCG sealed", label: "Pokémon sealed" } : null;
   return {
     id: "where-to-buy",
     title: "Where to buy",
@@ -526,9 +534,52 @@ export function whereToBuy(r: RegionInfo, opts: { tcg?: { query: string; label: 
             <p className="text-xs leading-5 text-muted">{AFFILIATE_NOTE_SHORT}</p>
           </div>
         )}
+        {amazon && (
+          <div className="mt-5 rounded-xl border border-line bg-surface p-4">
+            <p className="text-sm leading-6 text-muted">
+              Amazon AU sells Pokémon sealed product too{r.region === "nz" ? ", and delivers many items to New Zealand (check the one you want does)" : ""}. We don&rsquo;t read
+              Amazon&rsquo;s prices, so compare its checkout total with the stores above.
+            </p>
+            <p className="mt-1 text-[15px] leading-6">
+              <AmazonLink
+                href={amazonAuUrl({ name: amazon.query })}
+                product={`guide:${amazon.query.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}`}
+                placement="amazon-guide"
+                className="inline-flex min-h-11 items-center font-semibold text-brand underline-offset-2 hover:underline"
+              >
+                Check {amazon.label} prices on Amazon AU&nbsp;<span aria-hidden="true">↗</span>
+              </AmazonLink>{" "}
+              <span className="whitespace-nowrap text-xs font-medium text-muted">· affiliate link</span>
+            </p>
+            <p className="text-xs leading-5 text-muted">{AMAZON_ASSOCIATE_STATEMENT}</p>
+          </div>
+        )}
       </>
     ),
   };
+}
+
+/**
+ * One product's "Check price on Amazon AU" link (lib/amazon.ts) in Australia and New Zealand, else nothing: the Australian buying
+ * guides' per-product link. Never a price. The section that holds these carries the Associates statement (AmazonNote).
+ */
+export function AmazonCheck({ r, p }: { r: RegionInfo; p: Pick<ProductCardData, "slug" | "name"> }) {
+  if (!showsAmazonAu(r.region)) return null;
+  return (
+    <AmazonLink href={amazonAuHref(p.slug, p.name)} product={p.slug} placement="amazon-guide-pick" className="inline-flex min-h-10 items-center whitespace-nowrap text-sm font-semibold text-brand underline-offset-2 hover:underline">
+      Check price on Amazon AU&nbsp;<span aria-hidden="true">↗</span>
+    </AmazonLink>
+  );
+}
+
+/** The inline disclosure beside a guide's Amazon links. */
+export function AmazonNote({ r }: { r: RegionInfo }) {
+  if (!showsAmazonAu(r.region)) return null;
+  return (
+    <p className="mt-2 text-xs leading-5 text-muted">
+      Amazon AU links are affiliate links, and we show no Amazon prices: Amazon&rsquo;s page is final. {AMAZON_ASSOCIATE_STATEMENT}
+    </p>
+  );
 }
 
 // ─── Table of contents ─────────────────────────────────────────────────────────
