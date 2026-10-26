@@ -79,6 +79,15 @@ export function amazonAuUrl(o: { name: string; asin?: string | null }, tag = ama
  * Known ASINs, by product slug: a product here links straight to its Amazon page; everything else is a search. Empty until an ASIN
  * is checked by hand on amazon.com.au (the listing must be the same English-language product): never guessed.
  */
-export const AMAZON_AU_ASINS: Readonly<Record<string, string>> = {};
+export const AMAZON_AU_ASINS: Readonly<Record<string, string>> = {
+  // Checked 2026-10-26 against each listing's own title and contents on amazon.com.au (the ten Australian booster boxes, ETBs and
+  // bundles in stock at the most stores). Left as searches: the Chaos Rising and Pitch Black displays (no pack count on the listing,
+  // and Amazon AU also sells 18-pack displays), Surging Sparks' (unavailable), Perfect Order's and Delta Reign's (no listing found).
+  "pitch-black-elite-trainer-box": "B0GYVHLP4L", // "Pokemon TCG Mega Evolutions 5 Pitch Black Elite Trainer Box" (9 packs, Zarude promo)
+  "chaos-rising-elite-trainer-box": "B0GR6N18F6", // "Pokemon TCG Mega Evolutions 4 Elite Trainer Box" (Mega Evolution 4 = Chaos Rising, me4)
+  "chaos-rising-booster-bundle": "B0GR6Q72ND", // "Pokemon TCG Mega Evolutions 4 Booster Bundles" (model "Chaos Rising"; six booster packs)
+  "ascended-heroes-elite-trainer-box": "B0G3CY83L5", // "Pokemon TCG ME2.5 Ascended Heroes Elite Trainer Box" (9 packs)
+  "destined-rivals-elite-trainer-box": "B0F2BDXW4J", // "Pokemon TCG Scarlet & Violet 10 Destined Rivals Elite Trainer Box" (9 packs, sold by Pokémon)
+};
 
 export const amazonAuHref = (slug: string, name: string, tag?: string): string => amazonAuUrl({ name, asin: AMAZON_AU_ASINS[slug] ?? null }, tag);
