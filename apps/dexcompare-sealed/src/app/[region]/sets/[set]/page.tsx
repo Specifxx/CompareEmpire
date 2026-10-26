@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { AmazonLink } from "@/components/AmazonLink";
+import { AMAZON_ASSOCIATE_STATEMENT, amazonAuUrl, showsAmazonAu } from "@/lib/amazon";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 import type { Metadata } from "next";
@@ -79,6 +81,7 @@ export default async function SetPage({ params }: { params: { region: string; se
   const name = withPokemon(s.name);
   const path = `/${r.region}/sets/${s.slug}`;
   const us = r.market === "US";
+  const amazon = showsAmazonAu(r.region);
   const listedTypes = new Set(products.map((p) => p.productType));
   const facts = setFacts(s, listedTypes, r.market);
   const { prev, next } = prevNextSet(s.code, (c) => (listedSets.get(c)?.products ?? 0) > 0);
@@ -145,7 +148,7 @@ export default async function SetPage({ params }: { params: { region: string; se
         {/* The page's answer in a sentence, above the grid (the longer "About" sits below it). */}
         <p className="mt-4 max-w-3xl text-[15px] leading-7 text-muted">{setDescription(s, r, products)}</p>
 
-        {(way || pre || us) && (
+        {(way || pre || us || amazon) && (
           // Two fixed columns from sm (the cheapest pack; then the calendar and the labelled TCGplayer link stacked), so no line
           // wraps differently when the web font arrives and nothing below moves.
           <div className="mt-5 grid gap-3 border-t border-line pt-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-x-6">
@@ -165,7 +168,7 @@ export default async function SetPage({ params }: { params: { region: string; se
             ) : (
               <span className="hidden sm:block" />
             )}
-            {(pre || us) && (
+            {(pre || us || amazon) && (
               <div className="flex flex-col gap-2 sm:items-end">
                 {pre && <AddToCalendar code={s.code} name={s.name} date={s.releaseDate} slug={s.slug} url={`${SITE_URL}${path}`} when={shortDate(s.releaseDate)} />}
                 {us && (
@@ -174,6 +177,15 @@ export default async function SetPage({ params }: { params: { region: string; se
                       {pre ? `Search TCGplayer for ${s.name}` : `Shop ${s.name} on TCGplayer`} <span aria-hidden="true">↗</span>
                     </OutboundLink>
                     <span className="text-xs text-muted sm:text-right">{AFFILIATE_NOTE_SHORT}</span>
+                  </>
+                )}
+                {/* Australia and New Zealand: Amazon AU, a search for the set's sealed product (lib/amazon.ts; no price, no API). */}
+                {amazon && (
+                  <>
+                    <AmazonLink href={amazonAuUrl({ name: `${s.name} sealed` })} product={`set:${s.slug}`} placement="amazon-set" className="btn-ghost min-h-11">
+                      Check {s.name} on Amazon AU <span aria-hidden="true">↗</span>
+                    </AmazonLink>
+                    <span className="max-w-xs text-xs text-muted sm:text-right">{AMAZON_ASSOCIATE_STATEMENT}</span>
                   </>
                 )}
               </div>

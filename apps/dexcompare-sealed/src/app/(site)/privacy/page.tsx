@@ -2,6 +2,7 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ADSENSE_CLIENT } from "@/lib/adsense";
+import { GA4_ID } from "@/lib/ga4";
 import { CONTACT_EMAIL, SITE_URL } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
 };
 
 // Bump when what is collected changes, not for wording.
-const LAST_UPDATED = ADSENSE_CLIENT ? "15 October 2026" : "14 October 2026";
+const LAST_UPDATED = "26 October 2026";
 
 export default function Privacy() {
   return (
@@ -34,11 +35,25 @@ export default function Privacy() {
           your browser, operating system and device type. It uses no cookies, collects no personal data and doesn&rsquo;t identify you,
           on this site or across others.
         </p>
-        <h2>Links to stores, eBay and TCGplayer</h2>
+        {GA4_ID && (
+          <>
+            <h2 id="google-analytics">Google Analytics</h2>
+            <p>
+              We also use Google Analytics 4 to count page views (by path, without what you typed into search) and clicks on Amazon AU links (which product, which
+              region, which kind of page). Google Analytics sets cookies to tell visits apart. In the UK, the EEA and Switzerland it stores nothing until you
+              agree in the consent message. Google&rsquo;s use of this data is described at{" "}
+              <a href="https://policies.google.com/technologies/partner-sites" rel="noopener noreferrer">policies.google.com/technologies/partner-sites</a>, and you can
+              opt out with Google&rsquo;s <a href="https://tools.google.com/dlpage/gaoptout" rel="noopener noreferrer">browser add-on</a>.
+            </p>
+          </>
+        )}
+        <h2>Links to stores, eBay, TCGplayer and Amazon</h2>
         <p>
           When you follow a link to a store, eBay or TCGplayer, that site&rsquo;s own privacy policy applies. eBay links carry an eBay Partner
           Network tag, and TCGplayer links pass through TCGplayer&rsquo;s affiliate network (Impact), so they can credit us for the referral.
-          Store links are plain links. The eBay units on the site are advertisements, marked &ldquo;Ad&rdquo;; they load no ad script,
+          Store links are plain links. In Australia and New Zealand, &ldquo;Check price on Amazon AU&rdquo; links go straight to amazon.com.au with our Amazon
+          Associates tag, so Amazon can credit us; Amazon may set its own cookies once you are on its site. We load nothing from Amazon on our pages.{" "}
+          <Link href="/affiliate-disclosure">Our affiliate disclosure</Link>. The eBay units on the site are advertisements, marked &ldquo;Ad&rdquo;; they load no ad script,
           tracking pixel or cookie from eBay.
           {" "}
           The eBay listing strips load one thing from eBay: when a strip scrolls near the screen, your browser asks DexCompare&rsquo;s own

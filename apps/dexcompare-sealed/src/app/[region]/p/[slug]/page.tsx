@@ -583,13 +583,14 @@ export default async function ProductPage({ params }: { params: { region: string
         )}
       </Section>
 
-      {/* Marketplaces (eBay, TCGplayer) come AFTER the store rows (owner, 2026-10-24: at the top they read as the price rows, and a
+      {/* Marketplaces (eBay, TCGplayer; Amazon AU in Australia and New Zealand) come AFTER the store rows (owner, 2026-10-24: at the top they read as the price rows, and a
           sold-out page looked like nothing was compared). */}
       {best && bestLink ? (
         <div className="mt-10">
         <MarketplacePanel
           region={r.region}
           productName={p.name}
+          productSlug={p.slug}
           preorder={pre}
           tcgplayer={tcgplayer}
           tcgplayerIsBest={best.marketplace && !ebayBest /* when the card may turn to eBay, TCGplayer keeps its row here */}
@@ -603,6 +604,7 @@ export default async function ProductPage({ params }: { params: { region: string
             <SoldOutCallout
               region={r.region}
               productName={p.name}
+              productSlug={p.slug}
               storesListing={stores.length}
               notChecked={stores.filter((o) => offerStock(o, now) === "unknown").length}
               tcgplayer={tcgplayer}

@@ -210,6 +210,31 @@ function fixture(slug: GuideSlug): GuideData {
     case "delta-reign-card-list":
     case "delta-reign-booster-box-vs-etb":
       return fixture("delta-reign-booster-box-price");
+    case "best-pokemon-elite-trainer-boxes-australia":
+      return {
+        ...d,
+        cards: sorted([
+          ...released.map((c, i) => card(c, "Elite Trainer Box", 6499 + i * 700, 14 - i * 3)),
+          card(released[0], "Pokémon Center Elite Trainer Box", 11999, 2),
+          ...upcomingSets(TODAY).slice(0, 1).map((s) => card(s.code, "Elite Trainer Box", 8999, 5)),
+        ]),
+      };
+    case "pokemon-tcg-gift-guide-australia":
+      return {
+        ...d,
+        cards: sorted([
+          card(released[0], "Booster Bundle", 4499, 9),
+          card(released[1], "Booster Bundle", 3999, 4),
+          card(released[0], "Elite Trainer Box", 7999, 12),
+          card(released[0], "Pokémon Center Elite Trainer Box", 14999, 2),
+          card(released[0], "Booster Box", 21999, 10),
+          card(released[1], "Build & Battle Box", 3499, 3),
+          card(released[0], "Blister", 1499, 4),
+          { ...card(released[0], "Tin", 2999, 6), setCode: null, slug: "mega-tin-test", name: "Mega Evolution Tin" },
+          { ...card(released[0], "Collection", 2499, 5), setCode: null, slug: "premium-collection-test", name: "Premium Collection Test" },
+          { ...card(released[0], "Ultra-Premium Collection", 17999, 2), setCode: null, slug: "upc-test", name: "Ultra-Premium Collection Test" },
+        ]),
+      };
     case "pitch-black-chase-cards":
       return {
         ...d,
@@ -236,6 +261,8 @@ const SEO_GUIDES: GuideSlug[] = [
   "cheapest-pokemon-booster-box",
   "pokemon-booster-box-price-australia",
   "delta-reign-booster-box-price",
+  "best-pokemon-elite-trainer-boxes-australia",
+  "pokemon-tcg-gift-guide-australia",
 ];
 
 const render = (slug: GuideSlug, region: Region, data: GuideData = fixture(slug)) => renderToStaticMarkup(React.createElement(GUIDE_MODULES[slug].Body, { r: REGIONS[region], data }));
@@ -262,7 +289,7 @@ const PAIRS = GUIDES.filter((g) => !ONLY || ONLY.has(g.slug)).flatMap((g) => gui
 
 test("registry: unique slugs, ISO editorial dates (updated ≥ published), descriptions ≤ 160, titles that fit a <title>", () => {
   assert.equal(new Set(GUIDES.map((g) => g.slug)).size, GUIDES.length);
-  assert.equal(GUIDES.length, 27);
+  assert.equal(GUIDES.length, 29);
   for (const g of GUIDES) {
     assert.match(g.slug, /^[a-z0-9]+(?:-[a-z0-9]+)*$/);
     for (const d of [g.published, g.updated]) {
@@ -290,16 +317,22 @@ test("registry: every topic type and set, and every eBay context, exists", () =>
   }
 });
 
-test("the MSRP guide is US-only, the three Australian guides AU-only; every other guide is in all seven regions", () => {
+test("the MSRP guide is US-only, the five Australian guides AU-only; every other guide is in all seven regions", () => {
   const msrp = GUIDE_BY_SLUG.get("pokemon-tcg-msrp")!;
-  const AU_ONLY = ["where-to-buy-pokemon-cards-australia", "ebay-vs-australian-stores-pokemon-fees", "pokemon-booster-box-price-australia"];
+  const AU_ONLY = [
+    "where-to-buy-pokemon-cards-australia",
+    "ebay-vs-australian-stores-pokemon-fees",
+    "pokemon-booster-box-price-australia",
+    "best-pokemon-elite-trainer-boxes-australia",
+    "pokemon-tcg-gift-guide-australia",
+  ];
   assert.deepEqual(guideRegions(msrp), ["us"]);
   for (const slug of AU_ONLY) assert.deepEqual(guideRegions(GUIDE_BY_SLUG.get(slug)!), ["au"], slug);
   assert.equal(guideFor("pokemon-tcg-msrp", "us")?.slug, "pokemon-tcg-msrp");
   for (const r of REGION_LIST.filter((x) => x.region !== "us")) {
     assert.equal(guideFor("pokemon-tcg-msrp", r.region), null, r.region);
     assert.ok(!guidesFor(r.region).some((g) => g.slug === "pokemon-tcg-msrp"), r.region);
-    assert.equal(guidesFor(r.region).length, r.region === "au" ? 26 : 23, r.region);
+    assert.equal(guidesFor(r.region).length, r.region === "au" ? 28 : 23, r.region);
   }
   assert.equal(guidesFor("us").length, 24);
   for (const g of GUIDES.filter((x) => x.slug !== "pokemon-tcg-msrp" && !AU_ONLY.includes(x.slug))) assert.equal(guideRegions(g).length, 7, g.slug);

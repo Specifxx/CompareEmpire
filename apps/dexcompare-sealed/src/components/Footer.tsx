@@ -1,3 +1,4 @@
+import { AMAZON_ASSOCIATE_STATEMENT } from "@/lib/amazon";
 import Link from "next/link";
 import { COUNTRY_GUIDE } from "@/content/guides/country-prices";
 import { REGION_LIST, REGIONS, type Region } from "@/lib/regions";
@@ -16,6 +17,7 @@ export function footerColumns(region: Region | null): { title: string; links: Fo
     { href: "/contact", label: "Contact" },
     { href: "/terms", label: "Terms" },
     { href: "/privacy", label: "Privacy" },
+    { href: "/affiliate-disclosure", label: "Affiliate disclosure" },
   ];
   if (!region) {
     return [
@@ -70,7 +72,7 @@ export function Footer({ region }: { region: Region | null }) {
             cheapest first.
           </p>
           <p className="mt-4 text-xs leading-5 text-muted">
-            eBay and TCGplayer links are affiliate links and are marked where they appear.
+            eBay, TCGplayer and Amazon links are affiliate links and are marked where they appear.
             <br />
             No store pays to be listed or to rank.{" "}
             <Link href="/about#money" className="whitespace-nowrap font-semibold text-ink underline decoration-line underline-offset-2 hover:decoration-ink">
@@ -138,6 +140,13 @@ export function Footer({ region }: { region: Region | null }) {
             {OPERATOR !== SITE_NAME && ` Operated by ${OPERATOR}.`}
           </p>
           <p>Not affiliated with Nintendo, Creatures, GAME FREAK or The Pokémon Company.</p>
+          {/* The Amazon Associates programme's statement, word for word, on every page (lib/amazon.ts), and the full disclosure. */}
+          <p>
+            {AMAZON_ASSOCIATE_STATEMENT}{" "}
+            <Link href="/affiliate-disclosure" prefetch={false} className="font-semibold text-ink underline decoration-line underline-offset-2 hover:decoration-ink">
+              Affiliate disclosure
+            </Link>
+          </p>
         </div>
       </div>
     </footer>

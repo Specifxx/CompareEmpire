@@ -1015,6 +1015,31 @@ Without the secret the job writes "skipped" to its summary and succeeds. A run m
 it fails only when every call fails (a wrong key). Read the job summary: the lab score, LCP, CLS and TBT, and the real-user (field)
 LCP, INP and CLS when Chrome has enough data. Lab numbers move from run to run: compare weeks, not single runs.
 
+## Amazon Associates (Australia), 2026-10-26
+
+Amazon AU links on Australian and New Zealand pages (`src/lib/amazon.ts`), to earn the three qualifying sales Amazon needs within
+180 days of sign-up to approve the Associates account.
+
+- **Where**: the product page's Marketplaces panel (`amazon-product`), the sold-out box (`amazon-soldout`), the pre-order lists
+  (`amazon-preorder`), set and type pages (`amazon-set`, `amazon-type`), every AU/NZ guide's closing "Where to buy"
+  (`amazon-guide`), and per product in the two Australian buying guides, `best-pokemon-elite-trainer-boxes-australia` and
+  `pokemon-tcg-gift-guide-australia` (`amazon-guide-pick`). Not the US, UK, Canada or Europe (their own Amazons), not Singapore
+  (amazon.sg is a separate store).
+- **What**: `https://www.amazon.com.au/dp/<ASIN>?tag=…` when `AMAZON_AU_ASINS` in `src/lib/amazon.ts` has the product, else
+  `https://www.amazon.com.au/s?k=<name>&tag=…`. Direct, `target="_blank"`, `rel="sponsored nofollow noopener"`. Copy is "Check
+  price on Amazon AU": no Amazon price, rating or stock (no Product Advertising API access), and Amazon is never ranked with the stores.
+- **Disclosure**: "As an Amazon Associate I earn from qualifying purchases." in every page's footer, beside every group of Amazon
+  links, and on `/affiliate-disclosure` (linked from the footer, in the sitemap).
+- **Tag**: `AMAZON_AU_TAG` in Vercel (Production), default `compareempire-22`. Read on the server when a page renders, so a change
+  takes effect as pages are re-rendered (redeploy to apply it everywhere at once).
+- **Clicks**: `amazon_click` (docs/analytics.md) in Vercel Web Analytics, and in GA4 once `NEXT_PUBLIC_GA4_ID` (a `G-…` ID) is set
+  in Vercel and the site redeployed (`src/lib/ga4.ts`: Consent Mode defaults to denied in the EEA, UK and Switzerland). Amazon's
+  own Associates Central reports clicks and orders for the tag too.
+
+Owner steps: in Associates Central (affiliate-program.amazon.com.au) add `https://www.dexcompare.app` to the account's website
+list; optionally set `AMAZON_AU_TAG`; for GA4, create a property and set `NEXT_PUBLIC_GA4_ID`; and add ASINs to `AMAZON_AU_ASINS`
+only after checking each listing by hand (same English-language product).
+
 ## After the growth release: owner actions
 
 1. Set **`NEXT_PUBLIC_CONTACT_EMAIL`** to a branded forwarding address and **`NEXT_PUBLIC_OPERATOR`** to who runs the site

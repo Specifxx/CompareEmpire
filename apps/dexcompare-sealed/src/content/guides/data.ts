@@ -171,6 +171,21 @@ async function openBoxes(market: Market): Promise<ProductCardData[]> {
   return rows.map(toCard);
 }
 
+/** The Australian buying guides' read (2026-10-26): the market's open products of one type, cheapest first, capped. */
+async function openOfType(market: Market, type: string, take: number): Promise<ProductCardData[]> {
+  const rows = await prisma.productStat.findMany({
+    where: { market, ...OPEN, lowestPriceCents: { gt: 0 }, product: { productType: type } },
+    orderBy: { lowestPriceCents: "asc" },
+    take,
+    select: cardSelect,
+  });
+  return rows.map(toCard);
+}
+
+/** The types the gift guide picks from, and the ETB guide's two. */
+export const GIFT_TYPES = ["Booster Bundle", "Elite Trainer Box", "Pokémon Center Elite Trainer Box", "Booster Box", "Ultra-Premium Collection", "Collection", "Tin", "Build & Battle Box", "Blister"];
+export const ETB_TYPES = ["Elite Trainer Box", "Pokémon Center Elite Trainer Box"];
+
 /** The where-to-buy guide's read: the region's active stores, most in stock first (at most 12 small rows). */
 async function topStores(market: Market): Promise<StoreRow[]> {
   return prisma.storeStat.findMany({
@@ -340,6 +355,12 @@ export async function loadGuideData(slug: GuideSlug, r: RegionInfo, now: Date = 
     case "cheapest-pokemon-booster-box":
     case "pokemon-booster-box-price-australia":
       return done({ cards: await openBoxes(r.market) });
+    case "best-pokemon-elite-trainer-boxes-australia":
+      // Every open ETB and Pokémon Center ETB, cheapest first (at most 120 of each: a market holds about 60 open ETBs).
+      return done({ cards: (await Promise.all(ETB_TYPES.map((t) => openOfType(r.market, t, 120)))).flat() });
+    case "pokemon-tcg-gift-guide-australia":
+      // The 40 cheapest open products of each gift type (≤ 360 small rows): enough to fill every budget band.
+      return done({ cards: (await Promise.all(GIFT_TYPES.map((t) => openOfType(r.market, t, 40)))).flat() });
     case "delta-reign-booster-box-price": {
       // Delta Reign read whole (one set in one market, open products only, cheapest first), and the set before it, Pitch Black, for
       // its cheapest box, ETB and bundle beside them (calendarProducts, ≤ 9 rows).
