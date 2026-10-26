@@ -100,7 +100,7 @@ export function Footer({ region }: { region: Region | null }) {
         </div>
         {/* The owner's sister sites, one row across the footer. */}
         <nav aria-label="Also from us" className={r ? "lg:col-span-2" : "md:col-span-2"}>
-          <h2 className="eyebrow mb-2">Also from us</h2>
+          <h2 className="eyebrow mb-2">Also from us · the Compare Empire family</h2>
           <ul className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
             {SISTER_SITES.map((s) => (
               <li key={s.url}>

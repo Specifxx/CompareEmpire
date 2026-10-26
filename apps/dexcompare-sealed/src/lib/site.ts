@@ -26,6 +26,9 @@ export const SISTER_SITES = [
   { name: "RiftCompare", url: "https://riftcompare.com", what: "Riftbound TCG card prices" },
   { name: "OP Compare", url: "https://opcompare.app", what: "One Piece Card Game prices" },
   { name: "MTG Compare", url: "https://mtgcompare.app", what: "Magic: The Gathering prices" },
+  // The whole Compare Empire family (2026-10-26, owner: the strategy review's "one family of sites").
+  { name: "Gundam Compare", url: "https://gundamcompare.com", what: "Gundam Card Game prices" },
+  { name: "Lorcana Compare", url: "https://lorcanacompare.com", what: "Disney Lorcana prices" },
 ] as const;
 
 // Public profiles for Organization.sameAs (an X account, a Bluesky handle…).
