@@ -641,9 +641,8 @@ function firstMatch(rules: Redirect[], path: string): Redirect | null {
 
 test("legacy redirects: every specific source was a real old guide or blog post, and every destination is a page we serve", async () => {
   const all = await config.redirects();
-  // The apex → www rule (next.config.js, first) is conditioned on the host and is a 301; the rest are path rules.
-  const host = all.filter((r) => r.has);
-  assert.deepEqual(host, [{ source: "/:path*", has: [{ type: "host", value: "dexcompare.app" }], destination: "https://www.dexcompare.app/:path*", statusCode: 301 }]);
+  // No host-conditioned rule: Vercel's domain settings decide the host (2026-10-26 outage, next.config.js).
+  assert.deepEqual(all.filter((r) => r.has), []);
   const rules = all.filter((r) => !r.has);
   const articles = readFileSync(new URL("../../dexcompare/src/lib/articles.ts", import.meta.url), "utf8");
   const old = new Map([...articles.matchAll(/slug: "([^"]+)",\s*category: "(guide|blog)"/g)].map((m) => [m[1], m[2]]));
