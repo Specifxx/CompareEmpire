@@ -38,6 +38,7 @@ export const AMAZON_PLACEMENTS = [
   "amazon-type", // type page: "Check <type> on Amazon AU"
   "amazon-guide", // a guide's closing "Where to buy" section
   "amazon-guide-pick", // a guide's per-product "Check price on Amazon AU" links (the Australian buying guides)
+  "amazon-japanese", // the Japanese section (/[region]/japanese): "Check Japanese boxes on Amazon AU"
 ] as const;
 export type AmazonPlacement = (typeof AMAZON_PLACEMENTS)[number];
 

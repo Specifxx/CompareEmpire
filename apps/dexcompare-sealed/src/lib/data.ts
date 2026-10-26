@@ -3,7 +3,8 @@
 // Pages that call these are ISR-cached and re-rendered once per import.
 import { prisma } from "./db";
 import { SET_BY_CODE, SETS } from "./sets";
-import { typeRank } from "./sealed-title";
+import { JAPANESE_TYPE_LABELS, typeRank } from "./sealed-title";
+import { jaSetOf } from "./sets-ja";
 import { rankOffers } from "./sealed-offers";
 import { isMarketplace, STORE_BY_KEY, storeHost, TCGPLAYER } from "./stores";
 import { cardOpen } from "./compact";
@@ -56,7 +57,7 @@ export function toCard(r: CardRow): ProductCardData {
     listedStores: r.listedStores,
     marketplaceOpen: r.marketplaceOpen,
     medianOpenCents: r.medianOpenCents,
-    releaseDate: r.product.setCode ? SET_BY_CODE.get(r.product.setCode)?.releaseDate ?? null : null,
+    releaseDate: r.product.setCode ? SET_BY_CODE.get(r.product.setCode)?.releaseDate ?? jaSetOf(r.product.setCode)?.releaseDate ?? null : null,
   };
 }
 
@@ -337,6 +338,18 @@ export async function storeStats(market: Market) {
 
 export async function storeStat(store: string) {
   return prisma.storeStat.findUnique({ where: { store }, select: { listed: true, inStock: true, lastOkAt: true, lastError: true, dormant: true } });
+}
+
+/**
+ * The Japanese section (/<region>/japanese): every Japanese booster box and pack the market lists, sold out included (the hub
+ * groups them by set, in stock first). One read, bounded by the two Japanese types: a few hundred rows at most.
+ */
+export async function japaneseProducts(market: Market): Promise<ProductCardData[]> {
+  const rows = await prisma.productStat.findMany({
+    where: { market, product: { productType: { in: [...JAPANESE_TYPE_LABELS] } } },
+    select: cardSelect,
+  });
+  return sortCards(rows.map(toCard));
 }
 
 /** Per set: how many products the market lists and how many are in stock (at a store or on TCGplayer). */

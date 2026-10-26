@@ -368,6 +368,7 @@ compact "search" CTA and the in-feed tile report under the strip's own placement
 | `listings-soldout-best` | product page, sold out: the same box once the browser has the product's own NEW listing (through the price table row's request, `useEbayPick`: no extra fetch): "On eBay from <price> <shipping> · updated <age>", "View on eBay ↗" to the listing exactly as eBay returned it, labelled "Ad". The two states are stacked in one space, so the swap never shifts the page |
 | `listings-set` | set page: the set's chase cards (cascade: generic chase cards), on a row of its own after the first four products; on every RELEASED set its top line carries the "Shop <set> sealed on eBay" button (`set-sealed`; `hot-set` for a hot set) |
 | `listings-type` | type page: the type's listings (cascade: generic sealed), on a row of its own after the first four products |
+| `listings-japanese` | `/<region>/japanese` (the Japanese section): the Japanese booster box feed's listings (cascade: generic sealed), on a row of its own after the newest set's first four products, or under the empty state |
 | `listings-browse` | `/<region>/sealed`, page 1 only (unfiltered list): the sealed strip on a row of its own after the first four products |
 | `listings-browse-feed`, `listings-set-feed`, `listings-type-feed`, `listings-deals-feed` | in-feed listing TILES in the product grids of `/<region>/sealed` (every page), set pages, type pages (the in-stock grid) and `/<region>/deals` (the first section's grid): one real listing as a labelled sponsored card the size of a product card after every 16 products, at most two per grid, never within the last eight, the first 12 products below the grid's strip. From md up a tile also needs 24 products after it (a whole row tall beside two or three cards, it would push a short page over the 25% density ceiling): 24-39 products, one tile on phones only; 40-55, one everywhere and a second on phones; 56 or more, two. Each is the sealed feed's 7th / 8th listing, which no strip or pre-footer strip on the page shows (`src/lib/ebay-ads.ts` feedSlots, tileSource). Invisible and reserved until its listing is known (no shift); with none, removed while below the viewport |
 | `listings-deals` | `/<region>/deals`: the sealed strip on a row of its own after the first four products of the first section |
@@ -387,6 +388,7 @@ compact "search" CTA and the in-feed tile report under the strip's own placement
 | `hot-home`, `hot-set`, `hot-product` | the highlighted eBay search button of a popular set or product (`src/lib/popular.ts` HOT_SETS, 30th Celebration first): inside the top line of the region home's sealed strip (`hot-home`), a hot set's strip (`hot-set`) and a hot product's strip (`hot-product`), and the compact CTA those strips become (a search link, `dex-<region>-hot-<surface>`); a highlighted strip's CTA clicks report under its hot placement |
 | `set-sealed` | every RELEASED set's page that is not a hot set: the "Shop <set> sealed on eBay" button inside the top line of the set's strip, and the compact CTA it becomes (a search link, `dex-<region>-set-sealed`); hot sets keep `hot-set`, pre-order sets have none. Part of the strip, never a unit of its own |
 | `set-tcgplayer`, `guide-tcgplayer` | US only: the labelled TCGplayer search ("Shop <set> on TCGplayer ↗ · affiliate link") in a set page's hero card, and "Search <topic> on TCGplayer ↗ · affiliate link" in a guide's closing "Where to buy" section (Impact `sharedid` `dex-us-set-tcgplayer`, `dex-us-guide-tcgplayer`) |
+| `japanese-tcgplayer` | US only: "Shop Japanese Pokémon on TCGplayer ↗ · affiliate link" at the top of `/us/japanese`, a search of TCGplayer's Pokémon Japan product line (Impact `sharedid` `dex-us-japanese-tcgplayer`). A Japanese product's own TCGplayer buttons search the same line (`tcgplayerSearchUrl`: a "Japanese" name) |
 | `product-best`, `product-table`, `product-soldout`, `browse-empty`, `store-page` | the page's own store/TCGplayer buttons: the best-price card's button, the price table's rows, the sold-out callout's TCGplayer button (now the secondary choice under the eBay box), the browse page's "nothing matches" eBay/TCGplayer box, and a store page's "Visit" link |
 | `preorders` | a pre-order page (`/<region>/preorders/<set>`, `src/lib/preorder-guides.ts`): the STORE buttons of each product's price list, the stores alone, numbered in price order (TCGplayer moved to `preorders-tcgplayer` on 2026-10-16) |
 | `preorders-ebay` | a pre-order page: the eBay row pinned at the very top of each product's price list, in its "Marketplaces" group (`PreorderMarketplaces` in `src/components/Marketplaces.tsx`): the region's eBay Buy It Now search for the product (an unreleased set's eBay listings are pre-sales the importer refuses, so it is a search, never a price), eBay blue, "Ad"; unnumbered and never compared |
@@ -426,7 +428,7 @@ recorded at all):
    earnings, earnings per click.
 3. **Impact → Reports → Performance by Shared ID** (`sharedid`) for TCGplayer: `dex-us-product-best`, `dex-us-product-table`,
    `dex-<region>-product-marketplace`, `dex-<region>-product-soldout`, `dex-us-product-sticky`, `dex-us-set-tcgplayer`,
-   `dex-us-guide-tcgplayer`, `dex-us-browse-search`.
+   `dex-us-guide-tcgplayer`, `dex-us-japanese-tcgplayer`, `dex-us-browse-search`.
 
 Put each surface's clicks (Vercel) next to what it earned (EPN, Impact) and compare with last month. What to do when a surface
 underperforms:
@@ -1021,7 +1023,8 @@ Amazon AU links on Australian and New Zealand pages (`src/lib/amazon.ts`), to ea
 180 days of sign-up to approve the Associates account.
 
 - **Where**: the product page's Marketplaces panel (`amazon-product`), the sold-out box (`amazon-soldout`), the pre-order lists
-  (`amazon-preorder`), set and type pages (`amazon-set`, `amazon-type`), every AU/NZ guide's closing "Where to buy"
+  (`amazon-preorder`), set and type pages (`amazon-set`, `amazon-type`), the Japanese section (`amazon-japanese`, a search for Japanese booster
+  boxes), every AU/NZ guide's closing "Where to buy"
   (`amazon-guide`), and per product in the two Australian buying guides, `best-pokemon-elite-trainer-boxes-australia` and
   `pokemon-tcg-gift-guide-australia` (`amazon-guide-pick`). Not the US, UK, Canada or Europe (their own Amazons), not Singapore
   (amazon.sg is a separate store).

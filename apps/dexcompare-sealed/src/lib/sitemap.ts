@@ -11,7 +11,7 @@ import { COUNTRY_GUIDE } from "../content/guides/country-prices";
 import { TOOLS, toolRegions } from "../content/tools";
 import { openPreorderGuides } from "./preorder-guides";
 import { REGION_LIST, regionOfMarket, type Region, type RegionInfo } from "./regions";
-import { PRODUCT_TYPES } from "./sealed-title";
+import { JAPANESE_TYPES, PRODUCT_TYPES } from "./sealed-title";
 import { SETS } from "./sets";
 import { SITE_URL } from "./site";
 import { STORES } from "./stores";
@@ -117,6 +117,10 @@ export function regionSitemap(r: RegionInfo, d: RegionSitemapData): MetadataRout
   const out: MetadataRoute.Sitemap = [];
   const labels = new Set(d.typeLabels);
   for (const t of PRODUCT_TYPES) if (labels.has(t.label)) out.push(url(`/${r.region}/type/${t.slug}`, d.lastmod, "daily", 0.7));
+  // The Japanese section: its hub and type pages, only where the market lists a Japanese product (the hub is noindex without one).
+  const japanese = JAPANESE_TYPES.filter((t) => labels.has(t.label));
+  if (japanese.length) out.push(url(`/${r.region}/japanese`, d.lastmod, "daily", 0.7));
+  for (const t of japanese) out.push(url(`/${r.region}/type/${t.slug}`, d.lastmod, "daily", 0.6));
   const codes = new Set(d.setCodes);
   for (const s of SETS) if (codes.has(s.code)) out.push(url(`/${r.region}/sets/${s.slug}`, d.lastmod, "daily", 0.6));
   for (const slug of d.productSlugs) out.push(url(`/${r.region}/p/${slug}`, d.lastmod, "daily", 0.7));

@@ -80,8 +80,8 @@ export interface FactsInput {
   /** "US", "Australian" (RegionInfo.adjective). */
   adjective: string;
   packs: number | null;
-  /** The set's English release date (sets.ts), and whether it is still ahead. */
-  release: { date: string; preorder: boolean } | null;
+  /** The set's English release date (sets.ts), and whether it is still ahead; `where` "Japan" for a Japanese set's (sets-ja.ts). */
+  release: { date: string; preorder: boolean; where?: string } | null;
   /** The cheapest open offer, if any: its price, who sells it, whether that is a marketplace (TCGplayer), and when it was read. */
   cheapest: { cents: number; storeName: string; marketplace: boolean; lastSeen: string } | null;
   /** Open stores (never a marketplace), the stores listing it, and whether TCGplayer has it open (US). */
@@ -98,7 +98,7 @@ export interface FactsInput {
 export function quickFacts(f: FactsInput): QuickFact[] {
   const out: QuickFact[] = [];
   if (f.packs != null) out.push({ term: "Booster packs", text: `${f.packs} in each`, short: true });
-  if (f.release) out.push({ term: "English release", text: shortDate(f.release.date), short: true });
+  if (f.release) out.push({ term: f.release.where ? `Release in ${f.release.where}` : "English release", text: shortDate(f.release.date), short: true });
   if (f.msrp != null) out.push({ term: "US MSRP", text: money(f.msrp, f.market), short: true });
   if (f.cheapest) {
     const who = f.cheapest.marketplace ? `on ${f.cheapest.storeName}, a marketplace seller's listing` : `at ${f.cheapest.storeName}`;
@@ -199,7 +199,8 @@ export function productIntro(o: {
   productType: string;
   /** type-about.ts's sentence for the type, when it has one. */
   about: string | null;
-  set: { name: string; series: string; releaseDate: string } | null;
+  /** `where`: the country of a release date that is not the English one ("Japan", for a Japanese set). */
+  set: { name: string; series: string; releaseDate: string; where?: string } | null;
   preorder: boolean;
   packs: number | null;
   market: string;
@@ -216,8 +217,8 @@ export function productIntro(o: {
   const m = (c: number) => money(c, o.market);
   const out: string[] = [];
   const what = o.set
-    ? `${name} is ${/^[AEIOU]/.test(o.productType) ? "an" : "a"} ${o.productType} from ${o.set.name}, part of the ${o.set.series} series of the Pokémon Trading Card Game, ${o.preorder ? `releasing on ${shortDate(o.set.releaseDate)}` : `released on ${shortDate(o.set.releaseDate)}`}.`
-    : `${name} is a Pokémon TCG ${o.productType.toLowerCase()} that DexCompare compares across ${o.adjective} stores.`;
+    ? `${name} is ${/^[AEIOU]/.test(o.productType) ? "an" : "a"} ${o.productType} from ${o.set.name}, part of the ${o.set.series} series of the Pokémon Trading Card Game, ${o.preorder ? "releasing" : "released"}${o.set.where ? ` in ${o.set.where}` : ""} on ${shortDate(o.set.releaseDate)}.`
+    : `${name} is a Pokémon TCG ${o.productType.toLowerCase().replace(/^japanese\b/, "Japanese")} that DexCompare compares across ${o.adjective} stores.`;
   out.push([what, o.about, o.packs != null ? `It holds ${plural(o.packs, "booster pack")}.` : null].filter(Boolean).join(" "));
   const stock: string[] = [];
   if (o.cheapest) {

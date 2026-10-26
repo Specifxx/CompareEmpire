@@ -13,7 +13,7 @@ import { capsFromEnv, type CapEnv } from "../src/lib/ebay-import";
 import { relevantToProduct, sealedIdentity } from "../src/lib/ebay-normalise";
 import { budgetDay, prismaImportDb } from "../src/lib/ebay-store";
 import { buildSweepIndex, SweepCollector, sweepMarketplace, sweepVocabulary, type SweepProduct } from "../src/lib/ebay-sweep";
-import { identify, isIdentity } from "../src/lib/sealed-title";
+import { identifyAny, isIdentity } from "../src/lib/sealed-title";
 
 const args = process.argv.slice(2);
 const opt = (name: string) => {
@@ -50,7 +50,7 @@ async function main() {
         return;
       }
       if (o.miss === "rejected") {
-        const why = identify(title, { strict: false });
+        const why = identifyAny(title, { strict: false });
         const k = isIdentity(why) ? "noise/multi-unit" : why;
         samples.rej.set(k, (samples.rej.get(k) ?? 0) + 1);
         return;

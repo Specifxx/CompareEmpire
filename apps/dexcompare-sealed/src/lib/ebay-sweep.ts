@@ -29,7 +29,7 @@ import { baseItem, EBAY_NOISE, groupParts, lowestPriceFirst, sealedIdentity, typ
 import { refusedForType, refusedListing } from "./ebay-rules";
 import type { PlanRow } from "./ebay-store";
 import { HOT_SET_QUERY, HOT_SETS } from "./popular";
-import { identify, isIdentity, normalizeTitle, PRODUCT_TYPES, TYPE_BY_KEY, TYPE_BY_LABEL, type TypeKey } from "./sealed-title";
+import { identifyAny, isIdentity, normalizeTitle, PRODUCT_TYPES, TYPE_BY_KEY, TYPE_BY_LABEL, type TypeKey } from "./sealed-title";
 import { MARKET_WEIGHT, MARKETPLACE_OF_REGION } from "./ebay-context";
 import type { Region } from "./regions";
 import { SETS } from "./sets";
@@ -61,6 +61,9 @@ export interface SweepQuery {
 export const SWEEP_QUERIES: readonly SweepQuery[] = [
   { key: "etb", q: "elite trainer box", types: ["etb", "pc-etb", "etb-case"] },
   { key: "box", q: "booster box", types: ["booster-box", "booster-box-case"] },
+  // The Japanese section's boxes (sealed-title.ts identifyJapanese), right after the English ones: "booster box" sees few of them,
+  // and a query that gains nothing stops after SWEEP_MIN_PAGES pages, so a quiet day costs two calls a marketplace.
+  { key: "jp-box", q: "japanese booster box", types: ["jp-booster-box"] },
   { key: "tin", q: "tin", types: ["tin"] },
   { key: "premium", q: "premium collection", types: ["collection", "upc"] },
   { key: "blister", q: "blister", types: ["blister"] },
@@ -116,6 +119,9 @@ export const HOT_TYPE_QUERY: Readonly<Record<TypeKey, { key: string; phrase: str
   "booster-box-case": { key: "box-case", phrase: "booster box case" },
   "etb-case": { key: "etb-case", phrase: "elite trainer box case" },
   "booster-bundle-case": { key: "bundle-case", phrase: "booster bundle case" },
+  // Never a hot pass's (it walks PRODUCT_TYPES): here so every type has an entry.
+  "jp-booster-box": { key: "jp-box", phrase: "japanese booster box" },
+  "jp-booster-pack": { key: "jp-pack", phrase: "japanese booster pack" },
 };
 
 /** The words eBay is searched by for a hot set: popular.ts HOT_SET_QUERY's, else its sets.ts name with accents folded and "&" dropped; null for an unknown code. */
@@ -204,7 +210,7 @@ function signatures(groupKey: string, name: string, type: TypeKey): { set: strin
   // The stored key was made by the classifier of its day; the name re-read today gives the words a listing will be read into.
   // It may only DROP a format word ("Triple Blister" read as a plain blister): a re-read that loses a year ("Mewtwo EX Tin 2012")
   // or any other word would match a different product, so it is not used.
-  const again = identify(name, { strict: false });
+  const again = identifyAny(name, { strict: false });
   if (isIdentity(again) && again.type === type) {
     const p = groupParts(again.groupKey);
     if (p && (p.set === set || p.set === "-" || set === "-")) {

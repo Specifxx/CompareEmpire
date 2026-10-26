@@ -181,7 +181,7 @@ test("NavLink's current-section logic (aria-current='page'): whole segments, and
 test("the phone menu: the sixteen sections in order, under the region; the regions switch to the same page", () => {
   assert.deepEqual(
     MENU_ROWS.map((r) => r.label),
-    ["Deals", "Black Friday", "This week", "Back in stock", "Price moves", "Older sets in stock", "All sealed", "Booster boxes", "ETBs", "Booster bundles", "Cheapest per pack", "Sets", "Releases", "Guides", "Tools", "Where to buy"],
+    ["Deals", "Black Friday", "This week", "Back in stock", "Price moves", "Older sets in stock", "All sealed", "Booster boxes", "ETBs", "Booster bundles", "Japanese boxes", "Cheapest per pack", "Sets", "Releases", "Guides", "Tools", "Where to buy"],
   );
   // The sheet's contents render on the first open: the header's server HTML has the empty <dialog> only.
   assert.match(render(React.createElement(Header, { region: "ca" })), /<dialog id="site-menu" data-menu="" aria-label="Menu" class="menu-sheet [^"]*"><\/dialog>/);

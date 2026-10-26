@@ -19,4 +19,7 @@ export const TYPE_ABOUT: Readonly<Record<string, string>> = {
   "booster-box-cases": "A booster box case is a sealed case of booster boxes (usually six), straight from the distributor.",
   "elite-trainer-box-cases": "A sealed case of Elite Trainer Boxes (usually ten).",
   "booster-bundle-cases": "A sealed case of booster bundles.",
+  // The Japanese section (sealed-title.ts JAPANESE_TYPES).
+  "japanese-booster-boxes": "A Japanese booster box is the Japanese edition's sealed box of one set's packs. Japanese packs hold fewer cards than English ones, and how many packs a box holds depends on the set.",
+  "japanese-booster-packs": "Single Japanese booster packs, loose. Prices are per pack.",
 };
