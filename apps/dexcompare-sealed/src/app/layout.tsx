@@ -22,6 +22,9 @@ export const metadata: Metadata = {
   title: { default: `${SITE_NAME} — Pokémon sealed prices & stock`, template: `%s | ${SITE_NAME}` },
   description: SITE_TAGLINE,
   applicationName: SITE_NAME,
+  // Large image previews and full snippets in Google (Search, Discover, Images), as RiftCompare does.
+  // A page that sets its own `robots` (noindex) replaces this whole object.
+  robots: { googleBot: { "max-image-preview": "large", "max-snippet": -1 } },
   ...(process.env.GOOGLE_SITE_VERIFICATION ? { verification: { google: process.env.GOOGLE_SITE_VERIFICATION } } : {}),
 };
 
