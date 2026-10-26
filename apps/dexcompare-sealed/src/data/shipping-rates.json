@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generatedAt": "2026-10-25T05:01:00.905Z",
+ "generatedAt": "2026-10-26T09:42:38.057Z",
  "addresses": {
   "AU": [
    {
@@ -137,7 +137,7 @@
   "1moregogaming": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:40:53.678Z",
+   "measuredAt": "2026-10-26T09:22:54.287Z",
    "points": [
     {
      "subtotalCents": 299,
@@ -171,7 +171,7 @@
   "1stcapitalgaming": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:41:08.617Z",
+   "measuredAt": "2026-10-26T09:23:11.722Z",
    "points": [
     {
      "subtotalCents": 2000,
@@ -205,7 +205,7 @@
   "acecollectibles": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:40:59.184Z",
+   "measuredAt": "2026-10-26T09:22:58.390Z",
    "points": [
     {
      "subtotalCents": 4000,
@@ -238,7 +238,7 @@
   "acgamesonline": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:41:09.613Z",
+   "measuredAt": "2026-10-26T09:23:24.445Z",
    "points": [
     {
      "subtotalCents": 299,
@@ -290,7 +290,7 @@
   "adventurers": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:41:11.061Z",
+   "measuredAt": "2026-10-26T09:23:10.668Z",
    "points": [
     {
      "subtotalCents": 100,
@@ -319,7 +319,7 @@
      }
     },
     {
-     "subtotalCents": 17519,
+     "subtotalCents": 17499,
      "rates": {
       "syd": 650,
       "mel": 650,
@@ -336,7 +336,7 @@
   "aftermkt": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:41:18.865Z",
+   "measuredAt": "2026-10-26T09:23:08.420Z",
    "points": [
     {
      "subtotalCents": 1699,
@@ -388,7 +388,7 @@
   "allpoketcg": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:41:16.578Z",
+   "measuredAt": "2026-10-26T09:23:20.417Z",
    "points": [
     {
      "subtotalCents": 699,
@@ -440,7 +440,7 @@
   "animalkingdoms": {
    "market": "NZ",
    "currency": "NZD",
-   "measuredAt": "2026-10-25T04:40:59.659Z",
+   "measuredAt": "2026-10-26T09:23:23.272Z",
    "points": [
     {
      "subtotalCents": 690,
@@ -508,7 +508,7 @@
   "axionnow": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:40:41.102Z",
+   "measuredAt": "2026-10-26T09:22:41.965Z",
    "points": [
     {
      "subtotalCents": 4995,
@@ -524,7 +524,7 @@
   "badwolfgaming": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:41:01.106Z",
+   "measuredAt": "2026-10-26T09:23:02.431Z",
    "points": [
     {
      "subtotalCents": 1000,
@@ -558,7 +558,7 @@
   "bananagames": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:41:20.399Z",
+   "measuredAt": "2026-10-26T09:23:24.587Z",
    "points": [
     {
      "subtotalCents": 495,
@@ -610,7 +610,7 @@
   "battlebearkl": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:41:07.937Z",
+   "measuredAt": "2026-10-26T09:23:13.502Z",
    "points": [
     {
      "subtotalCents": 300,
@@ -662,7 +662,7 @@
   "battlebearsb": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:42:10.149Z",
+   "measuredAt": "2026-10-26T09:24:02.028Z",
    "points": [
     {
      "subtotalCents": 300,
@@ -696,7 +696,7 @@
   "battlegroundgames": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:41:33.227Z",
+   "measuredAt": "2026-10-26T09:23:47.512Z",
    "points": [
     {
      "subtotalCents": 840,
@@ -730,7 +730,7 @@
   "beachestcg": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:41:11.346Z",
+   "measuredAt": "2026-10-26T09:23:10.440Z",
    "points": [
     {
      "subtotalCents": 1199,
@@ -750,7 +750,7 @@
   "bentogaming": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:41:35.392Z",
+   "measuredAt": "2026-10-26T09:23:39.623Z",
    "points": [
     {
      "subtotalCents": 1500,
@@ -775,7 +775,7 @@
   "bescards": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:41:38.487Z",
+   "measuredAt": "2026-10-26T09:23:34.166Z",
    "points": [
     {
      "subtotalCents": 299,
@@ -827,7 +827,7 @@
   "biridama": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:41:36.999Z",
+   "measuredAt": "2026-10-26T09:23:42.839Z",
    "points": [
     {
      "subtotalCents": 250,
@@ -870,10 +870,10 @@
   "blackrosehobbies": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:42:18.673Z",
+   "measuredAt": "2026-10-26T09:24:24.472Z",
    "points": [
     {
-     "subtotalCents": 999,
+     "subtotalCents": 899,
      "rates": {
       "tor": 1500,
       "van": 3000,
@@ -882,7 +882,7 @@
      }
     },
     {
-     "subtotalCents": 4499,
+     "subtotalCents": 4999,
      "rates": {
       "tor": 1500,
       "van": 3000,
@@ -891,7 +891,7 @@
      }
     },
     {
-     "subtotalCents": 8499,
+     "subtotalCents": 8999,
      "rates": {
       "tor": 1500,
       "van": 3000,
@@ -909,7 +909,7 @@
      }
     },
     {
-     "subtotalCents": 31999,
+     "subtotalCents": 32499,
      "rates": {
       "tor": 1500,
       "van": 3000,
@@ -922,7 +922,7 @@
   "blackvaultgaming": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:41:13.972Z",
+   "measuredAt": "2026-10-26T09:23:17.606Z",
    "points": [
     {
      "subtotalCents": 599,
@@ -974,7 +974,7 @@
   "blackwolfcollectibles": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:41:41.453Z",
+   "measuredAt": "2026-10-26T09:23:55.136Z",
    "points": [
     {
      "subtotalCents": 295,
@@ -1026,7 +1026,7 @@
   "blakestoise": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:42:16.973Z",
+   "measuredAt": "2026-10-26T09:24:30.170Z",
    "points": [
     {
      "subtotalCents": 799,
@@ -1075,10 +1075,53 @@
     }
    ]
   },
+  "blockhousegames": {
+   "market": "EU",
+   "currency": "EUR",
+   "measuredAt": "2026-10-26T09:24:25.231Z",
+   "points": [
+    {
+     "subtotalCents": 450,
+     "rates": {
+      "es": 2290,
+      "de": 2290,
+      "fr": null,
+      "nl": 2890
+     }
+    },
+    {
+     "subtotalCents": 4290,
+     "rates": {
+      "es": 2290,
+      "de": 2290,
+      "fr": null,
+      "nl": 2890
+     }
+    },
+    {
+     "subtotalCents": 11990,
+     "rates": {
+      "es": 2290,
+      "de": 2290,
+      "fr": null,
+      "nl": null
+     }
+    },
+    {
+     "subtotalCents": 19990,
+     "rates": {
+      "es": null,
+      "de": null,
+      "fr": null,
+      "nl": null
+     }
+    }
+   ]
+  },
   "boostergames": {
    "market": "NZ",
    "currency": "NZD",
-   "measuredAt": "2026-10-25T04:40:41.718Z",
+   "measuredAt": "2026-10-26T09:22:40.727Z",
    "points": [
     {
      "subtotalCents": 5495,
@@ -1094,7 +1137,7 @@
   "boutiquelapioche": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:42:30.945Z",
+   "measuredAt": "2026-10-26T09:24:16.496Z",
    "points": [
     {
      "subtotalCents": 399,
@@ -1119,7 +1162,7 @@
   "brints": {
    "market": "SG",
    "currency": "SGD",
-   "measuredAt": "2026-10-25T04:40:52.795Z",
+   "measuredAt": "2026-10-26T09:22:49.676Z",
    "points": [
     {
      "subtotalCents": 1200,
@@ -1138,19 +1181,13 @@
      "rates": {
       "sg": 500
      }
-    },
-    {
-     "subtotalCents": 15000,
-     "rates": {
-      "sg": 500
-     }
     }
    ]
   },
   "bristolindependentgaming": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:41:09.351Z",
+   "measuredAt": "2026-10-26T09:23:11.265Z",
    "points": [
     {
      "subtotalCents": 699,
@@ -1166,7 +1203,7 @@
   "buyanycards": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:41:41.994Z",
+   "measuredAt": "2026-10-26T09:23:43.529Z",
    "points": [
     {
      "subtotalCents": 695,
@@ -1209,7 +1246,7 @@
   "cardbinder": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:42:00.714Z",
+   "measuredAt": "2026-10-26T09:24:04.819Z",
    "points": [
     {
      "subtotalCents": 199,
@@ -1243,7 +1280,7 @@
   "cardboardanddie": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:41:50.278Z",
+   "measuredAt": "2026-10-26T09:23:54.009Z",
    "points": [
     {
      "subtotalCents": 503,
@@ -1286,7 +1323,7 @@
   "cardbot": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:42:15.890Z",
+   "measuredAt": "2026-10-26T09:24:15.472Z",
    "points": [
     {
      "subtotalCents": 499,
@@ -1358,33 +1395,33 @@
   "cardbrawlers": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:43:12.453Z",
+   "measuredAt": "2026-10-26T09:25:05.211Z",
    "points": [
     {
      "subtotalCents": 999,
      "rates": {
-      "tor": 1393,
-      "van": 1836,
-      "mtl": 1124,
-      "cgy": 1773
+      "tor": 1396,
+      "van": 1840,
+      "mtl": 1126,
+      "cgy": 1777
      }
     },
     {
      "subtotalCents": 4999,
      "rates": {
-      "tor": 1430,
-      "van": 1991,
-      "mtl": 1144,
-      "cgy": 1920
+      "tor": 1434,
+      "van": 1996,
+      "mtl": 1146,
+      "cgy": 1925
      }
     },
     {
      "subtotalCents": 8999,
      "rates": {
-      "tor": 1430,
-      "van": 1991,
-      "mtl": 1144,
-      "cgy": 1920
+      "tor": 1434,
+      "van": 1996,
+      "mtl": 1146,
+      "cgy": 1925
      }
     },
     {
@@ -1410,7 +1447,7 @@
   "cardcavern": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:41:33.726Z",
+   "measuredAt": "2026-10-26T09:23:37.939Z",
    "points": [
     {
      "subtotalCents": 599,
@@ -1435,7 +1472,7 @@
   "cardcollective": {
    "market": "NZ",
    "currency": "NZD",
-   "measuredAt": "2026-10-25T04:40:41.779Z",
+   "measuredAt": "2026-10-26T09:22:41.638Z",
    "points": [
     {
      "subtotalCents": 950,
@@ -1451,7 +1488,7 @@
   "cardcosmos": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:42:17.854Z",
+   "measuredAt": "2026-10-26T09:24:19.024Z",
    "points": [
     {
      "subtotalCents": 1690,
@@ -1476,7 +1513,7 @@
   "carddynasty": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:43:10.138Z",
+   "measuredAt": "2026-10-26T09:25:03.014Z",
    "points": [
     {
      "subtotalCents": 149,
@@ -1528,7 +1565,7 @@
   "carderaco": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:43:20.099Z",
+   "measuredAt": "2026-10-26T09:25:05.637Z",
    "points": [
     {
      "subtotalCents": 900,
@@ -1567,7 +1604,7 @@
      }
     },
     {
-     "subtotalCents": 30000,
+     "subtotalCents": 33000,
      "rates": {
       "tor": 0,
       "van": 0,
@@ -1580,7 +1617,7 @@
   "cardgoblin": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:41:26.624Z",
+   "measuredAt": "2026-10-26T09:23:25.869Z",
    "points": [
     {
      "subtotalCents": 1500,
@@ -1605,7 +1642,7 @@
   "cardhome": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:42:24.322Z",
+   "measuredAt": "2026-10-26T09:24:18.952Z",
    "points": [
     {
      "subtotalCents": 299,
@@ -1630,7 +1667,7 @@
   "cardhouse": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:42:54.210Z",
+   "measuredAt": "2026-10-26T09:24:54.735Z",
    "points": [
     {
      "subtotalCents": 399,
@@ -1655,7 +1692,7 @@
   "cardhub": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:41:26.525Z",
+   "measuredAt": "2026-10-26T09:23:26.045Z",
    "points": [
     {
      "subtotalCents": 36000,
@@ -1675,7 +1712,7 @@
   "cardmasters": {
    "market": "NZ",
    "currency": "NZD",
-   "measuredAt": "2026-10-25T04:41:10.797Z",
+   "measuredAt": "2026-10-26T09:23:09.741Z",
    "points": [
     {
      "subtotalCents": 600,
@@ -1718,7 +1755,7 @@
   "cardmerchant": {
    "market": "NZ",
    "currency": "NZD",
-   "measuredAt": "2026-10-25T04:40:55.474Z",
+   "measuredAt": "2026-10-26T09:22:55.563Z",
    "points": [
     {
      "subtotalCents": 1100,
@@ -1743,7 +1780,7 @@
   "cardmerchanthamilton": {
    "market": "NZ",
    "currency": "NZD",
-   "measuredAt": "2026-10-25T04:41:09.218Z",
+   "measuredAt": "2026-10-26T09:23:09.476Z",
    "points": [
     {
      "subtotalCents": 1200,
@@ -1768,7 +1805,7 @@
   "cardtopia": {
    "market": "NZ",
    "currency": "NZD",
-   "measuredAt": "2026-10-25T04:41:25.715Z",
+   "measuredAt": "2026-10-26T09:23:35.490Z",
    "points": [
     {
      "subtotalCents": 500,
@@ -1811,7 +1848,7 @@
   "cardtopiacollectibles": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:41:47.649Z",
+   "measuredAt": "2026-10-26T09:23:51.619Z",
    "points": [
     {
      "subtotalCents": 7999,
@@ -1836,7 +1873,7 @@
   "cardworld": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:43:04.325Z",
+   "measuredAt": "2026-10-26T09:24:59.154Z",
    "points": [
     {
      "subtotalCents": 749,
@@ -1879,7 +1916,7 @@
   "cardzone": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:44:29.547Z",
+   "measuredAt": "2026-10-26T09:25:59.412Z",
    "points": [
     {
      "subtotalCents": 550,
@@ -1898,22 +1935,13 @@
       "fr": null,
       "nl": null
      }
-    },
-    {
-     "subtotalCents": 17995,
-     "rates": {
-      "es": 495,
-      "de": null,
-      "fr": null,
-      "nl": null
-     }
     }
    ]
   },
   "cartespokemon": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:44:04.251Z",
+   "measuredAt": "2026-10-26T09:25:39.616Z",
    "points": [
     {
      "subtotalCents": 240,
@@ -1965,7 +1993,7 @@
   "cartessportivesrivesud": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:43:53.647Z",
+   "measuredAt": "2026-10-26T09:25:46.813Z",
    "points": [
     {
      "subtotalCents": 895,
@@ -2017,7 +2045,7 @@
   "cashcardsunlimited": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:42:27.434Z",
+   "measuredAt": "2026-10-26T09:24:37.636Z",
    "points": [
     {
      "subtotalCents": 399,
@@ -2069,7 +2097,7 @@
   "cellysports": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:43:48.994Z",
+   "measuredAt": "2026-10-26T09:25:41.975Z",
    "points": [
     {
      "subtotalCents": 999,
@@ -2103,7 +2131,7 @@
   "cgrealm": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:43:49.720Z",
+   "measuredAt": "2026-10-26T09:25:35.270Z",
    "points": [
     {
      "subtotalCents": 28,
@@ -2124,12 +2152,12 @@
      }
     },
     {
-     "subtotalCents": 8895,
+     "subtotalCents": 8893,
      "rates": {
-      "tor": 1505,
-      "van": 2184,
-      "mtl": 1612,
-      "cgy": 2148
+      "tor": 400,
+      "van": 400,
+      "mtl": 400,
+      "cgy": 400
      }
     },
     {
@@ -2146,7 +2174,7 @@
   "cherry": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:42:47.245Z",
+   "measuredAt": "2026-10-26T09:24:25.953Z",
    "points": [
     {
      "subtotalCents": 399,
@@ -2218,7 +2246,7 @@
   "chonkycollectibles": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:44:17.844Z",
+   "measuredAt": "2026-10-26T09:26:14.506Z",
    "points": [
     {
      "subtotalCents": 50,
@@ -2261,7 +2289,7 @@
   "collect": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:41:57.585Z",
+   "measuredAt": "2026-10-26T09:23:50.119Z",
    "points": [
     {
      "subtotalCents": 1995,
@@ -2304,7 +2332,7 @@
   "collectbydesign": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:41:34.610Z",
+   "measuredAt": "2026-10-26T09:23:34.342Z",
    "points": [
     {
      "subtotalCents": 749,
@@ -2320,7 +2348,7 @@
   "collecteebles": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:41:43.639Z",
+   "measuredAt": "2026-10-26T09:23:43.331Z",
    "points": [
     {
      "subtotalCents": 500,
@@ -2336,7 +2364,7 @@
   "collectiblemadness": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:43:20.136Z",
+   "measuredAt": "2026-10-26T09:25:09.552Z",
    "points": [
     {
      "subtotalCents": 800,
@@ -2395,7 +2423,7 @@
   "collectionmania": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:43:39.789Z",
+   "measuredAt": "2026-10-26T09:25:22.968Z",
    "points": [
     {
      "subtotalCents": 10500,
@@ -2429,7 +2457,7 @@
   "collectorclash": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:42:19.666Z",
+   "measuredAt": "2026-10-26T09:24:11.658Z",
    "points": [
     {
      "subtotalCents": 400,
@@ -2472,7 +2500,7 @@
   "collectorexpert": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:45:12.813Z",
+   "measuredAt": "2026-10-26T09:26:57.423Z",
    "points": [
     {
      "subtotalCents": 690,
@@ -2506,7 +2534,7 @@
   "collectorscolosseum": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:43:19.807Z",
+   "measuredAt": "2026-10-26T09:25:18.324Z",
    "points": [
     {
      "subtotalCents": 500,
@@ -2578,7 +2606,7 @@
   "collectorsedge": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:42:06.392Z",
+   "measuredAt": "2026-10-26T09:24:06.509Z",
    "points": [
     {
      "subtotalCents": 525,
@@ -2612,7 +2640,7 @@
   "collectorsguild": {
    "market": "NZ",
    "currency": "NZD",
-   "measuredAt": "2026-10-25T04:41:16.998Z",
+   "measuredAt": "2026-10-26T09:23:18.147Z",
    "points": [
     {
      "subtotalCents": 35000,
@@ -2628,7 +2656,7 @@
   "collectorskingdom": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:42:33.124Z",
+   "measuredAt": "2026-10-26T09:24:32.894Z",
    "points": [
     {
      "subtotalCents": 149,
@@ -2680,7 +2708,7 @@
   "collectorstore": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:44:02.514Z",
+   "measuredAt": "2026-10-26T09:26:13.055Z",
    "points": [
     {
      "subtotalCents": 199,
@@ -2705,7 +2733,7 @@
   "collectorstorecards": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:44:31.452Z",
+   "measuredAt": "2026-10-26T09:26:31.015Z",
    "points": [
     {
      "subtotalCents": 1290,
@@ -2748,7 +2776,7 @@
   "comfyhobbies": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:44:49.467Z",
+   "measuredAt": "2026-10-26T09:26:27.970Z",
    "points": [
     {
      "subtotalCents": 895,
@@ -2800,7 +2828,7 @@
   "commonboxgames": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:44:02.406Z",
+   "measuredAt": "2026-10-26T09:25:55.545Z",
    "points": [
     {
      "subtotalCents": 595,
@@ -2816,10 +2844,10 @@
   "commonlands": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:42:36.464Z",
+   "measuredAt": "2026-10-26T09:24:39.570Z",
    "points": [
     {
-     "subtotalCents": 325,
+     "subtotalCents": 299,
      "rates": {
       "ny": 590,
       "sf": 600,
@@ -2828,12 +2856,12 @@
      }
     },
     {
-     "subtotalCents": 4075,
+     "subtotalCents": 3847,
      "rates": {
-      "ny": 693,
-      "sf": 707,
-      "dal": 615,
-      "chi": 672
+      "ny": 837,
+      "sf": 847,
+      "dal": 619,
+      "chi": 778
      }
     },
     {
@@ -2846,7 +2874,7 @@
      }
     },
     {
-     "subtotalCents": 13568,
+     "subtotalCents": 15075,
      "rates": {
       "ny": 837,
       "sf": 847,
@@ -2855,12 +2883,12 @@
      }
     },
     {
-     "subtotalCents": 28508,
+     "subtotalCents": 31975,
      "rates": {
-      "ny": 837,
-      "sf": 847,
-      "dal": 619,
-      "chi": 778
+      "ny": 0,
+      "sf": 0,
+      "dal": 0,
+      "chi": 0
      }
     }
    ]
@@ -2868,7 +2896,7 @@
   "crackthepack": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:42:42.518Z",
+   "measuredAt": "2026-10-26T09:24:42.285Z",
    "points": [
     {
      "subtotalCents": 849,
@@ -2920,7 +2948,7 @@
   "crispycards": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:46:10.421Z",
+   "measuredAt": "2026-10-26T09:27:40.880Z",
    "points": [
     {
      "subtotalCents": 499,
@@ -2954,7 +2982,7 @@
   "daimonjitcg": {
    "market": "SG",
    "currency": "SGD",
-   "measuredAt": "2026-10-25T04:41:08.410Z",
+   "measuredAt": "2026-10-26T09:23:15.890Z",
    "points": [
     {
      "subtotalCents": 500,
@@ -2991,10 +3019,10 @@
   "danireon": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:44:54.730Z",
+   "measuredAt": "2026-10-26T09:26:47.416Z",
    "points": [
     {
-     "subtotalCents": 210,
+     "subtotalCents": 242,
      "rates": {
       "tor": 400,
       "van": 400,
@@ -3043,7 +3071,7 @@
   "debroergrot": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:46:07.785Z",
+   "measuredAt": "2026-10-26T09:28:02.384Z",
    "points": [
     {
      "subtotalCents": 695,
@@ -3062,22 +3090,13 @@
       "fr": null,
       "nl": 695
      }
-    },
-    {
-     "subtotalCents": 8495,
-     "rates": {
-      "es": null,
-      "de": null,
-      "fr": null,
-      "nl": 695
-     }
     }
    ]
   },
   "deckoutgaming": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:45:16.731Z",
+   "measuredAt": "2026-10-26T09:27:01.163Z",
    "points": [
     {
      "subtotalCents": 799,
@@ -3129,7 +3148,7 @@
   "dennistheripper": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:45:26.712Z",
+   "measuredAt": "2026-10-26T09:27:11.384Z",
    "points": [
     {
      "subtotalCents": 699,
@@ -3154,7 +3173,7 @@
   "derpycards": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:45:35.034Z",
+   "measuredAt": "2026-10-26T09:27:13.802Z",
    "points": [
     {
      "subtotalCents": 795,
@@ -3206,7 +3225,7 @@
   "doublesleeved": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:43:12.021Z",
+   "measuredAt": "2026-10-26T09:24:45.537Z",
    "points": [
     {
      "subtotalCents": 279,
@@ -3249,7 +3268,7 @@
   "dropstore": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:43:39.074Z",
+   "measuredAt": "2026-10-26T09:25:18.094Z",
    "points": [
     {
      "subtotalCents": 900,
@@ -3321,7 +3340,7 @@
   "dungeonsandjoypads": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:43:09.059Z",
+   "measuredAt": "2026-10-26T09:25:22.975Z",
    "points": [
     {
      "subtotalCents": 1495,
@@ -3364,15 +3383,24 @@
   "eacollectibles": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:46:17.721Z",
+   "measuredAt": "2026-10-26T09:28:49.036Z",
    "points": [
     {
-     "subtotalCents": 4500,
+     "subtotalCents": 4999,
      "rates": {
-      "tor": 1166,
+      "tor": 1167,
       "van": 1664,
       "mtl": 1423,
       "cgy": 1664
+     }
+    },
+    {
+     "subtotalCents": 8500,
+     "rates": {
+      "tor": 0,
+      "van": 0,
+      "mtl": 0,
+      "cgy": 0
      }
     }
    ]
@@ -3380,7 +3408,7 @@
   "eclipsegames": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:45:36.565Z",
+   "measuredAt": "2026-10-26T09:27:20.890Z",
    "points": [
     {
      "subtotalCents": 995,
@@ -3414,7 +3442,7 @@
   "elduelista": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:46:21.620Z",
+   "measuredAt": "2026-10-26T09:27:54.910Z",
    "points": [
     {
      "subtotalCents": 2000,
@@ -3439,7 +3467,7 @@
   "elemental": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:43:12.517Z",
+   "measuredAt": "2026-10-26T09:25:21.487Z",
    "points": [
     {
      "subtotalCents": 200,
@@ -3482,7 +3510,7 @@
   "elitecardstoronto": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:46:07.230Z",
+   "measuredAt": "2026-10-26T09:27:49.892Z",
    "points": [
     {
      "subtotalCents": 949,
@@ -3534,7 +3562,7 @@
   "empiretradings": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:46:04.354Z",
+   "measuredAt": "2026-10-26T09:27:48.456Z",
    "points": [
     {
      "subtotalCents": 699,
@@ -3577,51 +3605,51 @@
   "enterthebattlefield": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:47:03.499Z",
+   "measuredAt": "2026-10-26T09:28:47.017Z",
    "points": [
     {
      "subtotalCents": 600,
      "rates": {
-      "tor": 1192,
-      "van": 1644,
-      "mtl": 1408,
-      "cgy": 1632
+      "tor": 1195,
+      "van": 1647,
+      "mtl": 1411,
+      "cgy": 1635
      }
     },
     {
      "subtotalCents": 4000,
      "rates": {
-      "tor": 1192,
-      "van": 1644,
-      "mtl": 1408,
-      "cgy": 1632
+      "tor": 1195,
+      "van": 1647,
+      "mtl": 1411,
+      "cgy": 1635
      }
     },
     {
      "subtotalCents": 8500,
      "rates": {
-      "tor": 1280,
-      "van": 1739,
-      "mtl": 1433,
-      "cgy": 1719
+      "tor": 1283,
+      "van": 1745,
+      "mtl": 1435,
+      "cgy": 1724
      }
     },
     {
      "subtotalCents": 18499,
      "rates": {
-      "tor": 1192,
-      "van": 1644,
-      "mtl": 1408,
-      "cgy": 1632
+      "tor": 1195,
+      "van": 1647,
+      "mtl": 1411,
+      "cgy": 1635
      }
     },
     {
-     "subtotalCents": 31125,
+     "subtotalCents": 32500,
      "rates": {
-      "tor": 1192,
-      "van": 2072,
-      "mtl": 1532,
-      "cgy": 2083
+      "tor": 1308,
+      "van": 1856,
+      "mtl": 1444,
+      "cgy": 1826
      }
     }
    ]
@@ -3629,7 +3657,7 @@
   "escamon": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:46:27.657Z",
+   "measuredAt": "2026-10-26T09:28:12.502Z",
    "points": [
     {
      "subtotalCents": 1100,
@@ -3654,7 +3682,7 @@
   "eternacards": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:43:53.774Z",
+   "measuredAt": "2026-10-26T09:25:31.348Z",
    "points": [
     {
      "subtotalCents": 199,
@@ -3706,10 +3734,10 @@
   "everythinggames": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:47:00.222Z",
+   "measuredAt": "2026-10-26T09:28:40.961Z",
    "points": [
     {
-     "subtotalCents": 1500,
+     "subtotalCents": 1200,
      "rates": {
       "tor": 1499,
       "van": 999,
@@ -3743,22 +3771,13 @@
       "mtl": 0,
       "cgy": 0
      }
-    },
-    {
-     "subtotalCents": 36000,
-     "rates": {
-      "tor": 0,
-      "van": 0,
-      "mtl": 0,
-      "cgy": 0
-     }
     }
    ]
   },
   "evocards": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:43:19.826Z",
+   "measuredAt": "2026-10-26T09:25:29.542Z",
    "points": [
     {
      "subtotalCents": 154999,
@@ -3774,7 +3793,7 @@
   "fabledgames": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:43:42.864Z",
+   "measuredAt": "2026-10-26T09:25:33.912Z",
    "points": [
     {
      "subtotalCents": 795,
@@ -3807,7 +3826,7 @@
   "fabricatorsforge": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:42:53.442Z",
+   "measuredAt": "2026-10-26T09:25:04.179Z",
    "points": [
     {
      "subtotalCents": 999,
@@ -3841,51 +3860,51 @@
   "facetoface": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:47:31.152Z",
+   "measuredAt": "2026-10-26T09:29:35.500Z",
    "points": [
     {
      "subtotalCents": 799,
      "rates": {
-      "tor": 1160,
-      "van": 1718,
-      "mtl": 866,
-      "cgy": 1637
+      "tor": 1163,
+      "van": 1723,
+      "mtl": 868,
+      "cgy": 1642
      }
     },
     {
      "subtotalCents": 4999,
      "rates": {
-      "tor": 1160,
-      "van": 1718,
-      "mtl": 866,
-      "cgy": 1637
+      "tor": 1163,
+      "van": 1723,
+      "mtl": 868,
+      "cgy": 1642
      }
     },
     {
      "subtotalCents": 9999,
      "rates": {
-      "tor": 1272,
-      "van": 1863,
-      "mtl": 940,
-      "cgy": 1735
+      "tor": 1275,
+      "van": 1869,
+      "mtl": 943,
+      "cgy": 1740
      }
     },
     {
      "subtotalCents": 16999,
      "rates": {
-      "tor": 1272,
-      "van": 1863,
-      "mtl": 940,
-      "cgy": 1735
+      "tor": 1275,
+      "van": 1869,
+      "mtl": 943,
+      "cgy": 1740
      }
     },
     {
      "subtotalCents": 32999,
      "rates": {
-      "tor": 1272,
-      "van": 1863,
-      "mtl": 940,
-      "cgy": 1735
+      "tor": 1275,
+      "van": 1869,
+      "mtl": 943,
+      "cgy": 1740
      }
     }
    ]
@@ -3893,7 +3912,7 @@
   "fantasiacards": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:47:07.573Z",
+   "measuredAt": "2026-10-26T09:29:01.807Z",
    "points": [
     {
      "subtotalCents": 199,
@@ -3945,7 +3964,7 @@
   "finalboss": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:43:32.073Z",
+   "measuredAt": "2026-10-26T09:25:29.931Z",
    "points": [
     {
      "subtotalCents": 4000,
@@ -3965,7 +3984,7 @@
   "flagshipgames": {
    "market": "SG",
    "currency": "SGD",
-   "measuredAt": "2026-10-25T04:41:03.440Z",
+   "measuredAt": "2026-10-26T09:23:07.430Z",
    "points": [
     {
      "subtotalCents": 1600,
@@ -3990,7 +4009,7 @@
   "flaringlair": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:48:15.007Z",
+   "measuredAt": "2026-10-26T09:29:32.907Z",
    "points": [
     {
      "subtotalCents": 749,
@@ -4018,13 +4037,31 @@
       "mtl": 1499,
       "cgy": 1999
      }
+    },
+    {
+     "subtotalCents": 18999,
+     "rates": {
+      "tor": 1499,
+      "van": 1999,
+      "mtl": 1499,
+      "cgy": 1999
+     }
+    },
+    {
+     "subtotalCents": 33999,
+     "rates": {
+      "tor": 0,
+      "van": 1999,
+      "mtl": 0,
+      "cgy": 1999
+     }
     }
    ]
   },
   "flipsidegaming": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:43:10.348Z",
+   "measuredAt": "2026-10-26T09:25:16.938Z",
    "points": [
     {
      "subtotalCents": 1095,
@@ -4076,19 +4113,19 @@
   "flukeandbox": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:43:48.338Z",
+   "measuredAt": "2026-10-26T09:25:30.538Z",
    "points": [
     {
      "subtotalCents": 2900,
      "rates": {
-      "syd": 450,
-      "mel": 450,
-      "bne": 450,
-      "adl": 450,
-      "per": 450,
-      "hba": 450,
-      "drw": 450,
-      "cbr": 450
+      "syd": 520,
+      "mel": 520,
+      "bne": 520,
+      "adl": 520,
+      "per": 520,
+      "hba": 520,
+      "drw": 520,
+      "cbr": 520
      }
     }
    ]
@@ -4096,7 +4133,7 @@
   "freshbrewed": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:48:21.260Z",
+   "measuredAt": "2026-10-26T09:29:31.029Z",
    "points": [
     {
      "subtotalCents": 1000,
@@ -4124,13 +4161,22 @@
       "mtl": 1782,
       "cgy": 1460
      }
+    },
+    {
+     "subtotalCents": 15000,
+     "rates": {
+      "tor": 1744,
+      "van": 1345,
+      "mtl": 1782,
+      "cgy": 1460
+     }
     }
    ]
   },
   "fusiongamingonline": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:47:42.114Z",
+   "measuredAt": "2026-10-26T09:29:41.752Z",
    "points": [
     {
      "subtotalCents": 25,
@@ -4146,7 +4192,7 @@
   "game3": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:48:03.971Z",
+   "measuredAt": "2026-10-26T09:29:54.589Z",
    "points": [
     {
      "subtotalCents": 495,
@@ -4180,7 +4226,7 @@
   "gameology": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:44:48.951Z",
+   "measuredAt": "2026-10-26T09:26:42.103Z",
    "points": [
     {
      "subtotalCents": 595,
@@ -4252,7 +4298,7 @@
   "gamerholic": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:44:41.158Z",
+   "measuredAt": "2026-10-26T09:26:37.272Z",
    "points": [
     {
      "subtotalCents": 900,
@@ -4324,7 +4370,7 @@
   "gamersgrove": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:43:03.791Z",
+   "measuredAt": "2026-10-26T09:25:14.242Z",
    "points": [
     {
      "subtotalCents": 2299,
@@ -4340,7 +4386,7 @@
   "games401": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:48:58.334Z",
+   "measuredAt": "2026-10-26T09:30:22.720Z",
    "points": [
     {
      "subtotalCents": 895,
@@ -4392,21 +4438,8 @@
   "gamescapital": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:45:33.112Z",
+   "measuredAt": "2026-10-26T09:26:29.087Z",
    "points": [
-    {
-     "subtotalCents": 1400,
-     "rates": {
-      "syd": 950,
-      "mel": 950,
-      "bne": 950,
-      "adl": 950,
-      "per": 950,
-      "hba": 950,
-      "drw": 950,
-      "cbr": 950
-     }
-    },
     {
      "subtotalCents": 6000,
      "rates": {
@@ -4445,13 +4478,26 @@
       "drw": 0,
       "cbr": 0
      }
+    },
+    {
+     "subtotalCents": 31900,
+     "rates": {
+      "syd": 0,
+      "mel": 0,
+      "bne": 0,
+      "adl": 0,
+      "per": 0,
+      "hba": 0,
+      "drw": 0,
+      "cbr": 0
+     }
     }
    ]
   },
   "gamesland": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:48:49.723Z",
+   "measuredAt": "2026-10-26T09:30:16.483Z",
    "points": [
     {
      "subtotalCents": 495,
@@ -4503,7 +4549,7 @@
   "gametime": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:49:20.730Z",
+   "measuredAt": "2026-10-26T09:30:52.881Z",
    "points": [
     {
      "subtotalCents": 899,
@@ -4555,7 +4601,7 @@
   "gdgames": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:45:36.260Z",
+   "measuredAt": "2026-10-26T09:27:23.395Z",
    "points": [
     {
      "subtotalCents": 995,
@@ -4571,7 +4617,7 @@
      }
     },
     {
-     "subtotalCents": 4495,
+     "subtotalCents": 4995,
      "rates": {
       "syd": 1000,
       "mel": 1000,
@@ -4627,7 +4673,7 @@
   "geekerygames": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:43:29.879Z",
+   "measuredAt": "2026-10-26T09:25:40.098Z",
    "points": [
     {
      "subtotalCents": 1395,
@@ -4670,7 +4716,7 @@
   "gghobbycard": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:43:36.254Z",
+   "measuredAt": "2026-10-26T09:25:42.574Z",
    "points": [
     {
      "subtotalCents": 5999,
@@ -4713,7 +4759,7 @@
   "gglegends": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:44:06.791Z",
+   "measuredAt": "2026-10-26T09:26:16.271Z",
    "points": [
     {
      "subtotalCents": 499,
@@ -4747,7 +4793,7 @@
   "goblingames": {
    "market": "NZ",
    "currency": "NZD",
-   "measuredAt": "2026-10-25T04:41:36.409Z",
+   "measuredAt": "2026-10-26T09:24:34.007Z",
    "points": [
     {
      "subtotalCents": 1200,
@@ -4766,22 +4812,13 @@
       "chc": 800,
       "dud": 800
      }
-    },
-    {
-     "subtotalCents": 36000,
-     "rates": {
-      "akl": 0,
-      "wlg": 0,
-      "chc": 0,
-      "dud": 0
-     }
     }
    ]
   },
   "gocardsuk": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:43:27.592Z",
+   "measuredAt": "2026-10-26T09:25:37.562Z",
    "points": [
     {
      "subtotalCents": 44999,
@@ -4797,7 +4834,7 @@
   "godofcards": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:46:41.513Z",
+   "measuredAt": "2026-10-26T09:28:26.838Z",
    "points": [
     {
      "subtotalCents": 1495,
@@ -4819,10 +4856,43 @@
     }
    ]
   },
+  "goodgames": {
+   "market": "AU",
+   "currency": "AUD",
+   "measuredAt": "2026-10-26T09:27:52.558Z",
+   "points": [
+    {
+     "subtotalCents": 6000,
+     "rates": {
+      "syd": 950,
+      "mel": 950,
+      "bne": 950,
+      "adl": 950,
+      "per": 950,
+      "hba": 950,
+      "drw": 950,
+      "cbr": 950
+     }
+    },
+    {
+     "subtotalCents": 11900,
+     "rates": {
+      "syd": 0,
+      "mel": 0,
+      "bne": 0,
+      "adl": 0,
+      "per": 0,
+      "hba": 0,
+      "drw": 0,
+      "cbr": 0
+     }
+    }
+   ]
+  },
   "grailborne": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:46:25.778Z",
+   "measuredAt": "2026-10-26T09:27:44.609Z",
    "points": [
     {
      "subtotalCents": 900,
@@ -4894,7 +4964,7 @@
   "greyogregames": {
    "market": "SG",
    "currency": "SGD",
-   "measuredAt": "2026-10-25T04:41:16.141Z",
+   "measuredAt": "2026-10-26T09:23:20.370Z",
    "points": [
     {
      "subtotalCents": 700,
@@ -4919,7 +4989,7 @@
   "gsgameon": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:47:25.506Z",
+   "measuredAt": "2026-10-26T09:29:12.121Z",
    "points": [
     {
      "subtotalCents": 790,
@@ -4971,7 +5041,7 @@
   "gtgames": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:49:29.747Z",
+   "measuredAt": "2026-10-26T09:30:55.957Z",
    "points": [
     {
      "subtotalCents": 899,
@@ -4992,12 +5062,12 @@
      }
     },
     {
-     "subtotalCents": 17999,
+     "subtotalCents": 18999,
      "rates": {
-      "tor": 1299,
-      "van": 1999,
-      "mtl": 1299,
-      "cgy": 1999
+      "tor": 0,
+      "van": 0,
+      "mtl": 0,
+      "cgy": 0
      }
     },
     {
@@ -5014,7 +5084,7 @@
   "guf": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:46:14.521Z",
+   "measuredAt": "2026-10-26T09:27:57.081Z",
    "points": [
     {
      "subtotalCents": 700,
@@ -5060,7 +5130,7 @@
   "heavenscollectibles": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:49:44.828Z",
+   "measuredAt": "2026-10-26T09:31:07.453Z",
    "points": [
     {
      "subtotalCents": 100,
@@ -5112,7 +5182,7 @@
   "hikarudistribution": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:47:28.117Z",
+   "measuredAt": "2026-10-26T09:29:17.897Z",
    "points": [
     {
      "subtotalCents": 320,
@@ -5164,7 +5234,7 @@
   "hobbiesville": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:50:36.117Z",
+   "measuredAt": "2026-10-26T09:31:33.570Z",
    "points": [
     {
      "subtotalCents": 895,
@@ -5192,13 +5262,31 @@
       "mtl": 1095,
       "cgy": 1499
      }
+    },
+    {
+     "subtotalCents": 15999,
+     "rates": {
+      "tor": 1095,
+      "van": 1499,
+      "mtl": 1095,
+      "cgy": 1499
+     }
+    },
+    {
+     "subtotalCents": 32995,
+     "rates": {
+      "tor": 0,
+      "van": 0,
+      "mtl": 0,
+      "cgy": 0
+     }
     }
    ]
   },
   "hobbyaddicts": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:43:44.713Z",
+   "measuredAt": "2026-10-26T09:25:50.987Z",
    "points": [
     {
      "subtotalCents": 1799,
@@ -5214,7 +5302,7 @@
   "hobbycardshop": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:44:26.994Z",
+   "measuredAt": "2026-10-26T09:26:33.159Z",
    "points": [
     {
      "subtotalCents": 799,
@@ -5235,16 +5323,16 @@
      }
     },
     {
-     "subtotalCents": 8999,
+     "subtotalCents": 9999,
      "rates": {
-      "ny": 2500,
-      "sf": 2500,
-      "dal": 2500,
-      "chi": 2500
+      "ny": 5000,
+      "sf": 5000,
+      "dal": 5000,
+      "chi": 5000
      }
     },
     {
-     "subtotalCents": 16000,
+     "subtotalCents": 22000,
      "rates": {
       "ny": 2500,
       "sf": 2500,
@@ -5266,7 +5354,7 @@
   "hobbycollectorsaustralia": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:47:19.445Z",
+   "measuredAt": "2026-10-26T09:28:50.704Z",
    "points": [
     {
      "subtotalCents": 450,
@@ -5338,7 +5426,7 @@
   "hobbyexpert": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:50:06.816Z",
+   "measuredAt": "2026-10-26T09:31:38.419Z",
    "points": [
     {
      "subtotalCents": 499,
@@ -5390,24 +5478,24 @@
   "hobbysag": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:50:54.572Z",
+   "measuredAt": "2026-10-26T09:32:20.250Z",
    "points": [
     {
      "subtotalCents": 1795,
      "rates": {
-      "tor": 1293,
-      "van": 1734,
-      "mtl": 1281,
-      "cgy": 1505
+      "tor": 1310,
+      "van": 1756,
+      "mtl": 1295,
+      "cgy": 1523
      }
     },
     {
      "subtotalCents": 45999,
      "rates": {
-      "tor": 1293,
-      "van": 1734,
-      "mtl": 1281,
-      "cgy": 1505
+      "tor": 1310,
+      "van": 1756,
+      "mtl": 1295,
+      "cgy": 1523
      }
     }
    ]
@@ -5415,7 +5503,7 @@
   "hobbystoptcg": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:50:48.893Z",
+   "measuredAt": "2026-10-26T09:32:15.511Z",
    "points": [
     {
      "subtotalCents": 900,
@@ -5467,7 +5555,7 @@
   "hoctcg": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:43:43.041Z",
+   "measuredAt": "2026-10-26T09:25:51.753Z",
    "points": [
     {
      "subtotalCents": 579,
@@ -5501,7 +5589,7 @@
   "hokeypokegames": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:43:53.348Z",
+   "measuredAt": "2026-10-26T09:25:58.660Z",
    "points": [
     {
      "subtotalCents": 199,
@@ -5544,42 +5632,42 @@
   "hpwcards": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:51:57.299Z",
+   "measuredAt": "2026-10-26T09:33:19.006Z",
    "points": [
     {
      "subtotalCents": 112,
      "rates": {
-      "tor": 2034,
-      "van": 1634,
-      "mtl": 2010,
-      "cgy": 1386
+      "tor": 2038,
+      "van": 1637,
+      "mtl": 2014,
+      "cgy": 1388
      }
     },
     {
      "subtotalCents": 4000,
      "rates": {
-      "tor": 2034,
-      "van": 1634,
-      "mtl": 2010,
-      "cgy": 1386
+      "tor": 2038,
+      "van": 1637,
+      "mtl": 2014,
+      "cgy": 1388
      }
     },
     {
      "subtotalCents": 8500,
      "rates": {
-      "tor": 2034,
-      "van": 1634,
-      "mtl": 2010,
-      "cgy": 1386
+      "tor": 2038,
+      "van": 1637,
+      "mtl": 2014,
+      "cgy": 1388
      }
     },
     {
      "subtotalCents": 15000,
      "rates": {
-      "tor": 2034,
-      "van": 1634,
-      "mtl": 2010,
-      "cgy": 1386
+      "tor": 2038,
+      "van": 1637,
+      "mtl": 2014,
+      "cgy": 1388
      }
     },
     {
@@ -5596,7 +5684,7 @@
   "humbletcg": {
    "market": "SG",
    "currency": "SGD",
-   "measuredAt": "2026-10-25T04:41:28.083Z",
+   "measuredAt": "2026-10-26T09:23:35.954Z",
    "points": [
     {
      "subtotalCents": 950,
@@ -5633,7 +5721,7 @@
   "iberiancollect": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:47:21.370Z",
+   "measuredAt": "2026-10-26T09:29:15.776Z",
    "points": [
     {
      "subtotalCents": 13499,
@@ -5649,7 +5737,7 @@
   "impactgamingcenter": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:44:26.936Z",
+   "measuredAt": "2026-10-26T09:26:38.181Z",
    "points": [
     {
      "subtotalCents": 625,
@@ -5683,7 +5771,7 @@
   "impactleague": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:44:29.417Z",
+   "measuredAt": "2026-10-26T09:26:37.529Z",
    "points": [
     {
      "subtotalCents": 249,
@@ -5735,7 +5823,7 @@
   "imyourwardrobe": {
    "market": "NZ",
    "currency": "NZD",
-   "measuredAt": "2026-10-25T04:41:31.674Z",
+   "measuredAt": "2026-10-26T09:23:37.970Z",
    "points": [
     {
      "subtotalCents": 15999,
@@ -5760,7 +5848,7 @@
   "indycardshop": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:44:35.566Z",
+   "measuredAt": "2026-10-26T09:26:45.055Z",
    "points": [
     {
      "subtotalCents": 37,
@@ -5803,7 +5891,7 @@
   "invasioninc": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:51:13.975Z",
+   "measuredAt": "2026-10-26T09:32:45.652Z",
    "points": [
     {
      "subtotalCents": 2995,
@@ -5837,7 +5925,7 @@
   "ip5f5c0a": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:45:08.743Z",
+   "measuredAt": "2026-10-26T09:27:14.854Z",
    "points": [
     {
      "subtotalCents": 499,
@@ -5889,7 +5977,7 @@
   "irishpokefinds": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:47:38.455Z",
+   "measuredAt": "2026-10-26T09:29:29.006Z",
    "points": [
     {
      "subtotalCents": 4300,
@@ -5914,32 +6002,50 @@
   "itsgametime": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:51:18.661Z",
+   "measuredAt": "2026-10-26T09:33:18.928Z",
    "points": [
+    {
+     "subtotalCents": 3795,
+     "rates": {
+      "tor": 1093,
+      "van": 1500,
+      "mtl": 1473,
+      "cgy": 1500
+     }
+    },
     {
      "subtotalCents": 5495,
      "rates": {
-      "tor": 1090,
+      "tor": 1093,
       "van": 1500,
-      "mtl": 1469,
+      "mtl": 1473,
       "cgy": 1500
      }
     },
     {
      "subtotalCents": 9995,
      "rates": {
-      "tor": 1090,
+      "tor": 1093,
       "van": 1500,
-      "mtl": 1469,
+      "mtl": 1473,
+      "cgy": 1500
+     }
+    },
+    {
+     "subtotalCents": 19995,
+     "rates": {
+      "tor": 1093,
+      "van": 1500,
+      "mtl": 1473,
       "cgy": 1500
      }
     },
     {
      "subtotalCents": 37995,
      "rates": {
-      "tor": 1090,
+      "tor": 1093,
       "van": 1500,
-      "mtl": 1469,
+      "mtl": 1473,
       "cgy": 1500
      }
     }
@@ -5948,7 +6054,7 @@
   "jacksonqueen": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:51:29.777Z",
+   "measuredAt": "2026-10-26T09:33:01.328Z",
    "points": [
     {
      "subtotalCents": 4425,
@@ -5973,10 +6079,10 @@
   "jamiestradingcards": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:47:01.163Z",
+   "measuredAt": "2026-10-26T09:28:38.618Z",
    "points": [
     {
-     "subtotalCents": 500,
+     "subtotalCents": 495,
      "rates": {
       "syd": 1195,
       "mel": 1195,
@@ -6002,7 +6108,7 @@
      }
     },
     {
-     "subtotalCents": 16495,
+     "subtotalCents": 15995,
      "rates": {
       "syd": 1195,
       "mel": 1195,
@@ -6015,7 +6121,7 @@
      }
     },
     {
-     "subtotalCents": 31200,
+     "subtotalCents": 31495,
      "rates": {
       "syd": 1195,
       "mel": 1195,
@@ -6032,7 +6138,7 @@
   "japan2uk": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:44:10.282Z",
+   "measuredAt": "2026-10-26T09:26:08.787Z",
    "points": [
     {
      "subtotalCents": 1499,
@@ -6057,7 +6163,7 @@
   "jarocards": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:44:40.899Z",
+   "measuredAt": "2026-10-26T09:26:52.226Z",
    "points": [
     {
      "subtotalCents": 4999,
@@ -6082,7 +6188,7 @@
   "jeffthrowcards": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:44:44.507Z",
+   "measuredAt": "2026-10-26T09:26:53.997Z",
    "points": [
     {
      "subtotalCents": 6969,
@@ -6098,7 +6204,7 @@
   "jiggletcg": {
    "market": "SG",
    "currency": "SGD",
-   "measuredAt": "2026-10-25T04:41:31.800Z",
+   "measuredAt": "2026-10-26T09:23:33.647Z",
    "points": [
     {
      "subtotalCents": 2100,
@@ -6129,7 +6235,7 @@
   "jjcollection": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:48:03.738Z",
+   "measuredAt": "2026-10-26T09:30:01.802Z",
    "points": [
     {
      "subtotalCents": 1370,
@@ -6172,7 +6278,7 @@
   "justahobby": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:51:52.463Z",
+   "measuredAt": "2026-10-26T09:33:46.265Z",
    "points": [
     {
      "subtotalCents": 699,
@@ -6224,7 +6330,7 @@
   "justcardstuff": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:46:48.761Z",
+   "measuredAt": "2026-10-26T09:28:19.727Z",
    "points": [
     {
      "subtotalCents": 50,
@@ -6257,7 +6363,7 @@
   "kadoone": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:52:15.115Z",
+   "measuredAt": "2026-10-26T09:34:02.844Z",
    "points": [
     {
      "subtotalCents": 799,
@@ -6309,7 +6415,7 @@
   "kanzengames": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:52:37.971Z",
+   "measuredAt": "2026-10-26T09:34:04.711Z",
    "points": [
     {
      "subtotalCents": 295,
@@ -6361,7 +6467,7 @@
   "kardz": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:47:54.815Z",
+   "measuredAt": "2026-10-26T09:29:44.689Z",
    "points": [
     {
      "subtotalCents": 2999,
@@ -6404,7 +6510,7 @@
   "kartenmeier": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:49:12.389Z",
+   "measuredAt": "2026-10-26T09:30:59.005Z",
    "points": [
     {
      "subtotalCents": 305,
@@ -6423,22 +6529,13 @@
       "fr": null,
       "nl": null
      }
-    },
-    {
-     "subtotalCents": 8095,
-     "rates": {
-      "es": null,
-      "de": 699,
-      "fr": null,
-      "nl": null
-     }
     }
    ]
   },
   "kawaiicollector": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:47:10.691Z",
+   "measuredAt": "2026-10-26T09:28:41.463Z",
    "points": [
     {
      "subtotalCents": 6999,
@@ -6471,7 +6568,7 @@
   "knightandday": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:45:10.026Z",
+   "measuredAt": "2026-10-26T09:27:31.229Z",
    "points": [
     {
      "subtotalCents": 50,
@@ -6514,7 +6611,7 @@
   "kollectkorner": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:44:52.402Z",
+   "measuredAt": "2026-10-26T09:27:01.933Z",
    "points": [
     {
      "subtotalCents": 799,
@@ -6530,10 +6627,10 @@
   "koolthings": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:44:09.652Z",
+   "measuredAt": "2026-10-26T09:26:14.609Z",
    "points": [
     {
-     "subtotalCents": 650,
+     "subtotalCents": 750,
      "rates": {
       "lon": 499,
       "man": 499,
@@ -6555,7 +6652,7 @@
   "kumacards": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:44:53.403Z",
+   "measuredAt": "2026-10-26T09:26:52.945Z",
    "points": [
     {
      "subtotalCents": 250,
@@ -6607,7 +6704,7 @@
   "laboutiquemythique": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:53:38.068Z",
+   "measuredAt": "2026-10-26T09:35:19.266Z",
    "points": [
     {
      "subtotalCents": 499,
@@ -6626,22 +6723,13 @@
       "mtl": null,
       "cgy": null
      }
-    },
-    {
-     "subtotalCents": 8199,
-     "rates": {
-      "tor": null,
-      "van": null,
-      "mtl": null,
-      "cgy": null
-     }
     }
    ]
   },
   "lachsnackenshop": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:48:26.093Z",
+   "measuredAt": "2026-10-26T09:30:00.817Z",
    "points": [
     {
      "subtotalCents": 599,
@@ -6651,22 +6739,13 @@
       "fr": null,
       "nl": null
      }
-    },
-    {
-     "subtotalCents": 4999,
-     "rates": {
-      "es": null,
-      "de": 599,
-      "fr": null,
-      "nl": null
-     }
     }
    ]
   },
   "lakecards": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:48:48.344Z",
+   "measuredAt": "2026-10-26T09:30:47.668Z",
    "points": [
     {
      "subtotalCents": 199,
@@ -6718,7 +6797,7 @@
   "legendarycollectables": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:52:51.929Z",
+   "measuredAt": "2026-10-26T09:34:46.401Z",
    "points": [
     {
      "subtotalCents": 995,
@@ -6770,7 +6849,7 @@
   "levelupgames": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:53:12.994Z",
+   "measuredAt": "2026-10-26T09:34:42.721Z",
    "points": [
     {
      "subtotalCents": 399,
@@ -6822,7 +6901,7 @@
   "lichcards": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:48:55.253Z",
+   "measuredAt": "2026-10-26T09:30:42.917Z",
    "points": [
     {
      "subtotalCents": 349,
@@ -6865,7 +6944,7 @@
   "lightofcards": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:48:17.586Z",
+   "measuredAt": "2026-10-26T09:29:47.356Z",
    "points": [
     {
      "subtotalCents": 499,
@@ -6937,7 +7016,7 @@
   "loosepacks": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:45:52.199Z",
+   "measuredAt": "2026-10-26T09:27:52.821Z",
    "points": [
     {
      "subtotalCents": 1000,
@@ -6989,7 +7068,7 @@
   "lotuspetalgaming": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:52:59.726Z",
+   "measuredAt": "2026-10-26T09:34:50.705Z",
    "points": [
     {
      "subtotalCents": 899,
@@ -7005,7 +7084,7 @@
   "lowpop": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:48:15.807Z",
+   "measuredAt": "2026-10-26T09:29:46.861Z",
    "points": [
     {
      "subtotalCents": 900,
@@ -7077,7 +7156,7 @@
   "luxcards": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:49:08.384Z",
+   "measuredAt": "2026-10-26T09:31:02.939Z",
    "points": [
     {
      "subtotalCents": 5490,
@@ -7111,7 +7190,7 @@
   "lvlupgaming": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:44:48.941Z",
+   "measuredAt": "2026-10-26T09:26:47.343Z",
    "points": [
     {
      "subtotalCents": 450,
@@ -7154,33 +7233,15 @@
   "madmerchantgames": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:54:37.100Z",
+   "measuredAt": "2026-10-26T09:36:01.855Z",
    "points": [
     {
-     "subtotalCents": 750,
+     "subtotalCents": 800,
      "rates": {
-      "tor": 970,
+      "tor": 972,
       "van": null,
       "mtl": null,
-      "cgy": 1711
-     }
-    },
-    {
-     "subtotalCents": 4000,
-     "rates": {
-      "tor": 1122,
-      "van": null,
-      "mtl": null,
-      "cgy": 2073
-     }
-    },
-    {
-     "subtotalCents": 8800,
-     "rates": {
-      "tor": 1122,
-      "van": null,
-      "mtl": null,
-      "cgy": 2073
+      "cgy": 1716
      }
     }
    ]
@@ -7188,7 +7249,7 @@
   "mainephasehobbies": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:45:31.153Z",
+   "measuredAt": "2026-10-26T09:27:51.142Z",
    "points": [
     {
      "subtotalCents": 795,
@@ -7202,10 +7263,10 @@
     {
      "subtotalCents": 4595,
      "rates": {
-      "ny": 686,
-      "sf": 1035,
-      "dal": 827,
-      "chi": 837
+      "ny": 0,
+      "sf": 0,
+      "dal": 0,
+      "chi": 0
      }
     },
     {
@@ -7222,7 +7283,7 @@
   "manamarket": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:50:26.345Z",
+   "measuredAt": "2026-10-26T09:30:52.694Z",
    "points": [
     {
      "subtotalCents": 1241,
@@ -7238,7 +7299,7 @@
      }
     },
     {
-     "subtotalCents": 4110,
+     "subtotalCents": 4234,
      "rates": {
       "syd": 800,
       "mel": 800,
@@ -7275,13 +7336,26 @@
       "drw": 800,
       "cbr": 800
      }
+    },
+    {
+     "subtotalCents": 31265,
+     "rates": {
+      "syd": 800,
+      "mel": 800,
+      "bne": 800,
+      "adl": 800,
+      "per": 800,
+      "hba": 800,
+      "drw": 800,
+      "cbr": 800
+     }
     }
    ]
   },
   "manamarketeu": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:49:34.447Z",
+   "measuredAt": "2026-10-26T09:31:16.626Z",
    "points": [
     {
      "subtotalCents": 58,
@@ -7324,7 +7398,7 @@
   "mantisgamestudio": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:46:05.907Z",
+   "measuredAt": "2026-10-26T09:28:29.538Z",
    "points": [
     {
      "subtotalCents": 500,
@@ -7376,7 +7450,7 @@
   "manyrealms": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:46:29.491Z",
+   "measuredAt": "2026-10-26T09:28:29.225Z",
    "points": [
     {
      "subtotalCents": 799,
@@ -7406,7 +7480,7 @@
      }
     },
     {
-     "subtotalCents": 18499,
+     "subtotalCents": 15850,
      "rates": {
       "ny": 0,
       "sf": 0,
@@ -7428,7 +7502,7 @@
   "mcgillicuddystoyshop": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:49:22.246Z",
+   "measuredAt": "2026-10-26T09:31:13.216Z",
    "points": [
     {
      "subtotalCents": 599,
@@ -7453,19 +7527,10 @@
   "meeplescorner": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:44:43.391Z",
+   "measuredAt": "2026-10-26T09:26:45.736Z",
    "points": [
     {
      "subtotalCents": 1995,
-     "rates": {
-      "lon": 299,
-      "man": 299,
-      "edi": 299,
-      "bfs": 299
-     }
-    },
-    {
-     "subtotalCents": 5995,
      "rates": {
       "lon": 299,
       "man": 299,
@@ -7478,7 +7543,7 @@
   "megacards": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:45:21.443Z",
+   "measuredAt": "2026-10-26T09:27:23.306Z",
    "points": [
     {
      "subtotalCents": 94,
@@ -7521,7 +7586,7 @@
   "melbemon": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:50:20.613Z",
+   "measuredAt": "2026-10-26T09:31:40.247Z",
    "points": [
     {
      "subtotalCents": 3000,
@@ -7567,7 +7632,7 @@
   "merchantsinventory": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:53:21.145Z",
+   "measuredAt": "2026-10-26T09:34:58.447Z",
    "points": [
     {
      "subtotalCents": 700,
@@ -7583,7 +7648,7 @@
   "metamorphcenter": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:49:27.069Z",
+   "measuredAt": "2026-10-26T09:31:17.861Z",
    "points": [
     {
      "subtotalCents": 590,
@@ -7608,7 +7673,7 @@
   "metrohobbies": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:48:48.529Z",
+   "measuredAt": "2026-10-26T09:30:29.930Z",
    "points": [
     {
      "subtotalCents": 6499,
@@ -7628,7 +7693,7 @@
   "mhdealsplus": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:46:26.928Z",
+   "measuredAt": "2026-10-26T09:28:50.039Z",
    "points": [
     {
      "subtotalCents": 3995,
@@ -7662,7 +7727,7 @@
   "mintsidecards": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:44:56.987Z",
+   "measuredAt": "2026-10-26T09:26:55.384Z",
    "points": [
     {
      "subtotalCents": 699,
@@ -7678,7 +7743,7 @@
   "mojocards": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:50:21.632Z",
+   "measuredAt": "2026-10-26T09:31:56.853Z",
    "points": [
     {
      "subtotalCents": 300,
@@ -7730,7 +7795,7 @@
   "monstercardcorner": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:45:14.210Z",
+   "measuredAt": "2026-10-26T09:27:14.320Z",
    "points": [
     {
      "subtotalCents": 549,
@@ -7764,7 +7829,7 @@
   "mysterymtg": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:46:41.834Z",
+   "measuredAt": "2026-10-26T09:28:44.408Z",
    "points": [
     {
      "subtotalCents": 500,
@@ -7789,7 +7854,7 @@
   "mysticalsparktcg": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:53:56.333Z",
+   "measuredAt": "2026-10-26T09:35:35.590Z",
    "points": [
     {
      "subtotalCents": 1099,
@@ -7832,7 +7897,7 @@
   "mythicstore": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:55:21.644Z",
+   "measuredAt": "2026-10-26T09:36:58.202Z",
    "points": [
     {
      "subtotalCents": 499,
@@ -7866,7 +7931,7 @@
   "n4ytcg": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:46:37.681Z",
+   "measuredAt": "2026-10-26T09:28:42.952Z",
    "points": [
     {
      "subtotalCents": 10999,
@@ -7882,7 +7947,7 @@
   "neocards": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:45:34.772Z",
+   "measuredAt": "2026-10-26T09:27:23.167Z",
    "points": [
     {
      "subtotalCents": 499,
@@ -7925,7 +7990,7 @@
   "nerdzoic": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:47:18.924Z",
+   "measuredAt": "2026-10-26T09:29:25.288Z",
    "points": [
     {
      "subtotalCents": 299,
@@ -7977,7 +8042,7 @@
   "nexustabletopgames": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:46:51.907Z",
+   "measuredAt": "2026-10-26T09:28:59.078Z",
    "points": [
     {
      "subtotalCents": 3248,
@@ -8002,7 +8067,7 @@
   "nordiclegends": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:49:55.191Z",
+   "measuredAt": "2026-10-26T09:31:54.558Z",
    "points": [
     {
      "subtotalCents": 329,
@@ -8045,7 +8110,7 @@
   "northernwartable": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:54:16.288Z",
+   "measuredAt": "2026-10-26T09:35:55.398Z",
    "points": [
     {
      "subtotalCents": 599,
@@ -8079,7 +8144,7 @@
   "npcollectibles": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:55:02.871Z",
+   "measuredAt": "2026-10-26T09:36:33.861Z",
    "points": [
     {
      "subtotalCents": 879,
@@ -8131,7 +8196,7 @@
   "obsessiongaming": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:49:11.790Z",
+   "measuredAt": "2026-10-26T09:30:52.841Z",
    "points": [
     {
      "subtotalCents": 3495,
@@ -8164,10 +8229,19 @@
   "obsidiangames": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:54:51.955Z",
+   "measuredAt": "2026-10-26T09:36:22.609Z",
    "points": [
     {
-     "subtotalCents": 1499,
+     "subtotalCents": 999,
+     "rates": {
+      "tor": 1899,
+      "van": 1899,
+      "mtl": 1899,
+      "cgy": 1899
+     }
+    },
+    {
+     "subtotalCents": 5499,
      "rates": {
       "tor": 1899,
       "van": 1899,
@@ -8189,7 +8263,7 @@
   "obsidiatcg": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:45:35.997Z",
+   "measuredAt": "2026-10-26T09:27:46.525Z",
    "points": [
     {
      "subtotalCents": 450,
@@ -8223,7 +8297,7 @@
   "ocare": {
    "market": "NZ",
    "currency": "NZD",
-   "measuredAt": "2026-10-25T04:42:02.453Z",
+   "measuredAt": "2026-10-26T09:23:58.093Z",
    "points": [
     {
      "subtotalCents": 1099,
@@ -8257,7 +8331,7 @@
   "onestoppokeshop": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:50:16.589Z",
+   "measuredAt": "2026-10-26T09:32:30.022Z",
    "points": [
     {
      "subtotalCents": 350,
@@ -8310,18 +8384,57 @@
       "drw": 1000,
       "cbr": 1000
      }
+    }
+   ]
+  },
+  "onestoptcg": {
+   "market": "US",
+   "currency": "USD",
+   "measuredAt": "2026-10-26T09:29:41.832Z",
+   "points": [
+    {
+     "subtotalCents": 699,
+     "rates": {
+      "ny": 799,
+      "sf": 799,
+      "dal": 799,
+      "chi": 799
+     }
     },
     {
-     "subtotalCents": 30000,
+     "subtotalCents": 4099,
      "rates": {
-      "syd": 1350,
-      "mel": 1350,
-      "bne": 1350,
-      "adl": 1350,
-      "per": 1350,
-      "hba": 1350,
-      "drw": 1350,
-      "cbr": 1350
+      "ny": 799,
+      "sf": 799,
+      "dal": 799,
+      "chi": 799
+     }
+    },
+    {
+     "subtotalCents": 8099,
+     "rates": {
+      "ny": 1501,
+      "sf": 1548,
+      "dal": 1074,
+      "chi": 1273
+     }
+    },
+    {
+     "subtotalCents": 15099,
+     "rates": {
+      "ny": 1501,
+      "sf": 1548,
+      "dal": 1074,
+      "chi": 1273
+     }
+    },
+    {
+     "subtotalCents": 30099,
+     "rates": {
+      "ny": 1501,
+      "sf": 1548,
+      "dal": 1074,
+      "chi": 1273
      }
     }
    ]
@@ -8329,7 +8442,7 @@
   "otakumart": {
    "market": "NZ",
    "currency": "NZD",
-   "measuredAt": "2026-10-25T04:41:47.135Z",
+   "measuredAt": "2026-10-26T09:24:00.252Z",
    "points": [
     {
      "subtotalCents": 4800,
@@ -8345,7 +8458,7 @@
   "otakura": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:50:12.463Z",
+   "measuredAt": "2026-10-26T09:31:56.738Z",
    "points": [
     {
      "subtotalCents": 1290,
@@ -8379,7 +8492,7 @@
   "outpostbrussels": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:50:39.862Z",
+   "measuredAt": "2026-10-26T09:32:33.340Z",
    "points": [
     {
      "subtotalCents": 1599,
@@ -8431,7 +8544,7 @@
   "ozzie": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:51:23.342Z",
+   "measuredAt": "2026-10-26T09:31:59.741Z",
    "points": [
     {
      "subtotalCents": 199,
@@ -8503,41 +8616,41 @@
   "paradoxtcg": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:55:34.270Z",
+   "measuredAt": "2026-10-26T09:37:05.356Z",
    "points": [
     {
      "subtotalCents": 799,
      "rates": {
-      "tor": 968,
+      "tor": 971,
       "van": 1660,
-      "mtl": 1288,
+      "mtl": 1292,
       "cgy": 1660
      }
     },
     {
      "subtotalCents": 4999,
      "rates": {
-      "tor": 992,
+      "tor": 995,
       "van": 1660,
-      "mtl": 1332,
+      "mtl": 1336,
       "cgy": 1660
      }
     },
     {
      "subtotalCents": 9999,
      "rates": {
-      "tor": 1137,
+      "tor": 1141,
       "van": 1660,
-      "mtl": 1503,
+      "mtl": 1507,
       "cgy": 1660
      }
     },
     {
      "subtotalCents": 19999,
      "rates": {
-      "tor": 1137,
+      "tor": 1141,
       "van": 1660,
-      "mtl": 1503,
+      "mtl": 1507,
       "cgy": 1660
      }
     },
@@ -8555,7 +8668,7 @@
   "phantasma": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:47:19.988Z",
+   "measuredAt": "2026-10-26T09:29:53.021Z",
    "points": [
     {
      "subtotalCents": 499,
@@ -8598,7 +8711,7 @@
   "pikamon": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:50:48.242Z",
+   "measuredAt": "2026-10-26T09:32:32.006Z",
    "points": [
     {
      "subtotalCents": 1288,
@@ -8650,7 +8763,7 @@
   "pikkuplay": {
    "market": "SG",
    "currency": "SGD",
-   "measuredAt": "2026-10-25T04:41:54.955Z",
+   "measuredAt": "2026-10-26T09:23:58.426Z",
    "points": [
     {
      "subtotalCents": 1000,
@@ -8687,7 +8800,7 @@
   "pixelhub": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:45:46.374Z",
+   "measuredAt": "2026-10-26T09:27:44.654Z",
    "points": [
     {
      "subtotalCents": 3699,
@@ -8721,7 +8834,7 @@
   "pkmwinkel": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:50:45.077Z",
+   "measuredAt": "2026-10-26T09:32:20.557Z",
    "points": [
     {
      "subtotalCents": 5995,
@@ -8755,7 +8868,7 @@
   "playx": {
    "market": "NZ",
    "currency": "NZD",
-   "measuredAt": "2026-10-25T04:41:56.002Z",
+   "measuredAt": "2026-10-26T09:24:14.832Z",
    "points": [
     {
      "subtotalCents": 1999,
@@ -8767,7 +8880,7 @@
      }
     },
     {
-     "subtotalCents": 34999,
+     "subtotalCents": 38999,
      "rates": {
       "akl": 0,
       "wlg": 0,
@@ -8780,7 +8893,7 @@
   "plenty": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:51:28.693Z",
+   "measuredAt": "2026-10-26T09:32:47.098Z",
    "points": [
     {
      "subtotalCents": 500,
@@ -8852,7 +8965,7 @@
   "pokebox": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:51:30.939Z",
+   "measuredAt": "2026-10-26T09:33:11.087Z",
    "points": [
     {
      "subtotalCents": 999,
@@ -8924,7 +9037,7 @@
   "pokecollect": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:48:41.422Z",
+   "measuredAt": "2026-10-26T09:31:20.312Z",
    "points": [
     {
      "subtotalCents": 295,
@@ -8976,7 +9089,7 @@
   "pokefamily": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:51:27.924Z",
+   "measuredAt": "2026-10-26T09:33:15.619Z",
    "points": [
     {
      "subtotalCents": 250,
@@ -9028,7 +9141,7 @@
   "pokegemsmtl": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:55:58.795Z",
+   "measuredAt": "2026-10-26T09:37:08.961Z",
    "points": [
     {
      "subtotalCents": 704,
@@ -9058,7 +9171,7 @@
      }
     },
     {
-     "subtotalCents": 15000,
+     "subtotalCents": 15148,
      "rates": {
       "tor": 1500,
       "van": 1500,
@@ -9080,10 +9193,10 @@
   "pokemillon": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:51:34.670Z",
+   "measuredAt": "2026-10-26T09:33:18.582Z",
    "points": [
     {
-     "subtotalCents": 1390,
+     "subtotalCents": 590,
      "rates": {
       "es": 450,
       "de": 820,
@@ -9132,7 +9245,7 @@
   "pokemonplug": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:48:13.652Z",
+   "measuredAt": "2026-10-26T09:30:47.910Z",
    "points": [
     {
      "subtotalCents": 599,
@@ -9184,7 +9297,7 @@
   "pokemonwinkel": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:51:19.313Z",
+   "measuredAt": "2026-10-26T09:33:10.441Z",
    "points": [
     {
      "subtotalCents": 5995,
@@ -9218,21 +9331,8 @@
   "pokemonworldaustralia": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:51:48.503Z",
+   "measuredAt": "2026-10-26T09:32:45.413Z",
    "points": [
-    {
-     "subtotalCents": 17900,
-     "rates": {
-      "syd": 1250,
-      "mel": 1250,
-      "bne": 1250,
-      "adl": 1250,
-      "per": 1250,
-      "hba": 1250,
-      "drw": 1250,
-      "cbr": 1250
-     }
-    },
     {
      "subtotalCents": 33000,
      "rates": {
@@ -9251,10 +9351,10 @@
   "pokephd": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:45:42.623Z",
+   "measuredAt": "2026-10-26T09:27:31.365Z",
    "points": [
     {
-     "subtotalCents": 29690,
+     "subtotalCents": 29770,
      "rates": {
       "lon": 0,
       "man": 0,
@@ -9267,7 +9367,7 @@
   "pokepower": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:51:27.973Z",
+   "measuredAt": "2026-10-26T09:33:19.461Z",
    "points": [
     {
      "subtotalCents": 1450,
@@ -9283,7 +9383,7 @@
   "pokesource": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:52:33.642Z",
+   "measuredAt": "2026-10-26T09:34:04.631Z",
    "points": [
     {
      "subtotalCents": 500,
@@ -9299,7 +9399,7 @@
      }
     },
     {
-     "subtotalCents": 4165,
+     "subtotalCents": 4100,
      "rates": {
       "syd": 995,
       "mel": 995,
@@ -9355,7 +9455,7 @@
   "pokestash": {
    "market": "NZ",
    "currency": "NZD",
-   "measuredAt": "2026-10-25T04:42:24.813Z",
+   "measuredAt": "2026-10-26T09:24:38.213Z",
    "points": [
     {
      "subtotalCents": 999,
@@ -9407,10 +9507,10 @@
   "pokestock": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:51:41.935Z",
+   "measuredAt": "2026-10-26T09:33:30.501Z",
    "points": [
     {
-     "subtotalCents": 6999,
+     "subtotalCents": 9999,
      "rates": {
       "es": 1999,
       "de": 1999,
@@ -9432,10 +9532,23 @@
   "poketrader": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:51:56.164Z",
+   "measuredAt": "2026-10-26T09:33:21.297Z",
    "points": [
     {
      "subtotalCents": 1999,
+     "rates": {
+      "syd": 990,
+      "mel": 990,
+      "bne": 990,
+      "adl": 990,
+      "per": 990,
+      "hba": 990,
+      "drw": 990,
+      "cbr": 990
+     }
+    },
+    {
+     "subtotalCents": 9900,
      "rates": {
       "syd": 990,
       "mel": 990,
@@ -9465,7 +9578,7 @@
   "pokevend": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:46:11.738Z",
+   "measuredAt": "2026-10-26T09:28:07.680Z",
    "points": [
     {
      "subtotalCents": 250,
@@ -9508,7 +9621,7 @@
   "popcollectibles": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:56:03.630Z",
+   "measuredAt": "2026-10-26T09:37:40.307Z",
    "points": [
     {
      "subtotalCents": 3999,
@@ -9603,7 +9716,7 @@
   "primecitycomics": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:48:27.662Z",
+   "measuredAt": "2026-10-26T09:30:48.517Z",
    "points": [
     {
      "subtotalCents": 29000,
@@ -9628,7 +9741,7 @@
   "progamers": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:52:31.457Z",
+   "measuredAt": "2026-10-26T09:34:03.941Z",
    "points": [
     {
      "subtotalCents": 500,
@@ -9644,7 +9757,7 @@
      }
     },
     {
-     "subtotalCents": 5060,
+     "subtotalCents": 5040,
      "rates": {
       "syd": 250,
       "mel": 250,
@@ -9670,7 +9783,7 @@
      }
     },
     {
-     "subtotalCents": 17770,
+     "subtotalCents": 17680,
      "rates": {
       "syd": 250,
       "mel": 250,
@@ -9687,7 +9800,7 @@
   "prospernz": {
    "market": "NZ",
    "currency": "NZD",
-   "measuredAt": "2026-10-25T04:42:31.949Z",
+   "measuredAt": "2026-10-26T09:24:59.755Z",
    "points": [
     {
      "subtotalCents": 6500,
@@ -9730,7 +9843,7 @@
   "psydeck": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:52:12.591Z",
+   "measuredAt": "2026-10-26T09:34:03.699Z",
    "points": [
     {
      "subtotalCents": 330,
@@ -9782,7 +9895,7 @@
   "ptccollectibles": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:56:55.897Z",
+   "measuredAt": "2026-10-26T09:38:29.471Z",
    "points": [
     {
      "subtotalCents": 199,
@@ -9792,49 +9905,13 @@
       "mtl": 599,
       "cgy": 599
      }
-    },
-    {
-     "subtotalCents": 4499,
-     "rates": {
-      "tor": 1166,
-      "van": 1664,
-      "mtl": 1423,
-      "cgy": 1664
-     }
-    },
-    {
-     "subtotalCents": 9499,
-     "rates": {
-      "tor": 1118,
-      "van": 1299,
-      "mtl": 1299,
-      "cgy": 1299
-     }
-    },
-    {
-     "subtotalCents": 15999,
-     "rates": {
-      "tor": 1118,
-      "van": 1299,
-      "mtl": 1299,
-      "cgy": 1299
-     }
-    },
-    {
-     "subtotalCents": 30000,
-     "rates": {
-      "tor": 0,
-      "van": 0,
-      "mtl": 0,
-      "cgy": 0
-     }
     }
    ]
   },
   "pushdichtcg": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:52:10.882Z",
+   "measuredAt": "2026-10-26T09:33:55.444Z",
    "points": [
     {
      "subtotalCents": 3499,
@@ -9877,7 +9954,7 @@
   "quackopens": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:52:31.554Z",
+   "measuredAt": "2026-10-26T09:33:57.239Z",
    "points": [
     {
      "subtotalCents": 1299,
@@ -9923,7 +10000,7 @@
   "razorleaf": {
    "market": "NZ",
    "currency": "NZD",
-   "measuredAt": "2026-10-25T04:42:39.857Z",
+   "measuredAt": "2026-10-26T09:24:53.502Z",
    "points": [
     {
      "subtotalCents": 599,
@@ -9948,7 +10025,7 @@
   "remicardtrader": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:56:43.270Z",
+   "measuredAt": "2026-10-26T09:37:47.121Z",
    "points": [
     {
      "subtotalCents": 295,
@@ -10000,7 +10077,7 @@
   "retrogamingofdenver": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:48:36.102Z",
+   "measuredAt": "2026-10-26T09:30:56.690Z",
    "points": [
     {
      "subtotalCents": 689,
@@ -10016,7 +10093,7 @@
   "roboskillz": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:49:02.914Z",
+   "measuredAt": "2026-10-26T09:31:23.710Z",
    "points": [
     {
      "subtotalCents": 699,
@@ -10059,7 +10136,7 @@
   "royaltycardsandcollectibles": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:56:42.219Z",
+   "measuredAt": "2026-10-26T09:38:15.851Z",
    "points": [
     {
      "subtotalCents": 999,
@@ -10111,7 +10188,7 @@
   "sawadeekard": {
    "market": "SG",
    "currency": "SGD",
-   "measuredAt": "2026-10-25T04:41:57.399Z",
+   "measuredAt": "2026-10-26T09:23:50.498Z",
    "points": [
     {
      "subtotalCents": 247,
@@ -10148,7 +10225,7 @@
   "sentinelgamessg": {
    "market": "SG",
    "currency": "SGD",
-   "measuredAt": "2026-10-25T04:41:46.728Z",
+   "measuredAt": "2026-10-26T09:23:51.295Z",
    "points": [
     {
      "subtotalCents": 3300,
@@ -10179,7 +10256,7 @@
   "seventhcity": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:45:50.498Z",
+   "measuredAt": "2026-10-26T09:27:52.529Z",
    "points": [
     {
      "subtotalCents": 1499,
@@ -10195,7 +10272,7 @@
   "shippintexas": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:49:09.681Z",
+   "measuredAt": "2026-10-26T09:31:53.113Z",
    "points": [
     {
      "subtotalCents": 1118,
@@ -10207,7 +10284,7 @@
      }
     },
     {
-     "subtotalCents": 10593,
+     "subtotalCents": 10558,
      "rates": {
       "ny": 837,
       "sf": 847,
@@ -10225,7 +10302,7 @@
      }
     },
     {
-     "subtotalCents": 32389,
+     "subtotalCents": 32500,
      "rates": {
       "ny": 837,
       "sf": 847,
@@ -10238,7 +10315,7 @@
   "shopverse": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:57:28.192Z",
+   "measuredAt": "2026-10-26T09:38:33.200Z",
    "points": [
     {
      "subtotalCents": 695,
@@ -10290,24 +10367,24 @@
   "silvergoblin": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:57:09.078Z",
+   "measuredAt": "2026-10-26T09:38:42.225Z",
    "points": [
     {
      "subtotalCents": 3999,
      "rates": {
-      "tor": 1465,
-      "van": 2052,
-      "mtl": 1135,
-      "cgy": 1926
+      "tor": 1468,
+      "van": 2058,
+      "mtl": 1137,
+      "cgy": 1931
      }
     },
     {
      "subtotalCents": 4999,
      "rates": {
-      "tor": 1472,
-      "van": 2063,
-      "mtl": 1140,
-      "cgy": 1935
+      "tor": 1475,
+      "van": 2069,
+      "mtl": 1143,
+      "cgy": 1940
      }
     },
     {
@@ -10324,7 +10401,7 @@
   "skyboxct": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:50:57.163Z",
+   "measuredAt": "2026-10-26T09:32:52.632Z",
    "points": [
     {
      "subtotalCents": 700,
@@ -10343,57 +10420,57 @@
       "dal": null,
       "chi": null
      }
-    },
-    {
-     "subtotalCents": 8400,
-     "rates": {
-      "ny": null,
-      "sf": null,
-      "dal": null,
-      "chi": null
-     }
-    },
-    {
-     "subtotalCents": 15800,
-     "rates": {
-      "ny": 785,
-      "sf": 1068,
-      "dal": 1008,
-      "chi": 904
-     }
     }
    ]
   },
   "skyfoxgames": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:58:20.060Z",
+   "measuredAt": "2026-10-26T09:39:24.999Z",
    "points": [
     {
      "subtotalCents": 399,
      "rates": {
-      "tor": 1080,
-      "van": 1980,
-      "mtl": 1461,
-      "cgy": 1947
+      "tor": 1083,
+      "van": 1985,
+      "mtl": 1465,
+      "cgy": 1953
      }
     },
     {
      "subtotalCents": 4299,
      "rates": {
-      "tor": 1080,
-      "van": 1980,
-      "mtl": 1461,
-      "cgy": 1947
+      "tor": 1083,
+      "van": 1985,
+      "mtl": 1465,
+      "cgy": 1953
      }
     },
     {
      "subtotalCents": 8499,
      "rates": {
-      "tor": 1080,
-      "van": 1980,
-      "mtl": 1461,
-      "cgy": 1947
+      "tor": 1083,
+      "van": 1985,
+      "mtl": 1465,
+      "cgy": 1953
+     }
+    },
+    {
+     "subtotalCents": 15499,
+     "rates": {
+      "tor": 1083,
+      "van": 1985,
+      "mtl": 1465,
+      "cgy": 1953
+     }
+    },
+    {
+     "subtotalCents": 31999,
+     "rates": {
+      "tor": 1083,
+      "van": 1985,
+      "mtl": 1465,
+      "cgy": 1953
      }
     }
    ]
@@ -10401,7 +10478,7 @@
   "spellboundgames": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:45:54.332Z",
+   "measuredAt": "2026-10-26T09:27:54.809Z",
    "points": [
     {
      "subtotalCents": 1999,
@@ -10417,7 +10494,7 @@
   "spellroo": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:53:25.816Z",
+   "measuredAt": "2026-10-26T09:35:05.475Z",
    "points": [
     {
      "subtotalCents": 900,
@@ -10489,7 +10566,7 @@
   "sportscardsdirect": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:46:49.866Z",
+   "measuredAt": "2026-10-26T09:28:25.840Z",
    "points": [
     {
      "subtotalCents": 249,
@@ -10514,7 +10591,7 @@
   "sportscardstore": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:52:48.410Z",
+   "measuredAt": "2026-10-26T09:34:20.981Z",
    "points": [
     {
      "subtotalCents": 529900,
@@ -10534,7 +10611,7 @@
   "stonebrookcollectibles": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:49:18.328Z",
+   "measuredAt": "2026-10-26T09:32:01.786Z",
    "points": [
     {
      "subtotalCents": 14999,
@@ -10550,7 +10627,7 @@
   "sunnyscardshop": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:49:45.248Z",
+   "measuredAt": "2026-10-26T09:32:28.519Z",
    "points": [
     {
      "subtotalCents": 1999,
@@ -10593,7 +10670,7 @@
   "sunnystore": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:52:27.839Z",
+   "measuredAt": "2026-10-26T09:34:15.902Z",
    "points": [
     {
      "subtotalCents": 180,
@@ -10645,7 +10722,7 @@
   "sweetsandgeeks": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:50:20.303Z",
+   "measuredAt": "2026-10-26T09:33:00.470Z",
    "points": [
     {
      "subtotalCents": 249,
@@ -10697,7 +10774,7 @@
   "tapsgames": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:58:07.710Z",
+   "measuredAt": "2026-10-26T09:40:32.211Z",
    "points": [
     {
      "subtotalCents": 595,
@@ -10711,10 +10788,10 @@
     {
      "subtotalCents": 4495,
      "rates": {
-      "tor": 990,
-      "van": 925,
-      "mtl": 990,
-      "cgy": 892
+      "tor": 993,
+      "van": 927,
+      "mtl": 993,
+      "cgy": 893
      }
     },
     {
@@ -10734,22 +10811,13 @@
       "mtl": 0,
       "cgy": 0
      }
-    },
-    {
-     "subtotalCents": 31995,
-     "rates": {
-      "tor": 0,
-      "van": 0,
-      "mtl": 0,
-      "cgy": 0
-     }
     }
    ]
   },
   "tcgalchemists": {
    "market": "SG",
    "currency": "SGD",
-   "measuredAt": "2026-10-25T04:42:02.599Z",
+   "measuredAt": "2026-10-26T09:23:59.030Z",
    "points": [
     {
      "subtotalCents": 2500,
@@ -10768,7 +10836,7 @@
   "tcgcollectornz": {
    "market": "NZ",
    "currency": "NZD",
-   "measuredAt": "2026-10-25T04:42:48.750Z",
+   "measuredAt": "2026-10-26T09:25:10.373Z",
    "points": [
     {
      "subtotalCents": 4499,
@@ -10793,7 +10861,7 @@
   "tcgdragon": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:46:02.056Z",
+   "measuredAt": "2026-10-26T09:28:02.828Z",
    "points": [
     {
      "subtotalCents": 695,
@@ -10809,51 +10877,51 @@
   "tcghobby": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:50:52.087Z",
+   "measuredAt": "2026-10-26T09:33:33.509Z",
    "points": [
     {
      "subtotalCents": 299,
      "rates": {
-      "ny": 4460,
-      "sf": 4331,
-      "dal": 4460,
-      "chi": 4460
+      "ny": 4476,
+      "sf": 4348,
+      "dal": 4476,
+      "chi": 4476
      }
     },
     {
      "subtotalCents": 4390,
      "rates": {
-      "ny": 4460,
-      "sf": 4331,
-      "dal": 4460,
-      "chi": 4460
+      "ny": 4476,
+      "sf": 4348,
+      "dal": 4476,
+      "chi": 4476
      }
     },
     {
      "subtotalCents": 8000,
      "rates": {
-      "ny": 4460,
-      "sf": 4331,
-      "dal": 4460,
-      "chi": 4460
+      "ny": 4476,
+      "sf": 4348,
+      "dal": 4476,
+      "chi": 4476
      }
     },
     {
      "subtotalCents": 15000,
      "rates": {
-      "ny": 5452,
-      "sf": 5339,
-      "dal": 5452,
-      "chi": 5452
+      "ny": 5475,
+      "sf": 5358,
+      "dal": 5475,
+      "chi": 5475
      }
     },
     {
      "subtotalCents": 32900,
      "rates": {
-      "ny": 8536,
-      "sf": 8342,
-      "dal": 8536,
-      "chi": 8536
+      "ny": 8572,
+      "sf": 8374,
+      "dal": 8572,
+      "chi": 8572
      }
     }
    ]
@@ -10861,7 +10929,7 @@
   "tcgmanavault": {
    "market": "NZ",
    "currency": "NZD",
-   "measuredAt": "2026-10-25T04:43:11.429Z",
+   "measuredAt": "2026-10-26T09:25:34.721Z",
    "points": [
     {
      "subtotalCents": 1900,
@@ -10913,7 +10981,7 @@
   "tcgora": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:51:02.387Z",
+   "measuredAt": "2026-10-26T09:33:29.014Z",
    "points": [
     {
      "subtotalCents": 3990,
@@ -10965,7 +11033,7 @@
   "tcgroupau": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:53:13.399Z",
+   "measuredAt": "2026-10-26T09:34:45.990Z",
    "points": [
     {
      "subtotalCents": 1199,
@@ -10998,7 +11066,7 @@
   "tcgsynergy": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:58:03.334Z",
+   "measuredAt": "2026-10-26T09:39:13.756Z",
    "points": [
     {
      "subtotalCents": 800,
@@ -11050,7 +11118,7 @@
   "tcgviert": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:53:34.891Z",
+   "measuredAt": "2026-10-26T09:35:20.459Z",
    "points": [
     {
      "subtotalCents": 189,
@@ -11075,7 +11143,7 @@
   "teamcardgame": {
    "market": "SG",
    "currency": "SGD",
-   "measuredAt": "2026-10-25T04:42:08.215Z",
+   "measuredAt": "2026-10-26T09:24:09.884Z",
    "points": [
     {
      "subtotalCents": 800,
@@ -11100,7 +11168,7 @@
   "teamcollectors": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:58:35.971Z",
+   "measuredAt": "2026-10-26T09:39:57.571Z",
    "points": [
     {
      "subtotalCents": 2999,
@@ -11152,16 +11220,34 @@
   "tefuda": {
    "market": "SG",
    "currency": "SGD",
-   "measuredAt": "2026-10-25T04:42:10.407Z",
+   "measuredAt": "2026-10-26T09:24:40.507Z",
    "points": [
     {
-     "subtotalCents": 750,
+     "subtotalCents": 713,
      "rates": {
       "sg": 300
      }
     },
     {
-     "subtotalCents": 5000,
+     "subtotalCents": 4349,
+     "rates": {
+      "sg": 300
+     }
+    },
+    {
+     "subtotalCents": 8929,
+     "rates": {
+      "sg": 300
+     }
+    },
+    {
+     "subtotalCents": 15488,
+     "rates": {
+      "sg": 300
+     }
+    },
+    {
+     "subtotalCents": 31679,
      "rates": {
       "sg": 300
      }
@@ -11171,7 +11257,7 @@
   "terrorstcg": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:46:39.703Z",
+   "measuredAt": "2026-10-26T09:28:40.540Z",
    "points": [
     {
      "subtotalCents": 249,
@@ -11214,7 +11300,7 @@
   "theavidcollectors": {
    "market": "SG",
    "currency": "SGD",
-   "measuredAt": "2026-10-25T04:42:36.933Z",
+   "measuredAt": "2026-10-26T09:24:39.143Z",
    "points": [
     {
      "subtotalCents": 950,
@@ -11251,7 +11337,7 @@
   "thecardcave": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:53:27.482Z",
+   "measuredAt": "2026-10-26T09:35:00.118Z",
    "points": [
     {
      "subtotalCents": 21999,
@@ -11271,7 +11357,7 @@
   "thecardclubuk": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:46:19.477Z",
+   "measuredAt": "2026-10-26T09:28:15.430Z",
    "points": [
     {
      "subtotalCents": 999,
@@ -11287,7 +11373,7 @@
   "thecardspot": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:53:57.643Z",
+   "measuredAt": "2026-10-26T09:35:31.925Z",
    "points": [
     {
      "subtotalCents": 13000,
@@ -11333,7 +11419,7 @@
   "thecardvault": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:46:29.990Z",
+   "measuredAt": "2026-10-26T09:28:25.613Z",
    "points": [
     {
      "subtotalCents": 2995,
@@ -11349,7 +11435,7 @@
   "thegametree": {
    "market": "NZ",
    "currency": "NZD",
-   "measuredAt": "2026-10-25T04:43:23.115Z",
+   "measuredAt": "2026-10-26T09:25:47.745Z",
    "points": [
     {
      "subtotalCents": 398,
@@ -11401,7 +11487,7 @@
   "thegamingvault": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:46:40.793Z",
+   "measuredAt": "2026-10-26T09:28:36.624Z",
    "points": [
     {
      "subtotalCents": 5499,
@@ -11417,7 +11503,7 @@
   "theplatypusparty": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:51:18.799Z",
+   "measuredAt": "2026-10-26T09:33:30.563Z",
    "points": [
     {
      "subtotalCents": 300,
@@ -11460,7 +11546,7 @@
   "thetrainercourt": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:51:44.710Z",
+   "measuredAt": "2026-10-26T09:34:29.271Z",
    "points": [
     {
      "subtotalCents": 400,
@@ -11512,7 +11598,7 @@
   "thevaultau": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:55:43.059Z",
+   "measuredAt": "2026-10-26T09:37:19.654Z",
    "points": [
     {
      "subtotalCents": 9995,
@@ -11532,7 +11618,7 @@
   "thewanderingcollector": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:55:00.770Z",
+   "measuredAt": "2026-10-26T09:36:34.540Z",
    "points": [
     {
      "subtotalCents": 1195,
@@ -11604,10 +11690,10 @@
   "thewarpgate": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:51:25.370Z",
+   "measuredAt": "2026-10-26T09:33:55.226Z",
    "points": [
     {
-     "subtotalCents": 135,
+     "subtotalCents": 157,
      "rates": {
       "ny": 599,
       "sf": 599,
@@ -11625,7 +11711,7 @@
      }
     },
     {
-     "subtotalCents": 36400,
+     "subtotalCents": 21250,
      "rates": {
       "ny": 599,
       "sf": 599,
@@ -11638,7 +11724,7 @@
   "thistletavern": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:47:16.999Z",
+   "measuredAt": "2026-10-26T09:29:19.358Z",
    "points": [
     {
      "subtotalCents": 300,
@@ -11681,7 +11767,7 @@
   "tierzerogames": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:46:51.056Z",
+   "measuredAt": "2026-10-26T09:28:46.718Z",
    "points": [
     {
      "subtotalCents": 1150,
@@ -11697,7 +11783,7 @@
   "timetwister": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:52:50.716Z",
+   "measuredAt": "2026-10-26T09:34:49.272Z",
    "points": [
     {
      "subtotalCents": 1390,
@@ -11731,7 +11817,7 @@
   "tistaminis": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:58:51.798Z",
+   "measuredAt": "2026-10-26T09:40:09.309Z",
    "points": [
     {
      "subtotalCents": 700,
@@ -11783,7 +11869,7 @@
   "titancards": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:47:33.989Z",
+   "measuredAt": "2026-10-26T09:29:25.070Z",
    "points": [
     {
      "subtotalCents": 149,
@@ -11835,7 +11921,7 @@
   "tkcollectibles": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:53:13.477Z",
+   "measuredAt": "2026-10-26T09:35:12.205Z",
    "points": [
     {
      "subtotalCents": 1899,
@@ -11869,7 +11955,7 @@
   "tobistoys": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:54:57.989Z",
+   "measuredAt": "2026-10-26T09:36:44.382Z",
    "points": [
     {
      "subtotalCents": 179,
@@ -11890,7 +11976,7 @@
      }
     },
     {
-     "subtotalCents": 9900,
+     "subtotalCents": 9999,
      "rates": {
       "es": null,
       "de": 549,
@@ -11903,7 +11989,7 @@
   "todohits": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:55:07.732Z",
+   "measuredAt": "2026-10-26T09:36:53.914Z",
    "points": [
     {
      "subtotalCents": 199,
@@ -11937,7 +12023,7 @@
   "tonkatomstcgstation": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:58:57.805Z",
+   "measuredAt": "2026-10-26T09:40:43.482Z",
    "points": [
     {
      "subtotalCents": 350,
@@ -11958,7 +12044,7 @@
      }
     },
     {
-     "subtotalCents": 8995,
+     "subtotalCents": 9495,
      "rates": {
       "tor": 1199,
       "van": 1199,
@@ -11989,7 +12075,7 @@
   "toontownhobbies": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:59:04.801Z",
+   "measuredAt": "2026-10-26T09:40:37.989Z",
    "points": [
     {
      "subtotalCents": 6499,
@@ -12032,7 +12118,7 @@
   "topshelfco": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:59:37.069Z",
+   "measuredAt": "2026-10-26T09:41:49.206Z",
    "points": [
     {
      "subtotalCents": 499,
@@ -12060,39 +12146,21 @@
       "mtl": 1999,
       "cgy": 1999
      }
-    },
-    {
-     "subtotalCents": 18999,
-     "rates": {
-      "tor": 1499,
-      "van": 1999,
-      "mtl": 1999,
-      "cgy": 1999
-     }
-    },
-    {
-     "subtotalCents": 31999,
-     "rates": {
-      "tor": 0,
-      "van": 0,
-      "mtl": 0,
-      "cgy": 0
-     }
     }
    ]
   },
   "totalcards": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:47:03.760Z",
+   "measuredAt": "2026-10-26T09:29:00.567Z",
    "points": [
     {
      "subtotalCents": 95,
      "rates": {
-      "lon": 375,
-      "man": 375,
-      "edi": 375,
-      "bfs": 375
+      "lon": 95,
+      "man": 95,
+      "edi": 95,
+      "bfs": 95
      }
     }
    ]
@@ -12100,7 +12168,7 @@
   "tothetable": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:51:45.531Z",
+   "measuredAt": "2026-10-26T09:34:00.341Z",
    "points": [
     {
      "subtotalCents": 2000,
@@ -12143,32 +12211,32 @@
   "toysnowman": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:59:27.619Z",
+   "measuredAt": "2026-10-26T09:41:08.818Z",
    "points": [
     {
      "subtotalCents": 799,
      "rates": {
-      "tor": 1469,
+      "tor": 1473,
       "van": 1499,
-      "mtl": 1091,
+      "mtl": 1094,
       "cgy": 1499
      }
     },
     {
      "subtotalCents": 4999,
      "rates": {
-      "tor": 1469,
+      "tor": 1473,
       "van": 1499,
-      "mtl": 1091,
+      "mtl": 1094,
       "cgy": 1499
      }
     },
     {
      "subtotalCents": 9999,
      "rates": {
-      "tor": 1469,
+      "tor": 1473,
       "van": 1499,
-      "mtl": 1091,
+      "mtl": 1094,
       "cgy": 1499
      }
     },
@@ -12186,7 +12254,7 @@
   "toyspace": {
    "market": "SG",
    "currency": "SGD",
-   "measuredAt": "2026-10-25T04:42:36.762Z",
+   "measuredAt": "2026-10-26T09:24:41.914Z",
    "points": [
     {
      "subtotalCents": 590,
@@ -12223,7 +12291,7 @@
   "toytime": {
    "market": "NZ",
    "currency": "NZD",
-   "measuredAt": "2026-10-25T04:43:15.688Z",
+   "measuredAt": "2026-10-26T09:26:03.744Z",
    "points": [
     {
      "subtotalCents": 299,
@@ -12266,7 +12334,7 @@
   "toytreasure": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:55:24.338Z",
+   "measuredAt": "2026-10-26T09:37:13.596Z",
    "points": [
     {
      "subtotalCents": 219,
@@ -12300,7 +12368,7 @@
   "tradingtoys": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:56:34.565Z",
+   "measuredAt": "2026-10-26T09:38:18.501Z",
    "points": [
     {
      "subtotalCents": 299,
@@ -12325,8 +12393,21 @@
   "trainertown": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:54:54.714Z",
+   "measuredAt": "2026-10-26T09:36:28.246Z",
    "points": [
+    {
+     "subtotalCents": 5995,
+     "rates": {
+      "syd": 1200,
+      "mel": 1200,
+      "bne": 1200,
+      "adl": 1200,
+      "per": 1200,
+      "hba": 1200,
+      "drw": 1200,
+      "cbr": 1200
+     }
+    },
     {
      "subtotalCents": 8995,
      "rates": {
@@ -12371,7 +12452,7 @@
   "travellingman": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:47:14.541Z",
+   "measuredAt": "2026-10-26T09:29:11.574Z",
    "points": [
     {
      "subtotalCents": 299,
@@ -12387,7 +12468,7 @@
   "treasurevaultau": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:55:27.248Z",
+   "measuredAt": "2026-10-26T09:37:00.358Z",
    "points": [
     {
      "subtotalCents": 5900,
@@ -12433,7 +12514,7 @@
   "trinketmage": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:55:54.686Z",
+   "measuredAt": "2026-10-26T09:37:41.206Z",
    "points": [
     {
      "subtotalCents": 20,
@@ -12467,7 +12548,7 @@
   "trollaustralia": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:57:10.841Z",
+   "measuredAt": "2026-10-26T09:37:56.732Z",
    "points": [
     {
      "subtotalCents": 1000,
@@ -12520,16 +12601,29 @@
       "drw": 1404,
       "cbr": 1404
      }
+    },
+    {
+     "subtotalCents": 30000,
+     "rates": {
+      "syd": 2430,
+      "mel": 2430,
+      "bne": 2430,
+      "adl": 2430,
+      "per": 2430,
+      "hba": 2430,
+      "drw": 2430,
+      "cbr": 2430
+     }
     }
    ]
   },
   "trollaustraliamelb": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:56:47.879Z",
+   "measuredAt": "2026-10-26T09:38:38.664Z",
    "points": [
     {
-     "subtotalCents": 250,
+     "subtotalCents": 300,
      "rates": {
       "syd": 1132,
       "mel": 1132,
@@ -12544,14 +12638,14 @@
     {
      "subtotalCents": 4000,
      "rates": {
-      "syd": 1132,
-      "mel": 1132,
-      "bne": 1132,
-      "adl": 1132,
-      "per": 1132,
-      "hba": 1132,
-      "drw": 1132,
-      "cbr": 1132
+      "syd": 2248,
+      "mel": 2248,
+      "bne": 2248,
+      "adl": 2248,
+      "per": 2248,
+      "hba": 2248,
+      "drw": 2248,
+      "cbr": 2248
      }
     },
     {
@@ -12598,7 +12692,7 @@
   "trolltradercards": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:47:28.707Z",
+   "measuredAt": "2026-10-26T09:29:25.790Z",
    "points": [
     {
      "subtotalCents": 250,
@@ -12623,7 +12717,7 @@
   "troveofcollectibles": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:51:39.866Z",
+   "measuredAt": "2026-10-26T09:34:07.631Z",
    "points": [
     {
      "subtotalCents": 550,
@@ -12639,7 +12733,7 @@
   "universetcg": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:55:50.114Z",
+   "measuredAt": "2026-10-26T09:37:49.062Z",
    "points": [
     {
      "subtotalCents": 600,
@@ -12651,7 +12745,16 @@
      }
     },
     {
-     "subtotalCents": 5000,
+     "subtotalCents": 4500,
+     "rates": {
+      "es": 590,
+      "de": 1690,
+      "fr": 1690,
+      "nl": 1690
+     }
+    },
+    {
+     "subtotalCents": 9000,
      "rates": {
       "es": 590,
       "de": 1690,
@@ -12682,7 +12785,7 @@
   "urbanempirecollectables": {
    "market": "AU",
    "currency": "AUD",
-   "measuredAt": "2026-10-25T04:56:15.002Z",
+   "measuredAt": "2026-10-26T09:37:52.720Z",
    "points": [
     {
      "subtotalCents": 699,
@@ -12728,7 +12831,7 @@
   "vancitycj": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:59:19.539Z",
+   "measuredAt": "2026-10-26T09:40:58.282Z",
    "points": [
     {
      "subtotalCents": 999,
@@ -12753,7 +12856,7 @@
   "vaultedicons": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T04:59:45.908Z",
+   "measuredAt": "2026-10-26T09:41:24.156Z",
    "points": [
     {
      "subtotalCents": 1299,
@@ -12796,7 +12899,7 @@
   "vegassingles": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:52:27.095Z",
+   "measuredAt": "2026-10-26T09:34:51.677Z",
    "points": [
     {
      "subtotalCents": 600,
@@ -12848,7 +12951,7 @@
   "vulcancollectibles": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T05:00:13.284Z",
+   "measuredAt": "2026-10-26T09:41:47.850Z",
    "points": [
     {
      "subtotalCents": 48,
@@ -12900,7 +13003,7 @@
   "wolfdentcg": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:52:22.853Z",
+   "measuredAt": "2026-10-26T09:34:59.064Z",
    "points": [
     {
      "subtotalCents": 499,
@@ -12943,19 +13046,10 @@
   "wpgames": {
    "market": "NZ",
    "currency": "NZD",
-   "measuredAt": "2026-10-25T04:43:40.552Z",
+   "measuredAt": "2026-10-26T09:26:01.503Z",
    "points": [
     {
      "subtotalCents": 1499,
-     "rates": {
-      "akl": 0,
-      "wlg": 0,
-      "chc": 0,
-      "dud": 0
-     }
-    },
-    {
-     "subtotalCents": 5999,
      "rates": {
       "akl": 0,
       "wlg": 0,
@@ -12986,7 +13080,7 @@
   "wulfgaming": {
    "market": "US",
    "currency": "USD",
-   "measuredAt": "2026-10-25T04:53:06.480Z",
+   "measuredAt": "2026-10-26T09:35:28.699Z",
    "points": [
     {
      "subtotalCents": 599,
@@ -13007,7 +13101,7 @@
      }
     },
     {
-     "subtotalCents": 11199,
+     "subtotalCents": 11099,
      "rates": {
       "ny": 878,
       "sf": 1135,
@@ -13038,7 +13132,7 @@
   "yonkotcg": {
    "market": "EU",
    "currency": "EUR",
-   "measuredAt": "2026-10-25T04:56:34.157Z",
+   "measuredAt": "2026-10-26T09:38:25.122Z",
    "points": [
     {
      "subtotalCents": 495,
@@ -13090,7 +13184,7 @@
   "yumecards": {
    "market": "CA",
    "currency": "CAD",
-   "measuredAt": "2026-10-25T05:00:26.051Z",
+   "measuredAt": "2026-10-26T09:42:06.002Z",
    "points": [
     {
      "subtotalCents": 899,
@@ -13142,7 +13236,7 @@
   "zatu": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:47:54.509Z",
+   "measuredAt": "2026-10-26T09:29:51.791Z",
    "points": [
     {
      "subtotalCents": 2999,
@@ -13176,7 +13270,7 @@
   "zatugames": {
    "market": "UK",
    "currency": "GBP",
-   "measuredAt": "2026-10-25T04:48:53.683Z",
+   "measuredAt": "2026-10-26T09:30:43.120Z",
    "points": [
     {
      "subtotalCents": 2999,
