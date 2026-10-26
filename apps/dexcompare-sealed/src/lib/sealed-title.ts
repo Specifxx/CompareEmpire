@@ -19,6 +19,7 @@
 // Pure module (no DB, no fetch) so it is unit-tested directly
 // (tests/sealed-title.test.ts) and shared by the importer and the store probe.
 import { SETS, type PokemonSet } from "./sets";
+import { displayCode, JA_SETS, jaSetCode, type JapaneseSet } from "./sets-ja";
 
 // ── product types ────────────────────────────────────────────────────────────
 
@@ -38,7 +39,10 @@ export type TypeKey =
   | "collection"
   | "tin"
   | "blister"
-  | "deck";
+  | "deck"
+  // The Japanese section (identifyJapanese below): Japanese booster boxes and packs, never an English product's type.
+  | "jp-booster-box"
+  | "jp-booster-pack";
 
 export interface ProductTypeInfo {
   key: TypeKey;
@@ -72,9 +76,21 @@ export const PRODUCT_TYPES: ProductTypeInfo[] = [
   { key: "booster-bundle-case", label: "Booster Bundle Case", plural: "Booster Bundle Cases", slug: "booster-bundle-cases", kind: "set", floorUsdCents: 8000 },
 ];
 
-export const TYPE_BY_KEY = new Map(PRODUCT_TYPES.map((t) => [t.key, t]));
-export const TYPE_BY_SLUG = new Map(PRODUCT_TYPES.map((t) => [t.slug, t]));
-export const TYPE_BY_LABEL = new Map(PRODUCT_TYPES.map((t) => [t.label, t]));
+// The Japanese section's types (identifyJapanese). Kept OUT of PRODUCT_TYPES, which every English list walks (the browse filters,
+// the guides, the eBay type feeds, pack counts and MSRP), and in the lookups below, so a Japanese product's row, type page and
+// links resolve. Their labels say "Japanese", so no filter on an English label ("Booster Box") ever picks one up. A Japanese
+// booster box holds fewer, smaller packs than an English one, and the count differs by set, so neither type has a pack count.
+// Floors: a Japanese box sells from about ¥5,500 in Japan, a pack from ¥180.
+export const JAPANESE_TYPES: ProductTypeInfo[] = [
+  { key: "jp-booster-box", label: "Japanese Booster Box", plural: "Japanese Booster Boxes", slug: "japanese-booster-boxes", kind: "set", floorUsdCents: 2500 },
+  { key: "jp-booster-pack", label: "Japanese Booster Pack", plural: "Japanese Booster Packs", slug: "japanese-booster-packs", kind: "set", floorUsdCents: 100 },
+];
+export const JAPANESE_TYPE_LABELS: readonly string[] = JAPANESE_TYPES.map((t) => t.label);
+
+const ALL_TYPES = [...PRODUCT_TYPES, ...JAPANESE_TYPES];
+export const TYPE_BY_KEY = new Map(ALL_TYPES.map((t) => [t.key, t]));
+export const TYPE_BY_SLUG = new Map(ALL_TYPES.map((t) => [t.slug, t]));
+export const TYPE_BY_LABEL = new Map(ALL_TYPES.map((t) => [t.label, t]));
 
 /** Display order: the order PRODUCT_TYPES is written in (chase products first). */
 export function typeRank(label: string): number {
@@ -644,16 +660,18 @@ function canonicalUpc(t: string, set: PokemonSet | null): (typeof UPC_CANON)[num
   return null;
 }
 
-/** The fixed name of a curated product key (a UPC), or null. The importer applies it on full runs. */
+/** The fixed name of a curated product key (a UPC, or a Japanese section product), or null. The importer applies it on full runs. */
 export function canonicalName(groupKey: string): string | null {
-  return UPC_CANON.find((c) => `upc|${c.key}` === groupKey)?.name ?? null;
+  return UPC_CANON.find((c) => `upc|${c.key}` === groupKey)?.name ?? jaCanonicalName(groupKey);
 }
 
 export interface SealedIdentity {
   groupKey: string;
   type: TypeKey;
   typeLabel: string;
-  set: PokemonSet | null;
+  set: PokemonSet | null; // an ENGLISH set; null for every Japanese product (jaSet)
+  setCode: string | null; // what the product row stores: the English set's code, "ja-<code>" for a Japanese set, or null
+  jaSet?: JapaneseSet; // the Japanese section's products only (identifyJapanese)
   name: string; // display name for a NEW product row
   slugBase: string; // preferred slug for a NEW product row
 }
@@ -877,6 +895,7 @@ export function identify(title: string, opts: { strict?: boolean } = {}): Sealed
       type,
       typeLabel: info.label,
       set,
+      setCode: set.code,
       name: `${set.name} ${info.label}`,
       slugBase: slugify(`${set.slug} ${info.label}`),
     };
@@ -896,7 +915,7 @@ export function identify(title: string, opts: { strict?: boolean } = {}): Sealed
     const canon = canonicalUpc(t, set);
     if (canon === "vague") return "vague";
     if (canon) {
-      return { groupKey: `upc|${canon.key}`, type, typeLabel: info.label, set, name: canon.name, slugBase: slugify(canon.name) };
+      return { groupKey: `upc|${canon.key}`, type, typeLabel: info.label, set, setCode: set?.code ?? null, name: canon.name, slugBase: slugify(canon.name) };
     }
   }
   const tokens = signatureTokens(t, set, type);
@@ -919,6 +938,7 @@ export function identify(title: string, opts: { strict?: boolean } = {}): Sealed
     type,
     typeLabel: info.label,
     set,
+    setCode: set?.code ?? null,
     name,
     slugBase: slugify(name),
   };
@@ -926,4 +946,149 @@ export function identify(title: string, opts: { strict?: boolean } = {}): Sealed
 
 export function isIdentity(x: SealedIdentity | Rejection): x is SealedIdentity {
   return typeof x === "object";
+}
+
+// ── the Japanese section ─────────────────────────────────────────────────────
+//
+// identify() refuses every Japanese title ("foreign"), and still does: an
+// English product's page never carries a Japanese price. identifyJapanese()
+// reads the titles identify() refused as foreign and files Japanese booster
+// boxes and packs as products of their own, keyed "ja-<code>|<type>"
+// ("ja-sv8a|jp-booster-box"), with types whose labels say "Japanese". It is as
+// strict as identify() and stricter where Japanese product is easy to confuse:
+//
+//   • The title must SAY it is Japanese: the word (in English or a European
+//     store's language), "JP"/"JPN", or Japanese kana. A set code alone is not
+//     enough: Korean editions carry the same codes and names, and are cheaper.
+//   • Any other language named beside it (Korean, Chinese, Thai, English…), or
+//     an Asia-only line (Gem Packs, slim packs), and it is refused.
+//   • Booster boxes and booster packs only, of a set in JA_SETS, named by its
+//     code ("SV8a") or its English name ("Terastal Festival ex"). A title that
+//     names two sets, or whose code and name disagree, is refused. Cases, half
+//     boxes, special boxes, decks and collections are refused.
+//   • Every gate identify() applies to English titles (singles, slabs,
+//     accessories, lots and multiples, damaged or opened product, other games,
+//     retailer editions) applies here too.
+
+const JA_MARKER =
+  /[぀-ヿ]|\b(?:japanese|japan|jpn|jap|jp|japonais|japonaise|japanisch\w*|giapponese|japones|japons|japans|japanse)\b/i;
+// Other editions and markets. "English" too: "Japanese & English" is not one product.
+const JA_OTHER_LANGUAGE = new RegExp(
+  [
+    "[\\uac00-\\ud7af\\u0e00-\\u0e7f]",
+    "\\b(?:korean|kor|coreen|coreenne|koreanisch\\w*|coreano|koreaans|chinese|chn|chs|cht|chinois|chinoise|chinesisch\\w*|cinese|chino|chinees|vereinfacht\\w*|simplified|traditional|traditionnel|mandarin|cantonese|thai|indonesian|indonesisch|asia|asian|kr|cn|english|eng|anglais|englisch|ingles|inglese|engels)\\b",
+    "[(\\[]\\s*(?:kr|kor|cn|sc|tc|th|id|en|eng)\\s*[)\\]]",
+    "\\bslim\\b|\\bgem\\s*packs?\\b|\\bmid-?\\s*autumn\\b",
+  ].join("|"),
+  "i",
+);
+// A Pokémon Center Japan regional or exclusive box, a special box or set, a deck: not a set's booster box.
+const JA_NOT_A_BOX = /\bpokemon\s*cent(?:er|re)\b|\bspecial\s*(?:box|set)\b|\bpremium\s*(?:trainer\s*)?box\b|\bdeck\s*build\b|\bstart(?:er)?\s*(?:deck|set)\b|\bgift\s*box\b|\bcollection\s*box\b/i;
+// Lots ("Booster Box 8x Lot", "2 box lot"): several units at one price.
+const JA_LOT = /\blots?\b/i;
+
+interface JaMatcher {
+  set: JapaneseSet;
+  code: RegExp;
+  name: RegExp | null;
+  len: number;
+}
+
+let JA_MATCHERS: JaMatcher[] | null = null;
+
+function jaMatchers(): JaMatcher[] {
+  if (JA_MATCHERS) return JA_MATCHERS;
+  JA_MATCHERS = JA_SETS.map((set) => {
+    // "sv8a" → SV8a, SV-8a, SV 8a, SV08a; "m2" never matches "M2a" (the letter is a word character, so \b fails).
+    const m = /^([a-z]+)(\d+)([a-z]?)$/.exec(set.code)!;
+    const code = new RegExp(`\\b${m[1]}\\s*-?\\s*0?${m[2]}\\s*${m[3]}\\b`, "i");
+    const sources = set.nameless ? [...(set.aliases ?? [])] : [`\\b${nameRe(set.name)}\\b`, ...(set.aliases ?? [])];
+    const name = sources.length ? new RegExp(sources.map((x) => `(?:${x})`).join("|"), "i") : null;
+    return { set, code, name, len: set.name.length };
+  });
+  return JA_MATCHERS;
+}
+
+/**
+ * The Japanese set a title names, "conflict" when it names two (two codes, two names, or a code and a different name), or null.
+ * Names are matched longest first, and a name inside a longer one is the longer one's ("Mega Dream ex" is not "Mega Brave").
+ */
+export function detectJaSet(title: string): JapaneseSet | "conflict" | null {
+  const t = normalizeTitle(title);
+  const byCode = new Set(jaMatchers().filter((m) => m.code.test(t)).map((m) => m.set));
+  if (byCode.size > 1) return "conflict";
+  const byName: JapaneseSet[] = [];
+  let rest = t;
+  for (const m of [...jaMatchers()].sort((a, b) => b.len - a.len)) {
+    if (m.name && m.name.test(rest)) {
+      byName.push(m.set);
+      rest = rest.replace(new RegExp(m.name.source, "gi"), " ");
+    }
+  }
+  if (byName.length > 1) return "conflict";
+  const code = [...byCode][0] ?? null;
+  const name = byName[0] ?? null;
+  if (code && name && code !== name) return "conflict";
+  return code ?? name;
+}
+
+/** Does the title say it is Japanese product (and nothing else)? */
+export function isJapaneseTitle(title: string): boolean {
+  const t = normalizeTitle(title);
+  return JA_MARKER.test(t) && !JA_OTHER_LANGUAGE.test(t);
+}
+
+const JA_TYPE: Partial<Record<TypeKey, TypeKey>> = { "booster-box": "jp-booster-box", "booster-pack": "jp-booster-pack" };
+
+/** A Japanese title as a Japanese section product, or why not. See the section's header. */
+export function identifyJapanese(title: string, opts: { strict?: boolean } = {}): SealedIdentity | Rejection {
+  const t = stripFiller(normalizeTitle(title));
+  if (!t) return "unclassified";
+  if (!isJapaneseTitle(t) || !isJapaneseTitle(title)) return "foreign";
+  if (NOT_SEALED.test(t)) return "not-sealed";
+  if (ACCESSORY.test(t) || (BINDER.test(t) && !/binder\s*collection/i.test(t)) || merch(t)) return "accessory";
+  if (MULTIPLE.test(t) || twoProducts(t) || countedUnits(t) || JA_LOT.test(t)) return "multiple";
+  if (OTHER_GAME.test(t)) return "not-pokemon";
+  if (opts.strict && !POKEMON_WORD.test(t)) return "not-pokemon";
+  if (RETAIL_EDITION.test(t)) return "retail-edition";
+  if (JA_NOT_A_BOX.test(t)) return "unclassified";
+  // The type words, read without the language words: "Booster Box (Japans)" is a booster box.
+  const english = classify(t.replace(new RegExp(JA_MARKER.source, "gi"), " "));
+  const type = english ? JA_TYPE[english] : undefined;
+  if (!type) return "unclassified";
+  const set = detectJaSet(t);
+  if (set === "conflict") return "vague";
+  if (!set) return "no-set";
+  const info = TYPE_BY_KEY.get(type)!;
+  return {
+    groupKey: `${jaSetCode(set)}|${type}`,
+    type,
+    typeLabel: info.label,
+    set: null,
+    setCode: jaSetCode(set),
+    jaSet: set,
+    name: jaName(set, type),
+    slugBase: slugify(`${set.slug} ${set.code} japanese ${type === "jp-booster-box" ? "booster box" : "booster pack"}`),
+  };
+}
+
+/** A Japanese product's fixed name: "Terastal Festival ex Japanese Booster Box (SV8a)". Never re-cleaned (canonicalName). */
+function jaName(set: JapaneseSet, type: TypeKey): string {
+  return `${set.name} Japanese ${type === "jp-booster-box" ? "Booster Box" : "Booster Pack"} (${displayCode(set)})`;
+}
+
+/** The fixed name of a Japanese product key ("ja-sv8a|jp-booster-box"), or null. */
+function jaCanonicalName(groupKey: string): string | null {
+  const m = /^ja-([a-z0-9]+)\|(jp-booster-box|jp-booster-pack)$/.exec(groupKey);
+  const set = m ? JA_SETS.find((x) => x.code === m[1]) : undefined;
+  return m && set ? jaName(set, m[2] as TypeKey) : null;
+}
+
+/**
+ * identify(), then, for a title it refused as another language, identifyJapanese(). What the importer, the store probe and
+ * the eBay import call. identify() alone stays English-only: a Japanese title is never an English product.
+ */
+export function identifyAny(title: string, opts: { strict?: boolean } = {}): SealedIdentity | Rejection {
+  const en = identify(title, opts);
+  return en === "foreign" ? identifyJapanese(title, opts) : en;
 }

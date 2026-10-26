@@ -368,6 +368,29 @@ filed under the series' first set. Everything else follows from that one entry:
 - Pack counts: if its ETB or another product breaks the series' rule, add it to `ETB_BY_SET` (or the relevant map) in
   `src/lib/packs.ts`; the per-pack figures, the "Value check" and the guides use it.
 
+## The Japanese section
+
+`/<region>/japanese` lists Japanese booster boxes and packs, grouped by Japanese set, newest first, with the type pages
+`/<region>/type/japanese-booster-boxes` and `/japanese-booster-packs`. Everything else on the site stays English-only.
+
+- **Sets** are in `src/lib/sets-ja.ts` (`JA_SETS`): Japan's own set code, its English name, the era and Japan's release
+  date (`null` where sources disagree). A product row stores `setCode` `ja-<code>`, so it never collides with an English set.
+- **Matching** is `identifyJapanese` in `src/lib/sealed-title.ts`, tried only when `identify()` says "foreign"
+  (`identifyAny`). The title must say Japanese (or JP/JPN) and must not name another language. It must be one booster
+  box or pack, and name exactly one Japanese set, by code or name. Korean and Chinese editions, lots, cases, Pokémon
+  Center and special boxes, and a code and name that disagree are all refused. Each rule has a real title in
+  `tests/japanese.test.ts`.
+- **Types**: `JAPANESE_TYPES` are kept out of `PRODUCT_TYPES`. English lists, pack counts, MSRP, the guides and the eBay
+  hot pass never see them, and the site shows no per-pack price for them (pack counts differ by set).
+- **Sources**: the stores' own listings, TCGplayer's Pokémon Japan line (US, `JAPANESE_LINE` in `src/lib/tcgplayer.ts`;
+  a failed read only logs), and eBay. eBay gets a Japanese booster box type feed (`TYPE_FEEDS`), a sweep query and
+  per-product searches (`ALWAYS_TYPES`), all inside the existing daily cap.
+- **Affiliate links**: eBay Partner Network strips and searches (`listings-japanese`), TCGplayer's Japanese line in the
+  US (`japanese-tcgplayer`; a Japanese product's own TCGplayer buttons search that line too), and Amazon AU in AU/NZ
+  (`amazon-japanese`). See DEPLOY.md's click events table.
+- **Adding a Japanese set**: an entry at the top of `JA_SETS` (add `aliases` for other English renderings sellers use,
+  `nameless: true` when its English name is a common phrase). Its products group under it from the next import.
+
 ## Adding a guide
 
 Guides are typed TSX modules, not MDX (`src/content/guides/`):

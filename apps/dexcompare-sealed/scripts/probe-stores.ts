@@ -10,7 +10,7 @@
 //      its market's (a CAD store listed as US would show C$ prices as US$),
 //   3. ranks its collections (Shopify sitemap / Woo categories) and reads the
 //      most promising ones,
-//   4. runs every title through identify() — the same gate the importer uses —
+//   4. runs every title through identifyAny() — the same gate the importer uses —
 //      and counts the Pokémon sealed products it would actually list,
 //   5. picks the fewest collections (max 4) that cover what it found.
 //
@@ -31,7 +31,7 @@ import {
   type CollectionRead,
 } from "../src/lib/feeds";
 import { get, RateLimitedError, sleep, REQUEST_DELAY_MS } from "../src/lib/scrape-http";
-import { identify, isIdentity, type Rejection } from "../src/lib/sealed-title";
+import { identifyAny, isIdentity, type Rejection } from "../src/lib/sealed-title";
 import { REGIONS, isRegion, type Market } from "../src/lib/regions";
 import type { StoreConfig } from "../src/lib/stores";
 
@@ -181,7 +181,7 @@ async function probe(c: Candidate & { key: string; base: string; market: Market 
       const strict = !isPokemonCollection(r.handle) && !r.handle.startsWith("search:");
       const ids = new Set<string>();
       for (const p of r.products) {
-        const id = identify(p.title, { strict });
+        const id = identifyAny(p.title, { strict });
         if (!isIdentity(id)) {
           res.rejections[id] = (res.rejections[id] ?? 0) + 1;
           if ((id === "no-set" || id === "unclassified" || id === "vague") && res.samples.length < 12 && !strict) {

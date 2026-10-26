@@ -13,7 +13,7 @@ import { money } from "../src/lib/format";
 import { packsFor, perPackCents } from "../src/lib/packs";
 import { REGION_LIST, REGIONS, type Region } from "../src/lib/regions";
 import { RRP_NOTE, usMsrpCents } from "../src/lib/rrp";
-import { TYPE_BY_KEY, TYPE_BY_LABEL, TYPE_BY_SLUG } from "../src/lib/sealed-title";
+import { PRODUCT_TYPES, TYPE_BY_KEY, TYPE_BY_LABEL, TYPE_BY_SLUG } from "../src/lib/sealed-title";
 import { TYPE_ABOUT } from "../src/lib/type-about";
 import { SET_BY_CODE, SET_BY_SLUG, SETS } from "../src/lib/sets";
 import { GUIDE_BY_SLUG, GUIDES, guideFor, guideMetaTitle, guideRegions, guidesFor, type GuideSlug } from "../src/content/guides";
@@ -506,11 +506,13 @@ test("MSRP numbers are rrp.ts's, US only, and RRP_NOTE goes wherever an MSRP is 
 test("sealed products explained: one H2 per product type, type-about.ts's words, packs.ts's count or 'varies', and the live line", () => {
   const html = render("pokemon-sealed-products-explained", "uk");
   const h2 = [...html.matchAll(/<h2 id="([^"]+)"/g)].map((m) => m[1]);
-  assert.deepEqual(h2.slice(0, -1), [...TYPE_BY_SLUG.keys()]);
+  // The English product types only: the Japanese ones have their own section (/japanese), not a card here.
+  assert.deepEqual(h2.slice(0, -1), PRODUCT_TYPES.map((t) => t.slug));
   const t = text(html);
   assert.match(t, /52 in stock in the UK from £80\.82 · 1 on pre-order/);
   assert.match(t, /None in stock in the UK right now · 2 on pre-order/);
-  for (const [slug, info] of TYPE_BY_SLUG) {
+  for (const info of PRODUCT_TYPES) {
+    const slug = info.slug;
     assert.match(html, new RegExp(`href="/uk/type/${slug}"`), slug);
     const block = new RegExp(`data-type="${info.key}"[^>]*>([\\s\\S]*?)/uk/type/${slug}"`).exec(html);
     assert.ok(block, `${slug}: its card`);

@@ -326,7 +326,7 @@ test("short reads: refused the first time, accepted for a store when the last ru
 // Beaches TCG's whole Pokémon collection as its live feed served it on 2026-10-19
 // (/collections/pokemon-tcg/products.json, trimmed to handle, title and variants),
 // through the importer's own read and rowsFromReads: the store's dry run.
-test("a new store's live feed: Beaches TCG lists its English sealed product and nothing else", async () => {
+test("a new store's live feed: Beaches TCG lists its English and Japanese sealed product and nothing else", async () => {
   const store = STORE_BY_KEY.get("beachestcg")!;
   assert.deepEqual(store, {
     key: "beachestcg",
@@ -387,11 +387,27 @@ test("a new store's live feed: Beaches TCG lists its English sealed product and 
     "Perfect Order - Three Booster Blister": "blister|me3|",
     "Perfect Order - Booster Box": "me3|booster-box",
     "Perfect Order - Booster Bundle": "me3|booster-bundle",
+    // The Japanese section (identifyJapanese): the title says Japanese (or JPN) and names the set.
+    "Lost abyss Japanese booster pack": "ja-s11|jp-booster-pack",
+    "Stella miracle Japanese pack": "ja-sv7|jp-booster-pack",
+    "mega brave Japanese booster box": "ja-m1l|jp-booster-box",
+    "Mega Dream Booster box  Japanese": "ja-m2a|jp-booster-box",
+    "Ninja Spinner Booster Box Japanese": "ja-m4|jp-booster-box",
+    "Terastal Festival ex JPN - Booster Box": "ja-sv8a|jp-booster-box",
+    "Terastal Festival ex JPN - Booster Pack": "ja-sv8a|jp-booster-pack",
+    "Inferno X JPN - Booster Pack": "ja-m2|jp-booster-pack",
+    "Mega Symphonia JPN - Booster Pack": "ja-m1s|jp-booster-pack",
+    "Mega Brave JPN - Booster Pack": "ja-m1l|jp-booster-pack",
+    "Mega Dream JPN - Booster Pack": "ja-m2a|jp-booster-pack",
+    "Nihil Zero JPN - Booster Pack": "ja-m3|jp-booster-pack",
   });
-  // Of five products in stock, only one is English sealed product: two accessories, two Japanese.
+  // Of five products in stock, one is English sealed product and one Japanese; two are accessories, and one Japanese box's title is too garbled to file.
   assert.deepEqual(
     rows.filter((r) => r.inStock).map((r) => [r.title, r.priceCents]),
-    [["Chaos rising toxel blister", 1199]],
+    [
+      ["Chaos rising toxel blister", 1199],
+      ["Lost abyss Japanese booster pack", 1499],
+    ],
   );
   // Everything else is refused, and why.
   const listed = new Set(rows.map((r) => r.title));
@@ -400,8 +416,8 @@ test("a new store's live feed: Beaches TCG lists its English sealed product and 
   );
   assert.deepEqual(refused, {
     "Ultra pro pikachu top loaders plus sleeves 25 pack": "accessory",
+    // "Booste box": no product word, so not even the Japanese section guesses.
     "nahil zero Booste box Japanese": "foreign",
-    "Lost abyss Japanese booster pack": "foreign",
     "Ultra Pro Playmat Mega Charizard X & Mega Charizard Y": "accessory",
     // Greninja ex or Sylveon ex Box: one of two products.
     "Pokemon 30th anniversary ex box assorted": "vague",
@@ -410,21 +426,10 @@ test("a new store's live feed: Beaches TCG lists its English sealed product and 
     "Pokemon - Charizard Ex Box": "vague",
     // Black or White Kyurem? (The photo is the Black.) Never a page of its own.
     "Pokemon Kyurem ex box": "vague",
-    "Stella miracle Japanese pack": "foreign",
     // No tin is called "Mega Gengar" (it is probably the Mega Moonlit Tin): never a page of its own.
     "Mega Gengar tin": "vague",
-    "mega brave Japanese booster box": "foreign",
-    "Mega Dream Booster box  Japanese": "foreign",
-    "Ninja Spinner Booster Box Japanese": "foreign",
-    // Japanese too (its description says so): no English set has the name.
+    // Japanese too (its description says so), but the title never says it: no English set has the name, and the Japanese section needs the word.
     "Pokemon Ninja Spinner booster pack": "no-set",
-    "Terastal Festival ex JPN - Booster Box": "foreign",
-    "Terastal Festival ex JPN - Booster Pack": "foreign",
-    "Inferno X JPN - Booster Pack": "foreign",
-    "Mega Symphonia JPN - Booster Pack": "foreign",
-    "Mega Brave JPN - Booster Pack": "foreign",
-    "Mega Dream JPN - Booster Pack": "foreign",
-    "Nihil Zero JPN - Booster Pack": "foreign",
     // Mega Charizard X or Y: one of two products.
     "Mega Charizard Tin - Assorted": "vague",
   });

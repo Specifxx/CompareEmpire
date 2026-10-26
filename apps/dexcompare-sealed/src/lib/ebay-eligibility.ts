@@ -16,10 +16,11 @@ export const GATED_MAX_USD = 600;
 
 
 /** Always worth their own listings (when they clear US$25): the products whose price is real money. */
-export const ALWAYS_TYPES: ReadonlySet<TypeKey> = new Set<TypeKey>(["booster-box", "booster-box-case", "etb", "pc-etb", "etb-case", "booster-bundle-case", "upc", "build-battle-stadium"]);
+// A Japanese booster box (the Japanese section) is real money too; it spends from the same daily cap, never a cap of its own.
+export const ALWAYS_TYPES: ReadonlySet<TypeKey> = new Set<TypeKey>(["booster-box", "booster-box-case", "etb", "pc-etb", "etb-case", "booster-bundle-case", "upc", "build-battle-stadium", "jp-booster-box"]);
 /** Worth them only at US$50 or more (core), or between US$25 and 50 when the budget reaches (extension). */
 export const GATED_TYPES: ReadonlySet<TypeKey> = new Set<TypeKey>(["collection", "tin", "deck", "booster-bundle", "build-battle", "blister"]);
-// booster-pack and sleeved-booster are never eligible.
+// booster-pack, sleeved-booster and jp-booster-pack are never eligible.
 
 export type Tier = "core" | "extension" | "no";
 

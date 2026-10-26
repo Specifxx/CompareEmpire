@@ -6,7 +6,7 @@
 //   PRIORITY (spend in this order until the run cap is reached; a cap hit drops the LEAST valuable):
 //     1. chase    generic chase cards: 8 queries per marketplace, taken round-robin        (5 × 8   = 40 calls)
 //     2. sealed   generic sealed Pokémon: 6 queries per marketplace, classifier-checked     (5 × 6   = 30)
-//     3. types    one query per high-value product type per marketplace                     (5 × 9   = 45)
+//     3. types    one query per high-value product type per marketplace                     (5 × 10  = 50)
 //     4. sets     chase cards of the 30 most recently released sets, 1 query each           (5 × 30  = 150)
 //     5. sweep    the CATALOGUE SWEEP (ebay-sweep.ts): broad searches paged 200 listings a call, each listing
 //                 handed to the product the classifier says it is: an item feed for EVERY product it finds,
@@ -266,6 +266,8 @@ export const TYPE_FEEDS: readonly { type: TypeKey; query: string }[] = [
   { type: "booster-bundle-case", query: "booster bundle case sealed" },
   { type: "build-battle-stadium", query: "build and battle stadium sealed" },
   { type: "collection", query: "premium collection box sealed" },
+  // The Japanese section's hub and type page (/<region>/japanese).
+  { type: "jp-booster-box", query: "japanese booster box sealed" },
 ];
 
 // Sets named with a common word: a keyword search for "Evolutions", "Generations" or "Celebrations" returns cards of every set.

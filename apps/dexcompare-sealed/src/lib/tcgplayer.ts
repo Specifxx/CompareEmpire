@@ -94,18 +94,31 @@ export interface TcgProduct {
   listings?: TcgListing[];
 }
 
-export function searchBody(from: number) {
+/**
+ * A TCGplayer product line read as a source: the English Pokémon line, or the Japanese one ("Pokemon Japan") for the Japanese
+ * section (sealed-title.ts identifyJapanese). The Japanese line's filter values follow the English line's pattern (its URL name,
+ * tcgplayer.com/search/pokemon-japan, and its listings' language); they were not checked against the live API from here, so
+ * its read is allowed to fail without costing the English read anything (importer.ts readTcgplayer).
+ */
+export interface TcgLine {
+  productLineName: string;
+  language: string;
+}
+export const ENGLISH_LINE: TcgLine = { productLineName: "pokemon", language: "English" };
+export const JAPANESE_LINE: TcgLine = { productLineName: "pokemon-japan", language: "Japanese" };
+
+export function searchBody(from: number, line: TcgLine = ENGLISH_LINE) {
   return {
     algorithm: "sales_synonym_v2",
     from,
     size: PAGE_SIZE,
-    filters: { term: { productLineName: ["pokemon"], productTypeName: ["Sealed Products"] }, range: {}, match: {} },
+    filters: { term: { productLineName: [line.productLineName], productTypeName: ["Sealed Products"] }, range: {}, match: {} },
     listingSearch: {
       context: { cart: {} },
       // Filters the per-product listing preview, not the products: a product
       // with no matching listing still comes back, with `listings: []`.
       filters: {
-        term: { sellerStatus: "Live", channelId: 0, language: ["English"], listingType: ["standard"] },
+        term: { sellerStatus: "Live", channelId: 0, language: [line.language], listingType: ["standard"] },
         range: { quantity: { gte: 1 } },
         exclude: { channelExclusion: 0 },
       },
@@ -129,12 +142,13 @@ class TcgHttpError extends Error {
 
 /** Test seams; production uses the defaults. */
 export interface CatalogueReadOptions {
+  line?: TcgLine;
   pageDelayMs?: number;
   retryWaitsMs?: number[];
   deadlineMs?: number;
 }
 
-async function fetchPage(from: number): Promise<{ items: TcgProduct[]; total: number }> {
+async function fetchPage(from: number, line: TcgLine): Promise<{ items: TcgProduct[]; total: number }> {
   let res: Response;
   try {
     res = await fetch(SEARCH_URL, {
@@ -145,7 +159,7 @@ async function fetchPage(from: number): Promise<{ items: TcgProduct[]; total: nu
         Origin: "https://www.tcgplayer.com",
         Referer: "https://www.tcgplayer.com/",
       },
-      body: JSON.stringify(searchBody(from)),
+      body: JSON.stringify(searchBody(from, line)),
       cache: "no-store",
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
@@ -177,10 +191,10 @@ async function fetchPage(from: number): Promise<{ items: TcgProduct[]; total: nu
   return { items: r.results, total };
 }
 
-async function fetchPageRetrying(from: number, waits: number[], deadline: number): Promise<{ items: TcgProduct[]; total: number }> {
+async function fetchPageRetrying(from: number, waits: number[], deadline: number, line: TcgLine): Promise<{ items: TcgProduct[]; total: number }> {
   for (let attempt = 0; ; attempt++) {
     try {
-      return await fetchPage(from);
+      return await fetchPage(from, line);
     } catch (e) {
       const err = e as TcgHttpError;
       if (!err.retryable || attempt >= waits.length) throw new Error(`TCGplayer page from=${from}: ${err.message}`);
@@ -215,7 +229,7 @@ export async function readTcgplayerCatalogue(opts: CatalogueReadOptions = {}): P
   for (let page = 0; page < MAX_PAGES && (page === 0 || page * PAGE_SIZE < expected); page++) {
     if (page > 0) await sleep(pageDelay);
     if (Date.now() > deadline) throw new Error(`TCGplayer read stopped at page from=${page * PAGE_SIZE}: ${overDeadline(deadline)}`);
-    const pg = await fetchPageRetrying(page * PAGE_SIZE, waits, deadline);
+    const pg = await fetchPageRetrying(page * PAGE_SIZE, waits, deadline, opts.line ?? ENGLISH_LINE);
     expected = Math.max(expected, pg.total);
     for (const p of pg.items) if (p?.productId) byId.set(Number(p.productId), p);
     if (pg.items.length < PAGE_SIZE) break;
@@ -286,10 +300,19 @@ export function shippingLoaded(l: Pick<TcgListing, "price" | "shippingPrice">): 
   return ship > LOADED_SHIPPING_USD && ship > l.price * LOADED_SHIPPING_SHARE;
 }
 
-/** A live, standard, English, in-stock listing whose item price is a real price. */
-function buyable(l: TcgListing): boolean {
-  const english = l.languageId === 1 || l.language === "English";
-  return english && l.listingType === "standard" && (l.quantity ?? 0) >= 1 && l.price > 0 && !shippingLoaded(l);
+/** A live, standard, in-stock listing in the line's language (English: also languageId 1) whose item price is a real price. */
+function buyable(l: TcgListing, line: TcgLine): boolean {
+  const language = l.language === line.language || (line === ENGLISH_LINE && l.languageId === 1);
+  return language && l.listingType === "standard" && (l.quantity ?? 0) >= 1 && l.price > 0 && !shippingLoaded(l);
+}
+
+/**
+ * The title a Japanese-line product is identified by: "Japanese", its set and its name ("Japanese SV8a: Terastal Festival ex
+ * Booster Box"). The line, not the name, says it is Japanese, so the word is added; identifyJapanese then needs the set's code or
+ * name and a booster box or pack, as for any store's title.
+ */
+export function tcgJapaneseTitle(p: Pick<TcgProduct, "productName" | "setName">): string {
+  return `Japanese ${(p.setName ?? "").trim()} ${(p.productName ?? "").trim()}`.replace(/\s+/g, " ").trim();
 }
 
 /**
@@ -300,7 +323,7 @@ function buyable(l: TcgListing): boolean {
  * product identity, exactly as for a store. Products with no buyable listing
  * (or only placeholder asks) are left out.
  */
-export function tcgFeedProducts(products: TcgProduct[]): FeedProduct[] {
+export function tcgFeedProducts(products: TcgProduct[], line: TcgLine = ENGLISH_LINE): FeedProduct[] {
   const out: FeedProduct[] = [];
   const seen = new Set<number>();
   for (const p of products) {
@@ -308,11 +331,11 @@ export function tcgFeedProducts(products: TcgProduct[]): FeedProduct[] {
     if (!id || seen.has(id) || !p.productName) continue;
     seen.add(id);
     const market = p.marketPrice && p.marketPrice > 0 ? p.marketPrice : null;
-    const listings = (p.listings ?? []).filter((l) => buyable(l) && (market == null || l.price <= market * MAX_MARKET_MULTIPLE));
+    const listings = (p.listings ?? []).filter((l) => buyable(l, line) && (market == null || l.price <= market * MAX_MARKET_MULTIPLE));
     if (!listings.length) continue;
     out.push({
       id: String(id),
-      title: tcgTitle(p),
+      title: line === ENGLISH_LINE ? tcgTitle(p) : tcgJapaneseTitle(p),
       url: tcgProductUrl(p),
       imageUrl: tcgImageUrl(id),
       variants: listings.map((l) => ({ priceCents: Math.round(l.price * 100), available: true })),

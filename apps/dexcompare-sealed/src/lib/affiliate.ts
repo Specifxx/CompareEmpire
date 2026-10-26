@@ -68,6 +68,10 @@ export const PLACEMENTS = [
   // Every other RELEASED set's page gets the same kind of button ("Shop <set> sealed on eBay", components/Ebay.tsx
   // setSealedHighlight) in its strip's top line, under its own placement so it can be told apart from the hot sets'.
   "set-sealed",
+  // The Japanese section (/[region]/japanese): its eBay strip (the Japanese box feed, cascade: generic sealed) and, US only, the
+  // labelled search of TCGplayer's Japanese product line.
+  "listings-japanese",
+  "japanese-tcgplayer",
 ] as const;
 export type Placement = (typeof PLACEMENTS)[number];
 
@@ -113,6 +117,9 @@ export function searchTerms(name: string): string {
     .replace(/\bcollection\s+only\b|\bon\s+sale\b|\b(?:random|assorted)(?:\s+(?:style|design|colou?r|artwork))?\b|\bpack\s+lineup\s+in\s+description\b|\bmiscellaneous\s+cards?\s*&\s*products?\b|\b\d+%\s*vat\b|\bvat\b|\bsale\b/gi, " ")
     // A code has a letter in it: "(2025)", "(151)" and "(24)" are part of the name.
     .replace(/[[(]\s*(?!\d+\s*[\])])[A-Z0-9]{2,6}(?:\s*-\s*\d+)?\s*[\])]/g, " ")
+    // A Japanese set's code in a Japanese section name ("Terastal Festival ex Japanese Booster Box (SV8a)"): many sellers leave it
+    // out, and eBay requires every word.
+    .replace(/\(\s*(?:sv|s|m)\d{1,2}[a-z]?\s*\)/gi, " ")
     .replace(/[[\]|()"“”]/g, " ")
     .replace(/(^|\s)[-–—:]+(?=\s|$)/g, " ")
     .replace(/(^|\s)-+(?=\S)/g, "$1")
@@ -404,11 +411,18 @@ export function tcgplayerAffiliateUrl(url: string, region: Region, placement: Pl
  * Pokémon sealed). TCGplayer is a US marketplace whatever the region.
  */
 export function tcgplayerSearchUrl(name: string, region: Region, placement: Placement): string {
-  const u = new URL("https://www.tcgplayer.com/search/pokemon/product");
-  u.searchParams.set("productLineName", "pokemon");
+  // A Japanese section product ("Terastal Festival ex Japanese Booster Box (SV8a)") searches TCGplayer's own Japanese product
+  // line, where the word "Japanese" is the line, not part of any product's name.
+  const japanese = /\bjapanese\b/i.test(name);
+  const line = japanese ? "pokemon-japan" : "pokemon";
+  const u = new URL(`https://www.tcgplayer.com/search/${line}/product`);
+  u.searchParams.set("productLineName", line);
   // The product line already says Pokémon; the word itself only narrows the
   // match. Except in "Pokémon Center", which names a product.
-  const q = searchTerms(name).replace(/\bpokemon\b(?! center)/gi, " ").replace(/\s+/g, " ").trim();
+  const q = searchTerms(japanese ? name.replace(/\bjapanese\b/gi, " ") : name)
+    .replace(/\bpokemon\b(?! center)/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
   if (q) u.searchParams.set("q", q);
   u.searchParams.set("view", "grid");
   u.searchParams.set("ProductTypeName", "Sealed Products");

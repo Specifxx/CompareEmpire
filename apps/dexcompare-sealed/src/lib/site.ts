@@ -47,6 +47,7 @@ export const SECTION_PATHS = {
   bundles: "/type/booster-bundles",
   upcs: "/type/ultra-premium-collections",
   tins: "/type/tins",
+  japanese: "/japanese",
   perPack: "/cheapest-packs",
   sets: "/sets",
   releases: "/releases",

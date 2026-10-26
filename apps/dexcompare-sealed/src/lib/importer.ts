@@ -37,10 +37,10 @@ import {
 } from "./feeds";
 import { RateLimitedError, REQUEST_DELAY_MS, SCRAPE_HEADERS, sleep } from "./scrape-http";
 import { usMsrpCents } from "./rrp";
-import { canonicalName, cleanName, floorCents, identify, isIdentity, roughUsdCents, slugify, type SealedIdentity, type TypeKey } from "./sealed-title";
+import { canonicalName, cleanName, floorCents, identifyAny, isIdentity, roughUsdCents, slugify, type SealedIdentity, type TypeKey } from "./sealed-title";
 import { headlineOffer, offerStock } from "./sealed-offers";
 import { SOURCES, STORE_BY_KEY, isMarketplace, storeCurrency, type StoreConfig } from "./stores";
-import { isTcgImage, readTcgplayerCatalogue, tcgFeedProducts, tcgImageExists } from "./tcgplayer";
+import { isTcgImage, JAPANESE_LINE, readTcgplayerCatalogue, tcgFeedProducts, tcgImageExists } from "./tcgplayer";
 
 export interface ImportRow {
   identity: SealedIdentity;
@@ -174,7 +174,8 @@ export function rowsFromReads(store: StoreConfig, reads: CollectionRead[]): Impo
     for (const p of r.products) {
       if (seen.has(p.id)) continue;
       seen.add(p.id);
-      const id = identify(p.title, { strict });
+      // identifyAny: English products, and the Japanese section's boxes and packs (sealed-title.ts identifyJapanese).
+      const id = identifyAny(p.title, { strict });
       if (!isIdentity(id)) continue;
       const price = priceOf(p, floorCents(id.type, store.market));
       if (!price) continue;
@@ -231,7 +232,15 @@ async function readTcgplayer(): Promise<{ reads: CollectionRead[]; rediscovered:
   // The catalogue is TCGplayer's Pokémon product line, so its titles are read
   // like a store's Pokémon collection: they needn't say "Pokémon".
   const products = tcgFeedProducts(await readTcgplayerCatalogue());
-  return { reads: [{ handle: "pokemon", ok: true, products }], rediscovered: false, error: null };
+  const reads: CollectionRead[] = [{ handle: "pokemon", ok: true, products }];
+  // The Japanese line, for the Japanese section, after it, on a shorter clock. A failed read costs nothing but its own rows
+  // (TcgLine in tcgplayer.ts): the English catalogue above is written either way.
+  try {
+    reads.push({ handle: "pokemon-japan", ok: true, products: tcgFeedProducts(await readTcgplayerCatalogue({ line: JAPANESE_LINE, deadlineMs: 5 * 60_000 }), JAPANESE_LINE) });
+  } catch (e) {
+    console.warn(`  tcgplayer: the Japanese line was not read (${(e as Error).message}); the English catalogue is kept`);
+  }
+  return { reads, rediscovered: false, error: null };
 }
 
 export async function readStore(store: StoreConfig): Promise<StoreRead> {
@@ -513,7 +522,7 @@ async function mapLimit<T, R>(items: T[], limit: number, fn: (item: T) => Promis
  * CUSTOMER", "Tins (Pair)").
  */
 function misfiled(p: { name: string; groupKey: string }): boolean {
-  const id = identify(p.name);
+  const id = identifyAny(p.name);
   return !isIdentity(id) || id.groupKey !== p.groupKey;
 }
 
@@ -652,7 +661,7 @@ async function imageExists(url: string): Promise<boolean> {
 /** The words a product's photo filename might carry: its set's slug and its signature (the featured Pokémon). */
 function imageWords(identity: SealedIdentity): string[] {
   const sig = identity.groupKey.split("|")[2] ?? "";
-  return [...(identity.set?.slug.split("-") ?? []), ...sig.split("-")].filter((w) => w.length >= 4);
+  return [...((identity.set ?? identity.jaSet)?.slug.split("-") ?? []), ...sig.split("-")].filter((w) => w.length >= 4);
 }
 
 function filenameMentions(url: string, words: string[]): boolean {
@@ -715,7 +724,7 @@ async function upsertProducts(reads: StoreRead[], full: boolean): Promise<{ ids:
       if (!identityOf.has(row.identity.groupKey)) identityOf.set(row.identity.groupKey, row.identity);
     }
   const nameKeys = existing.map((p) => {
-    const id = identify(p.name);
+    const id = identifyAny(p.name);
     return { id: p.id, groupKey: p.groupKey, nameKey: isIdentity(id) ? id.groupKey : null };
   });
   const moved = planMoves(nameKeys, await previousOfferRefs(), now, new Set(reads.map((r) => r.store.key)));
@@ -749,7 +758,7 @@ async function upsertProducts(reads: StoreRead[], full: boolean): Promise<{ ids:
     const identity = identityOf.get(m.to)!;
     await prisma.product.update({
       where: { id: m.id },
-      data: { groupKey: m.to, productType: identity.typeLabel, setCode: identity.set?.code ?? null },
+      data: { groupKey: m.to, productType: identity.typeLabel, setCode: identity.setCode },
     });
   }
   // Photos: a product with none gets the best on offer; on a full run one with
@@ -772,7 +781,7 @@ async function upsertProducts(reads: StoreRead[], full: boolean): Promise<{ ids:
       slug,
       name: identity.name,
       productType: identity.typeLabel,
-      setCode: identity.set?.code ?? null,
+      setCode: identity.setCode,
       imageUrl: freshImage.get(identity.groupKey) ?? null,
     };
   });

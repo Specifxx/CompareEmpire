@@ -12,7 +12,7 @@
 //   • no derived statistics: nothing here computes an average, median or "% below" of eBay prices.
 import { epnTagUrl, EBAY_CAMPAIGN_ID, isItemListingUrl } from "./affiliate";
 import { cleanImageUrl, cleanPrice, cleanText, cleanTitle, feedReference, MARKETPLACES, type FeedItem, type FeedKind, type MarketplaceId } from "./ebay-context";
-import { detectSet, floorCents, fromRoughUsdCents, identify, isIdentity, TYPE_BY_KEY, type TypeKey } from "./sealed-title";
+import { detectSet, floorCents, fromRoughUsdCents, identifyAny, isIdentity, TYPE_BY_KEY, type TypeKey } from "./sealed-title";
 import { refusedForType, refusedListing } from "./ebay-rules";
 export { refusedForType, refusedListing } from "./ebay-rules";
 import type { Region } from "./regions";
@@ -242,7 +242,8 @@ const SEALED_NOISE = /\bpre[\s-]?(?:sales?|orders?)\b|\bpresales?\b|\b(?:read|se
 /** The listing's identity if the repo's classifier accepts it as sealed Pokémon product (Pokémon named: strict) and it is ONE unit, else null. */
 export function sealedIdentity(title: string, strict: boolean) {
   if (SEALED_NOISE.test(title)) return null;
-  const id = identify(title, { strict });
+  // English products and the Japanese section's (sealed-title.ts identifyJapanese): a Japanese listing only ever reaches a Japanese product.
+  const id = identifyAny(title, { strict });
   return isIdentity(id) && !multiUnit(title, id.type) ? id : null;
 }
 

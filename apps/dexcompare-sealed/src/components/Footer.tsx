@@ -29,7 +29,7 @@ export function footerColumns(region: Region | null): { title: string; links: Fo
   return [
     {
       title: "Shop",
-      links: [s("boosterBoxes", "Booster boxes"), s("etbs", "Elite Trainer Boxes"), s("bundles", "Booster bundles"), s("upcs", "Ultra-Premium Collections"), s("tins", "Tins"), s("perPack", "Cheapest per pack")],
+      links: [s("boosterBoxes", "Booster boxes"), s("etbs", "Elite Trainer Boxes"), s("bundles", "Booster bundles"), s("upcs", "Ultra-Premium Collections"), s("tins", "Tins"), s("japanese", "Japanese booster boxes"), s("perPack", "Cheapest per pack")],
     },
     // The newest released set first, the one on pre-order second (release.ts featureOrder): never a pre-order at the top.
     { title: "Latest sets", links: featureOrder(SETS.slice(0, 6).map((x) => x.code)).map((c) => SET_BY_CODE.get(c)!).map((set) => ({ href: `/${region}/sets/${set.slug}`, label: set.name })) },

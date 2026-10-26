@@ -19,7 +19,7 @@ import { dealsAnchor, shortDate, titleText, typeDescription, typeMsrpFact, typeN
 import { typeIndexRows, typePageData, typeLabelsInMarket } from "@/lib/hub-data";
 import { regionOfMarket, regionOrNotFound, type Market, type RegionInfo } from "@/lib/regions";
 import { RRP_NOTE } from "@/lib/rrp";
-import { PRODUCT_TYPES, TYPE_BY_SLUG } from "@/lib/sealed-title";
+import { JAPANESE_TYPES, PRODUCT_TYPES, TYPE_BY_SLUG } from "@/lib/sealed-title";
 import { itemListJsonLd, jsonLd, pageMeta, regionAlternates } from "@/lib/seo";
 import { SET_BY_CODE } from "@/lib/sets";
 import { TYPE_ABOUT } from "@/lib/type-about";
@@ -85,7 +85,9 @@ export default async function TypePage({ params }: { params: { region: string; t
   // them, so this list keeps each within two clicks of the region home (the indexing round, 2026-10-25).
   const shown = new Set([...open, ...sold].map((p) => p.slug));
   const index = indexAll.filter((x) => !shown.has(x.slug));
-  const siblings = PRODUCT_TYPES.filter((x) => x.slug !== t.slug && (!isCase(x) || isCase(t)) && listedTypes.has(x.label));
+  // A Japanese type's siblings are the other Japanese type (an English box is not an alternative to a Japanese one).
+  const japanese = JAPANESE_TYPES.some((x) => x.slug === t.slug);
+  const siblings = (japanese ? JAPANESE_TYPES : PRODUCT_TYPES).filter((x) => x.slug !== t.slug && (!isCase(x) || isCase(t)) && listedTypes.has(x.label));
   // The type's own listings (cascade: generic sealed Pokémon) as an image strip; with none to list, the compact CTA row. It sits on a row of
   // its own after the first products (ProductGrid `strip`), so the products come first.
   const strip = (
@@ -105,7 +107,9 @@ export default async function TypePage({ params }: { params: { region: string; t
   return (
     <div className="page py-8">
       {!(gridPageHasRoomForFooter(open.length + sold.length) && open.length + sold.length >= FOOTER_STRIP_MIN) && <NoPreFooter />}
-      <Breadcrumbs items={[{ href: `/${r.region}`, label: r.name }, { label: t.plural }]} />
+      <Breadcrumbs
+        items={[{ href: `/${r.region}`, label: r.name }, ...(japanese ? [{ href: `/${r.region}/japanese`, label: "Japanese" }] : []), { label: t.plural }]}
+      />
       <h1 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">
         {name} in {r.inName}
       </h1>

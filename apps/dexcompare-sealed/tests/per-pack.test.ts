@@ -6,7 +6,7 @@ import { readFileSync } from "node:fs";
 import type { ProductCardData } from "../src/lib/data";
 import { packsForLabel } from "../src/lib/packs";
 import { cheapestPerPackByType, PACK_TYPES } from "../src/lib/per-pack";
-import { PRODUCT_TYPES } from "../src/lib/sealed-title";
+import { JAPANESE_TYPES, PRODUCT_TYPES } from "../src/lib/sealed-title";
 import { TYPE_ABOUT } from "../src/lib/type-about";
 
 const card = (slug: string, productType: string, lowestPriceCents: number | null, open = true, setCode: string | null = "me4"): ProductCardData => ({
@@ -62,8 +62,9 @@ test("the moves are moves: the set page imports per-pack.ts and the type page ty
 });
 
 test("TYPE_ABOUT: a sentence for every product type, keyed by slug, and nothing for a type that does not exist", () => {
-  for (const t of PRODUCT_TYPES) assert.ok(TYPE_ABOUT[t.slug]?.length > 20, t.slug);
-  const slugs = new Set(PRODUCT_TYPES.map((t) => t.slug));
+  const all = [...PRODUCT_TYPES, ...JAPANESE_TYPES];
+  for (const t of all) assert.ok(TYPE_ABOUT[t.slug]?.length > 20, t.slug);
+  const slugs = new Set(all.map((t) => t.slug));
   for (const k of Object.keys(TYPE_ABOUT)) assert.ok(slugs.has(k), `${k} is a type slug`);
   assert.match(TYPE_ABOUT["booster-boxes"], /36 booster packs/);
 });

@@ -48,6 +48,7 @@ import { offerStock } from "@/lib/sealed-offers";
 import { TYPE_BY_LABEL } from "@/lib/sealed-title";
 import { jsonLd, pageMeta, productJsonLd, regionAlternates, withPokemon } from "@/lib/seo";
 import { SET_BY_CODE } from "@/lib/sets";
+import { displayCode, jaSetOf } from "@/lib/sets-ja";
 import { shippingCell } from "@/lib/shipping";
 import { rankRows } from "@/lib/shipping-rank";
 
@@ -178,6 +179,10 @@ export default async function ProductPage({ params }: { params: { region: string
   const { p, here } = loaded;
 
   const set = p.setCode ? SET_BY_CODE.get(p.setCode) : null;
+  // A Japanese section product (sealed-title.ts identifyJapanese): its Japanese set, which has no set page of its own; the
+  // Japanese hub (/<region>/japanese#<code>) stands in for one.
+  const jaSet = jaSetOf(p.setCode);
+  const jaHref = jaSet ? `/${r.region}/japanese#${jaSet.code}` : null;
   const type = TYPE_BY_LABEL.get(p.productType);
   const pre = isPreorderSet(p.setCode);
   const now = Date.now();
@@ -204,7 +209,7 @@ export default async function ProductPage({ params }: { params: { region: string
   const tcgplayer = p.offers.find((o) => o.marketplace) ?? p.usMarketplace;
   // The same-set read, all of it (take 40): the value check reads every format, the grid shows eight.
   const related = p.setCode ? await getRelated(r.market, p.setCode, p.slug) : [];
-  const grid = set ? related.slice(0, 8) : [];
+  const grid = set || jaSet ? related.slice(0, 8) : [];
   // In-stock products of the type: "In stock instead" on a sold-out page, "More <type> in <region>" on an in-stock one with no set.
   // The page's one new read (LIMIT 4; the headline types' cheapest when the type has none open).
   const alternatives = !best || !p.setCode ? await inStockAlternatives(r.market, p.productType, p.setCode, p.slug) : [];
@@ -275,7 +280,7 @@ export default async function ProductPage({ params }: { params: { region: string
     inName: r.inName,
     adjective: r.adjective,
     packs: packs,
-    release: set ? { date: set.releaseDate, preorder: pre } : null,
+    release: set ? { date: set.releaseDate, preorder: pre } : jaSet?.releaseDate ? { date: jaSet.releaseDate, preorder: false, where: "Japan" } : null,
     cheapest: best ? { cents: best.priceCents, storeName: best.storeName, marketplace: best.marketplace, lastSeen: best.lastSeen } : null,
     openStores,
     storeCount: stores.length,
@@ -340,7 +345,11 @@ export default async function ProductPage({ params }: { params: { region: string
     name: p.name,
     productType: p.productType,
     about: type ? TYPE_ABOUT[type.slug] ?? null : null,
-    set: set ? { name: set.name, series: set.series, releaseDate: set.releaseDate } : null,
+    set: set
+      ? { name: set.name, series: set.series, releaseDate: set.releaseDate }
+      : jaSet?.releaseDate
+        ? { name: `the Japanese set ${jaSet.name} (${displayCode(jaSet)})`, series: jaSet.era, releaseDate: jaSet.releaseDate, where: "Japan" }
+        : null,
     preorder: pre,
     packs,
     market: r.market,
@@ -440,6 +449,7 @@ export default async function ProductPage({ params }: { params: { region: string
       <Breadcrumbs
         items={[
           { href: `/${r.region}`, label: r.name },
+          ...(jaSet ? [{ href: `/${r.region}/japanese`, label: "Japanese" }] : []),
           ...(type ? [{ href: `/${r.region}/type/${type.slug}`, label: type.plural }] : []),
           ...(set ? [{ href: `/${r.region}/sets/${set.slug}`, label: set.name }] : []),
           { label: p.name },
@@ -483,6 +493,12 @@ export default async function ProductPage({ params }: { params: { region: string
                   </Link>
                 )}
                 {set && <span className={pre ? "rounded-full bg-pre-soft px-2.5 py-1 text-xs font-semibold leading-4 text-pre" : chip}>{releaseChip(set.releaseDate, pre)}</span>}
+                {jaSet && jaHref && (
+                  <Link href={jaHref} prefetch={false} className={`${chip} relative hover:text-ink after:absolute after:-inset-x-0.5 after:-inset-y-2 after:content-['']`}>
+                    <span className="hidden sm:inline">Japanese · </span>
+                    {displayCode(jaSet)} {jaSet.name}
+                  </Link>
+                )}
                 {packs != null && <span className={`${chip} hidden sm:inline`}>{plural(packs, "booster pack")}</span>}
               </div>
               <div className="mt-2">
@@ -682,6 +698,11 @@ export default async function ProductPage({ params }: { params: { region: string
 
       {grid.length > 0 && set && (
         <Section title={`More from ${set.name}`} href={`/${r.region}/sets/${set.slug}`} linkLabel="Whole set">
+          <ProductGrid products={grid} region={r.region} />
+        </Section>
+      )}
+      {grid.length > 0 && jaSet && jaHref && (
+        <Section title={`More from ${jaSet.name} (Japanese)`} href={jaHref} linkLabel="All Japanese boxes">
           <ProductGrid products={grid} region={r.region} />
         </Section>
       )}
