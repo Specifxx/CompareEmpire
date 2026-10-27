@@ -104,7 +104,7 @@ test("Compare other TCGs: the three sister sites, each with a descriptive anchor
   for (const [url, anchor] of [
     ["https://riftcompare.com", "Riftbound card prices"],
     ["https://opcompare.app", "One Piece Card Game prices"],
-    ["https://mtgcompare.app", "Magic: The Gathering card prices"],
+    ["https://mtgcompare.app", "Magic: The Gathering sealed prices"],
   ])
     assert.match(html, new RegExp(`<a href="${url}"[^>]*>${anchor}</a>`), url);
   for (const f of ["src/app/[region]/page.tsx", "src/app/[region]/p/[slug]/page.tsx"]) assert.match(readFileSync(f, "utf8"), /<CompareOtherTcgs/, f);
