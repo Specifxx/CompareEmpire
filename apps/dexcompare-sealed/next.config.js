@@ -57,7 +57,7 @@ const nextConfig = {
   async redirects() {
     return [
       // No apex → www redirect here (2026-10-26 outage): www.dexcompare.app lost its DNS record, and this rule sent every
-      // visitor to a host that did not resolve. Vercel's domain settings decide the host; put it back only once www is valid.
+      // visitor to a host that did not resolve. The apex is the canonical host since 2026-10-27 (lib/site.ts).
       { source: "/sealed", destination: "/au/sealed", permanent: true },
       { source: "/sealed/:slug", destination: "/au/sealed", permanent: true },
       { source: "/browse", destination: "/au/sealed", permanent: true },

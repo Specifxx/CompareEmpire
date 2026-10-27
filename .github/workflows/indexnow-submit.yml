@@ -7,7 +7,7 @@ name: IndexNow submit (Bing/Yandex) — DexCompare
 #
 # apps/dexcompare-sealed/scripts/indexnow-submit.ts reads the key the live
 # /indexnow.txt serves (no secret needed), names the host of the sitemap's own
-# URLs (www.dexcompare.app: this workflow used to name the apex, which IndexNow
+# URLs (dexcompare.app: this workflow used to name the apex, which IndexNow
 # refuses with a 422 for www URLs) and FAILS the run, with IndexNow's answer in
 # the log, when anything is refused. It runs with no npm install: the script
 # uses only Node built-ins and src/lib/indexnow.ts.
@@ -28,7 +28,7 @@ jobs:
       run:
         working-directory: apps/dexcompare-sealed
     env:
-      SITE_URL: https://www.dexcompare.app
+      SITE_URL: https://dexcompare.app
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

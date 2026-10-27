@@ -118,7 +118,7 @@ test("disclosure: the statement word for word in every page's footer, and the di
   assert.ok(existsSync(new URL("../src/app/(site)/affiliate-disclosure/page.tsx", import.meta.url)));
   const page = src("app/(site)/affiliate-disclosure/page.tsx");
   assert.match(page, /\{AMAZON_ASSOCIATE_STATEMENT\}/);
-  assert.ok(staticSitemap({}).some((e) => e.url === "https://www.dexcompare.app/affiliate-disclosure"));
+  assert.ok(staticSitemap({}).some((e) => e.url === "https://dexcompare.app/affiliate-disclosure"));
 });
 
 test("amazon_click: { product, region } on Vercel Pro, { product, region, page } with Plus and in GA4", () => {

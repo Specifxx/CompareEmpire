@@ -45,9 +45,9 @@ export interface SubmissionPlan {
 
 /**
  * Where a submission goes: the origin of the sitemap's OWN URLs (the canonical
- * www.dexcompare.app), only the URLs on it, and the key file there. IndexNow
+ * dexcompare.app), only the URLs on it, and the key file there. IndexNow
  * answers 422 to any URL off the request's host: the old manual workflow named
- * the apex dexcompare.app while every sitemap URL is on www, and MTG Compare's
+ * one host while every sitemap URL was on the other, and MTG Compare's
  * daily run failed the same way for a week (a stale SITE_URL). Null without URLs.
  */
 export function submissionPlan(urls: readonly string[]): SubmissionPlan | null {
