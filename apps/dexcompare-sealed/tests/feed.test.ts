@@ -78,7 +78,7 @@ test("messages: the facts and the product link; no urgency, no banned copy", () 
     const m = messageFor(e);
     assert.equal(findBannedCopy(m), null, m);
     assert.doesNotMatch(m, /hurry|limited|selling fast|ends|act now/i);
-    assert.match(m, /https:\/\/www\.dexcompare\.app\/au\/p\//);
+    assert.match(m, /https:\/\/dexcompare\.app\/au\/p\//);
   }
   assert.match(messageFor(d), /A\$80\.00, 20% under the median of 5 Australian stores/);
   assert.match(messageFor(r), /Now at 3 Australian stores, from A\$299/);

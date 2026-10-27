@@ -160,7 +160,7 @@ test("sold out: the callout's eBay box is the server's search (soldout-ebay, Ad,
   assert.ok(box.length < html.length, "a labelled unit: data-ad=soldout-ebay");
   assert.match(box, /class="ad-pill[^"]*">Ad</);
   assert.match(box, /aria-label="eBay"/);
-  const ebay = links(html).filter((l) => new URL(l.href, "https://www.dexcompare.app").hostname.endsWith("ebay.co.uk"));
+  const ebay = links(html).filter((l) => new URL(l.href, "https://dexcompare.app").hostname.endsWith("ebay.co.uk"));
   assert.equal(ebay.length, 1, "ONE eBay link in the server HTML: the search (the listing is browser-only)");
   const u = new URL(ebay[0].href);
   assert.equal(u.searchParams.get("customid"), "dex-uk-soldout-ebay");

@@ -16,24 +16,24 @@ test("the key: IndexNow's format, INDEXNOW_KEY overrides the default, a malforme
 
 test("the sitemap index is followed to its pages, never submitting the child sitemaps themselves", async () => {
   const fx: Record<string, string> = {
-    "https://www.dexcompare.app/sitemap.xml":
-      '<sitemapindex><sitemap><loc>https://www.dexcompare.app/sitemap/0.xml</loc></sitemap><sitemap><loc>https://www.dexcompare.app/sitemap/1.xml</loc></sitemap></sitemapindex>',
-    "https://www.dexcompare.app/sitemap/0.xml": "<urlset><url><loc>https://www.dexcompare.app</loc></url><url><loc>https://www.dexcompare.app/au</loc></url></urlset>",
-    "https://www.dexcompare.app/sitemap/1.xml":
-      "<urlset><url><loc>https://www.dexcompare.app/au/p/delta-reign-booster-box</loc></url><url><loc>https://www.dexcompare.app/au?a=1&amp;b=2</loc></url><url><loc>https://www.dexcompare.app/au</loc></url></urlset>",
+    "https://dexcompare.app/sitemap.xml":
+      '<sitemapindex><sitemap><loc>https://dexcompare.app/sitemap/0.xml</loc></sitemap><sitemap><loc>https://dexcompare.app/sitemap/1.xml</loc></sitemap></sitemapindex>',
+    "https://dexcompare.app/sitemap/0.xml": "<urlset><url><loc>https://dexcompare.app</loc></url><url><loc>https://dexcompare.app/au</loc></url></urlset>",
+    "https://dexcompare.app/sitemap/1.xml":
+      "<urlset><url><loc>https://dexcompare.app/au/p/delta-reign-booster-box</loc></url><url><loc>https://dexcompare.app/au?a=1&amp;b=2</loc></url><url><loc>https://dexcompare.app/au</loc></url></urlset>",
   };
-  const urls = await sitemapUrls("https://www.dexcompare.app/sitemap.xml", async (u) => fx[u] ?? "", 0);
-  assert.deepEqual(urls, ["https://www.dexcompare.app", "https://www.dexcompare.app/au", "https://www.dexcompare.app/au/p/delta-reign-booster-box", "https://www.dexcompare.app/au?a=1&b=2"]);
+  const urls = await sitemapUrls("https://dexcompare.app/sitemap.xml", async (u) => fx[u] ?? "", 0);
+  assert.deepEqual(urls, ["https://dexcompare.app", "https://dexcompare.app/au", "https://dexcompare.app/au/p/delta-reign-booster-box", "https://dexcompare.app/au?a=1&b=2"]);
   assert.ok(!urls.some((u) => u.endsWith(".xml")));
   assert.deepEqual(await sitemapUrls("https://x.test/s.xml", async () => "<urlset><url><loc>https://x.test/a</loc></url></urlset>", 0), ["https://x.test/a"], "a plain urlset");
 });
 
 test("the request names the host of the sitemap's own URLs (www), never the apex the old workflow named", () => {
-  const plan = submissionPlan(["https://www.dexcompare.app", "https://www.dexcompare.app/au/sealed", "https://dexcompare.app/old"]);
+  const plan = submissionPlan(["https://dexcompare.app", "https://dexcompare.app/au/sealed", "https://www.dexcompare.app/old"]);
   assert.ok(plan);
-  assert.equal(plan.host, "www.dexcompare.app");
-  assert.equal(plan.keyLocation, "https://www.dexcompare.app/indexnow.txt");
-  assert.deepEqual(plan.urls, ["https://www.dexcompare.app", "https://www.dexcompare.app/au/sealed"]);
+  assert.equal(plan.host, "dexcompare.app");
+  assert.equal(plan.keyLocation, "https://dexcompare.app/indexnow.txt");
+  assert.deepEqual(plan.urls, ["https://dexcompare.app", "https://dexcompare.app/au/sealed"]);
   assert.equal(plan.dropped, 1, "a URL on another host would make IndexNow refuse the batch (422): it is left out");
   assert.equal(submissionPlan([]), null);
 });

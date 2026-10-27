@@ -150,6 +150,12 @@ clear Settings → Git → Ignored Build Step for that one deploy.
 
 ## 5. Domains
 
+**Since 2026-10-27 the canonical host is the apex, `dexcompare.app`.** `www.dexcompare.app` lost its DNS record in the
+2026-10-26 outage and does not resolve; the apex serves the pages. `src/lib/site.ts` turns any `NEXT_PUBLIC_SITE_URL` on
+either host into `https://dexcompare.app`, so a variable still set to www can't point crawlers at it. The steps below are
+the original www setup, kept for the record: moving back to www means restoring its DNS, waiting for Vercel to show both
+domains Valid, and only then changing `CANONICAL_HOST` and the redirect together.
+
 Vercel project → Settings → **Domains**:
 
 1. Add `www.dexcompare.app` and make it the primary: it is what
@@ -197,7 +203,7 @@ soon. Store pages with nothing listed, or whose store is dormant, are `noindex` 
 Search Console showed 5,332 URLs "Crawled – currently not indexed", 1,067 server errors, 37 404s, 14 soft 404s and 194 indexed,
 from a sitemap of ~9,100 URLs, 7,907 of them product pages. What changed, and why:
 
-- **One host.** `dexcompare.app/*` → `https://www.dexcompare.app/*`, path and query kept: Vercel's domain setting (308) answers
+- **One host** (superseded 2026-10-27: the apex is canonical, see "Domains"). `dexcompare.app/*` → `https://www.dexcompare.app/*`, path and query kept: Vercel's domain setting (308) answers
   before the app; `next.config.js` has the same redirect as a **301** in case that setting is ever removed. `src/lib/site.ts`
   turns an apex `NEXT_PUBLIC_SITE_URL` into www, so a canonical, hreflang, sitemap, OG or JSON-LD URL can never be the apex.
   Optional: Vercel → Domains → `dexcompare.app` → Edit lets you pick 301 instead of 308; Google treats both as permanent.

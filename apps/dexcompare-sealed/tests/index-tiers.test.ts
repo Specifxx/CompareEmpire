@@ -53,7 +53,7 @@ test("the sitemap: strong products only; sets and types from three comparable pr
   assert.match(route, /c >= MIN_HUB_PRODUCTS/);
   // regionSitemap itself lists what it is given
   const urls = regionSitemap(REGIONS.uk, { typeLabels: [], setCodes: [], productSlugs: ["a"], lastmod: null }).map((e) => e.url);
-  assert.deepEqual(urls, ["https://www.dexcompare.app/uk/p/a"]);
+  assert.deepEqual(urls, ["https://dexcompare.app/uk/p/a"]);
 });
 
 test("thin section pages: noindex by the same rule the sitemap leaves them out by", () => {
@@ -70,7 +70,7 @@ test("thin section pages: noindex by the same rule the sitemap leaves them out b
   const all = staticSitemap({}, undefined, "2026-10-25").map((e) => e.url);
   const some = staticSitemap({}, undefined, "2026-10-25", { uk: ["/price-moves", "/deals"], eu: ["/cheapest-packs"] }).map((e) => e.url);
   const gone = all.filter((u) => !some.includes(u));
-  assert.deepEqual(gone.sort(), ["https://www.dexcompare.app/eu/cheapest-packs", "https://www.dexcompare.app/uk/deals", "https://www.dexcompare.app/uk/price-moves"]);
+  assert.deepEqual(gone.sort(), ["https://dexcompare.app/eu/cheapest-packs", "https://dexcompare.app/uk/deals", "https://dexcompare.app/uk/price-moves"]);
 });
 
 test("empty set and type pages are real 404s, never an empty 200", () => {
@@ -103,10 +103,10 @@ test("the region switcher follows links to pages every region has, nofollow to t
   assert.match(src("components/MobileMenu.tsx"), /rel=\{!on && !regionSwitchFollow\(pathname, region\) \? "nofollow" : undefined\}/);
 });
 
-test("one canonical host: the apex in NEXT_PUBLIC_SITE_URL still means www", () => {
-  assert.equal(normaliseOrigin("https://dexcompare.app"), "https://www.dexcompare.app");
-  assert.equal(normaliseOrigin("http://dexcompare.app/"), "https://www.dexcompare.app");
-  assert.equal(normaliseOrigin("https://www.dexcompare.app/au"), "https://www.dexcompare.app");
+test("one canonical host: www in NEXT_PUBLIC_SITE_URL still means the apex", () => {
+  assert.equal(normaliseOrigin("https://dexcompare.app"), "https://dexcompare.app");
+  assert.equal(normaliseOrigin("http://dexcompare.app/"), "https://dexcompare.app");
+  assert.equal(normaliseOrigin("https://www.dexcompare.app/au"), "https://dexcompare.app");
   assert.equal(normaliseOrigin("https://preview.example.com/"), "https://preview.example.com", "another host is left alone");
   assert.equal(normaliseOrigin("not a url"), null);
 });

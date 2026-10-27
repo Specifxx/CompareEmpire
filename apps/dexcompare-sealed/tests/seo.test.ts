@@ -61,5 +61,5 @@ test("articleJsonLd: headline, dates, mainEntityOfPage, and DexCompare (an Organ
     assert.equal(who.url, SITE_URL);
   }
   assert.equal(a.publisher.logo.url, `${SITE_URL}/logo.svg`);
-  assert.equal(articleJsonLd({ title: "t", description: "d", path: "/us/guides/x", published: "2026-01-01", updated: "2026-01-01", image: "https://www.dexcompare.app/x.png" }).image, "https://www.dexcompare.app/x.png");
+  assert.equal(articleJsonLd({ title: "t", description: "d", path: "/us/guides/x", published: "2026-01-01", updated: "2026-01-01", image: "https://dexcompare.app/x.png" }).image, "https://dexcompare.app/x.png");
 });

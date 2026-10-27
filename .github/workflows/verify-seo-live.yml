@@ -3,8 +3,8 @@ name: Verify SEO surfaces on the live sites (manual, read-only)
 # End-to-end check that the SEO/ISR work is actually serving in production on
 # BOTH sites (runs on GitHub's runners; the dev container has no egress to the
 # production domains). Verifies:
-#  - DexCompare (sealed): canonical/hreflang on https://www.dexcompare.app,
-#    apex and /AU redirects, unknown paths 404, /sitemap.xml is an index whose
+#  - DexCompare (sealed): canonical/hreflang on https://dexcompare.app
+#    (the apex, since 2026-10-27), /AU redirects, unknown paths 404, /sitemap.xml is an index whose
 #    regional files total ≥ 1000 product URLs, robots points at it, the trust
 #    pages answer, the security headers are on, ISR returns cache hits
 #  - RiftCompare: neutral hero live, /card-value linked from the chrome
@@ -14,21 +14,21 @@ on:
 
 jobs:
   dexcompare:
-    # The sealed site (apps/dexcompare-sealed) at https://www.dexcompare.app.
+    # The sealed site (apps/dexcompare-sealed) at https://dexcompare.app.
     # Read-only: a handful of GETs.
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
-      SITE: https://www.dexcompare.app
+      SITE: https://dexcompare.app
     steps:
       - name: Canonical host — every canonical/hreflang URL is on the www host
         run: |
           set -e
           BODY=$(curl -fsSL --retry 3 "$SITE/au")
           echo "$BODY" | grep -o '<link rel="canonical" href="[^"]*"' | head -1
-          echo "$BODY" | grep -q '<link rel="canonical" href="https://www.dexcompare.app/au"' \
-            && echo "OK: canonical on www.dexcompare.app" \
-            || { echo "FAIL: canonical is not https://www.dexcompare.app/au — NEXT_PUBLIC_SITE_URL wrong in Vercel? (DEPLOY.md, Domains)"; exit 1; }
+          echo "$BODY" | grep -q '<link rel="canonical" href="https://dexcompare.app/au"' \
+            && echo "OK: canonical on dexcompare.app" \
+            || { echo "FAIL: canonical is not https://dexcompare.app/au — NEXT_PUBLIC_SITE_URL wrong in Vercel? (DEPLOY.md, Domains)"; exit 1; }
           echo "$BODY" | grep -qi 'hreflang="x-default"' && echo "OK: x-default present" || { echo "FAIL: no x-default hreflang"; exit 1; }
           if echo "$BODY" | grep -q 'dexcompare\.com'; then echo "FAIL: dexcompare.com still referenced"; exit 1; fi
 
@@ -36,8 +36,7 @@ jobs:
         run: |
           set -e
           code() { curl -s -o /dev/null -w '%{http_code} %{redirect_url}' "$1"; }
-          echo "apex: $(code https://dexcompare.app/au)"
-          echo "$(code https://dexcompare.app/au)" | grep -qE '^30[18] https://www\.dexcompare\.app/au' && echo "OK: apex redirects to www" || echo "WARN: apex does not redirect to www (Vercel → Domains)"
+          echo "www: $(code https://www.dexcompare.app/au || true) (does not resolve since 2026-10-26; fine while the apex is canonical)"
           echo "/AU: $(code $SITE/AU)"
           echo "$(code $SITE/AU)" | grep -q '^308 .*/au$' && echo "OK: /AU → /au" || { echo "FAIL: /AU did not 308 to /au"; exit 1; }
           for p in /foo /terms-of-service /Au; do
@@ -61,7 +60,7 @@ jobs:
           done
           echo "product URLs across regions: $TOTAL"
           [ "$TOTAL" -ge 1000 ] || { echo "FAIL: under 1000 product URLs — a regional sitemap query failed or the database is empty"; exit 1; }
-          curl -fsSL --retry 3 "$SITE/robots.txt" | grep -q "Sitemap: https://www.dexcompare.app/sitemap.xml" \
+          curl -fsSL --retry 3 "$SITE/robots.txt" | grep -q "Sitemap: https://dexcompare.app/sitemap.xml" \
             && echo "OK: robots.txt points at the index" || { echo "FAIL: robots.txt sitemap line wrong"; exit 1; }
 
       - name: Trust pages and security headers

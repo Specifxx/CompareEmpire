@@ -302,7 +302,7 @@ test("topStores: the most in stock, read within 72 hours, at most ten", () => {
 
 // ─── The calendar file ─────────────────────────────────────────────────────────
 
-const DELTA = { code: "me6", name: "Delta Reign", date: "2026-11-06", url: "https://www.dexcompare.app/au/sets/delta-reign", stamp: new Date("2026-10-14T09:30:00Z") };
+const DELTA = { code: "me6", name: "Delta Reign", date: "2026-11-06", url: "https://dexcompare.app/au/sets/delta-reign", stamp: new Date("2026-10-14T09:30:00Z") };
 
 test("buildIcs: the exact file (golden)", () => {
   assert.equal(
@@ -319,9 +319,9 @@ test("buildIcs: the exact file (golden)", () => {
       "DTSTART;VALUE=DATE:20261106",
       "DTEND;VALUE=DATE:20261107",
       "SUMMARY:Pokémon TCG Delta Reign release (English)",
-      "DESCRIPTION:Compare Delta Reign prices: https://www.dexcompare.app/au/sets/",
-      " delta-reign",
-      "URL:https://www.dexcompare.app/au/sets/delta-reign",
+      "DESCRIPTION:Compare Delta Reign prices: https://dexcompare.app/au/sets/delt",
+      " a-reign",
+      "URL:https://dexcompare.app/au/sets/delta-reign",
       "TRANSP:TRANSPARENT",
       "END:VEVENT",
       "END:VCALENDAR",
@@ -371,10 +371,10 @@ test("buildIcs parses back: an all-day event on the release date, ending the nex
   assert.deepEqual(event.get("DTSTART"), { params: ";VALUE=DATE", value: "20261106" });
   assert.deepEqual(event.get("DTEND"), { params: ";VALUE=DATE", value: "20261107" });
   assert.equal(unescapeText(event.get("SUMMARY")!.value), "Pokémon TCG Delta Reign release (English)");
-  assert.equal(unescapeText(event.get("DESCRIPTION")!.value), "Compare Delta Reign prices: https://www.dexcompare.app/au/sets/delta-reign");
+  assert.equal(unescapeText(event.get("DESCRIPTION")!.value), "Compare Delta Reign prices: https://dexcompare.app/au/sets/delta-reign");
   assert.equal(event.get("URL")!.value, DELTA.url);
   // Every set's file parses, and a name with the TEXT specials survives the round trip.
-  for (const s of SETS) parseIcs(buildIcs({ code: s.code, name: s.name, date: s.releaseDate, url: `https://www.dexcompare.app/us/sets/${s.slug}` }));
+  for (const s of SETS) parseIcs(buildIcs({ code: s.code, name: s.name, date: s.releaseDate, url: `https://dexcompare.app/us/sets/${s.slug}` }));
   const odd = parseIcs(buildIcs({ ...DELTA, name: "Scarlet & Violet, Base; \\Set" }));
   assert.equal(unescapeText(odd.event.get("SUMMARY")!.value), "Pokémon TCG Scarlet & Violet, Base; \\Set release (English)");
 });
