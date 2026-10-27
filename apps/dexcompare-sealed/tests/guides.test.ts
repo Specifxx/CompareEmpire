@@ -646,7 +646,7 @@ test("legacy redirects: every specific source was a real old guide or blog post,
   // No host-conditioned rule: Vercel's domain settings decide the host (2026-10-26 outage, next.config.js).
   assert.deepEqual(all.filter((r) => r.has), []);
   const rules = all.filter((r) => !r.has);
-  const articles = readFileSync(new URL("../../dexcompare/src/lib/articles.ts", import.meta.url), "utf8");
+  const articles = readFileSync(new URL("../../../archived/dexcompare/src/lib/articles.ts", import.meta.url), "utf8");
   const old = new Map([...articles.matchAll(/slug: "([^"]+)",\s*category: "(guide|blog)"/g)].map((m) => [m[1], m[2]]));
   assert.ok(old.size > 30, "read the old site's articles");
   for (const rule of rules) {
