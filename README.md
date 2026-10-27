@@ -12,26 +12,13 @@ Tailwind), tuned to its vertical.
 | **CarCompare** | `apps/carcompare` | 3004 | New cars (72 models, 18 makes), across **AU · US · UK** |
 | **PhoneCompare** | `apps/phonecompare` | 3005 | Smartphones (33 models, 9 brands), across **AU · US · UK** |
 | **LaptopCompare** | `apps/laptopcompare` | 3006 | Laptops (32 models, 10 brands), across **AU · US · UK** |
-| **MTGCompare** | `apps/mtgcompare` | 3007 | Magic: The Gathering singles & sealed, markets **AU · NZ · US · UK** |
-| **OPCompare** | `apps/opcompare` | 3008 | One Piece Card Game singles & sealed, markets **AU · NZ · US · UK** |
-| **YGOCompare** | `apps/ygocompare` | 3009 | Yu-Gi-Oh! TCG singles & sealed, markets **AU · NZ · US · UK** |
 
-### TCG sites (MTG / One Piece / Yu-Gi-Oh!)
+### Card-game sites live in their own repos
 
-The three card-game sites share DexCompare's comparison engine and the full
-affiliate stack (eBay Partner Network, TCGplayer via Impact, Sovrn/VigLink
-auto-affiliate, Amazon Associates). Each ships a curated catalogue of **real**
-cards across real sets (`apps/<app>/prisma/<game>-cards.json`, regenerated with
-`node prisma/gen-cards.mjs`) and self-contained SVG card art, so they seed and
-run with **no external API access**. Retailer prices are synthesised per market
-across real stores for the preview; swap in the live importer
-(`scripts/import-prices.ts`) once the card-game APIs/stores are allow-listed.
-
-```bash
-npm run dev:mtgcompare   # 3007    npm run seed:mtgcompare   (db: mtg)
-npm run dev:opcompare    # 3008    npm run seed:opcompare    (db: op)
-npm run dev:ygocompare   # 3009    npm run seed:ygocompare   (db: ygo)
-```
+The MTG, One Piece and Yu-Gi-Oh! prototypes that started here, the old
+DexCompare singles app and TCGPriceEmpire were moved to `archived/` on
+2026-10-27 (see `archived/README.md`). The live sites are
+`Specifxx/mtgcompare`, `Specifxx/OpCompare` and `Specifxx/ygocompare`.
 
 > **RiftCompare** (Riftbound) is owned but runs on its **own separate instance**.
 > It's shown on the hub as an external subsidiary (set `RIFTCOMPARE_URL`); a
@@ -75,16 +62,16 @@ npm run dev                  # or run one: npm run dev:phonecompare
 
 > **Retired.** DexCompare was rebuilt as a sealed-only site in
 > `apps/dexcompare-sealed` (no singles, no price history, no eBay API). The
-> section below describes the old singles app in `apps/dexcompare`, which is
+> section below describes the old singles app in `archived/dexcompare`, which is
 > kept for reference and no longer deployed.
 
 The exhaustive Pokémon catalogue is built from the open
 [`PokemonTCG/pokemon-tcg-data`](https://github.com/PokemonTCG/pokemon-tcg-data)
-mirror. The built seed input (`apps/dexcompare/prisma/pokemon-cards.json`) is
+mirror. The built seed input (`archived/dexcompare/prisma/pokemon-cards.json`) is
 committed so seeding works offline. To refresh from source:
 
 ```bash
-cd apps/dexcompare
+cd archived/dexcompare
 npx tsx scripts/fetch-pokemon-data.ts   # downloads every set/card (needs network)
 npx tsx scripts/build-pokemon-data.ts   # rebuilds pokemon-cards.json + pokemon-sets.ts
 ```
