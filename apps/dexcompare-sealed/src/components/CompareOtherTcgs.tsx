@@ -3,7 +3,7 @@
 export const OTHER_TCGS: readonly { url: string; anchor: string; site: string; blurb: string }[] = [
   { url: "https://riftcompare.com", anchor: "Riftbound card prices", site: "RiftCompare", blurb: "the Riftbound TCG, compared across stores." },
   { url: "https://opcompare.app", anchor: "One Piece Card Game prices", site: "OP Compare", blurb: "the One Piece Card Game, compared across stores." },
-  { url: "https://mtgcompare.app", anchor: "Magic: The Gathering card prices", site: "MTG Compare", blurb: "Magic: The Gathering, compared across stores." },
+  { url: "https://mtgcompare.app", anchor: "Magic: The Gathering sealed prices", site: "MTG Compare", blurb: "Magic: The Gathering booster boxes and bundles, compared across stores." },
 ];
 
 export function CompareOtherTcgs({ className = "mt-14" }: { className?: string }) {
