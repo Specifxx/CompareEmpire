@@ -23,3 +23,25 @@ What shipped instead, at no cost:
   and is linked from RiftCompare's "Compare other TCGs" footer heading. One page
   on the strongest domain, never a copy per site, so the family never competes
   with itself for the generic query.
+
+## DexCompare: a TCGplayer strip of real sealed products — 2026-10-28
+
+**Owner:** "more TCGplayer ads and more eBay ads … with the actual cards there",
+on every site but RiftCompare. The eBay side already has its image strips
+(EbayStrip); TCGplayer had only rows and text search links.
+
+* `TcgplayerStrip` (server-rendered, `lib/data.ts tcgplayerTiles`): real sealed
+  products with their photo and TCGplayer's own in-stock price, each linking to
+  the product on TCGplayer through the Impact deep link, plus a "Shop
+  TCGplayer" tile. Labelled Ad, disclosed under it, no pop-up.
+* Placements `tcgplayer-strip-home` (region home, after the second box rail),
+  `tcgplayer-strip-set` (after a set page's products) and
+  `tcgplayer-strip-product` (after "More from <set>"): always below a page's
+  comparison, never between a buyer and a price.
+* Tiles: the newest sets first, headline types first, at most three per set
+  site-wide; a set or product page shows its set's own, topped up with the
+  newest sets'. The read is scoped to TCGplayer and to one set or the ten newest
+  (the egress guard flagged the unscoped one at 0.7 MB).
+* Outside the US the price stays US$ and the strip says "The US marketplace".
+  TCGplayer Direct reached Australia on 2026-10-07 for singles only, so nothing
+  claims sealed ships there.
