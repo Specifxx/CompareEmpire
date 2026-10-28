@@ -6,7 +6,8 @@
 greatest stores" are on it. Each site probed every store its sisters track
 (999 storefronts across the nine registries) through its own probe and
 importer rules, from GitHub Actions (this sandbox cannot reach the stores).
-DexCompare: 352 stores added (390 → 731), 11 dead ones removed, 3 re-pointed;
+DexCompare: 513 stores added (390 → 893; the second round from the official Riftbound
+store registry's game stores), 11 dead ones removed, 3 re-pointed;
 details and the per-store counts in
 `apps/dexcompare-sealed/docs/store-probe-2026-10-28.md`. A store whose other
 domain we already list is left out (one stock shown as two stores misleads,

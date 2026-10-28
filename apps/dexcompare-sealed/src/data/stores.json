@@ -47,18 +47,6 @@
     ]
   },
   {
-    "key": "cardboardgamer",
-    "name": "The Cardboard Gamer",
-    "base": "https://cardboardgamer.com.au",
-    "market": "AU",
-    "platform": "shopify",
-    "country": "AU",
-    "collections": [
-      "pokemon-go",
-      "new-arrivals"
-    ]
-  },
-  {
     "key": "cardbot",
     "name": "Cardbot",
     "base": "https://cardbot.com.au",
@@ -124,25 +112,14 @@
     ]
   },
   {
-    "key": "collectorscompany",
-    "name": "Collectors Company",
-    "base": "https://collectorscompany.com.au",
+    "key": "collectorsgalore",
+    "name": "Collectors Galore",
+    "base": "https://collectorsgalore.com.au",
     "market": "AU",
     "platform": "shopify",
     "country": "AU",
     "collections": [
-      "pokemon-sealed-product"
-    ]
-  },
-  {
-    "key": "collectorsspace",
-    "name": "Collectors Space",
-    "base": "https://collectors-space.shop",
-    "market": "AU",
-    "platform": "shopify",
-    "country": "AU",
-    "collections": [
-      "pokemon"
+      "all-pokemon-tcg"
     ]
   },
   {
@@ -160,17 +137,6 @@
     "key": "crystalcollectablestcg",
     "name": "Crystal Collectables TCG",
     "base": "https://crystalcollectablestcg.com.au",
-    "market": "AU",
-    "platform": "shopify",
-    "country": "AU",
-    "collections": [
-      "pokemon"
-    ]
-  },
-  {
-    "key": "diablosvault",
-    "name": "Diablo's Vault",
-    "base": "https://diablosvault.com.au",
     "market": "AU",
     "platform": "shopify",
     "country": "AU",
@@ -247,6 +213,17 @@
     ]
   },
   {
+    "key": "flinchcollectibles",
+    "name": "Flinch Coffee & Play",
+    "base": "https://flinchcollectibles.com.au",
+    "market": "AU",
+    "platform": "shopify",
+    "country": "AU",
+    "collections": [
+      "pokemon-tcg-english"
+    ]
+  },
+  {
     "key": "flukeandbox",
     "name": "Fluke & Box",
     "base": "https://www.flukeandbox.com",
@@ -305,17 +282,6 @@
     ]
   },
   {
-    "key": "gamersvillage",
-    "name": "Gamers Village",
-    "base": "https://gamers-village.com.au",
-    "market": "AU",
-    "platform": "shopify",
-    "country": "AU",
-    "collections": [
-      "pokemon-tcg"
-    ]
-  },
-  {
     "key": "gamescapital",
     "name": "The Games Capital",
     "base": "https://www.thegamescapital.com.au",
@@ -341,17 +307,6 @@
     "key": "gametradersseaford",
     "name": "Gametraders Seaford",
     "base": "https://gametradersseaford.com.au",
-    "market": "AU",
-    "platform": "shopify",
-    "country": "AU",
-    "collections": [
-      "pokemon"
-    ]
-  },
-  {
-    "key": "gaminggrounds",
-    "name": "Gaming Grounds",
-    "base": "https://gaminggrounds.com.au",
     "market": "AU",
     "platform": "shopify",
     "country": "AU",
@@ -453,6 +408,28 @@
     ]
   },
   {
+    "key": "hightidetabletop",
+    "name": "Hightide Tabletop Gaming",
+    "base": "https://hightidetabletop.com.au",
+    "market": "AU",
+    "platform": "woocommerce",
+    "country": "AU",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
+    "key": "hobbishack",
+    "name": "HobbiShack",
+    "base": "https://hobbishack.com.au",
+    "market": "AU",
+    "platform": "shopify",
+    "country": "AU",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
     "key": "hobbycollectorsaustralia",
     "name": "Hobby Collectors Australia",
     "base": "https://hobbycollectorsaustralia.com.au",
@@ -476,14 +453,14 @@
     ]
   },
   {
-    "key": "hrgames",
-    "name": "HR Games",
-    "base": "https://hrgames.au",
+    "key": "irresistibleforce",
+    "name": "Irresistible Force",
+    "base": "https://irresistibleforce.com.au",
     "market": "AU",
     "platform": "shopify",
     "country": "AU",
     "collections": [
-      "pokemon-tcg-sealed"
+      "pokemon-tcg"
     ]
   },
   {
@@ -601,17 +578,6 @@
     "collections": [
       "pokemon-sealed",
       "ebay-pokemon"
-    ]
-  },
-  {
-    "key": "mayhemcollectables",
-    "name": "Mayhem Collectables",
-    "base": "https://mayhemcollectables.com.au",
-    "market": "AU",
-    "platform": "shopify",
-    "country": "AU",
-    "collections": [
-      "pokemon"
     ]
   },
   {
@@ -918,17 +884,6 @@
     ]
   },
   {
-    "key": "shuffled",
-    "name": "Shuffled",
-    "base": "https://www.shuffled.com.au",
-    "market": "AU",
-    "platform": "shopify",
-    "country": "AU",
-    "collections": [
-      "pokemon-tcg"
-    ]
-  },
-  {
     "key": "spellroo",
     "name": "Spellroo Gaming",
     "base": "https://spellroogaming.com.au",
@@ -1020,6 +975,17 @@
     "country": "AU",
     "collections": [
       "sealed-pokemon"
+    ]
+  },
+  {
+    "key": "thecombatcompany",
+    "name": "The Combat Company",
+    "base": "https://thecombatcompany.com",
+    "market": "AU",
+    "platform": "shopify",
+    "country": "AU",
+    "collections": [
+      "pokemon-tcg"
     ]
   },
   {
@@ -1138,6 +1104,17 @@
     ]
   },
   {
+    "key": "ultrarare",
+    "name": "Ultra Rare",
+    "base": "https://ultrarare.com.au",
+    "market": "AU",
+    "platform": "shopify",
+    "country": "AU",
+    "collections": [
+      "pokemon-tcg"
+    ]
+  },
+  {
     "key": "urbanempirecollectables",
     "name": "Urban Empire Collectables",
     "base": "https://urbanempirecollectables.com",
@@ -1205,17 +1182,6 @@
     ]
   },
   {
-    "key": "abyssgamestore",
-    "name": "Abyss Game Store",
-    "base": "https://abyssgamestore.com",
-    "market": "CA",
-    "platform": "shopify",
-    "country": "CA",
-    "collections": [
-      "pokemon-sealed-products-1"
-    ]
-  },
-  {
     "key": "acgamesonline",
     "name": "A & C Games",
     "base": "https://acgamesonline.com",
@@ -1227,6 +1193,28 @@
       "pokemon-151",
       "best-sellers-pokemon",
       "pokemon-lost-origin"
+    ]
+  },
+  {
+    "key": "adventurebox",
+    "name": "Adventurebox",
+    "base": "https://adventurebox.ca",
+    "market": "CA",
+    "platform": "shopify",
+    "country": "CA",
+    "collections": [
+      "collections-cartes-pokemon"
+    ]
+  },
+  {
+    "key": "allinhobbysports",
+    "name": "All-In Hobby Sports",
+    "base": "https://allinhobbysports.com",
+    "market": "CA",
+    "platform": "shopify",
+    "country": "CA",
+    "collections": [
+      "all-pokemon"
     ]
   },
   {
@@ -1264,6 +1252,17 @@
     ]
   },
   {
+    "key": "ariasnacks",
+    "name": "Aria Snacks and Hobbies",
+    "base": "https://ariasnacks.ca",
+    "market": "CA",
+    "platform": "shopify",
+    "country": "CA",
+    "collections": [
+      "new-arrivals"
+    ]
+  },
+  {
     "key": "ateliertcg",
     "name": "L'Atelier TCG",
     "base": "https://ateliertcg.com",
@@ -1295,6 +1294,17 @@
     "country": "CA",
     "collections": [
       "pokemon-sealed"
+    ]
+  },
+  {
+    "key": "bdcosmos",
+    "name": "BD Cosmos",
+    "base": "https://bdcosmos.com",
+    "market": "CA",
+    "platform": "shopify",
+    "country": "CA",
+    "collections": [
+      "pokemon-sealed-product"
     ]
   },
   {
@@ -1412,6 +1422,17 @@
     "country": "CA",
     "collections": [
       "pokemon-sealed-all"
+    ]
+  },
+  {
+    "key": "breakawaysc",
+    "name": "Breakaway Sports Cards",
+    "base": "https://breakawaysc.com",
+    "market": "CA",
+    "platform": "woocommerce",
+    "country": "CA",
+    "collections": [
+      "pokemon"
     ]
   },
   {
@@ -1712,6 +1733,17 @@
     ]
   },
   {
+    "key": "dejouer",
+    "name": "DéJouer",
+    "base": "https://dejouer.ca",
+    "market": "CA",
+    "platform": "shopify",
+    "country": "CA",
+    "collections": [
+      "pokemon-sealed"
+    ]
+  },
+  {
     "key": "derpycards",
     "name": "Derpy Cards",
     "base": "https://derpycards.ca",
@@ -1745,17 +1777,6 @@
     "country": "CA",
     "collections": [
       "pokemon-products"
-    ]
-  },
-  {
-    "key": "duelkingdom",
-    "name": "Duel Kingdom",
-    "base": "https://duelkingdom.ca",
-    "market": "CA",
-    "platform": "shopify",
-    "country": "CA",
-    "collections": [
-      "pokemon-collector-tins"
     ]
   },
   {
@@ -1842,18 +1863,6 @@
     ]
   },
   {
-    "key": "envcollectible",
-    "name": "ENV Collectible",
-    "base": "https://envcollectible.com",
-    "market": "CA",
-    "platform": "shopify",
-    "country": "CA",
-    "collections": [
-      "pokemon",
-      "pokemon-1"
-    ]
-  },
-  {
     "key": "espercards",
     "name": "Esper Cards & Games",
     "base": "https://shop.espercardsandgames.com",
@@ -1922,17 +1931,6 @@
       "booster-packs-pkmn",
       "pokemon-sealed-1",
       "all-sealed"
-    ]
-  },
-  {
-    "key": "fantasyforged",
-    "name": "Fantasy Forged",
-    "base": "https://fantasyforged.ca",
-    "market": "CA",
-    "platform": "shopify",
-    "country": "CA",
-    "collections": [
-      "pokemon-booster-pack"
     ]
   },
   {
@@ -2008,17 +2006,6 @@
       "pokemon",
       "pokemon-1",
       "pre-orders"
-    ]
-  },
-  {
-    "key": "gameknight",
-    "name": "GameKnight Games",
-    "base": "https://gameknight.ca",
-    "market": "CA",
-    "platform": "shopify",
-    "country": "CA",
-    "collections": [
-      "pokemon"
     ]
   },
   {
@@ -2098,20 +2085,6 @@
     ]
   },
   {
-    "key": "goforgame",
-    "name": "Go For Game",
-    "base": "https://goforgame.ca",
-    "market": "CA",
-    "platform": "shopify",
-    "country": "CA",
-    "collections": [
-      "pokemon-pack",
-      "other-pokemon-products",
-      "pokemon-decks",
-      "pokemon-box"
-    ]
-  },
-  {
     "key": "gothamcentralcomics",
     "name": "Gotham Central",
     "base": "https://gothamcentralcomics.com",
@@ -2157,6 +2130,18 @@
     ]
   },
   {
+    "key": "hardbrickgames",
+    "name": "Hard Brick Games",
+    "base": "https://hardbrickgames.com",
+    "market": "CA",
+    "platform": "shopify",
+    "country": "CA",
+    "collections": [
+      "pokemon-sealed",
+      "pokemon-30th-celebration"
+    ]
+  },
+  {
     "key": "heavenscollectibles",
     "name": "Heaven's Collectibles & TCG",
     "base": "https://heavenscollectibles.ca",
@@ -2166,6 +2151,17 @@
     "collections": [
       "tcg-sealed",
       "pokemon"
+    ]
+  },
+  {
+    "key": "heroesworld",
+    "name": "Heroes World",
+    "base": "https://heroesworld.ca",
+    "market": "CA",
+    "platform": "shopify",
+    "country": "CA",
+    "collections": [
+      "pokemon-card-game"
     ]
   },
   {
@@ -2398,6 +2394,28 @@
     ]
   },
   {
+    "key": "kevinstcg99",
+    "name": "Zeni Trading Company International",
+    "base": "https://kevinstcg99.com",
+    "market": "CA",
+    "platform": "shopify",
+    "country": "CA",
+    "collections": [
+      "new-arrivals"
+    ]
+  },
+  {
+    "key": "kingdomtitans",
+    "name": "Au Royaume des Titans inc.",
+    "base": "https://kingdomtitans.ca",
+    "market": "CA",
+    "platform": "shopify",
+    "country": "CA",
+    "collections": [
+      "pokemon-tcg-sealed-products"
+    ]
+  },
+  {
     "key": "kunaigames",
     "name": "Kunai Games",
     "base": "https://kunaigames.com",
@@ -2446,6 +2464,17 @@
     ]
   },
   {
+    "key": "lazytradingcards",
+    "name": "Lazy Trading Cards & Hobby Collectibles",
+    "base": "https://lazytradingcards.com",
+    "market": "CA",
+    "platform": "shopify",
+    "country": "CA",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
     "key": "legendarycollectables",
     "name": "Legendary Collectables",
     "base": "https://legendarycollectables.com",
@@ -2465,6 +2494,17 @@
     "country": "CA",
     "collections": [
       "pokemon"
+    ]
+  },
+  {
+    "key": "lesomerset",
+    "name": "Le Somerset Boutique et Cafe-Chat",
+    "base": "https://lesomerset.com",
+    "market": "CA",
+    "platform": "shopify",
+    "country": "CA",
+    "collections": [
+      "pokemon-cartes-de-collection-et-jeux-jouets"
     ]
   },
   {
@@ -2801,6 +2841,17 @@
     ]
   },
   {
+    "key": "pastimesports",
+    "name": "Pastime Sports & Games",
+    "base": "https://pastimesports.ca",
+    "market": "CA",
+    "platform": "shopify",
+    "country": "CA",
+    "collections": [
+      "manufacturer_the-pokemon-company-international"
+    ]
+  },
+  {
     "key": "playerscandc",
     "name": "Players Cards and Collectibles",
     "base": "https://playerscandc.com",
@@ -2892,6 +2943,17 @@
     "country": "CA",
     "collections": [
       "pokemon-sealed-english"
+    ]
+  },
+  {
+    "key": "raincity",
+    "name": "Rain City Games - New West",
+    "base": "https://raincity.games",
+    "market": "CA",
+    "platform": "shopify",
+    "country": "CA",
+    "collections": [
+      "pokemon"
     ]
   },
   {
@@ -3092,6 +3154,17 @@
     ]
   },
   {
+    "key": "tcgzonecanada",
+    "name": "TCG Zone Canada",
+    "base": "https://tcgzonecanada.com",
+    "market": "CA",
+    "platform": "shopify",
+    "country": "CA",
+    "collections": [
+      "elite-trainer-box"
+    ]
+  },
+  {
     "key": "teamcollectors",
     "name": "Team Collectors",
     "base": "https://teamcollectors.com",
@@ -3101,17 +3174,6 @@
     "collections": [
       "pokemon-sealed-eng-canada",
       "pokemon-blind-box-canada"
-    ]
-  },
-  {
-    "key": "thedropcardshop",
-    "name": "The Drop Card Shop",
-    "base": "https://thedropcardshop.com",
-    "market": "CA",
-    "platform": "shopify",
-    "country": "CA",
-    "collections": [
-      "sealed"
     ]
   },
   {
@@ -3126,14 +3188,14 @@
     ]
   },
   {
-    "key": "threekingdomsgames",
-    "name": "Three Kingdoms Games",
-    "base": "https://threekingdomsgames.com",
+    "key": "thevaultsportscards",
+    "name": "The Vault Sports Cards and Collectables",
+    "base": "https://thevaultsportscards.com",
     "market": "CA",
     "platform": "shopify",
     "country": "CA",
     "collections": [
-      "pokemon-1"
+      "pokemon-mega-evolution"
     ]
   },
   {
@@ -3195,17 +3257,6 @@
       "pokemon-collections",
       "pokemon-tins",
       "pokemon-etbs"
-    ]
-  },
-  {
-    "key": "torchlightgh",
-    "name": "Torchlight Games and Hobbies",
-    "base": "https://torchlightgh.com",
-    "market": "CA",
-    "platform": "shopify",
-    "country": "CA",
-    "collections": [
-      "pokemon-tcg"
     ]
   },
   {
@@ -3326,6 +3377,17 @@
     ]
   },
   {
+    "key": "westcoasthobbies",
+    "name": "West Coast Hobbies",
+    "base": "https://westcoast-hobbies.com",
+    "market": "CA",
+    "platform": "shopify",
+    "country": "CA",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
     "key": "wizardtower",
     "name": "Wizard's Tower",
     "base": "https://store.wizardtower.com",
@@ -3345,6 +3407,79 @@
     "country": "CA",
     "collections": [
       "english-pokemon"
+    ]
+  },
+  {
+    "key": "zone151",
+    "name": "Zone 151",
+    "base": "https://zone151.ca",
+    "market": "CA",
+    "platform": "shopify",
+    "country": "CA",
+    "collections": [
+      "pokemon",
+      "pokemon-booster-boxes-copie",
+      "pokemon-tins-copie",
+      "pokemon-elite-trainer-boxes-copie"
+    ]
+  },
+  {
+    "key": "adcardcollectibles",
+    "name": "AdCard Collectibles",
+    "base": "https://adcardcollectibles.com",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "PT",
+    "collections": [
+      "pokemon-outros",
+      "pokemon-elite-trainer-box",
+      "pokemon-decks",
+      "pokemon-boosters-box"
+    ]
+  },
+  {
+    "key": "allyoucanplay",
+    "name": "All You Can Play",
+    "base": "https://allyoucanplay.eu",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "IT",
+    "collections": [
+      "pokemon-tcg"
+    ]
+  },
+  {
+    "key": "animerch",
+    "name": "Animerch",
+    "base": "https://animerch.nl",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "NL",
+    "collections": [
+      "pokemon-tcg"
+    ]
+  },
+  {
+    "key": "baruzcard",
+    "name": "Baruzcard.it",
+    "base": "https://baruzcard.it",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "IT",
+    "collections": [
+      "pokemon",
+      "tutti-i-pokemon"
+    ]
+  },
+  {
+    "key": "battlebear",
+    "name": "Battle Bear Trading Cards & Games",
+    "base": "https://battle-bear.de",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "DE",
+    "collections": [
+      "pokemon"
     ]
   },
   {
@@ -3407,6 +3542,28 @@
     ]
   },
   {
+    "key": "boostertcg",
+    "name": "Booster - Trading Cards & more",
+    "base": "https://boostertcg.de",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "DE",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
+    "key": "boutiqueludik",
+    "name": "Ludik",
+    "base": "https://boutique-ludik.fr",
+    "market": "EU",
+    "platform": "woocommerce",
+    "country": "DE",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
     "key": "breakthecase",
     "name": "BreakTheCase",
     "base": "https://www.breakthecase.de",
@@ -3431,6 +3588,17 @@
     ]
   },
   {
+    "key": "cardbuddys",
+    "name": "Cardbuddys",
+    "base": "https://cardbuddys.de",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "DE",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
     "key": "cardcosmos",
     "name": "CardCosmos",
     "base": "https://cardcosmos.de",
@@ -3443,12 +3611,35 @@
     ]
   },
   {
+    "key": "cardgamestore",
+    "name": "Card Game Store",
+    "base": "https://cardgamestore.de",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "DE",
+    "collections": [
+      "pokemon",
+      "pokemon-kollektionen"
+    ]
+  },
+  {
     "key": "cardhome",
     "name": "Cardhome",
     "base": "https://cardhome.at",
     "market": "EU",
     "platform": "shopify",
     "country": "AT",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
+    "key": "cardhorizon",
+    "name": "Card Horizon",
+    "base": "https://cardhorizon.com",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "PL",
     "collections": [
       "pokemon"
     ]
@@ -3465,6 +3656,18 @@
     ]
   },
   {
+    "key": "cardverse",
+    "name": "Cardverse",
+    "base": "https://cardverse.it",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "IT",
+    "collections": [
+      "pokemon-giapponese",
+      "pokemon-inglese"
+    ]
+  },
+  {
     "key": "cardworld",
     "name": "Cardworld",
     "base": "https://cardworld.be",
@@ -3476,6 +3679,18 @@
       "pokemon-collection-boxen-engels",
       "pokemon-booster-boxen-engels",
       "pokemon-tins-engels"
+    ]
+  },
+  {
+    "key": "cardyx",
+    "name": "CardyX",
+    "base": "https://cardyx.sk",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "SK",
+    "collections": [
+      "pokemon",
+      "sealed-pokemon-boxy"
     ]
   },
   {
@@ -3503,6 +3718,17 @@
       "pokemon-chine",
       "display-cartes-pokemon",
       "booster-pokemon"
+    ]
+  },
+  {
+    "key": "cityof",
+    "name": "City Of Cards",
+    "base": "https://cityof.cards",
+    "market": "EU",
+    "platform": "woocommerce",
+    "country": "DE",
+    "collections": [
+      "pokemon"
     ]
   },
   {
@@ -3539,6 +3765,28 @@
     ]
   },
   {
+    "key": "collgamers",
+    "name": "CollGamers",
+    "base": "https://collgamers.nl",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "NL",
+    "collections": [
+      "pokemontcg"
+    ]
+  },
+  {
+    "key": "comicattack",
+    "name": "Comic Attack",
+    "base": "https://comic-attack.de",
+    "market": "EU",
+    "platform": "woocommerce",
+    "country": "DE",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
     "key": "completecollections",
     "name": "Complete Collections",
     "base": "https://www.completecollections.ie",
@@ -3563,6 +3811,29 @@
     ]
   },
   {
+    "key": "daansshop",
+    "name": "Daans Shop Berkel",
+    "base": "https://daansshop.com",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "NL",
+    "collections": [
+      "pokemon",
+      "juli-augustus-releases-pokemon"
+    ]
+  },
+  {
+    "key": "dateacard",
+    "name": "Date A Card",
+    "base": "https://dateacard.fr",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "FR",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
     "key": "davidptcg",
     "name": "DavidPTCG",
     "base": "https://davidptcg.nl",
@@ -3571,6 +3842,17 @@
     "country": "DE",
     "collections": [
       "search:pokemon"
+    ]
+  },
+  {
+    "key": "dctrading",
+    "name": "DC-Trading",
+    "base": "https://dctrading.at",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "AT",
+    "collections": [
+      "pokemon"
     ]
   },
   {
@@ -3585,6 +3867,42 @@
       "booster-box",
       "elite-trainer-box",
       "pokemonsale"
+    ]
+  },
+  {
+    "key": "dedondersteen",
+    "name": "De Dondersteen",
+    "base": "https://de-dondersteen.nl",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "NL",
+    "collections": [
+      "pokemon-mega-evolutions",
+      "pokemon-prismatic-evolutions",
+      "pokemon-kopen-spelen-en-ruilen"
+    ]
+  },
+  {
+    "key": "defconduezero",
+    "name": "DEFCON 2.0",
+    "base": "https://defconduezero.com",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "IT",
+    "collections": [
+      "pokemon-tcg"
+    ]
+  },
+  {
+    "key": "deichcards",
+    "name": "Deichcards",
+    "base": "https://deichcards.de",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "DE",
+    "collections": [
+      "pokemon-sammelkarten",
+      "alle-marken-im-uberblick-topps-panini-pokemon-ravensburger-mehr"
     ]
   },
   {
@@ -3610,12 +3928,12 @@
     ]
   },
   {
-    "key": "duelspoint",
-    "name": "Duels Point",
-    "base": "https://duelspoint.it",
+    "key": "eldartcg",
+    "name": "Eldar",
+    "base": "https://eldartcg.com",
     "market": "EU",
-    "platform": "shopify",
-    "country": "IT",
+    "platform": "woocommerce",
+    "country": "DE",
     "collections": [
       "pokemon"
     ]
@@ -3629,6 +3947,17 @@
     "country": "ES",
     "collections": [
       "nuestros-favoritos-pokemon"
+    ]
+  },
+  {
+    "key": "elitestoretcg",
+    "name": "ELITESTORETCG",
+    "base": "https://elitestoretcg.com",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "ES",
+    "collections": [
+      "pokemon-tcg"
     ]
   },
   {
@@ -3657,6 +3986,51 @@
     ]
   },
   {
+    "key": "evlutcg",
+    "name": "Evolution TCG",
+    "base": "https://evlutcg.com",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "NL",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
+    "key": "exchangeplayinvest",
+    "name": "E.P.I.di moscatiello gian luca",
+    "base": "https://exchangeplayinvest.com",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "IT",
+    "collections": [
+      "epi-box-pokemon",
+      "buste-jap-pokemon"
+    ]
+  },
+  {
+    "key": "factorycardstcg",
+    "name": "Factory Cards",
+    "base": "https://factorycardstcg.com",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "ES",
+    "collections": [
+      "comprarcartaspokemon"
+    ]
+  },
+  {
+    "key": "fancytreasure",
+    "name": "FancyTreasure",
+    "base": "https://fancytreasure.de",
+    "market": "EU",
+    "platform": "woocommerce",
+    "country": "DE",
+    "collections": [
+      "pokemon-tcg"
+    ]
+  },
+  {
     "key": "fantasiacards",
     "name": "FantasiaCards",
     "base": "https://fantasiacards.de",
@@ -3668,6 +4042,83 @@
       "pokemon-booster-display",
       "pokemon-elite-trainer-box",
       "pokemon-tins"
+    ]
+  },
+  {
+    "key": "freakcorp",
+    "name": "FreakCorp",
+    "base": "https://freakcorp.com",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "ES",
+    "collections": [
+      "pokemon-tcg"
+    ]
+  },
+  {
+    "key": "fuhrioustc",
+    "name": "Fuhrious Tradingcards",
+    "base": "https://fuhrious-tc.shop",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "DE",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
+    "key": "funside",
+    "name": "Funside Mantova",
+    "base": "https://funside.it",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "IT",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
+    "key": "gamersacademy",
+    "name": "Gamers Academy",
+    "base": "https://gamers-academy.org",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "AT",
+    "collections": [
+      "pokemon-sealed-produkte"
+    ]
+  },
+  {
+    "key": "gamerzparadize",
+    "name": "GamerzParadize",
+    "base": "https://gamerzparadize.nl",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "NL",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
+    "key": "gamesalley",
+    "name": "Games Alley di Andrea Lancioni & Co SNC",
+    "base": "https://gamesalley.it",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "IT",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
+    "key": "gameslink",
+    "name": "Games Link",
+    "base": "https://gameslink.gr",
+    "market": "EU",
+    "platform": "woocommerce",
+    "country": "DE",
+    "collections": [
+      "pokemon"
     ]
   },
   {
@@ -3683,6 +4134,17 @@
     ]
   },
   {
+    "key": "geekfactorydeauville",
+    "name": "Geek Factory Touques",
+    "base": "https://geekfactorydeauville.fr",
+    "market": "EU",
+    "platform": "woocommerce",
+    "country": "DE",
+    "collections": [
+      "tcg-pokemon-collection"
+    ]
+  },
+  {
     "key": "godofcards",
     "name": "God Of Cards",
     "base": "https://godofcards.com",
@@ -3691,6 +4153,40 @@
     "country": "DE",
     "collections": [
       "pokemon-tins"
+    ]
+  },
+  {
+    "key": "goodiesstore",
+    "name": "GOODIES STORE",
+    "base": "https://goodies-store.fr",
+    "market": "EU",
+    "platform": "woocommerce",
+    "country": "DE",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
+    "key": "goosegames",
+    "name": "Goose Games",
+    "base": "https://goose-games.de",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "DE",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
+    "key": "goretrogaming",
+    "name": "GoRetroGaming",
+    "base": "https://goretrogaming.com",
+    "market": "EU",
+    "platform": "woocommerce",
+    "country": "DE",
+    "collections": [
+      "pokemon",
+      "pokemon-cartes-a-lunites"
     ]
   },
   {
@@ -3703,6 +4199,17 @@
     "collections": [
       "sigillati-pokemon",
       "pokemon-products",
+      "pokemon"
+    ]
+  },
+  {
+    "key": "hallofgamestcg",
+    "name": "Hall of Games",
+    "base": "https://hallofgamestcg.de",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "DE",
+    "collections": [
       "pokemon"
     ]
   },
@@ -3733,6 +4240,29 @@
     ]
   },
   {
+    "key": "hobbyhub",
+    "name": "HobbyHub",
+    "base": "https://hobbyhub.gr",
+    "market": "EU",
+    "platform": "woocommerce",
+    "country": "DE",
+    "collections": [
+      "booster-packs-pokemon",
+      "pokemon"
+    ]
+  },
+  {
+    "key": "homelands",
+    "name": "Homelands",
+    "base": "https://homelands.es",
+    "market": "EU",
+    "platform": "woocommerce",
+    "country": "DE",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
     "key": "iberiancollect",
     "name": "Iberian Collect",
     "base": "https://iberiancollect.com",
@@ -3742,6 +4272,50 @@
     "collections": [
       "pokemon-booster-pack-box",
       "etb-pokemon",
+      "pokemon-tcg"
+    ]
+  },
+  {
+    "key": "iconiccards",
+    "name": "ICONIC CARDS",
+    "base": "https://iconic-cards.it",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "IT",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
+    "key": "ikigaicomicstienda",
+    "name": "IKIGAI COMICS",
+    "base": "https://ikigaicomicstienda.com",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "ES",
+    "collections": [
+      "pokemon-tcg"
+    ]
+  },
+  {
+    "key": "industria61",
+    "name": "INDUSTRIA 61",
+    "base": "https://industria61.com",
+    "market": "EU",
+    "platform": "woocommerce",
+    "country": "DE",
+    "collections": [
+      "pokemon-2"
+    ]
+  },
+  {
+    "key": "isengard",
+    "name": "Isengard Fantasy Shop",
+    "base": "https://isengard.com.cy",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "CY",
+    "collections": [
       "pokemon-tcg"
     ]
   },
@@ -3756,6 +4330,17 @@
       "pokemon-tcg-en-ingles",
       "pokemon-tcg-en-chino",
       "pokemon-tcg-en-japones"
+    ]
+  },
+  {
+    "key": "kaizencards",
+    "name": "Kaizen Cards",
+    "base": "https://kaizencards.de",
+    "market": "EU",
+    "platform": "woocommerce",
+    "country": "DE",
+    "collections": [
+      "pokemon"
     ]
   },
   {
@@ -3782,6 +4367,51 @@
     ]
   },
   {
+    "key": "kazuma",
+    "name": "Kazuma Ravenna",
+    "base": "https://kazuma.it",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "IT",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
+    "key": "koffiespel",
+    "name": "Koffie & Spel",
+    "base": "https://koffie-spel.be",
+    "market": "EU",
+    "platform": "woocommerce",
+    "country": "DE",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
+    "key": "konobacards",
+    "name": "Konoba Cards",
+    "base": "https://konobacards.fr",
+    "market": "EU",
+    "platform": "woocommerce",
+    "country": "DE",
+    "collections": [
+      "pokemon",
+      "pokemon-nos-reprises"
+    ]
+  },
+  {
+    "key": "laescotillajuegos",
+    "name": "La Escotilla",
+    "base": "https://laescotillajuegos.com",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "ES",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
     "key": "lakecards",
     "name": "Lake Cards",
     "base": "https://lakecards.de",
@@ -3792,6 +4422,61 @@
       "pokemon",
       "pokemon-box-sets",
       "pokemon-blister"
+    ]
+  },
+  {
+    "key": "lantredepo",
+    "name": "L'Antre de Po",
+    "base": "https://lantredepo.com",
+    "market": "EU",
+    "platform": "woocommerce",
+    "country": "DE",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
+    "key": "laregledujeu",
+    "name": "La regle du jeu",
+    "base": "https://laregledujeu.fr",
+    "market": "EU",
+    "platform": "woocommerce",
+    "country": "DE",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
+    "key": "lebarjeu",
+    "name": "Le Bar'Jeu",
+    "base": "https://lebarjeu.fr",
+    "market": "EU",
+    "platform": "woocommerce",
+    "country": "DE",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
+    "key": "lepotoryko",
+    "name": "LE POTO RYKO",
+    "base": "https://lepotoryko.fr",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "FR",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
+    "key": "lesdesmaskes",
+    "name": "Les Dés Maskés",
+    "base": "https://lesdesmaskes.fr",
+    "market": "EU",
+    "platform": "woocommerce",
+    "country": "DE",
+    "collections": [
+      "pokemon"
     ]
   },
   {
@@ -3809,15 +4494,49 @@
     ]
   },
   {
-    "key": "lmshandel",
-    "name": "LMS Handel",
-    "base": "https://lms-handel.de",
+    "key": "lootboxjeux",
+    "name": "Lootbox",
+    "base": "https://lootboxjeux.fr",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "FR",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
+    "key": "lotusvalley",
+    "name": "Lotus Valley",
+    "base": "https://lotusvalley.pt",
+    "market": "EU",
+    "platform": "woocommerce",
+    "country": "DE",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
+    "key": "loufoque",
+    "name": "Loufoque",
+    "base": "https://shop.loufoque.fr",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "FR",
+    "collections": [
+      "cartes-pokemon"
+    ]
+  },
+  {
+    "key": "mabasso",
+    "name": "MaBasso",
+    "base": "https://mabasso.com",
     "market": "EU",
     "platform": "shopify",
     "country": "DE",
     "collections": [
-      "pokemon-tins",
-      "pokemon-boxen"
+      "pokemon",
+      "pokemon-kollektionen",
+      "pokemon-einzelbooster"
     ]
   },
   {
@@ -3847,6 +4566,40 @@
     ]
   },
   {
+    "key": "manamecha",
+    "name": "Mana Mecha",
+    "base": "https://manamecha.fr",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "FR",
+    "collections": [
+      "pokemon-plamo-quick",
+      "pokemon-tcg"
+    ]
+  },
+  {
+    "key": "manavortex",
+    "name": "MANA VORTEX SHOP",
+    "base": "https://manavortex.es",
+    "market": "EU",
+    "platform": "woocommerce",
+    "country": "DE",
+    "collections": [
+      "pokemon-tcg"
+    ]
+  },
+  {
+    "key": "manuelpoke3",
+    "name": "manuelpoke3",
+    "base": "https://manuelpoke3.it",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "IT",
+    "collections": [
+      "pokemon-carte-box-bustine-e-set"
+    ]
+  },
+  {
     "key": "mcgillicuddystoyshop",
     "name": "McGillicuddy's Toy Shop",
     "base": "https://mcgillicuddystoyshop.ie",
@@ -3858,6 +4611,17 @@
     ]
   },
   {
+    "key": "metamorfo",
+    "name": "Metamorfo (Santiago Palacios)",
+    "base": "https://metamorfo.es",
+    "market": "EU",
+    "platform": "woocommerce",
+    "country": "DE",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
     "key": "metamorphcenter",
     "name": "Metamorph Center",
     "base": "https://metamorphcenter.com",
@@ -3866,6 +4630,30 @@
     "country": "ES",
     "collections": [
       "pokemon-tcg"
+    ]
+  },
+  {
+    "key": "miraicards",
+    "name": "Mirai Cards Portugal",
+    "base": "https://miraicards.pt",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "PT",
+    "collections": [
+      "pokemon",
+      "pokemon-booster-boxes",
+      "pokemon-booster-packs"
+    ]
+  },
+  {
+    "key": "mistcards",
+    "name": "MIST Cards",
+    "base": "https://mistcards.nl",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "NL",
+    "collections": [
+      "pokemon"
     ]
   },
   {
@@ -3895,6 +4683,29 @@
     ]
   },
   {
+    "key": "mysticaltavern",
+    "name": "The Mystical Tavern",
+    "base": "https://mysticaltavern.com",
+    "market": "EU",
+    "platform": "woocommerce",
+    "country": "DE",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
+    "key": "mytradingcards",
+    "name": "Sit and Game by My-Tradingcards",
+    "base": "https://my-tradingcards.de",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "DE",
+    "collections": [
+      "pokemon-collections",
+      "pokemon-trainer-box"
+    ]
+  },
+  {
     "key": "nordiclegends",
     "name": "Nordic Legends",
     "base": "https://nordic-legends.com",
@@ -3903,6 +4714,28 @@
     "country": "DE",
     "collections": [
       "pokemon"
+    ]
+  },
+  {
+    "key": "ohanagiochi",
+    "name": "Ohana di Sbrana Sara",
+    "base": "https://ohanagiochi.com",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "IT",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
+    "key": "ohmygame",
+    "name": "Oh My Game",
+    "base": "https://ohmygame.fi",
+    "market": "EU",
+    "platform": "woocommerce",
+    "country": "DE",
+    "collections": [
+      "search:pokemon"
     ]
   },
   {
@@ -3915,6 +4748,17 @@
     "collections": [
       "pokemon-mini-tin",
       "pokemon-tin"
+    ]
+  },
+  {
+    "key": "orksendorks",
+    "name": "Orks & Dorks",
+    "base": "https://orksendorks.nl",
+    "market": "EU",
+    "platform": "woocommerce",
+    "country": "DE",
+    "collections": [
+      "pokemon"
     ]
   },
   {
@@ -3944,11 +4788,55 @@
     ]
   },
   {
+    "key": "ozjuegos",
+    "name": "OZ JUEGOS",
+    "base": "https://ozjuegos.com",
+    "market": "EU",
+    "platform": "woocommerce",
+    "country": "DE",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
+    "key": "panterland",
+    "name": "Panterland",
+    "base": "https://panterland.be",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "BE",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
     "key": "peeronline",
     "name": "Peer Online Shop",
     "base": "https://www.peer-online.de",
     "market": "EU",
     "platform": "shopify",
+    "country": "DE",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
+    "key": "pelikrypta",
+    "name": "Ikamaan Pelikrypta/Ikamaa Oy",
+    "base": "https://pelikrypta.fi",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "FI",
+    "collections": [
+      "tuoteryhma-pokemon-tcg"
+    ]
+  },
+  {
+    "key": "phoenixfeather",
+    "name": "Phoenix Feather",
+    "base": "https://phoenix-feather.eu",
+    "market": "EU",
+    "platform": "woocommerce",
     "country": "DE",
     "collections": [
       "pokemon"
@@ -3980,6 +4868,17 @@
     ]
   },
   {
+    "key": "planeswalkers",
+    "name": "Planeswalkers Valencia",
+    "base": "https://planeswalkers.shop",
+    "market": "EU",
+    "platform": "woocommerce",
+    "country": "DE",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
     "key": "pokebundles",
     "name": "Pokebundles",
     "base": "https://www.pokebundles.ie",
@@ -3990,6 +4889,17 @@
       "sealed-product",
       "booster-packs",
       "elite-trainer-box"
+    ]
+  },
+  {
+    "key": "pokeca",
+    "name": "Pokeca",
+    "base": "https://pokeca.nl",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "NL",
+    "collections": [
+      "pokemon"
     ]
   },
   {
@@ -4090,6 +5000,97 @@
     ]
   },
   {
+    "key": "relictcg",
+    "name": "Relic",
+    "base": "https://relictcg.com",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "FR",
+    "collections": [
+      "pokemon-japonais"
+    ]
+  },
+  {
+    "key": "retroempire",
+    "name": "Retro empire Gaming",
+    "base": "https://retro-empire.nl",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "NL",
+    "collections": [
+      "pokemon-tcg-engels",
+      "pokemon"
+    ]
+  },
+  {
+    "key": "riplay",
+    "name": "RiPlay",
+    "base": "https://ri-play.com",
+    "market": "EU",
+    "platform": "woocommerce",
+    "country": "DE",
+    "collections": [
+      "pokemon",
+      "pokemon-en"
+    ]
+  },
+  {
+    "key": "secretwonderscollectibles",
+    "name": "Secret Wonders Collectibles",
+    "base": "https://secretwonderscollectibles.be",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "BE",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
+    "key": "side7",
+    "name": "Side7",
+    "base": "https://side7.nl",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "NL",
+    "collections": [
+      "pokemon-trading-card-game"
+    ]
+  },
+  {
+    "key": "skupisve",
+    "name": "Skupi sve",
+    "base": "https://skupisve.hr",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "HR",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
+    "key": "spelenmeer",
+    "name": "Spel en Meer",
+    "base": "https://spelenmeer.nl",
+    "market": "EU",
+    "platform": "woocommerce",
+    "country": "DE",
+    "collections": [
+      "pokemon",
+      "pokemon-trading-card-game"
+    ]
+  },
+  {
+    "key": "spielewelt",
+    "name": "Spielewelt Amberg",
+    "base": "https://spielewelt.de",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "DE",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
     "key": "sunnystore",
     "name": "Sunnystore",
     "base": "https://sunnystore.es",
@@ -4099,6 +5100,17 @@
     "collections": [
       "pokemon",
       "new-arrivals"
+    ]
+  },
+  {
+    "key": "superelfcards",
+    "name": "Superelf Cards",
+    "base": "https://superelf-cards.de",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "DE",
+    "collections": [
+      "pokemon-sammelkartenspiel"
     ]
   },
   {
@@ -4115,6 +5127,17 @@
     ]
   },
   {
+    "key": "tavernadelgargoyle",
+    "name": "Taverna del Gargoyle",
+    "base": "https://tavernadelgargoyle.it",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "IT",
+    "collections": [
+      "il-mondo-pokemon"
+    ]
+  },
+  {
     "key": "tcgking",
     "name": "TCG King",
     "base": "https://tcgking.nl",
@@ -4128,9 +5151,53 @@
     ]
   },
   {
+    "key": "tcgplatform",
+    "name": "TCG Platform",
+    "base": "https://tcgplatform.nl",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "NL",
+    "collections": [
+      "pokemon-1"
+    ]
+  },
+  {
+    "key": "tcgsphere",
+    "name": "TCG Sphere",
+    "base": "https://tcgsphere.fr",
+    "market": "EU",
+    "platform": "woocommerce",
+    "country": "DE",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
+    "key": "tcgstar",
+    "name": "TCG STAR",
+    "base": "https://tcgstar.eu",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "SI",
+    "collections": [
+      "pokemon-karte"
+    ]
+  },
+  {
     "key": "tcgviert",
     "name": "TCGViert",
     "base": "https://tcgviert.com",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "DE",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
+    "key": "teamlunti",
+    "name": "Team Lunti Trading Cards",
+    "base": "https://teamlunti.de",
     "market": "EU",
     "platform": "shopify",
     "country": "DE",
@@ -4150,6 +5217,17 @@
       "blister-pokemon",
       "boosters-pokemon",
       "premium-sets-pokemon"
+    ]
+  },
+  {
+    "key": "thelabgamestore",
+    "name": "The Lab Game Store",
+    "base": "https://thelabgamestore.com",
+    "market": "EU",
+    "platform": "woocommerce",
+    "country": "DE",
+    "collections": [
+      "pokemon"
     ]
   },
   {
@@ -4201,6 +5279,17 @@
     ]
   },
   {
+    "key": "topdeck",
+    "name": "TopDeck",
+    "base": "https://topdeck.es",
+    "market": "EU",
+    "platform": "woocommerce",
+    "country": "DE",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
     "key": "toytreasure",
     "name": "Toy Treasure",
     "base": "https://toy-treasure.com",
@@ -4210,6 +5299,29 @@
     "collections": [
       "pokemon",
       "pokemon-booster"
+    ]
+  },
+  {
+    "key": "tradingcardgamestore",
+    "name": "TCGStore",
+    "base": "https://tradingcardgamestore.com",
+    "market": "EU",
+    "platform": "woocommerce",
+    "country": "DE",
+    "collections": [
+      "pokemon-tcg"
+    ]
+  },
+  {
+    "key": "tradingcardsxxx",
+    "name": "Tradingcardsxxx - Games Avenue",
+    "base": "https://tradingcardsxxx.fr",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "FR",
+    "collections": [
+      "pokemon",
+      "autres-pokemon"
     ]
   },
   {
@@ -4226,6 +5338,17 @@
     ]
   },
   {
+    "key": "treasurehubtcg",
+    "name": "TreasureHub TCG",
+    "base": "https://treasurehubtcg.com",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "AT",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
     "key": "trinketmage",
     "name": "Trinket Mage",
     "base": "https://trinket-mage.eu",
@@ -4234,6 +5357,17 @@
     "country": "DE",
     "collections": [
       "pokemon-sealed-produkte",
+      "pokemon"
+    ]
+  },
+  {
+    "key": "tsukicenter",
+    "name": "Tsuki Center",
+    "base": "https://tsukicenter.com",
+    "market": "EU",
+    "platform": "woocommerce",
+    "country": "DE",
+    "collections": [
       "pokemon"
     ]
   },
@@ -4249,6 +5383,28 @@
     ]
   },
   {
+    "key": "versusgamecenter",
+    "name": "Versus Gamecenter Lisboa",
+    "base": "https://versusgamecenter.pt",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "PT",
+    "collections": [
+      "pokemon-tcg-1"
+    ]
+  },
+  {
+    "key": "welpietoys",
+    "name": "Welpie Toys (Corio Center)",
+    "base": "https://welpietoys.nl",
+    "market": "EU",
+    "platform": "woocommerce",
+    "country": "DE",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
     "key": "yonkotcg",
     "name": "Yonko TCG",
     "base": "https://yonko-tcg.de",
@@ -4258,6 +5414,28 @@
     "collections": [
       "pokemon",
       "pokemon-booster"
+    ]
+  },
+  {
+    "key": "zillerstore",
+    "name": "Zillerstore",
+    "base": "https://zillerstore.it",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "IT",
+    "collections": [
+      "pokemon-tgc"
+    ]
+  },
+  {
+    "key": "zukacards",
+    "name": "ZukaCards",
+    "base": "https://zukacards.com",
+    "market": "EU",
+    "platform": "shopify",
+    "country": "PT",
+    "collections": [
+      "pokemon"
     ]
   },
   {
@@ -4565,6 +5743,17 @@
     ]
   },
   {
+    "key": "cardconnectsg",
+    "name": "Card Connect",
+    "base": "https://cardconnectsg.com",
+    "market": "SG",
+    "platform": "shopify",
+    "country": "SG",
+    "collections": [
+      "pokemon-sealed"
+    ]
+  },
+  {
     "key": "daimonjitcg",
     "name": "Daimonji TCG",
     "base": "https://www.daimonjitcg.com",
@@ -4773,6 +5962,17 @@
     ]
   },
   {
+    "key": "universecards",
+    "name": "Universe Cards & Games",
+    "base": "https://universecards.sg",
+    "market": "SG",
+    "platform": "shopify",
+    "country": "SG",
+    "collections": [
+      "pokemon-sealed-products"
+    ]
+  },
+  {
     "key": "1moregogaming",
     "name": "1 More Go Gaming",
     "base": "https://1moregogaming.co.uk",
@@ -4818,20 +6018,6 @@
     "country": "GB",
     "collections": [
       "pokemon"
-    ]
-  },
-  {
-    "key": "battlegroundgaming",
-    "name": "Battleground Gaming UK",
-    "base": "https://battlegroundgaming.co.uk",
-    "market": "UK",
-    "platform": "shopify",
-    "country": "GB",
-    "collections": [
-      "pokemon-tcg",
-      "pokemon-tcg-champions-path",
-      "pokemon-vivid-voltage",
-      "out-soon-pokemon-tcg"
     ]
   },
   {
@@ -5006,17 +6192,6 @@
     ]
   },
   {
-    "key": "crypticcabin",
-    "name": "Cryptic Cabin",
-    "base": "https://crypticcabin.com",
-    "market": "UK",
-    "platform": "shopify",
-    "country": "GB",
-    "collections": [
-      "pokemon"
-    ]
-  },
-  {
     "key": "diceanddestiny",
     "name": "Dice & Destiny",
     "base": "https://www.diceanddestiny.co.uk",
@@ -5026,6 +6201,17 @@
     "collections": [
       "pokemon",
       "pokemon-all"
+    ]
+  },
+  {
+    "key": "dicecupcafe",
+    "name": "Dice Cup",
+    "base": "https://dicecupcafe.co.uk",
+    "market": "UK",
+    "platform": "shopify",
+    "country": "GB",
+    "collections": [
+      "pokemon"
     ]
   },
   {
@@ -5115,17 +6301,6 @@
     ]
   },
   {
-    "key": "gamehq",
-    "name": "Game HQ Birmingham",
-    "base": "https://game-hq.co.uk",
-    "market": "UK",
-    "platform": "shopify",
-    "country": "GB",
-    "collections": [
-      "pokemon-sealed-1"
-    ]
-  },
-  {
     "key": "gameon",
     "name": "GameOn.games",
     "base": "https://www.gameon.games",
@@ -5137,6 +6312,17 @@
       "pokemon-tcg-blister-packs",
       "pokemon-tcg-elite-trainer-box",
       "pokemon-tcg-premium-collection"
+    ]
+  },
+  {
+    "key": "gamersathart",
+    "name": "Gamers@Hart",
+    "base": "https://gamersathart.co.uk",
+    "market": "UK",
+    "platform": "woocommerce",
+    "country": "GB",
+    "collections": [
+      "pokemon-trading-card-game"
     ]
   },
   {
@@ -5187,17 +6373,6 @@
     ]
   },
   {
-    "key": "harlequinsgames",
-    "name": "Harlequins Games",
-    "base": "https://harlequinsgames.com",
-    "market": "UK",
-    "platform": "shopify",
-    "country": "GB",
-    "collections": [
-      "pokemon"
-    ]
-  },
-  {
     "key": "hoctcg",
     "name": "HOC TCG (Hauss of Cards)",
     "base": "https://hoctcg.com",
@@ -5233,17 +6408,6 @@
     ]
   },
   {
-    "key": "incomgaming",
-    "name": "Incom Gaming",
-    "base": "https://incomgaming.co.uk",
-    "market": "UK",
-    "platform": "shopify",
-    "country": "GB",
-    "collections": [
-      "pokemon-tcg"
-    ]
-  },
-  {
     "key": "japan2uk",
     "name": "Japan2UK",
     "base": "https://www.japan2uk.com",
@@ -5270,15 +6434,15 @@
     ]
   },
   {
-    "key": "jgccollectables",
-    "name": "JGC Collectables",
-    "base": "https://jgc-collectables.co.uk",
+    "key": "justplaygames",
+    "name": "JustPlay",
+    "base": "https://justplaygames.uk",
     "market": "UK",
     "platform": "shopify",
     "country": "GB",
     "collections": [
-      "pokemon-sealed-product",
-      "pokemon"
+      "pokemon-tcg",
+      "preorders-live"
     ]
   },
   {
@@ -5371,17 +6535,6 @@
     ]
   },
   {
-    "key": "moxinthehole",
-    "name": "Mox in the Hole",
-    "base": "https://moxinthehole.co.uk",
-    "market": "UK",
-    "platform": "shopify",
-    "country": "GB",
-    "collections": [
-      "pokemon-pre-orders"
-    ]
-  },
-  {
     "key": "neocards",
     "name": "Neo Cards & Collectables",
     "base": "https://www.neocards.co.uk",
@@ -5390,6 +6543,17 @@
     "country": "GB",
     "collections": [
       "pokemon-tcg"
+    ]
+  },
+  {
+    "key": "northumbriantinsoldier",
+    "name": "Northumbrian Tin Soldier Limited",
+    "base": "https://northumbriantinsoldier.com",
+    "market": "UK",
+    "platform": "shopify",
+    "country": "GB",
+    "collections": [
+      "pokemon"
     ]
   },
   {
@@ -5405,6 +6569,20 @@
     ]
   },
   {
+    "key": "nostalgiatcg",
+    "name": "Nostalgia TCG Limited",
+    "base": "https://nostalgiatcg.com",
+    "market": "UK",
+    "platform": "shopify",
+    "country": "GB",
+    "collections": [
+      "booster-packs",
+      "collection-boxes-pokemon",
+      "pokemon-tcg-booster-boxes",
+      "pokemon-tcg-elite-trainer-boxes"
+    ]
+  },
+  {
     "key": "obsidiatcg",
     "name": "OBSIDIA TCG",
     "base": "https://obsidia-tcg.store",
@@ -5416,14 +6594,15 @@
     ]
   },
   {
-    "key": "onyxdawngames",
-    "name": "Onyx Dawn Games",
-    "base": "https://onyxdawngames.com",
+    "key": "pixelandblock",
+    "name": "Pixel and Block",
+    "base": "https://pixelandblock.co.uk",
     "market": "UK",
     "platform": "shopify",
     "country": "GB",
     "collections": [
-      "pokemon"
+      "pokemon-tcg",
+      "pokemon-tcg-1"
     ]
   },
   {
@@ -5471,17 +6650,6 @@
     ]
   },
   {
-    "key": "pucapucagames",
-    "name": "Puca Puca Games",
-    "base": "https://www.pucapucagames.co.uk",
-    "market": "UK",
-    "platform": "shopify",
-    "country": "GB",
-    "collections": [
-      "pokemon-tcg-temporal-forces"
-    ]
-  },
-  {
     "key": "rarepokemoncards",
     "name": "Rare Pokémon Cards UK",
     "base": "https://rarepokemoncards.co.uk",
@@ -5493,14 +6661,14 @@
     ]
   },
   {
-    "key": "retrogamerbros",
-    "name": "Retro Gamer Bros.",
-    "base": "https://retrogamerbros.co.uk",
+    "key": "rollthedicecornwall",
+    "name": "Roll The Dice Cornwall C.I.C.",
+    "base": "https://rollthedicecornwall.com",
     "market": "UK",
     "platform": "shopify",
     "country": "GB",
     "collections": [
-      "pokemon"
+      "pokemon-tcg"
     ]
   },
   {
@@ -5528,17 +6696,6 @@
     ]
   },
   {
-    "key": "shopmysterytavern",
-    "name": "Mystery Tavern",
-    "base": "https://www.shopmysterytavern.co.uk",
-    "market": "UK",
-    "platform": "shopify",
-    "country": "GB",
-    "collections": [
-      "pokemon-cards-sealed"
-    ]
-  },
-  {
     "key": "sidequestgames",
     "name": "Side Quest Games",
     "base": "https://www.sidequestgames.uk",
@@ -5548,6 +6705,17 @@
     "collections": [
       "pokemon-sealed",
       "pre-orders"
+    ]
+  },
+  {
+    "key": "snapsgames",
+    "name": "Snaps Games",
+    "base": "https://snapsgames.co.uk",
+    "market": "UK",
+    "platform": "shopify",
+    "country": "GB",
+    "collections": [
+      "pokemon-tcg-⚡"
     ]
   },
   {
@@ -5570,17 +6738,6 @@
     "country": "GB",
     "collections": [
       "pokemon"
-    ]
-  },
-  {
-    "key": "tabletopdominion",
-    "name": "Tabletop Dominion",
-    "base": "https://tabletopdominion.com",
-    "market": "UK",
-    "platform": "shopify",
-    "country": "GB",
-    "collections": [
-      "pokemon-cards"
     ]
   },
   {
@@ -5607,17 +6764,6 @@
     ]
   },
   {
-    "key": "tengentreasures",
-    "name": "Tengen Treasures",
-    "base": "https://tengentreasures.co.uk",
-    "market": "UK",
-    "platform": "shopify",
-    "country": "GB",
-    "collections": [
-      "pokemon-sealed-product"
-    ]
-  },
-  {
     "key": "terrorstcg",
     "name": "Terrors TCG",
     "base": "https://www.terrorstcg.com",
@@ -5627,17 +6773,6 @@
     "collections": [
       "pokemon",
       "booster-pack"
-    ]
-  },
-  {
-    "key": "theboardgamehut",
-    "name": "The Board Game Hut",
-    "base": "https://theboardgamehut.co.uk",
-    "market": "UK",
-    "platform": "shopify",
-    "country": "GB",
-    "collections": [
-      "pokemon"
     ]
   },
   {
@@ -5674,17 +6809,6 @@
       "pokemon-mini-tins",
       "pokemon-elite-trainer-boxes",
       "pokemon-booster-bundles"
-    ]
-  },
-  {
-    "key": "thirstymeeples",
-    "name": "Thirsty Meeples",
-    "base": "https://www.thirstymeeples.co.uk",
-    "market": "UK",
-    "platform": "shopify",
-    "country": "GB",
-    "collections": [
-      "pokemon-tcg-1"
     ]
   },
   {
@@ -5797,17 +6921,6 @@
     ]
   },
   {
-    "key": "ultimatetcg",
-    "name": "Ultimate TCG Limited",
-    "base": "https://ultimatetcg.co.uk",
-    "market": "UK",
-    "platform": "shopify",
-    "country": "GB",
-    "collections": [
-      "pokemon"
-    ]
-  },
-  {
     "key": "ultrararecards",
     "name": "Ultra Rare Cards",
     "base": "https://ultrararecards.co.uk",
@@ -5816,17 +6929,6 @@
     "country": "GB",
     "collections": [
       "pokemon"
-    ]
-  },
-  {
-    "key": "unioncountygames",
-    "name": "Union County Games",
-    "base": "https://unioncountygames.co.uk",
-    "market": "UK",
-    "platform": "shopify",
-    "country": "GB",
-    "collections": [
-      "pokemon-sealed-product"
     ]
   },
   {
@@ -5903,6 +7005,17 @@
     ]
   },
   {
+    "key": "4gsgames",
+    "name": "4GS Games",
+    "base": "https://4gsgames.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
     "key": "accidentallycoolgames",
     "name": "Accidentally Cool Games",
     "base": "https://accidentallycoolgames.com",
@@ -5935,17 +7048,6 @@
       "pokemon-sealed",
       "pokemon",
       "pokemon-tcg"
-    ]
-  },
-  {
-    "key": "allaccesscardshop",
-    "name": "All Access Card Shop",
-    "base": "https://allaccesscardshop.com",
-    "market": "US",
-    "platform": "shopify",
-    "country": "US",
-    "collections": [
-      "pokemon-product"
     ]
   },
   {
@@ -6017,17 +7119,6 @@
     ]
   },
   {
-    "key": "atlasgames",
-    "name": "Atlas Games",
-    "base": "https://atlasgames.store",
-    "market": "US",
-    "platform": "shopify",
-    "country": "US",
-    "collections": [
-      "pokemon"
-    ]
-  },
-  {
     "key": "aurorasparks",
     "name": "Aurora Sparks",
     "base": "https://aurorasparks.myshopify.com",
@@ -6050,6 +7141,17 @@
     ]
   },
   {
+    "key": "ballerstcg",
+    "name": "Ballers TCG",
+    "base": "https://ballerstcg.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "all-pokemon"
+    ]
+  },
+  {
     "key": "bamcards",
     "name": "BAM Cards",
     "base": "https://bamcards.com",
@@ -6068,6 +7170,28 @@
     "base": "https://baxtersrealm.com",
     "market": "US",
     "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
+    "key": "bgetabletop",
+    "name": "BGE's Tabletop",
+    "base": "https://bgetabletop.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
+    "key": "blackpanthersportscards",
+    "name": "Black Panther Sports Cards",
+    "base": "https://blackpanthersportscards.com",
+    "market": "US",
+    "platform": "woocommerce",
     "country": "US",
     "collections": [
       "pokemon"
@@ -6165,15 +7289,14 @@
     ]
   },
   {
-    "key": "bytheboardgames",
-    "name": "By The Board Games & Entertainment",
-    "base": "https://bytheboardgames.com",
+    "key": "cadetstoys",
+    "name": "Cadets Toys and Comics",
+    "base": "https://cadetstoys.com",
     "market": "US",
     "platform": "shopify",
     "country": "US",
     "collections": [
-      "pokemon-tcg-stellar-crown",
-      "booster-packs"
+      "pokemon"
     ]
   },
   {
@@ -6224,6 +7347,17 @@
     ]
   },
   {
+    "key": "cardcollectorclub",
+    "name": "Card Collector Club",
+    "base": "https://cardcollectorclub.com",
+    "market": "US",
+    "platform": "woocommerce",
+    "country": "US",
+    "collections": [
+      "search:pokemon"
+    ]
+  },
+  {
     "key": "cardfathertcg",
     "name": "Card Father TCG",
     "base": "https://cardfathertcg.com",
@@ -6232,17 +7366,6 @@
     "country": "US",
     "collections": [
       "pokemon-sealed"
-    ]
-  },
-  {
-    "key": "cardgodshop",
-    "name": "Card God Shop",
-    "base": "https://cardgodshop.com",
-    "market": "US",
-    "platform": "shopify",
-    "country": "US",
-    "collections": [
-      "pokemon"
     ]
   },
   {
@@ -6279,6 +7402,19 @@
     "country": "US",
     "collections": [
       "pokemon"
+    ]
+  },
+  {
+    "key": "cardshopnear",
+    "name": "Card Shop Near Me",
+    "base": "https://cardshopnear.me",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "analytics-all-pokemon",
+      "tcg-sealed",
+      "analytics-all-pokemon-copy"
     ]
   },
   {
@@ -6340,6 +7476,28 @@
     ]
   },
   {
+    "key": "cbanons",
+    "name": "Cardboards Anonymous",
+    "base": "https://cbanons.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon-en"
+    ]
+  },
+  {
+    "key": "ccgprime",
+    "name": "CCGPrime - Annex",
+    "base": "https://ccgprime.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon-sealed"
+    ]
+  },
+  {
     "key": "championcardcollector",
     "name": "Champion Card Collector",
     "base": "https://championcardcollector.com",
@@ -6354,25 +7512,58 @@
     ]
   },
   {
-    "key": "championtcg",
-    "name": "ChampionTCG",
-    "base": "https://championtcg.com",
+    "key": "charmcitycollectibles",
+    "name": "Charm City Collectibles",
+    "base": "https://charmcitycollectibles.com",
     "market": "US",
     "platform": "shopify",
     "country": "US",
     "collections": [
-      "english-pokemon-products"
+      "pokemon"
     ]
   },
   {
-    "key": "coffeecatcomics",
-    "name": "Coffee Cat Comics",
-    "base": "https://coffeecatcomics.com",
+    "key": "chasecardtcg",
+    "name": "ChaseCard TCG",
+    "base": "https://chasecardtcg.com",
     "market": "US",
     "platform": "shopify",
     "country": "US",
     "collections": [
       "pokemon-tcg"
+    ]
+  },
+  {
+    "key": "cobbco",
+    "name": "Arena Games",
+    "base": "https://cobbco.store",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon-tcg"
+    ]
+  },
+  {
+    "key": "coldfoilheroes",
+    "name": "Cold Foil Heroes",
+    "base": "https://coldfoilheroes.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
+    "key": "collectbinghamton",
+    "name": "Collect Binghamton",
+    "base": "https://collectbinghamton.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon"
     ]
   },
   {
@@ -6488,6 +7679,62 @@
     ]
   },
   {
+    "key": "cromatcg",
+    "name": "Croma TCG",
+    "base": "https://cromatcg.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon-all",
+      "pokemon-collection-boxes"
+    ]
+  },
+  {
+    "key": "dealinghigh",
+    "name": "Dealing High Collectibles",
+    "base": "https://dealinghigh.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon-sealed"
+    ]
+  },
+  {
+    "key": "dealsndragons",
+    "name": "Deals N Dragons",
+    "base": "https://dealsndragons.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
+    "key": "deriumandwifey",
+    "name": "Derium's CCGs",
+    "base": "https://deriumandwifey.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "all-pokemon-sealed-product"
+    ]
+  },
+  {
+    "key": "diceaddiction",
+    "name": "Dice Addiction",
+    "base": "https://diceaddiction.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "new-arrivals"
+    ]
+  },
+  {
     "key": "digitalheroes",
     "name": "Digital Heroes",
     "base": "https://digitalheroes.com",
@@ -6545,6 +7792,17 @@
     ]
   },
   {
+    "key": "drawntogethergames",
+    "name": "Drawn Together Games",
+    "base": "https://drawntogethergames.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
     "key": "dublin",
     "name": "Littleroot Games - Dublin",
     "base": "https://dublin.littlerootgames.com",
@@ -6554,6 +7812,17 @@
     "collections": [
       "pokemon-sealed",
       "sealed-products"
+    ]
+  },
+  {
+    "key": "duelanddice",
+    "name": "Duel and Dice",
+    "base": "https://duelanddice.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon"
     ]
   },
   {
@@ -6629,9 +7898,53 @@
     ]
   },
   {
+    "key": "evolvecardshop",
+    "name": "Evolve Card Shop",
+    "base": "https://evolvecardshop.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
+    "key": "expsharegames",
+    "name": "The Experience Share",
+    "base": "https://expsharegames.com",
+    "market": "US",
+    "platform": "woocommerce",
+    "country": "US",
+    "collections": [
+      "pokemon-tcg"
+    ]
+  },
+  {
+    "key": "fabledtavern",
+    "name": "Fabled Tavern",
+    "base": "https://fabledtavern.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
     "key": "fabricatorsforge",
     "name": "Fabricator's Forge",
     "base": "https://shop.fabricatorsforge.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
+    "key": "firstcapitolcards",
+    "name": "First Capitol Cards",
+    "base": "https://firstcapitolcards.com",
     "market": "US",
     "platform": "shopify",
     "country": "US",
@@ -6659,17 +7972,6 @@
     "country": "US",
     "collections": [
       "pokemon-sealed"
-    ]
-  },
-  {
-    "key": "fourhorsemencomics",
-    "name": "Four Horsemen Comics and Gaming of Morgantown",
-    "base": "https://shop.fourhorsemencomics.com",
-    "market": "US",
-    "platform": "shopify",
-    "country": "US",
-    "collections": [
-      "pokemon"
     ]
   },
   {
@@ -6720,17 +8022,6 @@
     ]
   },
   {
-    "key": "gamegridif",
-    "name": "Game Grid Idaho Falls",
-    "base": "https://gamegridif.com",
-    "market": "US",
-    "platform": "shopify",
-    "country": "US",
-    "collections": [
-      "pokemon-sealed"
-    ]
-  },
-  {
     "key": "gamelandia",
     "name": "Gamelandia",
     "base": "https://gamelandia.fun",
@@ -6739,6 +8030,17 @@
     "country": "US",
     "collections": [
       "pokemon-sealed"
+    ]
+  },
+  {
+    "key": "gameonarizona",
+    "name": "Game On Cottonwood",
+    "base": "https://gameonarizona.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon"
     ]
   },
   {
@@ -6780,6 +8082,17 @@
     ]
   },
   {
+    "key": "gamersgetawaykc",
+    "name": "Gamers Getaway KC",
+    "base": "https://gamersgetawaykc.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "sealed-product"
+    ]
+  },
+  {
     "key": "gamersgrove",
     "name": "Gamers Grove",
     "base": "https://gamersgrove.com",
@@ -6802,14 +8115,25 @@
     ]
   },
   {
-    "key": "gamescape",
-    "name": "Gamescape",
-    "base": "https://gamescape.com",
+    "key": "gamesandstuffonline",
+    "name": "Games and Stuff",
+    "base": "https://gamesandstuffonline.com",
     "market": "US",
     "platform": "shopify",
     "country": "US",
     "collections": [
-      "pokemon-sealed-product"
+      "pokemon-trading-card-game"
+    ]
+  },
+  {
+    "key": "gamespacefl",
+    "name": "Game Space LLC",
+    "base": "https://gamespacefl.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon-sealed"
     ]
   },
   {
@@ -6825,6 +8149,17 @@
     ]
   },
   {
+    "key": "gatorsfeedsyourneeds",
+    "name": "Gators Games and Hobby",
+    "base": "https://gatorsfeedsyourneeds.com",
+    "market": "US",
+    "platform": "woocommerce",
+    "country": "US",
+    "collections": [
+      "pokemon-sealed-products"
+    ]
+  },
+  {
     "key": "geekerygames",
     "name": "Geekery Games",
     "base": "https://geekerygames.com",
@@ -6833,6 +8168,18 @@
     "country": "US",
     "collections": [
       "pokemon"
+    ]
+  },
+  {
+    "key": "geekyglamorous",
+    "name": "GeekyGlamorous",
+    "base": "https://geekyglamorous.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon",
+      "pokemon-cards"
     ]
   },
   {
@@ -6858,17 +8205,6 @@
     ]
   },
   {
-    "key": "ginzamkt",
-    "name": "GinzaTCG",
-    "base": "https://ginzamkt.com",
-    "market": "US",
-    "platform": "shopify",
-    "country": "US",
-    "collections": [
-      "pokemon"
-    ]
-  },
-  {
     "key": "glamorousgamers",
     "name": "Glamorous Gamers Connect & Play Cafe",
     "base": "https://www.glamorousgamers.com",
@@ -6880,6 +8216,17 @@
     ]
   },
   {
+    "key": "glhfinc",
+    "name": "Good Luck Have Fun Games",
+    "base": "https://glhfinc.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
     "key": "gnomegames",
     "name": "Gnome Games",
     "base": "https://gnomegames.com",
@@ -6888,6 +8235,29 @@
     "country": "US",
     "collections": [
       "pokemon"
+    ]
+  },
+  {
+    "key": "goldengategames",
+    "name": "Golden Gate Games",
+    "base": "https://golden-gate-games.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon",
+      "new-arrivals"
+    ]
+  },
+  {
+    "key": "gootzygaming",
+    "name": "Gootzy Gaming",
+    "base": "https://gootzygaming.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon-cards"
     ]
   },
   {
@@ -6958,6 +8328,28 @@
     ]
   },
   {
+    "key": "hilltopcollectibles",
+    "name": "Hill Top Collectibles",
+    "base": "https://hilltopcollectibles.shop",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
+    "key": "hitmensportsbreaks",
+    "name": "Hitmen Sports Cards & Collectibles",
+    "base": "https://hitmensportsbreaks.com",
+    "market": "US",
+    "platform": "woocommerce",
+    "country": "US",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
     "key": "hoarditall",
     "name": "Hoard",
     "base": "https://www.hoarditall.com",
@@ -7002,17 +8394,6 @@
     ]
   },
   {
-    "key": "holohaven",
-    "name": "Holo Haven",
-    "base": "https://holohaven.com",
-    "market": "US",
-    "platform": "shopify",
-    "country": "US",
-    "collections": [
-      "international-pokemon"
-    ]
-  },
-  {
     "key": "holohorsegames",
     "name": "Holo Horse Games LLC",
     "base": "https://holohorsegames.com",
@@ -7021,6 +8402,17 @@
     "country": "US",
     "collections": [
       "new-arrivals"
+    ]
+  },
+  {
+    "key": "houseruleslounge",
+    "name": "House Rules Board Game Lounge",
+    "base": "https://houseruleslounge.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon-tcg"
     ]
   },
   {
@@ -7033,6 +8425,17 @@
     "collections": [
       "pokemon",
       "pokemon-collection-boxes"
+    ]
+  },
+  {
+    "key": "ichooseyou",
+    "name": "ichooseyou TCGs",
+    "base": "https://ichooseyou.cards",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "all-pokemon"
     ]
   },
   {
@@ -7093,14 +8496,14 @@
     ]
   },
   {
-    "key": "j2games",
-    "name": "J2Games",
-    "base": "https://j2games.com",
+    "key": "jandjgamingfactory",
+    "name": "J and J Gaming Factory",
+    "base": "https://jandjgamingfactory.com",
     "market": "US",
     "platform": "shopify",
     "country": "US",
     "collections": [
-      "pokemon-cards",
+      "pokemon-sealed",
       "pokemon"
     ]
   },
@@ -7127,6 +8530,29 @@
       "pokemon-tcg",
       "pokemon-tins",
       "pokemon-elite-trainer-boxes-1"
+    ]
+  },
+  {
+    "key": "jaystoysandgames",
+    "name": "Jays CD and Hobby",
+    "base": "https://jaystoysandgames.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon",
+      "pokemon-tcg-chaos-rising"
+    ]
+  },
+  {
+    "key": "jchobby",
+    "name": "JC Hobby",
+    "base": "https://jchobby.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon-sealed"
     ]
   },
   {
@@ -7165,18 +8591,6 @@
     ]
   },
   {
-    "key": "journeysendgames",
-    "name": "Journey’s End Games",
-    "base": "https://journeysendgames.com",
-    "market": "US",
-    "platform": "shopify",
-    "country": "US",
-    "collections": [
-      "me05-pitch-black-pokemon",
-      "me04-chaos-rising-pokemon"
-    ]
-  },
-  {
     "key": "jwwcards",
     "name": "JWW Sports Cards & Gaming",
     "base": "https://jwwcards.com",
@@ -7211,14 +8625,14 @@
     ]
   },
   {
-    "key": "kingstablegames",
-    "name": "King's Table Games",
-    "base": "https://kingstablegames.com",
+    "key": "kitchentabletcg",
+    "name": "Kitchen Table Cards and Games",
+    "base": "https://kitchentabletcg.com",
     "market": "US",
     "platform": "shopify",
     "country": "US",
     "collections": [
-      "pokemon-tcg"
+      "pokemon"
     ]
   },
   {
@@ -7245,6 +8659,17 @@
     ]
   },
   {
+    "key": "kwcollectibles",
+    "name": "Game Grid Key LLC",
+    "base": "https://kwcollectibles.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "sealed-pokemon-product"
+    ]
+  },
+  {
     "key": "lakehartwellcollectibles",
     "name": "Lake Hartwell Collectibles",
     "base": "https://lakehartwellcollectibles.com",
@@ -7253,6 +8678,17 @@
     "country": "US",
     "collections": [
       "pokemon"
+    ]
+  },
+  {
+    "key": "landfalloutpost",
+    "name": "Landfall Outpost",
+    "base": "https://landfalloutpost.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "all-pokemon"
     ]
   },
   {
@@ -7280,6 +8716,17 @@
     ]
   },
   {
+    "key": "laytongaming",
+    "name": "Layton Gaming",
+    "base": "https://laytongaming.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
     "key": "lazarusgames",
     "name": "Lazarus Games",
     "base": "https://lazarus-games.com",
@@ -7288,6 +8735,28 @@
     "country": "US",
     "collections": [
       "pokemon"
+    ]
+  },
+  {
+    "key": "leftoversloungeshop",
+    "name": "Leftovers Lounge",
+    "base": "https://leftoversloungeshop.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
+    "key": "legacycomics",
+    "name": "Legacy Comics and Cards Inc",
+    "base": "https://legacycomics.com",
+    "market": "US",
+    "platform": "woocommerce",
+    "country": "US",
+    "collections": [
+      "pokemon-tcg"
     ]
   },
   {
@@ -7302,19 +8771,6 @@
     ]
   },
   {
-    "key": "levelonegameshop",
-    "name": "Level One Game Shop",
-    "base": "https://levelonegameshop.com",
-    "market": "US",
-    "platform": "shopify",
-    "country": "US",
-    "collections": [
-      "pokemon-chilling-reign",
-      "pokemon-paradox-rift",
-      "pokemon-shining-fates"
-    ]
-  },
-  {
     "key": "levelupgamesmd",
     "name": "Level Up Games MD",
     "base": "https://www.levelupgamesmd.com",
@@ -7323,6 +8779,17 @@
     "country": "US",
     "collections": [
       "pokemon-sealed-products"
+    ]
+  },
+  {
+    "key": "lingstergames",
+    "name": "LingSter Games",
+    "base": "https://lingstergames.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon"
     ]
   },
   {
@@ -7335,6 +8802,28 @@
     "collections": [
       "new-arrivals",
       "best-vintage-pokemon-packs"
+    ]
+  },
+  {
+    "key": "lootcardshop",
+    "name": "Loot Card Shop",
+    "base": "https://lootcardshop.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon-sealed-all"
+    ]
+  },
+  {
+    "key": "lost4toys",
+    "name": "Lost4toys",
+    "base": "https://lost4toys.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon"
     ]
   },
   {
@@ -7361,6 +8850,17 @@
     ]
   },
   {
+    "key": "luckyhits",
+    "name": "Lucky Hits Inc",
+    "base": "https://luckyhits.shop",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
     "key": "madtownhobby",
     "name": "Madtown Hobby",
     "base": "https://madtownhobby.com",
@@ -7380,6 +8880,17 @@
     "country": "US",
     "collections": [
       "pokemon"
+    ]
+  },
+  {
+    "key": "magnoliatcgexchange",
+    "name": "Magnolia TCG Exchange",
+    "base": "https://magnoliatcgexchange.com",
+    "market": "US",
+    "platform": "woocommerce",
+    "country": "US",
+    "collections": [
+      "search:pokemon"
     ]
   },
   {
@@ -7419,6 +8930,17 @@
     ]
   },
   {
+    "key": "meeplesandbeyond",
+    "name": "Meeples & Beyond",
+    "base": "https://meeplesandbeyond.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon-tcg"
+    ]
+  },
+  {
     "key": "metagames",
     "name": "MetaGames.toys",
     "base": "https://metagames.toys",
@@ -7445,6 +8967,18 @@
     ]
   },
   {
+    "key": "minmaxgames",
+    "name": "MinMaxGames",
+    "base": "https://minmaxgames.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon",
+      "30th-celebration-pokemon"
+    ]
+  },
+  {
     "key": "moonshotgamestore",
     "name": "Moonshot Games",
     "base": "https://moonshotgamestore.com",
@@ -7467,16 +9001,14 @@
     ]
   },
   {
-    "key": "moxiecardshop",
-    "name": "Moxie Card Shop",
-    "base": "https://moxiecardshop.com",
+    "key": "moxboardinghouse",
+    "name": "Mox Boarding House",
+    "base": "https://moxboardinghouse.com",
     "market": "US",
     "platform": "shopify",
     "country": "US",
     "collections": [
-      "pokemon-boosters",
-      "pokemon-tcg",
-      "pokemon-tins-decks-and-special-collections"
+      "pokemon"
     ]
   },
   {
@@ -7560,6 +9092,17 @@
     ]
   },
   {
+    "key": "nexusentertainment",
+    "name": "Nexus Entertainment",
+    "base": "https://nexus-entertainment.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "caldo-test-pokemon"
+    ]
+  },
+  {
     "key": "nexuslgs",
     "name": "NEXUS Games & Collectibles",
     "base": "https://nexuslgs.com",
@@ -7582,17 +9125,14 @@
     ]
   },
   {
-    "key": "nolatcg",
-    "name": "NOLA TCG Experience",
-    "base": "https://nolatcg.com",
+    "key": "northeastgamesandhobbies",
+    "name": "Northeast Games & Hobbies",
+    "base": "https://northeastgamesandhobbies.com",
     "market": "US",
-    "platform": "shopify",
+    "platform": "woocommerce",
     "country": "US",
     "collections": [
-      "collection-boxes",
-      "booster-packs",
-      "booster-boxes",
-      "pokemon-tcg"
+      "search:pokemon"
     ]
   },
   {
@@ -7717,6 +9257,39 @@
     ]
   },
   {
+    "key": "phillytcg",
+    "name": "Philly TCG",
+    "base": "https://phillytcg.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
+    "key": "playhoboken",
+    "name": "Play! Hoboken",
+    "base": "https://playhoboken.com",
+    "market": "US",
+    "platform": "woocommerce",
+    "country": "US",
+    "collections": [
+      "search:pokemon"
+    ]
+  },
+  {
+    "key": "playontcg",
+    "name": "Playontcg",
+    "base": "https://playontcg.com",
+    "market": "US",
+    "platform": "woocommerce",
+    "country": "US",
+    "collections": [
+      "english-pokemon"
+    ]
+  },
+  {
     "key": "pokeboxusa",
     "name": "PokeBox USA",
     "base": "https://www.pokeboxusa.com",
@@ -7816,6 +9389,17 @@
     ]
   },
   {
+    "key": "rawmon",
+    "name": "Rawmon",
+    "base": "https://rawmon.org",
+    "market": "US",
+    "platform": "woocommerce",
+    "country": "US",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
     "key": "realgoodeal",
     "name": "Realgoodeal",
     "base": "https://realgoodeal.com",
@@ -7830,6 +9414,17 @@
     ]
   },
   {
+    "key": "reapergamestore",
+    "name": "Reaper Game Store",
+    "base": "https://reapergamestore.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon-tcg"
+    ]
+  },
+  {
     "key": "redfoxgamingonline",
     "name": "Red Fox Gaming",
     "base": "https://redfoxgamingonline.com",
@@ -7838,6 +9433,18 @@
     "country": "US",
     "collections": [
       "pokemon-sealed"
+    ]
+  },
+  {
+    "key": "redraccoongames",
+    "name": "Red Raccoon Games",
+    "base": "https://redraccoongames.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon-sealed-products",
+      "pokemon"
     ]
   },
   {
@@ -8002,17 +9609,6 @@
     ]
   },
   {
-    "key": "shufflenroll",
-    "name": "Shuffle N Roll",
-    "base": "https://shufflenroll.com",
-    "market": "US",
-    "platform": "shopify",
-    "country": "US",
-    "collections": [
-      "pokemon"
-    ]
-  },
-  {
     "key": "skyboxct",
     "name": "Skybox Collectibles",
     "base": "https://skyboxct.com",
@@ -8064,6 +9660,17 @@
     ]
   },
   {
+    "key": "southtexastcg",
+    "name": "South Texas TCG",
+    "base": "https://southtexastcg.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon-booster-packs"
+    ]
+  },
+  {
     "key": "spankyscardshop",
     "name": "Spanky's Card Shop",
     "base": "https://spankyscardshop.com",
@@ -8074,17 +9681,6 @@
       "pokemon-sealed-product",
       "pokemon-151-sealed",
       "new-arrivals"
-    ]
-  },
-  {
-    "key": "spankyslootstash",
-    "name": "Spanky's Loot Stash",
-    "base": "https://www.spankyslootstash.com",
-    "market": "US",
-    "platform": "shopify",
-    "country": "US",
-    "collections": [
-      "pokemon-sealed-product"
     ]
   },
   {
@@ -8099,6 +9695,17 @@
     ]
   },
   {
+    "key": "spellcastersstash",
+    "name": "Spellcasters Stash",
+    "base": "https://spellcastersstash.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon-tcg"
+    ]
+  },
+  {
     "key": "spiedagames",
     "name": "Spieda Games",
     "base": "https://spiedagames.com",
@@ -8107,6 +9714,17 @@
     "country": "US",
     "collections": [
       "pokemon-cards-and-collectibles"
+    ]
+  },
+  {
+    "key": "stgcards",
+    "name": "STG Cards and Collectables",
+    "base": "https://stgcards.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "sealed-pokemon"
     ]
   },
   {
@@ -8181,6 +9799,28 @@
     ]
   },
   {
+    "key": "sydequest",
+    "name": "Sydequest Games LLC",
+    "base": "https://sydequest.games",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "new-arrivals"
+    ]
+  },
+  {
+    "key": "tabletcg",
+    "name": "Tabletop Cards and Games",
+    "base": "https://tabletcg.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon-1"
+    ]
+  },
+  {
     "key": "tcgcarddepot",
     "name": "TCG Card Depot",
     "base": "https://tcgcarddepot.com",
@@ -8228,6 +9868,28 @@
     ]
   },
   {
+    "key": "thebanditshideout",
+    "name": "Bandits Hideout",
+    "base": "https://thebanditshideout.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
+    "key": "thecardboardbros",
+    "name": "The Cardboard Bros",
+    "base": "https://thecardboardbros.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
     "key": "theclubhousecards",
     "name": "ClubhouseCards",
     "base": "https://theclubhousecards.com",
@@ -8253,17 +9915,6 @@
     ]
   },
   {
-    "key": "thegamecornergames",
-    "name": "The Game Corner",
-    "base": "https://www.thegamecornergames.com",
-    "market": "US",
-    "platform": "shopify",
-    "country": "US",
-    "collections": [
-      "pokemon-sealed"
-    ]
-  },
-  {
     "key": "thegamestore",
     "name": "The Game Store",
     "base": "https://thegamestore.com",
@@ -8278,6 +9929,17 @@
     "key": "thehubtcg",
     "name": "The Hub TCG",
     "base": "https://thehubtcg.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
+    "key": "themightyhobby",
+    "name": "The Mighty Hobby LLC",
+    "base": "https://themightyhobby.com",
     "market": "US",
     "platform": "shopify",
     "country": "US",
@@ -8309,16 +9971,28 @@
     ]
   },
   {
-    "key": "theshopcollectibles",
-    "name": "The Shop Collectibles LLC",
-    "base": "https://theshopcollectibles.com",
+    "key": "thepokehive",
+    "name": "TheHiveHQ",
+    "base": "https://thepokehive.com",
     "market": "US",
     "platform": "shopify",
     "country": "US",
     "collections": [
-      "pokemon-sealed-products",
-      "pokemon-packs",
-      "pre-orders"
+      "pokemon"
+    ]
+  },
+  {
+    "key": "thepokestops",
+    "name": "Pokestops",
+    "base": "https://thepokestops.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon-ex-box",
+      "pokemon-tcg-single-booster-pack",
+      "pokemon-tcg-booster-collection-boxes",
+      "pokemon-tcg-tin-collection"
     ]
   },
   {
@@ -8383,6 +10057,19 @@
     ]
   },
   {
+    "key": "topspot",
+    "name": "Topspot Cards",
+    "base": "https://topspot.cards",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon-english",
+      "pokemon-booster-boxes",
+      "pokemon-precon-deck"
+    ]
+  },
+  {
     "key": "tothetable",
     "name": "To The Table Board Game Cafe",
     "base": "https://tothetable.game",
@@ -8391,6 +10078,30 @@
     "country": "US",
     "collections": [
       "sealed"
+    ]
+  },
+  {
+    "key": "toynadoalley",
+    "name": "Toynado Alley, LLC",
+    "base": "https://toynadoalley.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
+    "key": "trademarksportscards",
+    "name": "Trademark Cards and Collectibles",
+    "base": "https://trademarksportscards.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon",
+      "booster-packs",
+      "booster-boxes"
     ]
   },
   {
@@ -8403,6 +10114,17 @@
     "collections": [
       "pokemon",
       "elite-trainer-box"
+    ]
+  },
+  {
+    "key": "tradingcardmint",
+    "name": "Forever After Antiques and Collectibles Inc",
+    "base": "https://tradingcardmint.com",
+    "market": "US",
+    "platform": "woocommerce",
+    "country": "US",
+    "collections": [
+      "search:pokemon"
     ]
   },
   {
@@ -8441,6 +10163,28 @@
       "pokemon-1",
       "perfect-order-pokemon",
       "chaos-rising-pokemon"
+    ]
+  },
+  {
+    "key": "twinfusecollectibles",
+    "name": "TwinFuse Collectibles",
+    "base": "https://twinfusecollectibles.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "sealed"
+    ]
+  },
+  {
+    "key": "twopaircollectibles",
+    "name": "Two Pair Collectibles RFT",
+    "base": "https://twopaircollectibles.com",
+    "market": "US",
+    "platform": "woocommerce",
+    "country": "US",
+    "collections": [
+      "pokemon"
     ]
   },
   {
@@ -8547,6 +10291,17 @@
     ]
   },
   {
+    "key": "victorypointlgs",
+    "name": "Victory Point Games",
+    "base": "https://victorypointlgs.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "all-pokemon"
+    ]
+  },
+  {
     "key": "videogametrader",
     "name": "Video Game Trader LLC",
     "base": "https://videogametrader.com",
@@ -8557,6 +10312,17 @@
       "pokemon-tcg",
       "pokemon-decks",
       "pokemon-booster-packs"
+    ]
+  },
+  {
+    "key": "watsontcg",
+    "name": "WatsonTCG",
+    "base": "https://watsontcg.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon"
     ]
   },
   {
@@ -8571,6 +10337,17 @@
     ]
   },
   {
+    "key": "wegeektogether",
+    "name": "We Geek Together",
+    "base": "https://wegeektogether.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
     "key": "wilsontradingcardco",
     "name": "Wilson Trading Card Co.",
     "base": "https://wilsontradingcardco.com",
@@ -8579,6 +10356,17 @@
     "country": "US",
     "collections": [
       "pokemon"
+    ]
+  },
+  {
+    "key": "wolcowgaming",
+    "name": "wolcow gaming",
+    "base": "https://wolcowgaming.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon-tcg"
     ]
   },
   {
@@ -8601,6 +10389,28 @@
     "country": "US",
     "collections": [
       "pokemon-sealed"
+    ]
+  },
+  {
+    "key": "wyattswarehouse",
+    "name": "Wyatts Collectibles LLC",
+    "base": "https://wyattswarehouse.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon-1"
+    ]
+  },
+  {
+    "key": "yuudachitcgarena",
+    "name": "Yuudachi TCG Arena",
+    "base": "https://yuudachitcgarena.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "pokemon"
     ]
   },
   {
