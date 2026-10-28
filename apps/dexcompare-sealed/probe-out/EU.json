@@ -1,0 +1,1854 @@
+[
+ {
+  "key": "endturn",
+  "name": "End Turn",
+  "base": "https://www.endturn.pt",
+  "market": "EU",
+  "platform": "shopify",
+  "currency": "EUR",
+  "currencyOk": true,
+  "country": "PT",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "new-arrivals",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   }
+  ],
+  "rejections": {},
+  "samples": [],
+  "error": null,
+  "ms": 3595
+ },
+ {
+  "key": "trextcg",
+  "name": "T-REX TCG",
+  "base": "https://www.t-rextcg.com",
+  "market": "EU",
+  "platform": "shopify",
+  "currency": "EUR",
+  "currencyOk": true,
+  "country": "IT",
+  "collections": [
+   "singole-5k-pkmn"
+  ],
+  "sealedProducts": 2,
+  "inStock": 0,
+  "allFound": 2,
+  "read": [
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 1,
+    "accepted": 0
+   },
+   {
+    "handle": "sealed",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "singole-5k-pkmn",
+    "ok": true,
+    "products": 286,
+    "accepted": 2
+   }
+  ],
+  "rejections": {
+   "foreign": 7,
+   "unclassified": 82,
+   "not-sealed": 196
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Antique Old Amber - Pokémon Card 151: Additionals (Common) [xsv2a-156]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Crobat  Lv.44 - 30th Celebration (Uncommon) [30C-PL 47]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Dark Tyranitar - 30th Celebration (Rare) [30C-TRR 19]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Sneasel - 30th Celebration (Rare) [30C-NG 25]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Diglett - Pokémon Card 151: Additionals (Common) [xsv2a-050]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Seel - Pokémon Card 151: Additionals (Common) [xsv2a-086]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Rattata - Pokémon Card 151: Additionals (Common) [xsv2a-019]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Gengar - Pokémon Card 151: Additionals (Rare) [xsv2a-094]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "N - Noble Victories (Uncommon) [NVI-92]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Superior Energy Retrieval - Plasma Freeze (Uncommon) [PLF-103]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Goldeen - Pokémon Card 151: Additionals (Common) [xsv2a-118]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Cyndaquil - EX Unseen Forces (Common) [UF-54]"
+   }
+  ],
+  "error": null,
+  "ms": 3765
+ },
+ {
+  "key": "cardsbeyond",
+  "name": "Cards Beyond",
+  "base": "https://cardsbeyond.com",
+  "market": "EU",
+  "platform": "shopify",
+  "currency": "CZK",
+  "currencyOk": false,
+  "country": "CZ",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [],
+  "rejections": {},
+  "samples": [],
+  "error": "charges CZK, market EU is EUR",
+  "ms": 519
+ },
+ {
+  "key": "fireanddice",
+  "name": "Fire and Dice",
+  "base": "https://fireanddice.it",
+  "market": "EU",
+  "platform": "shopify",
+  "currency": "EUR",
+  "currencyOk": true,
+  "country": "IT",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "booster-box",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "elite-trainer-box",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "preorder",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   }
+  ],
+  "rejections": {},
+  "samples": [],
+  "error": null,
+  "ms": 4439
+ },
+ {
+  "key": "spellnexus",
+  "name": "SpellNexus",
+  "base": "https://spellnexus.com",
+  "market": "EU",
+  "platform": "shopify",
+  "currency": "EUR",
+  "currencyOk": true,
+  "country": "ES",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "pokemon-sealed",
+    "ok": true,
+    "products": 6,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-tcg-sealed",
+    "ok": true,
+    "products": 6,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 143,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "foreign": 18,
+   "not-sealed": 43,
+   "unclassified": 94
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Morpeko - Battle Styles (Uncommon) [BST-98]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pawmot - Paldea Evolved (Rare) [PAL-076]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Twin Energy - Rebel Clash (Promo) [RCL-174]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Drakloak - Silver Tempest (Uncommon) [SIT-088]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Slurpuff - Silver Tempest (Uncommon) [SIT-084]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Noivern - Silver Tempest (Rare) [SIT-133]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Ferrothorn - Silver Tempest (Uncommon) [SIT-122]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Meowstic - Silver Tempest (Uncommon) [SIT-082]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Unidentified Fossil - Silver Tempest (Uncommon) [SIT-165]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Emolga - Silver Tempest (Common) [SIT-054]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Zubat - Silver Tempest (Common) [SIT-103]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Feebas - Silver Tempest (Common) [SIT-039]"
+   }
+  ],
+  "error": null,
+  "ms": 3494
+ },
+ {
+  "key": "shopponistore",
+  "name": "Shopponi Store",
+  "base": "https://shopponistore.com",
+  "market": "EU",
+  "platform": "shopify",
+  "currency": "EUR",
+  "currencyOk": true,
+  "country": "IT",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "pokemon-xy",
+    "ok": true,
+    "products": 4,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-151",
+    "ok": true,
+    "products": 23,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-fossil",
+    "ok": true,
+    "products": 5,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-jungle",
+    "ok": true,
+    "products": 3,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-team-up",
+    "ok": true,
+    "products": 21,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-sun-moon",
+    "ok": true,
+    "products": 7,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-base-set",
+    "ok": true,
+    "products": 7,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-flashfire",
+    "ok": true,
+    "products": 16,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "not-sealed": 37,
+   "unclassified": 19,
+   "foreign": 30
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Malamar - XY (Rare) [XY-76]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Ekans - Fossil (Common) [FO-46]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Fossile Misterioso - Fossil (Common) [FO-62]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Mr. Fuji - Fossil (Uncommon) [FO-58]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Ricerca di Energia - Fossil (Common) [FO-59]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pikachu - Jungle (Common) [JU-60]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Bronzong - Team Up (Rare) [TEU-101]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Ferrothorn - Team Up (Rare) [TEU-103]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Fischietto dell'Arbitro - Team Up (Uncommon) [TEU-146]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Honedge - Team Up (Common) [TEU-107]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Mr. Mime - Team Up (Rare) [TEU-66]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Nidorina - Team Up (Uncommon) [TEU-55]"
+   }
+  ],
+  "error": null,
+  "ms": 5989
+ },
+ {
+  "key": "onepiececards",
+  "name": "Boutique Carte One Piece (onepiece-cards.com)",
+  "base": "https://onepiece-cards.com",
+  "market": "EU",
+  "platform": "shopify",
+  "currency": "EUR",
+  "currencyOk": true,
+  "country": "FR",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "pokemon-sealed",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-sealed-products",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-tcg",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "sealed",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pre-orders",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "preorders",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "booster-boxes",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   }
+  ],
+  "rejections": {},
+  "samples": [],
+  "error": null,
+  "ms": 5994
+ },
+ {
+  "key": "breakthecase",
+  "name": "BreakTheCase",
+  "base": "https://www.breakthecase.de",
+  "market": "EU",
+  "platform": "shopify",
+  "currency": "EUR",
+  "currencyOk": true,
+  "country": "DE",
+  "collections": [
+   "pokemon"
+  ],
+  "sealedProducts": 99,
+  "inStock": 22,
+  "allFound": 99,
+  "read": [
+   {
+    "handle": "pokemon-tins",
+    "ok": true,
+    "products": 9,
+    "accepted": 7
+   },
+   {
+    "handle": "pokemon-blister",
+    "ok": true,
+    "products": 7,
+    "accepted": 4
+   },
+   {
+    "handle": "pokemon-displays",
+    "ok": true,
+    "products": 23,
+    "accepted": 16
+   },
+   {
+    "handle": "pokemon-booster-1",
+    "ok": true,
+    "products": 31,
+    "accepted": 16
+   },
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 165,
+    "accepted": 99
+   },
+   {
+    "handle": "pokemon-kollektionen",
+    "ok": true,
+    "products": 47,
+    "accepted": 33
+   },
+   {
+    "handle": "pokemon-einzelkarten",
+    "ok": true,
+    "products": 107,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-gegradete-karten",
+    "ok": true,
+    "products": 15,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "multiple": 4,
+   "foreign": 83,
+   "not-sealed": 34,
+   "no-set": 4,
+   "unclassified": 100,
+   "accessory": 4
+  },
+  "samples": [
+   {
+    "reason": "no-set",
+    "title": "Pokémon - Mega Evolution - ME01 – Display (36x Booster) – Englisch"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon Trading Card Game Destined Rivals SV10 – Einzelbooster – Englisch"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokémon - Mega Evolution - ME01 – Booster – Englisch"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokémon - Mega Evolution - ME01 – Display (36x Booster) – Englisch"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokémon - Mega Evolution - ME01 – Booster – Englisch"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon Trading Card Game Destined Rivals SV10 – Einzelbooster – Englisch"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Acerola's Mischief (183)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Aerodactyl (1)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Alakazam (9)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Alakazam Ex (188)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Amarys (170)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Ampharos (1)"
+   }
+  ],
+  "error": null,
+  "ms": 5938
+ },
+ {
+  "key": "bsastore",
+  "name": "BSA Store",
+  "base": "https://www.bsastore.it",
+  "market": "EU",
+  "platform": "shopify",
+  "currency": "EUR",
+  "currencyOk": true,
+  "country": "IT",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "pokemon-tin-ita",
+    "ok": true,
+    "products": 135,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-tins-eng",
+    "ok": true,
+    "products": 6,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-blister-eng",
+    "ok": true,
+    "products": 9,
+    "accepted": 0
+   },
+   {
+    "handle": "blister-pokemon-ita-1",
+    "ok": true,
+    "products": 62,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-collections-chn",
+    "ok": true,
+    "products": 10,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-collections-jap",
+    "ok": true,
+    "products": 7,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-booster-boxes-eng",
+    "ok": true,
+    "products": 14,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-booster-boxes-jap",
+    "ok": true,
+    "products": 33,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "foreign": 236,
+   "unclassified": 40
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Collezione Pokemon Center - Tohoku Special Box - JAP"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Collezione Pokemon Center Set - Mega Expansion Pack - Mega Symphonia - m1S - JAP"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Collezione Pokemon Center - Fukuoka Special Box - JAP"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Collezione Pokemon Center - Hiroshima Special Box - JAP"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Collezione Pokemon Center Set - Mega Expansion Pack - Mega Brave - m1L - JAP"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Collezione Pokemon Precious Collector Box - Sword and Shield - JAP"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Deck Build Box Battle Partners - JAP"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Box Display 30 Bustine Mega - Ninja Spinner - m4 - JAP"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Box Display 30 Bustine Mega - Nihil Zero - m3 - JAP"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Box Display 10 Bustine Mega - Dream ex - m2a - JAP"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Box Display 30 Bustine Mega - Inferno X - m2 - JAP"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Collezione Pokemon Center Set - Mega Expansion Pack - Mega Symphonia - m1S - JAP"
+   }
+  ],
+  "error": null,
+  "ms": 6544
+ },
+ {
+  "key": "cardcapital",
+  "name": "CardCapital",
+  "base": "https://cardcapital.shop",
+  "market": "EU",
+  "platform": "shopify",
+  "currency": "EUR",
+  "currencyOk": true,
+  "country": "DE",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "pokemon-cards",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "english-pokemon-cards",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-karten",
+    "ok": true,
+    "products": 137,
+    "accepted": 0
+   },
+   {
+    "handle": "v-pokemon-cards",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "v-pokemon-karten",
+    "ok": true,
+    "products": 32,
+    "accepted": 0
+   },
+   {
+    "handle": "ex-pokemon-cards",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "gx-pokemon-cards",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "ex-pokemon-karten",
+    "ok": true,
+    "products": 24,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "not-sealed": 193
+  },
+  "samples": [],
+  "error": null,
+  "ms": 6698
+ },
+ {
+  "key": "kaiofcards",
+  "name": "Kai of Cards",
+  "base": "https://kaiofcards.com",
+  "market": "EU",
+  "platform": "shopify",
+  "currency": "EUR",
+  "currencyOk": true,
+  "country": "NL",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "preorder",
+    "ok": true,
+    "products": 11,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "not-pokemon": 11
+  },
+  "samples": [],
+  "error": null,
+  "ms": 1514
+ },
+ {
+  "key": "gamestimeaversa",
+  "name": "Games Time Aversa",
+  "base": "https://gamestimeaversa.com",
+  "market": "EU",
+  "platform": "shopify",
+  "currency": "EUR",
+  "currencyOk": true,
+  "country": "IT",
+  "collections": [
+   "pokemon-jap-cor-cin",
+   "pkmn"
+  ],
+  "sealedProducts": 36,
+  "inStock": 24,
+  "allFound": 36,
+  "read": [
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 475,
+    "accepted": 0
+   },
+   {
+    "handle": "pkmn",
+    "ok": true,
+    "products": 104,
+    "accepted": 5
+   },
+   {
+    "handle": "pokemon-jap-cor-cin",
+    "ok": true,
+    "products": 72,
+    "accepted": 31
+   },
+   {
+    "handle": "pokemon-buste-singole-jap",
+    "ok": true,
+    "products": 4,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "unclassified": 484,
+   "accessory": 3,
+   "not-sealed": 32,
+   "foreign": 94,
+   "no-set": 6
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Qwilfish - Chaos Rising (Common) [CRI-052]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Quilladin - Chaos Rising (Common) [CRI-006]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Palpitoad⁣ - Ruler of the Black Flame⁣ (Common)⁣ [024]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Hisuian Zoroark - 30th Celebration (Common) [30C-123]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Lugia - 30th Celebration (Rare) [30C-121]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Poké Pad - 30th Celebration (Common) [30C-126]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Maushold - 30th Celebration (Common) [30C-125]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Ninetales - 30th Celebration (Common) [30C-010]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Hisuian Zorua - 30th Celebration (Common) [30C-122]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Minior - 30th Celebration (Common) [30C-124]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Solgaleo - 30th Celebration (Rare) [30C-105]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Murkrow - 30th Celebration (Common) [30C-093]"
+   }
+  ],
+  "error": null,
+  "ms": 7755
+ },
+ {
+  "key": "rarecards",
+  "name": "RareCards",
+  "base": "https://rarecards.nl",
+  "market": "EU",
+  "platform": "shopify",
+  "currency": "EUR",
+  "currencyOk": true,
+  "country": "NL",
+  "collections": [
+   "pokemon-collection-boxes",
+   "pokemon-elite-trainer-box",
+   "pokemon-booster-packs",
+   "pokemon-tins"
+  ],
+  "sealedProducts": 377,
+  "inStock": 103,
+  "allFound": 476,
+  "read": [
+   {
+    "handle": "pokemon-tins",
+    "ok": true,
+    "products": 82,
+    "accepted": 79
+   },
+   {
+    "handle": "pokemon-booster-packs",
+    "ok": true,
+    "products": 139,
+    "accepted": 82
+   },
+   {
+    "handle": "pokemon-booster-boxes",
+    "ok": true,
+    "products": 127,
+    "accepted": 70
+   },
+   {
+    "handle": "pokemon-booster-bundels",
+    "ok": true,
+    "products": 31,
+    "accepted": 27
+   },
+   {
+    "handle": "pokemon-collection-boxes",
+    "ok": true,
+    "products": 145,
+    "accepted": 131
+   },
+   {
+    "handle": "pokemon-elite-trainer-box",
+    "ok": true,
+    "products": 87,
+    "accepted": 85
+   },
+   {
+    "handle": "pokemon-go",
+    "ok": true,
+    "products": 56,
+    "accepted": 12
+   },
+   {
+    "handle": "pokemon-talen",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "unclassified": 44,
+   "not-sealed": 54,
+   "foreign": 61,
+   "no-set": 21,
+   "accessory": 1
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Pokémon Scarlet & Violet 151: Mini Tin Display"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon 30th Celebration: Mini Tin Display"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon Prismatic Evolutions: Mini Tin Display"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon McDonald's Match Battle 2022: Booster Pack"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon Paldea Evolved: Fun Pack"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon General Mills 25th Anniversary: Booster Pack"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokémon Base Set (Unlimited): Booster Pack (Licht)"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokémon (JP) 25th Anniversary Edition: Booster Pack"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon McDonald's 25th Anniversary: Booster Pack"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon McDonald's Dragon Discovery: Booster Pack"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon Fusion Strike: Fun Pack"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon Scarlet & Violet: Fun Pack"
+   }
+  ],
+  "error": null,
+  "ms": 6895
+ },
+ {
+  "key": "lmshandel",
+  "name": "LMS Handel",
+  "base": "https://lms-handel.de",
+  "market": "EU",
+  "platform": "shopify",
+  "currency": "EUR",
+  "currencyOk": true,
+  "country": "DE",
+  "collections": [
+   "pokemon-tins",
+   "pokemon-boxen"
+  ],
+  "sealedProducts": 5,
+  "inStock": 0,
+  "allFound": 5,
+  "read": [
+   {
+    "handle": "pokemon-tins",
+    "ok": true,
+    "products": 6,
+    "accepted": 4
+   },
+   {
+    "handle": "pokemon-booster",
+    "ok": true,
+    "products": 7,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-displays",
+    "ok": true,
+    "products": 5,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 657,
+    "accepted": 1
+   },
+   {
+    "handle": "pokemon-boxen",
+    "ok": true,
+    "products": 15,
+    "accepted": 1
+   },
+   {
+    "handle": "pokemon-specials",
+    "ok": true,
+    "products": 2,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-kollektion",
+    "ok": true,
+    "products": 7,
+    "accepted": 1
+   },
+   {
+    "handle": "pokemon-einzelkarten",
+    "ok": true,
+    "products": 682,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "foreign": 942,
+   "not-sealed": 432
+  },
+  "samples": [],
+  "error": null,
+  "ms": 8871
+ },
+ {
+  "key": "recollectibles",
+  "name": "ReCollectibles",
+  "base": "https://recollectibles.de",
+  "market": "EU",
+  "platform": "shopify",
+  "currency": "EUR",
+  "currencyOk": true,
+  "country": "DE",
+  "collections": [
+   "pokemon-booster",
+   "pokemon-blister"
+  ],
+  "sealedProducts": 2,
+  "inStock": 1,
+  "allFound": 2,
+  "read": [
+   {
+    "handle": "pokemon-tins",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-booster",
+    "ok": true,
+    "products": 1,
+    "accepted": 1
+   },
+   {
+    "handle": "pokemon-blister",
+    "ok": true,
+    "products": 14,
+    "accepted": 1
+   },
+   {
+    "handle": "pokemon-displays",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-go",
+    "ok": true,
+    "products": 8,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-decks",
+    "ok": true,
+    "products": 1,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-hullen",
+    "ok": true,
+    "products": 1,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-box-set",
+    "ok": true,
+    "products": 17,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "foreign": 39,
+   "accessory": 1
+  },
+  "samples": [],
+  "error": null,
+  "ms": 9086
+ },
+ {
+  "key": "duelspoint",
+  "name": "Duels Point",
+  "base": "https://duelspoint.it",
+  "market": "EU",
+  "platform": "shopify",
+  "currency": "EUR",
+  "currencyOk": true,
+  "country": "IT",
+  "collections": [
+   "pokemon"
+  ],
+  "sealedProducts": 3,
+  "inStock": 0,
+  "allFound": 3,
+  "read": [
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 133,
+    "accepted": 3
+   },
+   {
+    "handle": "pre-order",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "singole-pokemon-tcg",
+    "ok": true,
+    "products": 536,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "foreign": 187,
+   "unclassified": 229,
+   "multiple": 1,
+   "not-sealed": 249
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Sfera Pokéball E25"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Set Allenatore Fuoriclasse Mega Lucario di Megaevoluzione"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Set Allenatore Fuoriclasse Mega Gardevoir di Megaevoluzione"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Mantello dell'Eroe - Cronoforze (ACE Rare) [TEF-152]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Rilevatore di Tesori - Evoluzioni Prismatiche (ACE Rare) [PRE-131]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Acchiappa-Pokémon Eccellente - Evoluzioni Prismatiche (ACE Rare) [PRE-119]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Tromba di Vetro - Evoluzioni Prismatiche (Uncommon) [PRE-110]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Acchiappa-Pokémon Eccellente - Cronoforze (ACE Rare) [TEF-157]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Maxicintura - Evoluzioni Prismatiche (ACE Rare) [PRE-117]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Latias - Colpo Fusione (Rare) [FST-193]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Mega Recupero - Evoluzioni Prismatiche (ACE Rare) [PRE-128]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Set Pigliamosche - Evoluzioni Prismatiche (Uncommon) [PRE-102]"
+   }
+  ],
+  "error": null,
+  "ms": 5336
+ },
+ {
+  "key": "tcgking",
+  "name": "TCG King",
+  "base": "https://tcgking.nl",
+  "market": "EU",
+  "platform": "shopify",
+  "currency": "EUR",
+  "currencyOk": true,
+  "country": "NL",
+  "collections": [
+   "pokemon-all-booster-bundles",
+   "pokemon-all-elite-trainer-boxes",
+   "pokemon-all-booster-boxes"
+  ],
+  "sealedProducts": 52,
+  "inStock": 49,
+  "allFound": 52,
+  "read": [
+   {
+    "handle": "pokemon-all-booster-boxes",
+    "ok": true,
+    "products": 14,
+    "accepted": 14
+   },
+   {
+    "handle": "pokemon-all-booster-bundles",
+    "ok": true,
+    "products": 20,
+    "accepted": 20
+   },
+   {
+    "handle": "pokemon-all-elite-trainer-boxes",
+    "ok": true,
+    "products": 18,
+    "accepted": 18
+   },
+   {
+    "handle": "pokemon-all-sealed-booster-box-cases",
+    "ok": true,
+    "products": 15,
+    "accepted": 0
+   },
+   {
+    "handle": "booster-packs",
+    "ok": true,
+    "products": 1,
+    "accepted": 0
+   },
+   {
+    "handle": "booster-boxes",
+    "ok": true,
+    "products": 60,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-n",
+    "ok": true,
+    "products": 2,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-az",
+    "ok": true,
+    "products": 2,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "unclassified": 15,
+   "not-pokemon": 61,
+   "not-sealed": 4
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Pokémon TCG: Chaos Rising (CRI) Sealed Case - English"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon TCG: Perfect Order (POR) Sealed Case - English"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon TCG: Phantasmal Flames (PFL) Sealed Case - English"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon TCG: Mega Evolution (MEG) Sealed Case - English"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon TCG: Destined Rivals (DRI) Sealed Case - English"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon TCG: Journey Together (JTG) Sealed Case - English"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon TCG: Surging Sparks (SSP) Sealed Case - English"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon TCG: Stellar Crown (SCR) Sealed Case - English"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon TCG: Twilight Masquerade (TWM) Sealed Case - English"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon TCG: Temporal Forces (TEF) Sealed Case - English"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon TCG: Paradox Rift (PAR) Sealed Case - English"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon TCG: Obsidian Flames (OBF) Sealed Case - English"
+   }
+  ],
+  "error": null,
+  "ms": 6599
+ },
+ {
+  "key": "gamesavenue",
+  "name": "Games Avenue",
+  "base": "https://gamesavenue.fr",
+  "market": "EU",
+  "platform": "shopify",
+  "currency": "EUR",
+  "currencyOk": true,
+  "country": "FR",
+  "collections": [
+   "display-pokemon"
+  ],
+  "sealedProducts": 1,
+  "inStock": 0,
+  "allFound": 1,
+  "read": [
+   {
+    "handle": "pokemon-pack",
+    "ok": true,
+    "products": 22,
+    "accepted": 0
+   },
+   {
+    "handle": "booster-pokemon",
+    "ok": true,
+    "products": 6,
+    "accepted": 0
+   },
+   {
+    "handle": "display-pokemon",
+    "ok": true,
+    "products": 8,
+    "accepted": 1
+   },
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 125,
+    "accepted": 1
+   },
+   {
+    "handle": "elite-trainer-box",
+    "ok": true,
+    "products": 13,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-deck-1",
+    "ok": true,
+    "products": 8,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-coffret",
+    "ok": true,
+    "products": 43,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-classeur-album",
+    "ok": true,
+    "products": 14,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "foreign": 203,
+   "no-set": 4,
+   "unclassified": 6,
+   "accessory": 24
+  },
+  "samples": [
+   {
+    "reason": "no-set",
+    "title": "Pokémon ! Tri Pack de 3 Boosters EV10 Rivalités Destinées : KangourexFrançais !"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon ! Coffret Edition Limitée Center \"HIROSHIMA\" - Japonais !"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon ! Coffret Edition Limitée Center \"TŌHOKU\" - Japonais !"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon ! Coffret Edition Limitée Center \"FUKUOKA\" - Japonais !"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokémon Bundle ME05 ! Contient ETB, Display, Tri-pack & Bundle boosters !"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokémon ! Tri Pack de 3 Boosters EV10 Rivalités Destinées : KangourexFrançais !"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon ! Coffret Edition Limitée Center \"HIROSHIMA\" - Japonais !"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon ! Coffret Edition Limitée Center \"TŌHOKU\" - Japonais !"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon ! Coffret Edition Limitée Center \"FUKUOKA\" - Japonais !"
+   }
+  ],
+  "error": null,
+  "ms": 5660
+ },
+ {
+  "key": "hitechgames",
+  "name": "Hi-Tech Games",
+  "base": "https://www.hitechgames.it",
+  "market": "EU",
+  "platform": "shopify",
+  "currency": "EUR",
+  "currencyOk": true,
+  "country": "IT",
+  "collections": [
+   "carte-pokemon",
+   "pokemon-tin-e-mini-tin"
+  ],
+  "sealedProducts": 6,
+  "inStock": 1,
+  "allFound": 6,
+  "read": [
+   {
+    "handle": "pokemon-tin-e-mini-tin",
+    "ok": true,
+    "products": 36,
+    "accepted": 3
+   },
+   {
+    "handle": "pokemon-bundle-da-6-bustine",
+    "ok": true,
+    "products": 13,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-collezioni-e-blister",
+    "ok": true,
+    "products": 36,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 68,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-tcg",
+    "ok": true,
+    "products": 35,
+    "accepted": 0
+   },
+   {
+    "handle": "carte-pokemon",
+    "ok": true,
+    "products": 206,
+    "accepted": 5
+   },
+   {
+    "handle": "prodotti-pokemon",
+    "ok": true,
+    "products": 255,
+    "accepted": 5
+   },
+   {
+    "handle": "pokemon-dominio-delta",
+    "ok": true,
+    "products": 5,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "foreign": 548,
+   "not-pokemon": 1,
+   "accessory": 67,
+   "not-sealed": 4,
+   "unclassified": 19,
+   "no-set": 2
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Accademia Lotta Serie 3"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Heat Wave Arena sv9a - Box da 30 bustine, 5 carte per bustina (JAP)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon Battle Partners – Box da 30 bustine (JAP)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon Super Electric Breaker – Box da 30 bustine (JAP)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Terastal Festival SV8a - Box da 10 bustine, 10 carte per bustina (JAP)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Ritorno a scuola Confezione con gomma Gengar"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Ritorno a scuola Confezione con gomma Bellibolt"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokemon V-Star Universe - Booster Pack Box JAP 10 bustine"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Bauletto Avventura a Paldea"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon - Calendario delle feste"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon Super Electric Breaker – Box da 30 bustine (JAP)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Terastal Festival SV8a - Box da 10 bustine, 10 carte per bustina (JAP)"
+   }
+  ],
+  "error": null,
+  "ms": 7977
+ },
+ {
+  "key": "opssmarket",
+  "name": "OPSS Market",
+  "base": "https://opssmarket.com",
+  "market": "EU",
+  "platform": "shopify",
+  "currency": "EUR",
+  "currencyOk": true,
+  "country": "IT",
+  "collections": [
+   "pokemon-mini-tin",
+   "pokemon-tin"
+  ],
+  "sealedProducts": 3,
+  "inStock": 3,
+  "allFound": 3,
+  "read": [
+   {
+    "handle": "pokemon-tin",
+    "ok": true,
+    "products": 5,
+    "accepted": 1
+   },
+   {
+    "handle": "blister-pokemon",
+    "ok": true,
+    "products": 2,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-mini-tin",
+    "ok": true,
+    "products": 2,
+    "accepted": 2
+   },
+   {
+    "handle": "collezione-premium-pokemon",
+    "ok": true,
+    "products": 2,
+    "accepted": 0
+   },
+   {
+    "handle": "etb",
+    "ok": true,
+    "products": 1,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-upc",
+    "ok": true,
+    "products": 1,
+    "accepted": 0
+   },
+   {
+    "handle": "graad-pokemon",
+    "ok": true,
+    "products": 5,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-mazzo",
+    "ok": true,
+    "products": 3,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "foreign": 12,
+   "unclassified": 4,
+   "not-sealed": 2
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "186-190 LOR Giratina V - SN [18563758] - ITALY - GRAAD 9"
+   },
+   {
+    "reason": "unclassified",
+    "title": "080-071 SV5M Metagross - SN [80902601] - JAPANESE- GRAAD 10"
+   },
+   {
+    "reason": "unclassified",
+    "title": "070-066 SV5A Infernape - SN [98855325] - JAPANESE- GRAAD 10"
+   }
+  ],
+  "error": null,
+  "ms": 5409
+ },
+ {
+  "key": "magicianscircle",
+  "name": "Magician's Circle",
+  "base": "https://www.magicians-circle.com",
+  "market": "EU",
+  "platform": "shopify",
+  "currency": "EUR",
+  "currencyOk": true,
+  "country": "IT",
+  "collections": [
+   "pokemon-espansioni-t-z",
+   "pokemon-espansioni-r-s",
+   "pokemon",
+   "pokemon-espansioni-e-j"
+  ],
+  "sealedProducts": 44,
+  "inStock": 36,
+  "allFound": 47,
+  "read": [
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 750,
+    "accepted": 9
+   },
+   {
+    "handle": "pokemon-espansioni-a-e",
+    "ok": true,
+    "products": 750,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-espansioni-e-j",
+    "ok": true,
+    "products": 750,
+    "accepted": 4
+   },
+   {
+    "handle": "pokemon-espansioni-l-p",
+    "ok": true,
+    "products": 719,
+    "accepted": 3
+   },
+   {
+    "handle": "pokemon-espansioni-r-s",
+    "ok": true,
+    "products": 736,
+    "accepted": 15
+   },
+   {
+    "handle": "pokemon-espansioni-t-z",
+    "ok": true,
+    "products": 693,
+    "accepted": 16
+   }
+  ],
+  "rejections": {
+   "unclassified": 3400,
+   "not-sealed": 905,
+   "foreign": 21,
+   "no-set": 13,
+   "accessory": 12
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Chikorita - Ascended Heroes (Common) [ASC-008]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Totodile - Ascended Heroes (Common) [ASC-041]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Charmander - Ascended Heroes (Common) [ASC-020]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Crobat  Lv.44 - 30th Celebration (Uncommon) [30C-PL 47]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pikachu - 30th Celebration (Pikachu Rare) [30C-045]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Eevee - 30th Celebration (Common) [30C-116]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Basic Darkness Energy - Mega Evolution Energies (Common) [MEE-015]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Basic Fire Energy - Mega Evolution Energies (Common) [MEE-010]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pikachu - 30th Celebration (Pikachu Rare) [30C-039]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pikachu - 30th Celebration (Pikachu Rare) [30C-028]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pikachu - 30th Celebration (Pikachu Rare) [30C-048]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Basic Fighting Energy - Mega Evolution Energies (Common) [MEE-014]"
+   }
+  ],
+  "error": null,
+  "ms": 28147
+ }
+]

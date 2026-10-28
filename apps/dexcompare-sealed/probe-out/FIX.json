@@ -1,0 +1,919 @@
+[
+ {
+  "key": "battlegroundgames",
+  "name": "Battleground Games",
+  "base": "https://battlegroundgames.ca",
+  "market": "CA",
+  "platform": "shopify",
+  "currency": "CAD",
+  "currencyOk": true,
+  "country": "CA",
+  "collections": [
+   "pokemon-sealed"
+  ],
+  "sealedProducts": 110,
+  "inStock": 11,
+  "allFound": 110,
+  "read": [
+   {
+    "handle": "pokemon-sealed",
+    "ok": true,
+    "products": 115,
+    "accepted": 110
+   },
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 750,
+    "accepted": 58
+   },
+   {
+    "handle": "pre-orders",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "accessory": 33,
+   "unclassified": 88,
+   "no-set": 2,
+   "not-sealed": 574
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Mega Charizard Tin Case"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Paldea Friends Mini Tin Display"
+   },
+   {
+    "reason": "no-set",
+    "title": "Trick or Trade - BOOster Bundle (2024)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Phantasmal Flames Pre-Release November 8th 2025 Ticket - Sat, 8 Nov 2025"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Perfect Order Pre-Release March 21st 2026 Ticket - Sat, 21 Mar 2026"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon Delta Reign Pre-Release October 24 2026 Ticket - Sat, 24 Oct 2026"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon Chaos Rising Pre-Release May 9 2026 Ticket - Sat, 9 May 2026"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon Pitch Black Pre-Release July 4 2026 Ticket - Sat, 4 Jul 2026"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Destined Rivals Pre-Release Ticket - Sun, 18 May 2025"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Mega Evolution Pre-Release Ticket - Sat, 13 Sep 2025"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon League Cup April 2026 Ticket - Sat, 25 Apr 2026"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon League Cup February 2026 Ticket - Sun, 1 Feb 2026"
+   }
+  ],
+  "error": null,
+  "ms": 9647
+ },
+ {
+  "key": "blackrosehobbies",
+  "name": "Black Rose Hobbies",
+  "base": "https://blackrosehobbies.com",
+  "market": "CA",
+  "platform": "shopify",
+  "currency": "CAD",
+  "currencyOk": true,
+  "country": "CA",
+  "collections": [
+   "pokemon-sealed",
+   "sealed"
+  ],
+  "sealedProducts": 89,
+  "inStock": 85,
+  "allFound": 89,
+  "read": [
+   {
+    "handle": "pokemon-sealed",
+    "ok": true,
+    "products": 85,
+    "accepted": 85
+   },
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 750,
+    "accepted": 0
+   },
+   {
+    "handle": "sealed",
+    "ok": true,
+    "products": 75,
+    "accepted": 4
+   },
+   {
+    "handle": "preorders",
+    "ok": true,
+    "products": 10,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "not-sealed": 702,
+   "unclassified": 50,
+   "not-pokemon": 79
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Charizard 001  - Promo"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Rayquaza 014  - Promo"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Olympia/83  - Uncommon"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Jolteon  - Uncommon"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Ruins Of Alph  - Uncommon"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Lairon  - Uncommon"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Gabite  - Uncommon"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Deoxys Attack Forme  - Rare"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Rhyhorn  - Common"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Aqua Energy  - Uncommon"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Deoxys (Defense Forme)  - Rare"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Mewtwo (14) (14) 014  - Promo"
+   }
+  ],
+  "error": null,
+  "ms": 10654
+ },
+ {
+  "key": "cardandink",
+  "name": "Card & Ink",
+  "base": "https://www.cardandink.com",
+  "market": "UK",
+  "platform": "shopify",
+  "currency": "GBP",
+  "currencyOk": true,
+  "country": "GB",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "sealed-products",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   }
+  ],
+  "rejections": {},
+  "samples": [],
+  "error": null,
+  "ms": 1575
+ },
+ {
+  "key": "decaldepotf",
+  "name": "Decal Depo TF",
+  "base": "https://decaldepotf.myshopify.com",
+  "market": "US",
+  "platform": null,
+  "currency": null,
+  "currencyOk": false,
+  "country": "US",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [],
+  "rejections": {},
+  "samples": [],
+  "error": "no public Shopify or WooCommerce feed",
+  "ms": 690
+ },
+ {
+  "key": "kumacards",
+  "name": "Kuma Cards",
+  "base": "https://kumacards.com",
+  "market": "UK",
+  "platform": null,
+  "currency": null,
+  "currencyOk": false,
+  "country": "GB",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [],
+  "rejections": {},
+  "samples": [],
+  "error": "no public Shopify or WooCommerce feed",
+  "ms": 658
+ },
+ {
+  "key": "morethanmeeples",
+  "name": "More Than Meeples",
+  "base": "https://morethanmeeples.com.au",
+  "market": "AU",
+  "platform": null,
+  "currency": null,
+  "currencyOk": false,
+  "country": "AU",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [],
+  "rejections": {},
+  "samples": [],
+  "error": "no public Shopify or WooCommerce feed",
+  "ms": 714
+ },
+ {
+  "key": "obsessiongaming",
+  "name": "Obsession Gaming",
+  "base": "https://obsessiongaming.com.au",
+  "market": "AU",
+  "platform": null,
+  "currency": null,
+  "currencyOk": false,
+  "country": "AU",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [],
+  "rejections": {},
+  "samples": [],
+  "error": "no public Shopify or WooCommerce feed",
+  "ms": 523
+ },
+ {
+  "key": "storeprcards",
+  "name": "PrCards",
+  "base": "https://storeprcards.myshopify.com",
+  "market": "US",
+  "platform": null,
+  "currency": null,
+  "currencyOk": false,
+  "country": "US",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [],
+  "rejections": {},
+  "samples": [],
+  "error": "no public Shopify or WooCommerce feed",
+  "ms": 551
+ },
+ {
+  "key": "cardlegendstcg",
+  "name": "Card Legends TCG",
+  "base": "https://www.cardlegendstcg.com",
+  "market": "CA",
+  "platform": "shopify",
+  "currency": "CAD",
+  "currencyOk": true,
+  "country": "CA",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "pokemon-english-sealed",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "preorder",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "new-arrivals",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   }
+  ],
+  "rejections": {},
+  "samples": [],
+  "error": null,
+  "ms": 4167
+ },
+ {
+  "key": "popstop",
+  "name": "Pop Stop",
+  "base": "https://popstop.co.nz",
+  "market": "NZ",
+  "platform": "shopify",
+  "currency": "NZD",
+  "currencyOk": true,
+  "country": "NZ",
+  "collections": [
+   "pokemon",
+   "pokemon-day"
+  ],
+  "sealedProducts": 247,
+  "inStock": 13,
+  "allFound": 247,
+  "read": [
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 750,
+    "accepted": 241
+   },
+   {
+    "handle": "pre-orders",
+    "ok": true,
+    "products": 750,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-day",
+    "ok": true,
+    "products": 145,
+    "accepted": 9
+   },
+   {
+    "handle": "pop-vinyl-pokemon",
+    "ok": true,
+    "products": 149,
+    "accepted": 1
+   },
+   {
+    "handle": "pokemon-model-kits",
+    "ok": true,
+    "products": 72,
+    "accepted": 0
+   },
+   {
+    "handle": "trading-card-games-pokemon",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "accessory": 1161,
+   "vague": 5,
+   "foreign": 3,
+   "unclassified": 164,
+   "no-set": 12,
+   "not-sealed": 24,
+   "not-pokemon": 246
+  },
+  "samples": [
+   {
+    "reason": "vague",
+    "title": "Pokemon TCG: 2-Pack Blister"
+   },
+   {
+    "reason": "vague",
+    "title": "Pokémon TCG: Mega Charizard Tin (Single, Assorted)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon - The Complete Pokemon Pocket Guide Vol. 1"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokemon - Pokeball Bitty Pop! 12 Pack"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokemon - Pikachu Bitty Pop! 4-Pack"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokemon - Squirtle Bitty Pop! 4-Pack"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokemon - Charmander Bitty Pop! 4-Pack"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon - Venusaur Pop! Premium"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokemon - Bulbasaur Bitty Pop! 4-Pack"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon - Pikachu Deluxe Gaming Trove"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Funism: Pokemon Keyring - Mimikyu"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Adventures: Collector's Edition - Vol. 1"
+   }
+  ],
+  "error": null,
+  "ms": 15270
+ },
+ {
+  "key": "tcgcompany",
+  "name": "TCG Company",
+  "base": "https://tcgcompany.nl",
+  "market": "EU",
+  "platform": null,
+  "currency": null,
+  "currencyOk": false,
+  "country": "DE",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [],
+  "rejections": {},
+  "samples": [],
+  "error": "no public Shopify or WooCommerce feed",
+  "ms": 983
+ },
+ {
+  "key": "vancitytcg",
+  "name": "Vancity TCG",
+  "base": "https://www.vancitytcg.ca",
+  "market": "CA",
+  "platform": null,
+  "currency": null,
+  "currencyOk": false,
+  "country": "CA",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [],
+  "rejections": {},
+  "samples": [],
+  "error": "no public Shopify or WooCommerce feed",
+  "ms": 526
+ },
+ {
+  "key": "lachsnackenshop",
+  "name": "Lachsnackenshop",
+  "base": "https://lachsnackenshop.de",
+  "market": "EU",
+  "platform": "shopify",
+  "currency": "EUR",
+  "currencyOk": true,
+  "country": "DE",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "pokemon-booster",
+    "ok": true,
+    "products": 45,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "foreign": 32,
+   "accessory": 3,
+   "no-set": 5,
+   "unclassified": 4,
+   "not-pokemon": 1
+  },
+  "samples": [
+   {
+    "reason": "no-set",
+    "title": "Glory of Team Rocket 5er Booster Bundle"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Mcdonalds Promopack Japan 2025"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Mega Pixel Art Pikachu"
+   },
+   {
+    "reason": "no-set",
+    "title": "Mask of Change 5er Booster Bundle"
+   },
+   {
+    "reason": "no-set",
+    "title": "Cyber Judge 5er Booster Bundle"
+   },
+   {
+    "reason": "no-set",
+    "title": "Rapid Strike Master 5er Booster Bundle"
+   },
+   {
+    "reason": "no-set",
+    "title": "Weiße Flammen Boosterbundle Pokémon TCG"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Mega Pixel Art Schiggy"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Mega Pixel Art Bisasam"
+   }
+  ],
+  "error": null,
+  "ms": 1986
+ },
+ {
+  "key": "irishpokefinds",
+  "name": "Irish Poké Finds",
+  "base": "https://irishpokefinds.ie",
+  "market": "EU",
+  "platform": "shopify",
+  "currency": "EUR",
+  "currencyOk": true,
+  "country": "IE",
+  "collections": [
+   "all-pokemon-cards"
+  ],
+  "sealedProducts": 2,
+  "inStock": 2,
+  "allFound": 2,
+  "read": [
+   {
+    "handle": "all-pokemon-cards",
+    "ok": true,
+    "products": 750,
+    "accepted": 2
+   },
+   {
+    "handle": "sealed-products",
+    "ok": true,
+    "products": 4,
+    "accepted": 0
+   },
+   {
+    "handle": "new-arrivals",
+    "ok": true,
+    "products": 83,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "no-set": 2,
+   "unclassified": 743,
+   "accessory": 2,
+   "not-sealed": 3,
+   "not-pokemon": 84,
+   "foreign": 1
+  },
+  "samples": [
+   {
+    "reason": "no-set",
+    "title": "Irish Poké Finds Poké Surprise Pack"
+   },
+   {
+    "reason": "unclassified",
+    "title": "020 Charmander - Ascended Hereos"
+   },
+   {
+    "reason": "unclassified",
+    "title": "069 Tauros – Chaos Rising"
+   },
+   {
+    "reason": "unclassified",
+    "title": "009 Ninetales - Chaos Rising"
+   },
+   {
+    "reason": "unclassified",
+    "title": "014 Talonflame – Perfect Order"
+   },
+   {
+    "reason": "unclassified",
+    "title": "074 Lunatone - Mega Evolution"
+   },
+   {
+    "reason": "unclassified",
+    "title": "058 Ralts - Mega Evolution"
+   },
+   {
+    "reason": "unclassified",
+    "title": "150 Dratini - Ascended Hereos"
+   },
+   {
+    "reason": "unclassified",
+    "title": "083 Transformation Tome – Chaos Rising"
+   },
+   {
+    "reason": "unclassified",
+    "title": "039 Trevenant – Chaos Rising"
+   },
+   {
+    "reason": "unclassified",
+    "title": "014 Litleo - Chaos Rising"
+   },
+   {
+    "reason": "unclassified",
+    "title": "006 Quilladin - Chaos Rising"
+   }
+  ],
+  "error": null,
+  "ms": 5181
+ },
+ {
+  "key": "luxcards",
+  "name": "LuxCards",
+  "base": "https://luxcards.lu",
+  "market": "EU",
+  "platform": "shopify",
+  "currency": "EUR",
+  "currencyOk": true,
+  "country": "LU",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "sealed-products-pokemon",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "boosters-pokemon-japonais",
+    "ok": true,
+    "products": 9,
+    "accepted": 0
+   },
+   {
+    "handle": "booster-box-pokemon-japonais",
+    "ok": true,
+    "products": 11,
+    "accepted": 0
+   },
+   {
+    "handle": "scelle-coreen-pokemon",
+    "ok": true,
+    "products": 13,
+    "accepted": 0
+   },
+   {
+    "handle": "scelles-pokemon-japonais",
+    "ok": true,
+    "products": 24,
+    "accepted": 0
+   },
+   {
+    "handle": "produits-scelles-pokemon",
+    "ok": true,
+    "products": 37,
+    "accepted": 0
+   },
+   {
+    "handle": "coffrets-pokemon-japonais",
+    "ok": true,
+    "products": 4,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "no-set": 27,
+   "foreign": 71
+  },
+  "samples": [
+   {
+    "reason": "no-set",
+    "title": "M4 Ninja Spinner - Booster"
+   },
+   {
+    "reason": "no-set",
+    "title": "M3 Munikis Zero - Booster"
+   },
+   {
+    "reason": "no-set",
+    "title": "M2 Inferno X - Booster"
+   },
+   {
+    "reason": "no-set",
+    "title": "SV10 The glory of Team Rocket - Booster"
+   },
+   {
+    "reason": "no-set",
+    "title": "M5 Abyss Eye - Booster Box"
+   },
+   {
+    "reason": "no-set",
+    "title": "M4 Ninja Spinner - Booster Box"
+   },
+   {
+    "reason": "no-set",
+    "title": "M3 Munikis Zero - Booster Box"
+   },
+   {
+    "reason": "no-set",
+    "title": "M2 Inferno X - Booster Box"
+   },
+   {
+    "reason": "no-set",
+    "title": "SV10 The glory of Team Rocket - Booster Box"
+   },
+   {
+    "reason": "no-set",
+    "title": "M5 Abyss Eye - Booster Box"
+   },
+   {
+    "reason": "no-set",
+    "title": "M4 Ninja Spinner - Booster"
+   },
+   {
+    "reason": "no-set",
+    "title": "M4 Ninja Spinner - Booster Box"
+   }
+  ],
+  "error": null,
+  "ms": 6234
+ },
+ {
+  "key": "irresistibleforce",
+  "name": "Irresistible Force TCG",
+  "base": "https://tcg.irresistibleforce.com.au",
+  "market": "AU",
+  "platform": "shopify",
+  "currency": "AUD",
+  "currencyOk": true,
+  "country": "AU",
+  "collections": [
+   "pokemon-2022"
+  ],
+  "sealedProducts": 1,
+  "inStock": 0,
+  "allFound": 1,
+  "read": [
+   {
+    "handle": "pokemon-go",
+    "ok": true,
+    "products": 148,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-151",
+    "ok": true,
+    "products": 418,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-2026",
+    "ok": true,
+    "products": 750,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-2025",
+    "ok": true,
+    "products": 750,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-2024",
+    "ok": true,
+    "products": 250,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-2023",
+    "ok": true,
+    "products": 750,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-2022",
+    "ok": true,
+    "products": 750,
+    "accepted": 1
+   },
+   {
+    "handle": "pokemon-2021",
+    "ok": true,
+    "products": 750,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "not-sealed": 3509,
+   "unclassified": 967,
+   "foreign": 63,
+   "accessory": 3,
+   "no-set": 23
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Xatu 033  Pokemon GO - Uncommon"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Wimpod 025  Pokemon GO - Common"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Wartortle 016  Pokemon GO - Uncommon"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Unfezant 063  Pokemon GO - Uncommon"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Tranquill 062  Pokemon GO - Common"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Steelix 044  Pokemon GO - Uncommon"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Squirtle 015  Pokemon GO - Common"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Spinarak 006  Pokemon GO - Common"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Spark 070  Pokemon GO - Uncommon"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Solrock 039  Pokemon GO - Uncommon"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Slowpoke 019  Pokemon GO - Common"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Slowbro 020  Pokemon GO - Uncommon"
+   }
+  ],
+  "error": null,
+  "ms": 30377
+ }
+]
