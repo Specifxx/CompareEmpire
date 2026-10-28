@@ -8,6 +8,7 @@ import { MobileMenu } from "./MobileMenu";
 import { NavLink } from "./NavLink";
 import { RegionSwitcher } from "./RegionSwitcher";
 import { SearchBox } from "./SearchBox";
+import { ShopMenuPanel } from "./ShopMenu";
 import { ThemeToggle } from "./ThemeToggle";
 
 /**
@@ -52,16 +53,27 @@ export function Header({ region }: { region: Region | null }) {
         {region ? (
           <>
             <nav className="hidden items-center gap-0.5 lg:flex" aria-label="Main">
-              {headerNav().map((n) => (
-                <NavLink
-                  key={n.key}
-                  href={sectionHref(region, n.key)}
-                  also={n.also?.map((p) => `/${region}${p}`)}
-                  className={`${n.xl ? "hidden xl:inline-flex" : ""} whitespace-nowrap rounded-full px-3 py-1.5 text-sm font-medium transition-colors`}
-                >
-                  {n.label}
-                </NavLink>
-              ))}
+              {headerNav().map((n) => {
+                const link = (
+                  <NavLink
+                    key={n.key}
+                    href={sectionHref(region, n.key)}
+                    also={n.also?.map((p) => `/${region}${p}`)}
+                    className={`${n.xl ? "hidden xl:inline-flex" : ""} whitespace-nowrap rounded-full px-3 py-1.5 text-sm font-medium transition-colors`}
+                  >
+                    {n.label}
+                  </NavLink>
+                );
+                // "All sealed" opens the category dropdown (components/ShopMenu.tsx): by product, by set, by value.
+                return n.key === "sealed" ? (
+                  <div key={n.key} className="group relative">
+                    {link}
+                    <ShopMenuPanel region={region} />
+                  </div>
+                ) : (
+                  link
+                );
+              })}
               {/* A discreet, labelled sponsored item (xl and up only): eBay's search, tagged. Not a section of the site. */}
               <EbayNavLink region={region} />
             </nav>
