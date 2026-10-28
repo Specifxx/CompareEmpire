@@ -13,7 +13,8 @@ import { ProductRail } from "@/components/ProductRail";
 import { SearchBox } from "@/components/SearchBox";
 import { Empty, Section } from "@/components/Section";
 import { StockPill } from "@/components/StockPill";
-import { homeRails, regionOverview, type ProductCardData } from "@/lib/data";
+import { homeRails, regionOverview, tcgplayerTiles, type ProductCardData } from "@/lib/data";
+import { TcgplayerStrip } from "@/components/TcgplayerStrip";
 import { dealsCopy, dealsInMarket, fitTitle, homeCopy, nearestRegion, stockLabel } from "@/lib/deals";
 import { cardOpen } from "@/lib/compact";
 import { money, plural, timeAgo } from "@/lib/format";
@@ -66,7 +67,7 @@ const QUICK_TYPES = ["booster-boxes", "elite-trainer-boxes", "booster-bundles", 
 
 export default async function RegionHome({ params }: { params: { region: string } }) {
   const r = regionOrNotFound(params.region);
-  const [{ boxes, etbs, preorders, latestSets: bySet }, overview, deals, report, older, setCounts, listedTypes] = await Promise.all([
+  const [{ boxes, etbs, preorders, latestSets: bySet }, overview, deals, report, older, setCounts, listedTypes, tcgTiles] = await Promise.all([
     homeRails(r.market),
     getOverview(r.market),
     dealsInMarket(r.market, { take: 8 }),
@@ -74,6 +75,7 @@ export default async function RegionHome({ params }: { params: { region: string 
     olderInStockData(r.market).catch(() => []),
     setCountsGrouped(r.market),
     typeLabelsInMarket(r.market),
+    tcgplayerTiles({ take: 12 }).catch(() => []),
   ]);
   // The seven regions side by side, moved here from the landing page (2026-10-25).
   const reports = await Promise.all(REGION_LIST.map((x) => (x.region === r.region ? report : loadMarketReport(x.market)))).catch(() => [report]);
@@ -244,6 +246,9 @@ export default async function RegionHome({ params }: { params: { region: string 
             </Empty>
           )}
         </Section>
+
+        {/* Real sealed products on TCGplayer (2026-10-28), after the ETB rail: well below the comparison above it. */}
+        <TcgplayerStrip tiles={tcgTiles} region={r.region} placement="tcgplayer-strip-home" title="Pokémon sealed on TCGplayer" className="mt-14" />
 
         <RegionReport rep={report} />
         <RegionsCompared reports={reports} />
