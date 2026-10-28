@@ -32,6 +32,8 @@ export const SISTER_SITES = [
   { name: "Lorcana Compare", url: "https://lorcanacompare.com", what: "Disney Lorcana prices" },
   // Every site links the whole family (2026-10-27, owner: "backlink all of it").
   { name: "YGO Compare", url: "https://ygocompare.com", what: "Yu-Gi-Oh! card prices" },
+  { name: "WargameCompare", url: "https://wargamecompare.com", what: "miniature wargame prices" },
+  { name: "FigureCompare", url: "https://figurecompare.com", what: "anime figure prices" },
   { name: "CamCompare", url: "https://www.camcompare.app", what: "camera and lens prices" },
   { name: "Compare Empire", url: "https://www.compareempire.com", what: "Australian tech prices" },
 ] as const;
