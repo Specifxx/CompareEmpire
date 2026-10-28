@@ -1,0 +1,2320 @@
+[
+ {
+  "key": "adventurebox",
+  "name": "Adventurebox",
+  "base": "https://adventurebox.ca",
+  "market": "CA",
+  "platform": "shopify",
+  "currency": "CAD",
+  "currencyOk": true,
+  "country": "CA",
+  "collections": [
+   "collections-cartes-pokemon"
+  ],
+  "sealedProducts": 23,
+  "inStock": 22,
+  "allFound": 23,
+  "read": [
+   {
+    "handle": "collections-cartes-pokemon",
+    "ok": true,
+    "products": 27,
+    "accepted": 23
+   }
+  ],
+  "rejections": {
+   "foreign": 1,
+   "accessory": 1,
+   "no-set": 2
+  },
+  "samples": [
+   {
+    "reason": "no-set",
+    "title": "Pokémon Mega Evolution · Booster"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokémon Gemstone Pack Vol.5 · Booster Box (JP) · CBB5C"
+   }
+  ],
+  "error": null,
+  "ms": 1823
+ },
+ {
+  "key": "arcardia",
+  "name": "Arcardia Collectibles & Exchange",
+  "base": "https://arcardia.ca",
+  "market": "CA",
+  "platform": "shopify",
+  "currency": "CAD",
+  "currencyOk": true,
+  "country": "CA",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "new-arrivals",
+    "ok": true,
+    "products": 27,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "not-pokemon": 27
+  },
+  "samples": [],
+  "error": null,
+  "ms": 1298
+ },
+ {
+  "key": "amazingstoriesgames",
+  "name": "Amazing Stories",
+  "base": "https://amazingstoriesgames.ca",
+  "market": "CA",
+  "platform": "shopify",
+  "currency": "CAD",
+  "currencyOk": true,
+  "country": "CA",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "pokemon-sealed",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-sealed-products",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-tcg",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "sealed",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pre-orders",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "preorders",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "booster-boxes",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   }
+  ],
+  "rejections": {},
+  "samples": [],
+  "error": null,
+  "ms": 5000
+ },
+ {
+  "key": "allinhobbysports",
+  "name": "All-In Hobby Sports",
+  "base": "https://allinhobbysports.com",
+  "market": "CA",
+  "platform": "shopify",
+  "currency": "CAD",
+  "currencyOk": true,
+  "country": "CA",
+  "collections": [
+   "all-pokemon"
+  ],
+  "sealedProducts": 283,
+  "inStock": 148,
+  "allFound": 283,
+  "read": [
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 2,
+    "accepted": 0
+   },
+   {
+    "handle": "all-pokemon",
+    "ok": true,
+    "products": 369,
+    "accepted": 283
+   },
+   {
+    "handle": "pokemon-french",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-pre-order",
+    "ok": true,
+    "products": 17,
+    "accepted": 17
+   }
+  ],
+  "rejections": {
+   "not-sealed": 3,
+   "foreign": 20,
+   "accessory": 63,
+   "no-set": 1,
+   "multiple": 1
+  },
+  "samples": [
+   {
+    "reason": "no-set",
+    "title": "Pokemon Sword & Shield Brillant Stars Elite Trainer Box"
+   }
+  ],
+  "error": null,
+  "ms": 5383
+ },
+ {
+  "key": "ariasnacks",
+  "name": "Aria Snacks and Hobbies",
+  "base": "https://ariasnacks.ca",
+  "market": "CA",
+  "platform": "shopify",
+  "currency": "CAD",
+  "currencyOk": true,
+  "country": "CA",
+  "collections": [
+   "new-arrivals"
+  ],
+  "sealedProducts": 3,
+  "inStock": 3,
+  "allFound": 3,
+  "read": [
+   {
+    "handle": "preorders",
+    "ok": true,
+    "products": 593,
+    "accepted": 0
+   },
+   {
+    "handle": "new-arrivals",
+    "ok": true,
+    "products": 750,
+    "accepted": 3
+   }
+  ],
+  "rejections": {
+   "not-sealed": 372,
+   "not-pokemon": 701,
+   "accessory": 253,
+   "foreign": 12,
+   "multiple": 2
+  },
+  "samples": [],
+  "error": null,
+  "ms": 6741
+ },
+ {
+  "key": "bdcosmos",
+  "name": "BD Cosmos",
+  "base": "https://bdcosmos.com",
+  "market": "CA",
+  "platform": "shopify",
+  "currency": "CAD",
+  "currencyOk": true,
+  "country": "CA",
+  "collections": [
+   "pokemon-sealed-product"
+  ],
+  "sealedProducts": 271,
+  "inStock": 46,
+  "allFound": 271,
+  "read": [
+   {
+    "handle": "pokemon-sealed-product",
+    "ok": true,
+    "products": 315,
+    "accepted": 271
+   },
+   {
+    "handle": "pre-orders",
+    "ok": true,
+    "products": 553,
+    "accepted": 25
+   },
+   {
+    "handle": "pokemon-10-5",
+    "ok": true,
+    "products": 10,
+    "accepted": 8
+   },
+   {
+    "handle": "pokemon-pre-orders",
+    "ok": true,
+    "products": 30,
+    "accepted": 25
+   }
+  ],
+  "rejections": {
+   "no-set": 14,
+   "unclassified": 24,
+   "multiple": 7,
+   "foreign": 3,
+   "accessory": 5,
+   "not-sealed": 13,
+   "not-pokemon": 513
+  },
+  "samples": [
+   {
+    "reason": "no-set",
+    "title": "POKEMON TCG SV8.5: PRISMATIC EVOLUTION ELITE TRAINER BOX SEALED CASE OF 10"
+   },
+   {
+    "reason": "unclassified",
+    "title": "POKEMON TCG: 30TH CELEBRATION ULTRA PREMIUM COLLECTION SEALED CASE - NOV 6TH - LIMIT 1 PER ORDER [READ DESCRIPTION]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "POKEMON TCG ME05: PITCH BLACK ELITE TRAINER CASE OF 10 - LIMIT 1 PER ORDER"
+   },
+   {
+    "reason": "unclassified",
+    "title": "POKEMON TCG: 30TH CELEBRATION TECH STICKER"
+   },
+   {
+    "reason": "unclassified",
+    "title": "POKEMON TCG: LUMIOSE CITY MINI TIN DISPLAY"
+   },
+   {
+    "reason": "unclassified",
+    "title": "POKEMON TCG ME04: CHAOS RISING ELITE TRAINER CASE - WAVE 2 END JUNE - 1 PER ORDER [READ DESCRIPTION]"
+   },
+   {
+    "reason": "unclassified",
+    "title": "POKEMON TCG ME04: CHAOS RISING ELITE TRAINER CASE"
+   },
+   {
+    "reason": "unclassified",
+    "title": "POKEMON TCG ME02.5: ASCENDED HEROES ELITE TRAINER CAISSE OF 10"
+   },
+   {
+    "reason": "unclassified",
+    "title": "POKEMON TCG: PALDEAN FATES"
+   },
+   {
+    "reason": "no-set",
+    "title": "POKEMON TCG ME01: MEGA EVOLUTION EVOLUTION BOOSTER BUNDLE WAVE 2 OCTOBER"
+   },
+   {
+    "reason": "unclassified",
+    "title": "POKEMON TCG: TRAINER TOOLKIT 2025"
+   },
+   {
+    "reason": "no-set",
+    "title": "POKEMON TCG: TRICK OR TRADE 2025 (PACK OF 35)"
+   }
+  ],
+  "error": null,
+  "ms": 6414
+ },
+ {
+  "key": "dejouer",
+  "name": "DéJouer",
+  "base": "https://dejouer.ca",
+  "market": "CA",
+  "platform": "shopify",
+  "currency": "CAD",
+  "currencyOk": true,
+  "country": "CA",
+  "collections": [
+   "pokemon-sealed"
+  ],
+  "sealedProducts": 93,
+  "inStock": 62,
+  "allFound": 93,
+  "read": [
+   {
+    "handle": "pokemon-sealed",
+    "ok": true,
+    "products": 103,
+    "accepted": 93
+   }
+  ],
+  "rejections": {
+   "accessory": 2,
+   "unclassified": 3,
+   "foreign": 4,
+   "vague": 1
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "POKEMON ME05 PITCH BLACK ELITE TRAINER"
+   },
+   {
+    "reason": "unclassified",
+    "title": "POKEMON ME03 PERFECT ORDER ELITE TRAINER"
+   },
+   {
+    "reason": "unclassified",
+    "title": "POKEMON ME06 DELTA REIGN ELITE TRAINER (PRE-ORDER)"
+   },
+   {
+    "reason": "vague",
+    "title": "POKEMON 30TH CELEBRATION ULTRA-PREMIUM COLLECTION"
+   }
+  ],
+  "error": null,
+  "ms": 1500
+ },
+ {
+  "key": "kingdomtitans",
+  "name": "Au Royaume des Titans inc.",
+  "base": "https://kingdomtitans.ca",
+  "market": "CA",
+  "platform": "shopify",
+  "currency": "CAD",
+  "currencyOk": true,
+  "country": "CA",
+  "collections": [
+   "pokemon-tcg-sealed-products"
+  ],
+  "sealedProducts": 233,
+  "inStock": 69,
+  "allFound": 233,
+  "read": [
+   {
+    "handle": "pokemon-tcg-sealed-products",
+    "ok": true,
+    "products": 335,
+    "accepted": 233
+   },
+   {
+    "handle": "home-pokemon-tcg-sealed-products-in-stock",
+    "ok": true,
+    "products": 91,
+    "accepted": 69
+   },
+   {
+    "handle": "pokemon-tcg",
+    "ok": true,
+    "products": 750,
+    "accepted": 37
+   },
+   {
+    "handle": "pre-orders-all",
+    "ok": true,
+    "products": 220,
+    "accepted": 21
+   },
+   {
+    "handle": "tcg-pre-orders",
+    "ok": true,
+    "products": 167,
+    "accepted": 21
+   },
+   {
+    "handle": "pokemon-model-kits",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-tcg-pre-orders",
+    "ok": true,
+    "products": 27,
+    "accepted": 21
+   },
+   {
+    "handle": "pokemon-licenced-products",
+    "ok": true,
+    "products": 1,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "unclassified": 48,
+   "foreign": 141,
+   "accessory": 68,
+   "not-sealed": 661,
+   "no-set": 2,
+   "multiple": 1,
+   "not-pokemon": 268
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Pokemon ME06 Delta Reign Build & Battle Display Box Display (EN) (PRE ORDER)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon 30th Celebration Tech Sticker Collection Case (EN)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon 30th Celebration Knock Out Collection Case (EN)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon 30th Celebration Poster Collection Case (EN)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon 30th Celebration Sylveon Ex (EN)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon 30th Celebration Greninja / Sylveon Ex Box Case (EN)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon First Partner Illustration Collection Series 3 Case (EN)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon 30th Celebration Mini Tin 10ct Display (EN)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon TCG 2025 World Championship JP Raging Bolt Deck"
+   },
+   {
+    "reason": "no-set",
+    "title": "Mega Evolution Lucario Pokemon Center Sealed Elite Trainer Box PC ETB"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon TCG ME05 Pitch Black Build & Battle Box Display (EN)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon TCG ME04 Chaos Rising Build & Battle Box Display (EN)"
+   }
+  ],
+  "error": null,
+  "ms": 9930
+ },
+ {
+  "key": "dragonpourpre",
+  "name": "Dragon Pourpre",
+  "base": "https://dragonpourpre.com",
+  "market": "CA",
+  "platform": null,
+  "currency": null,
+  "currencyOk": false,
+  "country": "CA",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [],
+  "rejections": {},
+  "samples": [],
+  "error": "no public Shopify or WooCommerce feed",
+  "ms": 1438
+ },
+ {
+  "key": "downstairscellar",
+  "name": "Downstairs Cellar",
+  "base": "https://downstairscellar.ca",
+  "market": "CA",
+  "platform": "shopify",
+  "currency": "CAD",
+  "currencyOk": true,
+  "country": "CA",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "pokemon-sealed",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-sealed-products",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-tcg",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "sealed",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pre-orders",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "preorders",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "booster-boxes",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   }
+  ],
+  "rejections": {},
+  "samples": [],
+  "error": null,
+  "ms": 4589
+ },
+ {
+  "key": "greensteelgames",
+  "name": "Green Steel Games",
+  "base": "https://greensteelgames.ca",
+  "market": "CA",
+  "platform": null,
+  "currency": null,
+  "currencyOk": false,
+  "country": "CA",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [],
+  "rejections": {},
+  "samples": [],
+  "error": "no public Shopify or WooCommerce feed",
+  "ms": 611
+ },
+ {
+  "key": "gamepointcentral",
+  "name": "Game Point",
+  "base": "https://gamepointcentral.com",
+  "market": "CA",
+  "platform": "shopify",
+  "currency": "CAD",
+  "currencyOk": true,
+  "country": "CA",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "pokemon-sealed",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-sealed-products",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-tcg",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "sealed",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pre-orders",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "preorders",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "booster-boxes",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   }
+  ],
+  "rejections": {},
+  "samples": [],
+  "error": null,
+  "ms": 4695
+ },
+ {
+  "key": "hardbrickgames",
+  "name": "Hard Brick Games",
+  "base": "https://hardbrickgames.com",
+  "market": "CA",
+  "platform": "shopify",
+  "currency": "CAD",
+  "currencyOk": true,
+  "country": "CA",
+  "collections": [
+   "pokemon-sealed",
+   "pokemon-30th-celebration"
+  ],
+  "sealedProducts": 19,
+  "inStock": 14,
+  "allFound": 19,
+  "read": [
+   {
+    "handle": "pokemon-sealed",
+    "ok": true,
+    "products": 14,
+    "accepted": 14
+   },
+   {
+    "handle": "pokemon-30th-celebration",
+    "ok": true,
+    "products": 5,
+    "accepted": 5
+   }
+  ],
+  "rejections": {},
+  "samples": [],
+  "error": null,
+  "ms": 2623
+ },
+ {
+  "key": "iwantthatstuff",
+  "name": "I Want That Stuff",
+  "base": "https://iwantthatstuff.store",
+  "market": "CA",
+  "platform": "shopify",
+  "currency": "CAD",
+  "currencyOk": true,
+  "country": "CA",
+  "collections": [
+   "pokemon-sealed"
+  ],
+  "sealedProducts": 320,
+  "inStock": 0,
+  "allFound": 320,
+  "read": [
+   {
+    "handle": "pokemon-sealed",
+    "ok": true,
+    "products": 750,
+    "accepted": 320
+   },
+   {
+    "handle": "new-arrivals",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "accessory": 345,
+   "no-set": 13,
+   "vague": 2,
+   "unclassified": 58,
+   "multiple": 9,
+   "retail-edition": 1,
+   "not-sealed": 2
+  },
+  "samples": [
+   {
+    "reason": "no-set",
+    "title": "Pokemon - Booster Box"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokemon - Booster Bundle"
+   },
+   {
+    "reason": "vague",
+    "title": "Pokemon - Blister Packs"
+   },
+   {
+    "reason": "vague",
+    "title": "Pokemon -  Trainer's Toolkit"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Mega Evolution: Ascended Heroes - Mega ex Boxes Case"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Mega Evolution: Ascended Heroes - First Partners Deluxe Pin Collection Case"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Mega Evolution: Phantasmal Flames - Build & Battle Box Display"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Team Rocket's Mewtwo ex Box Case"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Scarlet & Violet: Destined Rivals - Sleeved Booster Case"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Journey Together - Enhanced Booster Box Case"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Scarlet & Violet: Destined Rivals Half Booster Box"
+   },
+   {
+    "reason": "unclassified",
+    "title": "TAG TEAM Tin Case"
+   }
+  ],
+  "error": null,
+  "ms": 3826
+ },
+ {
+  "key": "heroesworld",
+  "name": "Heroes World",
+  "base": "https://heroesworld.ca",
+  "market": "CA",
+  "platform": "shopify",
+  "currency": "CAD",
+  "currencyOk": true,
+  "country": "CA",
+  "collections": [
+   "pokemon-card-game"
+  ],
+  "sealedProducts": 77,
+  "inStock": 15,
+  "allFound": 77,
+  "read": [
+   {
+    "handle": "new-preorders",
+    "ok": true,
+    "products": 349,
+    "accepted": 0
+   },
+   {
+    "handle": "trading-card-game-pre-orders",
+    "ok": true,
+    "products": 13,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-card-game",
+    "ok": true,
+    "products": 88,
+    "accepted": 77
+   }
+  ],
+  "rejections": {
+   "not-sealed": 14,
+   "not-pokemon": 306,
+   "accessory": 40,
+   "multiple": 8,
+   "vague": 2,
+   "unclassified": 3
+  },
+  "samples": [
+   {
+    "reason": "vague",
+    "title": "League Battle Deck | Mega Lucario EX | Pokemon TCG"
+   },
+   {
+    "reason": "vague",
+    "title": "Mini Tin | Unova | Pokemon TCG"
+   },
+   {
+    "reason": "unclassified",
+    "title": "POKEMON SV6 TWILIGHT MASQUERADE ELITE TRAINER"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon: Back To School Pencil Case 2023"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon My First Battle"
+   }
+  ],
+  "error": null,
+  "ms": 4744
+ },
+ {
+  "key": "breakawaysc",
+  "name": "Breakaway Sports Cards",
+  "base": "https://breakawaysc.com",
+  "market": "CA",
+  "platform": "woocommerce",
+  "currency": "CAD",
+  "currencyOk": true,
+  "country": "CA",
+  "collections": [
+   "pokemon"
+  ],
+  "sealedProducts": 270,
+  "inStock": 56,
+  "allFound": 270,
+  "read": [
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 297,
+    "accepted": 270
+   },
+   {
+    "handle": "pokemon-play",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pre-order-pokemon",
+    "ok": true,
+    "products": 18,
+    "accepted": 18
+   }
+  ],
+  "rejections": {
+   "unclassified": 13,
+   "not-sealed": 1,
+   "accessory": 9,
+   "no-set": 4
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "POKEMON 30TH CELEBRATION MINI TIN DISPLAY"
+   },
+   {
+    "reason": "unclassified",
+    "title": "POKEMON LUMIOSE CITY MINI TIN DISPLAY"
+   },
+   {
+    "reason": "unclassified",
+    "title": "POKEMON MEGA EVOLUTION ASCENDED HEROES MINI TIN DISPLAY"
+   },
+   {
+    "reason": "unclassified",
+    "title": "POKEMON MEGA EVOLUTION NON-ENHANCED BOOSTER BOX"
+   },
+   {
+    "reason": "unclassified",
+    "title": "POKEMON MEGA EVOLUTION ENHANCED BOOSTER BOX"
+   },
+   {
+    "reason": "no-set",
+    "title": "POKEMON MEGA EVOLUTION LUCARIO ELITE TRAINER BOX"
+   },
+   {
+    "reason": "no-set",
+    "title": "POKEMON MEGA EVOLUTION GARDEVOIR ELITE TRAINER BOX"
+   },
+   {
+    "reason": "unclassified",
+    "title": "POKEMON SCARLET AND VIOLET BLACK BOLT & WHITE FLARE UNOVA MINI TIN DISPLAY"
+   },
+   {
+    "reason": "unclassified",
+    "title": "POKEMON SCARLET AND VIOLET JOURNEY TOGETHER NON-ENHANCED BOOSTER BOX"
+   },
+   {
+    "reason": "unclassified",
+    "title": "POKEMON SCARLET AND VIOLET JOURNEY TOGETHER ENHANCED BOOSTER BOX"
+   },
+   {
+    "reason": "unclassified",
+    "title": "POKEMON SCARLET AND VIOLET PRISMATIC EVOLUTIONS MINI TIN DISPLAY"
+   },
+   {
+    "reason": "no-set",
+    "title": "POKEMON TRICK OR TRADE BOOSTER BUNDLE 2024"
+   }
+  ],
+  "error": null,
+  "ms": 16395
+ },
+ {
+  "key": "lazytradingcards",
+  "name": "Lazy Trading Cards & Hobby Collectibles",
+  "base": "https://lazytradingcards.com",
+  "market": "CA",
+  "platform": "shopify",
+  "currency": "CAD",
+  "currencyOk": true,
+  "country": "CA",
+  "collections": [
+   "pokemon"
+  ],
+  "sealedProducts": 29,
+  "inStock": 9,
+  "allFound": 29,
+  "read": [
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 63,
+    "accepted": 29
+   }
+  ],
+  "rejections": {
+   "foreign": 4,
+   "no-set": 2,
+   "accessory": 10,
+   "unclassified": 11,
+   "not-sealed": 6,
+   "not-pokemon": 1
+  },
+  "samples": [
+   {
+    "reason": "no-set",
+    "title": "Pokemon Pack"
+   },
+   {
+    "reason": "unclassified",
+    "title": "POKEMON SCARLET VIOLET 151 CARD FILE SET VENUSAUR CHARIZARD BLASTOISE JAPANESE"
+   },
+   {
+    "reason": "no-set",
+    "title": "That Time I Got Reincarnated As A Slime Card Pack JP"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon watch ZGO"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon Trading Card Game Incandescent Arcana JP"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon Golden Envelope pull game !"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Snorlax Necklace"
+   },
+   {
+    "reason": "unclassified",
+    "title": "DIY Card vending Machine"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon TCG 25th Anniversary Celebrations Lances Charizard V"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon TCG 25th Anniversary Celebrations Dark Sylveon V"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon TCG: Celebrations - Pikachu V-Union"
+   },
+   {
+    "reason": "unclassified",
+    "title": "2020 Pokemon TCG Sword & Shield Elite Trainer Box Plus Zacian"
+   }
+  ],
+  "error": null,
+  "ms": 1296
+ },
+ {
+  "key": "omggames",
+  "name": "OMG Games",
+  "base": "https://omggames.ca",
+  "market": "CA",
+  "platform": null,
+  "currency": null,
+  "currencyOk": false,
+  "country": "CA",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [],
+  "rejections": {},
+  "samples": [],
+  "error": "no public Shopify or WooCommerce feed",
+  "ms": 1049
+ },
+ {
+  "key": "lesomerset",
+  "name": "Le Somerset Boutique et Cafe-Chat",
+  "base": "https://lesomerset.com",
+  "market": "CA",
+  "platform": "shopify",
+  "currency": "CAD",
+  "currencyOk": true,
+  "country": "CA",
+  "collections": [
+   "pokemon-cartes-de-collection-et-jeux-jouets"
+  ],
+  "sealedProducts": 7,
+  "inStock": 7,
+  "allFound": 7,
+  "read": [
+   {
+    "handle": "pokemon-cartes-de-collection-et-jeux-jouets",
+    "ok": true,
+    "products": 16,
+    "accepted": 7
+   }
+  ],
+  "rejections": {
+   "unclassified": 6,
+   "accessory": 3
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "PRERELEASE - POKÉMON DELTA REIGN - DIMANCHE 25 OCTOBRE"
+   },
+   {
+    "reason": "unclassified",
+    "title": "EVENEMENT - POKEMON LEAGUE CHALLENGE"
+   },
+   {
+    "reason": "unclassified",
+    "title": "JEU - ZANZOON - POKÉMON TRAINER GUESS - JOHTO EDITION - VERSION ANGLAISE"
+   },
+   {
+    "reason": "unclassified",
+    "title": "JEU - ZANZOON - POKÉMON TRAINER GUESS - KANTO EDITION - VERSION ANGLAISE"
+   },
+   {
+    "reason": "unclassified",
+    "title": "JEU - ZANZOON - POKÉMON TRAINER GUESS - HOENN EDITION - VERSION ANGLAISE"
+   },
+   {
+    "reason": "unclassified",
+    "title": "JEU - ZANZOON - POKÉMON TRAINER TRIVIA - VERSION ANGLAISE"
+   }
+  ],
+  "error": null,
+  "ms": 2831
+ },
+ {
+  "key": "okanagansportscardsandcomics",
+  "name": "Okanagan Sportscards and Comics",
+  "base": "https://okanagansportscardsandcomics.com",
+  "market": "CA",
+  "platform": "shopify",
+  "currency": "CAD",
+  "currencyOk": true,
+  "country": "CA",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "pokemon-sealed",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-sealed-products",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-tcg",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "sealed",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pre-orders",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "preorders",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "booster-boxes",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   }
+  ],
+  "rejections": {},
+  "samples": [],
+  "error": null,
+  "ms": 4454
+ },
+ {
+  "key": "raincity",
+  "name": "Rain City Games - New West",
+  "base": "https://raincity.games",
+  "market": "CA",
+  "platform": "shopify",
+  "currency": "CAD",
+  "currencyOk": true,
+  "country": "CA",
+  "collections": [
+   "pokemon"
+  ],
+  "sealedProducts": 52,
+  "inStock": 23,
+  "allFound": 52,
+  "read": [
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 53,
+    "accepted": 52
+   },
+   {
+    "handle": "preorders",
+    "ok": true,
+    "products": 57,
+    "accepted": 8
+   },
+   {
+    "handle": "tcg-preorders",
+    "ok": true,
+    "products": 10,
+    "accepted": 8
+   },
+   {
+    "handle": "pokemon-model-kits",
+    "ok": true,
+    "products": 64,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "accessory": 64,
+   "not-pokemon": 51,
+   "unclassified": 1
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Kowloon Walled City 2049 Book Nook Kit"
+   }
+  ],
+  "error": null,
+  "ms": 3667
+ },
+ {
+  "key": "soulvaria",
+  "name": "Soulvaria",
+  "base": "https://soulvaria.ca",
+  "market": "CA",
+  "platform": "shopify",
+  "currency": "CAD",
+  "currencyOk": true,
+  "country": "CA",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "pokemon-sealed",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-sealed-products",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-tcg",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "sealed",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pre-orders",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "preorders",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "booster-boxes",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   }
+  ],
+  "rejections": {},
+  "samples": [],
+  "error": null,
+  "ms": 4657
+ },
+ {
+  "key": "pastimesports",
+  "name": "Pastime Sports & Games",
+  "base": "https://pastimesports.ca",
+  "market": "CA",
+  "platform": "shopify",
+  "currency": "CAD",
+  "currencyOk": true,
+  "country": "CA",
+  "collections": [
+   "manufacturer_the-pokemon-company-international"
+  ],
+  "sealedProducts": 232,
+  "inStock": 179,
+  "allFound": 233,
+  "read": [
+   {
+    "handle": "pokemon-cards",
+    "ok": true,
+    "products": 300,
+    "accepted": 228
+   },
+   {
+    "handle": "pre-orders",
+    "ok": true,
+    "products": 94,
+    "accepted": 6
+   },
+   {
+    "handle": "game_pokemon",
+    "ok": true,
+    "products": 532,
+    "accepted": 232
+   },
+   {
+    "handle": "set_pokemon-go",
+    "ok": true,
+    "products": 3,
+    "accepted": 2
+   },
+   {
+    "handle": "subgenre_pokemon",
+    "ok": true,
+    "products": 68,
+    "accepted": 0
+   },
+   {
+    "handle": "subgenre_pokemons",
+    "ok": true,
+    "products": 1,
+    "accepted": 0
+   },
+   {
+    "handle": "manufacturer_the-pokemon-company-international",
+    "ok": true,
+    "products": 350,
+    "accepted": 232
+   }
+  ],
+  "rejections": {
+   "no-set": 26,
+   "unclassified": 210,
+   "foreign": 3,
+   "accessory": 220,
+   "not-sealed": 85,
+   "vague": 3,
+   "not-pokemon": 101
+  },
+  "samples": [
+   {
+    "reason": "no-set",
+    "title": "Pokemon Catch em' Pack"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokemon Grab Pack"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Stellar Crown Booster Pack/Box/Case"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Paldea Evolved Booster Pack/Box/Case"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Mega Charizard X EX Ultra-Premium Collection Box/Case"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Lumiose City Mini Tins/Case"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Pitch Black 3-Pack Blister Pack/Case"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Ascended Heroes Mega Meganium/Emboar/Feraligator ex Box/Case"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Perfect Order 3-Pack Blister Pack/Case"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Ascended Heroes First Partners Deluxe Pin Collection Box/Case"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Prismatic Evolutions Surprise Box/Case"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon 30th Celebrations Poster Collection Box/Case"
+   }
+  ],
+  "error": null,
+  "ms": 10361
+ },
+ {
+  "key": "tcgzonecanada",
+  "name": "TCG Zone Canada",
+  "base": "https://tcgzonecanada.com",
+  "market": "CA",
+  "platform": "shopify",
+  "currency": "CAD",
+  "currencyOk": true,
+  "country": "CA",
+  "collections": [
+   "elite-trainer-box"
+  ],
+  "sealedProducts": 4,
+  "inStock": 4,
+  "allFound": 4,
+  "read": [
+   {
+    "handle": "elite-trainer-box",
+    "ok": true,
+    "products": 4,
+    "accepted": 4
+   }
+  ],
+  "rejections": {},
+  "samples": [],
+  "error": null,
+  "ms": 1281
+ },
+ {
+  "key": "tabletoprenaissance",
+  "name": "Tabletop Renaissance Games & Hobbies",
+  "base": "https://tabletoprenaissance.ca",
+  "market": "CA",
+  "platform": "shopify",
+  "currency": "CAD",
+  "currencyOk": true,
+  "country": "CA",
+  "collections": [
+   "pokemon-tcg"
+  ],
+  "sealedProducts": 46,
+  "inStock": 0,
+  "allFound": 46,
+  "read": [
+   {
+    "handle": "pokemon-tcg",
+    "ok": true,
+    "products": 46,
+    "accepted": 46
+   },
+   {
+    "handle": "new-arrivals",
+    "ok": true,
+    "products": 423,
+    "accepted": 1
+   },
+   {
+    "handle": "tcg-preorders",
+    "ok": true,
+    "products": 2,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "not-pokemon": 363,
+   "not-sealed": 40,
+   "accessory": 16,
+   "multiple": 2,
+   "foreign": 3
+  },
+  "samples": [],
+  "error": null,
+  "ms": 4718
+ },
+ {
+  "key": "dragonguelph",
+  "name": "The Dragon",
+  "base": "https://dragonguelph.com",
+  "market": "CA",
+  "platform": "shopify",
+  "currency": "CAD",
+  "currencyOk": true,
+  "country": "CA",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 92,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "unclassified": 70,
+   "accessory": 22
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Colouring Adventures"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon How to Draw Adventures"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Trainer's Notebook"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Scarlet & Violet Volume 01"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Guide to the Good Life"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Legendary & Mythical Guidebook Deluxe Updated Edition"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon Colouring Adventures Legendary & Mythical Pokemon"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon First Partner Handbook"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pop Pokemon Charmeleon"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pop Pokemon Goomy"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Mega Evolution Handbook"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Search for Lapras"
+   }
+  ],
+  "error": null,
+  "ms": 1636
+ },
+ {
+  "key": "swirlyeg",
+  "name": "Swirl Cafe & Games",
+  "base": "https://swirlyeg.com",
+  "market": "CA",
+  "platform": "shopify",
+  "currency": "CAD",
+  "currencyOk": true,
+  "country": "CA",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "booster-packs",
+    "ok": true,
+    "products": 25,
+    "accepted": 0
+   },
+   {
+    "handle": "elite-trainer-boxes",
+    "ok": true,
+    "products": 4,
+    "accepted": 0
+   },
+   {
+    "handle": "pre-orders",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "new-arrivals",
+    "ok": true,
+    "products": 750,
+    "accepted": 0
+   },
+   {
+    "handle": "high-end-pokemon",
+    "ok": true,
+    "products": 129,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "not-pokemon": 132,
+   "foreign": 48,
+   "not-sealed": 714,
+   "accessory": 8,
+   "unclassified": 6
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Togepi 050  Team Rocket Returns - Uncommon"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Lugia 002  POP Series 5 - Rare"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pikachu (Red Cheeks) 058  - Unlimited Base Set Shadowless - Common"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Ditto 017 Triumphant - Rare"
+   }
+  ],
+  "error": null,
+  "ms": 8672
+ },
+ {
+  "key": "topdecktrades",
+  "name": "Top Deck Trades",
+  "base": "https://topdecktrades.com",
+  "market": "CA",
+  "platform": null,
+  "currency": null,
+  "currencyOk": false,
+  "country": "CA",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [],
+  "rejections": {},
+  "samples": [],
+  "error": "no public Shopify or WooCommerce feed",
+  "ms": 636
+ },
+ {
+  "key": "theswordandboardtoronto",
+  "name": "The Sword & Board",
+  "base": "https://theswordandboardtoronto.com",
+  "market": "CA",
+  "platform": "shopify",
+  "currency": "CAD",
+  "currencyOk": true,
+  "country": "CA",
+  "collections": [
+   "pokemon"
+  ],
+  "sealedProducts": 96,
+  "inStock": 0,
+  "allFound": 96,
+  "read": [
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 108,
+    "accepted": 96
+   }
+  ],
+  "rejections": {
+   "unclassified": 7,
+   "vague": 2,
+   "no-set": 2,
+   "accessory": 1
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Sword and Shield Darkness Ablaze"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Sword and Shield Lost Origin"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Sword and Shield Sealed product"
+   },
+   {
+    "reason": "vague",
+    "title": "Pokemon Sword and Shield Theme Decks"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokémon TCG - Mega Evolution Gardevoire Elite Trainer Box"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Zeraora Vmax and Vstar Battlebox"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokemon Lost Origins Elite Trainer Box"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Premier Ball Replica"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Poke Ball Replica"
+   },
+   {
+    "reason": "vague",
+    "title": "Pokemon TCG Trainer's Toolkit"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Galarian Rapidash"
+   }
+  ],
+  "error": null,
+  "ms": 2041
+ },
+ {
+  "key": "thevaultsportscards",
+  "name": "The Vault Sports Cards and Collectables",
+  "base": "https://thevaultsportscards.com",
+  "market": "CA",
+  "platform": "shopify",
+  "currency": "CAD",
+  "currencyOk": true,
+  "country": "CA",
+  "collections": [
+   "pokemon-mega-evolution"
+  ],
+  "sealedProducts": 81,
+  "inStock": 17,
+  "allFound": 81,
+  "read": [
+   {
+    "handle": "tcg-preorder",
+    "ok": true,
+    "products": 1,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-mega-evolution",
+    "ok": true,
+    "products": 97,
+    "accepted": 81
+   }
+  ],
+  "rejections": {
+   "not-pokemon": 1,
+   "not-sealed": 2,
+   "accessory": 6,
+   "no-set": 3,
+   "unclassified": 4,
+   "vague": 1
+  },
+  "samples": [
+   {
+    "reason": "no-set",
+    "title": "Pokémon TCG - Desitined Rivals - Sleeved Booster Pack"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokémon Surging Spark Booster Bundle"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Vault Pokémon Bundles Series 11"
+   },
+   {
+    "reason": "vague",
+    "title": "Sword and Shield Ultra Premium Collection"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon Trainer Expert Game"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon Sword & Shield Rebel Clash"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokémon Lost Origins Booster Box"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Japanese Pokémon Special EX Deck Set"
+   }
+  ],
+  "error": null,
+  "ms": 2079
+ },
+ {
+  "key": "wegotgamezcanada",
+  "name": "We Got Gamez Whitby",
+  "base": "https://wegotgamezcanada.com",
+  "market": "CA",
+  "platform": "shopify",
+  "currency": "CAD",
+  "currencyOk": true,
+  "country": "CA",
+  "collections": [
+   "pokemon-booster-packs"
+  ],
+  "sealedProducts": 1,
+  "inStock": 0,
+  "allFound": 1,
+  "read": [
+   {
+    "handle": "pokemon-booster-packs",
+    "ok": true,
+    "products": 1,
+    "accepted": 1
+   },
+   {
+    "handle": "new-arrivals",
+    "ok": true,
+    "products": 11,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "not-pokemon": 9,
+   "unclassified": 2
+  },
+  "samples": [],
+  "error": null,
+  "ms": 1802
+ },
+ {
+  "key": "woodforsheep",
+  "name": "WoodForSheep Hobbies",
+  "base": "https://woodforsheep.ca",
+  "market": "CA",
+  "platform": null,
+  "currency": null,
+  "currencyOk": false,
+  "country": "CA",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [],
+  "rejections": {},
+  "samples": [],
+  "error": "no public Shopify or WooCommerce feed",
+  "ms": 668
+ },
+ {
+  "key": "treasuresnmore",
+  "name": "Treasures 'N' More",
+  "base": "https://treasuresnmore.ca",
+  "market": "CA",
+  "platform": "shopify",
+  "currency": "CAD",
+  "currencyOk": true,
+  "country": "CA",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "pokemon-sealed",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-sealed-products",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-tcg",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "sealed",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pre-orders",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "preorders",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "booster-boxes",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   }
+  ],
+  "rejections": {},
+  "samples": [],
+  "error": null,
+  "ms": 4504
+ },
+ {
+  "key": "kevinstcg99",
+  "name": "Zeni Trading Company International",
+  "base": "https://kevinstcg99.com",
+  "market": "CA",
+  "platform": "shopify",
+  "currency": "CAD",
+  "currencyOk": true,
+  "country": "CA",
+  "collections": [
+   "new-arrivals"
+  ],
+  "sealedProducts": 29,
+  "inStock": 29,
+  "allFound": 29,
+  "read": [
+   {
+    "handle": "sealed-product",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "new-arrivals",
+    "ok": true,
+    "products": 58,
+    "accepted": 29
+   }
+  ],
+  "rejections": {
+   "not-sealed": 6,
+   "unclassified": 18,
+   "not-pokemon": 2,
+   "accessory": 3
+  },
+  "samples": [],
+  "error": null,
+  "ms": 1887
+ },
+ {
+  "key": "westcoasthobbies",
+  "name": "West Coast Hobbies",
+  "base": "https://westcoast-hobbies.com",
+  "market": "CA",
+  "platform": "shopify",
+  "currency": "CAD",
+  "currencyOk": true,
+  "country": "CA",
+  "collections": [
+   "pokemon"
+  ],
+  "sealedProducts": 490,
+  "inStock": 36,
+  "allFound": 490,
+  "read": [
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 750,
+    "accepted": 490
+   },
+   {
+    "handle": "pokemon-pitch-black",
+    "ok": true,
+    "products": 23,
+    "accepted": 16
+   }
+  ],
+  "rejections": {
+   "no-set": 144,
+   "unclassified": 77,
+   "multiple": 36,
+   "accessory": 7,
+   "retail-edition": 1,
+   "vague": 1,
+   "not-sealed": 1
+  },
+  "samples": [
+   {
+    "reason": "no-set",
+    "title": "Mega Evolution Enhanced - Booster Box"
+   },
+   {
+    "reason": "unclassified",
+    "title": "2025 World Championship Deck Display"
+   },
+   {
+    "reason": "unclassified",
+    "title": "2025 World Championship Deck: Yuya Okita (JP Raging Bolt)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "First Partner Illustration Collection Case (Series 3)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Chaos Rising Half Booster Box"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Chaos Rising 3-Pack Blister Case"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Paldean Fates Mini Tin Display Case"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Arceus VSTAR Ultra-Premium Collection Case"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pitch Black 3-Pack Blister Case"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Paldean Fates Premium Collection Case"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pitch Black Build & Battle Box Display"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Morpeko V-UNION Premium Treasures Collection Case"
+   }
+  ],
+  "error": null,
+  "ms": 3457
+ },
+ {
+  "key": "zone151",
+  "name": "Zone 151",
+  "base": "https://zone151.ca",
+  "market": "CA",
+  "platform": "shopify",
+  "currency": "CAD",
+  "currencyOk": true,
+  "country": "CA",
+  "collections": [
+   "pokemon",
+   "pokemon-booster-boxes-copie",
+   "pokemon-tins-copie",
+   "pokemon-elite-trainer-boxes-copie"
+  ],
+  "sealedProducts": 230,
+  "inStock": 174,
+  "allFound": 253,
+  "read": [
+   {
+    "handle": "pokemon-tins-copie",
+    "ok": true,
+    "products": 44,
+    "accepted": 39
+   },
+   {
+    "handle": "pokemon-booster-boxes",
+    "ok": true,
+    "products": 20,
+    "accepted": 19
+   },
+   {
+    "handle": "pokemon-premium-collection",
+    "ok": true,
+    "products": 26,
+    "accepted": 23
+   },
+   {
+    "handle": "pokemon-booster-boxes-copie",
+    "ok": true,
+    "products": 57,
+    "accepted": 54
+   },
+   {
+    "handle": "pokemon-collection-boxes-copie",
+    "ok": true,
+    "products": 11,
+    "accepted": 11
+   },
+   {
+    "handle": "pokemon-premium-collection-copie",
+    "ok": true,
+    "products": 26,
+    "accepted": 24
+   },
+   {
+    "handle": "pokemon-elite-trainer-boxes-copie",
+    "ok": true,
+    "products": 44,
+    "accepted": 44
+   },
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 226,
+    "accepted": 189
+   }
+  ],
+  "rejections": {
+   "multiple": 2,
+   "unclassified": 22,
+   "no-set": 5,
+   "foreign": 9,
+   "accessory": 7,
+   "not-sealed": 6
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Center Pokemon GO PC Elite Trainer Box Plus"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon 25th Anniversary Golden Japanese Collection Box"
+   },
+   {
+    "reason": "unclassified",
+    "title": "First Partner Illustration Collection Case (Series 1)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Premium Poster Collection Case"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Journey together enhanced booster box"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon 25th Anniversary Golden Japanese Collection Box"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Team rocket's moltres UPC"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Mega Zygarde ex Premium Collection Case"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Center Pokemon GO PC Elite Trainer Box Plus"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokemon Célébration Elite Trainer Box (POKEMON CENTER)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Crown Zenith Pokemon Center Elite Trainer Box Plus"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Prismatic Evolutions Mini Tin Display"
+   }
+  ],
+  "error": null,
+  "ms": 5976
+ },
+ {
+  "key": "outposttradingcards",
+  "name": "The Outpost Sportscards & Games",
+  "base": "https://outposttradingcards.ca",
+  "market": "CA",
+  "platform": "woocommerce",
+  "currency": "CAD",
+  "currencyOk": true,
+  "country": "CA",
+  "collections": [
+   "pokemon-wax-and-packs",
+   "pokemon"
+  ],
+  "sealedProducts": 36,
+  "inStock": 0,
+  "allFound": 36,
+  "read": [
+   {
+    "handle": "pokemon-wax-and-packs",
+    "ok": true,
+    "products": 46,
+    "accepted": 34
+   },
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 174,
+    "accepted": 3
+   }
+  ],
+  "rejections": {
+   "not-pokemon": 7,
+   "not-sealed": 148,
+   "unclassified": 22,
+   "no-set": 1,
+   "multiple": 1,
+   "accessory": 3,
+   "foreign": 1
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "First Partners Series 3 Pokemon Sealed"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokemon 25th Anniversary Booster Box Japanese Sealed"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Scarlet & Violet Paldean Fates Great Tusks Ex & Iron Treads Ex Premium"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon SV Twilight Masquerade UK Booster Box (18 Packs)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Pokeball Winter 2024"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon POP Series 7 Booster Packs (Sealed)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Mega Lucario Ex Pokemon Mega Evolutions Promo MEP033"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Zapdos Pokemon WOTC Promo #23"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Torchic Pokemon Mega Evolutions Promo MEP056"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Oricorio Pokemon Mega Evolutions Promos MEP024 A"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Mudkip Pokemon Mega Evolutions Promos MEP057"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Treecko Pokemon Mega Evolutions Promos MEP055"
+   }
+  ],
+  "error": null,
+  "ms": 22961
+ }
+]

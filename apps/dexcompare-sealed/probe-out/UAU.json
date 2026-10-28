@@ -1,0 +1,911 @@
+[
+ {
+  "key": "beskarforge",
+  "name": "Beskar Forge Gaming",
+  "base": "https://beskarforge.com.au",
+  "market": "AU",
+  "platform": null,
+  "currency": null,
+  "currencyOk": false,
+  "country": "AU",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [],
+  "rejections": {},
+  "samples": [],
+  "error": "no public Shopify or WooCommerce feed",
+  "ms": 647
+ },
+ {
+  "key": "collectorsgalore",
+  "name": "Collectors Galore",
+  "base": "https://collectorsgalore.com.au",
+  "market": "AU",
+  "platform": "shopify",
+  "currency": "AUD",
+  "currencyOk": true,
+  "country": "AU",
+  "collections": [
+   "all-pokemon-tcg"
+  ],
+  "sealedProducts": 50,
+  "inStock": 26,
+  "allFound": 50,
+  "read": [
+   {
+    "handle": "all-pokemon-tcg",
+    "ok": true,
+    "products": 54,
+    "accepted": 50
+   },
+   {
+    "handle": "booster-boxes",
+    "ok": true,
+    "products": 21,
+    "accepted": 0
+   },
+   {
+    "handle": "elite-trainer-boxes",
+    "ok": true,
+    "products": 30,
+    "accepted": 2
+   }
+  ],
+  "rejections": {
+   "unclassified": 3,
+   "no-set": 1,
+   "not-pokemon": 49
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Journey Together Enhanced Booster Box"
+   },
+   {
+    "reason": "no-set",
+    "title": "Mega Evolution Gardevoir OR Lucario Elite Trainer Box - 1x Variant Chosen at Random"
+   },
+   {
+    "reason": "unclassified",
+    "title": "First Partners - Series 1"
+   },
+   {
+    "reason": "unclassified",
+    "title": "First Partners - Series 2"
+   }
+  ],
+  "error": null,
+  "ms": 2465
+ },
+ {
+  "key": "cardkonbini",
+  "name": "Card Konbini",
+  "base": "https://cardkonbini.com.au",
+  "market": "AU",
+  "platform": "shopify",
+  "currency": "AUD",
+  "currencyOk": true,
+  "country": "AU",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "pokemon-sealed",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-sealed-products",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-tcg",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "sealed",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pre-orders",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "preorders",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "booster-boxes",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   }
+  ],
+  "rejections": {},
+  "samples": [],
+  "error": null,
+  "ms": 4770
+ },
+ {
+  "key": "devittcollectables",
+  "name": "devitt collectables",
+  "base": "https://devittcollectables.com",
+  "market": "AU",
+  "platform": "shopify",
+  "currency": "AUD",
+  "currencyOk": true,
+  "country": "AU",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "pokemon-sealed",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-sealed-products",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-tcg",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "sealed",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pre-orders",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "preorders",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "booster-boxes",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   }
+  ],
+  "rejections": {},
+  "samples": [],
+  "error": null,
+  "ms": 4426
+ },
+ {
+  "key": "flinchcollectibles",
+  "name": "Flinch Coffee & Play",
+  "base": "https://flinchcollectibles.com.au",
+  "market": "AU",
+  "platform": "shopify",
+  "currency": "AUD",
+  "currencyOk": true,
+  "country": "AU",
+  "collections": [
+   "pokemon-tcg-english"
+  ],
+  "sealedProducts": 77,
+  "inStock": 5,
+  "allFound": 77,
+  "read": [
+   {
+    "handle": "pokemon-tcg",
+    "ok": true,
+    "products": 8,
+    "accepted": 8
+   },
+   {
+    "handle": "pokemon-tcg-english",
+    "ok": true,
+    "products": 84,
+    "accepted": 77
+   },
+   {
+    "handle": "preorder",
+    "ok": true,
+    "products": 3,
+    "accepted": 3
+   },
+   {
+    "handle": "pokemon-chaos-rising",
+    "ok": true,
+    "products": 2,
+    "accepted": 2
+   },
+   {
+    "handle": "pokemon-perfect-order",
+    "ok": true,
+    "products": 2,
+    "accepted": 2
+   },
+   {
+    "handle": "pokemon-surging-sparks",
+    "ok": true,
+    "products": 2,
+    "accepted": 2
+   },
+   {
+    "handle": "pokemon-scarlet-violet",
+    "ok": true,
+    "products": 12,
+    "accepted": 12
+   },
+   {
+    "handle": "pokemon-mega-evolution",
+    "ok": true,
+    "products": 8,
+    "accepted": 7
+   }
+  ],
+  "rejections": {
+   "unclassified": 4,
+   "accessory": 4
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Pokémon Phantasmal Flames ME2 Pre-release"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon Mega Evolution ME1 Pre-release"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon TCG Scarlet & Violet Journey Together Enhanced Booster Box"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon Mega Evolution ME1 Pre-release"
+   }
+  ],
+  "error": null,
+  "ms": 5596
+ },
+ {
+  "key": "irresistibleforce",
+  "name": "Irresistible Force",
+  "base": "https://irresistibleforce.com.au",
+  "market": "AU",
+  "platform": "shopify",
+  "currency": "AUD",
+  "currencyOk": true,
+  "country": "AU",
+  "collections": [
+   "pokemon-tcg"
+  ],
+  "sealedProducts": 12,
+  "inStock": 11,
+  "allFound": 12,
+  "read": [
+   {
+    "handle": "pokemon-tcg",
+    "ok": true,
+    "products": 12,
+    "accepted": 12
+   },
+   {
+    "handle": "pre-orders",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-model-kits",
+    "ok": true,
+    "products": 66,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "accessory": 66
+  },
+  "samples": [],
+  "error": null,
+  "ms": 4155
+ },
+ {
+  "key": "hobbishack",
+  "name": "HobbiShack",
+  "base": "https://hobbishack.com.au",
+  "market": "AU",
+  "platform": "shopify",
+  "currency": "AUD",
+  "currencyOk": true,
+  "country": "AU",
+  "collections": [
+   "pokemon"
+  ],
+  "sealedProducts": 7,
+  "inStock": 2,
+  "allFound": 7,
+  "read": [
+   {
+    "handle": "pokemon-booster-box",
+    "ok": true,
+    "products": 5,
+    "accepted": 5
+   },
+   {
+    "handle": "pokemon-booster-packs",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-collection-box",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 7,
+    "accepted": 7
+   },
+   {
+    "handle": "all-pokemon",
+    "ok": true,
+    "products": 7,
+    "accepted": 7
+   },
+   {
+    "handle": "elite-trainer-boxes",
+    "ok": true,
+    "products": 2,
+    "accepted": 2
+   },
+   {
+    "handle": "pre-order",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-build-and-battle",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   }
+  ],
+  "rejections": {},
+  "samples": [],
+  "error": null,
+  "ms": 5346
+ },
+ {
+  "key": "msetcg",
+  "name": "MSE TCG",
+  "base": "https://msetcg.com.au",
+  "market": "AU",
+  "platform": "shopify",
+  "currency": "AUD",
+  "currencyOk": true,
+  "country": "AU",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "preorders",
+    "ok": true,
+    "products": 3,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "not-sealed": 3
+  },
+  "samples": [],
+  "error": null,
+  "ms": 1361
+ },
+ {
+  "key": "nedzvault",
+  "name": "Nedzvault",
+  "base": "https://nedzvault.com",
+  "market": "AU",
+  "platform": "shopify",
+  "currency": "AUD",
+  "currencyOk": true,
+  "country": "AU",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "sealed-products",
+    "ok": true,
+    "products": 28,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "not-pokemon": 26,
+   "no-set": 2
+  },
+  "samples": [],
+  "error": null,
+  "ms": 1540
+ },
+ {
+  "key": "joltgames",
+  "name": "Jolt Games",
+  "base": "https://joltgames.com.au",
+  "market": "AU",
+  "platform": "shopify",
+  "currency": "AUD",
+  "currencyOk": true,
+  "country": "AU",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "pokemon-sealed",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-sealed-products",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-tcg",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "sealed",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pre-orders",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "preorders",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "booster-boxes",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   }
+  ],
+  "rejections": {},
+  "samples": [],
+  "error": null,
+  "ms": 4914
+ },
+ {
+  "key": "omegagames",
+  "name": "Omega Games Busselton",
+  "base": "https://omegagames.com.au",
+  "market": "AU",
+  "platform": "shopify",
+  "currency": "AUD",
+  "currencyOk": true,
+  "country": "AU",
+  "collections": [
+   "pokemon"
+  ],
+  "sealedProducts": 16,
+  "inStock": 0,
+  "allFound": 16,
+  "read": [
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 28,
+    "accepted": 16
+   }
+  ],
+  "rejections": {
+   "unclassified": 2,
+   "accessory": 8,
+   "foreign": 2
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Pokémon TCG: Scarlet & Violet Prismatic Evolutions Tech Sticker"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon TCG Charizard ex Special"
+   }
+  ],
+  "error": null,
+  "ms": 1938
+ },
+ {
+  "key": "onlypackstcg",
+  "name": "Only Packs TCG",
+  "base": "https://onlypackstcg.com.au",
+  "market": "AU",
+  "platform": "shopify",
+  "currency": "AUD",
+  "currencyOk": true,
+  "country": "AU",
+  "collections": [
+   "pokemon"
+  ],
+  "sealedProducts": 1,
+  "inStock": 1,
+  "allFound": 1,
+  "read": [
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 18,
+    "accepted": 1
+   },
+   {
+    "handle": "pre-order",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "foreign": 9,
+   "unclassified": 8
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Pokémon TCG Japanese Mega Dream"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon TCG Japanese Glory Of Team Rocket"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon TCG 30th Anniversary Celebration Premium Deck Set Espeon & Umbreon Japanese"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon TCG Japanese Emerald Storm"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon TCG Japanese Prismatic Evolutions"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon TCG Japanese 151"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon TCG Japanese Vstar Universe"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon TCG Japanese Shiny Treasure EX"
+   }
+  ],
+  "error": null,
+  "ms": 1912
+ },
+ {
+  "key": "stonemonkey",
+  "name": "Stone Monkey",
+  "base": "https://stonemonkey.com.au",
+  "market": "AU",
+  "platform": "shopify",
+  "currency": "AUD",
+  "currencyOk": true,
+  "country": "AU",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "pokemon-sealed",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-sealed-products",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-tcg",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "sealed",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pre-orders",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "preorders",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "booster-boxes",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   }
+  ],
+  "rejections": {},
+  "samples": [],
+  "error": null,
+  "ms": 4257
+ },
+ {
+  "key": "hightidetabletop",
+  "name": "Hightide Tabletop Gaming",
+  "base": "https://hightidetabletop.com.au",
+  "market": "AU",
+  "platform": "woocommerce",
+  "currency": "AUD",
+  "currencyOk": true,
+  "country": "AU",
+  "collections": [
+   "pokemon"
+  ],
+  "sealedProducts": 129,
+  "inStock": 12,
+  "allFound": 129,
+  "read": [
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 151,
+    "accepted": 129
+   }
+  ],
+  "rejections": {
+   "foreign": 11,
+   "unclassified": 3,
+   "accessory": 5,
+   "no-set": 2,
+   "not-sealed": 1
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Pokemon 30th Celebration Coin Set"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokemon Sun & Moon English Booster Pack"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon TCG: Shining Fates Pikachu V"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokemon Legendary Heartbeat Booster Box (KC)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Phantasmal Flames"
+   }
+  ],
+  "error": null,
+  "ms": 13267
+ },
+ {
+  "key": "warhold",
+  "name": "Warhold Australia",
+  "base": "https://warhold.com.au",
+  "market": "AU",
+  "platform": null,
+  "currency": null,
+  "currencyOk": false,
+  "country": "AU",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [],
+  "rejections": {},
+  "samples": [],
+  "error": "no public Shopify or WooCommerce feed",
+  "ms": 665
+ },
+ {
+  "key": "ultrarare",
+  "name": "Ultra Rare",
+  "base": "https://ultrarare.com.au",
+  "market": "AU",
+  "platform": "shopify",
+  "currency": "AUD",
+  "currencyOk": true,
+  "country": "AU",
+  "collections": [
+   "pokemon-tcg"
+  ],
+  "sealedProducts": 32,
+  "inStock": 1,
+  "allFound": 32,
+  "read": [
+   {
+    "handle": "pokemon-tcg",
+    "ok": true,
+    "products": 34,
+    "accepted": 32
+   },
+   {
+    "handle": "pokemon-english",
+    "ok": true,
+    "products": 8,
+    "accepted": 7
+   },
+   {
+    "handle": "pokemon-cn-tcg",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "unclassified": 1,
+   "no-set": 2
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Pokemon JP SV8 Super Electric Breaker Box (Sealed)"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokemon EN SV06 Twilight Masquarade Booster Box (Sealed)"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokemon EN SV06 Twilight Masquarade Booster Box (Sealed)"
+   }
+  ],
+  "error": null,
+  "ms": 2889
+ },
+ {
+  "key": "thecombatcompany",
+  "name": "The Combat Company",
+  "base": "https://thecombatcompany.com",
+  "market": "AU",
+  "platform": "shopify",
+  "currency": "AUD",
+  "currencyOk": true,
+  "country": "AU",
+  "collections": [
+   "pokemon-tcg"
+  ],
+  "sealedProducts": 18,
+  "inStock": 10,
+  "allFound": 18,
+  "read": [
+   {
+    "handle": "pokemon-tcg",
+    "ok": true,
+    "products": 20,
+    "accepted": 18
+   },
+   {
+    "handle": "pre-orders",
+    "ok": true,
+    "products": 78,
+    "accepted": 0
+   },
+   {
+    "handle": "new-arrivals",
+    "ok": true,
+    "products": 200,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-tcg-new-arrivals",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "not-sealed": 14,
+   "no-set": 1,
+   "not-pokemon": 254,
+   "foreign": 10,
+   "accessory": 1
+  },
+  "samples": [
+   {
+    "reason": "no-set",
+    "title": "Pokemon TCG - 30th Anniversary Booster Bundle"
+   }
+  ],
+  "error": null,
+  "ms": 8549
+ }
+]

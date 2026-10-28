@@ -1,0 +1,2068 @@
+[
+ {
+  "key": "binderful",
+  "name": "Binderful",
+  "base": "https://binderful.co.uk",
+  "market": "UK",
+  "platform": "shopify",
+  "currency": "GBP",
+  "currencyOk": true,
+  "country": "GB",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "pokemon-tcg-booster-packs",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-tcg",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "tins",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "booster-boxes",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "booster-packs",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "booster-bundles",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "collection-boxes",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "elite-trainer-boxes",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   }
+  ],
+  "rejections": {},
+  "samples": [],
+  "error": null,
+  "ms": 5119
+ },
+ {
+  "key": "ajtcg",
+  "name": "AJ-TCG LTD",
+  "base": "https://aj-tcg.co.uk",
+  "market": "UK",
+  "platform": "shopify",
+  "currency": "GBP",
+  "currencyOk": true,
+  "country": "GB",
+  "collections": [
+   "pokemon-elite-trainer-boxes",
+   "english-pokemon-booster-boxes-1",
+   "english-pokemon-booster-boxes",
+   "pokemon-blisters"
+  ],
+  "sealedProducts": 25,
+  "inStock": 0,
+  "allFound": 29,
+  "read": [
+   {
+    "handle": "english-pokemon-booster-boxes",
+    "ok": true,
+    "products": 5,
+    "accepted": 5
+   },
+   {
+    "handle": "english-pokemon-booster-packs",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "english-pokemon-booster-boxes-1",
+    "ok": true,
+    "products": 7,
+    "accepted": 7
+   },
+   {
+    "handle": "pokemon-blisters",
+    "ok": true,
+    "products": 5,
+    "accepted": 5
+   },
+   {
+    "handle": "pokemon-mini-tins",
+    "ok": true,
+    "products": 1,
+    "accepted": 1
+   },
+   {
+    "handle": "pokemon-premium-boxes",
+    "ok": true,
+    "products": 1,
+    "accepted": 1
+   },
+   {
+    "handle": "pokemon-collection-boxes",
+    "ok": true,
+    "products": 2,
+    "accepted": 2
+   },
+   {
+    "handle": "pokemon-elite-trainer-boxes",
+    "ok": true,
+    "products": 10,
+    "accepted": 8
+   }
+  ],
+  "rejections": {
+   "no-set": 2
+  },
+  "samples": [
+   {
+    "reason": "no-set",
+    "title": "Pokemon Mega Evolution Gardevoir Elite Trainer Box"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokemon Mega Evolution Lucario Elite Trainer Box"
+   }
+  ],
+  "error": null,
+  "ms": 6701
+ },
+ {
+  "key": "cataclysmgames",
+  "name": "cataclysm games",
+  "base": "https://cataclysmgames.co.uk",
+  "market": "UK",
+  "platform": "woocommerce",
+  "currency": "GBP",
+  "currencyOk": true,
+  "country": "GB",
+  "collections": [
+   "pokemon-sealed-product"
+  ],
+  "sealedProducts": 1,
+  "inStock": 0,
+  "allFound": 1,
+  "read": [
+   {
+    "handle": "pokemon-sealed-product",
+    "ok": true,
+    "products": 3,
+    "accepted": 1
+   }
+  ],
+  "rejections": {
+   "unclassified": 1,
+   "vague": 1
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Pokemon TCG Classic"
+   },
+   {
+    "reason": "vague",
+    "title": "Pokémon Advent Calendar"
+   }
+  ],
+  "error": null,
+  "ms": 3331
+ },
+ {
+  "key": "boardgamecafe",
+  "name": "Board Game Cafe Hastings - The Smugglers Meeple",
+  "base": "https://boardgamecafe.co.uk",
+  "market": "UK",
+  "platform": "woocommerce",
+  "currency": "GBP",
+  "currencyOk": true,
+  "country": "GB",
+  "collections": [
+   "search:pokemon"
+  ],
+  "sealedProducts": 2,
+  "inStock": 0,
+  "allFound": 2,
+  "read": [
+   {
+    "handle": "search:pokemon",
+    "ok": true,
+    "products": 3,
+    "accepted": 2
+   }
+  ],
+  "rejections": {
+   "unclassified": 1
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Pokemon – Scarlet and Violet 5 Temporal Forces"
+   }
+  ],
+  "error": null,
+  "ms": 8523
+ },
+ {
+  "key": "dnagames",
+  "name": "DNA Games",
+  "base": "https://dna-games.co.uk",
+  "market": "UK",
+  "platform": "woocommerce",
+  "currency": null,
+  "currencyOk": false,
+  "country": "GB",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [],
+  "rejections": {},
+  "samples": [],
+  "error": "charges ?, market UK is GBP",
+  "ms": 1645
+ },
+ {
+  "key": "d20cafe",
+  "name": "d20 Board Game Cafe Watford",
+  "base": "https://d20cafe.co.uk",
+  "market": "UK",
+  "platform": "woocommerce",
+  "currency": "GBP",
+  "currencyOk": true,
+  "country": "GB",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "search:pokemon",
+    "ok": true,
+    "products": 3,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "unclassified": 3
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Pokemon for Mark"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon for Jamie"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon B&W + Shipping – Miguel"
+   }
+  ],
+  "error": null,
+  "ms": 3883
+ },
+ {
+  "key": "dicecupcafe",
+  "name": "Dice Cup",
+  "base": "https://dicecupcafe.co.uk",
+  "market": "UK",
+  "platform": "shopify",
+  "currency": "GBP",
+  "currencyOk": true,
+  "country": "GB",
+  "collections": [
+   "pokemon"
+  ],
+  "sealedProducts": 14,
+  "inStock": 2,
+  "allFound": 14,
+  "read": [
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 70,
+    "accepted": 14
+   },
+   {
+    "handle": "pre-orders",
+    "ok": true,
+    "products": 15,
+    "accepted": 2
+   },
+   {
+    "handle": "new-releases",
+    "ok": true,
+    "products": 19,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "unclassified": 21,
+   "accessory": 44,
+   "no-set": 4,
+   "vague": 1,
+   "not-pokemon": 18
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Pokemon TCG Mega Evolution Delta Reign Pre Release Events!"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon TCG League Cup 21st Nov 11am"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon VGC League Challenge Nov 14th 11am"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon TCG League Challenge Nov 14th 11am"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Squishmallows 10in Raichu"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokemon Bitty Pop! Pikachu 4 Pack"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokemon Bitty Pop! Squirtle 4 Pack"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokemon Bitty Pop! Charmander 4 Pack"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Squishmallows 10in Oshawatt"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Guess Who?"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokemon Squishalongs 4 Pack Style 2"
+   },
+   {
+    "reason": "vague",
+    "title": "Pokemon Advent Calendar"
+   }
+  ],
+  "error": null,
+  "ms": 2247
+ },
+ {
+  "key": "excelsiorgamesandcomics",
+  "name": "Excelsior! Bristol",
+  "base": "https://excelsiorgamesandcomics.co.uk",
+  "market": "UK",
+  "platform": "shopify",
+  "currency": "GBP",
+  "currencyOk": true,
+  "country": "GB",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "new-releases",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   }
+  ],
+  "rejections": {},
+  "samples": [],
+  "error": null,
+  "ms": 2133
+ },
+ {
+  "key": "gamecorner",
+  "name": "GameCorner",
+  "base": "https://gamecorner.com",
+  "market": "UK",
+  "platform": "shopify",
+  "currency": "GBP",
+  "currencyOk": true,
+  "country": "GB",
+  "collections": [
+   "pokemon-sealed"
+  ],
+  "sealedProducts": 1,
+  "inStock": 0,
+  "allFound": 1,
+  "read": [
+   {
+    "handle": "pokemon-sealed",
+    "ok": true,
+    "products": 5,
+    "accepted": 1
+   },
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 5,
+    "accepted": 1
+   }
+  ],
+  "rejections": {
+   "foreign": 6,
+   "accessory": 2
+  },
+  "samples": [],
+  "error": null,
+  "ms": 1963
+ },
+ {
+  "key": "gameguru",
+  "name": "Game Guru (Touchwood Solihull)",
+  "base": "https://gameguru.co.uk",
+  "market": "UK",
+  "platform": "shopify",
+  "currency": "GBP",
+  "currencyOk": true,
+  "country": "GB",
+  "collections": [
+   "pokemon"
+  ],
+  "sealedProducts": 12,
+  "inStock": 0,
+  "allFound": 12,
+  "read": [
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 25,
+    "accepted": 12
+   }
+  ],
+  "rejections": {
+   "accessory": 13
+  },
+  "samples": [],
+  "error": null,
+  "ms": 1840
+ },
+ {
+  "key": "hexlabsgames",
+  "name": "Hex Labs Games LTD",
+  "base": "https://hexlabsgames.com",
+  "market": "UK",
+  "platform": "shopify",
+  "currency": "GBP",
+  "currencyOk": true,
+  "country": "GB",
+  "collections": [
+   "pokemon"
+  ],
+  "sealedProducts": 4,
+  "inStock": 0,
+  "allFound": 4,
+  "read": [
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 4,
+    "accepted": 4
+   },
+   {
+    "handle": "preorders",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-preorders",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   }
+  ],
+  "rejections": {},
+  "samples": [],
+  "error": null,
+  "ms": 2769
+ },
+ {
+  "key": "hullpops",
+  "name": "Hull Pops Gaming Centre",
+  "base": "https://hullpops.co.uk",
+  "market": "UK",
+  "platform": "shopify",
+  "currency": "GBP",
+  "currencyOk": true,
+  "country": "GB",
+  "collections": [
+   "pokemon"
+  ],
+  "sealedProducts": 1,
+  "inStock": 1,
+  "allFound": 1,
+  "read": [
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 39,
+    "accepted": 1
+   },
+   {
+    "handle": "pre-order",
+    "ok": true,
+    "products": 5,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-events",
+    "ok": true,
+    "products": 2,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-trading-company",
+    "ok": true,
+    "products": 23,
+    "accepted": 1
+   }
+  ],
+  "rejections": {
+   "accessory": 46,
+   "unclassified": 15,
+   "not-sealed": 1,
+   "not-pokemon": 5
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Play! Pokemon League Cup - November 2026 - Event Ticket! - 22nd November 2026"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Play! Pokemon League Challenge - November 2026 - Event Ticket! - 10th November 2026"
+   },
+   {
+    "reason": "unclassified",
+    "title": "#985 - Pokemon - Teddiursa"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Shopping Bag Pikachu Rocks"
+   },
+   {
+    "reason": "unclassified",
+    "title": "#848 - Pokemon - Caterpie"
+   },
+   {
+    "reason": "unclassified",
+    "title": "#780 - Pokemon - Meowth"
+   },
+   {
+    "reason": "unclassified",
+    "title": "#964 - Pokemon - Snubbull"
+   },
+   {
+    "reason": "unclassified",
+    "title": "#963 - Pokemon - Chimchar"
+   },
+   {
+    "reason": "unclassified",
+    "title": "#957 - Pokemon - Grookey"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon Floral Pikachu Crossbody Bag"
+   },
+   {
+    "reason": "unclassified",
+    "title": "#644 - Pokemon - Ponyta"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Play! Pokemon League Cup - November 2026 - Event Ticket! - 22nd November 2026"
+   }
+  ],
+  "error": null,
+  "ms": 3085
+ },
+ {
+  "key": "jestergamesstore",
+  "name": "Jester Games Store",
+  "base": "https://jestergamesstore.com",
+  "market": "UK",
+  "platform": "shopify",
+  "currency": "GBP",
+  "currencyOk": true,
+  "country": "GB",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "pre-order",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pre-order-featured",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   }
+  ],
+  "rejections": {},
+  "samples": [],
+  "error": null,
+  "ms": 1549
+ },
+ {
+  "key": "kingdomgaming",
+  "name": "Kingdom Gaming",
+  "base": "https://kingdomgaming.co.uk",
+  "market": "UK",
+  "platform": "shopify",
+  "currency": "GBP",
+  "currencyOk": true,
+  "country": "GB",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   }
+  ],
+  "rejections": {},
+  "samples": [],
+  "error": null,
+  "ms": 1546
+ },
+ {
+  "key": "justplaygames",
+  "name": "JustPlay",
+  "base": "https://justplaygames.uk",
+  "market": "UK",
+  "platform": "shopify",
+  "currency": "GBP",
+  "currencyOk": true,
+  "country": "GB",
+  "collections": [
+   "pokemon-tcg",
+   "preorders-live"
+  ],
+  "sealedProducts": 27,
+  "inStock": 12,
+  "allFound": 28,
+  "read": [
+   {
+    "handle": "pokemon-tcg",
+    "ok": true,
+    "products": 15,
+    "accepted": 15
+   },
+   {
+    "handle": "pre-orders",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "new-arrivals",
+    "ok": true,
+    "products": 171,
+    "accepted": 0
+   },
+   {
+    "handle": "preorders-live",
+    "ok": true,
+    "products": 127,
+    "accepted": 12
+   },
+   {
+    "handle": "pokemon-league-preorders",
+    "ok": true,
+    "products": 12,
+    "accepted": 12
+   },
+   {
+    "handle": "december-pokemon-restocks",
+    "ok": true,
+    "products": 3,
+    "accepted": 3
+   },
+   {
+    "handle": "pokemon-preorder-31-01-26",
+    "ok": true,
+    "products": 5,
+    "accepted": 5
+   }
+  ],
+  "rejections": {
+   "not-pokemon": 247,
+   "accessory": 30,
+   "multiple": 1,
+   "not-sealed": 8
+  },
+  "samples": [],
+  "error": null,
+  "ms": 4985
+ },
+ {
+  "key": "langdengames",
+  "name": "Langden Games",
+  "base": "https://langdengames.co.uk",
+  "market": "UK",
+  "platform": "woocommerce",
+  "currency": "GBP",
+  "currencyOk": true,
+  "country": "GB",
+  "collections": [
+   "search:pokemon"
+  ],
+  "sealedProducts": 20,
+  "inStock": 0,
+  "allFound": 20,
+  "read": [
+   {
+    "handle": "search:pokemon",
+    "ok": true,
+    "products": 24,
+    "accepted": 20
+   }
+  ],
+  "rejections": {
+   "accessory": 3,
+   "unclassified": 1
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Pokémon Diecast Replica Mini Poké Ball"
+   }
+  ],
+  "error": null,
+  "ms": 2414
+ },
+ {
+  "key": "leannesanimeandcollectables",
+  "name": "Leanne's Anime and Collectables",
+  "base": "https://leannesanimeandcollectables.com",
+  "market": "UK",
+  "platform": "shopify",
+  "currency": "GBP",
+  "currencyOk": true,
+  "country": "GB",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "pokemon-1",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   }
+  ],
+  "rejections": {},
+  "samples": [],
+  "error": null,
+  "ms": 1332
+ },
+ {
+  "key": "gamersathart",
+  "name": "Gamers@Hart",
+  "base": "https://gamersathart.co.uk",
+  "market": "UK",
+  "platform": "woocommerce",
+  "currency": "GBP",
+  "currencyOk": true,
+  "country": "GB",
+  "collections": [
+   "pokemon-trading-card-game"
+  ],
+  "sealedProducts": 21,
+  "inStock": 21,
+  "allFound": 21,
+  "read": [
+   {
+    "handle": "pokemon-trading-card-game",
+    "ok": true,
+    "products": 112,
+    "accepted": 21
+   },
+   {
+    "handle": "pokemon-go",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "sundries-pokemon",
+    "ok": true,
+    "products": 84,
+    "accepted": 9
+   },
+   {
+    "handle": "international-pokemon",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "scarlet-violet-pokemon-trading-card-game",
+    "ok": true,
+    "products": 4,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "accessory": 162,
+   "unclassified": 8
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "A Yorkie Bar"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Paldea Region Accessory Bundle"
+   },
+   {
+    "reason": "unclassified",
+    "title": "MEGA Pokemon Forgotten Ruins"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Mega Contrux Pokemon Build & Show Squirtle"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon First Partner Accessory Bundle"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Paldea Region Accessory Bundle"
+   },
+   {
+    "reason": "unclassified",
+    "title": "MEGA Pokemon Forgotten Ruins"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon First Partner Accessory Bundle"
+   }
+  ],
+  "error": null,
+  "ms": 14419
+ },
+ {
+  "key": "knightlygaming",
+  "name": "Knightly Gaming",
+  "base": "https://knightlygaming.co.uk",
+  "market": "UK",
+  "platform": "shopify",
+  "currency": "GBP",
+  "currencyOk": true,
+  "country": "GB",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pre-order",
+    "ok": true,
+    "products": 7,
+    "accepted": 0
+   },
+   {
+    "handle": "new-releases",
+    "ok": true,
+    "products": 2,
+    "accepted": 0
+   },
+   {
+    "handle": "cc-pokemon-sv8",
+    "ok": true,
+    "products": 5,
+    "accepted": 0
+   },
+   {
+    "handle": "cc-pokemon-mcp",
+    "ok": true,
+    "products": 2,
+    "accepted": 0
+   },
+   {
+    "handle": "cc-pokemon-mepo",
+    "ok": true,
+    "products": 118,
+    "accepted": 0
+   },
+   {
+    "handle": "cc-pokemon-meg2pf",
+    "ok": true,
+    "products": 10,
+    "accepted": 0
+   },
+   {
+    "handle": "cc-pokemon-sv8pt5",
+    "ok": true,
+    "products": 6,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "not-pokemon": 9,
+   "unclassified": 141
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Castform Sunny Form (195)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Durant Ex (215)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Latias Ex (220)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pikachu Ex (238)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Precious Trolley (185)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pikachu - Pokemon Day 2026 (51)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Sylveon Ex - Prismatic Evolutions Stamp (41)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Aegislash (58)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Amaura (23)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Antique Jaw Fossil (68)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Antique Sail Fossil (69)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Ariados (2)"
+   }
+  ],
+  "error": null,
+  "ms": 6765
+ },
+ {
+  "key": "lostarkgames",
+  "name": "LOST ARK GAMES LIMITED",
+  "base": "https://lostarkgames.com",
+  "market": "UK",
+  "platform": "woocommerce",
+  "currency": "GBP",
+  "currencyOk": true,
+  "country": "GB",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "search:pokemon",
+    "ok": true,
+    "products": 1,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "unclassified": 1
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Pokemon TCG – Delta Reign Pre-release 24th October 2026"
+   }
+  ],
+  "error": null,
+  "ms": 9466
+ },
+ {
+  "key": "nostalgiatcg",
+  "name": "Nostalgia TCG Limited",
+  "base": "https://nostalgiatcg.com",
+  "market": "UK",
+  "platform": "shopify",
+  "currency": "GBP",
+  "currencyOk": true,
+  "country": "GB",
+  "collections": [
+   "booster-packs",
+   "collection-boxes-pokemon",
+   "pokemon-tcg-booster-boxes",
+   "pokemon-tcg-elite-trainer-boxes"
+  ],
+  "sealedProducts": 181,
+  "inStock": 42,
+  "allFound": 219,
+  "read": [
+   {
+    "handle": "pokemon-tcg-tins",
+    "ok": true,
+    "products": 23,
+    "accepted": 22
+   },
+   {
+    "handle": "collection-boxes-pokemon",
+    "ok": true,
+    "products": 45,
+    "accepted": 43
+   },
+   {
+    "handle": "pokemon-tcg-booster-boxes",
+    "ok": true,
+    "products": 68,
+    "accepted": 38
+   },
+   {
+    "handle": "pokemon-tcg-elite-trainer-boxes",
+    "ok": true,
+    "products": 34,
+    "accepted": 31
+   },
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 38,
+    "accepted": 35
+   },
+   {
+    "handle": "booster-packs",
+    "ok": true,
+    "products": 109,
+    "accepted": 69
+   },
+   {
+    "handle": "new-releases",
+    "ok": true,
+    "products": 8,
+    "accepted": 2
+   },
+   {
+    "handle": "pokemon-151-pokemon",
+    "ok": true,
+    "products": 9,
+    "accepted": 9
+   }
+  ],
+  "rejections": {
+   "unclassified": 20,
+   "no-set": 13,
+   "foreign": 31,
+   "not-pokemon": 19,
+   "accessory": 2
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Pokémon TCG: Back to School Pencil Case (2023)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon TCG: Back to School Pencil Case"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon TCG: Back to School Pencil Case (2023)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon TCG: Mega Evolution Enhanced Booster Display Box (36 Packs & 1 Promo Card)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Destined Rivals Half Booster Box"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Surging Sparks Half Booster Box"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokemon Surging Spark Booster Box"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Stellar Crown Half Booster Box (18 Boosters)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Twilight Masquerade Half Booster Box (18 Packs)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Temporal Forces Half Booster Box"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Paradox Rift Half Booster Box"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Obsidian Flames Half Booster Box (18 Packs)"
+   }
+  ],
+  "error": null,
+  "ms": 5194
+ },
+ {
+  "key": "northumbriantinsoldier",
+  "name": "Northumbrian Tin Soldier Limited",
+  "base": "https://northumbriantinsoldier.com",
+  "market": "UK",
+  "platform": "shopify",
+  "currency": "GBP",
+  "currencyOk": true,
+  "country": "GB",
+  "collections": [
+   "pokemon"
+  ],
+  "sealedProducts": 265,
+  "inStock": 1,
+  "allFound": 265,
+  "read": [
+   {
+    "handle": "pokemon-gift-tins",
+    "ok": true,
+    "products": 29,
+    "accepted": 29
+   },
+   {
+    "handle": "pokemon-booster-boxes",
+    "ok": true,
+    "products": 18,
+    "accepted": 18
+   },
+   {
+    "handle": "pokemon-booster-packs",
+    "ok": true,
+    "products": 104,
+    "accepted": 103
+   },
+   {
+    "handle": "pokemon-collection-boxes",
+    "ok": true,
+    "products": 51,
+    "accepted": 50
+   },
+   {
+    "handle": "pokemon-elite-trainer-boxes",
+    "ok": true,
+    "products": 21,
+    "accepted": 21
+   },
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 270,
+    "accepted": 265
+   },
+   {
+    "handle": "booster-boxes",
+    "ok": true,
+    "products": 62,
+    "accepted": 0
+   },
+   {
+    "handle": "preorders",
+    "ok": true,
+    "products": 43,
+    "accepted": 1
+   }
+  ],
+  "rejections": {
+   "accessory": 7,
+   "unclassified": 1,
+   "multiple": 2,
+   "not-pokemon": 101
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Pokémon - Mega Evolution : Delta Reign - Prerelease: In store event ticket (Saturday 24th October)"
+   }
+  ],
+  "error": null,
+  "ms": 6866
+ },
+ {
+  "key": "phantomcardsuk",
+  "name": "PHANTOMCARDSUK LTD",
+  "base": "https://phantomcardsuk.com",
+  "market": "UK",
+  "platform": "shopify",
+  "currency": "GBP",
+  "currencyOk": true,
+  "country": "GB",
+  "collections": [
+   "pokemon-blind-box"
+  ],
+  "sealedProducts": 25,
+  "inStock": 0,
+  "allFound": 25,
+  "read": [
+   {
+    "handle": "elite-trainer-box",
+    "ok": true,
+    "products": 6,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-blind-box",
+    "ok": true,
+    "products": 33,
+    "accepted": 25
+   }
+  ],
+  "rejections": {
+   "not-pokemon": 6,
+   "unclassified": 7,
+   "accessory": 1
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Starrium Series 3"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Starrium Series 2"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Starrium Series 1"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Dreaming Case 4"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Dreaming Case 3"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Dreaming Case 2"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Dreaming Case 1"
+   }
+  ],
+  "error": null,
+  "ms": 2455
+ },
+ {
+  "key": "pixelandblock",
+  "name": "Pixel and Block",
+  "base": "https://pixelandblock.co.uk",
+  "market": "UK",
+  "platform": "shopify",
+  "currency": "GBP",
+  "currencyOk": true,
+  "country": "GB",
+  "collections": [
+   "pokemon-tcg",
+   "pokemon-tcg-1"
+  ],
+  "sealedProducts": 77,
+  "inStock": 1,
+  "allFound": 78,
+  "read": [
+   {
+    "handle": "pokemon-tcg",
+    "ok": true,
+    "products": 64,
+    "accepted": 60
+   },
+   {
+    "handle": "collection-boxes",
+    "ok": true,
+    "products": 31,
+    "accepted": 20
+   },
+   {
+    "handle": "new-arrivals",
+    "ok": true,
+    "products": 70,
+    "accepted": 30
+   },
+   {
+    "handle": "pokemon-tcg-1",
+    "ok": true,
+    "products": 58,
+    "accepted": 54
+   }
+  ],
+  "rejections": {
+   "no-set": 3,
+   "unclassified": 2,
+   "multiple": 6,
+   "not-pokemon": 44,
+   "accessory": 4
+  },
+  "samples": [
+   {
+    "reason": "no-set",
+    "title": "Pokémon TCG: Scarlet & Violet 1 – Base Set Booster Box"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Azure Legends Tin Assorted Display"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokémon TCG: Scarlet & Violet 1 – Base Set Booster Box"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Azure Legends Tin Assorted Display"
+   }
+  ],
+  "error": null,
+  "ms": 4729
+ },
+ {
+  "key": "onlygraded",
+  "name": "onlygraded",
+  "base": "https://onlygraded.com",
+  "market": "UK",
+  "platform": "woocommerce",
+  "currency": null,
+  "currencyOk": false,
+  "country": "GB",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [],
+  "rejections": {},
+  "samples": [],
+  "error": "charges ?, market UK is GBP",
+  "ms": 5029
+ },
+ {
+  "key": "rollthedicecornwall",
+  "name": "Roll The Dice Cornwall C.I.C.",
+  "base": "https://rollthedicecornwall.com",
+  "market": "UK",
+  "platform": "shopify",
+  "currency": "GBP",
+  "currencyOk": true,
+  "country": "GB",
+  "collections": [
+   "pokemon-tcg"
+  ],
+  "sealedProducts": 5,
+  "inStock": 3,
+  "allFound": 5,
+  "read": [
+   {
+    "handle": "pokemon-tcg",
+    "ok": true,
+    "products": 20,
+    "accepted": 5
+   }
+  ],
+  "rejections": {
+   "foreign": 13,
+   "accessory": 1,
+   "unclassified": 1
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Pokemon TCG: Charizard VMAX Orange Battle"
+   }
+  ],
+  "error": null,
+  "ms": 1840
+ },
+ {
+  "key": "sarahsshinies",
+  "name": "Sarahs Shinies LTD",
+  "base": "https://sarahs-shinies.co.uk",
+  "market": "UK",
+  "platform": "shopify",
+  "currency": "GBP",
+  "currencyOk": true,
+  "country": "GB",
+  "collections": [
+   "pokemon"
+  ],
+  "sealedProducts": 11,
+  "inStock": 0,
+  "allFound": 11,
+  "read": [
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 14,
+    "accepted": 11
+   },
+   {
+    "handle": "booster-box",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "booster-packs",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "elite-trainer-box",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "not-sealed": 3
+  },
+  "samples": [],
+  "error": null,
+  "ms": 3218
+ },
+ {
+  "key": "rerollcafe",
+  "name": "ReRoll Board Game Cafe",
+  "base": "https://rerollcafe.com",
+  "market": "UK",
+  "platform": "woocommerce",
+  "currency": null,
+  "currencyOk": false,
+  "country": "GB",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [],
+  "rejections": {},
+  "samples": [],
+  "error": "charges ?, market UK is GBP",
+  "ms": 8504
+ },
+ {
+  "key": "redoctobergames",
+  "name": "Red October Games",
+  "base": "https://redoctobergames.com",
+  "market": "UK",
+  "platform": "woocommerce",
+  "currency": "GBP",
+  "currencyOk": true,
+  "country": "GB",
+  "collections": [
+   "pokemon"
+  ],
+  "sealedProducts": 12,
+  "inStock": 0,
+  "allFound": 12,
+  "read": [
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 17,
+    "accepted": 12
+   }
+  ],
+  "rejections": {
+   "no-set": 4,
+   "vague": 1
+  },
+  "samples": [
+   {
+    "reason": "no-set",
+    "title": "Pokemon Day 2026 Pack"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokemon: Mega Dream EX – Booster Pack"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokemon Inferno X Single Pack"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokemon Card Game Mega Expansion Pack Inferno X Box"
+   },
+   {
+    "reason": "vague",
+    "title": "Pokémon TCG: Trainer’s Toolkit"
+   }
+  ],
+  "error": null,
+  "ms": 5374
+ },
+ {
+  "key": "thehivegaming",
+  "name": "TheHiveGaming",
+  "base": "https://thehivegaming.com",
+  "market": "UK",
+  "platform": "shopify",
+  "currency": "GBP",
+  "currencyOk": true,
+  "country": "GB",
+  "collections": [
+   "pokemon"
+  ],
+  "sealedProducts": 1,
+  "inStock": 1,
+  "allFound": 1,
+  "read": [
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 14,
+    "accepted": 1
+   },
+   {
+    "handle": "pre-orders",
+    "ok": true,
+    "products": 3,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "unclassified": 6,
+   "accessory": 7,
+   "not-pokemon": 3
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Pokemon League Hive Gaming Tournament"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon  The Hive Gaming League Challenge"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Pre Release Delta Reign Saturday 31st October"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Pre Release Delta Reign Sunday 25th October"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Pre Release Delta Reign Saturday 24th October"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Pre Release Delta Reign Sunday 1st November"
+   }
+  ],
+  "error": null,
+  "ms": 1921
+ },
+ {
+  "key": "snapsgames",
+  "name": "Snaps Games",
+  "base": "https://snapsgames.co.uk",
+  "market": "UK",
+  "platform": "shopify",
+  "currency": "GBP",
+  "currencyOk": true,
+  "country": "GB",
+  "collections": [
+   "pokemon-tcg-⚡"
+  ],
+  "sealedProducts": 46,
+  "inStock": 1,
+  "allFound": 46,
+  "read": [
+   {
+    "handle": "pokemon-tcg-30th-celebration-products-bundles",
+    "ok": true,
+    "products": 8,
+    "accepted": 1
+   },
+   {
+    "handle": "pokemon-tcg-⚡",
+    "ok": true,
+    "products": 68,
+    "accepted": 46
+   }
+  ],
+  "rejections": {
+   "unclassified": 15,
+   "not-sealed": 3,
+   "accessory": 6,
+   "multiple": 1,
+   "foreign": 4
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Pokemon TCG: 30th Celebration - Red Starter Bundle"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon TCG: 30th Celebration - Bronze Trainer Bundle"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon TCG: 30th Celebration - Silver Leader Bundle"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon TCG: 30th Celebration - Gold Elite Bundle"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon TCG: 30th Celebration - Platinum Champion Bundle"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon SV Binders"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pikachu At The Museum Natural History Museum Jumbo Pokemon Promo Card"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon TCG: 30th Celebration - Gold Elite Bundle"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon TCG: 30th Celebration - Silver Leader Bundle"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon pitch black pre-release ticket"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon TCG: 30th Celebration - Bronze Trainer Bundle"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Play! TCG Perfect Order Prerelease Event"
+   }
+  ],
+  "error": null,
+  "ms": 2632
+ },
+ {
+  "key": "thenerdhut",
+  "name": "The Nerd Hut",
+  "base": "https://thenerdhut.co.uk",
+  "market": "UK",
+  "platform": "woocommerce",
+  "currency": null,
+  "currencyOk": false,
+  "country": "GB",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [],
+  "rejections": {},
+  "samples": [],
+  "error": "charges ?, market UK is GBP",
+  "ms": 2283
+ },
+ {
+  "key": "thekoboldskettle",
+  "name": "The Kobolds Kettle",
+  "base": "https://thekoboldskettle.co.uk",
+  "market": "UK",
+  "platform": "woocommerce",
+  "currency": null,
+  "currencyOk": false,
+  "country": "GB",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [],
+  "rejections": {},
+  "samples": [],
+  "error": "charges ?, market UK is GBP",
+  "ms": 3003
+ },
+ {
+  "key": "theludoquist",
+  "name": "The Ludoquist",
+  "base": "https://theludoquist.com",
+  "market": "UK",
+  "platform": "shopify",
+  "currency": "GBP",
+  "currencyOk": true,
+  "country": "GB",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "preorders",
+    "ok": true,
+    "products": 11,
+    "accepted": 0
+   },
+   {
+    "handle": "pre-orders",
+    "ok": true,
+    "products": 4,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-events",
+    "ok": true,
+    "products": 4,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "not-pokemon": 10,
+   "multiple": 5,
+   "unclassified": 4
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Delta Reign prerelease"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon TCG: Pokemon League 6th October 2026"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Ludoquist League 15"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon TCG: Pokemon League 29th September 2026"
+   }
+  ],
+  "error": null,
+  "ms": 3031
+ },
+ {
+  "key": "tridentcards",
+  "name": "TridentCards Bulwell",
+  "base": "https://tridentcards.co.uk",
+  "market": "UK",
+  "platform": "shopify",
+  "currency": "GBP",
+  "currencyOk": true,
+  "country": "GB",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   }
+  ],
+  "rejections": {},
+  "samples": [],
+  "error": null,
+  "ms": 1302
+ },
+ {
+  "key": "thespectrumspacecic",
+  "name": "The Spectrum Space CIC",
+  "base": "https://thespectrumspacecic.co.uk",
+  "market": "UK",
+  "platform": "woocommerce",
+  "currency": null,
+  "currencyOk": false,
+  "country": "GB",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [],
+  "rejections": {},
+  "samples": [],
+  "error": "charges ?, market UK is GBP",
+  "ms": 2296
+ },
+ {
+  "key": "unifiedcards",
+  "name": "Unified Cards",
+  "base": "https://unifiedcards.co.uk",
+  "market": "UK",
+  "platform": "shopify",
+  "currency": "GBP",
+  "currencyOk": true,
+  "country": "GB",
+  "collections": [
+   "pokemon-151",
+   "pokemon-obsidian-flames"
+  ],
+  "sealedProducts": 10,
+  "inStock": 0,
+  "allFound": 11,
+  "read": [
+   {
+    "handle": "pokemon-tcg",
+    "ok": true,
+    "products": 1,
+    "accepted": 1
+   },
+   {
+    "handle": "pokemon-1",
+    "ok": true,
+    "products": 1,
+    "accepted": 1
+   },
+   {
+    "handle": "pokemon-151",
+    "ok": true,
+    "products": 25,
+    "accepted": 6
+   },
+   {
+    "handle": "pokemon-obsidian-flames",
+    "ok": true,
+    "products": 20,
+    "accepted": 4
+   }
+  ],
+  "rejections": {
+   "not-sealed": 32,
+   "foreign": 1,
+   "unclassified": 1,
+   "accessory": 1
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Pokémon TCG: Scarlet & Violet 3 Obsidian Flames Premium Checklane Display"
+   }
+  ],
+  "error": null,
+  "ms": 2997
+ },
+ {
+  "key": "willstoyshop",
+  "name": "Will's Toy Shop",
+  "base": "https://willstoyshop.com",
+  "market": "UK",
+  "platform": "shopify",
+  "currency": "GBP",
+  "currencyOk": true,
+  "country": "GB",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "pokemon-single-boosters",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-etbs-tins-and-box-set",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-tcg",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "new-arrivals",
+    "ok": false,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-decks",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-sword-and-shield",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-scarlet-and-violet-tcg",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   }
+  ],
+  "rejections": {},
+  "samples": [],
+  "error": null,
+  "ms": 8844
+ },
+ {
+  "key": "tmmgames",
+  "name": "The Toy Moon Ltd t/a TMM Games",
+  "base": "https://tmmgames.co.uk",
+  "market": "UK",
+  "platform": "woocommerce",
+  "currency": "GBP",
+  "currencyOk": true,
+  "country": "GB",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 5,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-events",
+    "ok": true,
+    "products": 5,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "unclassified": 10
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Pokemon League Cup – Saturday, November 14, 2026 10:30 AM"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Delta Reign Prerelease Under 16s Only! 28th October 5pm"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Delta Reign Prerelease 31st October 12pm"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Delta Reign Prerelease 29th October 6pm"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Juniors Ages 6-16"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon League Cup – Saturday, November 14, 2026 10:30 AM"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Delta Reign Prerelease Under 16s Only! 28th October 5pm"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Delta Reign Prerelease 31st October 12pm"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Delta Reign Prerelease 29th October 6pm"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Juniors Ages 6-16"
+   }
+  ],
+  "error": null,
+  "ms": 9294
+ }
+]

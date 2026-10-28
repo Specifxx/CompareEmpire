@@ -1,0 +1,611 @@
+[
+ {
+  "key": "gameshaventcg",
+  "name": "Games Haven Chinatown",
+  "base": "https://gameshaventcg.com",
+  "market": "SG",
+  "platform": "shopify",
+  "currency": "SGD",
+  "currencyOk": true,
+  "country": "SG",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "new-arrivals",
+    "ok": true,
+    "products": 750,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "not-pokemon": 727,
+   "foreign": 7,
+   "not-sealed": 15,
+   "accessory": 1
+  },
+  "samples": [],
+  "error": null,
+  "ms": 5453
+ },
+ {
+  "key": "cardconnectsg",
+  "name": "Card Connect",
+  "base": "https://cardconnectsg.com",
+  "market": "SG",
+  "platform": "shopify",
+  "currency": "SGD",
+  "currencyOk": true,
+  "country": "SG",
+  "collections": [
+   "pokemon-sealed"
+  ],
+  "sealedProducts": 9,
+  "inStock": 6,
+  "allFound": 9,
+  "read": [
+   {
+    "handle": "pokemon-sealed",
+    "ok": true,
+    "products": 11,
+    "accepted": 9
+   },
+   {
+    "handle": "pokemon-others",
+    "ok": true,
+    "products": 130,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-black-bolt",
+    "ok": true,
+    "products": 86,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-pitch-black",
+    "ok": true,
+    "products": 84,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-white-flare",
+    "ok": true,
+    "products": 86,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-chaos-rising",
+    "ok": true,
+    "products": 86,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-perfect-order",
+    "ok": true,
+    "products": 88,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-surging-sparks",
+    "ok": true,
+    "products": 173,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "no-set": 1,
+   "multiple": 1,
+   "unclassified": 127,
+   "accessory": 2,
+   "not-sealed": 604
+  },
+  "samples": [
+   {
+    "reason": "no-set",
+    "title": "Prize Pack Series 8"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Enhanced Hammer"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokegear 3.0"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Binding Mochi"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Boss's Orders"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Judge"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Mist Energy"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Buddy-Buddy Poffin"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Bug Catching Set"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Crushing Hammer"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Night Stretcher"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Powerglass"
+   }
+  ],
+  "error": null,
+  "ms": 6411
+ },
+ {
+  "key": "fyendalhobby",
+  "name": "Fyendal Hobby",
+  "base": "https://fyendalhobby.com",
+  "market": "SG",
+  "platform": "shopify",
+  "currency": "SGD",
+  "currencyOk": true,
+  "country": "SG",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "booster-box",
+    "ok": true,
+    "products": 36,
+    "accepted": 0
+   },
+   {
+    "handle": "sealed-products",
+    "ok": true,
+    "products": 199,
+    "accepted": 0
+   },
+   {
+    "handle": "new-arrivals",
+    "ok": true,
+    "products": 155,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-1",
+    "ok": true,
+    "products": 96,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "not-pokemon": 372,
+   "foreign": 30,
+   "not-sealed": 15,
+   "accessory": 11,
+   "unclassified": 58
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "[Rotary] Pinsir CBB4C-0304/07"
+   },
+   {
+    "reason": "unclassified",
+    "title": "[Poke Ball Holo] Infernape CBB4C-0902/07"
+   },
+   {
+    "reason": "unclassified",
+    "title": "[Poke Ball Holo] Relicanth CBB4C-0702/07"
+   },
+   {
+    "reason": "unclassified",
+    "title": "[Stars] Grotle CBB4C-0803/07"
+   },
+   {
+    "reason": "unclassified",
+    "title": "[Poke Ball Holo] Grotle CBB4C-0802/07"
+   },
+   {
+    "reason": "unclassified",
+    "title": "[Poke Ball Holo] Mudsdale CBB4C-2302/07"
+   },
+   {
+    "reason": "unclassified",
+    "title": "[Rotary] Annihilape CBB3C-1804/07"
+   },
+   {
+    "reason": "unclassified",
+    "title": "[Stars] Annihilape CBB3C-1803/07"
+   },
+   {
+    "reason": "unclassified",
+    "title": "[Poke Ball Holo] Annihilape CBB3C-1802/07"
+   },
+   {
+    "reason": "unclassified",
+    "title": "[Rotary] Absol CBB3C-0804/07"
+   },
+   {
+    "reason": "unclassified",
+    "title": "[Stars] Absol CBB3C-0803/07"
+   },
+   {
+    "reason": "unclassified",
+    "title": "[Poke Ball Holo] Absol CBB3C-0802/07"
+   }
+  ],
+  "error": null,
+  "ms": 7833
+ },
+ {
+  "key": "huattoru",
+  "name": "Huattoru",
+  "base": "https://huattoru.com",
+  "market": "SG",
+  "platform": "shopify",
+  "currency": "SGD",
+  "currencyOk": true,
+  "country": "SG",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "booster-box",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "booster-bundle",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "elite-trainer-box",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   }
+  ],
+  "rejections": {},
+  "samples": [],
+  "error": null,
+  "ms": 2524
+ },
+ {
+  "key": "hideyoshitcg",
+  "name": "Hideyoshi",
+  "base": "https://hideyoshitcg.com",
+  "market": "SG",
+  "platform": "shopify",
+  "currency": "SGD",
+  "currencyOk": true,
+  "country": "SG",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "pokemon-sealed",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   }
+  ],
+  "rejections": {},
+  "samples": [],
+  "error": null,
+  "ms": 2819
+ },
+ {
+  "key": "theimaginariumsg",
+  "name": "The Imaginarium",
+  "base": "https://theimaginariumsg.com",
+  "market": "SG",
+  "platform": "shopify",
+  "currency": "SGD",
+  "currencyOk": true,
+  "country": "SG",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "pokemon-tcg-sealed",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   }
+  ],
+  "rejections": {},
+  "samples": [],
+  "error": null,
+  "ms": 1809
+ },
+ {
+  "key": "paintandplay",
+  "name": "Paint & Play",
+  "base": "https://paintandplay.sg",
+  "market": "SG",
+  "platform": "shopify",
+  "currency": "SGD",
+  "currencyOk": true,
+  "country": "SG",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "pre-order",
+    "ok": true,
+    "products": 138,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "not-pokemon": 135,
+   "accessory": 3
+  },
+  "samples": [],
+  "error": null,
+  "ms": 5656
+ },
+ {
+  "key": "universecards",
+  "name": "Universe Cards & Games",
+  "base": "https://universecards.sg",
+  "market": "SG",
+  "platform": "shopify",
+  "currency": "SGD",
+  "currencyOk": true,
+  "country": "SG",
+  "collections": [
+   "pokemon-sealed-products"
+  ],
+  "sealedProducts": 5,
+  "inStock": 2,
+  "allFound": 5,
+  "read": [
+   {
+    "handle": "pokemon-sealed-products",
+    "ok": true,
+    "products": 23,
+    "accepted": 5
+   },
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "sealed-products",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "vague": 1,
+   "not-sealed": 3,
+   "unclassified": 6,
+   "foreign": 8
+  },
+  "samples": [
+   {
+    "reason": "vague",
+    "title": "Pokemon Card Game Mega Gengar Tin (4 Packs)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Card Game First Partner Series 2"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Card Game First Partner Series 1"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Card Game Perfect Order Half Booster Box"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Card Game Chaos Rising Half Booster Box"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Card Game Pokemon Centre Tohoku Box Japanese"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Card Game SV8A Terastal Festival Japanese"
+   }
+  ],
+  "error": null,
+  "ms": 3461
+ },
+ {
+  "key": "gameacademiasg",
+  "name": "Game Academia",
+  "base": "https://game-academia.com",
+  "market": "SG",
+  "platform": "shopify",
+  "currency": "SGD",
+  "currencyOk": true,
+  "country": "SG",
+  "collections": [
+   "pokemon-trading-card-game"
+  ],
+  "sealedProducts": 493,
+  "inStock": 8,
+  "allFound": 493,
+  "read": [
+   {
+    "handle": "pokemon-tcg-tin-set",
+    "ok": true,
+    "products": 97,
+    "accepted": 96
+   },
+   {
+    "handle": "pokemon-tcg-booster-box",
+    "ok": true,
+    "products": 57,
+    "accepted": 55
+   },
+   {
+    "handle": "pokemon-ocg-booster-boxes",
+    "ok": true,
+    "products": 37,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-tcg-elite-trainer-box",
+    "ok": true,
+    "products": 60,
+    "accepted": 50
+   },
+   {
+    "handle": "pokemon-tcg-blister-collection",
+    "ok": true,
+    "products": 50,
+    "accepted": 49
+   },
+   {
+    "handle": "pokemon-trading-card-game",
+    "ok": true,
+    "products": 512,
+    "accepted": 493
+   },
+   {
+    "handle": "tcg-pre-order-catalog",
+    "ok": true,
+    "products": 17,
+    "accepted": 1
+   },
+   {
+    "handle": "pokemon-tcg-theme-deck",
+    "ok": true,
+    "products": 26,
+    "accepted": 26
+   }
+  ],
+  "rejections": {
+   "no-set": 28,
+   "foreign": 27,
+   "vague": 5,
+   "unclassified": 8,
+   "accessory": 1,
+   "multiple": 1,
+   "not-pokemon": 16
+  },
+  "samples": [
+   {
+    "reason": "no-set",
+    "title": "Pokémon TCG: Trick or Trade - BOOster Bundle (2023)"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokémon TCG: [ME01] Mega Evolution 18-Pack Booster Box"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokémon TCG: [ME01] Mega Evolution 36-Pack Booster Box"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokémon OCG: [S12] Sword & Shield - Paradigm Trigger Booster Box"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokémon OCG: [S11] Sword & Shield - Lost Abyss Booster Box"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokémon OCG: [S9] Sword & Shield - Star Birth Booster Box"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokémon OCG: [S8] Sword & Shield - Fusion Arts Booster Box"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokémon OCG: [S4] Sword & Shield - Shocking Volt Tackle Booster Box"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokémon OCG: [S3] Sword & Shield - Infinity Zone Booster Box"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokémon OCG: [S2] Sword & Shield - Rebellious Clash Booster Box"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokémon OCG: [SM12] Sun & Moon - Alter Genesis Booster Box"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokémon OCG: [SM10] Sun & Moon - Double Blaze Booster Box"
+   }
+  ],
+  "error": null,
+  "ms": 11444
+ },
+ {
+  "key": "teamboardgame",
+  "name": "Team Board Game",
+  "base": "https://teamboardgame.com",
+  "market": "SG",
+  "platform": "woocommerce",
+  "currency": "SGD",
+  "currencyOk": true,
+  "country": "SG",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "search:pokemon",
+    "ok": true,
+    "products": 8,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "unclassified": 1,
+   "accessory": 7
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Pokémon GOITA"
+   }
+  ],
+  "error": null,
+  "ms": 13677
+ }
+]
