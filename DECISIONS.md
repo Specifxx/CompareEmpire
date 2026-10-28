@@ -1,4 +1,17 @@
 
+
+## DexCompare: store audit — 2026-10-28
+
+**Owner:** check every site's store health and make sure "all the latest and
+greatest stores" are on it. Each site probed every store its sisters track
+(999 storefronts across the nine registries) through its own probe and
+importer rules, from GitHub Actions (this sandbox cannot reach the stores).
+DexCompare: 513 stores added (390 → 893; the second round from the official Riftbound
+store registry's game stores), 11 dead ones removed, 3 re-pointed;
+details and the per-store counts in
+`apps/dexcompare-sealed/docs/store-probe-2026-10-28.md`. A store whose other
+domain we already list is left out (one stock shown as two stores misleads,
+the `ccctcg.ca` rule).
 ## One family page and "Searching another game?" instead of a hub domain — 2026-10-28
 
 The owner asked whether a separate hub site (tcgcompare.app or "TCG Empire")

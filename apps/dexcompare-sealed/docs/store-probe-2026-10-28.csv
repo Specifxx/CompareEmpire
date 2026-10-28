@@ -1,0 +1,514 @@
+market,key,name,base,sealed_products,in_stock,collections,source
+AU,collectorsgalore,"Collectors Galore",https://collectorsgalore.com.au,50,26,"all-pokemon-tcg",uvs-registry
+AU,crithit,"Crit Hit",https://crithit.com.au,12,12,"pokemon",sister-sites
+AU,crystalcollectablestcg,"Crystal Collectables TCG",https://crystalcollectablestcg.com.au,31,31,"pokemon",sister-sites
+AU,dragonslair,"Dragon's Lair Hobbies and Gaming",https://dragonslair.au,5,3,"new-arrivals",sister-sites
+AU,firstgames,"First Games",https://firstgames.com.au,51,42,"pokemon-tcg",sister-sites
+AU,flinchcollectibles,"Flinch Coffee & Play",https://flinchcollectibles.com.au,77,5,"pokemon-tcg-english",uvs-registry
+AU,frenlybricks,"Frenly Bricks",https://frenlybricks.store,8,8,"pokemon-sealed",sister-sites
+AU,fromthedeepgames,"From The Deep Games",https://fromthedeepgames.com.au,4,4,"pokemon-tcg",sister-sites
+AU,gamesempire,"Games Empire",https://www.gamesempire.com.au,17,8,"pokemon",sister-sites
+AU,gametradersseaford,"Gametraders Seaford",https://gametradersseaford.com.au,4,1,"pokemon",sister-sites
+AU,generalgames,"General Games Chirnside Park",https://generalgames.com.au,31,31,"pokemon-1",sister-sites
+AU,groovycollectables,"Groovy Collectables",https://groovycollectables.com.au,275,55,"pokemon pokemon-all-products",sister-sites
+AU,hbtcollectables,"HBT Collectables",https://www.hbtcollectables.com,41,11,"pokemon-english",sister-sites
+AU,hightidetabletop,"Hightide Tabletop Gaming",https://hightidetabletop.com.au,129,12,"pokemon",uvs-registry
+AU,hobbishack,"HobbiShack",https://hobbishack.com.au,7,2,"pokemon",uvs-registry
+AU,hobbykitz," Hobby Kitz",https://hobbykitz.com.au,145,6,"pokemon-tcg",sister-sites
+AU,legendsandcollectables,"Legends and Collectables",https://www.legendsandcollectables.com,17,7,"pokemon-trading-card-game",sister-sites
+AU,lunacards,"Luna Cards",https://www.lunacards.com.au,157,24,"pokemonsealed",sister-sites
+AU,megagames,"Mega Games Penrith",https://megagames.com.au,4,4,"pokemon",sister-sites
+AU,millenniumcomics,"Millennium Comics",https://millenniumcomics.com.au,5,1,"tcg-sealed pokemon-model-kit",sister-sites
+AU,mintcollectables,"Mint Collectables",https://mintcollectables.com.au,22,3,"pokemon",sister-sites
+AU,oneplacetcs,"One Place Trading Card Store",https://oneplacetcs.com.au,13,11,"pokemon-sealed pokemon all-sealed",sister-sites
+AU,online,"Lots Moore",https://online.lotsmoore.com.au,3,3,"pokemon",sister-sites
+AU,popincollectables,"POPin Collectables",https://popincollectables.com.au,50,1,"pokemon",sister-sites
+AU,prohobbies,"ProHobbies",https://prohobbies.com.au,107,39,"pokemon-tcg pokemon",sister-sites
+AU,rhysticnostalgiagaming,"Rhystic Nostalgia Gaming",https://rhysticnostalgiagaming.com.au,94,13,"pokemon-sealed-instock",sister-sites
+AU,rnrhobbies,"R&R Hobbies",https://rnrhobbies.com.au,24,10,"pokemon",sister-sites
+AU,tabernaclegames,"Tabernacle Games",https://tcg.tabernaclegames.com.au,18,7,"pokemon-sealed-preorders sealed-pokemon-in-stock",sister-sites
+AU,thatgamestore,"That Game Store",https://thatgamestore.com.au,14,1,"pokemon-sealed-products",sister-sites
+AU,thecollectorsmith,"The CollectorSmith",https://www.thecollectorsmith.com.au,11,7,"sealed-pokemon",sister-sites
+AU,thecombatcompany,"The Combat Company",https://thecombatcompany.com,18,10,"pokemon-tcg",uvs-registry
+AU,thegamesdistrict,"The Games District",https://thegamesdistrict.com,16,9,"pokemon-sealed-product",sister-sites
+AU,topdeckgaming,"Topdeck Gaming Strathfield",https://topdeckgaming.com.au,267,5,"pokemon-english",sister-sites
+AU,tradingcardmasters,"Trading Card Masters",https://www.tradingcardmasters.com.au,6,4,"pokemon-english-tcg",sister-sites
+AU,turtletcg,"Turtle TCG",https://turtletcg.com.au,26,3,"sealed",sister-sites
+AU,ultrarare,"Ultra Rare",https://ultrarare.com.au,32,1,"pokemon-tcg",uvs-registry
+AU,vaultcollectables,"Filmsmen",https://vault-collectables.com,211,18,"pokemon",sister-sites
+CA,203collectibles,"203 Collectibles",https://203collectibles.com,260,25,"pokemon-sealed-products pokemon-sealed",sister-sites
+CA,3dragons,"Jeux 3 Dragons",https://3dragons.ca,495,48,"pokemon-sealed",sister-sites
+CA,6ixtcgsmarkham,"The6ixtcgsMarkham",https://6ixtcgsmarkham.ca,28,28,"pokemon",sister-sites
+CA,abbyboardwalk,"Abby Boardwalk",https://abbyboardwalk.com,4,4,"pokemon-sealed-product",sister-sites
+CA,adventurebox,"Adventurebox",https://adventurebox.ca,23,22,"collections-cartes-pokemon",uvs-registry
+CA,allinhobbysports,"All-In Hobby Sports",https://allinhobbysports.com,283,148,"all-pokemon",uvs-registry
+CA,animeotakuhobby,"Anime Otaku Hobby",https://animeotakuhobby.com,216,5,"pokemon-tcg",sister-sites
+CA,arcticriftcards,"Arctic Rift Cards",https://arcticriftcards.ca,59,5,"pokemon-sealed-product",sister-sites
+CA,ariasnacks,"Aria Snacks and Hobbies",https://ariasnacks.ca,3,3,"new-arrivals",uvs-registry
+CA,bdcosmos,"BD Cosmos",https://bdcosmos.com,271,46,"pokemon-sealed-product",uvs-registry
+CA,beardycards,"BeardyCards",https://www.beardycards.com,626,283,"english-pokemon pokemon-booster-boxes pokemon-box-sets-tins pokemon-loose-packs",sister-sites
+CA,blackknightgames,"Black Knight Games",https://blackknightgames.ca,146,6,"stocktake-ccg-pokemon-sealed pokemon-sealed",sister-sites
+CA,bootownsgamesandhobbies,"Bootown's Games and Hobbies",https://bootownsgamesandhobbies.com,4,4,"pokemon-sealed",sister-sites
+CA,boutiqueawesome,"Boutique Awesome",https://boutiqueawesome.com,321,64,"pokemon-boosters pokemon",sister-sites
+CA,boutiquefdb,"Boutique FDB",https://boutiquefdb.com,27,1,"pokemon-sealed-products",sister-sites
+CA,boutiquelechevalier,"Le Chevalier",https://boutiquelechevalier.com,22,5,"pokemon-sealed-all",sister-sites
+CA,breakawaysc,"Breakaway Sports Cards",https://breakawaysc.com,270,56,"pokemon",uvs-registry
+CA,brimstonegames,"Brimstone Games ",https://brimstonegames.ca,58,24,"pokemon-tcg-sealed-product",sister-sites
+CA,cardboardclassics,"Cardboard Classics",https://cardboardclassics.ca,93,53,"pokemon-sealed-new-style",sister-sites
+CA,cardboardhero,"Cardboard Hero",https://cardboardhero.com,320,141,"pokemon-tins-collection-boxes pokemon-sealed pokemon-booster-packs-and-blisters pokemon-elite-trainer-box",sister-sites
+CA,cardboardmemories,"Cardboard Memories Inc.",https://cardboardmemories.ca,116,90,"pokemon pre-order pokemon-booster-boxes",sister-sites
+CA,cardcastergames,"Card Caster",https://cardcastergames.com,82,47,"pokemon-sealed pre-orders",sister-sites
+CA,cardsandcoasters,"Cards and Coasters",https://cardsandcoasters.com,52,27,"all-pokemon-sealed-products pokemon-tcg",sister-sites
+CA,carlitosgamecafe,"Carlito's Boardgame Cafe",https://carlitosgamecafe.ca,135,18,"pokemon",sister-sites
+CA,cartesleo,"Cartes Léo",https://cartesleo.ca,59,26,"pokemon-sealed",sister-sites
+CA,chimeragamingonline,"Chimera Gaming",https://chimeragamingonline.com,50,31,"pokemon pokemon-brilliant-stars-sealed pokemon-temporal-forces-sealed pokemon-paldea-evolved-sealed",sister-sites
+CA,clawmebaby,"Claw Me Baby",https://clawmebaby.ca,143,33,"pokemon-tcg",sister-sites
+CA,collectorsavenue,"Collector's Avenue",https://collectorsavenue.com,525,256,"pokemon pokemon-booster-boxes pokemon-elite-trainer pokemon-collectible-tin-sets",sister-sites
+CA,criticalhitgaminglounge,"Critical Hit Gaming Lounge",https://criticalhitgaminglounge.com,34,28,"pokemon-sealed pokemon-preorders pokemon",sister-sites
+CA,darkfoxtcg,"Dark Fox TCG",https://darkfoxtcg.com,255,18,"pokemon pokemon-sealed-product",sister-sites
+CA,dejouer,"DéJouer",https://dejouer.ca,93,62,"pokemon-sealed",uvs-registry
+CA,destinationretro,"Destination Retro",https://destinationretro.ca,4,3,"sealed-pokemon-product",sister-sites
+CA,drawforturn,"Draw for Turn",https://drawforturn.ca,264,73,"pokemon-products",sister-sites
+CA,dungeoncomicsandcards,"Dungeon Comics & Cards",https://dungeoncomicsandcards.ca,20,20,"pokemon-sealed",sister-sites
+CA,emmettstoystop,"Emmett's Toy Stop",https://emmettstoystop.com,511,23,"pokemon-sealed-all",sister-sites
+CA,eventhorizonhobbies,"Event Horizon Hobbies CA",https://eventhorizonhobbies.com,208,5,"pokemon-sealed pokemon",sister-sites
+CA,exorgames,"Exor Games",https://exorgames.com,237,24,"pokemon-sealed-product",sister-sites
+CA,fafnirshoard,"Fafnir's Hoard",https://fafnirshoard.ca,32,10,"booster-packs-pkmn pokemon-sealed-1 all-sealed",sister-sites
+CA,forestcitycollectibles,"Forest City Collectibles",https://forestcitycollectibles.com,21,21,"pokemon-sealed-1 pokemon",sister-sites
+CA,gamebreakers,"Game Breakers",https://gamebreakers.ca,59,32,"pokemon pokemon-1 pre-orders",sister-sites
+CA,gameshack,"Game Shack",https://gameshack.ca,89,13,"pokemon-tcg",sister-sites
+CA,gamezilla,"GameZilla",https://gamezilla.ca,53,48,"pokemon-elite-trainer-boxes pokemon-booster-pack pokemon-booster-bundles pokemon-booster-boxes",sister-sites
+CA,geekandco,"Geek & Co.",https://geekandco.ca,21,21,"pokemon",sister-sites
+CA,gothamcentralcomics,"Gotham Central",https://gothamcentralcomics.com,403,81,"pokemon",sister-sites
+CA,gotitemgames,"Got Item! Games",https://gotitemgames.ca,12,11,"sealed-pokemon-instock",sister-sites
+CA,hairyt,"Hairy Tarantula",https://www.hairyt.com,65,65,"pokemon-sealed-product",sister-sites
+CA,hardbrickgames,"Hard Brick Games",https://hardbrickgames.com,19,14,"pokemon-sealed pokemon-30th-celebration",uvs-registry
+CA,heroesworld,"Heroes World",https://heroesworld.ca,77,15,"pokemon-card-game",uvs-registry
+CA,hfxgames,"HFX Games",https://hfxgames.com,167,9,"pokemon-sealed-product pokemon-boosters pokemon-box-sets-tins pokemon-elite-trainer-boxes",sister-sites
+CA,hkcollectibles,"HK Collectibles",https://hkcollectibles.ca,368,84,"pokemon",sister-sites
+CA,hopeclubshop,"Hope Club Collectibles",https://hopeclubshop.ca,167,156,"pokemon-1 pre-orders",sister-sites
+CA,houseofcards,"House of Cards",https://www.houseofcards.ca,15,15,"pokemon-tins-box-sets pokemon-tcg-booster-packs pokemon-booster-boxes pokemon-packs",sister-sites
+CA,impulsegames,"Impulse Games and Hobbies",https://impulsegames.ca,115,2,"pokemon",sister-sites
+CA,infinitycards,"Infinity Cards & Collectibles",https://www.infinitycards.ca,79,74,"pokemon-sealed-products pokemon",sister-sites
+CA,jeuxaz,"Jeux AZ Games",https://jeuxaz.games,134,124,"pokemon",sister-sites
+CA,kapescaping,"Kap Escaping",https://kapescaping.ca,18,7,"pokemon-sealed-product",sister-sites
+CA,kevinstcg99,"Zeni Trading Company International",https://kevinstcg99.com,29,29,"new-arrivals",uvs-registry
+CA,kingdomtitans,"Au Royaume des Titans inc.",https://kingdomtitans.ca,233,69,"pokemon-tcg-sealed-products",uvs-registry
+CA,kunaigames,"Kunai Games",https://kunaigames.com,53,53,"pokemon-sealed",sister-sites
+CA,laboitemystere,"La Boîte Mystère",https://laboitemystere.com,108,5,"pokemon pokemon-collections pokemon-bundle pokemon-etb",sister-sites
+CA,lamoodcomics,"L.A. Mood Comics and Games",https://lamoodcomics.ca,273,8,"pokemon-sealed-inv",sister-sites
+CA,lazytradingcards,"Lazy Trading Cards & Hobby Collectibles",https://lazytradingcards.com,29,9,"pokemon",uvs-registry
+CA,leroidescartes,"Le Roi Des Cartes",https://leroidescartes.ca,222,38,"pokemon",sister-sites
+CA,lesomerset,"Le Somerset Boutique et Cafe-Chat",https://lesomerset.com,7,7,"pokemon-cartes-de-collection-et-jeux-jouets",uvs-registry
+CA,lvlupgames,"LVLUP GAMES",https://lvlupgames.ca,242,2,"pokemon",sister-sites
+CA,manacore,"Boutique Manacore",https://manacore.ca,5,5,"pokemon-sealed",sister-sites
+CA,manalounge,"The Mana Lounge",https://manalounge.ca,41,14,"pokemon-sealed pokemon-tcg-black-bolt-white-flare pokemon-scarlet-violet-6-5-shrouded-fable pokemon-tcg-scarlet-violet-twilight-masquerade",sister-sites
+CA,mantatrading,"Manta Trading",https://mantatrading.com,111,22,"pokemon-vendor pokemon-tins sealed-products",sister-sites
+CA,masterset,"MasterSet Co.",https://masterset.ca,210,45,"pokemon-sealed pokemon",sister-sites
+CA,mintink,"Mintink Trading Cards & Live Experience",https://mintink.ca,67,20,"pokemon-boosters pokemon-elite-trainer-boxes pokemon-tins pokemon-premium-collection",sister-sites
+CA,morrisontradingpost,"Morrison Trading Post",https://morrisontradingpost.com,76,25,"pokemon",sister-sites
+CA,multizone,"Multizone: Comics And Games",https://multizone.ca,123,13,"pokemon-booster-packs new-pokemon",sister-sites
+CA,mypops,"MyPops.ca",https://mypops.ca,456,80,"pokemon-tcg pokemon",sister-sites
+CA,mysticdragon,"Mystic Dragon",https://mystic-dragon.ca,79,22,"pokemon-booster-packs elite-trainer-boxes pokemon-booster-boxes pokemon-booster-bundles",sister-sites
+CA,nabemacollectibles,"Nabema Collectibles",https://nabemacollectibles.com,312,16,"pokemon-sealed-products pokemon",sister-sites
+CA,negativezonecomics,"Negative Zone Comics",https://negativezonecomics.com,4,3,"pokemon-sealed",sister-sites
+CA,nerdvanacardsandgames,"Nerdvana Cards & Games",https://nerdvanacardsandgames.com,59,2,"all-pokemon",sister-sites
+CA,newrealmgames,"New Realm Games",https://newrealmgames.com,500,20,"pokemon-sealed-product",sister-sites
+CA,npcollectiblesca,"NexPack Collectibles",https://npcollectibles.ca,180,116,"all-pokemon-english-sealed-in-stock pokemon-elite-trainer-boxes all-sealed sword-shield-pokemon-go",sister-sites
+CA,outpostgaming,"Outpost Gaming",https://outpostgaming.ca,148,2,"pokemon",sister-sites
+CA,overtimesportscards,"Overtime Sportscards",https://overtimesportscards.ca,62,62,"pokemon-sealed-products",sister-sites
+CA,pandahobby,"Panda Hobby",https://pandahobby.ca,78,12,"pokemon",sister-sites
+CA,pastimesports,"Pastime Sports & Games",https://pastimesports.ca,232,179,"manufacturer_the-pokemon-company-international",uvs-registry
+CA,playerscandc,"Players Cards and Collectibles",https://playerscandc.com,437,32,"sealed-pokemon",sister-sites
+CA,pokejeux,"PokéJeux",https://pokejeux.ca,96,73,"pokemon booster-bundle tins",sister-sites
+CA,prestigegames,"Prestige Games",https://prestigegames.ca,320,248,"pokemon pokemon-tin",sister-sites
+CA,pvpshoppe,"PvP Shoppe",https://pvpshoppe.com,387,87,"pokemon-sealed-product pokemon-etb",sister-sites
+CA,radgameshop,"RAD GameShop",https://www.radgameshop.ca,186,65,"pokemon-sealed-english",sister-sites
+CA,raincity,"Rain City Games - New West",https://raincity.games,52,23,"pokemon",uvs-registry
+CA,reddragon,"Red-DragonCA",https://red-dragon.ca,29,13,"pokemon-sealed",sister-sites
+CA,rivalcards,"Rival Cards",https://rivalcards.com,48,44,"pokemon-sealed pokemon",sister-sites
+CA,screenfreegames,"Screen Free Games",https://screenfreegames.com,208,52,"pokemon",sister-sites
+CA,skafexpress,"Let's Play! Cards and Games",https://www.skafexpress.ca,178,174,"pokemon-cards",sister-sites
+CA,springerhobbies,"Springer Hobbies",https://springerhobbies.com,243,114,"pokemon-tcg",sister-sites
+CA,sunnyhobbies,"Sunny Hobbies",https://sunnyhobbies.com,308,82,"pokemon pokemon-deck-cores",sister-sites
+CA,tabletopgiant,"Tabletop Giant",https://tabletopgiant.ca,289,42,"pokemon-sealed-product",sister-sites
+CA,taverneducollectionneur,"Taverne du Collectionneur",https://taverneducollectionneur.com,87,25,"produits-scelles-pokemon precommandes-pokemon",sister-sites
+CA,tcgandgames,"TCG and Games",https://tcgandgames.com,287,171,"pokemon-booster-boxes-packs pokemon-tins-collections-boxes pokemon-build-battle-starter-deck pokemon-elite-trainer-boxes",sister-sites
+CA,tcgzonecanada,"TCG Zone Canada",https://tcgzonecanada.com,4,4,"elite-trainer-box",uvs-registry
+CA,thesidedeck,"The Side Deck",https://thesidedeck.ca,144,27,"pokemon-sealed",sister-sites
+CA,thevaultsportscards,"The Vault Sports Cards and Collectables",https://thevaultsportscards.com,81,17,"pokemon-mega-evolution",uvs-registry
+CA,tkotoyco,"TKO Toy Co",https://tkotoyco.com,176,171,"pokemon-sealed-1",sister-sites
+CA,trinityhobby,"Trinity Hobby",https://trinityhobby.com,90,72,"pokemon-sealed foreign-pokemon",sister-sites
+CA,twinmoonstcg,"Twin Moons Cards & Games",https://twinmoonstcg.com,29,25,"pokemon",sister-sites
+CA,untouchables,"Untouchables Sports Cards and Gaming",https://untouchables.ca,372,6,"pokemon-tcg pre-order-product sealed-product",sister-sites
+CA,upnorthgames,"Up North Games",https://upnorthgames.ca,4,4,"pokemon-instock",sister-sites
+CA,vortexgames,"Vortex Games",https://vortexgames.ca,12,1,"pokemon-sealed",sister-sites
+CA,waypointgames,"Waypoint Games CA",https://waypointgames.ca,35,14,"pokemon-booster-boxes pokemon-sealed",sister-sites
+CA,westcoasthobbies,"West Coast Hobbies",https://westcoast-hobbies.com,490,36,"pokemon",uvs-registry
+CA,wizardtower,"Wizard's Tower",https://store.wizardtower.com,87,9,"pokemon-tcg",sister-sites
+CA,zone151,"Zone 151",https://zone151.ca,230,174,"pokemon pokemon-booster-boxes-copie pokemon-tins-copie pokemon-elite-trainer-boxes-copie",uvs-registry
+EU,adcardcollectibles,"AdCard Collectibles",https://adcardcollectibles.com,48,7,"pokemon-outros pokemon-elite-trainer-box pokemon-decks pokemon-boosters-box",uvs-registry
+EU,allyoucanplay,"All You Can Play",https://allyoucanplay.eu,7,3,"pokemon-tcg",uvs-registry
+EU,animerch,"Animerch",https://animerch.nl,8,1,"pokemon-tcg",uvs-registry
+EU,baruzcard,"Baruzcard.it",https://baruzcard.it,90,1,"pokemon tutti-i-pokemon",uvs-registry
+EU,battlebear,"Battle Bear Trading Cards & Games",https://battle-bear.de,4,4,"pokemon",uvs-registry
+EU,boostertcg,"Booster - Trading Cards & more",https://boostertcg.de,51,9,"pokemon",uvs-registry
+EU,boutiqueludik,"Ludik",https://boutique-ludik.fr,16,1,"pokemon",uvs-registry
+EU,breakthecase,"BreakTheCase",https://www.breakthecase.de,99,22,"pokemon",sister-sites
+EU,cardbuddys,"Cardbuddys",https://cardbuddys.de,18,17,"pokemon",uvs-registry
+EU,cardgamestore,"Card Game Store",https://cardgamestore.de,7,3,"pokemon pokemon-kollektionen",uvs-registry
+EU,cardhorizon,"Card Horizon",https://cardhorizon.com,108,38,"pokemon",uvs-registry
+EU,cardverse,"Cardverse",https://cardverse.it,49,3,"pokemon-giapponese pokemon-inglese",uvs-registry
+EU,cardyx,"CardyX",https://cardyx.sk,111,98,"pokemon sealed-pokemon-boxy",uvs-registry
+EU,cityof,"City Of Cards",https://cityof.cards,11,8,"pokemon",uvs-registry
+EU,collgamers,"CollGamers",https://collgamers.nl,51,34,"pokemontcg",uvs-registry
+EU,comicattack,"Comic Attack",https://comic-attack.de,3,2,"pokemon",uvs-registry
+EU,daansshop,"Daans Shop Berkel",https://daansshop.com,7,6,"pokemon juli-augustus-releases-pokemon",uvs-registry
+EU,dateacard,"Date A Card",https://dateacard.fr,36,36,"pokemon",uvs-registry
+EU,dctrading,"DC-Trading",https://dctrading.at,5,5,"pokemon",uvs-registry
+EU,dedondersteen,"De Dondersteen",https://de-dondersteen.nl,22,4,"pokemon-mega-evolutions pokemon-prismatic-evolutions pokemon-kopen-spelen-en-ruilen",uvs-registry
+EU,defconduezero,"DEFCON 2.0",https://defconduezero.com,8,6,"pokemon-tcg",uvs-registry
+EU,deichcards,"Deichcards",https://deichcards.de,58,8,"pokemon-sammelkarten alle-marken-im-uberblick-topps-panini-pokemon-ravensburger-mehr",uvs-registry
+EU,eldartcg,"Eldar",https://eldartcg.com,37,13,"pokemon",uvs-registry
+EU,elitestoretcg,"ELITESTORETCG",https://elitestoretcg.com,10,9,"pokemon-tcg",uvs-registry
+EU,evlutcg,"Evolution TCG",https://evlutcg.com,25,2,"pokemon",uvs-registry
+EU,exchangeplayinvest,"E.P.I.di moscatiello gian luca",https://exchangeplayinvest.com,6,3,"epi-box-pokemon buste-jap-pokemon",uvs-registry
+EU,factorycardstcg,"Factory Cards",https://factorycardstcg.com,9,5,"comprarcartaspokemon",uvs-registry
+EU,fancytreasure,"FancyTreasure",https://fancytreasure.de,6,1,"pokemon-tcg",uvs-registry
+EU,freakcorp,"FreakCorp",https://freakcorp.com,52,16,"pokemon-tcg",uvs-registry
+EU,fuhrioustc,"Fuhrious Tradingcards",https://fuhrious-tc.shop,6,6,"pokemon",uvs-registry
+EU,funside,"Funside Mantova",https://funside.it,10,9,"pokemon",uvs-registry
+EU,gamersacademy,"Gamers Academy",https://gamers-academy.org,13,11,"pokemon-sealed-produkte",uvs-registry
+EU,gamerzparadize,"GamerzParadize",https://gamerzparadize.nl,47,27,"pokemon",uvs-registry
+EU,gamesalley,"Games Alley di Andrea Lancioni & Co SNC",https://gamesalley.it,7,1,"pokemon",uvs-registry
+EU,gameslink,"Games Link",https://gameslink.gr,24,10,"pokemon",uvs-registry
+EU,gamestimeaversa,"Games Time Aversa",https://gamestimeaversa.com,36,24,"pokemon-jap-cor-cin pkmn",sister-sites
+EU,geekfactorydeauville,"Geek Factory Touques",https://geekfactorydeauville.fr,3,3,"tcg-pokemon-collection",uvs-registry
+EU,goodiesstore,"GOODIES STORE",https://goodies-store.fr,7,1,"pokemon",uvs-registry
+EU,goosegames,"Goose Games",https://goose-games.de,11,3,"pokemon",uvs-registry
+EU,goretrogaming,"GoRetroGaming",https://goretrogaming.com,3,3,"pokemon pokemon-cartes-a-lunites",uvs-registry
+EU,hallofgamestcg,"Hall of Games",https://hallofgamestcg.de,16,2,"pokemon",uvs-registry
+EU,hitechgames,"Hi-Tech Games",https://www.hitechgames.it,6,1,"carte-pokemon pokemon-tin-e-mini-tin",sister-sites
+EU,hobbyhub,"HobbyHub",https://hobbyhub.gr,11,7,"booster-packs-pokemon pokemon",uvs-registry
+EU,homelands,"Homelands",https://homelands.es,7,7,"pokemon",uvs-registry
+EU,iconiccards,"ICONIC CARDS",https://iconic-cards.it,15,3,"pokemon",uvs-registry
+EU,ikigaicomicstienda,"IKIGAI COMICS",https://ikigaicomicstienda.com,3,1,"pokemon-tcg",uvs-registry
+EU,industria61,"INDUSTRIA 61",https://industria61.com,21,4,"pokemon-2",uvs-registry
+EU,isengard,"Isengard Fantasy Shop",https://isengard.com.cy,13,9,"pokemon-tcg",uvs-registry
+EU,kaizencards,"Kaizen Cards",https://kaizencards.de,15,15,"pokemon",uvs-registry
+EU,kazuma,"Kazuma Ravenna",https://kazuma.it,21,4,"pokemon",uvs-registry
+EU,koffiespel,"Koffie & Spel",https://koffie-spel.be,22,3,"pokemon",uvs-registry
+EU,konobacards,"Konoba Cards",https://konobacards.fr,96,18,"pokemon pokemon-nos-reprises",uvs-registry
+EU,laescotillajuegos,"La Escotilla",https://laescotillajuegos.com,3,3,"pokemon",uvs-registry
+EU,lantredepo,"L'Antre de Po",https://lantredepo.com,3,2,"pokemon",uvs-registry
+EU,laregledujeu,"La regle du jeu",https://laregledujeu.fr,7,1,"pokemon",uvs-registry
+EU,lebarjeu,"Le Bar'Jeu",https://lebarjeu.fr,4,3,"pokemon",uvs-registry
+EU,lepotoryko,"LE POTO RYKO",https://lepotoryko.fr,6,2,"pokemon",uvs-registry
+EU,lesdesmaskes,"Les Dés Maskés",https://lesdesmaskes.fr,23,10,"pokemon",uvs-registry
+EU,lootboxjeux,"Lootbox",https://lootboxjeux.fr,7,2,"pokemon",uvs-registry
+EU,lotusvalley,"Lotus Valley",https://lotusvalley.pt,75,75,"pokemon",uvs-registry
+EU,loufoque,"Loufoque",https://shop.loufoque.fr,3,1,"cartes-pokemon",uvs-registry
+EU,mabasso,"MaBasso",https://mabasso.com,34,4,"pokemon pokemon-kollektionen pokemon-einzelbooster",uvs-registry
+EU,magicianscircle,"Magician's Circle",https://www.magicians-circle.com,44,36,"pokemon-espansioni-t-z pokemon-espansioni-r-s pokemon pokemon-espansioni-e-j",sister-sites
+EU,manamecha,"Mana Mecha",https://manamecha.fr,28,10,"pokemon-plamo-quick pokemon-tcg",uvs-registry
+EU,manavortex,"MANA VORTEX SHOP",https://manavortex.es,27,5,"pokemon-tcg",uvs-registry
+EU,manuelpoke3,"manuelpoke3",https://manuelpoke3.it,6,1,"pokemon-carte-box-bustine-e-set",uvs-registry
+EU,metamorfo,"Metamorfo (Santiago Palacios)",https://metamorfo.es,5,1,"pokemon",uvs-registry
+EU,miraicards,"Mirai Cards Portugal",https://miraicards.pt,425,51,"pokemon pokemon-booster-boxes pokemon-booster-packs",uvs-registry
+EU,mistcards,"MIST Cards",https://mistcards.nl,155,38,"pokemon",uvs-registry
+EU,mysticaltavern,"The Mystical Tavern",https://mysticaltavern.com,41,8,"pokemon",uvs-registry
+EU,mytradingcards,"Sit and Game by My-Tradingcards",https://my-tradingcards.de,5,1,"pokemon-collections pokemon-trainer-box",uvs-registry
+EU,ohanagiochi,"Ohana di Sbrana Sara",https://ohanagiochi.com,11,11,"pokemon",uvs-registry
+EU,ohmygame,"Oh My Game",https://ohmygame.fi,6,6,"search:pokemon",uvs-registry
+EU,opssmarket,"OPSS Market",https://opssmarket.com,3,3,"pokemon-mini-tin pokemon-tin",sister-sites
+EU,orksendorks,"Orks & Dorks",https://orksendorks.nl,28,2,"pokemon",uvs-registry
+EU,ozjuegos,"OZ JUEGOS",https://ozjuegos.com,29,6,"pokemon",uvs-registry
+EU,panterland,"Panterland",https://panterland.be,70,3,"pokemon",uvs-registry
+EU,pelikrypta,"Ikamaan Pelikrypta/Ikamaa Oy",https://pelikrypta.fi,4,4,"tuoteryhma-pokemon-tcg",uvs-registry
+EU,phoenixfeather,"Phoenix Feather",https://phoenix-feather.eu,13,2,"pokemon",uvs-registry
+EU,planeswalkers,"Planeswalkers Valencia",https://planeswalkers.shop,6,3,"pokemon",uvs-registry
+EU,pokeca,"Pokeca",https://pokeca.nl,408,14,"pokemon",uvs-registry
+EU,rarecards,"RareCards",https://rarecards.nl,377,103,"pokemon-collection-boxes pokemon-elite-trainer-box pokemon-booster-packs pokemon-tins",sister-sites
+EU,relictcg,"Relic",https://relictcg.com,67,29,"pokemon-japonais",uvs-registry
+EU,retroempire,"Retro empire Gaming",https://retro-empire.nl,4,4,"pokemon-tcg-engels pokemon",uvs-registry
+EU,riplay,"RiPlay",https://ri-play.com,22,2,"pokemon pokemon-en",uvs-registry
+EU,secretwonderscollectibles,"Secret Wonders Collectibles",https://secretwonderscollectibles.be,105,16,"pokemon",uvs-registry
+EU,side7,"Side7",https://side7.nl,32,32,"pokemon-trading-card-game",uvs-registry
+EU,skupisve,"Skupi sve",https://skupisve.hr,8,8,"pokemon",uvs-registry
+EU,spelenmeer,"Spel en Meer",https://spelenmeer.nl,5,5,"pokemon pokemon-trading-card-game",uvs-registry
+EU,spielewelt,"Spielewelt Amberg",https://spielewelt.de,125,45,"pokemon",uvs-registry
+EU,superelfcards,"Superelf Cards",https://superelf-cards.de,3,2,"pokemon-sammelkartenspiel",uvs-registry
+EU,tavernadelgargoyle,"Taverna del Gargoyle",https://tavernadelgargoyle.it,6,6,"il-mondo-pokemon",uvs-registry
+EU,tcgking,"TCG King",https://tcgking.nl,52,49,"pokemon-all-booster-bundles pokemon-all-elite-trainer-boxes pokemon-all-booster-boxes",sister-sites
+EU,tcgplatform,"TCG Platform",https://tcgplatform.nl,14,4,"pokemon-1",uvs-registry
+EU,tcgsphere,"TCG Sphere",https://tcgsphere.fr,31,10,"pokemon",uvs-registry
+EU,tcgstar,"TCG STAR",https://tcgstar.eu,78,14,"pokemon-karte",uvs-registry
+EU,teamlunti,"Team Lunti Trading Cards",https://teamlunti.de,18,16,"pokemon",uvs-registry
+EU,thelabgamestore,"The Lab Game Store",https://thelabgamestore.com,168,18,"pokemon",uvs-registry
+EU,topdeck,"TopDeck",https://topdeck.es,8,1,"pokemon",uvs-registry
+EU,tradingcardgamestore,"TCGStore",https://tradingcardgamestore.com,80,5,"pokemon-tcg",uvs-registry
+EU,tradingcardsxxx,"Tradingcardsxxx - Games Avenue",https://tradingcardsxxx.fr,31,20,"pokemon autres-pokemon",uvs-registry
+EU,treasurehubtcg,"TreasureHub TCG",https://treasurehubtcg.com,6,6,"pokemon",uvs-registry
+EU,tsukicenter,"Tsuki Center",https://tsukicenter.com,5,5,"pokemon",uvs-registry
+EU,versusgamecenter,"Versus Gamecenter Lisboa",https://versusgamecenter.pt,23,19,"pokemon-tcg-1",uvs-registry
+EU,welpietoys,"Welpie Toys (Corio Center)",https://welpietoys.nl,9,9,"pokemon",uvs-registry
+EU,zillerstore,"Zillerstore",https://zillerstore.it,76,1,"pokemon-tgc",uvs-registry
+EU,zukacards,"ZukaCards",https://zukacards.com,8,2,"pokemon",uvs-registry
+SG,cardconnectsg,"Card Connect",https://cardconnectsg.com,9,6,"pokemon-sealed",uvs-registry
+SG,universecards,"Universe Cards & Games",https://universecards.sg,5,2,"pokemon-sealed-products",uvs-registry
+UK,cardxchange,"CardXchange",https://cardxchange.uk,95,11,"pokemon-sealed-products",sister-sites
+UK,cosmiccollectables,"Cosmic Collectables",https://www.cosmiccollectables.co.uk,483,10,"pokemon collection-boxes-pokemon tins-pokemon elite-trainer-boxes-pokemon",sister-sites
+UK,diceanddestiny,"Dice & Destiny",https://www.diceanddestiny.co.uk,80,21,"pokemon pokemon-all",sister-sites
+UK,dicecupcafe,"Dice Cup",https://dicecupcafe.co.uk,14,2,"pokemon",uvs-registry
+UK,etoysworld,"eTOYSWORLD",https://www.etoysworld.co.uk,7,4,"pokemon-sealed pre-orders",sister-sites
+UK,gamersathart,"Gamers@Hart",https://gamersathart.co.uk,21,21,"pokemon-trading-card-game",uvs-registry
+UK,gatheringgames,"Gathering Games",https://gatheringgames.co.uk,291,1,"pokemon-v-collection-boxes-tcg pokemon-tins-tcg pokemon-tcg-blisters pokemon-tcg-boosters",sister-sites
+UK,goblingaming,"Goblin Gaming",https://www.goblingaming.co.uk,3,3,"pokemon",sister-sites
+UK,justplaygames,"JustPlay",https://justplaygames.uk,27,12,"pokemon-tcg preorders-live",uvs-registry
+UK,managaming,"Mana Gaming",https://managaming.shop,274,13,"pokemon pokemon-sealed-in-stock",sister-sites
+UK,northumbriantinsoldier,"Northumbrian Tin Soldier Limited",https://northumbriantinsoldier.com,265,1,"pokemon",uvs-registry
+UK,nortontcg,"TCG Group",https://nortontcg.co.uk,57,45,"pokemon-sealed-products pokemon",sister-sites
+UK,nostalgiatcg,"Nostalgia TCG Limited",https://nostalgiatcg.com,181,42,"booster-packs collection-boxes-pokemon pokemon-tcg-booster-boxes pokemon-tcg-elite-trainer-boxes",uvs-registry
+UK,pixelandblock,"Pixel and Block",https://pixelandblock.co.uk,77,1,"pokemon-tcg pokemon-tcg-1",uvs-registry
+UK,rollthedicecornwall,"Roll The Dice Cornwall C.I.C.",https://rollthedicecornwall.com,5,3,"pokemon-tcg",uvs-registry
+UK,sccg,"Sin City Comics & Gaming",https://sccg.co.uk,26,19,"trading-cards-pokemon-tcg-pokemon-tins-and-boxed-sets trading-cards-pokemon-tcg-pokemon-booster-packs trading-cards-pokemon-tcg-pokemon-battle-decks",sister-sites
+UK,sidequestgames,"Side Quest Games",https://www.sidequestgames.uk,7,4,"pokemon-sealed pre-orders",sister-sites
+UK,snapsgames,"Snaps Games",https://snapsgames.co.uk,46,1,"pokemon-tcg-⚡",uvs-registry
+UK,tokyotoys,"TokyoToys",https://tokyotoys.com,8,8,"pokemon-tcg",sister-sites
+UK,trainerlegacy,"Trainer Legacy",https://www.trainerlegacy.com,18,15,"pokemon-in-stock sealed-products new-arrivals",sister-sites
+UK,ultrararecards,"Ultra Rare Cards",https://ultrararecards.co.uk,60,1,"pokemon",sister-sites
+UK,viridianvault,"The Viridian Vault",https://viridianvault.co.uk,271,1,"pokemon",sister-sites
+US,151collectables,"151Collectables",https://151collectables.com,21,2,"sealed-pokemon",sister-sites
+US,4gsgames,"4GS Games",https://4gsgames.com,7,4,"pokemon",uvs-registry
+US,accidentallycoolgames,"Accidentally Cool Games",https://accidentallycoolgames.com,9,9,"pokemon-the-card-game-sealed-product",sister-sites
+US,ajtradingbros,"A&J Trading Bros",https://ajtradingbros.com,32,8,"pokemon-tcg",sister-sites
+US,alchemistsrefuge,"Alchemist's Refuge",https://alchemistsrefuge.shop,566,42,"pokemon-sealed pokemon pokemon-tcg",sister-sites
+US,alohacardshop,"Aloha Card Shop",https://www.alohacardshop.com,121,80,"english-pokemon-sealed sealed-products",sister-sites
+US,alphaomegahobby,"Alpha Omega Hobby",https://alphaomegahobby.com,3,1,"pokemon-tcg",sister-sites
+US,animeimports,"Anime Imports",https://animeimports.net,78,78,"pokemon-sealed-all",sister-sites
+US,animeislandca,"Anime Island CA",https://animeislandca.com,4,3,"pokemon",sister-sites
+US,atlantiscomics,"Atlantis Games & Comics Norfolk",https://atlantis-comics.com,356,2,"pokemon-ccg",sister-sites
+US,balancegamingfl,"Balance Martial Arts & Gaming",https://balancegamingfl.com,80,2,"pokemon",sister-sites
+US,ballerstcg,"Ballers TCG",https://ballerstcg.com,5,4,"all-pokemon",uvs-registry
+US,bamcards,"BAM Cards",https://bamcards.com,67,50,"pokemon pokemon-go pokemon-151",sister-sites
+US,baxtersrealm,"Baxter's Cards & Games",https://baxtersrealm.com,301,40,"pokemon",sister-sites
+US,bgetabletop,"BGE's Tabletop",https://bgetabletop.com,304,1,"pokemon",uvs-registry
+US,blackpanthersportscards,"Black Panther Sports Cards",https://blackpanthersportscards.com,68,2,"pokemon",uvs-registry
+US,bluejayscauldron,"Blue Jay's Cauldron",https://bluejayscauldron.com,4,3,"pokemon-sealed",sister-sites
+US,bluemistcollectibles,"Blue Mist",https://bluemistcollectibles.com,57,9,"pokemon-tcg-english booster-box",sister-sites
+US,boardgamesdallas,"Common Ground Games",https://boardgamesdallas.com,60,10,"pokemon",sister-sites
+US,brickandboardgames,"Brick & Board Games and Cards",https://brickandboardgames.com,222,18,"pokemon-sealed",sister-sites
+US,bunkscardcorner,"Bunks Card Corner",https://bunkscardcorner.com,6,6,"pokemon-wax pokemon-cards rarest-pokemon",sister-sites
+US,burbankcards,"Burbank Sportscards",https://burbankcards.com,183,182,"pokemon-sealed-product",sister-sites
+US,cadetstoys,"Cadets Toys and Comics",https://cadetstoys.com,19,2,"pokemon",uvs-registry
+US,cardandcollectibleguys,"Card and Collectible Guys",https://cardandcollectibleguys.com,86,19,"pokemon-tcg",sister-sites
+US,cardboyz,"Card Boyz",https://cardboyz.com,39,30,"pokemon",sister-sites
+US,cardcollectorclub,"Card Collector Club",https://cardcollectorclub.com,29,9,"search:pokemon",uvs-registry
+US,cardfathertcg,"Card Father TCG",https://cardfathertcg.com,12,12,"pokemon-sealed",sister-sites
+US,cardnallgaming,"New Cut - Card N All Gaming",https://cardnallgaming.com,153,151,"pokemon-sealed preorders",sister-sites
+US,cardpopusa,"CARDPOPUSA",https://cardpopusa.com,589,186,"pokemon elite-trainer-box booster-box",sister-sites
+US,cardsafari,"Card Safari",https://cardsafari.us,8,7,"pokemon",sister-sites
+US,cardshopnear,"Card Shop Near Me",https://cardshopnear.me,301,20,"analytics-all-pokemon tcg-sealed analytics-all-pokemon-copy",uvs-registry
+US,cardshq,"CardsHQ",https://cardshq.com,177,171,"pokemon-boxes pokemon-perfect-order pitch-black-pokemon pokemon-cards",sister-sites
+US,cardsnmo,"Cards N MO",https://cardsnmo.com,94,93,"pokemon-sealed",sister-sites
+US,castlegameshoppe,"The Castle Games",https://castlegameshoppe.com,369,55,"pokemon",sister-sites
+US,cbanons,"Cardboards Anonymous",https://cbanons.com,20,13,"pokemon-en",uvs-registry
+US,ccgprime,"CCGPrime - Annex",https://ccgprime.com,5,2,"pokemon-sealed",uvs-registry
+US,championcardcollector,"Champion Card Collector",https://championcardcollector.com,335,79,"pokemon pokemon-booster-box pokemon-booster-pack pokemon-blister-pack",sister-sites
+US,charmcitycollectibles,"Charm City Collectibles",https://charmcitycollectibles.com,155,2,"pokemon",uvs-registry
+US,chasecardtcg,"ChaseCard TCG",https://chasecardtcg.com,9,2,"pokemon-tcg",uvs-registry
+US,cobbco,"Arena Games",https://cobbco.store,7,7,"pokemon-tcg",uvs-registry
+US,coldfoilheroes,"Cold Foil Heroes",https://coldfoilheroes.com,20,15,"pokemon",uvs-registry
+US,collectbinghamton,"Collect Binghamton",https://collectbinghamton.com,11,9,"pokemon",uvs-registry
+US,collectionhousecafe,"Collection House Cafe",https://collectionhousecafe.com,44,18,"pokemon-sealed",sister-sites
+US,collectivecubed,"Collective Cubed",https://collectivecubed.com,190,177,"pokemon-sealed pokemon-chaos-rising",sister-sites
+US,collectorsemporium,"Collectors Emporium NY",https://collectorsemporium.com,225,225,"pokemon-tcg pokemon",sister-sites
+US,columbuscardshop,"Columbus Card Shop",https://columbuscardshop.com,78,73,"english-pokemon",sister-sites
+US,constellationcollectivesac,"Constellation Collective Sacramento",https://www.constellationcollectivesac.com,123,59,"pokemon-sealed-product pokemon-products",sister-sites
+US,cosmicbham,"Cosmic Games Birmingham",https://cosmicbham.com,286,71,"pokemon-tcg-mega-group pokemon-trading-card-game-sealed-product pokemon-tcg-mega-evolution pokemon-tcg-destined-rivals",sister-sites
+US,cosmicgames,"Cosmic Games",https://www.cosmicgames.com,286,71,"pokemon-tcg-mega-group pokemon-trading-card-game-sealed-product pokemon-tcg-mega-evolution pokemon-tcg-destined-rivals",sister-sites
+US,cromatcg,"Croma TCG",https://cromatcg.com,257,65,"pokemon-all pokemon-collection-boxes",uvs-registry
+US,dealinghigh,"Dealing High Collectibles",https://dealinghigh.com,30,20,"pokemon-sealed",uvs-registry
+US,dealsndragons,"Deals N Dragons",https://dealsndragons.com,43,21,"pokemon",uvs-registry
+US,deriumandwifey,"Derium's CCGs",https://deriumandwifey.com,90,75,"all-pokemon-sealed-product",uvs-registry
+US,diceaddiction,"Dice Addiction",https://diceaddiction.com,5,5,"new-arrivals",uvs-registry
+US,digitalheroes,"Digital Heroes",https://digitalheroes.com,13,13,"pokemon-sealed",sister-sites
+US,diostreasures,"Dio's Treasures",https://diostreasures.com,9,9,"pokemon",sister-sites
+US,dkscards,"DK's Cards",https://dkscards.com,9,8,"pokemon-sealed-products",sister-sites
+US,doubleinfinitygaming,"Double Infinity Gaming",https://doubleinfinitygaming.com,190,164,"pokemon-sealed 30th-celebration-pokemon pokemon-new-and-hot",sister-sites
+US,dragonegggames,"Dragon Egg Games",https://www.dragon-egg-games.com,55,51,"pokemon-sealed",sister-sites
+US,drawntogethergames,"Drawn Together Games",https://drawntogethergames.com,3,3,"pokemon",uvs-registry
+US,dublin,"Littleroot Games - Dublin",https://dublin.littlerootgames.com,103,57,"pokemon-sealed sealed-products",sister-sites
+US,duelanddice,"Duel and Dice",https://duelanddice.com,17,10,"pokemon",uvs-registry
+US,dvgtcg,"Dark Vassal Gaming",https://dvgtcg.com,13,12,"pokemon-tcg",sister-sites
+US,dxgamesllc,"Dx Games & More",https://dxgamesllc.com,4,3,"booster-packs pokemon-booster-display all-pokemon",sister-sites
+US,dynamiccardcollectors,"Dynamic Card Collectors",https://dynamiccardcollectors.com,137,104,"pokemon-sealed pokemon-go-copy-1 pokemon-go-copy",sister-sites
+US,eclipsecardsandhobby,"Eclipse Cards and Hobby",https://www.eclipsecardsandhobby.com,90,19,"pokemon-sealed-out-of-stock pokemon-sealed",sister-sites
+US,envycardstore,"Envy Cards",https://envycardstore.com,25,23,"pokemon pokemon-1",sister-sites
+US,epictradingcollectibles,"Epic Trading Collectibles",https://www.epictradingcollectibles.com,144,143,"pokemon-sealed-product",sister-sites
+US,evolvecardshop,"Evolve Card Shop",https://evolvecardshop.com,361,242,"pokemon",uvs-registry
+US,expsharegames,"The Experience Share",https://expsharegames.com,26,8,"pokemon-tcg",uvs-registry
+US,fabledtavern,"Fabled Tavern",https://fabledtavern.com,42,36,"pokemon",uvs-registry
+US,firstcapitolcards,"First Capitol Cards",https://firstcapitolcards.com,29,10,"pokemon",uvs-registry
+US,five6gaming,"FIVE6 Gaming",https://www.five6gaming.com,11,11,"pokemon-sealed",sister-sites
+US,frankscardshopnj,"Frank's Card Shop",https://frankscardshopnj.com,69,67,"pokemon-boxes pokemon",sister-sites
+US,funtimetoysandgifts,"Funtime Toys and Gifts",https://funtimetoysandgifts.com,6,6,"pokemon-elite-trainer-boxes",sister-sites
+US,galactictoys,"Galactic Toys & Collectibles",https://galactictoys.com,145,145,"pokemon-packs-limit pokemon-tcg pokemon",sister-sites
+US,gamelandia,"Gamelandia",https://gamelandia.fun,81,23,"pokemon-sealed",sister-sites
+US,gameonarizona,"Game On Cottonwood",https://gameonarizona.com,26,1,"pokemon",uvs-registry
+US,gameostorus,"Game-O-Storus",https://gameostorus.com,59,45,"pokemon-sealed pokemon-lost-origin-all pokemon-all",sister-sites
+US,gamerealm,"Game Realm",https://gamerealm.com,81,2,"pokemon-tcg",sister-sites
+US,gamersgauntlet,"Gamer's Gauntlet",https://gamersgauntlet.net,49,27,"pokemon-sealed pokemon-151 pokemon-go pitch-black-pokemon",sister-sites
+US,gamersgetawaykc,"Gamers Getaway KC",https://gamersgetawaykc.com,12,7,"sealed-product",uvs-registry
+US,gamersguildaz,"Gamers Guild AZ",https://gamersguildaz.com,454,21,"pokemon-sealed-product",sister-sites
+US,gamesandstuffonline,"Games and Stuff",https://gamesandstuffonline.com,62,2,"pokemon-trading-card-game",uvs-registry
+US,gamespacefl,"Game Space LLC",https://gamespacefl.com,9,9,"pokemon-sealed",uvs-registry
+US,gatorscardden,"Gator's Card Den",https://gatorscardden.com,7,7,"pokemon-all pokemon-english",sister-sites
+US,gatorsfeedsyourneeds,"Gators Games and Hobby",https://gatorsfeedsyourneeds.com,5,5,"pokemon-sealed-products",uvs-registry
+US,geekyglamorous,"GeekyGlamorous",https://geekyglamorous.com,8,7,"pokemon pokemon-cards",uvs-registry
+US,glamorousgamers,"Glamorous Gamers Connect & Play Cafe",https://www.glamorousgamers.com,6,5,"pokemon-smart",sister-sites
+US,glhfinc,"Good Luck Have Fun Games",https://glhfinc.com,43,1,"pokemon",uvs-registry
+US,gnomegames,"Gnome Games",https://gnomegames.com,14,1,"pokemon",sister-sites
+US,goldengategames,"Golden Gate Games",https://golden-gate-games.com,237,9,"pokemon new-arrivals",uvs-registry
+US,gootzygaming,"Gootzy Gaming",https://gootzygaming.com,13,11,"pokemon-cards",uvs-registry
+US,grailandgrade,"Grail and Grade",https://grailandgrade.com,24,2,"pokemon",sister-sites
+US,graygauntletgames,"Gray Gauntlet Games",https://graygauntletgames.com,38,32,"pokemon-sealed-all pokemon-sealed-paldea-evolved",sister-sites
+US,greendoorcollectibles,"Green Door Collectibles",https://greendoorcollectibles.com,18,1,"pokemon",sister-sites
+US,guubuu,"GuuBuu Hobby",https://guubuu.com,87,7,"pokemon-sealed",sister-sites
+US,hastygoblingames,"Hasty Goblin Games",https://hastygoblingames.com,110,1,"pokemon",sister-sites
+US,heroesandgames,"Heroes and Games",https://heroesandgames.com,5,1,"pokemon-ccg",sister-sites
+US,hilltopcollectibles,"Hill Top Collectibles",https://hilltopcollectibles.shop,24,7,"pokemon",uvs-registry
+US,hitmensportsbreaks,"Hitmen Sports Cards & Collectibles",https://hitmensportsbreaks.com,7,7,"pokemon",uvs-registry
+US,hoarditall,"Hoard",https://www.hoarditall.com,17,12,"pokemon-sealed-product",sister-sites
+US,hobbyvault,"Hobby Vault",https://hobbyvault.com,47,39,"pokemon",sister-sites
+US,holohorsegames,"Holo Horse Games LLC",https://holohorsegames.com,5,2,"new-arrivals",sister-sites
+US,houseruleslounge,"House Rules Board Game Lounge",https://houseruleslounge.com,5,5,"pokemon-tcg",uvs-registry
+US,hypercollectiblestcg,"Hyper Collectibles",https://hypercollectiblestcg.com,80,79,"pokemon pokemon-collection-boxes",sister-sites
+US,ichooseyou,"ichooseyou TCGs",https://ichooseyou.cards,14,2,"all-pokemon",uvs-registry
+US,immaculatetcg,"Immaculate Trading Cards ",https://immaculatetcg.com,3,3,"elite-trainer-box",sister-sites
+US,itstimecards,"IT'S TIME! Sports Cards, TCG and eSports",https://itstimecards.com,https://itstimecards.com,458,"pokemon-1",sister-sites
+US,jandjgamingfactory,"J and J Gaming Factory",https://jandjgamingfactory.com,130,37,"pokemon-sealed pokemon",uvs-registry
+US,jawbreakers,"jawbreakers",https://jawbreakers.cards,674,98,"pokemon-packs pokemon-tcg pokemon-tins pokemon-elite-trainer-boxes-1",sister-sites
+US,jaystoysandgames,"Jays CD and Hobby",https://jaystoysandgames.com,16,14,"pokemon pokemon-tcg-chaos-rising",uvs-registry
+US,jchobby,"JC Hobby",https://jchobby.com,57,1,"pokemon-sealed",uvs-registry
+US,jnstoys,"Jnstoys",https://jnstoys.com,20,4,"pokemon-trading-card-game",sister-sites
+US,joshscards,"Josh's Cards",https://joshscards.com,69,40,"non-tcg-pokemon pokemon",sister-sites
+US,jwwcards,"JWW Sports Cards & Gaming",https://jwwcards.com,4,4,"pokemon-1",sister-sites
+US,keyitemscollect,"Key Items Collectibles",https://keyitemscollect.com,37,37,"sealed-product",sister-sites
+US,keystonegames,"Keystone Games LLC",https://keystonegames.net,27,11,"pokemon-trading-card-game pre-orders",sister-sites
+US,kitchentabletcg,"Kitchen Table Cards and Games",https://kitchentabletcg.com,35,28,"pokemon",uvs-registry
+US,kwcollectibles,"Game Grid Key LLC",https://kwcollectibles.com,8,8,"sealed-pokemon-product",uvs-registry
+US,lakehartwellcollectibles,"Lake Hartwell Collectibles",https://lakehartwellcollectibles.com,114,25,"pokemon",sister-sites
+US,landfalloutpost,"Landfall Outpost",https://landfalloutpost.com,61,18,"all-pokemon",uvs-registry
+US,lasportscards,"LA Sports Cards",https://lasportscards.com,354,120,"pokemon-english pokemon-packs pokemon-boxes",sister-sites
+US,laytongaming,"Layton Gaming",https://laytongaming.com,20,20,"pokemon",uvs-registry
+US,lazarusgames,"Lazarus Games",https://lazarus-games.com,62,43,"pokemon",sister-sites
+US,leftoversloungeshop,"Leftovers Lounge",https://leftoversloungeshop.com,72,6,"pokemon",uvs-registry
+US,legacycomics,"Legacy Comics and Cards Inc",https://legacycomics.com,54,54,"pokemon-tcg",uvs-registry
+US,legendsfanshop,"LegendsSportsGames",https://legendsfanshop.com,81,26,"pokemon-boxes",sister-sites
+US,levelupgamesmd,"Level Up Games MD",https://www.levelupgamesmd.com,90,90,"pokemon-sealed-products",sister-sites
+US,lingstergames,"LingSter Games",https://lingstergames.com,52,1,"pokemon",uvs-registry
+US,lootcardshop,"Loot Card Shop",https://lootcardshop.com,63,31,"pokemon-sealed-all",uvs-registry
+US,lost4toys,"Lost4toys",https://lost4toys.com,15,6,"pokemon",uvs-registry
+US,lspbstore,"lspbstore",https://lspbstore.com,118,8,"pokemon collection-boxes",sister-sites
+US,lthobbies,"LTs Hobbies",https://www.lthobbies.com,24,21,"pokemon-sealed-product",sister-sites
+US,luckyhits,"Lucky Hits Inc",https://luckyhits.shop,345,253,"pokemon",uvs-registry
+US,madtownhobby,"Madtown Hobby",https://madtownhobby.com,3,3,"pokemon",sister-sites
+US,magessanctum,"Mage's Sanctum",https://magessanctum.com,38,2,"pokemon",sister-sites
+US,magnoliatcgexchange,"Magnolia TCG Exchange",https://magnoliatcgexchange.com,13,13,"search:pokemon",uvs-registry
+US,meeplesandbeyond,"Meeples & Beyond",https://meeplesandbeyond.com,7,7,"pokemon-tcg",uvs-registry
+US,metagames,"MetaGames.toys",https://metagames.toys,49,27,"pokemon-tcg-booster-packs pokemon-tcg-booster-boxes pokemon-tcg-collection-boxes pokemon-tcg-tins-chests",sister-sites
+US,minmaxgames,"MinMaxGames",https://minmaxgames.com,75,72,"pokemon 30th-celebration-pokemon",uvs-registry
+US,moonshotgamestore,"Moonshot Games",https://moonshotgamestore.com,403,34,"pokemon-sealed",sister-sites
+US,mothershipatx,"Mothership Books and Games - Austin",https://store.mothershipatx.com,106,1,"pokemon-tcg",sister-sites
+US,moxboardinghouse,"Mox Boarding House",https://moxboardinghouse.com,3,3,"pokemon",uvs-registry
+US,mymintcards,"Mint Cards & Collectibles",https://mymintcards.com,41,13,"sealed-products",sister-sites
+US,mystictcg,"Mystic TCG",https://mystictcg.com,13,13,"packs-pokemon pokemon-etb booster-box",sister-sites
+US,mythicforgegames,"Mythic Forge Gaming",https://mythicforgegames.com,13,11,"pokemon-sealed-product",sister-sites
+US,mythichobbies,"Mythic Hobbies",https://mythic-hobbies.com,29,2,"pokemon-tcg",sister-sites
+US,nexusentertainment,"Nexus Entertainment",https://nexus-entertainment.com,67,67,"caldo-test-pokemon",uvs-registry
+US,nexuslgs,"NEXUS Games & Collectibles",https://nexuslgs.com,32,11,"pokemon",sister-sites
+US,northeastgamesandhobbies,"Northeast Games & Hobbies",https://northeastgamesandhobbies.com,50,17,"search:pokemon",uvs-registry
+US,nutmeggames,"Nutmeg Games",https://nutmeggames.com,721,27,"pokemon pokemon-sealed",sister-sites
+US,nxtlegacigaming,"Nxt Legaci Gaming",https://nxtlegacigaming.com,10,9,"pokemon",sister-sites
+US,overthebrick,"Over the Brick",https://overthebrick.com,27,11,"pokemon pokemon-go pokemon-brilliant-stars pokemon-fusion-strike",sister-sites
+US,papajoeys,"Papa Joey's Collectibles",https://papajoeys.com,102,100,"pokemon-tcg-sealed-product pokemon-tcg-booster-packs",sister-sites
+US,paragoncity,"Paragon City Games",https://paragoncity.shop,521,108,"pokemon",sister-sites
+US,phantomich,"Phantomich",https://phantomich.com,343,66,"pokemon-new-products pokemon-other-products",sister-sites
+US,phatcatzgaming,"Phat Catz Gaming",https://phatcatzgaming.com,36,12,"pokemon-sale pokemon-sealed-product pokemon",sister-sites
+US,phillytcg,"Philly TCG",https://phillytcg.com,164,64,"pokemon",uvs-registry
+US,playhoboken,"Play! Hoboken",https://playhoboken.com,12,12,"search:pokemon",uvs-registry
+US,playontcg,"Playontcg",https://playontcg.com,4,4,"english-pokemon",uvs-registry
+US,pokeboxusa,"PokeBox USA",https://www.pokeboxusa.com,626,19,"pokemon-sealed pokemon-booster-box english-pokemon-tcg-collection-boxes pokemon-tcg-tins",sister-sites
+US,projectccg,"ProjectCCG",https://projectccg.com,15,7,"pokemon-sealed pokemon-go scvi03-5-pokemon-151",sister-sites
+US,quicktcg,"QuickTCG",https://quicktcg.com,227,19,"eng-pokemon chn-pokemon",sister-sites
+US,rawmon,"Rawmon",https://rawmon.org,47,47,"pokemon",uvs-registry
+US,realgoodeal,"Realgoodeal",https://realgoodeal.com,583,80,"pokemon-sealed-products pokemon-booster-packs pokemon-sets-and-bundles pokemon",sister-sites
+US,reapergamestore,"Reaper Game Store",https://reapergamestore.com,73,6,"pokemon-tcg",uvs-registry
+US,redfoxgamingonline,"Red Fox Gaming",https://redfoxgamingonline.com,33,3,"pokemon-sealed",sister-sites
+US,redraccoongames,"Red Raccoon Games",https://redraccoongames.com,652,15,"pokemon-sealed-products pokemon",uvs-registry
+US,retrofixgames,"Retrofix Games",https://retrofixgames.com,215,3,"pokemon pokemon-30th-celebration pokemon-tcg-pitch-black",sister-sites
+US,revcollectibles,"R.E.V. Collectibles",https://revcollectibles.com,119,55,"pokemon",sister-sites
+US,riftgate,"Riftgate",https://riftgate.com,131,5,"pokemon-trading-card-game",sister-sites
+US,robohunters,"Robo Hunters",https://robohunters.com,7,7,"pokemon-tcg",sister-sites
+US,rocketcitytoys,"Rocket City Toys",https://rocketcitytoys.com,7,2,"new-arrivals pokemon-sealed pokemon",sister-sites
+US,safarizone,"Safari Zone Collectibles",https://safari-zone.com,5,1,"pokemon",sister-sites
+US,sagaconcepts,"Saga Concepts",https://sagaconcepts.com,3,1,"pokemon",sister-sites
+US,saltcitygames,"Salt City Games",https://saltcitygames.shop,5,5,"pokemon",sister-sites
+US,shallweplaygames,"Shall We Play? The Games and More Store",https://shallweplaygames.com,30,14,"pokemon",sister-sites
+US,shopus,"Millennium Games",https://shop.millenniumgames.com,5,4,"pokemon",sister-sites
+US,sleevedupcollectibles,"Sleeved Up Collectibles",https://sleevedupcollectibles.com,35,3,"pokemon",sister-sites
+US,smokeandmirrorshobby,"Smoke and Mirrors Hobby",https://www.smokeandmirrorshobby.com,742,9,"pokemon collection-boxes tins elite-trainer-boxes",sister-sites
+US,solacido,"Solacido",https://solacido.com,20,10,"sealed pokemon",sister-sites
+US,southtexastcg,"South Texas TCG",https://southtexastcg.com,6,2,"pokemon-booster-packs",uvs-registry
+US,spankyscardshop,"Spanky's Card Shop",https://spankyscardshop.com,36,30,"pokemon-sealed-product pokemon-151-sealed new-arrivals",sister-sites
+US,sparkstradingcards,"Sparks Trading Cards",https://sparkstradingcards.com,3,3,"pokemon",sister-sites
+US,spellcastersstash,"Spellcasters Stash",https://spellcastersstash.com,18,3,"pokemon-tcg",uvs-registry
+US,spiedagames,"Spieda Games",https://spiedagames.com,67,1,"pokemon-cards-and-collectibles",sister-sites
+US,stgcards,"STG Cards and Collectables",https://stgcards.com,24,16,"sealed-pokemon",uvs-registry
+US,superanimestore,"Super Anime Store",https://superanimestore.com,338,40,"pokemon-tcg-sealed",sister-sites
+US,svsportscards,"Spokane Valley Sports and Trading Cards",https://svsportscards.com,53,53,"pokemon",sister-sites
+US,swordsandspoons,"Swords and Spoons",https://swordsandspoons.com,14,14,"pokemon-sealed",sister-sites
+US,sydequest,"Sydequest Games LLC",https://sydequest.games,5,1,"new-arrivals",uvs-registry
+US,tabletcg,"Tabletop Cards and Games",https://tabletcg.com,32,25,"pokemon-1",uvs-registry
+US,theapollosvault,"Apollo's Vault",https://theapollosvault.com,137,29,"pokemon new-arrivals",sister-sites
+US,thebanditshideout,"Bandits Hideout",https://thebanditshideout.com,25,13,"pokemon",uvs-registry
+US,thecardboardbros,"The Cardboard Bros",https://thecardboardbros.com,71,71,"pokemon",uvs-registry
+US,theclubhousecards,"ClubhouseCards",https://theclubhousecards.com,24,24,"pokemon-sealed",sister-sites
+US,thecollectionrealm,"The Collection Realm",https://thecollectionrealm.com,265,71,"pokemon-tcg-elite-trainer-box pokemon-tcg-booster-box pokemon-tcg-tins pokemon-tcg-blister-pack",sister-sites
+US,thegamestore,"The Game Store",https://thegamestore.com,80,20,"pokemon",sister-sites
+US,thehubtcg,"The Hub TCG",https://thehubtcg.com,64,20,"pokemon",sister-sites
+US,themightyhobby,"The Mighty Hobby LLC",https://themightyhobby.com,4,2,"pokemon",uvs-registry
+US,theperkcards,"The Perk",https://theperkcards.com,22,13,"pokemon",sister-sites
+US,thepokehive,"TheHiveHQ",https://thepokehive.com,16,7,"pokemon",uvs-registry
+US,thepokestops,"Pokestops",https://thepokestops.com,36,14,"pokemon-ex-box pokemon-tcg-single-booster-pack pokemon-tcg-booster-collection-boxes pokemon-tcg-tin-collection",uvs-registry
+US,timetravelersonline,"Time Travelers Online",https://timetravelersonline.com,52,32,"pokemon-sealed-product",sister-sites
+US,tokenmtg,"TokenMTG",https://tokenmtg.com,338,14,"pokemon new-arrivals",sister-sites
+US,topcutcomics,"Top Cut Comics",https://topcutcomics.com,520,17,"pokemon-tins-box-sets pokemon-booster-packs pokemon-blister-packs pokemon-booster-boxes",sister-sites
+US,topspot,"Topspot Cards",https://topspot.cards,271,52,"pokemon-english pokemon-booster-boxes pokemon-precon-deck",uvs-registry
+US,toynadoalley,"Toynado Alley, LLC",https://toynadoalley.com,30,30,"pokemon",uvs-registry
+US,trademarksportscards,"Trademark Cards and Collectibles",https://trademarksportscards.com,143,139,"pokemon booster-packs booster-boxes",uvs-registry
+US,tradeshop,"Trade Shop",https://tradeshop.com,52,37,"pokemon elite-trainer-box",sister-sites
+US,tradingcardmint,"Forever After Antiques and Collectibles Inc",https://tradingcardmint.com,213,1,"search:pokemon",uvs-registry
+US,tradingcardworld,"Trading Card World",https://tradingcardworld.store,176,176,"pokemon-sealed",sister-sites
+US,triadgroup,"Triad Cards and Gaming",https://triadgroup.shop,129,106,"pokemon-sealed pokemon-acessories pokemon",sister-sites
+US,twinfusecollectibles,"TwinFuse Collectibles",https://twinfusecollectibles.com,8,5,"sealed",uvs-registry
+US,twopaircollectibles,"Two Pair Collectibles RFT",https://twopaircollectibles.com,9,1,"pokemon",uvs-registry
+US,undiscoveredrealm,"Undiscovered Realm",https://undiscoveredrealm.com,240,9,"pokemon-tcg",sister-sites
+US,unpluggedgamestore,"Unplugged Gaming",https://unpluggedgamestore.com,9,2,"pokemon-sealed-all",sister-sites
+US,untappedmarket,"Untapped Market",https://untappedmarket.games,13,5,"preorder pokemon",sister-sites
+US,uppercrust,"Upper Crust Games",https://uppercrust.games,212,9,"pokemon pokemon-1",sister-sites
+US,us,"Devastation Store Miami",https://us.storedevastation.com,111,106,"sealed-pokemon-2 productos-pokemon-tcg",sister-sites
+US,vaultgamestore,"The Vault Game Store",https://vaultgamestore.com,3,2,"pokemon-sealed",sister-sites
+US,victorypointlgs,"Victory Point Games",https://victorypointlgs.com,71,6,"all-pokemon",uvs-registry
+US,videogametrader,"Video Game Trader LLC",https://videogametrader.com,388,17,"pokemon-tcg pokemon-decks pokemon-booster-packs",sister-sites
+US,watsontcg,"WatsonTCG",https://watsontcg.com,135,51,"pokemon",uvs-registry
+US,waywardcitygames,"Wayward City Games",https://waywardcitygames.net,5,3,"pokemon-tcg",sister-sites
+US,wegeektogether,"We Geek Together",https://wegeektogether.com,4,2,"pokemon",uvs-registry
+US,wilsontradingcardco,"Wilson Trading Card Co.",https://wilsontradingcardco.com,106,41,"pokemon",sister-sites
+US,wolcowgaming,"wolcow gaming",https://wolcowgaming.com,79,56,"pokemon-tcg",uvs-registry
+US,wyattswarehouse,"Wyatts Collectibles LLC",https://wyattswarehouse.com,24,12,"pokemon-1",uvs-registry
+US,yuudachitcgarena,"Yuudachi TCG Arena",https://yuudachitcgarena.com,5,5,"pokemon",uvs-registry
+US,zenithtcg,"Zenith TCG",https://zenithtcg.com,79,1,"pokemon-copy",sister-sites
+US,zeroedingames,"Zeroed In Games",https://zeroedingames.com,10,3,"pokemon pokemon-1",sister-sites
+US,zulusgames,"Zulus Games",https://zulusgames.com,128,24,"pokemon tins booster-bundle pokemon-booster-boxes-1",sister-sites
