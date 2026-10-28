@@ -1,0 +1,961 @@
+[
+ {
+  "name": "Always Games",
+  "base": "https://alwaysgames.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Red Riot Games",
+  "base": "https://redriotgames.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Alt F4",
+  "base": "https://altf4online.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Mecha Games",
+  "base": "https://mechagames.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Wandering Adventures",
+  "base": "https://wanderingadventures.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Le Chevalier",
+  "base": "https://boutiquelechevalier.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Boutique L'Artefact",
+  "base": "https://boutiqueartefact.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "The6ixtcgsMarkham",
+  "base": "https://6ixtcgsmarkham.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Fantasy Forged",
+  "base": "https://fantasyforged.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "3 Mana",
+  "base": "https://3mana.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Claw Me Baby",
+  "base": "https://clawmebaby.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Abyss Game Store",
+  "base": "https://abyssgamestore.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Draw for Turn",
+  "base": "https://drawforturn.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Kingdom Titans",
+  "base": "https://kingdomtitans.cards",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Le Coin du Jeu",
+  "base": "https://lecoindujeu.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Amuse N Games",
+  "base": "https://amusengames.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Cartes L\u00e9o",
+  "base": "https://cartesleo.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Emmett's Toy Stop",
+  "base": "https://emmettstoystop.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Jeux 3 Dragons",
+  "base": "https://3dragons.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "203 Collectibles",
+  "base": "https://203collectibles.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Abby Boardwalk",
+  "base": "https://abbyboardwalk.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Kunai Games",
+  "base": "https://kunaigames.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "The Drop Card Shop",
+  "base": "https://thedropcardshop.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Torchlight Games and Hobbies",
+  "base": "https://torchlightgh.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Manta Trading",
+  "base": "https://mantatrading.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "NexPack Collectibles",
+  "base": "https://npcollectibles.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Geek & Co.",
+  "base": "https://geekandco.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "PvP Shoppe",
+  "base": "https://pvpshoppe.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Screen Free Games",
+  "base": "https://screenfreegames.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Sunny Hobbies",
+  "base": "https://sunnyhobbies.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Pok\u00e9Jeux",
+  "base": "https://pokejeux.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Mana Confluence",
+  "base": "https://manaconfluence.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Negative Zone Comics",
+  "base": "https://negativezonecomics.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "The Side Deck",
+  "base": "https://thesidedeck.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "MasterSet Co.",
+  "base": "https://masterset.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "New Realm Games",
+  "base": "https://newrealmgames.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Springer Hobbies",
+  "base": "https://springerhobbies.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "La Bo\u00eete Myst\u00e8re",
+  "base": "https://laboitemystere.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Crypt MTG",
+  "base": "https://cryptmtg.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Board Game Bliss",
+  "base": "https://www.boardgamebliss.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Cards and Coasters",
+  "base": "https://cardsandcoasters.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Collect-Edition",
+  "base": "https://cards.collect-edition.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Desert City Games",
+  "base": "https://www.desertcitygamestcg.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "GameZilla",
+  "base": "https://gamezilla.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Hairy Tarantula",
+  "base": "https://www.hairyt.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Infinity Cards & Collectibles",
+  "base": "https://www.infinitycards.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "L'univers de la carte",
+  "base": "https://luniversdelacarte.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Let's Play! Cards and Games",
+  "base": "https://www.skafexpress.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Pirate Cards",
+  "base": "https://piratecards.shop",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "TistaCards",
+  "base": "https://tistacards.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Abyss Game Store",
+  "base": "https://abyssgamestore.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "BeardyCards",
+  "base": "https://www.beardycards.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Boutique Manacore",
+  "base": "https://manacore.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Card Caster",
+  "base": "https://cardcastergames.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Cardboard Classics",
+  "base": "https://cardboardclassics.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Cardboard Hero",
+  "base": "https://cardboardhero.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Champion City Games",
+  "base": "https://championcitygames.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Dark Fox TCG",
+  "base": "https://darkfoxtcg.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Diadem Cards and Hobbies",
+  "base": "https://diademhobbies.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Dragon Cards & Games",
+  "base": "https://tcg.dragoncardsandgames.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Dungeon Comics & Cards",
+  "base": "https://dungeoncomicsandcards.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "ENV Collectible",
+  "base": "https://envcollectible.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Exor Games",
+  "base": "https://exorgames.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Fafnir's Hoard",
+  "base": "https://fafnirshoard.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Forest City Collectibles",
+  "base": "https://forestcitycollectibles.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "HFX Games",
+  "base": "https://hfxgames.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Hope Club Collectibles",
+  "base": "https://hopeclubshop.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Kap Escaping",
+  "base": "https://kapescaping.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Nerdvana Cards & Games",
+  "base": "https://nerdvanacardsandgames.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Panda Hobby",
+  "base": "https://pandahobby.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Players Cards and Collectibles",
+  "base": "https://playerscandc.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Prestige Games",
+  "base": "https://prestigegames.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "RAD GameShop",
+  "base": "https://www.radgameshop.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Realm Hoppers",
+  "base": "https://www.realmhoppers.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "SeaToSky Games",
+  "base": "https://seatoskygames.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Tabletop Giant",
+  "base": "https://tabletopgiant.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "TKO Toy Co",
+  "base": "https://tkotoyco.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Total Play",
+  "base": "https://totalplay.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Trinity Hobby",
+  "base": "https://trinityhobby.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Twin Moons Cards & Games",
+  "base": "https://twinmoonstcg.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Untouchables Sports Cards and Gaming",
+  "base": "https://untouchables.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Bastion Games",
+  "base": "https://shop.bastiongames.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Bootown's Games and Hobbies",
+  "base": "https://bootownsgamesandhobbies.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Boutique Awesome",
+  "base": "https://boutiqueawesome.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Boutique FDB",
+  "base": "https://boutiquefdb.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Brimstone Games ",
+  "base": "https://brimstonegames.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Cardboard Memories Inc.",
+  "base": "https://cardboardmemories.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Carlito's Boardgame Cafe",
+  "base": "https://carlitosgamecafe.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Chimera Gaming",
+  "base": "https://chimeragamingonline.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Collector's Avenue",
+  "base": "https://collectorsavenue.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Critical Hit Gaming Lounge",
+  "base": "https://criticalhitgaminglounge.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Derpy Cards",
+  "base": "https://derpycards.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Destination Retro",
+  "base": "https://destinationretro.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Event Horizon Hobbies CA",
+  "base": "https://eventhorizonhobbies.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Fan of the Sport",
+  "base": "https://fanofthesport.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Game Breakers",
+  "base": "https://gamebreakers.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "C&C Gamebridge",
+  "base": "https://gamebridge.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "GameKnight Games",
+  "base": "https://gameknight.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Game Shack",
+  "base": "https://gameshack.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Gotham Central",
+  "base": "https://gothamcentralcomics.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Got Item! Games",
+  "base": "https://gotitemgames.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "House of Cards",
+  "base": "https://www.houseofcards.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Impulse Games and Hobbies",
+  "base": "https://impulsegames.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Jeux AZ Games",
+  "base": "https://jeuxaz.games",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "L.A. Mood Comics and Games",
+  "base": "https://lamoodcomics.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Le Roi Des Cartes",
+  "base": "https://leroidescartes.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "LVLUP GAMES",
+  "base": "https://lvlupgames.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "MagiCarte",
+  "base": "https://magicartestore.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "The Mana Lounge",
+  "base": "https://manalounge.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Morrison Trading Post",
+  "base": "https://morrisontradingpost.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Multizone: Comics And Games",
+  "base": "https://multizone.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "MyPops.ca",
+  "base": "https://mypops.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Mystic Dragon",
+  "base": "https://mystic-dragon.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Nabema Collectibles",
+  "base": "https://nabemacollectibles.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Outpost Gaming",
+  "base": "https://outpostgaming.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Overtime Sportscards",
+  "base": "https://overtimesportscards.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Pandora's Boox",
+  "base": "https://pandorasboox.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Play N Trade Winnipeg",
+  "base": "https://playntradewpg.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Red-DragonCA",
+  "base": "https://red-dragon.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Rival Cards",
+  "base": "https://rivalcards.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Mancala Monk Board Game Cafe",
+  "base": "https://shopmancalamonk.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Taverne du Collectionneur",
+  "base": "https://taverneducollectionneur.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "TCG and Games",
+  "base": "https://tcgandgames.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Three Kingdoms Games",
+  "base": "https://threekingdomsgames.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Up North Games",
+  "base": "https://upnorthgames.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Vortex Games",
+  "base": "https://vortexgames.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Waypoint Games CA",
+  "base": "https://waypointgames.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Wizard's Tower",
+  "base": "https://store.wizardtower.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Anime Otaku Hobby",
+  "base": "https://animeotakuhobby.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Arctic Rift Cards",
+  "base": "https://arcticriftcards.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Black Knight Games",
+  "base": "https://blackknightgames.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Duel Kingdom",
+  "base": "https://duelkingdom.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Go For Game",
+  "base": "https://goforgame.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "HK Collectibles",
+  "base": "https://hkcollectibles.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Level Zero Games",
+  "base": "https://levelzerogames.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "Mintink Trading Cards & Live Experience",
+  "base": "https://mintink.ca",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ },
+ {
+  "name": "UBECARD.COM",
+  "base": "https://ubecard.com",
+  "market": "CA",
+  "country": "CA",
+  "platform": "shopify"
+ }
+]

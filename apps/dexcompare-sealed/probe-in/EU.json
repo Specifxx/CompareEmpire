@@ -1,0 +1,149 @@
+[
+ {
+  "name": "End Turn",
+  "base": "https://www.endturn.pt",
+  "market": "EU",
+  "country": "EU",
+  "platform": "shopify"
+ },
+ {
+  "name": "T-REX TCG",
+  "base": "https://www.t-rextcg.com",
+  "market": "EU",
+  "country": "EU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Fire and Dice",
+  "base": "https://fireanddice.it",
+  "market": "EU",
+  "country": "EU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Cards Beyond",
+  "base": "https://cardsbeyond.com",
+  "market": "EU",
+  "country": "EU",
+  "platform": "shopify"
+ },
+ {
+  "name": "SpellNexus",
+  "base": "https://spellnexus.com",
+  "market": "EU",
+  "country": "EU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Shopponi Store",
+  "base": "https://shopponistore.com",
+  "market": "EU",
+  "country": "EU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Boutique Carte One Piece (onepiece-cards.com)",
+  "base": "https://onepiece-cards.com",
+  "market": "EU",
+  "country": "EU",
+  "platform": "shopify"
+ },
+ {
+  "name": "BreakTheCase",
+  "base": "https://www.breakthecase.de",
+  "market": "EU",
+  "country": "EU",
+  "platform": "shopify"
+ },
+ {
+  "name": "BSA Store",
+  "base": "https://www.bsastore.it",
+  "market": "EU",
+  "country": "EU",
+  "platform": "shopify"
+ },
+ {
+  "name": "CardCapital",
+  "base": "https://cardcapital.shop",
+  "market": "EU",
+  "country": "EU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Games Time Aversa",
+  "base": "https://gamestimeaversa.com",
+  "market": "EU",
+  "country": "EU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Kai of Cards",
+  "base": "https://kaiofcards.com",
+  "market": "EU",
+  "country": "EU",
+  "platform": "shopify"
+ },
+ {
+  "name": "LMS Handel",
+  "base": "https://lms-handel.de",
+  "market": "EU",
+  "country": "EU",
+  "platform": "shopify"
+ },
+ {
+  "name": "RareCards",
+  "base": "https://rarecards.nl",
+  "market": "EU",
+  "country": "EU",
+  "platform": "shopify"
+ },
+ {
+  "name": "ReCollectibles",
+  "base": "https://recollectibles.de",
+  "market": "EU",
+  "country": "EU",
+  "platform": "shopify"
+ },
+ {
+  "name": "TCG King",
+  "base": "https://tcgking.nl",
+  "market": "EU",
+  "country": "EU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Duels Point",
+  "base": "https://duelspoint.it",
+  "market": "EU",
+  "country": "EU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Games Avenue",
+  "base": "https://gamesavenue.fr",
+  "market": "EU",
+  "country": "EU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Hi-Tech Games",
+  "base": "https://www.hitechgames.it",
+  "market": "EU",
+  "country": "EU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Magician's Circle",
+  "base": "https://www.magicians-circle.com",
+  "market": "EU",
+  "country": "EU",
+  "platform": "shopify"
+ },
+ {
+  "name": "OPSS Market",
+  "base": "https://opssmarket.com",
+  "market": "EU",
+  "country": "EU",
+  "platform": "shopify"
+ }
+]

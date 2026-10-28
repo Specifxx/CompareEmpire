@@ -1,0 +1,548 @@
+[
+ {
+  "name": "Good Games Adelaide",
+  "base": "https://ggadelaide.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Mint Collectables",
+  "base": "https://mintcollectables.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Spindown",
+  "base": "https://spindown.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "88 Games Arena",
+  "base": "https://www.88gamesarena.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Elemental Arcade",
+  "base": "https://elementalarcade.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Turn Order Games",
+  "base": "https://turnordergames.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "The Games District",
+  "base": "https://thegamesdistrict.com",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "General Games Chirnside Park",
+  "base": "https://generalgames.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Shuffle n Cut Melbourne",
+  "base": "https://shuffleandcutgames.com",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Inn Games",
+  "base": "https://inngames.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Eternal Magic",
+  "base": "https://eternalmagic.cc",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Blacklist Cards",
+  "base": "https://blacklistcards.com",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Crit Hit",
+  "base": "https://crithit.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Turtle TCG",
+  "base": "https://turtletcg.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "One Place Trading Card Store",
+  "base": "https://oneplacetcs.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "The Games Corner",
+  "base": "https://www.thegamescorner.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Crystal Collectables TCG",
+  "base": "https://crystalcollectablestcg.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Don Games",
+  "base": "https://dongames.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Frenly Bricks",
+  "base": "https://frenlybricks.store",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Games Portal",
+  "base": "https://www.gamesportal.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Gate Keepers TCG & Collectables",
+  "base": "https://www.gatekeeperstcg.com",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Good Games Greensborough",
+  "base": "https://gggreensborough.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Good Games Morley",
+  "base": "https://www.goodgamesmorley.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "HBT Collectables",
+  "base": "https://www.hbtcollectables.com",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Horizon Trading Cards",
+  "base": "https://horizontradingcards.com",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Luna Cards",
+  "base": "https://www.lunacards.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Mayhem Collectables",
+  "base": "https://mayhemcollectables.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Mighty Cool Games",
+  "base": "https://mightycoolgames.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Millennium Comics",
+  "base": "https://millenniumcomics.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Shuffled",
+  "base": "https://www.shuffled.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Team Card Titan",
+  "base": "https://teamcardtitan.com",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "That Game Store",
+  "base": "https://thatgamestore.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "The Card House",
+  "base": "https://www.cardhouse.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "The Cardboard Gamer",
+  "base": "https://cardboardgamer.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "The CollectorSmith",
+  "base": "https://www.thecollectorsmith.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Toy Sucker",
+  "base": "https://www.toysucker.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Trading Card Masters",
+  "base": "https://www.tradingcardmasters.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Wonderland Games",
+  "base": "https://www.wonderlandgames.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Card Oni",
+  "base": "https://cardoni.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Collectors Company",
+  "base": "https://collectorscompany.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Dragon's Lair Hobbies and Gaming",
+  "base": "https://dragonslair.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Groovy Collectables",
+  "base": "https://groovycollectables.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "HR Games",
+  "base": "https://hrgames.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Legends and Collectables",
+  "base": "https://www.legendsandcollectables.com",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Rhystic Nostalgia Gaming",
+  "base": "https://rhysticnostalgiagaming.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "T One Australia",
+  "base": "https://www.toneaus.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "The Dragon's Beard",
+  "base": "https://thedragonsbeard.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Area52 Hobart",
+  "base": "https://shop.area52.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Aether Wyvern Games",
+  "base": "https://awgames.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "FastBreak Cards & Collectables",
+  "base": "https://fastbreakcollectables.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "First Games",
+  "base": "https://firstgames.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "From The Deep Games",
+  "base": "https://fromthedeepgames.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Gamers Village",
+  "base": "https://gamers-village.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Games Empire",
+  "base": "https://www.gamesempire.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Gaming Grounds",
+  "base": "https://gaminggrounds.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": " Hobby Kitz",
+  "base": "https://hobbykitz.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Lots Moore",
+  "base": "https://online.lotsmoore.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Mega Games Penrith",
+  "base": "https://megagames.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Playmantis",
+  "base": "https://playmantis.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Plenty of Games",
+  "base": "https://plentyofgames.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "R&R Hobbies",
+  "base": "https://rnrhobbies.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Ronin Games",
+  "base": "https://roningames.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Tabernacle Games",
+  "base": "https://tcg.tabernaclegames.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Tabletop Commons",
+  "base": "https://tabletopcommons.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "The Hall of Heroes",
+  "base": "https://thehallofheroes.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Unplugged Games",
+  "base": "https://unpluggedgames.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Filmsmen",
+  "base": "https://vault-collectables.com",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Vault Games",
+  "base": "https://vaultgames.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Steel City Games",
+  "base": "https://www.steelcitygames.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Card Bot",
+  "base": "https://cardbot.co.nz",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Collectors Space",
+  "base": "https://collectors-space.shop",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Diablo's Vault",
+  "base": "https://diablosvault.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Gametraders Chermside",
+  "base": "https://gametraderschermside.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Gametraders Seaford",
+  "base": "https://gametradersseaford.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Loot Goblin Collectables ",
+  "base": "https://lootgoblincollectables.com",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "POPin Collectables",
+  "base": "https://popincollectables.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "ProHobbies",
+  "base": "https://prohobbies.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ },
+ {
+  "name": "Topdeck Gaming Strathfield",
+  "base": "https://topdeckgaming.com.au",
+  "market": "AU",
+  "country": "AU",
+  "platform": "shopify"
+ }
+]

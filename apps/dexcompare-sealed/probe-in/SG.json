@@ -1,0 +1,58 @@
+[
+ {
+  "name": "Hideout",
+  "base": "https://hideoutcg.com",
+  "market": "SG",
+  "country": "SG",
+  "platform": "shopify"
+ },
+ {
+  "name": "Action Point Games",
+  "base": "https://actionpoint.sg",
+  "market": "SG",
+  "country": "SG",
+  "platform": "shopify"
+ },
+ {
+  "name": "4elements",
+  "base": "https://www.4elements.sg",
+  "market": "SG",
+  "country": "SG",
+  "platform": "shopify"
+ },
+ {
+  "name": "GOAT TCG",
+  "base": "https://www.goattcg.com",
+  "market": "SG",
+  "country": "SG",
+  "platform": "shopify"
+ },
+ {
+  "name": "Apex Player's Guild",
+  "base": "https://apgtcg.com",
+  "market": "SG",
+  "country": "SG",
+  "platform": "shopify"
+ },
+ {
+  "name": "1Collectibles",
+  "base": "https://1collectiblestcg.com",
+  "market": "SG",
+  "country": "SG",
+  "platform": "shopify"
+ },
+ {
+  "name": "Mana Pro",
+  "base": "https://sg-manapro.com",
+  "market": "SG",
+  "country": "SG",
+  "platform": "shopify"
+ },
+ {
+  "name": "Cards Citadel",
+  "base": "https://cardscitadel.com",
+  "market": "SG",
+  "country": "SG",
+  "platform": "shopify"
+ }
+]

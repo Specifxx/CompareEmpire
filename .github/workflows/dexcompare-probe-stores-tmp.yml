@@ -1,0 +1,61 @@
+name: TEMP DexCompare store probe
+
+# Temporary (2026-10-28, store audit): probes every store the sister sites
+# track that DexCompare doesn't, plus the registered stores that stopped
+# reading, one runner per market, and commits the results to this branch for
+# review. Removed before the branch is merged.
+
+on:
+  push:
+    branches: [claude/project-thread-y2202w]
+    paths: [apps/dexcompare-sealed/probe-in/**, .github/workflows/dexcompare-probe-stores-tmp.yml]
+
+permissions:
+  contents: write
+
+defaults:
+  run:
+    working-directory: apps/dexcompare-sealed
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      matrix:
+        market: [AU, CA, EU, SG, UK, US, FIX]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: apps/dexcompare-sealed/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - run: npx tsx scripts/probe-stores.ts --in probe-in/${{ matrix.market }}.json --out probe-out/${{ matrix.market }}.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: probe-${{ matrix.market }}
+          path: apps/dexcompare-sealed/probe-out/${{ matrix.market }}.json
+          if-no-files-found: ignore
+
+  commit:
+    needs: probe
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: apps/dexcompare-sealed/probe-out
+          pattern: probe-*
+          merge-multiple: true
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add probe-out
+          git commit -m "TEMP DexCompare probe results (run ${GITHUB_RUN_ID})"
+          for i in 1 2 3; do git pull --rebase -q origin "$GITHUB_REF_NAME" && git push origin "HEAD:$GITHUB_REF_NAME" && exit 0; sleep 5; done
+          exit 1
