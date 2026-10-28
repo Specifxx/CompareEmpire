@@ -45,3 +45,26 @@ on every site but RiftCompare. The eBay side already has its image strips
 * Outside the US the price stays US$ and the strip says "The US marketplace".
   TCGplayer Direct reached Australia on 2026-10-07 for singles only, so nothing
   claims sealed ships there.
+
+## DexCompare: navigation from the first page, a sidebar, a full phone menu — 2026-10-28
+
+**Owner:** the "Continue to Australia" button before any navigation was a
+barrier; the wide desktop's left side was empty; the phone menu on the landing
+page listed only regions. Same change as MTG Compare (mtgcompare, same date).
+
+* The pages with no region of their own (`/`, About, the legal pages, 404s)
+  draw the whole header: sections, the "All sealed" dropdown, search and the
+  region button. The server's HTML is built for the US (one CDN copy, no cookie
+  or header read); the browser moves every link to the visitor's region
+  (`useSoftRegion`, the same detection as before: saved, `/api/geo`, time
+  zone). Never a redirect: `/` keeps its canonical and hreflang as x-default.
+* A region picked there (header, phone menu, the landing grid's chips) switches
+  the page in place (`pickRegion`) and is remembered; without script the links
+  go to each region's home.
+* The hero's "Continue to <region>" button became five shortcuts (Booster
+  boxes, Elite Trainer Boxes, Booster bundles, Japanese boxes, Deals).
+* From xl (1280px) a sticky sidebar (`components/SideNav.tsx`) lists every
+  product type, the eight newest sets, the deal pages and the rest
+  (`lib/nav.ts navGroups`); the shell widens to 1480px so pages keep 1200px.
+  The phone menu draws the same groups, then the regions. Static links only.
+  Region pages never run the suggestion (no extra `/api/geo` call).

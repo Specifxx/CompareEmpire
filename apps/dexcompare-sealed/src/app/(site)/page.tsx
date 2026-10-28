@@ -7,7 +7,7 @@ import { regionPicks } from "@/lib/picks";
 import { openPreorderGuides } from "@/lib/preorder-guides";
 import { REGION_LIST, X_DEFAULT_REGION } from "@/lib/regions";
 import { DEFAULT_OG_IMAGE } from "@/lib/seo";
-import { SITE_NAME, SITE_URL } from "@/lib/site";
+import { SITE_NAME, SITE_URL, sectionHref } from "@/lib/site";
 import { STORES } from "@/lib/stores";
 import { GhostTeaser, HalloweenDecor } from "@/components/season/HalloweenDecor";
 
@@ -34,6 +34,15 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
 };
 
+// The hero's shortcuts, built for the default region (RegionSuggest moves them to the visitor's).
+const HERO_LINKS = [
+  { href: sectionHref(X_DEFAULT_REGION, "boosterBoxes"), label: "Booster boxes" },
+  { href: sectionHref(X_DEFAULT_REGION, "etbs"), label: "Elite Trainer Boxes" },
+  { href: sectionHref(X_DEFAULT_REGION, "bundles"), label: "Booster bundles" },
+  { href: sectionHref(X_DEFAULT_REGION, "japanese"), label: "Japanese boxes" },
+  { href: sectionHref(X_DEFAULT_REGION, "deals"), label: "Deals" },
+];
+
 export default async function Landing() {
   // The default region's five, from the public data files: the server HTML is already filled. A failed read renders the page without them.
   const picks = await regionPicks(X_DEFAULT_REGION).catch((e) => {
@@ -54,16 +63,13 @@ export default async function Landing() {
           <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-muted sm:mt-5 sm:text-lg">
             {STORES.length} independent stores in {REGION_LIST.length} regions, read about twice a day. Free, no sign-up.
           </p>
-          <div className="mt-6 flex h-12 justify-center sm:mt-8">
-            <RegionSuggest formId="landing-search" />
-          </div>
-          {/* The 404's search markup: a plain GET form, so it works without script. RegionSuggest points it at the suggested region. */}
+          {/* The 404's search markup: a plain GET form, so it works without script. RegionSuggest points it at the visitor's region. */}
           <form
             id="landing-search"
             action={`/${X_DEFAULT_REGION}/sealed`}
             method="get"
             role="search"
-            className="mx-auto mt-4 flex max-w-md items-center gap-2 rounded-full border border-line bg-surface p-1.5 pl-4 shadow-card focus-within:border-ink/40"
+            className="mx-auto mt-6 flex max-w-md items-center gap-2 rounded-full border border-line bg-surface p-1.5 pl-4 shadow-card focus-within:border-ink/40"
           >
             <Icon name="search" size={18} className="text-faint" />
             <input
@@ -77,6 +83,11 @@ export default async function Landing() {
               Search
             </button>
           </form>
+          {/* The shortcuts (owner, 2026-10-28): the most-used pages straight from the hero, in the visitor's region, instead of a
+              "Continue to <region>" step before any navigation. */}
+          <div className="mx-auto mt-4 max-w-2xl">
+            <RegionSuggest formId="landing-search" links={HERO_LINKS} />
+          </div>
         </div>
       </section>
 
