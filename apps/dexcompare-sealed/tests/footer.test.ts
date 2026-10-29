@@ -8,7 +8,7 @@ const src = (p: string) => readFileSync(new URL(`../${p}`, import.meta.url), "ut
 test("footer: the sister sites, as plain followed links", () => {
   assert.deepEqual(
     SISTER_SITES.map((s) => s.url),
-    ["https://riftcompare.com", "https://opcompare.app", "https://mtgcompare.app", "https://gundamcompare.com", "https://lorcanacompare.com", "https://ygocompare.com", "https://wargamecompare.com", "https://figurecompare.com", "https://www.camcompare.app", "https://www.compareempire.com"],
+    ["https://riftcompare.com", "https://opcompare.app", "https://mtgcompare.app", "https://gundamcompare.com", "https://lorcanacompare.com", "https://ygocompare.com", "https://wargamecompare.com", "https://figurecompare.com", "https://www.camcompare.app", "https://compareempire.com"],
   );
   const footer = src("src/components/Footer.tsx");
   assert.match(footer, /SISTER_SITES\.map/);

@@ -35,7 +35,7 @@ export const SISTER_SITES = [
   { name: "WargameCompare", url: "https://wargamecompare.com", what: "miniature wargame prices" },
   { name: "FigureCompare", url: "https://figurecompare.com", what: "anime figure prices" },
   { name: "CamCompare", url: "https://www.camcompare.app", what: "camera and lens prices" },
-  { name: "Compare Empire", url: "https://www.compareempire.com", what: "Australian tech prices" },
+  { name: "Compare Empire", url: "https://compareempire.com", what: "Australian tech prices" },
 ] as const;
 
 // Public profiles for Organization.sameAs (an X account, a Bluesky handle…).
