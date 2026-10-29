@@ -1,13 +1,13 @@
 {
  "format": 1,
- "generatedAt": "2026-10-29T15:54:32.378Z",
+ "generatedAt": "2026-10-29T21:29:20.141Z",
  "source": "DC2",
  "counts": {
-  "Product": 9307,
-  "Offer": 103120,
-  "ProductStat": 19128,
-  "StoreStat": 894,
-  "EbayListing": 21796
+  "Product": 9309,
+  "Offer": 103220,
+  "ProductStat": 19131,
+  "StoreStat": 895,
+  "EbayListing": 21747
  },
  "seen": {
   "151collectables": "2026-10-29T15:33:20.085Z",
@@ -853,6 +853,7 @@
   "twinfusecollectibles": "2026-10-29T15:33:20.085Z",
   "twinmoonstcg": "2026-10-29T15:33:20.085Z",
   "twopaircollectibles": "2026-10-29T15:33:20.085Z",
+  "ultimacards": "2026-10-29T21:29:03.635Z",
   "ultimasupply": "2026-10-29T15:33:20.085Z",
   "ultrarare": "2026-10-29T15:33:20.085Z",
   "ultrararecards": "2026-10-29T15:33:20.085Z",

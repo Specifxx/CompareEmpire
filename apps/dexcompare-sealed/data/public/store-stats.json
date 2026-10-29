@@ -843,6 +843,7 @@
 {"store":"twinfusecollectibles","market":"US","listed":7,"inStock":4,"lastOkAt":"2026-10-29T15:33:20.085Z","lastError":null,"dormant":false,"updatedAt":"2026-10-29T15:54:25.917Z"},
 {"store":"twinmoonstcg","market":"CA","listed":28,"inStock":24,"lastOkAt":"2026-10-29T15:33:20.085Z","lastError":null,"dormant":false,"updatedAt":"2026-10-29T15:54:25.896Z"},
 {"store":"twopaircollectibles","market":"US","listed":9,"inStock":1,"lastOkAt":"2026-10-29T15:33:20.085Z","lastError":null,"dormant":false,"updatedAt":"2026-10-29T15:54:25.938Z"},
+{"store":"ultimacards","market":"CA","listed":100,"inStock":6,"lastOkAt":"2026-10-29T21:29:03.635Z","lastError":null,"dormant":false,"updatedAt":"2026-10-29T21:29:13.696Z"},
 {"store":"ultimasupply","market":"US","listed":65,"inStock":18,"lastOkAt":"2026-10-29T15:33:20.085Z","lastError":null,"dormant":false,"updatedAt":"2026-10-29T15:54:25.959Z"},
 {"store":"ultrarare","market":"AU","listed":2,"inStock":1,"lastOkAt":"2026-10-29T15:33:20.085Z","lastError":null,"dormant":false,"updatedAt":"2026-10-29T15:54:25.980Z"},
 {"store":"ultrararecards","market":"UK","listed":59,"inStock":1,"lastOkAt":"2026-10-29T15:33:20.085Z","lastError":null,"dormant":false,"updatedAt":"2026-10-29T15:54:26.001Z"},
