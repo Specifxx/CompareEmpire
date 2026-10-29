@@ -2,23 +2,30 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ADSENSE_CLIENT } from "@/lib/adsense";
-import { AMAZON_ASSOCIATE_STATEMENT, AMAZON_AU_REGIONS } from "@/lib/amazon";
+import { AMAZON_ASSOCIATE_STATEMENT, AMAZON_STORES, amazonRegions } from "@/lib/amazon";
 import { REGIONS } from "@/lib/regions";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Affiliate disclosure",
-  description: `How ${SITE_NAME} earns: eBay, TCGplayer and Amazon AU affiliate links, marked where they appear. ${AMAZON_ASSOCIATE_STATEMENT}`,
+  description: `How ${SITE_NAME} earns: eBay, TCGplayer and Amazon affiliate links, marked where they appear. ${AMAZON_ASSOCIATE_STATEMENT}`,
   alternates: { canonical: `${SITE_URL}/affiliate-disclosure` },
 };
 
 // Bump when the disclosure changes in substance, not for wording.
-const LAST_UPDATED = "26 October 2026";
+const LAST_UPDATED = "29 October 2026";
 
 // The affiliate disclosure (the owner's Amazon Associates round, 2026-10-26), linked from every page's footer beside the Associates
 // statement. Static: no data, no ads (like the Terms and Privacy pages).
 export default function AffiliateDisclosure() {
-  const amazonRegions = AMAZON_AU_REGIONS.map((r) => REGIONS[r].name).join(" and ");
+  // Each Amazon store the site links to today, with the regions whose pages show it ("Amazon US (amazon.com) on United States pages").
+  const stores = new Map<string, string[]>();
+  for (const r of amazonRegions()) {
+    const a = AMAZON_STORES[r]!;
+    const k = `${a.label} (${a.host.replace(/^www\./, "")})`;
+    stores.set(k, [...(stores.get(k) ?? []), REGIONS[r].name]);
+  }
+  const amazonList = [...stores].map(([k, rs]) => `${k} on ${rs.join(" and ")} pages`).join("; ");
   return (
     <div className="page max-w-3xl py-12">
       <Breadcrumbs items={[{ href: "/", label: "DexCompare" }, { label: "Affiliate disclosure" }]} />
@@ -42,8 +49,8 @@ export default function AffiliateDisclosure() {
             <b>TCGplayer</b>, through Impact: TCGplayer offers and searches, marked &ldquo;affiliate link&rdquo;.
           </li>
           <li>
-            <b>Amazon AU</b>, through the Amazon Associates programme (amazon.com.au), on {amazonRegions} pages only: &ldquo;Check price on Amazon AU&rdquo;
-            buttons and links, with the statement above beside them.
+            <b>Amazon</b>, through the Amazon Associates programme: {amazonList}. &ldquo;Check price on Amazon&rdquo; buttons, links and
+            search rows in the price table, with the statement above beside them.
           </li>
         </ul>
         <p>
@@ -53,8 +60,8 @@ export default function AffiliateDisclosure() {
         <h2 id="ranking">Commissions never change a ranking</h2>
         <p>
           Every product&rsquo;s stores are ranked by price and stock only: in stock first, then cheapest first. An affiliate link never moves a store up or
-          down. Amazon AU is never ranked with the stores at all, because we don&rsquo;t read Amazon&rsquo;s prices: its link says &ldquo;Check price on Amazon
-          AU&rdquo;, and we show no Amazon price, rating, stock or delivery claim. Amazon&rsquo;s own page is final.
+          down. Amazon is never ranked with the stores at all, because we don&rsquo;t read Amazon&rsquo;s prices: its link says &ldquo;Check price on
+          Amazon&rdquo;, and we show no Amazon price, rating, stock or delivery claim. Amazon&rsquo;s own page is final.
         </p>
 
         <h2 id="how">How the links work</h2>

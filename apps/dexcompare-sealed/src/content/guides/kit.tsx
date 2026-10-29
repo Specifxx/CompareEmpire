@@ -7,7 +7,7 @@
 //
 // No JSX runs when this module loads (the tests set globalThis.React after their imports): everything here is a function.
 import { AmazonLink } from "@/components/AmazonLink";
-import { AMAZON_ASSOCIATE_STATEMENT, amazonAuHref, amazonAuUrl, showsAmazonAu } from "@/lib/amazon";
+import { AMAZON_ASSOCIATE_STATEMENT, amazonFor, amazonHref, amazonUrl } from "@/lib/amazon";
 import Link from "next/link";
 import { Fragment, type ReactNode } from "react";
 import { AdSenseUnit } from "@/components/AdSenseUnit";
@@ -491,9 +491,10 @@ export function whereToBuy(
   opts: { tcg?: { query: string; label: string }; amazon?: { query: string; label: string }; links?: { href: string; label: string }[] } = {},
 ): GuideSection {
   const us = r.market === "US";
-  // Australia and New Zealand: Amazon AU (lib/amazon.ts), a search for the guide's subject (its own, else the TCGplayer one, else
+  // Where the region has an Amazon tag (lib/amazon.ts: AU and NZ, the US), a search for the guide's subject (its own, else the TCGplayer one, else
   // Pokémon sealed), with the Associates statement beside it. Never a price.
-  const amazon = showsAmazonAu(r.region) ? opts.amazon ?? opts.tcg ?? { query: "Pokemon TCG sealed", label: "Pokémon sealed" } : null;
+  const store = amazonFor(r.region);
+  const amazon = store ? opts.amazon ?? opts.tcg ?? { query: "Pokemon TCG sealed", label: "Pokémon sealed" } : null;
   return {
     id: "where-to-buy",
     title: "Where to buy",
@@ -537,17 +538,18 @@ export function whereToBuy(
         {amazon && (
           <div className="mt-5 rounded-xl border border-line bg-surface p-4">
             <p className="text-sm leading-6 text-muted">
-              Amazon AU sells Pokémon sealed product too{r.region === "nz" ? ", and delivers many items to New Zealand (check the one you want does)" : ""}. We don&rsquo;t read
+              {store?.label} sells Pokémon sealed product too{r.region === "nz" ? ", and delivers many items to New Zealand (check the one you want does)" : ""}. We don&rsquo;t read
               Amazon&rsquo;s prices, so compare its checkout total with the stores above.
             </p>
             <p className="mt-1 text-[15px] leading-6">
               <AmazonLink
-                href={amazonAuUrl({ name: amazon.query })}
+                region={r.region}
+                href={amazonUrl(r.region, { name: amazon.query }, "amazon-guide")!}
                 product={`guide:${amazon.query.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}`}
                 placement="amazon-guide"
                 className="inline-flex min-h-11 items-center font-semibold text-brand underline-offset-2 hover:underline"
               >
-                Check {amazon.label} prices on Amazon AU&nbsp;<span aria-hidden="true">↗</span>
+                Check {amazon.label} prices on {store?.label}&nbsp;<span aria-hidden="true">↗</span>
               </AmazonLink>{" "}
               <span className="whitespace-nowrap text-xs font-medium text-muted">· affiliate link</span>
             </p>
@@ -560,24 +562,27 @@ export function whereToBuy(
 }
 
 /**
- * One product's "Check price on Amazon AU" link (lib/amazon.ts) in Australia and New Zealand, else nothing: the Australian buying
+ * One product's "Check price on Amazon …" link (lib/amazon.ts) where the region has an Amazon tag, else nothing: the Australian buying
  * guides' per-product link. Never a price. The section that holds these carries the Associates statement (AmazonNote).
  */
 export function AmazonCheck({ r, p }: { r: RegionInfo; p: Pick<ProductCardData, "slug" | "name"> }) {
-  if (!showsAmazonAu(r.region)) return null;
+  const store = amazonFor(r.region);
+  const href = store && amazonHref(r.region, p.slug, p.name, "amazon-guide-pick");
+  if (!store || !href) return null;
   return (
-    <AmazonLink href={amazonAuHref(p.slug, p.name)} product={p.slug} placement="amazon-guide-pick" className="inline-flex min-h-10 items-center whitespace-nowrap text-sm font-semibold text-brand underline-offset-2 hover:underline">
-      Check price on Amazon AU&nbsp;<span aria-hidden="true">↗</span>
+    <AmazonLink region={r.region} href={href} product={p.slug} placement="amazon-guide-pick" className="inline-flex min-h-10 items-center whitespace-nowrap text-sm font-semibold text-brand underline-offset-2 hover:underline">
+      Check price on {store.label}&nbsp;<span aria-hidden="true">↗</span>
     </AmazonLink>
   );
 }
 
 /** The inline disclosure beside a guide's Amazon links. */
 export function AmazonNote({ r }: { r: RegionInfo }) {
-  if (!showsAmazonAu(r.region)) return null;
+  const store = amazonFor(r.region);
+  if (!store) return null;
   return (
     <p className="mt-2 text-xs leading-5 text-muted">
-      Amazon AU links are affiliate links, and we show no Amazon prices: Amazon&rsquo;s page is final. {AMAZON_ASSOCIATE_STATEMENT}
+      {store.label} links are affiliate links, and we show no Amazon prices: Amazon&rsquo;s page is final. {AMAZON_ASSOCIATE_STATEMENT}
     </p>
   );
 }

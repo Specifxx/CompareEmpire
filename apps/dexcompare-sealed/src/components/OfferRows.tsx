@@ -9,6 +9,7 @@ import type { Region } from "@/lib/regions";
 import { offerStockLabel, type OfferStock } from "@/lib/sealed-offers";
 import { SHIP_UNKNOWN, type ShipCell } from "@/lib/shipping-quote";
 import { Ago } from "./Ago";
+import { AmazonLink } from "./AmazonLink";
 import { OutboundLink } from "./OutboundLink";
 import { StockPill } from "./StockPill";
 
@@ -135,10 +136,17 @@ export interface StoreRowData {
   ago: string;
   /** The store's measured shipping for one item at this price (lib/shipping.ts); null: "Shipping at checkout". */
   ship: ShipCell | null;
-  /** The TCGplayer row pinned under eBay's (OfferTable `pinned`): TCGplayer's own button colour, never the red one. */
-  kind?: "tcgplayer";
+  /**
+   * The TCGplayer row pinned under eBay's (OfferTable `pinned`): TCGplayer's own button colour, never the red one. The Amazon row pinned
+   * under TCGplayer's (lib/amazon.ts): always a search row with no price, through AmazonLink (its own events), never the best price.
+   */
+  kind?: "tcgplayer" | "amazon";
   /** No matched listing: the row is a search (no price). */
   search?: boolean;
+  /** The Amazon row's region (its Amazon store and tag); never `region`, which sends a row through /go. */
+  amazonRegion?: Region;
+  /** A search row's words where the price would be (TCGplayer: "TCGplayer sellers' prices"). */
+  searchText?: string;
   /** False when the price is in another currency than the region's (TCGplayer's US$ outside the US): shown, never the best price. */
   comparable?: boolean;
   /** A few words after the host line's "checked …" (TCGplayer outside the US: "US$, ships from the US"). */
@@ -160,7 +168,7 @@ export function StoreRow({ d, preorder, top }: { d: StoreRowData; preorder: bool
   const tcg = d.kind === "tcgplayer";
   const badge = "shrink-0 rounded-full bg-open px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-surface";
   return (
-    <li data-offer-row="" data-row={tcg ? "tcgplayer" : undefined} className={`${ROW_GRID} ${highlight ? "bg-open-soft/40" : ""}`}>
+    <li data-offer-row="" data-row={d.kind} className={`${ROW_GRID} ${highlight ? "bg-open-soft/40" : ""}`}>
       <div className="flex h-5 items-center gap-2 overflow-hidden sm:h-6">
         {d.rank != null && (
           <span className="tabular -mr-0.5 shrink-0 text-sm font-bold text-muted" aria-label={`Number ${d.rank} by price`}>
@@ -214,7 +222,7 @@ export function StoreRow({ d, preorder, top }: { d: StoreRowData; preorder: bool
       </div>
       <div className="mt-1 flex min-w-0 items-baseline gap-2 [grid-area:2/1] sm:mt-0 sm:block sm:text-right sm:[grid-area:1/3/3]">
         {d.search ? (
-          <span className="block truncate text-sm leading-6 text-muted sm:text-xs">TCGplayer sellers&rsquo; prices</span>
+          <span className="block truncate text-sm leading-6 text-muted sm:text-xs">{d.searchText ?? "TCGplayer sellers’ prices"}</span>
         ) : (
           <>
             <span className={`tabular font-display text-lg font-bold leading-6 ${d.open ? "" : "text-faint line-through decoration-1"}`}>{d.price}</span>
@@ -223,6 +231,12 @@ export function StoreRow({ d, preorder, top }: { d: StoreRowData; preorder: bool
           </>
         )}
       </div>
+      {d.kind === "amazon" && d.amazonRegion ? (
+        <AmazonLink region={d.amazonRegion} href={d.href} product={d.product ?? "unknown"} placement="amazon-table" className={`btn-soft ${ROW_BUTTON}`}>
+          Check price <span aria-hidden="true">↗</span>
+          <span className="sr-only"> on {d.name}</span>
+        </AmazonLink>
+      ) : (
       <OutboundLink
         href={d.href}
         rel={d.rel}
@@ -235,6 +249,7 @@ export function StoreRow({ d, preorder, top }: { d: StoreRowData; preorder: bool
         {d.search ? "Search" : d.open ? "View deal" : "View"} <span aria-hidden="true">↗</span>
         {tcg && <span className="sr-only"> on TCGplayer</span>}
       </OutboundLink>
+      )}
     </li>
   );
 }

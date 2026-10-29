@@ -10,7 +10,7 @@ import { OutboundLink } from "@/components/OutboundLink";
 import { ProductGrid } from "@/components/ProductGrid";
 import { Empty, Section } from "@/components/Section";
 import { AFFILIATE_NOTE_SHORT, REL_SPONSORED, TCGPLAYER_RETAILER, tcgplayerSearchUrl } from "@/lib/affiliate";
-import { AMAZON_ASSOCIATE_STATEMENT, amazonAuUrl, showsAmazonAu } from "@/lib/amazon";
+import { AMAZON_ASSOCIATE_STATEMENT, amazonFor, amazonUrl } from "@/lib/amazon";
 import { cardOpen } from "@/lib/compact";
 import { japaneseProducts, lastCheckedAt, type ProductCardData } from "@/lib/data";
 import { money, plural, timeAgo } from "@/lib/format";
@@ -64,7 +64,7 @@ export default async function JapanesePage({ params }: { params: { region: strin
   const open = products.filter(cardOpen);
   const from = open.length ? open.reduce((m, p) => Math.min(m, p.lowestPriceCents ?? m), Infinity) : null;
   const us = r.market === "US";
-  const amazon = showsAmazonAu(r.region);
+  const amazon = amazonFor(r.region);
   // The Japanese box feed's listings (ebay-import.ts TYPE_FEEDS; cascade: generic sealed), on a row of its own after the newest set.
   const strip = (
     <EbayStrip
@@ -121,8 +121,8 @@ export default async function JapanesePage({ params }: { params: { region: strin
         )}
         {amazon && (
           <li className="flex flex-wrap items-center gap-x-2">
-            <AmazonLink href={amazonAuUrl({ name: "Pokemon Japanese Booster Box" })} product="japanese" placement="amazon-japanese" className="inline-flex min-h-10 items-center gap-1 text-sm font-semibold text-brand-strong hover:underline">
-              Check Japanese boxes on Amazon AU <span aria-hidden="true">↗</span>
+            <AmazonLink region={r.region} href={amazonUrl(r.region, { name: "Pokemon Japanese Booster Box" }, "amazon-japanese")!} product="japanese" placement="amazon-japanese" className="inline-flex min-h-10 items-center gap-1 text-sm font-semibold text-brand-strong hover:underline">
+              Check Japanese boxes on {amazon.label} <span aria-hidden="true">↗</span>
             </AmazonLink>
             <span className="text-xs text-muted">{AMAZON_ASSOCIATE_STATEMENT}</span>
           </li>

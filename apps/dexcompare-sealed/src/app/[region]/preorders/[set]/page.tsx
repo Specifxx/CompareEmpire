@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { showsAmazonAu } from "@/lib/amazon";
+import { amazonFor } from "@/lib/amazon";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 import type { Metadata } from "next";
@@ -520,7 +520,7 @@ function ProductPrices({ g, r, guide, tcgplayer, now }: { g: SetOfferGroup; r: R
         numbered
         bestLabel={{ short: "Cheapest", full: "Cheapest store" }}
         ranked="Stores only: open pre-orders first, cheapest first."
-        notes={[showsAmazonAu(r.region) ? "eBay, TCGplayer and Amazon AU sit above the stores and are not ranked with them." : "eBay and TCGplayer sit above the stores and are not ranked with them."]}
+        notes={[amazonFor(r.region) ? `eBay, TCGplayer and ${amazonFor(r.region)!.label} sit above the stores and are not ranked with them.` : "eBay and TCGplayer sit above the stores and are not ranked with them."]}
         top={
           <>
             <PreorderMarketplaces region={r.region} productName={g.product.name} productSlug={g.product.slug} tcgplayer={tcg} />

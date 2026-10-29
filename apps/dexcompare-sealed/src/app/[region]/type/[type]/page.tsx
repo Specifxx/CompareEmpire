@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { AmazonLink } from "@/components/AmazonLink";
-import { AMAZON_ASSOCIATE_STATEMENT, amazonAuUrl, showsAmazonAu } from "@/lib/amazon";
+import { AMAZON_ASSOCIATE_STATEMENT, amazonFor, amazonUrl } from "@/lib/amazon";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 import type { Metadata } from "next";
@@ -167,11 +167,11 @@ export default async function TypePage({ params }: { params: { region: string; t
             See deals on {t.plural} today <Icon name="arrow-right" size={16} />
           </Link>
         </li>
-        {/* Australia and New Zealand: Amazon AU, a search for the type (lib/amazon.ts; no price, no API), labelled where it sits. */}
-        {showsAmazonAu(r.region) && (
+        {/* Where the region has an Amazon tag (lib/amazon.ts): a search for the type (no price, no API), labelled where it sits. */}
+        {amazonFor(r.region) && (
           <li className="flex flex-wrap items-center gap-x-2">
-            <AmazonLink href={amazonAuUrl({ name: `Pokemon TCG ${t.label}` })} product={`type:${t.slug}`} placement="amazon-type" className="inline-flex min-h-10 items-center gap-1 text-sm font-semibold text-brand-strong hover:underline">
-              Check {t.plural} on Amazon AU <span aria-hidden="true">↗</span>
+            <AmazonLink region={r.region} href={amazonUrl(r.region, { name: `Pokemon TCG ${t.label}` }, "amazon-type")!} product={`type:${t.slug}`} placement="amazon-type" className="inline-flex min-h-10 items-center gap-1 text-sm font-semibold text-brand-strong hover:underline">
+              Check {t.plural} on {amazonFor(r.region)!.label} <span aria-hidden="true">↗</span>
             </AmazonLink>
             <span className="text-xs text-muted">{AMAZON_ASSOCIATE_STATEMENT}</span>
           </li>

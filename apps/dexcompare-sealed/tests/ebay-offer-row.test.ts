@@ -134,9 +134,13 @@ test("pinned TCGplayer: second under eBay, its own ink button; in the US its off
   const offers = [tcgOffer, offer("alpha", 5000), offer("beta", 6000)];
   const us = render(React.createElement(OfferTable, { offers, region: "us", preorder: false, ebay: { slug: "x", query: "X", floor: null, packs: null }, pinned: { productName: "X", tcgplayer: null } }));
   const rows = [...us.matchAll(/<li data-offer-row=""([^>]*)>/g)].map((m) => m[1]);
-  assert.equal(rows.length, 4);
+  assert.equal(rows.length, 5);
   assert.match(rows[0], /data-ad="listings-offer-row"/);
   assert.match(rows[1], /data-row="tcgplayer"/, "TCGplayer second");
+  assert.match(rows[2], /data-row="amazon"/, "Amazon US third (lib/amazon.ts), a search row, never highlighted");
+  assert.doesNotMatch(rows[2], /bg-open-soft/);
+  assert.match(us, /href="https:\/\/www\.amazon\.com\/s\?k=Pokemon\+X&amp;tag=[a-z0-9-]+-2\d&amp;ascsubtag=dex-us-amazon-table"/);
+  assert.match(us, />Check price <span aria-hidden="true">↗<\/span><span class="sr-only"> on Amazon US<\/span>/);
   assert.match(rows[1], /bg-open-soft\/40/, "cheapest of the whole table: highlighted");
   assert.match(us, /data-best="tcg"/);
   assert.match(us, />Best store price</, "the cheapest store says so");
@@ -156,6 +160,7 @@ test("pinned TCGplayer: second under eBay, its own ink button; in the US its off
   assert.match(uk, /US\$1\.00/);
   assert.match(uk, /US\$, ships from the US/);
   assert.match(uk, /data-best="store"/, "a US$ price is never compared with the stores' £");
+  assert.doesNotMatch(uk, /data-row="amazon"/, "no Amazon UK row without an AMAZON_UK_TAG");
   // no match: a TCGplayer search
   const none = render(React.createElement(OfferTable, { offers: [offer("alpha", 5000)], region: "uk", preorder: false, ebay: { slug: "x", query: "X", floor: null, packs: null }, pinned: { productName: "X", tcgplayer: null } }));
   assert.match(none, />Search <span aria-hidden="true">↗<\/span><span class="sr-only"> on TCGplayer/);
