@@ -2,7 +2,8 @@
 
 import { track } from "@vercel/analytics";
 import type { ReactNode } from "react";
-import { AMAZON_AU_RETAILER, AMAZON_REL, type AmazonPlacement } from "@/lib/amazon";
+import { AMAZON_REL, amazonLabel, type AmazonPlacement } from "@/lib/amazon";
+import type { Region } from "@/lib/regions";
 import { amazonClickEvent, amazonGa4Params, buyEvents } from "@/lib/click-events";
 
 declare global {
@@ -12,19 +13,19 @@ declare global {
 }
 
 /**
- * An Amazon AU link (lib/amazon.ts): a plain <a target="_blank" rel="sponsored nofollow noopener"> straight to amazon.com.au with the
- * owner's tag, built on the server (the href arrives as it will be followed: no redirect, no /go). A click (left, or middle through
+ * An Amazon link (lib/amazon.ts): a plain <a target="_blank" rel="sponsored nofollow noopener"> straight to the region's Amazon with
+ * the owner's tag, built on the server (the href arrives as it will be followed: no redirect, no /go). A click (left, or middle through
  * auxclick, like OutboundLink) records:
- *   • buy_click { retailer: "Amazon AU", placement } (Vercel), so Amazon sits beside the stores in the same report;
+ *   • buy_click { retailer: "Amazon AU" / "Amazon US" / …, placement } (Vercel), so Amazon sits beside the stores in the same report;
  *   • amazon_click { product, region } on Vercel's Pro plan ({ product, region, page } with Web Analytics Plus);
  *   • amazon_click { product, region, page } in GA4, when GA4 is loaded (lib/ga4.ts).
  * `product` is the product's slug, or what the link searches for ("set:phantasmal-flames", "type:elite-trainer-boxes", "guide:…").
  */
-export function AmazonLink({ href, product, placement, className, children }: { href: string; product: string; placement: AmazonPlacement; className?: string; children: ReactNode }) {
+export function AmazonLink({ region, href, product, placement, className, children }: { region: Region; href: string; product: string; placement: AmazonPlacement; className?: string; children: ReactNode }) {
   function record() {
     try {
       const pathname = window.location.pathname;
-      for (const [name, props] of buyEvents({ retailer: AMAZON_AU_RETAILER, placement, rel: AMAZON_REL, pathname, item: { product, store: "amazon-au" } })) track(name, props);
+      for (const [name, props] of buyEvents({ retailer: amazonLabel(region), placement, rel: AMAZON_REL, pathname, item: { product, store: region === "nz" ? "amazon-au" : `amazon-${region}` } })) track(name, props);
       const [name, props] = amazonClickEvent({ product, pathname });
       track(name, props);
       window.gtag?.("event", "amazon_click", amazonGa4Params({ product, pathname }));

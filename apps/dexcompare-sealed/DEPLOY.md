@@ -1054,6 +1054,24 @@ Owner steps: in Associates Central (affiliate-program.amazon.com.au) add `https:
 list; optionally set `AMAZON_AU_TAG`; for GA4, create a property and set `NEXT_PUBLIC_GA4_ID`; and add ASINs to `AMAZON_AU_ASINS`
 only after checking each listing by hand (same English-language product).
 
+## Amazon US, and Amazon in the price table, 2026-10-29
+
+The owner (2026-10-29): Amazon commissions are coming in; DexCompare must carry Amazon too, and Pokémon sealed sells on amazon.com.
+`src/lib/amazon.ts` is now per region (`amazonFor`): Amazon AU on AU and NZ pages (`AMAZON_AU_TAG`, default `compareempire-22`), Amazon
+US on US pages (`AMAZON_US_TAG`, default `riftcompare-20`, the owner's US Associates account, until a `dexcompare-20` ID exists), and
+Amazon UK / CA / DE on UK / Canada / eurozone pages only once `AMAZON_UK_TAG` / `AMAZON_CA_TAG` / `AMAZON_DE_TAG` is set in Vercel
+(no account yet: without a tag those regions show no Amazon at all). Never Singapore.
+
+- **Where**: the product page's price table now pins an Amazon search row third, under eBay and TCGplayer (`amazon-table`): the same
+  layout as TCGplayer's search row, "Amazon's own price, in US dollars" where a price would be, a "Check price" button, never the best
+  price and never ranked. It replaces the separate "Also on Amazon AU" panel under the table. Every other Amazon link above
+  (`amazon-soldout`, `amazon-preorder`, `amazon-set`, `amazon-type`, `amazon-japanese`, `amazon-guide`, `amazon-guide-pick`) now shows
+  in every region with a tag.
+- **Sub-tags**: every link carries `ascsubtag=dex-<region>-<placement>`, so Associates Central's tracking reports split earnings by
+  placement.
+- **Owner steps**: in Associates Central (affiliate-program.amazon.com) add `https://dexcompare.app` to the US account's website list
+  and create the tracking ID `dexcompare-20`, then set `AMAZON_US_TAG=dexcompare-20` in Vercel (Production) and redeploy.
+
 ## After the growth release: owner actions
 
 1. Set **`NEXT_PUBLIC_CONTACT_EMAIL`** to a branded forwarding address and **`NEXT_PUBLIC_OPERATOR`** to who runs the site

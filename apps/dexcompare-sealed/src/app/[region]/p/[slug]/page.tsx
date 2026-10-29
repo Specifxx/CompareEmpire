@@ -11,7 +11,7 @@ import { Icon } from "@/components/Icon";
 import { hotProductHighlight, isHotReleased, NoPreFooter } from "@/components/Ebay";
 import { EbayStrip, MiniSealedAds } from "@/components/EbayStrip";
 import { marketplaceOf } from "@/lib/ebay-context";
-import { AmazonPanel, ebayQuery, SoldOutCallout } from "@/components/Marketplaces";
+import { ebayQuery, SoldOutCallout } from "@/components/Marketplaces";
 import { OfferTable } from "@/components/OfferTable";
 import { ProductGrid } from "@/components/ProductGrid";
 import { ProductRail } from "@/components/ProductRail";
@@ -626,11 +626,9 @@ export default async function ProductPage({ params }: { params: { region: string
         )}
       </Section>
 
-      {/* eBay and TCGplayer are rows of the table now (pinned at its top, owner 2026-10-26), so an in-stock page keeps only the Amazon AU
-          link here (Australia and New Zealand). Sold out everywhere, the callout still says so plainly and leads to the marketplaces. */}
-      {best ? (
-        <AmazonPanel region={r.region} productName={p.name} productSlug={p.slug} />
-      ) : (
+      {/* eBay, TCGplayer and Amazon are rows of the table now (pinned at its top: eBay and TCGplayer by the owner 2026-10-26, Amazon
+          2026-10-29), so an in-stock page needs nothing here. Sold out everywhere, the callout says so plainly and leads to the marketplaces. */}
+      {best ? null : (
         <div id="soldout" className="mt-10">
             <SoldOutCallout
               region={r.region}

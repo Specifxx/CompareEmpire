@@ -13,7 +13,7 @@ import {
   type OutboundHref,
   type Placement,
 } from "@/lib/affiliate";
-import { AMAZON_ASSOCIATE_STATEMENT, amazonAuHref, showsAmazonAu } from "@/lib/amazon";
+import { AMAZON_ASSOCIATE_STATEMENT, amazonFor, amazonHref } from "@/lib/amazon";
 import { money } from "@/lib/format";
 import { REGIONS, type Region } from "@/lib/regions";
 import { offerStock } from "@/lib/sealed-offers";
@@ -33,8 +33,9 @@ import { StockPill } from "./StockPill";
 // offers and ranks with the stores; everywhere else it is shown here, labelled
 // as US$, and never enters the region's comparison.
 //
-// Amazon AU (lib/amazon.ts, 2026-10-26) in Australia and New Zealand only: a "Check price on Amazon AU" link, never a price (no API
-// access), never ranked with the stores, with the Associates statement in the disclosure under it.
+// Amazon (lib/amazon.ts: Amazon AU in Australia and New Zealand since 2026-10-26, Amazon US since 2026-10-29, others once their tag is
+// set): a "Check price on Amazon …" link, never a price (no API access), never ranked with the stores, with the Associates statement in
+// the disclosure under it.
 
 export { AFFILIATE_NOTE };
 
@@ -63,7 +64,7 @@ export function ebayQuery(productName: string, tcgplayer: Pick<TcgplayerMatch, "
   return tcgplayer?.title || productName;
 }
 
-/** Amazon AU's note for a region: New Zealand is delivered to from Australia for many items, not all. */
+/** Amazon's note for a region: New Zealand is delivered to from Australia for many items, not all. */
 function amazonNote(region: Region): string {
   return `${AMAZON_ASSOCIATE_STATEMENT}${region === "nz" ? " Amazon AU delivers to New Zealand for many items; check this one does before you buy." : ""}`;
 }
@@ -87,7 +88,7 @@ export function MarketplacePanel({
 }: {
   region: Region;
   productName: string;
-  /** The product's slug: the Amazon AU link's product (its ASIN when lib/amazon.ts knows it, else a search for the name). */
+  /** The product's slug: the Amazon link's product (its ASIN when lib/amazon.ts knows it, else a search for the name). */
   productSlug?: string;
   preorder: boolean;
   /** US: TCGplayer's row in the offer table. Elsewhere: the US$ offer (usMarketplace). */
@@ -115,7 +116,7 @@ export function MarketplacePanel({
   // when cheapest, is the best-price button): no second price or pill here,
   // and no row at all when it would repeat the button just above.
   const showTcg = !(us && tcgplayer && tcgplayerIsBest);
-  const amazon = showsAmazonAu(region);
+  const amazon = amazonFor(region);
   let tcgText: ReactNode;
   if (!tcgplayer) {
     tcgText = (
@@ -169,13 +170,13 @@ export function MarketplacePanel({
         )}
         {amazon && (
           <li>
-            <AmazonLink href={amazonAuHref(productSlug ?? "", productName)} product={productSlug ?? "unknown"} placement="amazon-product" className={ROW}>
+            <AmazonLink region={region} href={amazonHref(region, productSlug ?? "", productName, "amazon-product")!} product={productSlug ?? "unknown"} placement="amazon-product" className={ROW}>
               <span className="min-w-0">
-                <b>Amazon AU</b> <span className="text-muted">— amazon.com.au, in Australian dollars</span>
+                <b>{amazon.label}</b> <span className="text-muted">— {amazon.host.replace(/^www\./, "")}, in {amazon.currency}</span>
               </span>
               <span className="ml-auto flex shrink-0 items-center gap-3">
                 <span className="font-semibold text-brand-strong">
-                  Check price on Amazon AU <span aria-hidden="true">↗</span>
+                  Check price on {amazon.label} <span aria-hidden="true">↗</span>
                 </span>
               </span>
             </AmazonLink>
@@ -187,30 +188,6 @@ export function MarketplacePanel({
         {!us && ` TCGplayer sells in US$ from the US; check it ships to ${r.name} before you buy.`}
         {amazon && ` ${amazonNote(region)}`}
       </p>
-    </div>
-  );
-}
-
-/**
- * Product page, in stock, Australia and New Zealand: the Amazon AU link that used to be the marketplaces panel's third row. eBay and
- * TCGplayer are rows of the price table now (pinned at its top, owner 2026-10-26), so only Amazon is left here; nothing elsewhere.
- */
-export function AmazonPanel({ region, productName, productSlug }: { region: Region; productName: string; productSlug: string }) {
-  if (!showsAmazonAu(region)) return null;
-  return (
-    <div className="card mt-10 overflow-hidden">
-      <h2 className="eyebrow border-b border-line bg-raised px-5 py-2.5">Also on Amazon AU</h2>
-      <AmazonLink href={amazonAuHref(productSlug, productName)} product={productSlug} placement="amazon-product" className={ROW}>
-        <span className="min-w-0">
-          <b>Amazon AU</b> <span className="text-muted">— amazon.com.au, in Australian dollars</span>
-        </span>
-        <span className="ml-auto flex shrink-0 items-center gap-3">
-          <span className="font-semibold text-brand-strong">
-            Check price on Amazon AU <span aria-hidden="true">↗</span>
-          </span>
-        </span>
-      </AmazonLink>
-      <p className={`border-t border-line px-5 py-2.5 ${NOTE}`}>{amazonNote(region)}</p>
     </div>
   );
 }
@@ -236,7 +213,7 @@ export function SoldOutCallout({
 }: {
   region: Region;
   productName: string;
-  /** The product's slug, for the Amazon AU link (Australia and New Zealand). */
+  /** The product's slug, for the Amazon link (lib/amazon.ts: the regions with an Amazon tag). */
   productSlug?: string;
   /** Stores (not marketplaces) in this region that list the product. */
   storesListing: number;
@@ -254,6 +231,7 @@ export function SoldOutCallout({
   const us = r.market === "US";
   const tcg = tcgplayerLink(region, productName, tcgplayer, "product-soldout");
   const tcgOpen = !us && tcgplayer && offerStock(tcgplayer) === "open";
+  const amazon = amazonFor(region);
   const tcgBtn = (
     <OutboundLink href={tcg.href} rel={tcg.rel} retailer={TCGPLAYER_RETAILER} placement="product-soldout" className="btn-ghost mt-2 min-h-11 w-full px-4 py-2.5 text-center">
       <span className="tabular">
@@ -276,7 +254,7 @@ export function SoldOutCallout({
         )}
         Marketplaces may still have it.
       </p>
-      <div data-ad="soldout-ebay" role="group" aria-label={showsAmazonAu(region) ? "Sponsored: eBay, TCGplayer and Amazon AU" : "Sponsored: eBay and TCGplayer"} className="ad-box mt-4 p-3 sm:p-4">
+      <div data-ad="soldout-ebay" role="group" aria-label={amazon ? `Sponsored: eBay, TCGplayer and ${amazon.label}` : "Sponsored: eBay and TCGplayer"} className="ad-box mt-4 p-3 sm:p-4">
         <div className="flex items-center gap-2">
           <EbayMark className="text-lg" />
           <AdPill />
@@ -286,15 +264,15 @@ export function SoldOutCallout({
           <SoldOutEbay region={region} searchHref={ebaySearchUrl(query, region, "soldout-ebay")} pick={pick} />
         </div>
         {tcgBtn}
-        {showsAmazonAu(region) && (
-          <AmazonLink href={amazonAuHref(productSlug ?? "", productName)} product={productSlug ?? "unknown"} placement="amazon-soldout" className="btn-ghost mt-2 min-h-11 w-full px-4 py-2.5 text-center">
-            Check price on Amazon AU <span aria-hidden="true">↗</span>
+        {amazon && (
+          <AmazonLink region={region} href={amazonHref(region, productSlug ?? "", productName, "amazon-soldout")!} product={productSlug ?? "unknown"} placement="amazon-soldout" className="btn-ghost mt-2 min-h-11 w-full px-4 py-2.5 text-center">
+            Check price on {amazon.label} <span aria-hidden="true">↗</span>
           </AmazonLink>
         )}
         <p className={`mt-2.5 ${NOTE}`}>
           {AFFILIATE_NOTE}
           {!us && ` TCGplayer sells in US$ from the US; check it ships to ${r.name} before you buy.`}
-          {showsAmazonAu(region) && ` ${amazonNote(region)}`}
+          {amazon && ` ${amazonNote(region)}`}
         </p>
       </div>
       {instead && (
@@ -317,7 +295,7 @@ export function SoldOutCallout({
  * Server-rendered links only: nothing here fetches.
  */
 export function PreorderMarketplaces({ region, productName, productSlug, tcgplayer }: { region: Region; productName: string; productSlug?: string; tcgplayer: TcgplayerMatch | null }) {
-  const amazon = showsAmazonAu(region);
+  const amazon = amazonFor(region);
   const r = REGIONS[region];
   const us = r.market === "US";
   const tcg = tcgplayerLink(region, productName, tcgplayer, "preorders-tcgplayer");
@@ -325,7 +303,7 @@ export function PreorderMarketplaces({ region, productName, productSlug, tcgplay
   const price = tcgplayer && state === "open" ? (us ? money(tcgplayer.priceCents, "US") : usd(tcgplayer.priceCents)) : null;
   const ROW_M = "flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3 sm:px-5";
   return (
-    <div data-ad="preorders-ebay" role="group" aria-label={amazon ? "Marketplaces: eBay, TCGplayer and Amazon AU (affiliate links, not ranked with the stores)" : "Marketplaces: eBay and TCGplayer (affiliate links, not ranked with the stores)"} className="border-b border-line">
+    <div data-ad="preorders-ebay" role="group" aria-label={amazon ? `Marketplaces: eBay, TCGplayer and ${amazon.label} (affiliate links, not ranked with the stores)` : "Marketplaces: eBay and TCGplayer (affiliate links, not ranked with the stores)"} className="border-b border-line">
       <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-0.5 bg-raised px-4 py-2 sm:px-5">
         <span className="eyebrow">Marketplaces</span>
         <span className="text-[11px] text-muted">Not ranked with the stores · affiliate links</span>
@@ -369,11 +347,11 @@ export function PreorderMarketplaces({ region, productName, productSlug, tcgplay
         {amazon && (
           <li className={ROW_M}>
             <span className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-sm">
-              <b className="font-semibold">Amazon AU</b>
+              <b className="font-semibold">{amazon.label}</b>
               <span className="text-muted">pre-order availability varies, not a price we checked</span>
             </span>
-            <AmazonLink href={amazonAuHref(productSlug ?? "", productName)} product={productSlug ?? "unknown"} placement="amazon-preorder" className="btn-ghost ml-auto min-h-11 shrink-0 whitespace-nowrap px-4 sm:min-h-10">
-              Check price on Amazon AU <span aria-hidden="true">↗</span>
+            <AmazonLink region={region} href={amazonHref(region, productSlug ?? "", productName, "amazon-preorder")!} product={productSlug ?? "unknown"} placement="amazon-preorder" className="btn-ghost ml-auto min-h-11 shrink-0 whitespace-nowrap px-4 sm:min-h-10">
+              Check price on {amazon.label} <span aria-hidden="true">↗</span>
             </AmazonLink>
           </li>
         )}

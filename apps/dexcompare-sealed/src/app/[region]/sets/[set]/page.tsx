@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { AmazonLink } from "@/components/AmazonLink";
-import { AMAZON_ASSOCIATE_STATEMENT, amazonAuUrl, showsAmazonAu } from "@/lib/amazon";
+import { AMAZON_ASSOCIATE_STATEMENT, amazonFor, amazonUrl } from "@/lib/amazon";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 import type { Metadata } from "next";
@@ -82,7 +82,7 @@ export default async function SetPage({ params }: { params: { region: string; se
   const name = withPokemon(s.name);
   const path = `/${r.region}/sets/${s.slug}`;
   const us = r.market === "US";
-  const amazon = showsAmazonAu(r.region);
+  const amazon = amazonFor(r.region);
   const listedTypes = new Set(products.map((p) => p.productType));
   const facts = setFacts(s, listedTypes, r.market);
   const { prev, next } = prevNextSet(s.code, (c) => (listedSets.get(c)?.products ?? 0) > 0);
@@ -180,11 +180,11 @@ export default async function SetPage({ params }: { params: { region: string; se
                     <span className="text-xs text-muted sm:text-right">{AFFILIATE_NOTE_SHORT}</span>
                   </>
                 )}
-                {/* Australia and New Zealand: Amazon AU, a search for the set's sealed product (lib/amazon.ts; no price, no API). */}
+                {/* Where the region has an Amazon tag (lib/amazon.ts: AU and NZ, the US): a search for the set's sealed product (no price, no API). */}
                 {amazon && (
                   <>
-                    <AmazonLink href={amazonAuUrl({ name: `${s.name} sealed` })} product={`set:${s.slug}`} placement="amazon-set" className="btn-ghost min-h-11">
-                      Check {s.name} on Amazon AU <span aria-hidden="true">↗</span>
+                    <AmazonLink region={r.region} href={amazonUrl(r.region, { name: `${s.name} sealed` }, "amazon-set")!} product={`set:${s.slug}`} placement="amazon-set" className="btn-ghost min-h-11">
+                      Check {s.name} on {amazon.label} <span aria-hidden="true">↗</span>
                     </AmazonLink>
                     <span className="max-w-xs text-xs text-muted sm:text-right">{AMAZON_ASSOCIATE_STATEMENT}</span>
                   </>
