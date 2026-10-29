@@ -10199,6 +10199,17 @@
     ]
   },
   {
+    "key": "ultimacards",
+    "name": "Ultima Cards",
+    "base": "https://ultimacards.ca",
+    "market": "CA",
+    "platform": "shopify",
+    "country": "CA",
+    "collections": [
+      "pokemon-sealed"
+    ]
+  },
+  {
     "key": "underhillgaming",
     "name": "Underhill Gaming",
     "base": "https://underhillgaming.myshopify.com",
