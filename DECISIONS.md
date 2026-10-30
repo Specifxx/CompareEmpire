@@ -81,3 +81,13 @@ page listed only regions. Same change as MTG Compare (mtgcompare, same date).
   (`lib/nav.ts navGroups`); the shell widens to 1480px so pages keep 1200px.
   The phone menu draws the same groups, then the regions. Static links only.
   Region pages never run the suggestion (no extra `/api/geo` call).
+
+## One eBay campaign for every Compare site, hard-coded — 2026-10-30
+
+**Decided (owner).** Every Compare site now sends eBay clicks to ONE EPN campaign, 5339155912 (RiftCompare's,
+already set up), hard-coded in the code: no variable overrides it any more, so a forgotten secret or Vercel
+value can't split the sites again. The sites are told apart by the `customid` prefix alone, which comes first
+in every tag; this site's is `dex-<region>`. DexCompare's importer enforces the same id on every stored listing URL; the dormant apps (camera, phone, car, laptop) were hard-coded too.
+Replaced: 5339155911 (WargameCompare, FigureCompare, Compare Empire, K Young), 5339231473 (Lorcana),
+5339231474 (Gundam), 5339234013 (YGO). Old secrets/variables (`EBAY_AFFILIATE_CAMPAIGN`,
+`NEXT_PUBLIC_EBAY_CAMPAIGN_ID`, `EBAY_CAMPAIGN_ID`) are no longer read and can be deleted.

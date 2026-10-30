@@ -4,7 +4,8 @@
 
 // eBay Partner Network campaign id. Passed to the Browse API so listing URLs come
 // back already affiliate-tagged (itemAffiliateWebUrl). See lib/ebay.ts.
-export const EBAY_CAMPAIGN_ID = process.env.EBAY_AFFILIATE_CAMPAIGN ?? "5339155912";
+// One EPN campaign for every Compare site, hard-coded (owner, 2026-10-30).
+export const EBAY_CAMPAIGN_ID = "5339155912";
 
 // Amazon Associates store/tracking id, appended to amazon.* product links.
 export const AMAZON_ASSOCIATE_TAG = process.env.AMAZON_ASSOCIATE_TAG ?? "laptopcompare-20";
