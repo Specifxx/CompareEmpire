@@ -91,3 +91,13 @@ in every tag; this site's is `dex-<region>`. DexCompare's importer enforces the 
 Replaced: 5339155911 (WargameCompare, FigureCompare, Compare Empire, K Young), 5339231473 (Lorcana),
 5339231474 (Gundam), 5339234013 (YGO). Old secrets/variables (`EBAY_AFFILIATE_CAMPAIGN`,
 `NEXT_PUBLIC_EBAY_CAMPAIGN_ID`, `EBAY_CAMPAIGN_ID`) are no longer read and can be deleted.
+
+## 2026-10-30: DexCompare: quick view on every product card (from K Young)
+
+Owner: "I really like the kaeyoung quick view pop ups, can we do that for dexcompare, mtgcompare and all the other sites".
+A plain click on a DexCompare product card now opens K Young's quick view at once with what the card shows (photo,
+type, name); the product page's own price rows then load from `/api/quick/<region>/<slug>`, a function response
+Vercel's CDN keeps for a day like every page, fetched ahead when a mouse rests on a card. The rows come from
+`offerRowsData()`, which `OfferTable` itself now uses, drawn by the table's own `OfferRowsWithEbay`: eBay first, then
+TCGplayer and Amazon, then the stores, exactly as on the page. Store buttons carry the `quickview-table` placement. The
+card is still a real link, so crawlers, new tabs and modified clicks reach the product page and its server HTML.
