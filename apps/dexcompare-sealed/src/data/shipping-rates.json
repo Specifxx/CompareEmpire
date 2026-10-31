@@ -11063,58 +11063,6 @@
     }
    ]
   },
-  "tcgsynergy": {
-   "market": "CA",
-   "currency": "CAD",
-   "measuredAt": "2026-10-26T09:39:13.756Z",
-   "points": [
-    {
-     "subtotalCents": 800,
-     "rates": {
-      "tor": 0,
-      "van": 0,
-      "mtl": 0,
-      "cgy": 0
-     }
-    },
-    {
-     "subtotalCents": 4107,
-     "rates": {
-      "tor": 0,
-      "van": 0,
-      "mtl": 0,
-      "cgy": 0
-     }
-    },
-    {
-     "subtotalCents": 8961,
-     "rates": {
-      "tor": 0,
-      "van": 0,
-      "mtl": 0,
-      "cgy": 0
-     }
-    },
-    {
-     "subtotalCents": 16615,
-     "rates": {
-      "tor": 0,
-      "van": 0,
-      "mtl": 0,
-      "cgy": 0
-     }
-    },
-    {
-     "subtotalCents": 31923,
-     "rates": {
-      "tor": 0,
-      "van": 0,
-      "mtl": 0,
-      "cgy": 0
-     }
-    }
-   ]
-  },
   "tcgviert": {
    "market": "EU",
    "currency": "EUR",
