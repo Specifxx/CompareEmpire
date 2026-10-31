@@ -152,3 +152,15 @@ guides) went straight to the product page. `apps/dexcompare-sealed/src/component
 click on a link to `/<region>/p/<slug>`, reading the region and slug from the href when the link has no `data-qv`;
 `/api/quick` also returns `name`, `sub` and `img` for those. Links inside the quick view and on the product's own page,
 and modified, middle and new-tab clicks, navigate as before. Same change as MTG Compare.
+
+
+## 2026-10-31 — TCG Synergy is banned, and banned stores stay out
+
+The owner reported TCG Synergy (tcgsynergy.myshopify.com, a CA Shopify store first added by the 2026-10-28 store audit)
+as a scam site. It is removed from `apps/dexcompare-sealed/src/data/stores.json` and `src/data/shipping-rates.json`, and named in
+`apps/dexcompare-sealed/src/lib/blocked-stores.ts`, which every path that could bring it back now checks: `STORES` drops a banned entry even if
+it reappears in the registry, `scripts/probe-stores.ts` and `scripts/registry-from-probe.ts` skip it, and the file store
+(`lib/public-data/store.ts`) drops its offers and store stats from a data export made before the ban, so it disappears
+with the next release rather than waiting for an import to delete the rows. Matching is on the key, name or any part of
+the host with punctuation removed, so a custom domain in front of the same shop is caught too
+(`tests/blocked-stores.test.ts`). To ban another store, add its key to `BLOCKED_STORES`.
