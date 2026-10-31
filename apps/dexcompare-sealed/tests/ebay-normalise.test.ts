@@ -83,10 +83,11 @@ test("baseItem: eBay's affiliate URL is kept EXACTLY; a missing one is rebuilt f
   assert.equal(u.searchParams.get("campid"), EBAY_CAMPAIGN_ID);
   assert.equal(u.searchParams.get("customid"), "dex-us-chase", "the fallback names its own feed");
   assert.equal(baseItem(by("Umbreon"), "EBAY_AU", NOW, "item"), null, "a USD price is not valid on EBAY_AU");
-  assert.equal(new URL(baseItem({ ...(by("Umbreon") as object), price: { value: "70.00", currency: "AUD" } }, "EBAY_AU", NOW, "item")!.url).searchParams.get("customid"), "dex-au-item");
+  const audShip = { itemLocation: { country: "AU" }, shippingOptions: [{ shippingCostType: "FIXED", shippingCost: { value: "9.00", currency: "AUD" } }] };
+  assert.equal(new URL(baseItem({ ...(by("Umbreon") as object), price: { value: "70.00", currency: "AUD" }, ...audShip }, "EBAY_AU", NOW, "item")!.url).searchParams.get("customid"), "dex-au-item");
   // an eBay-issued URL passes through untouched, whatever it holds (query order, encodings, a customid of eBay's own)
   const issued = "https://www.ebay.com.au/itm/123456789012?_skw=a+b&hash=item1%3Ag%3AX%2By&amdata=enc%3AAQAKAAAA%2B%2Fx%3D&mkevt=1&mkcid=1&mkrid=705-53470-19255-0&campid=5339155912&customid=dex-au-sealed&toolid=10001";
-  const raw = { ...(by("Umbreon") as object), itemAffiliateWebUrl: issued, price: { value: "70.00", currency: "AUD" } };
+  const raw = { ...(by("Umbreon") as object), itemAffiliateWebUrl: issued, price: { value: "70.00", currency: "AUD" }, ...audShip };
   assert.equal(baseItem(raw, "EBAY_AU", NOW, "sealed")!.url, issued);
   // not ours (another campaign) or not an item page: rebuilt from itemWebUrl instead, never edited
   const other = baseItem({ ...raw, itemAffiliateWebUrl: issued.replace("5339155912", "1111111111") }, "EBAY_AU", NOW, "sealed")!;
@@ -109,7 +110,7 @@ test("baseItem: the thumbnail stands in for a missing primary image", () => {
 
 test("chase price floors and currencies per marketplace (AUD, GBP, CAD, EUR, USD)", () => {
   assert.deepEqual(CHASE_FLOOR, { USD: 15, AUD: 20, GBP: 12, CAD: 20, EUR: 15 });
-  const mk = (value: string, currency: string) => ({ ...(RAW[0] as object), price: { value, currency } });
+  const mk = (value: string, currency: string, mp: MarketplaceId = "EBAY_US") => ({ ...(RAW[0] as object), price: { value, currency }, itemLocation: { country: MARKETPLACES[mp].country }, shippingOptions: [{ shippingCost: { value: "0.00", currency } }] });
   const cases: [MarketplaceId, string, string, string][] = [
     ["EBAY_US", "USD", "14.99", "15.00"],
     ["EBAY_AU", "AUD", "19.99", "20.00"],
@@ -119,8 +120,8 @@ test("chase price floors and currencies per marketplace (AUD, GBP, CAD, EUR, USD
   ];
   for (const [mp, cur, below, atFloor] of cases) {
     assert.equal(MARKETPLACES[mp].currency, cur);
-    assert.equal(normaliseChase(mk(below, cur), mp, NOW), null, `${mp} ${below}`);
-    assert.ok(normaliseChase(mk(atFloor, cur), mp, NOW), `${mp} ${atFloor}`);
+    assert.equal(normaliseChase(mk(below, cur, mp), mp, NOW), null, `${mp} ${below}`);
+    assert.ok(normaliseChase(mk(atFloor, cur, mp), mp, NOW), `${mp} ${atFloor}`);
   }
   assert.equal(normaliseChase(mk("30.00", "USD"), "EBAY_AU", NOW), null, "USD on the AU marketplace is the wrong currency");
 });
@@ -165,6 +166,23 @@ test("normaliseSetChase: a card that names another set is refused, one naming th
   assert.ok(normaliseSetChase(mk("Pikachu ex 238/191 Special Illustration Rare Surging Sparks"), "EBAY_US", NOW, "sv8"));
   assert.ok(normaliseSetChase(mk("Pikachu ex 238/191 Special Illustration Rare"), "EBAY_US", NOW, "sv8"));
   assert.equal(normaliseSetChase(mk("Umbreon ex 161/131 Special Illustration Rare Prismatic Evolutions"), "EBAY_US", NOW, "sv8"), null);
+});
+
+test("baseItem: local sellers only (the EU for eBay Germany), and only with postage eBay states (visitor feedback 2026-10-31)", () => {
+  const raw = (country: string | null, ship: unknown = { shippingCost: { value: "5.00", currency: "USD" } }) => ({
+    ...(by("Umbreon") as object),
+    ...(country ? { itemLocation: { country } } : {}),
+    shippingOptions: ship ? [ship] : [],
+  });
+  assert.ok(baseItem(raw("US"), "EBAY_US", NOW, "chase"), "a US seller on eBay US");
+  assert.equal(baseItem(raw("CN"), "EBAY_US", NOW, "chase"), null, "an overseas seller");
+  assert.equal(baseItem(raw("JP"), "EBAY_US", NOW, "chase"), null, "a seller in Japan");
+  assert.equal(baseItem(raw("US", { shippingCostType: "CALCULATED" }), "EBAY_US", NOW, "chase"), null, "postage not stated");
+  assert.equal(baseItem(raw("US", null), "EBAY_US", NOW, "chase"), null, "no shipping option");
+  assert.ok(baseItem(raw(null), "EBAY_US", NOW, "chase"), "no location given: the search's own filter already asked for local sellers");
+  const eu = (country: string) => ({ ...raw(country, { shippingCost: { value: "4.90", currency: "EUR" } }), price: { value: "300.00", currency: "EUR" } });
+  assert.ok(baseItem(eu("FR"), "EBAY_DE", NOW, "chase"), "a French seller for the EU");
+  assert.equal(baseItem(eu("GB"), "EBAY_DE", NOW, "chase"), null, "a UK seller is outside the EU");
 });
 
 // ─── images, shipping, money ────────────────────────────────────────────────────
