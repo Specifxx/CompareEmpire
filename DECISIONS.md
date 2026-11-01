@@ -225,3 +225,10 @@ in the root layout, before paint) now moves a person, never a crawler, link prev
 their region through the page's own hreflang alternate (a page with no copy there stays): the region they last browsed
 (`dex-region`), else their time zone's, else the US. `<main>` is hidden for at most 1.5 s. No request, no cookie; the
 same script runs on MTG Compare and WargameCompare.
+
+## DexCompare contact address: compareempire@gmail.com, in the footer — 2026-11-01
+
+The owner: "the sites that they don't [have their own email], just use compareempire@gmail.com", and contact info
+"really clear on all of our websites". `apps/dexcompare-sealed` `CONTACT_EMAIL` falls back to the Compare Empire family
+inbox instead of riftcompare@gmail.com (another brand's), and the footer now shows it as a mailto beside the Contact
+link on every page. `NEXT_PUBLIC_CONTACT_EMAIL` still overrides it. No form and no mail service.
