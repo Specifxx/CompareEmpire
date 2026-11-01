@@ -10,6 +10,8 @@ import { DEFAULT_OG_IMAGE } from "@/lib/seo";
 import { SITE_NAME, SITE_URL, sectionHref } from "@/lib/site";
 import { STORES } from "@/lib/stores";
 import { GhostTeaser, HalloweenDecor } from "@/components/season/HalloweenDecor";
+import { ChristmasDecor } from "@/components/season/ChristmasDecor";
+import { ChristmasGifts } from "@/components/season/ChristmasGifts";
 
 // Rendered per request and kept by Vercel's CDN for a day (next.config.js CDN_PAGES), never at build: the page carries
 // the default region's five most-stocked products (lib/picks.ts), read from the public data files, so a crawler's first fetch has them. It reads no cookie, header or session: one copy for all.
@@ -56,7 +58,9 @@ export default async function Landing() {
       <section>
         <div className="page relative pb-10 pt-8 text-center sm:pb-14 sm:pt-16">
           <HalloweenDecor />
+          <ChristmasDecor />
           <GhostTeaser />
+          <ChristmasGifts />
           <h1 className="mx-auto max-w-3xl font-display text-4xl font-bold leading-[1.05] tracking-tight sm:text-6xl">
             Pokémon sealed, in stock, <span className="text-brand">cheapest first.</span>
           </h1>
