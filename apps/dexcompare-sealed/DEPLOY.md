@@ -103,7 +103,7 @@ In the existing **dexcompare** project (or a new one importing
    | `NEXT_PUBLIC_SITE_URL` | `https://www.dexcompare.app` — with `www`, no trailing slash |
    | `REVALIDATE_SECRET` | the same value as `DEXCOMPARE_REVALIDATE_SECRET` |
    | `NEXT_PUBLIC_OPERATOR` | who runs the site, as it should read in the Terms and the footer ("Operated by …", shown only when it differs from the site name): a trading name or a person. Optional; until it is set the site name stands in. The code never invents an entity or an address. **Owner action**: set it. |
-   | `NEXT_PUBLIC_CONTACT_EMAIL` | optional; default `riftcompare@gmail.com`. Keep it a mailbox someone reads: the contact page promises a reply. **Owner action**: set a branded forwarding address (e.g. hello@ on the site's domain) so stores and visitors see DexCompare's name; the footer links to `/contact`, never a mailto. |
+   | `NEXT_PUBLIC_CONTACT_EMAIL` | optional; default `compareempire@gmail.com` (the family inbox, owner 2026-11-01). Keep it a mailbox someone reads: the contact page promises a reply. The footer shows it beside a link to `/contact`. |
 
    `NEXT_PUBLIC_SITE_URL` is the origin every canonical, hreflang, JSON-LD,
    robots and sitemap URL is built on. The code defaults to

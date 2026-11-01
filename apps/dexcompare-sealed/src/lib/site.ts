@@ -7,11 +7,10 @@ export const SITE_NAME = "DexCompare";
  * 2026-10-26 outage; every canonical then pointed Google at a host that did not resolve (DECISIONS.md, 2026-10-27). */
 export const CANONICAL_HOST = "dexcompare.app";
 export const SITE_URL = normaliseOrigin(process.env.NEXT_PUBLIC_SITE_URL) ?? "https://dexcompare.app";
-// The mailbox the contact, terms and privacy pages (and the scrapers' From header) give. The fallback is a legacy
-// address from another brand that still reaches the owner: it stays only so those pages keep a working address until
-// NEXT_PUBLIC_CONTACT_EMAIL is set. Site chrome never prints it: the footer links to /contact, and shows an address only
-// when one has been set on purpose (CONTACT_EMAIL_SET).
-export const CONTACT_EMAIL = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "riftcompare@gmail.com";
+// The mailbox the footer, contact, terms and privacy pages (and the scrapers' From header) give: the Compare Empire
+// family inbox, compareempire@gmail.com, for every site without its own (owner, 2026-11-01: "the sites that they don't,
+// just use compareempire@gmail.com"). NEXT_PUBLIC_CONTACT_EMAIL overrides it.
+export const CONTACT_EMAIL = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "compareempire@gmail.com";
 export const CONTACT_EMAIL_SET: string | null = process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim() || null;
 export const SITE_TAGLINE = "Pokémon sealed prices and stock, compared across independent stores.";
 
