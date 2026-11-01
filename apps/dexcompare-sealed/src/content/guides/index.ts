@@ -48,7 +48,8 @@ export type GuideSlug =
   | "delta-reign-booster-box-vs-etb"
   | "pitch-black-chase-cards"
   | "best-pokemon-elite-trainer-boxes-australia"
-  | "pokemon-tcg-gift-guide-australia";
+  | "pokemon-tcg-gift-guide-australia"
+  | "best-pokemon-tcg-product-for-beginners";
 
 export interface Guide {
   slug: GuideSlug;
@@ -411,6 +412,18 @@ export const GUIDES: readonly Guide[] = [
     regions: ["au"],
     topic: { types: ["booster-bundle", "etb", "tin", "collection", "build-battle", "booster-box", "blister"] },
     ebay: { context: "sealed", heading: "Pokémon sealed on eBay" },
+    tools: ["value-checker"],
+  },
+  {
+    slug: "best-pokemon-tcg-product-for-beginners",
+    title: "Best Pokémon TCG product for beginners",
+    description: "Where a new player should start with the Pokémon TCG: battle decks, Build & Battle boxes, bundles and tins, with today's cheapest in-stock prices.",
+    kicker: "Beginner's guide",
+    published: "2026-11-01",
+    updated: "2026-11-01",
+    regions: "all",
+    topic: { types: ["deck", "build-battle", "booster-bundle", "tin"] },
+    ebay: { context: "type:decks", heading: "Pokémon decks on eBay" },
     tools: ["value-checker"],
   },
 ];

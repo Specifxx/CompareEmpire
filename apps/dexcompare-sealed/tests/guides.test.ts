@@ -235,6 +235,16 @@ function fixture(slug: GuideSlug): GuideData {
           { ...card(released[0], "Ultra-Premium Collection", 17999, 2), setCode: null, slug: "upc-test", name: "Ultra-Premium Collection Test" },
         ]),
       };
+    case "best-pokemon-tcg-product-for-beginners":
+      return {
+        ...d,
+        cards: sorted([
+          { ...card(released[0], "Deck", 1499, 6), setCode: null, slug: "battle-deck-test", name: "Battle Deck Test" },
+          card(released[0], "Build & Battle Box", 2999, 5),
+          card(released[0], "Booster Bundle", 3999, 9),
+          { ...card(released[0], "Tin", 2499, 4), setCode: null, slug: "tin-test", name: "Tin Test" },
+        ]),
+      };
     case "pitch-black-chase-cards":
       return {
         ...d,
@@ -289,7 +299,7 @@ const PAIRS = GUIDES.filter((g) => !ONLY || ONLY.has(g.slug)).flatMap((g) => gui
 
 test("registry: unique slugs, ISO editorial dates (updated ≥ published), descriptions ≤ 160, titles that fit a <title>", () => {
   assert.equal(new Set(GUIDES.map((g) => g.slug)).size, GUIDES.length);
-  assert.equal(GUIDES.length, 29);
+  assert.equal(GUIDES.length, 30);
   for (const g of GUIDES) {
     assert.match(g.slug, /^[a-z0-9]+(?:-[a-z0-9]+)*$/);
     for (const d of [g.published, g.updated]) {
@@ -332,9 +342,9 @@ test("the MSRP guide is US-only, the five Australian guides AU-only; every other
   for (const r of REGION_LIST.filter((x) => x.region !== "us")) {
     assert.equal(guideFor("pokemon-tcg-msrp", r.region), null, r.region);
     assert.ok(!guidesFor(r.region).some((g) => g.slug === "pokemon-tcg-msrp"), r.region);
-    assert.equal(guidesFor(r.region).length, r.region === "au" ? 28 : 23, r.region);
+    assert.equal(guidesFor(r.region).length, r.region === "au" ? 29 : 24, r.region);
   }
-  assert.equal(guidesFor("us").length, 24);
+  assert.equal(guidesFor("us").length, 25);
   for (const g of GUIDES.filter((x) => x.slug !== "pokemon-tcg-msrp" && !AU_ONLY.includes(x.slug))) assert.equal(guideRegions(g).length, 7, g.slug);
   assert.equal(guideFor("no-such-guide", "au"), null);
 });

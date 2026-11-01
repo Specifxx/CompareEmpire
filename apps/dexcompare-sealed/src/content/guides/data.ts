@@ -184,6 +184,7 @@ async function openOfType(market: Market, type: string, take: number): Promise<P
 
 /** The types the gift guide picks from, and the ETB guide's two. */
 export const GIFT_TYPES = ["Booster Bundle", "Elite Trainer Box", "Pokémon Center Elite Trainer Box", "Booster Box", "Ultra-Premium Collection", "Collection", "Tin", "Build & Battle Box", "Blister"];
+export const BEGINNER_TYPES = ["Deck", "Build & Battle Box", "Booster Bundle", "Tin"];
 export const ETB_TYPES = ["Elite Trainer Box", "Pokémon Center Elite Trainer Box"];
 
 /** The where-to-buy guide's read: the region's active stores, most in stock first (at most 12 small rows). */
@@ -361,6 +362,9 @@ export async function loadGuideData(slug: GuideSlug, r: RegionInfo, now: Date = 
     case "pokemon-tcg-gift-guide-australia":
       // The 40 cheapest open products of each gift type (≤ 360 small rows): enough to fill every budget band.
       return done({ cards: (await Promise.all(GIFT_TYPES.map((t) => openOfType(r.market, t, 40)))).flat() });
+    case "best-pokemon-tcg-product-for-beginners":
+      // The 12 cheapest open products of each beginner type (≤ 48 small rows).
+      return done({ cards: (await Promise.all(BEGINNER_TYPES.map((t) => openOfType(r.market, t, 12)))).flat() });
     case "delta-reign-booster-box-price": {
       // Delta Reign read whole (one set in one market, open products only, cheapest first), and the set before it, Pitch Black, for
       // its cheapest box, ETB and bundle beside them (calendarProducts, ≤ 9 rows).
