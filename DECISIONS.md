@@ -215,3 +215,13 @@ reason to come back that search rankings alone don't. `/forum` (apps/dexcompare-
   DiscussionForumPosting JSON-LD.
 - **Moderation:** the owner asks Claude; a post is removed by an edit to
   `forum.json` (`removeFromForum` in `src/lib/forum/core.ts`).
+
+## 2026-11-01 — DexCompare: visitors land on their own region's pages
+
+Owner, 2026-11-01: "the default region is the region that the visitor is located in. And if they can't determine it,
+then the default should be the US." Region-less pages already followed the visitor (US in the server HTML), but a
+regional page kept whoever arrived on it. `REGION_BOOT_SCRIPT` (`apps/dexcompare-sealed/src/lib/region-boot.ts`, inline
+in the root layout, before paint) now moves a person, never a crawler, link preview or audit tool, to the same page in
+their region through the page's own hreflang alternate (a page with no copy there stays): the region they last browsed
+(`dex-region`), else their time zone's, else the US. `<main>` is hidden for at most 1.5 s. No request, no cookie; the
+same script runs on MTG Compare and WargameCompare.
