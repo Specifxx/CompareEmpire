@@ -7,13 +7,13 @@ import { SEASON_BOOT_SCRIPT, seasonAt, seasonMarkupLive } from "../src/lib/seaso
 
 const at = (m: number, d: number, h = 12) => new Date(2026, m - 1, d, h);
 
-test("seasonAt: Halloween from 16 to 31 October inclusive, nothing on 1 November", () => {
+test("seasonAt: Halloween from 16 to 31 October inclusive, Christmas from 1 November", () => {
   assert.equal(seasonAt(at(10, 15, 23)), null);
   assert.equal(seasonAt(at(10, 16, 0)), "halloween");
   assert.equal(seasonAt(at(10, 24)), "halloween");
   assert.equal(seasonAt(at(10, 31, 23)), "halloween");
-  assert.equal(seasonAt(at(11, 1, 0)), null);
-  assert.equal(seasonAt(at(12, 25)), null);
+  assert.equal(seasonAt(at(11, 1, 0)), "christmas");
+  assert.equal(seasonAt(at(12, 25)), "christmas");
   assert.equal(seasonAt(at(6, 20)), null);
 });
 
