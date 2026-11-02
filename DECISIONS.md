@@ -242,3 +242,16 @@ kept a day by the CDN like every data page. Only `/widgets/:path+` may be framed
 plus one plain text link, the part search engines credit) with a real in-stock product, and a plain-HTML store badge.
 The daily outreach offers it instead of asking for a link (owner, 2026-11-02: growth must be passive). Named
 `/widgets` to match MTG Compare, whose `/embed` is taken by an old redirect.
+
+## 2026-11-02 — DexCompare seasonal sale pages
+
+`/<region>/boxing-day`, `/<region>/january-sales` and `/<region>/lunar-new-year` (owner-approved growth plan,
+2026-11-02): one URL per region, kept every year like `/<region>/black-friday`, built weeks ahead so they are
+indexed before the day. One component (`src/components/SaleSeasonPage.tsx`) with exactly the Black Friday
+page's rows: furthest under the median of the region's stores, under their own 30-day typical price, and in
+the US under MSRP. Every region has its own copy, so nothing is region-locked; the intro states where the day
+is a sale day (Boxing Day: Australia, New Zealand, the UK and Canada) as a fact, not as the page's market.
+Dates, the year a page is about (it rolls over a week after the event) and the copy are pure in
+`src/lib/sale-seasons.ts`, checked against BANNED_COPY in `tests/sale-seasons.test.ts`; Lunar New Year is a
+published-date table to 2040 (6 February 2027). Footer and sitemap always; the region home shows a card from
+a few weeks before each event. Never a "was" price, a countdown or an invented sale.
