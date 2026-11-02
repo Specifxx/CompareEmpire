@@ -141,6 +141,11 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ vars.TELEGRAM_CHAT_ID }}
         run: npx tsx scripts/feed-notify.ts
+      # The Compare Empire network (apps/dexcompare-sealed DECISIONS.md "Sites that grow each other"): this site's best deals for
+      # the sister sites, and their feeds for the "Other card games on sale" block. Reads the files just exported; never fails.
+      - name: Family feed
+        if: steps.db.outputs.found == 'true'
+        run: PUBLIC_DATA_MODE=files npx tsx scripts/family-sync.ts
       - name: Publish it to main
         if: steps.db.outputs.found == 'true'
         working-directory: .

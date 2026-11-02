@@ -7,6 +7,7 @@ import { NoPreFooter } from "@/components/Ebay";
 import { EbayStrip } from "@/components/EbayStrip";
 import { Icon } from "@/components/Icon";
 import { Empty } from "@/components/Section";
+import { FamilyCluster } from "@/components/FamilyCluster";
 import { calendarProducts, CALENDAR_TYPES } from "@/lib/data";
 import { money, plural, relativeDay } from "@/lib/format";
 import { isoDay, nextSet, releasesTitle, setsOfYear, shortDate, titleText } from "@/lib/hub-copy";
@@ -211,6 +212,8 @@ export default async function ReleasesPage({ params }: { params: { region: strin
         </li>
       </ul>
       {/* The page's closing strip stands in for the pre-footer one, so two never sit back to back. */}
+      <FamilyCluster kind="preorder" region={r.region} />
+
       <NoPreFooter />
       <EbayStrip region={r.region} context="chase" placement="listings-releases" className="mt-10" search={{ kind: "card", query: "" }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(ld) }} />

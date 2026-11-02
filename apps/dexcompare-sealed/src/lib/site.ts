@@ -19,24 +19,7 @@ export const SITE_TAGLINE = "Pokémon sealed prices and stock, compared across i
 // stands in. Nothing here invents a legal entity or an address.
 export const OPERATOR = process.env.NEXT_PUBLIC_OPERATOR?.trim() || SITE_NAME;
 
-// The owner's other price-comparison sites, linked from the footer (owner's
-// call, 2026-10-14: the four sites cross-link in every footer). Plain followed
-// links — our own sites, not affiliates — so no nofollow or sponsored.
-export const SISTER_SITES = [
-  { name: "RiftCompare", url: "https://riftcompare.com", what: "Riftbound TCG card prices" },
-  { name: "OP Compare", url: "https://opcompare.app", what: "One Piece Card Game prices" },
-  { name: "MTG Compare", url: "https://mtgcompare.app", what: "Magic: The Gathering sealed prices" },
-  // The whole Compare Empire family (2026-10-26, owner: the strategy review's "one family of sites").
-  { name: "Gundam Compare", url: "https://gundamcompare.com", what: "Gundam Card Game prices" },
-  { name: "Lorcana Compare", url: "https://lorcanacompare.com", what: "Disney Lorcana prices" },
-  // Every site links the whole family (2026-10-27, owner: "backlink all of it").
-  { name: "YGO Compare", url: "https://ygocompare.com", what: "Yu-Gi-Oh! card prices" },
-  { name: "Cyberpunk Compare", url: "https://cyberpunkcompare.com", what: "Cyberpunk TCG card prices" },
-  { name: "WargameCompare", url: "https://wargamecompare.com", what: "miniature wargame prices" },
-  { name: "FigureCompare", url: "https://figurecompare.com", what: "anime figure prices" },
-  { name: "CamCompare", url: "https://www.camcompare.app", what: "camera and lens prices" },
-  { name: "Compare Empire", url: "https://compareempire.com", what: "tech and appliance prices" },
-] as const;
+// The owner's other sites: lib/family-network.ts (FAMILY_SITES), shared by every Compare Empire site.
 
 // Public profiles for Organization.sameAs (an X account, a Bluesky handle…).
 // Empty until there are any: an empty list is left out of the JSON-LD.

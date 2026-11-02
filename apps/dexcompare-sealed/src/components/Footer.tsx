@@ -4,7 +4,8 @@ import { COUNTRY_GUIDE } from "@/content/guides/country-prices";
 import { REGION_LIST, REGIONS, type Region } from "@/lib/regions";
 import { featureOrder } from "@/lib/release";
 import { SET_BY_CODE, SETS } from "@/lib/sets";
-import { CONTACT_EMAIL, OPERATOR, SISTER_SITES, SITE_NAME, sectionHref, type SectionKey } from "@/lib/site";
+import { NETWORK_PAGE, footerSisters } from "@/lib/family-network";
+import { CONTACT_EMAIL, OPERATOR, SITE_NAME, sectionHref, type SectionKey } from "@/lib/site";
 import { LogoMark } from "./Logo";
 
 type FooterLink = { href: string; label: string };
@@ -106,19 +107,25 @@ export function Footer({ region }: { region: Region | null }) {
             </nav>
           ))}
         </div>
-        {/* The owner's sister sites, one row across the footer. */}
-        <nav aria-label="Also from us" className={r ? "lg:col-span-2" : "md:col-span-2"}>
-          <h2 className="eyebrow mb-2">Also from us · the Compare Empire family</h2>
-          <ul className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
-            {SISTER_SITES.map((s) => (
-              <li key={s.url}>
-                <a href={s.url} target="_blank" rel="noopener" className="font-semibold text-muted hover:text-ink">
+        {/* One short line (owner, 2026-11-02: the old list of every site was "convoluted"): the other card-game sites, then one
+            link to the network page that lists every site (lib/family-network.ts, DECISIONS.md "Sites that grow each other"). */}
+        <nav aria-label="Sister sites" className={r ? "lg:col-span-2" : "md:col-span-2"}>
+          <h2 className="eyebrow mb-2">Other card games</h2>
+          <p className="text-sm text-muted">
+            {footerSisters("dex").map((s, i) => (
+              <span key={s.id}>
+                {i ? " · " : ""}
+                <a href={s.url} rel="noopener" title={s.label} className="font-semibold hover:text-ink">
                   {s.name}
                 </a>
-                <span className="text-xs text-faint"> — {s.what}</span>
-              </li>
+              </span>
             ))}
-          </ul>
+          </p>
+          <p className="mt-2 text-sm text-muted">
+            <a href={NETWORK_PAGE} rel="noopener" className="hover:text-ink">
+              A Compare Empire site →
+            </a>
+          </p>
         </nav>
       </div>
 
