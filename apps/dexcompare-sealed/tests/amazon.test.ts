@@ -128,13 +128,11 @@ test("the product page panels: Amazon in AU, NZ and the US (sponsored nofollow n
   }
 });
 
-test("set and type pages: Amazon where the region has a tag, a search, labelled", () => {
-  for (const p of ["app/[region]/sets/[set]/page.tsx", "app/[region]/type/[type]/page.tsx"]) {
-    const s = src(p);
-    assert.match(s, /amazonFor\(r\.region\)/, p);
-    assert.match(s, /<AmazonLink region=\{r\.region\} href=\{amazonUrl\(r\.region, /, p);
-    assert.match(s, /AMAZON_ASSOCIATE_STATEMENT/, p);
+test("set, type and Japanese pages: no Amazon category search (Operating Agreement: links lead to a specific product, 2026-11-02)", () => {
+  for (const p of ["app/[region]/sets/[set]/page.tsx", "app/[region]/type/[type]/page.tsx", "app/[region]/japanese/page.tsx"]) {
+    assert.doesNotMatch(src(p), /<AmazonLink|amazonUrl\(/, p);
   }
+  assert.doesNotMatch(src("app/api/quick/[region]/[slug]/route.ts"), /^\s+amazon,$/m, "no Amazon row in the quick view");
 });
 
 test("disclosure: the statement word for word in every page's footer, and the disclosure page linked from it and in the sitemap", () => {
@@ -142,6 +140,7 @@ test("disclosure: the statement word for word in every page's footer, and the di
   for (const region of [null, ...REGION_LIST.map((r) => r.region)]) {
     const html = render(React.createElement(Footer, { region }));
     assert.ok(html.includes(AMAZON_ASSOCIATE_STATEMENT), `footer (${region ?? "no region"})`);
+    assert.ok(html.includes("Amazon and the Amazon logo are trademarks of Amazon.com, Inc. or its affiliates."), `trademark (${region ?? "no region"})`);
     assert.match(html, /href="\/affiliate-disclosure"/);
   }
   assert.ok(existsSync(new URL("../src/app/(site)/affiliate-disclosure/page.tsx", import.meta.url)));

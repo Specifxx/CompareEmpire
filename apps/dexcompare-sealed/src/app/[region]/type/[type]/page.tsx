@@ -1,6 +1,4 @@
 import Link from "next/link";
-import { AmazonLink } from "@/components/AmazonLink";
-import { AMAZON_ASSOCIATE_STATEMENT, amazonFor, amazonUrl } from "@/lib/amazon";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 import type { Metadata } from "next";
@@ -167,15 +165,7 @@ export default async function TypePage({ params }: { params: { region: string; t
             See deals on {t.plural} today <Icon name="arrow-right" size={16} />
           </Link>
         </li>
-        {/* Where the region has an Amazon tag (lib/amazon.ts): a search for the type (no price, no API), labelled where it sits. */}
-        {amazonFor(r.region) && (
-          <li className="flex flex-wrap items-center gap-x-2">
-            <AmazonLink region={r.region} href={amazonUrl(r.region, { name: `Pokemon TCG ${t.label}` }, "amazon-type")!} product={`type:${t.slug}`} placement="amazon-type" className="inline-flex min-h-10 items-center gap-1 text-sm font-semibold text-brand-strong hover:underline">
-              Check {t.plural} on {amazonFor(r.region)!.label} <span aria-hidden="true">↗</span>
-            </AmazonLink>
-            <span className="text-xs text-muted">{AMAZON_ASSOCIATE_STATEMENT}</span>
-          </li>
-        )}
+        {/* No Amazon category search here (2026-11-02): Amazon's Operating Agreement wants every link to lead to a specific product. */}
       </ul>
 
       <nav aria-label="Other product types" className="mt-3">

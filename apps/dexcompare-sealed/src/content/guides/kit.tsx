@@ -491,10 +491,6 @@ export function whereToBuy(
   opts: { tcg?: { query: string; label: string }; amazon?: { query: string; label: string }; links?: { href: string; label: string }[] } = {},
 ): GuideSection {
   const us = r.market === "US";
-  // Where the region has an Amazon tag (lib/amazon.ts: AU and NZ, the US), a search for the guide's subject (its own, else the TCGplayer one, else
-  // Pokémon sealed), with the Associates statement beside it. Never a price.
-  const store = amazonFor(r.region);
-  const amazon = store ? opts.amazon ?? opts.tcg ?? { query: "Pokemon TCG sealed", label: "Pokémon sealed" } : null;
   return {
     id: "where-to-buy",
     title: "Where to buy",
@@ -535,27 +531,8 @@ export function whereToBuy(
             <p className="text-xs leading-5 text-muted">{AFFILIATE_NOTE_SHORT}</p>
           </div>
         )}
-        {amazon && (
-          <div className="mt-5 rounded-xl border border-line bg-surface p-4">
-            <p className="text-sm leading-6 text-muted">
-              {store?.label} sells Pokémon sealed product too{r.region === "nz" ? ", and delivers many items to New Zealand (check the one you want does)" : ""}. We don&rsquo;t read
-              Amazon&rsquo;s prices, so compare its checkout total with the stores above.
-            </p>
-            <p className="mt-1 text-[15px] leading-6">
-              <AmazonLink
-                region={r.region}
-                href={amazonUrl(r.region, { name: amazon.query }, "amazon-guide")!}
-                product={`guide:${amazon.query.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}`}
-                placement="amazon-guide"
-                className="inline-flex min-h-11 items-center font-semibold text-brand underline-offset-2 hover:underline"
-              >
-                Check {amazon.label} prices on {store?.label}&nbsp;<span aria-hidden="true">↗</span>
-              </AmazonLink>{" "}
-              <span className="whitespace-nowrap text-xs font-medium text-muted">· affiliate link</span>
-            </p>
-            <p className="text-xs leading-5 text-muted">{AMAZON_ASSOCIATE_STATEMENT}</p>
-          </div>
-        )}
+        {/* No Amazon category search at the end of a guide (2026-11-02): Amazon's Operating Agreement wants every link to lead to a
+            specific product; the guides' product rows keep their own Amazon link. */}
       </>
     ),
   };
