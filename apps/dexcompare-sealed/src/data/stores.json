@@ -282,17 +282,6 @@
     ]
   },
   {
-    "key": "gamescapital",
-    "name": "The Games Capital",
-    "base": "https://www.thegamescapital.com.au",
-    "market": "AU",
-    "platform": "shopify",
-    "country": "AU",
-    "collections": [
-      "pokemon"
-    ]
-  },
-  {
     "key": "gamesempire",
     "name": "Games Empire",
     "base": "https://www.gamesempire.com.au",
@@ -4917,20 +4906,6 @@
     ]
   },
   {
-    "key": "pokemonwinkel",
-    "name": "Pokemon Winkel",
-    "base": "https://pokemonwinkel.nl",
-    "market": "EU",
-    "platform": "shopify",
-    "country": "NL",
-    "collections": [
-      "pokemon-tcg-v-box",
-      "elite-trainer-box",
-      "booster-box",
-      "pokemon-go-tcg"
-    ]
-  },
-  {
     "key": "pokepower",
     "name": "PokePower",
     "base": "https://poke-power.eu",
@@ -6255,18 +6230,6 @@
     ]
   },
   {
-    "key": "etoysworld",
-    "name": "eTOYSWORLD",
-    "base": "https://www.etoysworld.co.uk",
-    "market": "UK",
-    "platform": "shopify",
-    "country": "GB",
-    "collections": [
-      "pokemon-sealed",
-      "pre-orders"
-    ]
-  },
-  {
     "key": "evocards",
     "name": "EVO Cards",
     "base": "https://www.evocards.com",
@@ -6957,20 +6920,6 @@
     ]
   },
   {
-    "key": "zatugames",
-    "name": "Zatu Games",
-    "base": "https://www.board-game.co.uk",
-    "market": "UK",
-    "platform": "shopify",
-    "country": "GB",
-    "collections": [
-      "pokemon-tcg-collection-boxes",
-      "pokemon-tcg-elite-trainer-boxes",
-      "pokemon-tcg-tins",
-      "other-sealed-product-pokemon"
-    ]
-  },
-  {
     "key": "151collectables",
     "name": "151Collectables",
     "base": "https://151collectables.com",
@@ -7127,17 +7076,6 @@
     "country": "US",
     "collections": [
       "pokemon"
-    ]
-  },
-  {
-    "key": "ballerstcg",
-    "name": "Ballers TCG",
-    "base": "https://ballerstcg.com",
-    "market": "US",
-    "platform": "shopify",
-    "country": "US",
-    "collections": [
-      "all-pokemon"
     ]
   },
   {
@@ -7640,20 +7578,6 @@
     ]
   },
   {
-    "key": "cosmicbham",
-    "name": "Cosmic Games Birmingham",
-    "base": "https://cosmicbham.com",
-    "market": "US",
-    "platform": "shopify",
-    "country": "US",
-    "collections": [
-      "pokemon-tcg-mega-group",
-      "pokemon-trading-card-game-sealed-product",
-      "pokemon-tcg-mega-evolution",
-      "pokemon-tcg-destined-rivals"
-    ]
-  },
-  {
     "key": "cosmicgames",
     "name": "Cosmic Games",
     "base": "https://www.cosmicgames.com",
@@ -7956,17 +7880,6 @@
     "key": "flipsidegaming",
     "name": "Flipside Gaming",
     "base": "https://flipsidegaming.com",
-    "market": "US",
-    "platform": "shopify",
-    "country": "US",
-    "collections": [
-      "pokemon-sealed"
-    ]
-  },
-  {
-    "key": "foxandfable",
-    "name": "Fox and Fable Games",
-    "base": "https://foxandfablegames.com",
     "market": "US",
     "platform": "shopify",
     "country": "US",
@@ -9810,17 +9723,6 @@
     ]
   },
   {
-    "key": "tcgcarddepot",
-    "name": "TCG Card Depot",
-    "base": "https://tcgcarddepot.com",
-    "market": "US",
-    "platform": "woocommerce",
-    "country": "US",
-    "collections": [
-      "search:pokemon"
-    ]
-  },
-  {
     "key": "tcghobby",
     "name": "TCG Hobby",
     "base": "https://www.tcghobby.com",
@@ -10323,17 +10225,6 @@
     "country": "US",
     "collections": [
       "pokemon"
-    ]
-  },
-  {
-    "key": "waywardcitygames",
-    "name": "Wayward City Games",
-    "base": "https://waywardcitygames.net",
-    "market": "US",
-    "platform": "shopify",
-    "country": "US",
-    "collections": [
-      "pokemon-tcg"
     ]
   },
   {
