@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Icon } from "@/components/Icon";
 import { RegionSuggest } from "@/components/RegionSuggest";
 import { HomeRegionGrid } from "@/components/HomeRegionGrid";
+import { RegionChips } from "@/components/RegionChips";
 import { regionPicks } from "@/lib/picks";
 import { openPreorderGuides } from "@/lib/preorder-guides";
 import { REGION_LIST, X_DEFAULT_REGION } from "@/lib/regions";
@@ -68,6 +69,8 @@ export default async function Landing() {
             {STORES.length} independent stores in {REGION_LIST.length} regions, read about twice a day. Free, no sign-up.
           </p>
           {/* The 404's search markup: a plain GET form, so it works without script. RegionSuggest points it at the visitor's region. */}
+          {/* The region row, with flags (owner, 2026-11-02): picks in place, like the header's switcher. */}
+          <RegionChips className="mt-6 justify-center" />
           <form
             id="landing-search"
             action={`/${X_DEFAULT_REGION}/sealed`}

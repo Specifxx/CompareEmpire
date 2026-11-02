@@ -12,6 +12,7 @@ import { Icon, type IconName } from "@/components/Icon";
 import { ProductGrid } from "@/components/ProductGrid";
 import { ProductRail } from "@/components/ProductRail";
 import { SearchBox } from "@/components/SearchBox";
+import { RegionChips } from "@/components/RegionChips";
 import { Empty, Section } from "@/components/Section";
 import { StockPill } from "@/components/StockPill";
 import { homeRails, regionOverview, tcgplayerTiles, type ProductCardData } from "@/lib/data";
@@ -38,6 +39,7 @@ import { CompareOtherTcgs } from "@/components/CompareOtherTcgs";
 import { SetIndex } from "@/components/SetIndex";
 import { setCountsGrouped, typeLabelsInMarket } from "@/lib/hub-data";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { Flag } from "@/components/Flag";
 
 // Rendered per request and kept by Vercel's CDN for a day (next.config.js, CDN_PAGES), never ISR: an ISR write
 // costs about twenty renders, and the data only changes with a release, which empties the CDN anyway.
@@ -99,7 +101,7 @@ export default async function RegionHome({ params }: { params: { region: string 
           <div className="min-w-0">
             <Breadcrumbs items={[{ href: "/", label: "DexCompare" }, { label: r.name }]} />
             <div className="eyebrow">
-              <span aria-hidden="true">{r.flag}</span> {r.name} · prices in {r.currency}
+              <Flag code={r.short} /> {r.name} · prices in {r.currency}
             </div>
             <h1 className="mt-3 max-w-3xl font-display text-3xl font-bold leading-[1.1] tracking-tight sm:text-5xl">
               Compare Pokémon booster box &amp; ETB prices in <span className="text-brand">{r.inName}</span>
@@ -111,6 +113,7 @@ export default async function RegionHome({ params }: { params: { region: string 
             <div className="mt-6 max-w-2xl">
               <SearchBox region={r.region} size="lg" />
             </div>
+            <RegionChips region={r.region} className="mt-4" />
             <nav
               aria-label="Shop by type"
               className="mt-4 flex flex-wrap gap-2"
