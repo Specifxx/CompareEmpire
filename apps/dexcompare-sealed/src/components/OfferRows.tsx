@@ -168,7 +168,7 @@ export function StoreRow({ d, preorder, top }: { d: StoreRowData; preorder: bool
   const tcg = d.kind === "tcgplayer";
   const badge = "shrink-0 rounded-full bg-open px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-surface";
   return (
-    <li data-offer-row="" data-row={d.kind} className={`${ROW_GRID} ${highlight ? "bg-open-soft/40" : ""}`}>
+    <li data-offer-row="" data-row={d.kind} data-search={d.search ? "" : undefined} className={`${ROW_GRID} ${highlight ? "bg-open-soft/40" : ""}`}>
       <div className="flex h-5 items-center gap-2 overflow-hidden sm:h-6">
         {d.rank != null && (
           <span className="tabular -mr-0.5 shrink-0 text-sm font-bold text-muted" aria-label={`Number ${d.rank} by price`}>
