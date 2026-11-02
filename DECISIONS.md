@@ -243,6 +243,17 @@ plus one plain text link, the part search engines credit) with a real in-stock p
 The daily outreach offers it instead of asking for a link (owner, 2026-11-02: growth must be passive). Named
 `/widgets` to match MTG Compare, whose `/embed` is taken by an old redirect.
 
+
+## 2026-11-02 — Every set in the set list gets a pre-order page, guide or not
+
+Pre-order landings were the family's top pages in October, but here a set had one only when a session had written its
+`PreorderGuide` (sourced facts) in `apps/dexcompare-sealed/src/lib/preorder-guides.ts`. Now a set in `apps/dexcompare-sealed/src/lib/sets.ts` without a guide gets
+`/<region>/preorders/<slug>` from `blankGuide`: the set's name and dates, every store's price list and the generic FAQ,
+and nothing a source would have to back (no contents, prerelease, card count or sources line; those sections hide).
+Adding the next set to `sets.ts`, which the importer needs anyway, is the whole job; a guide written later fills the
+same page. `openPreorderGuides` (nav, header banner, homepage, sitemap) lists every unreleased set. A guide-less page
+stays up for 45 days after release (noindexed, saying the set is out, as before) and then 308s to the set page.
+
 ## 2026-11-02 — DexCompare seasonal sale pages
 
 `/<region>/boxing-day`, `/<region>/january-sales` and `/<region>/lunar-new-year` (owner-approved growth plan,
