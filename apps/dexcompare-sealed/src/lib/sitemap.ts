@@ -55,6 +55,7 @@ export function staticSitemap(
   const out: MetadataRoute.Sitemap = [
     url("", null, "daily", 1),
     url("/about", null, "monthly", 0.3),
+    url("/widgets", null, "monthly", 0.3),
     url("/terms", null, "yearly", 0.1),
     url("/privacy", null, "yearly", 0.1),
     url("/contact", null, "yearly", 0.1),

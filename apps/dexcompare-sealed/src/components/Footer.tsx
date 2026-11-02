@@ -14,6 +14,7 @@ export function footerColumns(region: Region | null): { title: string; links: Fo
   const site: FooterLink[] = [
     { href: "/about", label: "About & how it works" },
     { href: "/about#stores", label: "For stores" },
+    { href: "/widgets", label: "Free price widgets" },
     { href: "/forum", label: "Community forum (beta)" },
     { href: "/contact", label: "Contact" },
     { href: "/contact#suggest", label: "Suggest a store" },

@@ -232,3 +232,13 @@ The owner: "the sites that they don't [have their own email], just use compareem
 "really clear on all of our websites". `apps/dexcompare-sealed` `CONTACT_EMAIL` falls back to the Compare Empire family
 inbox instead of riftcompare@gmail.com (another brand's), and the footer now shows it as a mailto beside the Contact
 link on every page. `NEXT_PUBLIC_CONTACT_EMAIL` still overrides it. No form and no mail service.
+
+## 2026-11-02 — DexCompare: free price widgets
+
+`apps/dexcompare-sealed` gets MTG Compare's widgets: `/widgets/p/<slug>?region=` is a live Pokémon sealed price badge
+any blog, newsletter or store can put in an `<iframe>` (the cheapest in-stock independent store price in the region,
+never a marketplace, and how many stores have it), reading only the public data files through `productPage`, noindex,
+kept a day by the CDN like every data page. Only `/widgets/:path+` may be framed. `/widgets` shows the snippet (iframe
+plus one plain text link, the part search engines credit) with a real in-stock product, and a plain-HTML store badge.
+The daily outreach offers it instead of asking for a link (owner, 2026-11-02: growth must be passive). Named
+`/widgets` to match MTG Compare, whose `/embed` is taken by an old redirect.
