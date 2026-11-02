@@ -1,7 +1,7 @@
 {
  "v": 1,
  "site": "dex",
- "generatedAt": "2026-11-02T03:16:25.705Z",
+ "generatedAt": "2026-11-02T19:10:26.294Z",
  "links": {
   "AU": {
    "deals": "https://dexcompare.app/au/deals"
@@ -36,23 +36,9 @@
    "currency": "AUD",
    "store": "Turtle TCG",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/684444_in_1000x1000.jpg",
-   "refCents": 33000,
+   "refCents": 33495,
    "refLabel": "median store price",
-   "savingPct": 45
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "AU",
-   "title": "Prismatic Evolutions: 2-Pack Blister",
-   "url": "https://dexcompare.app/au/p/prismatic-evolutions-2-pack-blister",
-   "cents": 8995,
-   "currency": "AUD",
-   "store": "The Wandering Collector",
-   "image": "https://cdn.shopify.com/s/files/1/0622/1280/0754/files/Pokemon_Scarlet_and_Violet_8.5_Prismatic_Evolutions_2-Pack_Blister_1.png?v=1739641027",
-   "refCents": 15995,
-   "refLabel": "median store price",
-   "savingPct": 44
+   "savingPct": 46
   },
   {
    "kind": "deal",
@@ -109,6 +95,20 @@
    "refCents": 3395,
    "refLabel": "median store price",
    "savingPct": 35
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "AU",
+   "title": "Snow Hazard Japanese Booster Pack (SV2P)",
+   "url": "https://dexcompare.app/au/p/snow-hazard-sv2p-japanese-booster-pack",
+   "cents": 399,
+   "currency": "AUD",
+   "store": "One Stop Poke Shop",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/565238_in_1000x1000.jpg",
+   "refCents": 600,
+   "refLabel": "median store price",
+   "savingPct": 34
   },
   {
    "kind": "deal",
@@ -226,6 +226,20 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "US",
+   "title": "30th Celebration Mew Figure Collection",
+   "url": "https://dexcompare.app/us/p/30th-celebration-mew-figure-collection",
+   "cents": 5990,
+   "currency": "USD",
+   "store": "TCGORA",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/704193_in_1000x1000.jpg",
+   "refCents": 11499,
+   "refLabel": "median store price",
+   "savingPct": 48
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "US",
    "title": "Ancient Roar Japanese Booster Pack (SV4K)",
    "url": "https://dexcompare.app/us/p/ancient-roar-sv4k-japanese-booster-pack",
    "cents": 295,
@@ -235,20 +249,6 @@
    "refCents": 550,
    "refLabel": "median store price",
    "savingPct": 46
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "US",
-   "title": "Violet ex Japanese Booster Pack (SV1V)",
-   "url": "https://dexcompare.app/us/p/violet-ex-sv1v-japanese-booster-pack",
-   "cents": 395,
-   "currency": "USD",
-   "store": "Trademark Cards and Collectibles",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/565245_in_1000x1000.jpg",
-   "refCents": 550,
-   "refLabel": "median store price",
-   "savingPct": 28
   },
   {
    "kind": "deal",
@@ -302,9 +302,9 @@
    "currency": "GBP",
    "store": "Rare Pokémon Cards UK",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/624676_in_1000x1000.jpg",
-   "refCents": 9849,
+   "refCents": 9999,
    "refLabel": "median store price",
-   "savingPct": 47
+   "savingPct": 48
   },
   {
    "kind": "deal",
@@ -382,7 +382,7 @@
    "region": "CA",
    "title": "Ascended Heroes Tech Sticker Collection",
    "url": "https://dexcompare.app/ca/p/ascended-heroes-tech-sticker-collection",
-   "cents": 4146,
+   "cents": 4120,
    "currency": "CAD",
    "store": "L'Atelier TCG",
    "image": "https://cdn.shopify.com/s/files/1/0063/4971/7559/files/raw--3_716a5e57-6ac3-4765-85a0-ea007bc9bcc0.png?v=1768503070",
@@ -464,6 +464,20 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "EU",
+   "title": "Celebrations Elite Trainer Box",
+   "url": "https://dexcompare.app/eu/p/celebrations-elite-trainer-box",
+   "cents": 22990,
+   "currency": "EUR",
+   "store": "PokeMillon",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/242811_in_1000x1000.jpg",
+   "refCents": 43995,
+   "refLabel": "median store price",
+   "savingPct": 48
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "EU",
    "title": "Origin Forme Palkia VSTAR League Battle Deck",
    "url": "https://dexcompare.app/eu/p/origin-forme-palkia-vstar-league-battle-deck",
    "cents": 1795,
@@ -487,20 +501,6 @@
    "refCents": 1095,
    "refLabel": "median store price",
    "savingPct": 45
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "EU",
-   "title": "Pokemon GO TCG - Melmetal V Battle Deck",
-   "url": "https://dexcompare.app/eu/p/pokemon-go-tcg-melmetal-v-battle-deck",
-   "cents": 999,
-   "currency": "EUR",
-   "store": "TCGViert",
-   "image": "https://cdn.shopify.com/s/files/1/1704/1809/files/Pokemon-Pokemon-GO-TCG-Melmetal-V-Battle-Deck.jpg?v=1698614319",
-   "refCents": 1799,
-   "refLabel": "median store price",
-   "savingPct": 44
   },
   {
    "kind": "deal",
@@ -534,9 +534,23 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "SG",
+   "title": "Pitch Black Elite Trainer Box",
+   "url": "https://dexcompare.app/sg/p/pitch-black-elite-trainer-box",
+   "cents": 9068,
+   "currency": "SGD",
+   "store": "TEFUDA",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/692947_in_1000x1000.jpg",
+   "refCents": 13500,
+   "refLabel": "median store price",
+   "savingPct": 33
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "SG",
    "title": "Chaos Rising Elite Trainer Box",
    "url": "https://dexcompare.app/sg/p/chaos-rising-elite-trainer-box",
-   "cents": 8834,
+   "cents": 8832,
    "currency": "SGD",
    "store": "TEFUDA",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/684450_in_1000x1000.jpg",
@@ -562,23 +576,9 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "SG",
-   "title": "Pitch Black Elite Trainer Box",
-   "url": "https://dexcompare.app/sg/p/pitch-black-elite-trainer-box",
-   "cents": 9426,
-   "currency": "SGD",
-   "store": "TEFUDA",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/692947_in_1000x1000.jpg",
-   "refCents": 13500,
-   "refLabel": "median store price",
-   "savingPct": 30
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "SG",
    "title": "First Partner Illustration Collection (Series 2)",
    "url": "https://dexcompare.app/sg/p/first-partner-illustration-collection-series-2-2",
-   "cents": 3273,
+   "cents": 3277,
    "currency": "SGD",
    "store": "TEFUDA",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/688712_in_1000x1000.jpg",
