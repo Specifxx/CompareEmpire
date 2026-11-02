@@ -7,6 +7,7 @@ import { SET_BY_CODE, SETS } from "@/lib/sets";
 import { NETWORK_PAGE, footerSisters } from "@/lib/family-network";
 import { CONTACT_EMAIL, OPERATOR, SITE_NAME, sectionHref, type SectionKey } from "@/lib/site";
 import { LogoMark } from "./Logo";
+import { Flag } from "@/components/Flag";
 
 type FooterLink = { href: string; label: string };
 
@@ -67,7 +68,7 @@ export function Footer({ region }: { region: Region | null }) {
             </span>
             {r && (
               <span className="ml-1 rounded-full border border-line px-2 py-0.5 font-sans text-xs font-semibold text-muted">
-                <span aria-hidden="true">{r.flag}</span> {r.short}
+                <Flag code={r.short} /> {r.short}
               </span>
             )}
           </Link>
@@ -141,7 +142,7 @@ export function Footer({ region }: { region: Region | null }) {
                 aria-current={x.region === r.region ? "true" : undefined}
                 className={`chip min-h-10 ${x.region === r.region ? "chip-on" : ""}`}
               >
-                <span aria-hidden="true">{x.flag}</span> {x.name}
+                <Flag code={x.short} /> {x.name}
               </Link>
             ))}
           </nav>

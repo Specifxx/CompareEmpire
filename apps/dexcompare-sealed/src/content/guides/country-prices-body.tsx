@@ -14,6 +14,7 @@ import { RRP_NOTE, usMsrpCents } from "@/lib/rrp";
 import type { PokemonSet } from "@/lib/sets";
 import type { CountryData } from "./country-prices-data";
 import { BOX, countryFaqs, leadSummary, marketLines, setByCode, whereOpen, type MarketLine } from "./country-prices";
+import { Flag } from "@/components/Flag";
 
 /** A small count in words ("seven markets"). */
 const WORDS = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
@@ -51,7 +52,7 @@ function MarketTh({ r, href, sub }: { r: RegionInfo; href: string; sub?: ReactNo
   return (
     <span className="flex min-w-0 flex-col gap-0.5">
       <Link href={href} prefetch={false} className="font-semibold text-ink hover:text-brand hover:underline">
-        <span aria-hidden="true">{r.flag}</span> {r.name}
+        <Flag code={r.short} /> {r.name}
       </Link>
       {sub && <span className="truncate text-xs text-muted">{sub}</span>}
     </span>
@@ -318,7 +319,7 @@ export function countryOutline(data: CountryData): { intro: ReactNode; sections:
             {REGION_LIST.map((r) => (
               <li key={r.region} className="card p-4">
                 <Link href={`/${r.region}`} prefetch={false} className="font-display text-lg font-bold hover:text-brand hover:underline">
-                  <span aria-hidden="true">{r.flag}</span> {r.name}
+                  <Flag code={r.short} /> {r.name}
                 </Link>
                 <span className="ml-2 text-xs text-muted">{r.currency}</span>
                 <ul role="list" className="mt-2 flex flex-wrap gap-2">

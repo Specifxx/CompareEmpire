@@ -1,3 +1,4 @@
+import { Flag } from "@/components/Flag";
 import Link from "next/link";
 import { PriceHistoryChart } from "@/components/PriceHistoryChart";
 import { dailySeries, daysOfHistory, MIN_DAYS, readPriceHistory } from "@/lib/price-history";
@@ -431,7 +432,7 @@ export default async function ProductPage({ params }: { params: { region: string
                     {f.regions.map((g) => (
                       <li key={g.region} className="min-w-0">
                         <Link href={`/${g.region}/p/${p.slug}`} prefetch={false}>
-                          <span aria-hidden="true">{g.flag}</span>
+                          <Flag code={g.region} />
                           <span className="min-w-0">
                             <b>{g.name}</b>
                             <small className="tabular">{g.text}</small>
