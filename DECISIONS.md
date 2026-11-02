@@ -285,6 +285,18 @@ no database read from a page and no mail key; the product page gains an "Email m
 - The privacy page says what the form sends and links to RiftCompare's. RiftCompare's `sister-alerts.yml` fails (and
   its ops monitor reports it) when a site with alerts serves no fresh feed.
 
+## 2026-11-02 — DexCompare: share buttons
+
+The owner wants word of mouth to be a big growth driver on every site (RiftCompare's DECISIONS has the twelve-site
+entry). The product page's Share button (already the phone's share sheet, else a copied link) now sends a message
+with the real price gap in that region (`lib/share-link.ts` `priceGap`: cheapest and dearest in-stock store, never
+converted, TCGplayer left out), and the quick view has the same button (`/api/quick` returns the message). When a
+region shows a gap, the product's og:image is `/og/p/<region>/<slug>`, a share card drawing it; it is a plain
+function kept by Vercel's CDN for a day, never ISR, nothing prerendered, so only shared links cost a render. Every
+shared link carries `utm_source=share&utm_medium=<product|set>`. The button sends a Vercel `share` event,
+`ShareArrival` one `share_visit` per tab when a shared link brings someone, and RiftCompare's weekly growth report counts both. robots.txt allows `/*utm_source=share` because X's and
+Reddit's preview fetchers obey it. No shared-list page: the site has no list to share yet.
+
 
 ## Sites that grow each other: the family feed, cluster blocks and short footers (2026-11-02)
 

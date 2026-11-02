@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, Inter } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { SiteAnalytics } from "@/components/SiteAnalytics";
+import { ShareArrival } from "@/components/ShareArrival";
 import { QuickView } from "@/components/QuickView";
 import { IMPACT_SITE_VERIFICATIONS } from "@/lib/affiliate";
 import { ADSENSE_CLIENT, adsenseScriptSrc } from "@/lib/adsense";
@@ -83,6 +84,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(siteJsonLd()) }} />
         <QuickView />
         <SiteAnalytics />
+        <ShareArrival />
         {/* Vercel Speed Insights: real visitors' Core Web Vitals, per page (Speed Insights must be enabled on the project). */}
         <SpeedInsights />
       </body>
