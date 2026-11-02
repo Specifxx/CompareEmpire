@@ -242,3 +242,15 @@ kept a day by the CDN like every data page. Only `/widgets/:path+` may be framed
 plus one plain text link, the part search engines credit) with a real in-stock product, and a plain-HTML store badge.
 The daily outreach offers it instead of asking for a link (owner, 2026-11-02: growth must be passive). Named
 `/widgets` to match MTG Compare, whose `/embed` is taken by an old redirect.
+
+## 2026-11-02 — DexCompare: share buttons
+
+The owner wants word of mouth to be a big growth driver on every site (RiftCompare's DECISIONS has the twelve-site
+entry). The product page's Share button (already the phone's share sheet, else a copied link) now sends a message
+with the real price gap in that region (`lib/share-link.ts` `priceGap`: cheapest and dearest in-stock store, never
+converted, TCGplayer left out), and the quick view has the same button (`/api/quick` returns the message). When a
+region shows a gap, the product's og:image is `/og/p/<region>/<slug>`, a share card drawing it; it is a plain
+function kept by Vercel's CDN for a day, never ISR, nothing prerendered, so only shared links cost a render. Every
+shared link carries `utm_source=share&utm_medium=<product|set>`. The button sends a Vercel `share` event,
+`ShareArrival` one `share_visit` per tab when a shared link brings someone, and RiftCompare's weekly growth report counts both. robots.txt allows `/*utm_source=share` because X's and
+Reddit's preview fetchers obey it. No shared-list page: the site has no list to share yet.
