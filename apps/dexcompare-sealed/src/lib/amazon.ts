@@ -13,13 +13,11 @@
 // "Check price on Amazon US/AU". Amazon is never ranked with the stores (it has no price we know): on the product page it is a search
 // row pinned under eBay and TCGplayer, like their search rows, never the best price.
 //
-// WHERE. Each Amazon store needs its own Associates tag: Australia (amazon.com.au, AMAZON_AU_TAG, default compareempire-22) and New
-// Zealand (Amazon AU delivers there for many items; the row says to check); the US (amazon.com, AMAZON_US_TAG, default riftcompare-20,
-// the owner's US Associates account, until DexCompare has its own ID); the UK (amazon.co.uk), Canada (amazon.ca) and the eurozone
-// (amazon.de) only once AMAZON_UK_TAG / AMAZON_CA_TAG / AMAZON_DE_TAG is set (no account yet: an untagged link earns nothing). Not
-// Singapore (amazon.sg has no Associates programme).
+// WHERE. Each Amazon store has its own Associates tag, hard-coded (owner, 2026-11-02: no Vercel variable decides a tag): Australia
+// (amazon.com.au, compareempire-22) and New Zealand (Amazon AU delivers there for many items; the row says to check); the US
+// (amazon.com, riftcompare-20); the UK (amazon.co.uk, compareempi03-21); Canada (amazon.ca, compareempire-20); the eurozone
+// (amazon.de, compareempire-21). Not Singapore (amazon.sg has no Associates programme).
 //
-// A malformed tag falls back to the default (or, without one, hides the region) rather than sending clicks with a broken tag.
 // Read on the server (pages and server components build every href). Pure: tests/amazon.test.ts.
 import { REGIONS, type Region } from "./regions";
 
@@ -35,38 +33,31 @@ export const AMAZON_ASSOCIATE_STATEMENT = "As an Amazon Associate I earn from qu
 /** Amazon's trademark notice (Operating Agreement Dos and Don'ts, 2026-11-02), in the footer of every page. */
 export const AMAZON_TRADEMARK = "Amazon and the Amazon logo are trademarks of Amazon.com, Inc. or its affiliates.";
 
-/** One Amazon store: its host, the label on every button ("Amazon US"), the currency it charges in, and where its tag comes from. */
+/** One Amazon store: its host, the label on every button ("Amazon US"), the currency it charges in, and its tag. */
 export interface AmazonStore {
   host: string;
   label: string;
   currency: string;
-  tagEnv: string;
-  defaultTag: string | null;
+  tag: string;
 }
-const AU: AmazonStore = { host: AMAZON_AU_HOST, label: AMAZON_AU_RETAILER, currency: "Australian dollars", tagEnv: "AMAZON_AU_TAG", defaultTag: AMAZON_AU_DEFAULT_TAG };
+const AU: AmazonStore = { host: AMAZON_AU_HOST, label: AMAZON_AU_RETAILER, currency: "Australian dollars", tag: AMAZON_AU_DEFAULT_TAG };
 export const AMAZON_STORES: Readonly<Partial<Record<Region, AmazonStore>>> = {
   au: AU,
   nz: AU,
-  us: { host: "www.amazon.com", label: "Amazon US", currency: "US dollars", tagEnv: "AMAZON_US_TAG", defaultTag: AMAZON_US_DEFAULT_TAG },
-  uk: { host: "www.amazon.co.uk", label: "Amazon UK", currency: "pounds", tagEnv: "AMAZON_UK_TAG", defaultTag: null },
-  ca: { host: "www.amazon.ca", label: "Amazon CA", currency: "Canadian dollars", tagEnv: "AMAZON_CA_TAG", defaultTag: null },
-  eu: { host: "www.amazon.de", label: "Amazon DE", currency: "euros", tagEnv: "AMAZON_DE_TAG", defaultTag: null },
+  us: { host: "www.amazon.com", label: "Amazon US", currency: "US dollars", tag: AMAZON_US_DEFAULT_TAG },
+  uk: { host: "www.amazon.co.uk", label: "Amazon UK", currency: "pounds", tag: "compareempi03-21" },
+  ca: { host: "www.amazon.ca", label: "Amazon CA", currency: "Canadian dollars", tag: "compareempire-20" },
+  eu: { host: "www.amazon.de", label: "Amazon DE", currency: "euros", tag: "compareempire-21" },
 };
 
-type Env = Record<string, string | undefined>;
-
-/** The region's Amazon store and its tag, or null when the region has none (Singapore) or no tag is set (UK, CA, EU by default). */
-export function amazonFor(region: Region | null | undefined, env: Env = process.env): (AmazonStore & { tag: string }) | null {
-  const s = region ? AMAZON_STORES[region] : undefined;
-  if (!s) return null;
-  const t = env[s.tagEnv]?.trim().toLowerCase();
-  const tag = t && TAG_RE.test(t) ? t : s.defaultTag;
-  return tag ? { ...s, tag } : null;
+/** The region's Amazon store and its tag, or null when the region has none (Singapore). */
+export function amazonFor(region: Region | null | undefined): AmazonStore | null {
+  return (region && AMAZON_STORES[region]) || null;
 }
 
 /** The regions shown Amazon links today. */
-export const amazonRegions = (env: Env = process.env): Region[] => (Object.keys(REGIONS) as Region[]).filter((r) => amazonFor(r, env));
-export const showsAmazon = (region: Region | null | undefined, env: Env = process.env): boolean => amazonFor(region, env) != null;
+export const amazonRegions = (): Region[] => (Object.keys(REGIONS) as Region[]).filter((r) => amazonFor(r));
+export const showsAmazon = (region: Region | null | undefined): boolean => amazonFor(region) != null;
 /** The region's Amazon label ("Amazon US"), or "Amazon" when it has none. */
 export const amazonLabel = (region: Region | null | undefined): string => (region && AMAZON_STORES[region]?.label) || "Amazon";
 
@@ -84,11 +75,9 @@ export const AMAZON_PLACEMENTS = [
 ] as const;
 export type AmazonPlacement = (typeof AMAZON_PLACEMENTS)[number];
 
-/** A tracking ID as Amazon issues them: lowercase letters, digits and hyphens, ending -20 to -29 (AU IDs end -22). */
-const TAG_RE = /^[a-z0-9][a-z0-9-]{1,60}-2\d$/;
 
-/** Amazon AU's tag (AMAZON_AU_TAG, else compareempire-22). */
-export const amazonAuTag = (env: Env = process.env): string => amazonFor("au", env)!.tag;
+/** Amazon AU's tag. */
+export const amazonAuTag = (): string => AMAZON_AU_DEFAULT_TAG;
 
 /** An ASIN: ten characters, letters and digits (B0… for most; ISBN-10s for books). */
 export const isAsin = (v: string | null | undefined): v is string => !!v && /^[A-Z0-9]{10}$/.test(v);
@@ -111,8 +100,8 @@ export function amazonQuery(name: string): string {
  * The product's page on the region's Amazon when we know its ASIN there, else a search for its name: always the owner's tag for that
  * store, and the placement as ascsubtag (dex-<region>-<placement>). Null when the region shows no Amazon.
  */
-export function amazonUrl(region: Region, o: { name: string; asin?: string | null }, placement?: AmazonPlacement, env: Env = process.env): string | null {
-  const a = amazonFor(region, env);
+export function amazonUrl(region: Region, o: { name: string; asin?: string | null }, placement?: AmazonPlacement): string | null {
+  const a = amazonFor(region);
   if (!a) return null;
   const u = new URL(isAsin(o.asin) ? `https://${a.host}/dp/${o.asin}` : `https://${a.host}/s`);
   if (!isAsin(o.asin)) u.searchParams.set("k", amazonQuery(o.name));
@@ -122,7 +111,7 @@ export function amazonUrl(region: Region, o: { name: string; asin?: string | nul
 }
 
 /** amazon.com.au, the AU tag, no sub-tag: the form the Australian links had before 2026-10-29 (kept for tests and callers). */
-export const amazonAuUrl = (o: { name: string; asin?: string | null }, tag = amazonAuTag()): string => amazonUrl("au", o, undefined, { AMAZON_AU_TAG: tag })!;
+export const amazonAuUrl = (o: { name: string; asin?: string | null }): string => amazonUrl("au", o)!;
 
 /**
  * Known ASINs, by Amazon host and product slug: a product here links straight to its Amazon page; everything else is a search. Empty
@@ -131,7 +120,7 @@ export const amazonAuUrl = (o: { name: string; asin?: string | null }, tag = ama
 export const AMAZON_ASINS: Readonly<Record<string, Readonly<Record<string, string>>>> = { [AMAZON_AU_HOST]: {}, "www.amazon.com": {} };
 
 /** A product's Amazon link in a region (its ASIN there, else a search for its name), or null where the region shows no Amazon. */
-export function amazonHref(region: Region, slug: string, name: string, placement?: AmazonPlacement, env: Env = process.env): string | null {
+export function amazonHref(region: Region, slug: string, name: string, placement?: AmazonPlacement): string | null {
   const host = AMAZON_STORES[region]?.host;
-  return amazonUrl(region, { name, asin: (host && AMAZON_ASINS[host]?.[slug]) || null }, placement, env);
+  return amazonUrl(region, { name, asin: (host && AMAZON_ASINS[host]?.[slug]) || null }, placement);
 }
