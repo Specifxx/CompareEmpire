@@ -160,7 +160,7 @@ test("pinned TCGplayer: second under eBay, its own ink button; in the US its off
   assert.match(uk, /US\$1\.00/);
   assert.match(uk, /US\$, ships from the US/);
   assert.match(uk, /data-best="store"/, "a US$ price is never compared with the stores' £");
-  assert.doesNotMatch(uk, /data-row="amazon"/, "no Amazon UK row without an AMAZON_UK_TAG");
+  assert.match(uk, /data-row="amazon"[^]*tag=compareempi03-21/, "Amazon UK row with the owner's UK tag (2026-11-02)");
   // no match: a TCGplayer search
   const none = render(React.createElement(OfferTable, { offers: [offer("alpha", 5000)], region: "uk", preorder: false, ebay: { slug: "x", query: "X", floor: null, packs: null }, pinned: { productName: "X", tcgplayer: null } }));
   assert.match(none, />Search <span aria-hidden="true">↗<\/span><span class="sr-only"> on TCGplayer/);

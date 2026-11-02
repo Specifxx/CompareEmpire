@@ -52,11 +52,10 @@ const amazonLinks = (html: string) =>
 
 test("the link: a /dp/ page with an ASIN, else a search; amazon.com.au, the owner's tag, nothing else", () => {
   assert.equal(AMAZON_AU_DEFAULT_TAG, "compareempire-22");
-  assert.equal(amazonAuTag({}), "compareempire-22");
-  assert.equal(amazonAuTag({ AMAZON_AU_TAG: " OtherTag-22 " }), "othertag-22");
-  assert.equal(amazonAuTag({ AMAZON_AU_TAG: "not a tag" }), "compareempire-22", "a malformed tag falls back");
-  assert.equal(amazonAuUrl({ name: "Phantasmal Flames Elite Trainer Box", asin: "B0ABCDEF12" }, "compareempire-22"), "https://www.amazon.com.au/dp/B0ABCDEF12?tag=compareempire-22");
-  const s = new URL(amazonAuUrl({ name: "Phantasmal Flames Elite Trainer Box" }, "compareempire-22"));
+  assert.equal(amazonAuTag(), "compareempire-22");
+  assert.doesNotMatch(readFileSync(new URL("../src/lib/amazon.ts", import.meta.url), "utf8"), /process\.env/, "tags are hard-coded (owner, 2026-11-02)");
+  assert.equal(amazonAuUrl({ name: "Phantasmal Flames Elite Trainer Box", asin: "B0ABCDEF12" }), "https://www.amazon.com.au/dp/B0ABCDEF12?tag=compareempire-22");
+  const s = new URL(amazonAuUrl({ name: "Phantasmal Flames Elite Trainer Box" }));
   assert.equal(s.origin + s.pathname, "https://www.amazon.com.au/s");
   assert.equal(s.searchParams.get("k"), "Pokemon Phantasmal Flames Elite Trainer Box");
   assert.equal(s.searchParams.get("tag"), "compareempire-22");
@@ -66,34 +65,34 @@ test("the link: a /dp/ page with an ASIN, else a search; amazon.com.au, the owne
   assert.equal(amazonQuery("Pokémon TCG: Mega Evolution Tin [MCAP - 000] - LIMIT 1 PER CUSTOMER"), "Pokemon TCG: Mega Evolution Tin");
 });
 
-test("where: AU and NZ (Amazon AU) and the US (Amazon US) by default; UK, CA and EU only with their own tag; never Singapore", () => {
-  assert.deepEqual(amazonRegions({}), ["au", "nz", "us"]);
-  for (const r of REGION_LIST) assert.equal(showsAmazon(r.region, {}), ["au", "nz", "us"].includes(r.region), r.region);
+test("where: every region's own Amazon with the owner's hard-coded tag (NZ via Amazon AU); never Singapore", () => {
+  const shown = ["au", "nz", "us", "uk", "ca", "eu"];
+  assert.deepEqual([...amazonRegions()].sort(), [...shown].sort());
+  for (const r of REGION_LIST) assert.equal(showsAmazon(r.region), shown.includes(r.region), r.region);
   assert.equal(showsAmazon(null), false);
   assert.equal(AMAZON_US_DEFAULT_TAG, "riftcompare-20");
-  assert.equal(amazonFor("us", {})!.host, "www.amazon.com");
-  assert.equal(amazonFor("us", { AMAZON_US_TAG: "dexcompare-20" })!.tag, "dexcompare-20");
-  assert.equal(amazonFor("us", { AMAZON_US_TAG: "bad tag" })!.tag, "riftcompare-20", "a malformed tag falls back");
-  assert.equal(amazonFor("uk", { AMAZON_UK_TAG: "bad tag" }), null, "no default: a malformed tag hides the region");
-  assert.equal(amazonFor("uk", { AMAZON_UK_TAG: "dexcompare-21" })!.host, "www.amazon.co.uk");
-  assert.equal(amazonFor("ca", { AMAZON_CA_TAG: "dexcompare0c-20" })!.host, "www.amazon.ca");
-  assert.equal(amazonFor("eu", { AMAZON_DE_TAG: "dexcompare-21" })!.host, "www.amazon.de");
-  assert.equal(amazonFor("sg", { AMAZON_SG_TAG: "x-22" }), null);
-  assert.equal(amazonFor("nz", {})!.host, "www.amazon.com.au");
+  assert.equal(amazonFor("us")!.host, "www.amazon.com");
+  assert.equal(amazonFor("us")!.tag, "riftcompare-20");
+  assert.equal(amazonFor("uk")!.tag, "compareempi03-21");
+  assert.equal(amazonFor("ca")!.tag, "compareempire-20");
+  assert.equal(amazonFor("eu")!.host, "www.amazon.de");
+  assert.equal(amazonFor("eu")!.tag, "compareempire-21");
+  assert.equal(amazonFor("sg"), null);
+  assert.equal(amazonFor("nz")!.host, "www.amazon.com.au");
 });
 
 test("a region's link: its own Amazon host and tag, ascsubtag dex-<region>-<placement>", () => {
-  const u = new URL(amazonHref("us", "phantasmal-flames-elite-trainer-box", "Phantasmal Flames Elite Trainer Box", "amazon-table", {})!);
+  const u = new URL(amazonHref("us", "phantasmal-flames-elite-trainer-box", "Phantasmal Flames Elite Trainer Box", "amazon-table")!);
   assert.equal(u.origin + u.pathname, "https://www.amazon.com/s");
   assert.equal(u.searchParams.get("k"), "Pokemon Phantasmal Flames Elite Trainer Box");
   assert.equal(u.searchParams.get("tag"), "riftcompare-20");
   assert.equal(u.searchParams.get("ascsubtag"), "dex-us-amazon-table");
-  assert.equal(new URL(amazonUrl("nz", { name: "x" }, "amazon-set", {})!).searchParams.get("tag"), "compareempire-22");
-  assert.equal(amazonUrl("sg", { name: "x" }, "amazon-set", {}), null);
-  assert.equal(amazonUrl("us", { name: "x", asin: "B0ABCDEF12" }, undefined, {}), "https://www.amazon.com/dp/B0ABCDEF12?tag=riftcompare-20");
+  assert.equal(new URL(amazonUrl("nz", { name: "x" }, "amazon-set")!).searchParams.get("tag"), "compareempire-22");
+  assert.equal(amazonUrl("sg", { name: "x" }, "amazon-set"), null);
+  assert.equal(amazonUrl("us", { name: "x", asin: "B0ABCDEF12" }, undefined), "https://www.amazon.com/dp/B0ABCDEF12?tag=riftcompare-20");
 });
 
-test("the product page panels: Amazon in AU, NZ and the US (sponsored nofollow noopener, new tab, 'Check price', no price, the statement), none elsewhere", () => {
+test("the product page panels: Amazon in every region but Singapore (sponsored nofollow noopener, new tab, 'Check price', no price, the statement), none elsewhere", () => {
   for (const r of REGION_LIST) {
     const panel = render(React.createElement(MarketplacePanel, { region: r.region, productName: "Phantasmal Flames Elite Trainer Box", productSlug: "phantasmal-flames-elite-trainer-box", preorder: false, tcgplayer: null }));
     const sold = render(
@@ -116,10 +115,10 @@ test("the product page panels: Amazon in AU, NZ and the US (sponsored nofollow n
       assert.equal(a.rel, AMAZON_REL);
       assert.equal(AMAZON_REL, "sponsored nofollow noopener");
       assert.equal(a.target, "_blank");
-      const us = r.region === "us";
-      assert.match(a.text, us ? /Check price on Amazon US/ : /Check price on Amazon AU/);
-      assert.equal(new URL(a.href).searchParams.get("tag"), us ? "riftcompare-20" : "compareempire-22");
-      assert.equal(new URL(a.href).hostname, us ? "www.amazon.com" : "www.amazon.com.au");
+      const store = amazonFor(r.region)!;
+      assert.match(a.text, new RegExp(`Check price on ${store.label}`));
+      assert.equal(new URL(a.href).searchParams.get("tag"), store.tag);
+      assert.equal(new URL(a.href).hostname, store.host);
       assert.match(new URL(a.href).searchParams.get("ascsubtag") ?? "", new RegExp(`^dex-${r.region}-amazon-`));
       assert.ok(html.includes(AMAZON_ASSOCIATE_STATEMENT), `${r.region} ${where}: the statement beside it`);
       assert.doesNotMatch(a.text, /\$|★|rating|in stock|Prime/i, `${r.region} ${where}: no Amazon price, rating or stock`);
