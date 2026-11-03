@@ -1,0 +1,14 @@
+// SEO audit (2026-11-03): every product, set and eBay photo carries a name as alt text.
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { readFileSync, readdirSync, statSync } from "node:fs";
+import { join } from "node:path";
+
+const read = (p: string) => readFileSync(p, "utf8");
+const walk = (d: string): string[] => readdirSync(d).flatMap((f) => (statSync(join(d, f)).isDirectory() ? walk(join(d, f)) : [join(d, f)]));
+
+test("no page or component draws a photo with empty alt text (share images and the quick view aside)", () => {
+  for (const f of walk("src").filter((f) => /\.(tsx|ts)$/.test(f) && !f.includes("opengraph-image") && !f.includes("/og/") && !f.includes("og-card") && !f.endsWith("QuickView.tsx"))) {
+    assert.ok(!/<img\b[^>]*\balt=""/.test(read(f)), f);
+  }
+});

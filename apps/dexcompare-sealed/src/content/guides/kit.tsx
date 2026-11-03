@@ -347,7 +347,7 @@ export function ProductTh({ r, label, p, badge }: { r: RegionInfo; label: string
     <span className="flex min-w-0 items-center gap-3">
       {p && img && (
         <span aria-hidden="true" className="plate relative h-12 w-12 shrink-0">
-          <img src={img} alt="" width={96} height={96} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-contain p-1 mix-blend-multiply" />
+          <img src={img} alt={p.name} width={96} height={96} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-contain p-1 mix-blend-multiply" />
         </span>
       )}
       <span className="flex min-w-0 flex-col gap-0.5">
@@ -616,7 +616,7 @@ export function GuideThumb({ r, guide, product }: { r: RegionInfo; guide: { slug
   if (!product || !img) {
     return (
       <div className="relative aspect-[1200/630] overflow-hidden rounded-xl bg-raised ring-1 ring-line">
-        <img src={`/og/guides/${guide.slug}`} alt="" width={1200} height={630} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />
+        <img src={`/og/guides/${guide.slug}`} alt={`${guide.slug.replace(/-/g, " ")} guide`} width={1200} height={630} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />
       </div>
     );
   }
@@ -626,7 +626,7 @@ export function GuideThumb({ r, guide, product }: { r: RegionInfo; guide: { slug
         src={img}
         srcSet={thumbSet(product.imageUrl, [200, 400]) ?? undefined}
         sizes="(min-width: 1024px) 200px, 50vw"
-        alt=""
+        alt={product.name}
         width={400}
         height={400}
         loading="lazy"
