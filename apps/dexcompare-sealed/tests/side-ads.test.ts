@@ -36,7 +36,7 @@ test("side rails: as many whole tiles as the window's height fits, never a clipp
 
 test("the region layout mounts the rails once, after the footer; the server HTML of a page never holds them", () => {
   const layout = src("app/[region]/layout.tsx");
-  assert.match(layout, /<Footer region=\{r\.region\} \/>\s*\{\/\*[\s\S]*?\*\/\}\s*<SideAds region=\{r\.region\} tiles=\{tcg\} \/>/, "after the footer, the pre-footer strip's tiles");
+  assert.match(layout, /<Footer region=\{r\.region\}( listed=\{listed\})? \/>\s*\{\/\*[\s\S]*?\*\/\}\s*<SideAds region=\{r\.region\} tiles=\{tcg\} \/>/, "after the footer, the pre-footer strip's tiles");
   assert.equal(layout.match(/<SideAds /g)?.length, 1);
 });
 

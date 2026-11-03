@@ -766,3 +766,20 @@ test("a '+' with a whole product on each side is two products; a product and its
   assert.equal(key("Prismatic Evolutions Surprise Box (Official Eeveelution Promo + 4 Booster Packs)").startsWith("collection|sv8pt5"), true);
   assert.equal(key("Surging Sparks Elite Trainer Box + Promo"), "sv8|etb");
 });
+
+test("a store's 'Poke:' / 'English TCG:' category prefix is not part of the product (2026-11-03: one-store twins)", () => {
+  assert.equal(key("Poke: Celebrations Collector Chest"), key("Pokemon Celebrations Collector Chest"));
+  assert.equal(key("English TCG: Lumiose City Mini Tin"), key("Pokemon TCG: Lumiose City Mini Tin"));
+  assert.equal(key("English TCG: V Battle Deck - Mewtwo vs Melmetal"), key("Pokemon V Battle Deck - Mewtwo vs Melmetal"));
+  const id = identify("Poke: Celebrations Collector Chest");
+  assert.ok(isIdentity(id));
+  assert.doesNotMatch(id.name, /^Poke:/);
+  // "Pokémon" itself is never cut to "mon".
+  assert.ok(isIdentity(identify("Pokemon Celebrations Collector Chest")));
+});
+
+test("toy brands sold beside the cards are not sealed product: Sanei plush, TOMY and Funism figures (2026-11-03: 102 pages)", () => {
+  assert.equal(key("Sanei: Pokemon All Star Collection - Blastoise PP96"), "REJECT:accessory");
+  assert.equal(key("TOMY: Pokemon Battle Figure Pack - Pikachu & Eevee"), "REJECT:accessory");
+  assert.equal(key("Funism: Pokemon Home Collection - Bulbasaur"), "REJECT:accessory");
+});
