@@ -426,6 +426,13 @@ Guides are typed TSX modules, not MDX (`src/content/guides/`):
 
 ## Pre-order pages
 
+New sets arrive by themselves (2026-11-03): each sealed import first reads
+TCGplayer's Pokémon set list (`scripts/discover-sets.ts`,
+`src/lib/set-discovery.ts`) into `data/sets/discovered.json`, merged into
+`SETS` by `src/lib/sets.ts`. TCGplayer opens a set only weeks before release,
+so a set announced earlier is still added to `sets.ts` by hand for its early
+pre-order page (DECISIONS.md, 2026-11-03).
+
 An upcoming set can have a pre-order page at `/<region>/preorders/<set slug>`
 (`src/app/[region]/preorders/[set]/page.tsx`, ported from Rift Compare's
 `/radiance-preorders`): a summary strip (stores checked in the market, stores
