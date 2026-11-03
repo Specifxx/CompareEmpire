@@ -51,14 +51,14 @@ const amazonLinks = (html: string) =>
   }));
 
 test("the link: a /dp/ page with an ASIN, else a search; amazon.com.au, the owner's tag, nothing else", () => {
-  assert.equal(AMAZON_AU_DEFAULT_TAG, "compareempire-22");
-  assert.equal(amazonAuTag(), "compareempire-22");
+  assert.equal(AMAZON_AU_DEFAULT_TAG, "dexcompare-22");
+  assert.equal(amazonAuTag(), "dexcompare-22");
   assert.doesNotMatch(readFileSync(new URL("../src/lib/amazon.ts", import.meta.url), "utf8"), /process\.env/, "tags are hard-coded (owner, 2026-11-02)");
-  assert.equal(amazonAuUrl({ name: "Phantasmal Flames Elite Trainer Box", asin: "B0ABCDEF12" }), "https://www.amazon.com.au/dp/B0ABCDEF12?tag=compareempire-22");
+  assert.equal(amazonAuUrl({ name: "Phantasmal Flames Elite Trainer Box", asin: "B0ABCDEF12" }), "https://www.amazon.com.au/dp/B0ABCDEF12?tag=dexcompare-22");
   const s = new URL(amazonAuUrl({ name: "Phantasmal Flames Elite Trainer Box" }));
   assert.equal(s.origin + s.pathname, "https://www.amazon.com.au/s");
   assert.equal(s.searchParams.get("k"), "Pokemon Phantasmal Flames Elite Trainer Box");
-  assert.equal(s.searchParams.get("tag"), "compareempire-22");
+  assert.equal(s.searchParams.get("tag"), "dexcompare-22");
   assert.deepEqual([...s.searchParams.keys()].sort(), ["k", "tag"], "no other parameter");
   assert.equal(isAsin("B0ABCDEF12"), true);
   assert.equal(isAsin("b0abcdef12"), false);
@@ -87,7 +87,7 @@ test("a region's link: its own Amazon host and tag, ascsubtag dex-<region>-<plac
   assert.equal(u.searchParams.get("k"), "Pokemon Phantasmal Flames Elite Trainer Box");
   assert.equal(u.searchParams.get("tag"), "riftcompare-20");
   assert.equal(u.searchParams.get("ascsubtag"), "dex-us-amazon-table");
-  assert.equal(new URL(amazonUrl("nz", { name: "x" }, "amazon-set")!).searchParams.get("tag"), "compareempire-22");
+  assert.equal(new URL(amazonUrl("nz", { name: "x" }, "amazon-set")!).searchParams.get("tag"), "dexcompare-22");
   assert.equal(amazonUrl("sg", { name: "x" }, "amazon-set"), null);
   assert.equal(amazonUrl("us", { name: "x", asin: "B0ABCDEF12" }, undefined), "https://www.amazon.com/dp/B0ABCDEF12?tag=riftcompare-20");
 });
