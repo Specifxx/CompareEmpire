@@ -14,6 +14,7 @@ import { STORES } from "@/lib/stores";
 import { GhostTeaser, HalloweenDecor } from "@/components/season/HalloweenDecor";
 import { ChristmasDecor } from "@/components/season/ChristmasDecor";
 import { ChristmasGifts } from "@/components/season/ChristmasGifts";
+import { CreatorsCornerBadge } from "@/components/creators/CreatorsCornerBadge";
 
 // Rendered per request and kept by Vercel's CDN for a day (next.config.js CDN_PAGES), never at build: the page carries
 // the default region's five most-stocked products (lib/picks.ts), read from the public data files, so a crawler's first fetch has them. It reads no cookie, header or session: one copy for all.
@@ -59,6 +60,8 @@ export default async function Landing() {
     <div>
       <section>
         <div className="page relative pb-10 pt-8 text-center sm:pb-14 sm:pt-16">
+          {/* The creators hub, above the fold (owner, 2026-11-03): top-right corner from sm, a centred pill above the headline on a phone. */}
+          <CreatorsCornerBadge />
           <HalloweenDecor />
           <ChristmasDecor />
           <GhostTeaser />
