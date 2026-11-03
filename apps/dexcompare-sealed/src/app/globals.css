@@ -470,6 +470,9 @@ body:has([data-ebay-no-prefooter]) [data-ebay-prefooter] {
   .qv-shimmer, .qv-panel, .qv-backdrop { animation: none; }
 }
 
+/* The hero's canvas of motes (components/HeroSparks.tsx): under the hero's content, over its surface. */
+.hero-sparks { position: absolute; inset: 0; pointer-events: none; }
+
 /* xmas-common:start (the same block on every Compare site) */
 /* ---------------------------------------------------------------------------
    Christmas (data-season="christmas", lib/season.ts; 1 November to 26 December).

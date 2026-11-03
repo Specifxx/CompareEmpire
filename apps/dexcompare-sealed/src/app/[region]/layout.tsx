@@ -3,6 +3,7 @@ import { PreFooterTcgplayer } from "@/components/PreFooterTcgplayer";
 import { listedSetCodes, tcgplayerTiles, type TcgplayerTile } from "@/lib/data";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
+import { SideAds } from "@/components/SideAds";
 import { SideNav } from "@/components/SideNav";
 import { navGroups } from "@/lib/nav";
 import { regionOrNotFound } from "@/lib/regions";
@@ -39,6 +40,9 @@ export default async function RegionLayout({ children, params }: { children: Rea
         </main>
       </div>
       <Footer region={r.region} listed={listed} />
+      {/* Wide screens only (1864px and up), drawn in the browser: an eBay rail down the far left and a TCGplayer rail down the far right,
+          fixed outside the shell (components/SideAds.tsx, owner, 2026-11-03). Nothing in the server HTML, nothing on smaller screens. */}
+      <SideAds region={r.region} tiles={tcg} />
     </>
   );
 }

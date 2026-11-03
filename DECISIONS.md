@@ -485,3 +485,62 @@ RiftCompare's admin; star ratings count at once. DexCompare stores nothing: the 
 copies RiftCompare's corner card, not its rating drive: never on arrival, after 4 pages and 3 minutes or on return from a store
 tab, at most three times 14 days apart, always closable; "Rate us" in the footer opens it. No email asked for, never review
 markup. RiftCompare's DECISIONS.md, "Every site's reviews, approved in one queue".
+
+## 2026-11-03 — DexCompare: eBay and TCGplayer rails beside the page, and the mini pair in every quick view
+
+The owner wanted more of the image ads on DexCompare: first "a very small eBay sealed ad" on the home page, then, seeing the
+empty space either side of the content on a wide screen, "the left side could be eBay and the right side TCGplayer … only if
+you can fit it. If you can't fit it, then don't use the ads", plus "a tiny visual" with every quick view: one side-scrollable
+TCGplayer row and one eBay row. Amazon for sealed product stays where it already was: the third pinned row of every product
+page (`dexcompare-22` in Australia), never in the pop-up (Associates Operating Agreement, 2026-11-02 entry).
+
+- **Side rails** (`apps/dexcompare-sealed/src/components/SideAds.tsx`, mounted by the region layout): real sealed eBay listings
+  stacked down the far left (`listings-side`), the newest sets' TCGplayer products down the far right (`tcgplayer-strip-side`),
+  fixed outside the 1480px shell under the sticky header. They exist only in the browser and only from 1864px wide
+  (shell + two 160px rails with gutters): nothing in the server HTML, so crawlers, laptops, tablets and phones are unchanged and
+  the layout never shifts. As many tiles as the window's height fits, never a clipped one; too short for one tile, no rail. The
+  eBay rail reuses the strips' `useListings` (one `/api/ebay/<region>?c=sealed` request, shared with the home strip); the
+  TCGplayer tiles are the pre-footer strip's props. Labelled Ad, every link rel sponsored. Not a pop-up: nothing moves or covers
+  content, so the pop-up policy (TCGEmpire #293) is untouched.
+- **Quick view**: the product page's own `MiniSealedAds` pair (56px tiles: the product's eBay listings, the set's TCGplayer
+  products) above the price rows, under `listings-quickview-mini` / `tcgplayer-strip-quickview`. `/api/quick` now returns the
+  tagged TCGplayer tiles and the eBay context; a response the CDN kept from before falls back to the eBay search row.
+- The home page's existing sealed strip, chase strip and TCGplayer strip stay as they were.
+
+## 2026-11-03 — DexCompare: new Pokémon sets find themselves (TCGplayer's catalogue)
+
+The owner (2026-11-03): "We need a fresh pipeline of new products for all our sites, that's where our demand is. For
+example the Pokemon preorder." DexCompare's pre-order pages, Coming soon block and set pages already followed
+`lib/sets.ts`, but that list was typed by hand, and until a set was added every store pre-order naming it was refused.
+Same fix as MTG Compare's (Specifxx/mtgcompare #66), with TCGplayer as the source because Pokémon has no Scryfall.
+
+**What.** The sealed import first runs `apps/dexcompare-sealed/scripts/discover-sets.ts`: TCGCSV's Pokémon group list
+(TCGplayer's catalogue as public JSON) and, for each candidate, its product list. The result is
+`apps/dexcompare-sealed/data/sets/discovered.json`, committed with the data snapshot and merged into `SETS`.
+
+- A group is taken when it is due within 180 days (or out within 60), is not a promo, gallery, vault, deck, league or
+  event group, and TCGplayer itself lists an Elite Trainer Box or booster product in it.
+- `noBoosterBox` unless TCGplayer lists a Booster Box or Display: a store's "booster box" of a set that never had one
+  is a store-made lot, so it is refused until TCGplayer shows the real one.
+- Name and street date are TCGplayer's (`publishedOn`); code from its abbreviation (ME08 → me8); series from that
+  prefix, else the newest hand-written set's. The slug is fixed when first seen (a live URL).
+- TCGplayer re-stamps old groups' dates (POP Series read "2026-11-02"), so only group ids above the newest
+  year-old known set's are read: ids only grow.
+- Refused and listed in the job summary: a name under four letters, and a name inside a known set's name.
+- TCGplayer opens a set's group only weeks before release (2026-11-03: Delta Reign yes, Flowing Fists, Feb 2027,
+  not yet), so a set announced earlier is still added by hand for its early pre-order page; discovery is the safety net.
+- A hand-written entry with the same code or slug always wins. Never fails the import.
+  `apps/dexcompare-sealed/tests/set-discovery.test.ts`.
+## 2026-11-03: DexCompare gets a Creators page and a homepage bubble, like RiftCompare's
+
+Owner: "having the creators page for all of these sites as well is really, really good. Like just a bubble and then a
+really nice formatted creators page, just like how RiftCompare does it." Word of mouth from creators and visitors is the
+sites' main growth channel, so every site gets one.
+
+`/creators` (`apps/dexcompare-sealed/src/app/(site)/creators`) is RiftCompare's page in DexCompare's theme, without the
+parts that need a database: the list is the static array in `src/content/creators.ts` (empty until the first creator
+agrees; the grid shows "Your channel here" spots, never an invented creator), applying is a pre-filled email to
+`CONTACT_EMAIL`, and there are no creator codes. "Buy them a pack" is the creator's own Ko-fi, Patreon or tip page: the
+site never handles the money. `CreatorsCornerBadge` is the bubble in the landing hero and every region home (top-right
+from sm, a centred pill on a phone); the sidebar's "More", the footer and the static sitemap link the page. Prerendered
+like /about: no data or request read. Not called "partners" anywhere: that word means the affiliate links.

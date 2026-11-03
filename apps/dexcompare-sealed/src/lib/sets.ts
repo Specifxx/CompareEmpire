@@ -3,7 +3,11 @@
 // shipped (XY onward), minus the sub-sets that never have sealed product of
 // their own (trainer/galarian galleries, shiny vaults, promos, McDonald's).
 //
-// ADDING A SET: add an entry at the top. `slug` is the URL (/au/sets/<slug>)
+// NEW SETS ARRIVE BY THEMSELVES (2026-11-03): the sealed import adds TCGplayer's upcoming sets to data/sets/discovered.json
+// (lib/set-discovery.ts), merged into SETS below. Write an entry here only to correct one (an alias, the publisher's code, a
+// booster-box rule): it replaces the discovered entry. Keep the slug the discovered entry had.
+//
+// ADDING A SET BY HAND: add an entry at the top. `slug` is the URL (/au/sets/<slug>)
 // and must never change once live. If a store titles the set some other way,
 // add an `aliases` regex source. Nothing else needs editing — products group
 // under the new set on the next import.
@@ -12,6 +16,9 @@
 // Violet", "Mega Evolution"). Stores prefix every set in a series with it
 // ("Scarlet & Violet—Surging Sparks Elite Trainer Box"), so a generic set only
 // matches when no other set does. See detectSet() in sealed-title.ts.
+
+import discovered from "../../data/sets/discovered.json";
+import type { DiscoveredSet } from "./set-discovery";
 
 export interface PokemonSet {
   code: string;
@@ -29,7 +36,8 @@ export interface PokemonSet {
   noBoosterBox?: boolean;
 }
 
-export const SETS: PokemonSet[] = [
+/** The hand-written sets (scripts/discover-sets.ts checks new ones against these). */
+export const HAND_SETS: PokemonSet[] = [
   // Added by hand (newer than the pokemontcg.io export the list came from).
   // Dates from Bulbapedia's set pages, read 2026-09-25.
   // Flowing Fists: name and date as Wargamer reported Pokémon's reveal (2026-10-21), read 2026-11-03. Code is ours until the
@@ -109,7 +117,7 @@ export const SETS: PokemonSet[] = [
 
 // Sets sold without a booster box (see PokemonSet.noBoosterBox).
 const NO_BOOSTER_BOX = ["cel30", "me2pt5", "sv8pt5", "sv6pt5", "sv4pt5", "sv3pt5", "swsh12pt5", "pgo", "cel25", "swsh45", "swsh35", "sm115", "sm75", "sm35", "det1", "g1"];
-for (const s of SETS) if (NO_BOOSTER_BOX.includes(s.code)) s.noBoosterBox = true;
+for (const s of HAND_SETS) if (NO_BOOSTER_BOX.includes(s.code)) s.noBoosterBox = true;
 
 // Title spellings the plain set name doesn't cover.
 const ALIASES: Record<string, string[]> = {
@@ -136,7 +144,18 @@ const ALIASES: Record<string, string[]> = {
   // base set only reads from "XY Base Set", "XY Booster Box", "XY Elite Trainer Box".
   xy1: ["\\bxy\\s*[:\\-]?\\s*\\(?\\s*(?:base\\s*set|booster|elite)"],
 };
-for (const s of SETS) if (ALIASES[s.code]) s.aliases = ALIASES[s.code];
+for (const s of HAND_SETS) if (ALIASES[s.code]) s.aliases = ALIASES[s.code];
+
+// Sets found by the sealed import in TCGplayer's set list (lib/set-discovery.ts, data/sets/discovered.json), so a newly announced
+// set's pre-orders are filed, and its pages appear, without anyone editing this file. A hand-written set with the same code or slug wins.
+const HAND_CODES = new Set(HAND_SETS.map((s) => s.code));
+const HAND_SLUGS = new Set(HAND_SETS.map((s) => s.slug));
+const FOUND: PokemonSet[] = (discovered as DiscoveredSet[])
+  .filter((d) => !HAND_CODES.has(d.code) && !HAND_SLUGS.has(d.slug))
+  .map((d) => ({ code: d.code, name: d.name, slug: d.slug, series: d.series, releaseDate: d.releaseDate, logo: null, ...(d.noBoosterBox ? { noBoosterBox: true } : {}) }));
+
+/** Every set, newest first: the hand-written ones and the discovered ones. */
+export const SETS: PokemonSet[] = [...HAND_SETS, ...FOUND].sort((a, b) => b.releaseDate.localeCompare(a.releaseDate));
 
 export const SET_BY_CODE = new Map(SETS.map((s) => [s.code, s]));
 export const SET_BY_SLUG = new Map(SETS.map((s) => [s.slug, s]));
