@@ -8,7 +8,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { PriceFloor } from "@/lib/ebay-offer-row";
 import type { Region } from "@/lib/regions";
-import { OfferRowsWithEbay } from "./EbayStrip";
+import { MiniSealedAds, OfferRowsWithEbay, type MiniTcgTile } from "./EbayStrip";
 import type { StoreRowData } from "./OfferRows";
 import { ShareButton } from "./ShareButton";
 import { closeQuickViewUrl, onQuickViewHistory, openQuickViewUrl } from "@/lib/quick-view-url";
@@ -22,6 +22,7 @@ interface Head {
   img: string | null;
 }
 interface Data {
+  slug: string;
   stores: number;
   /** the share message (lib/share-link.ts) */
   share?: string;
@@ -29,7 +30,9 @@ interface Data {
   rows: StoreRowData[];
   tcg: StoreRowData | null;
   amazon: StoreRowData | null;
-  ebay: { slug: string; query: string; floor: PriceFloor | null; packs: number | null };
+  ebay: { slug: string; query: string; floor: PriceFloor | null; packs: number | null; /** absent in a response the CDN kept from before 2026-11-03 */ context?: string };
+  /** The small eBay + TCGplayer pair above the rows (owner, 2026-11-03): the set's TCGplayer tiles, already affiliate-tagged. */
+  ads: { tcg: MiniTcgTile[]; tcgSearch: string };
   preorder: boolean;
   name: string;
   sub: string;
@@ -168,6 +171,21 @@ export function QuickView() {
           </button>
         </div>
         <div className="flex-1 overflow-y-auto p-4 sm:p-5">
+          {/* The product page's small eBay + TCGplayer pair (owner, 2026-11-03: "a tiny visual … one TCGplayer side scrollable ad, and then
+              one eBay side scrollable ad" with every quick view): the product's own eBay listings and the set's TCGplayer products.
+              The same component as the page (EbayStrip.tsx MiniSealedAds); no Amazon link in a pop-up. */}
+          {got && (
+            <MiniSealedAds
+              region={head.region}
+              context={got.ebay.context ?? `item:${got.slug}`}
+              tcg={got.ads?.tcg ?? []}
+              ebayPlacement="listings-quickview-mini"
+              tcgPlacement="tcgplayer-strip-quickview"
+              ebayQuery={got.ebay.query}
+              tcgSearchHref={got.ads?.tcgSearch ?? ""}
+              className="mb-4"
+            />
+          )}
           <h3 className="mb-3 text-sm font-semibold">Every store&rsquo;s price</h3>
           {data === "loading" ? (
             <Skeleton />
