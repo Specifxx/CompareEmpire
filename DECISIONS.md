@@ -474,3 +474,14 @@ The owner's 2026-11-03 SEO audit asked DexCompare for FAQPage and Product schema
   guides, no FAQPage); its FAQ lives on `/about`, and the region homes carry "How DexCompare works".
 - The family block's heading is "Deals on other card games", as on MTG Compare: the Black Friday copy test bans
   "on sale" and was failing on `main`.
+
+## DexCompare: Rate us and "What people say", run by RiftCompare (2026-11-03)
+
+The owner wanted RiftCompare's rating pop-up on every site, each site's reviews public, and every written review approved in
+RiftCompare's admin; star ratings count at once. DexCompare stores nothing: the corner card
+(`apps/dexcompare-sealed/src/components/site-reviews/RateCard.tsx`, in the root layout) posts cross-origin to
+`https://riftcompare.com/api/site-reviews`, and the region home's "What people say" reads the score and approved reviews from
+`https://riftcompare.com/api/site-reviews/dex` in the browser (public JSON, CDN six hours): no function, no data read. The card
+copies RiftCompare's corner card, not its rating drive: never on arrival, after 4 pages and 3 minutes or on return from a store
+tab, at most three times 14 days apart, always closable; "Rate us" in the footer opens it. No email asked for, never review
+markup. RiftCompare's DECISIONS.md, "Every site's reviews, approved in one queue".
