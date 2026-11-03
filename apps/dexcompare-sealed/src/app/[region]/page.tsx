@@ -14,6 +14,7 @@ import { ProductRail } from "@/components/ProductRail";
 import { SearchBox } from "@/components/SearchBox";
 import { RegionChips } from "@/components/RegionChips";
 import { Empty, Section } from "@/components/Section";
+import { LatestGuides } from "@/components/LatestGuides";
 import { StockPill } from "@/components/StockPill";
 import { homeRails, regionOverview, tcgplayerTiles, type ProductCardData } from "@/lib/data";
 import { TcgplayerStrip } from "@/components/TcgplayerStrip";
@@ -235,6 +236,10 @@ export default async function RegionHome({ params }: { params: { region: string 
             <ProductGrid products={preorders} region={r.region} />
           </Section>
         )}
+
+        <Section title="New Pokémon set guides" kicker="Sets, chase cards and mechanics" href={`/${r.region}/guides`} linkLabel="All guides">
+          <LatestGuides region={r.region} />
+        </Section>
 
         <Section title="Booster boxes in stock" kicker="Newest sets first" href={`/${r.region}/type/booster-boxes`}>
           {boxes.length ? (

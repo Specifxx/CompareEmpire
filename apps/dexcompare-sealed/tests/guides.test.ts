@@ -245,6 +245,34 @@ function fixture(slug: GuideSlug): GuideData {
           { ...card(released[0], "Tin", 2499, 4), setCode: null, slug: "tin-test", name: "Tin Test" },
         ]),
       };
+    case "flowing-fists-mega-lucario-z":
+    case "30th-celebration-chase-cards":
+    case "chaos-rising-chase-cards":
+    case "perfect-order-chase-cards":
+    case "ascended-heroes-chase-cards":
+    case "phantasmal-flames-chase-cards":
+    case "mega-evolution-chase-cards": {
+      const [code, prev] = ({
+        "flowing-fists-mega-lucario-z": ["me7", "me6"],
+        "30th-celebration-chase-cards": ["cel30", "me5"],
+        "chaos-rising-chase-cards": ["me4", "me3"],
+        "perfect-order-chase-cards": ["me3", "me2pt5"],
+        "ascended-heroes-chase-cards": ["me2pt5", "me2"],
+        "phantasmal-flames-chase-cards": ["me2", "me1"],
+        "mega-evolution-chase-cards": ["me1", "zsv10pt5"],
+      } as Record<string, [string, string]>)[slug];
+      const lines = (c: string, base: number) =>
+        sorted([
+          ...(SET_BY_CODE.get(c)!.noBoosterBox ? [] : [card(c, "Booster Box", base * 36, 9)]),
+          card(c, "Elite Trainer Box", base * 9 + 2000, 11),
+          card(c, "Booster Bundle", base * 6 + 500, 8),
+        ]);
+      return { ...d, sets: [code, prev], bySet: { [code]: lines(code, 520), [prev]: lines(prev, 480) }, openCount: { [code]: 3 } };
+    }
+    case "pokemon-legendary-stadium-cards":
+      return fixture("delta-reign-booster-box-price");
+    case "every-mega-evolution-pokemon-ex":
+      return fixture("pokemon-mega-evolution-sealed-price-guide");
     case "pitch-black-chase-cards":
       return {
         ...d,
@@ -299,7 +327,7 @@ const PAIRS = GUIDES.filter((g) => !ONLY || ONLY.has(g.slug)).flatMap((g) => gui
 
 test("registry: unique slugs, ISO editorial dates (updated ≥ published), descriptions ≤ 160, titles that fit a <title>", () => {
   assert.equal(new Set(GUIDES.map((g) => g.slug)).size, GUIDES.length);
-  assert.equal(GUIDES.length, 30);
+  assert.equal(GUIDES.length, 39);
   for (const g of GUIDES) {
     assert.match(g.slug, /^[a-z0-9]+(?:-[a-z0-9]+)*$/);
     for (const d of [g.published, g.updated]) {
@@ -342,9 +370,9 @@ test("the MSRP guide is US-only, the five Australian guides AU-only; every other
   for (const r of REGION_LIST.filter((x) => x.region !== "us")) {
     assert.equal(guideFor("pokemon-tcg-msrp", r.region), null, r.region);
     assert.ok(!guidesFor(r.region).some((g) => g.slug === "pokemon-tcg-msrp"), r.region);
-    assert.equal(guidesFor(r.region).length, r.region === "au" ? 29 : 24, r.region);
+    assert.equal(guidesFor(r.region).length, r.region === "au" ? 38 : 33, r.region);
   }
-  assert.equal(guidesFor("us").length, 25);
+  assert.equal(guidesFor("us").length, 34);
   for (const g of GUIDES.filter((x) => x.slug !== "pokemon-tcg-msrp" && !AU_ONLY.includes(x.slug))) assert.equal(guideRegions(g).length, 7, g.slug);
   assert.equal(guideFor("no-such-guide", "au"), null);
 });

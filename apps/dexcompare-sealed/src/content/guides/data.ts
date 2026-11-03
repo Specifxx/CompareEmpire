@@ -212,6 +212,18 @@ export function cheapestHeadline(products: ProductCardData[]): ProductCardData[]
   return out;
 }
 
+/** The set-reveal guides' set and the set before it (the default, Delta Reign and Pitch Black, covers the rest). */
+const REVEAL_SETS: Partial<Record<GuideSlug, [string, string]>> = {
+  "pitch-black-chase-cards": ["me5", "me4"],
+  "flowing-fists-mega-lucario-z": ["me7", "me6"],
+  "30th-celebration-chase-cards": ["cel30", "me5"],
+  "chaos-rising-chase-cards": ["me4", "me3"],
+  "perfect-order-chase-cards": ["me3", "me2pt5"],
+  "ascended-heroes-chase-cards": ["me2pt5", "me2"],
+  "phantasmal-flames-chase-cards": ["me2", "me1"],
+  "mega-evolution-chase-cards": ["me1", "zsv10pt5"],
+};
+
 /** Load what a guide's live blocks show, for one region. */
 export async function loadGuideData(slug: GuideSlug, r: RegionInfo, now: Date = new Date()): Promise<GuideData> {
   const today = now.toISOString().slice(0, 10);
@@ -303,6 +315,7 @@ export async function loadGuideData(slug: GuideSlug, r: RegionInfo, now: Date = 
       const pick = codes.find((c) => bySet[c]?.length) ?? codes[0];
       return done({ stores, types, sets: pick ? [pick] : [], bySet: pick && bySet[pick] ? { [pick]: bySet[pick] } : {} });
     }
+    case "every-mega-evolution-pokemon-ex":
     case "pokemon-mega-evolution-sealed-price-guide": {
       // Every Mega Evolution set, released and upcoming, newest first (sets.ts order): the cheapest open box, ETB and bundle of each
       // (calendarProducts, about 9 rows a set, ≤ 72 rows).
@@ -375,10 +388,18 @@ export async function loadGuideData(slug: GuideSlug, r: RegionInfo, now: Date = 
     case "delta-reign-chase-cards":
     case "delta-reign-card-list":
     case "delta-reign-booster-box-vs-etb":
-    case "pitch-black-chase-cards": {
+    case "pitch-black-chase-cards":
+    case "flowing-fists-mega-lucario-z":
+    case "30th-celebration-chase-cards":
+    case "chaos-rising-chase-cards":
+    case "perfect-order-chase-cards":
+    case "ascended-heroes-chase-cards":
+    case "phantasmal-flames-chase-cards":
+    case "mega-evolution-chase-cards":
+    case "pokemon-legendary-stadium-cards": {
       // The set-reveal guides: the set read whole (one set, one market, open only, cheapest first) and the set before it for its
       // cheapest box, ETB and bundle (calendarProducts, ≤ 9 rows), as the Delta Reign box guide.
-      const [code, prev] = slug === "pitch-black-chase-cards" ? ["me5", "me4"] : ["me6", "me5"];
+      const [code, prev] = REVEAL_SETS[slug] ?? ["me6", "me5"];
       const [list, cal] = await Promise.all([productsBySet(r.market, code), calendarProducts(r.market, [prev])]);
       const open = sortCards(list.filter(cardOpen));
       return done({ sets: [code, prev], bySet: { [code]: open, [prev]: cal.get(prev) ?? [] }, openCount: { [code]: open.length } });

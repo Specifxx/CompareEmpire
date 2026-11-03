@@ -411,3 +411,23 @@ as a link network and looks odd to a reader. The owner said do it.
   one owner, not paid, so no `sponsored`/`nofollow`.
 - Kept: the "Other card games" / hobby / tech price blocks on deals, Black Friday and pre-order pages
   (`clusterSisters`). They sit on a few pages, show real prices a reader of that page may want, and are not sitewide.
+
+## 2026-11-03 — DexCompare: set guides for every Mega Evolution set, linked from the home pages
+
+The owner said DexCompare's traffic is good but almost none of it comes from search, asked for many more posts on new
+and upcoming sets (chase cards, rarities, new mechanics) to catch those searches, and wants the AdSense application,
+rejected once, approved.
+
+- Nine guides (`src/content/guides`): one per Mega Evolution series set that had none (Mega Evolution, Phantasmal
+  Flames, Ascended Heroes, Perfect Order, Chaos Rising, 30th Celebration) and for Flowing Fists (5 February 2027,
+  added to `lib/sets.ts`, so its pre-order hub and release-calendar row build themselves), plus two explainers:
+  Legendary Stadiums (Delta Reign's new card type) and every Mega Evolution ex so far. Each set's facts live once,
+  in `REVEALS` (`set-reveal.tsx`), with the source and the day it was read; the explainer tables read the same
+  entries. Card names, counts and mechanics come only from the publisher's announcement (pokemon.com, its press kit
+  as PokéGuardian reprints it, its press site) or, for the Japanese-only details, a named report labelled as such.
+  Still no single-card prices, odds or pull rates.
+- Not written: release-date or "card list" posts for sets that already have a page owning the query (`/releases`,
+  `/preorders/<set>`, `/sets/<set>`): two of our own pages on one query cap both.
+- Crawl paths: the newest six guides are plain server-rendered links on every region home and on the landing page
+  (`LatestGuides`), and the guides index lists newest first. The landing page grows by that one section; the rest of
+  its 2026-10-25 "short page" rule stands.
