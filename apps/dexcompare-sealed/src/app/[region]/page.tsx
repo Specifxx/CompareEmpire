@@ -42,6 +42,7 @@ import { CompareOtherTcgs } from "@/components/CompareOtherTcgs";
 import { SetIndex } from "@/components/SetIndex";
 import { setCountsGrouped, typeLabelsInMarket } from "@/lib/hub-data";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { CreatorsCornerBadge } from "@/components/creators/CreatorsCornerBadge";
 import { Flag } from "@/components/Flag";
 
 // Rendered per request and kept by Vercel's CDN for a day (next.config.js, CDN_PAGES), never ISR: an ISR write
@@ -105,6 +106,8 @@ export default async function RegionHome({ params }: { params: { region: string 
         <div className="page relative grid gap-10 py-8 sm:py-12 lg:grid-cols-[minmax(0,1fr)_400px] lg:items-center">
           <div className="min-w-0">
             <Breadcrumbs items={[{ href: "/", label: "DexCompare" }, { label: r.name }]} />
+            {/* The creators hub, above the fold on every region home too (owner, 2026-11-03); a pill under the breadcrumb on a phone. */}
+            <CreatorsCornerBadge className="sm:right-6 sm:top-8" />
             <div className="eyebrow">
               <Flag code={r.short} /> {r.name} · prices in {r.currency}
             </div>

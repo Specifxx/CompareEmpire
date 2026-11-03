@@ -531,3 +531,16 @@ Same fix as MTG Compare's (Specifxx/mtgcompare #66), with TCGplayer as the sourc
   not yet), so a set announced earlier is still added by hand for its early pre-order page; discovery is the safety net.
 - A hand-written entry with the same code or slug always wins. Never fails the import.
   `apps/dexcompare-sealed/tests/set-discovery.test.ts`.
+## 2026-11-03: DexCompare gets a Creators page and a homepage bubble, like RiftCompare's
+
+Owner: "having the creators page for all of these sites as well is really, really good. Like just a bubble and then a
+really nice formatted creators page, just like how RiftCompare does it." Word of mouth from creators and visitors is the
+sites' main growth channel, so every site gets one.
+
+`/creators` (`apps/dexcompare-sealed/src/app/(site)/creators`) is RiftCompare's page in DexCompare's theme, without the
+parts that need a database: the list is the static array in `src/content/creators.ts` (empty until the first creator
+agrees; the grid shows "Your channel here" spots, never an invented creator), applying is a pre-filled email to
+`CONTACT_EMAIL`, and there are no creator codes. "Buy them a pack" is the creator's own Ko-fi, Patreon or tip page: the
+site never handles the money. `CreatorsCornerBadge` is the bubble in the landing hero and every region home (top-right
+from sm, a centred pill on a phone); the sidebar's "More", the footer and the static sitemap link the page. Prerendered
+like /about: no data or request read. Not called "partners" anywhere: that word means the affiliate links.
