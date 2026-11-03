@@ -475,6 +475,38 @@ The owner's 2026-11-03 SEO audit asked DexCompare for FAQPage and Product schema
 - The family block's heading is "Deals on other card games", as on MTG Compare: the Black Friday copy test bans
   "on sale" and was failing on `main`.
 
+## DexCompare: Rate us and "What people say", run by RiftCompare (2026-11-03)
+
+The owner wanted RiftCompare's rating pop-up on every site, each site's reviews public, and every written review approved in
+RiftCompare's admin; star ratings count at once. DexCompare stores nothing: the corner card
+(`apps/dexcompare-sealed/src/components/site-reviews/RateCard.tsx`, in the root layout) posts cross-origin to
+`https://riftcompare.com/api/site-reviews`, and the region home's "What people say" reads the score and approved reviews from
+`https://riftcompare.com/api/site-reviews/dex` in the browser (public JSON, CDN six hours): no function, no data read. The card
+copies RiftCompare's corner card, not its rating drive: never on arrival, after 4 pages and 3 minutes or on return from a store
+tab, at most three times 14 days apart, always closable; "Rate us" in the footer opens it. No email asked for, never review
+markup. RiftCompare's DECISIONS.md, "Every site's reviews, approved in one queue".
+
+## 2026-11-03 — DexCompare: eBay and TCGplayer rails beside the page, and the mini pair in every quick view
+
+The owner wanted more of the image ads on DexCompare: first "a very small eBay sealed ad" on the home page, then, seeing the
+empty space either side of the content on a wide screen, "the left side could be eBay and the right side TCGplayer … only if
+you can fit it. If you can't fit it, then don't use the ads", plus "a tiny visual" with every quick view: one side-scrollable
+TCGplayer row and one eBay row. Amazon for sealed product stays where it already was: the third pinned row of every product
+page (`dexcompare-22` in Australia), never in the pop-up (Associates Operating Agreement, 2026-11-02 entry).
+
+- **Side rails** (`apps/dexcompare-sealed/src/components/SideAds.tsx`, mounted by the region layout): real sealed eBay listings
+  stacked down the far left (`listings-side`), the newest sets' TCGplayer products down the far right (`tcgplayer-strip-side`),
+  fixed outside the 1480px shell under the sticky header. They exist only in the browser and only from 1864px wide
+  (shell + two 160px rails with gutters): nothing in the server HTML, so crawlers, laptops, tablets and phones are unchanged and
+  the layout never shifts. As many tiles as the window's height fits, never a clipped one; too short for one tile, no rail. The
+  eBay rail reuses the strips' `useListings` (one `/api/ebay/<region>?c=sealed` request, shared with the home strip); the
+  TCGplayer tiles are the pre-footer strip's props. Labelled Ad, every link rel sponsored. Not a pop-up: nothing moves or covers
+  content, so the pop-up policy (TCGEmpire #293) is untouched.
+- **Quick view**: the product page's own `MiniSealedAds` pair (56px tiles: the product's eBay listings, the set's TCGplayer
+  products) above the price rows, under `listings-quickview-mini` / `tcgplayer-strip-quickview`. `/api/quick` now returns the
+  tagged TCGplayer tiles and the eBay context; a response the CDN kept from before falls back to the eBay search row.
+- The home page's existing sealed strip, chase strip and TCGplayer strip stay as they were.
+
 ## 2026-11-03 — DexCompare: new Pokémon sets find themselves (TCGplayer's catalogue)
 
 The owner (2026-11-03): "We need a fresh pipeline of new products for all our sites, that's where our demand is. For

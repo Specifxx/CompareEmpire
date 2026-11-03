@@ -14,14 +14,14 @@
 // row pinned under eBay and TCGplayer, like their search rows, never the best price.
 //
 // WHERE. Each Amazon store has its own Associates tag, hard-coded (owner, 2026-11-02: no Vercel variable decides a tag): Australia
-// (amazon.com.au, compareempire-22) and New Zealand (Amazon AU delivers there for many items; the row says to check); the US
+// (amazon.com.au, dexcompare-22) and New Zealand (Amazon AU delivers there for many items; the row says to check); the US
 // (amazon.com, riftcompare-20); the UK (amazon.co.uk, compareempi03-21); Canada (amazon.ca, compareempire-20); the eurozone
 // (amazon.de, compareempire-21). Not Singapore (amazon.sg has no Associates programme).
 //
 // Read on the server (pages and server components build every href). Pure: tests/amazon.test.ts.
 import { REGIONS, type Region } from "./regions";
 
-export const AMAZON_AU_DEFAULT_TAG = "compareempire-22";
+export const AMAZON_AU_DEFAULT_TAG = "dexcompare-22";
 export const AMAZON_US_DEFAULT_TAG = "riftcompare-20";
 export const AMAZON_AU_HOST = "www.amazon.com.au";
 /** Exactly the owner's spec: sponsored and nofollow for search engines, noopener for the new tab. */

@@ -1,6 +1,9 @@
 import { offerRowsData } from "@/components/OfferTable";
 import { ebayQuery } from "@/components/Marketplaces";
-import { productPage } from "@/lib/data";
+import { productPage, setTcgplayerTiles } from "@/lib/data";
+import { tcgplayerAffiliateUrl, tcgplayerSearchUrl } from "@/lib/affiliate";
+import { thumb } from "@/lib/images";
+import { SET_BY_CODE } from "@/lib/sets";
 import { marketplaceOf } from "@/lib/ebay-context";
 import { rowPacks } from "@/lib/ebay-offer-row";
 import { packsFor } from "@/lib/packs";
@@ -35,6 +38,10 @@ export async function GET(_req: Request, { params }: { params: { region: string;
   const cheapestCents = best?.priceCents ?? p.offers.reduce<number | null>((m, o) => (m == null || o.priceCents < m ? o.priceCents : m), null);
   const ebayComparable = marketplaceOf(region).currency === r.currency;
   const floor = cheapestCents != null && ebayComparable ? { value: (cheapestCents * 0.4) / 100, currency: r.currency } : null;
+  // The small eBay + TCGplayer pair the pop-up shows above the rows (owner, 2026-11-03), the product page's MiniSealedAds: the set's
+  // TCGplayer products (topped up with the newest sets'), affiliate-tagged here under the quick view's own placement.
+  const tiles = await setTcgplayerTiles(p.setCode, p.slug).catch(() => []);
+  const setName = (p.setCode ? SET_BY_CODE.get(p.setCode)?.name : null) ?? "";
   const { rows, tcg, storeOffers } = offerRowsData({ offers: p.offers, region, packs, placement: "quickview-table", product: p.slug, pinned: { productName: p.name, tcgplayer } });
   const stores = storeOffers.filter((o) => !o.marketplace);
   return Response.json(
@@ -46,7 +53,11 @@ export async function GET(_req: Request, { params }: { params: { region: string;
       tcg,
       // No Amazon link in a pop-up window (Associates Operating Agreement, 2026-11-02): the product page carries it.
       amazon: null,
-      ebay: { slug: p.slug, query: ebayQuery(p.name, tcgplayer), floor, packs: rowPacks(type?.key, packs) },
+      ebay: { slug: p.slug, query: ebayQuery(p.name, tcgplayer), floor, packs: rowPacks(type?.key, packs), context: `item:${p.slug}` },
+      ads: {
+        tcg: tiles.map((t) => ({ slug: t.slug, name: t.name, imageUrl: thumb(t.imageUrl, 120) ?? t.imageUrl, priceCents: t.priceCents, href: tcgplayerAffiliateUrl(t.url, region, "tcgplayer-strip-quickview") })),
+        tcgSearch: tcgplayerSearchUrl(setName, region, "tcgplayer-strip-quickview"),
+      },
       preorder: pre,
       // For a quick view opened from a plain link, which knows only the slug.
       name: p.name,
