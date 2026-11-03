@@ -8,6 +8,7 @@ import { NETWORK_PAGE, footerSisters } from "@/lib/family-network";
 import { CONTACT_EMAIL, OPERATOR, SITE_NAME, sectionHref, type SectionKey } from "@/lib/site";
 import { LogoMark } from "./Logo";
 import { Flag } from "@/components/Flag";
+import { RateUsLink } from "./site-reviews/SiteReviews";
 
 type FooterLink = { href: string; label: string };
 
@@ -105,6 +106,11 @@ export function Footer({ region }: { region: Region | null }) {
                     </Link>
                   </li>
                 ))}
+                {c.links.some((l) => l.href === "/contact") && (
+                  <li>
+                    <RateUsLink className="flex min-h-10 items-center text-muted transition-colors hover:text-ink sm:min-h-8">Rate us</RateUsLink>
+                  </li>
+                )}
               </ul>
             </nav>
           ))}
