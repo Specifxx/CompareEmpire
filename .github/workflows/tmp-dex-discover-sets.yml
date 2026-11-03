@@ -1,0 +1,17 @@
+name: TEMP Dex discover sets check
+on:
+  push:
+    branches: [claude/project-thread-nojq4g]
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/dexcompare-sealed
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: npm ci --no-audit --no-fund
+      - run: npx tsx scripts/discover-sets.ts && cat data/sets/discovered.json
+      - run: curl -s https://tcgcsv.com/tcgplayer/3/groups | python3 -c "import json,sys; [print(g['groupId'],g.get('abbreviation'),g['publishedOn'][:10],g['name']) for g in json.load(sys.stdin)['results'] if g['publishedOn']>='2026-09-01']"
