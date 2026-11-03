@@ -56,6 +56,18 @@ export interface Reveal {
   /** One more sourced line, or null. */
   extra: string | null;
   sources: { label: string; url: string }[];
+  /** "5 Mega Evolution Pokémon ex" when the announcement gives a count that names fewer than it holds; else the list's length is used. */
+  megaCount?: string;
+  /** The set's make-up, line by line, as the announcement lists it ("14 illustration rare Pokémon"). */
+  makeup?: string[];
+  /** New or notable mechanics and rarities, each as the source describes it. */
+  features?: { name: string; text: string }[];
+  /** The publisher's product line-up, one line a product, when the announcement lists contents and promos. */
+  products?: string[];
+  /** For a set led by something other than Mega ex (30th Celebration): what collectors chase, as sourced; replaces the Mega wording. */
+  chase?: string;
+  /** The Japanese set(s) the English set is drawn from, when a source says so. */
+  japanese?: string;
 }
 
 export const REVEALS: Record<string, Reveal> = {
@@ -72,7 +84,24 @@ export const REVEALS: Record<string, Reveal> = {
         label: "Pokémon: the Mega Evolution—Delta Reign expansion arrives November 6, 2026 (read 2026-10-24)",
         url: "https://www.pokemon.com/us/news/the-pokemon-tcg-mega-evolution-delta-reign-expansion-arrives-november-6-2026",
       },
+      { label: "PokéGuardian: Mega Evolution—Delta Reign revealed, from the publisher's press kit (read 2026-11-03)", url: "https://www.pokeguardian.com/3231721_pokemon-tcg-mega-evolution-delta-reign-revealed" },
+      { label: "Samurai Sword Tokyo: the two-part Stadium cards of Storm Emeralda (read 2026-11-03)", url: "https://samuraiswordtokyo.com/blogs/news/two-part-stadium-cards-storm-emeralda-m6" },
     ],
+    makeup: [
+      "4 Mega Evolution Pokémon ex",
+      "6 other Pokémon ex",
+      "6 Stadium cards that make three Legendary Stadiums",
+      "14 illustration rare Pokémon",
+      "17 ultra rare Pokémon and Trainer cards",
+      "6 special illustration rare Pokémon and Supporter cards",
+    ],
+    features: [
+      {
+        name: "Legendary Stadiums",
+        text: "A new kind of Stadium: two Stadium cards played as a pair, whose artwork joins into one wide picture when they sit side by side. A booster pack that holds a Legendary Stadium holds both halves. Legendary Summit is the first one revealed, and the set has six of these Stadium cards, making three Legendary Stadiums.",
+      },
+    ],
+    japanese: "Storm Emeralda, the Japanese set its cards come from, where the Legendary Stadiums first appeared",
   },
   me5: {
     code: "me5",
@@ -88,6 +117,157 @@ export const REVEALS: Record<string, Reveal> = {
         url: "https://www.gamedeveloper.com/press-release/media-alert-mega-darkrai-ex-and-mega-zeraora-ex-debut-in-pok-mon-tcg-mega-evolution-pitch-black-expansion-available-today",
       },
     ],
+  },
+  // The 2026-11-03 set guides. Each line below is what the cited source says, read on 2026-11-03; PokéGuardian reprints the
+  // publisher's press kit (its set description and product line-up), so its counts are the publisher's words.
+  me7: {
+    code: "me7",
+    prev: "me6",
+    megas: ["Mega Lucario Z ex"],
+    cards: null,
+    trainers: null,
+    special: null,
+    extra:
+      "Flowing Fists is the first English set of 2027. Its headline card is Mega Lucario Z ex, a new form of Mega Lucario that first appeared in the Mega Dimension download for Pokémon Legends: Z-A.",
+    chase:
+      "The publisher has named the set and its date, but not its card list yet. Its Japanese source set, Aura Seeker (out in Japan on 27 November 2026), has revealed Mega Lucario Z ex and Sigilyph ex, and reports from it name Mega Absol Z ex and Mega Garchomp Z ex too. Cards from a Japanese set usually reach the English set, but not always all of them, so treat those as likely, not confirmed.",
+    features: [
+      {
+        name: "Mega Lucario Z ex",
+        text: "A Metal-type Mega ex with 210 HP. Its Ability, Aura Seeker, searches your deck for a Supporter card, and its 120-damage attack does double damage to an ex Pokémon that is weak to it (as Wargamer reported the Japanese card).",
+      },
+      {
+        name: "Sigilyph ex",
+        text: "A Pokémon ex whose Ability prevents all damage done to it by Mega Evolution Pokémon: a direct answer to the series' Mega ex, though it protects only itself (Wargamer, from the Japanese card).",
+      },
+    ],
+    japanese: "Aura Seeker, the Japanese set out on 27 November 2026, a smaller set of about 78 cards plus secret rares (Screen Rant, reporting PokéBeach's translation)",
+    sources: [
+      { label: "Wargamer: the Pokémon TCG's first 2027 release, Flowing Fists, is revealed (21 October 2026)", url: "https://www.wargamer.com/pokemon-trading-card-game/flowing-fists" },
+      { label: "Screen Rant: Pokémon TCG confirms new set releasing November 27 (Aura Seeker)", url: "https://screenrant.com/pokemon-tcg-new-set-november-27-aura-seeker/" },
+    ],
+  },
+  cel30: {
+    code: "cel30",
+    prev: "me5",
+    megas: [],
+    cards: null,
+    trainers: null,
+    special: null,
+    extra:
+      "It marks the Pokémon TCG's 30th anniversary and was released at the same time around the world, with every card in it foil.",
+    chase:
+      "Every booster pack holds one of 30 Pikachu rare cards, the set brings back 30 classic Pokémon cards from the game's history, and it adds a new rarity, the Futuristic rare, drawn by the artist YOSHIROTTEN. Those three are what collectors open 30th Celebration for.",
+    features: [
+      { name: "Every card is foil", text: "The whole set is printed foil, not only its rares." },
+      { name: "30 Pikachu rare cards", text: "Each booster pack holds one of 30 Pikachu rare cards, some drawn in daytime and some in night-time settings." },
+      { name: "Futuristic rare", text: "A new rarity with new visuals by the artist YOSHIROTTEN." },
+      { name: "30 returning classics", text: "Thirty classic Pokémon cards from the game's 30 years return in the set." },
+    ],
+    products: [
+      "Elite Trainer Box: 9 booster packs, an illustration rare style Nidorina promo and the usual accessories",
+      "Poster Collection: 3 booster packs, Articuno, Zapdos and Moltres promos and a two-sided poster",
+      "Tech Sticker Collection: 3 booster packs, an Alolan Exeggutor or Lucario foil promo and a sticker sheet",
+      "Pokémon ex Box: 4 booster packs, a Sylveon ex or Greninja ex promo and an oversize card",
+      "ex Tin: 4 booster packs and a Sylveon ex or Greninja ex promo",
+    ],
+    sources: [
+      {
+        label: "The Pokémon Company International: media alert, product line-up for the 30th Celebration expansion (via Pokémon's press site)",
+        url: "https://pokemon.gamespress.com/MEDIA-ALERT-The-Pokemon-Company-International-Reveals-Product-Lineup-f",
+      },
+    ],
+  },
+  me4: {
+    code: "me4",
+    prev: "me3",
+    megas: ["Mega Greninja ex", "Mega Floette ex", "Mega Pyroar ex", "Mega Dragalge ex"],
+    megaCount: "5 Mega Evolution Pokémon ex",
+    cards: "over 120 cards",
+    trainers: "more than 20 Trainer cards",
+    special: "more than 35 Pokémon and Trainer cards with special illustrations",
+    extra: "Mega Greninja ex and Mega Floette ex lead the announcement; the four named Mega ex are the four booster pack wrappers.",
+    makeup: [
+      "5 Mega Evolution Pokémon ex",
+      "5 other Pokémon ex",
+      "11 illustration rare Pokémon",
+      "18 ultra rare Pokémon and Trainer cards",
+      "6 special illustration rare Pokémon and Supporter cards",
+    ],
+    sources: [{ label: "PokéGuardian: Mega Evolution—Chaos Rising officially revealed, from the publisher's press kit", url: "https://pokeguardian.com/3060210_mega-evolution-chaos-rising-officially-revealed" }],
+  },
+  me3: {
+    code: "me3",
+    prev: "me2pt5",
+    megas: ["Mega Zygarde ex", "Mega Starmie ex", "Mega Clefable ex", "Mega Skarmory ex"],
+    cards: "over 120 cards",
+    trainers: "more than 25 Trainer cards",
+    special: "more than 30 Pokémon and Trainer cards with special illustrations",
+    extra: "Mega Zygarde ex headlines the set, which is built around Pokémon Legends: Z-A. Meowth ex is among its other Pokémon ex.",
+    makeup: [
+      "4 Mega Evolution Pokémon ex",
+      "9 other Pokémon ex",
+      "11 illustration rare Pokémon",
+      "18 ultra rare Pokémon and Trainer cards",
+      "6 special illustration rare Pokémon and Supporter cards",
+    ],
+    sources: [{ label: "PokéGuardian: Mega Evolution—Perfect Order officially revealed, from the publisher's press kit", url: "https://www.pokeguardian.com/2921595_mega-evolution-perfect-order-officially-revealed" }],
+  },
+  me2pt5: {
+    code: "me2pt5",
+    prev: "me2",
+    megas: ["Mega Dragonite ex", "Mega Lucario ex", "Mega Gardevoir ex", "Mega Meganium ex", "Mega Emboar ex", "Mega Feraligatr ex"],
+    megaCount: "13 Mega Evolution Pokémon ex",
+    cards: "over 290 cards",
+    trainers: "over 30 Trainer cards",
+    special: "22 special illustration rare Mega Evolution Pokémon ex, Pokémon ex and Supporter cards",
+    extra:
+      "Ascended Heroes is a special set: it was not sold in booster boxes, only in Elite Trainer Boxes, bundles, tins and collections. It also brings back Trainer's Pokémon and has Stellar Tera Pokémon ex.",
+    makeup: [
+      "13 Mega Evolution Pokémon ex",
+      "6 Tera Pokémon ex and 20 other Pokémon ex",
+      "33 illustration rare Pokémon",
+      "14 ultra rare Mega Evolution Pokémon ex, Pokémon ex and Trainer cards",
+      "7 Mega attack rare Mega Evolution Pokémon ex",
+      "22 special illustration rare Mega Evolution Pokémon ex, Pokémon ex and Supporter cards",
+    ],
+    features: [
+      { name: "Mega attack rare", text: "A new rarity for Mega Evolution Pokémon ex whose attack names are written in Japanese katakana; the set has seven." },
+      { name: "Trainer's Pokémon", text: "Pokémon that belong to a named Trainer return, such as the Erika's Tangela and Larry's Komala promos, and N's Zekrom, the Elite Trainer Box promo." },
+    ],
+    sources: [{ label: "PokéGuardian: Mega Evolution—Ascended Heroes special set officially revealed, from the publisher's press kit", url: "https://www.pokeguardian.com/2832227_mega-evolution-ascended-heroes-special-set-officially-revealed" }],
+  },
+  me2: {
+    code: "me2",
+    prev: "me1",
+    megas: ["Mega Charizard X ex", "Mega Gengar ex", "Mega Heracross ex", "Mega Lopunny ex"],
+    cards: "over 120 cards",
+    trainers: "10 Trainer cards",
+    special: "more than 15 Pokémon and Trainer cards with special illustrations",
+    extra: "Mega Charizard X ex leads the set and its key art.",
+    sources: [{ label: "Pokémon (pokemon.com/uk): Mega Evolution—Phantasmal Flames", url: "https://www.pokemon.com/uk/pokemon-tcg/mega-evolution-phantasmal-flames" }],
+  },
+  me1: {
+    code: "me1",
+    prev: "zsv10pt5",
+    megas: ["Mega Lucario ex", "Mega Gardevoir ex", "Mega Venusaur ex", "Mega Kangaskhan ex"],
+    megaCount: "10 Mega Evolution Pokémon ex",
+    cards: "over 180 cards",
+    trainers: "more than 15 Trainer cards",
+    special: "more than 50 Pokémon and Trainer cards with special illustrations",
+    extra:
+      "It is the first set of the Mega Evolution series, which brought Mega Evolution back to the game. A Mega Evolution Pokémon ex gives up three Prize cards when it is Knocked Out.",
+    makeup: [
+      "10 Mega Evolution Pokémon ex",
+      "22 illustration rare Pokémon",
+      "22 ultra rare Mega Evolution Pokémon ex and Trainer cards",
+      "10 special illustration rare Mega Evolution Pokémon ex and Supporter cards",
+    ],
+    features: [
+      { name: "Mega Evolution Pokémon ex", text: "Big Pokémon ex that give up three Prize cards when Knocked Out, one more than an ordinary Pokémon ex." },
+      { name: "Ultra rare Trainers", text: "Ultra rare prints now include Item, Stadium and Pokémon Tool cards, not only Supporters." },
+    ],
+    sources: [{ label: "PokéGuardian: Pokémon TCG Mega Evolution officially revealed, from the publisher's press kit", url: "https://pokeguardian.com/2604003_pokemon-tcg-mega-evolution-officially-revealed" }],
   },
 };
 
@@ -127,13 +307,13 @@ export function revealOutline(guide: Guide, angle: RevealAngle, rv: Reveal, r: R
           </a>
         </span>
       ))}
-      . We print only what the publisher has announced; a card it hasn&rsquo;t named isn&rsquo;t listed here.
+      . We print only what these sources state, and say whose word it is; a card they haven&rsquo;t named isn&rsquo;t listed here.
     </Note>
   );
 
-  const megaList = (
+  const megaList = rv.megas.length === 0 ? null : (
     <StackTable
-      caption={`The Mega Evolution Pokémon ex named in the ${name} announcement`}
+      caption={`The Mega Evolution Pokémon ex named in the ${name} announcement${rv.megaCount ? ` (of ${rv.megaCount})` : ""}`}
       head={["Card", "Type of card"]}
       align="left"
       rows={rv.megas.map((c) => ({ key: c, th: <span className="font-semibold text-ink">{c}</span>, cells: [<span key="t">Mega Evolution Pokémon ex</span>] }))}
@@ -142,16 +322,28 @@ export function revealOutline(guide: Guide, angle: RevealAngle, rv: Reveal, r: R
 
   const known: GuideSection = {
     id: angle === "list" ? "card-list" : "what-we-know",
-    title: angle === "list" ? `The ${name} card list so far` : angle === "chase" ? `The ${name} chase cards: the Mega ex` : `What ${name} holds`,
+    title:
+      angle === "list" ? `The ${name} card list so far` : angle === "chase" ? (rv.megas.length ? `The ${name} chase cards: the Mega ex` : `The ${name} chase cards`) : `What ${name} holds`,
     body: (
       <>
         <Prose>
           <p>
             {name} is the {set.series} series set {out ? "released" : "releasing"} on {formatRelease(set.releaseDate)}.{" "}
             {counts.length > 0 && <>The publisher&rsquo;s announcement says it has {and(counts)}. </>}
-            It names {rv.megas.length} Mega Evolution Pokémon ex: {and(rv.megas)}. {rv.extra}
+            {rv.megas.length > 0 && (
+              <>
+                {rv.megaCount ? <>It has {rv.megaCount}; the ones named so far are</> : <>The Mega Evolution Pokémon ex named so far:</>} {and(rv.megas)}.{" "}
+              </>
+            )}
+            {rv.extra}
           </p>
-          {angle === "chase" && (
+          {rv.chase && <p>{rv.chase}</p>}
+          {rv.japanese && (
+            <p>
+              The Japanese edition: {rv.japanese}. Japanese sealed product is on our <Link href={`/${r.region}/japanese`}>Japanese Pokémon page</Link>.
+            </p>
+          )}
+          {angle === "chase" && rv.megas.length > 0 && !rv.chase && (
             <p>
               &ldquo;Chase cards&rdquo; are the ones collectors open packs hoping to find. In a {set.series} set those are the Mega Evolution Pokémon ex and, above all, their
               special illustration versions: the full-art prints that cost the most to find. We don&rsquo;t publish what any single card sells for, because this site compares
@@ -171,19 +363,54 @@ export function revealOutline(guide: Guide, angle: RevealAngle, rv: Reveal, r: R
     ),
   };
 
+  const featureSection: GuideSection[] = rv.features?.length
+    ? [
+        {
+          id: "whats-new",
+          title: `New in ${name}: mechanics and rarities`,
+          body: (
+            <>
+              <Prose>
+                <p>
+                  What {name} adds to the game or to the collection, as the sources below describe it. A new mechanic changes how a set plays; a new rarity changes what
+                  collectors look for in a pack. Neither changes what a sealed product holds: the pack counts stay the same.
+                </p>
+              </Prose>
+              <StackTable
+                caption={`What is new or notable in ${name}`}
+                head={["Feature", "What it is"]}
+                align="left"
+                rows={rv.features.map((f) => ({ key: f.name, th: <span className="font-semibold text-ink">{f.name}</span>, cells: [<span key="t">{f.text}</span>] }))}
+              />
+            </>
+          ),
+        },
+      ]
+    : [];
+
   const rarities: GuideSection = {
     id: "secret-rares",
     title: `${name} secret rares and special illustration rares`,
     body: (
       <Prose>
+        {rv.makeup?.length ? (
+          <>
+            <p>What the publisher says {name} holds:</p>
+            <ul>
+              {rv.makeup.map((x) => (
+                <li key={x}>{x}</li>
+              ))}
+            </ul>
+          </>
+        ) : null}
         <p>
           Secret rares are the cards numbered past the set&rsquo;s printed total, such as 140/135. In the {set.series} series they include the special illustration rares,
           the full-art illustrations of a Pokémon or a Pokémon ex, and the gold hyper rares.
           {rv.special ? <> For {name}, the announcement promises {rv.special}.</> : <> The publisher&rsquo;s release announcement for {name} doesn&rsquo;t give a count.</>}
         </p>
         <p>
-          Which of the named Mega ex get a special illustration print, and how many hyper rares there are, the announcement doesn&rsquo;t say, so we don&rsquo;t either. When the
-          set is out, the numbered list from the publisher answers it.
+          Which cards get a special illustration print, and how many hyper rares there are, the announcement doesn&rsquo;t say card by card, so we don&rsquo;t either.{" "}
+          {out ? <>The set&rsquo;s numbered list answers it card by card.</> : <>When the set is out, the numbered list from the publisher answers it.</>}
         </p>
         <p>
           What that means for buying sealed: every pack of a set can hold any of its rare cards, whichever product it comes in. A booster box, an Elite Trainer Box and a
@@ -220,6 +447,11 @@ export function revealOutline(guide: Guide, angle: RevealAngle, rv: Reveal, r: R
                 Every store&rsquo;s price for it →
               </Link>
             </p>
+          ) : set.noBoosterBox ? (
+            <p>
+              {name} was never sold as a booster box: its packs come in Elite Trainer Boxes, bundles, tins and collections, so the table above starts with those. A
+              &ldquo;booster box&rdquo; of it is a store&rsquo;s own lot, not a product the publisher makes.
+            </p>
           ) : (
             <p>No {name} booster box is {word} in {r.inName} right now. A store can list one at any time; the set page shows every listing, sold out included.</p>
           )}
@@ -240,6 +472,16 @@ export function revealOutline(guide: Guide, angle: RevealAngle, rv: Reveal, r: R
     title: angle === "box-vs-etb" ? `${name} booster box or ETB: which to buy` : `Which ${name} product to buy`,
     body: (
       <>
+        {rv.products?.length ? (
+          <Prose>
+            <p>The publisher&rsquo;s {name} line-up, with each product&rsquo;s promo cards:</p>
+            <ul>
+              {rv.products.map((x) => (
+                <li key={x}>{x}</li>
+              ))}
+            </ul>
+          </Prose>
+        ) : null}
         <Prose>
           <p>
             <Link href={typeHref(r, "booster-box")}>
@@ -276,7 +518,9 @@ export function revealOutline(guide: Guide, angle: RevealAngle, rv: Reveal, r: R
         </Prose>
         <Decisions
           rows={[
-            { when: <>You want as many {name} packs as possible for the chase cards</>, then: <>A booster box: the most packs in one product, usually the lowest price per pack.</> },
+            set.noBoosterBox
+              ? { when: <>You want as many {name} packs as possible for the chase cards</>, then: <>Elite Trainer Boxes or bundles: the set has no booster box.</> }
+              : { when: <>You want as many {name} packs as possible for the chase cards</>, then: <>A booster box: the most packs in one product, usually the lowest price per pack.</> },
             { when: <>You also want sleeves, dice and a box to keep the cards in</>, then: <>An Elite Trainer Box: fewer packs, with the accessories to play.</> },
             { when: <>You want a few packs to try the set</>, then: <>A booster bundle, the smallest of the three.</> },
             { when: <>You want to play the set at a Prerelease</>, then: <>A Build &amp; Battle Box, the prerelease kit.</> },
@@ -349,14 +593,28 @@ export function revealOutline(guide: Guide, angle: RevealAngle, rv: Reveal, r: R
 
   const qa: { q: string; a: ReactNode }[] = [
     { q: `When does ${name} come out?`, a: <>{name} {out ? "came out" : "releases"} on {formatRelease(set.releaseDate)}.</> },
-    { q: `What are the ${name} chase cards?`, a: <>The announcement names {and(rv.megas)}. Their special illustration versions are the cards most collectors chase.</> },
+    {
+      q: `What are the ${name} chase cards?`,
+      a: rv.megas.length ? (
+        <>The announcement names {and(rv.megas)}. Their special illustration versions are the cards most collectors chase.</>
+      ) : (
+        <>{rv.chase}</>
+      ),
+    },
+    ...(rv.features?.length
+      ? [{ q: `What is new in ${name}?`, a: <>{and(rv.features.map((f) => f.name))}. Each is explained in the section on what&rsquo;s new above.</> }]
+      : []),
     {
       q: `How many cards are in ${name}?`,
       a: rv.cards ? <>The publisher says {rv.cards}{rv.special ? <>, including {rv.special}</> : null}.</> : <>The release announcement doesn&rsquo;t give a count, so we don&rsquo;t print one.</>,
     },
     {
-      q: `Is a ${name} booster box or an Elite Trainer Box better?`,
-      a: <>A box is more packs and usually less per pack; an ETB is fewer packs plus accessories. Today&rsquo;s price per pack for each is in the table above.</>,
+      q: set.noBoosterBox ? `Is there a ${name} booster box?` : `Is a ${name} booster box or an Elite Trainer Box better?`,
+      a: set.noBoosterBox ? (
+        <>No. {name} is a special set sold without booster boxes; the Elite Trainer Box and the bundle are the ways to buy its packs in quantity.</>
+      ) : (
+        <>A box is more packs and usually less per pack; an ETB is fewer packs plus accessories. Today&rsquo;s price per pack for each is in the table above.</>
+      ),
     },
     { q: `How much is a single ${name} card worth?`, a: <>We don&rsquo;t say: this site compares sealed product only and has no prices for single cards.</> },
   ];
@@ -407,8 +665,8 @@ export function revealOutline(guide: Guide, angle: RevealAngle, rv: Reveal, r: R
     angle === "box-vs-etb"
       ? [prices, choose, known, prevSection, ...othersSection, faq, checks]
       : angle === "list"
-        ? [known, rarities, prices, choose, ...othersSection, faq, checks]
-        : [known, prices, rarities, choose, prevSection, faq, checks];
+        ? [known, ...featureSection, rarities, prices, choose, ...othersSection, faq, checks]
+        : [known, ...featureSection, prices, rarities, choose, prevSection, faq, checks];
 
   return {
     intro: (
@@ -425,7 +683,8 @@ export function revealOutline(guide: Guide, angle: RevealAngle, rv: Reveal, r: R
           </>
         ) : (
           <>
-            {name} {out ? "came out" : "releases"} on {formatRelease(set.releaseDate)}, led by {and(rv.megas)}
+            {name} {out ? "came out" : "releases"} on {formatRelease(set.releaseDate)}
+            {rv.megas.length ? <>, led by {and(rv.megas)}</> : null}
             {rv.cards && <>, with {rv.cards}</>}.{" "}
           </>
         )}

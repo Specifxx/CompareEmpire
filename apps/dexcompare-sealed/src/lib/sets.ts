@@ -32,6 +32,9 @@ export interface PokemonSet {
 export const SETS: PokemonSet[] = [
   // Added by hand (newer than the pokemontcg.io export the list came from).
   // Dates from Bulbapedia's set pages, read 2026-09-25.
+  // Flowing Fists: name and date as Wargamer reported Pokémon's reveal (2026-10-21), read 2026-11-03. Code is ours until the
+  // publisher's set code is known.
+  {"code":"me7","name":"Flowing Fists","slug":"flowing-fists","series":"Mega Evolution","releaseDate":"2027-02-05","logo":null},
   {"code":"me6","name":"Delta Reign","slug":"delta-reign","series":"Mega Evolution","releaseDate":"2026-11-06","logo":null},
   {"code":"cel30","name":"30th Celebration","slug":"30th-celebration","series":"Mega Evolution","releaseDate":"2026-09-16","logo":null},
   {"code":"me5","name":"Pitch Black","slug":"pitch-black","series":"Mega Evolution","releaseDate":"2026-07-17","logo":null},

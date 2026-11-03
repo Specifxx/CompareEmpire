@@ -32,6 +32,15 @@ import * as pitchBlackChase from "./pitch-black-chase-cards";
 import * as bestEtbAu from "./best-pokemon-elite-trainer-boxes-australia";
 import * as giftAu from "./pokemon-tcg-gift-guide-australia";
 import * as beginners from "./best-pokemon-tcg-product-for-beginners";
+import * as g_flowing_fists_mega_lucario_z from "./flowing-fists-mega-lucario-z";
+import * as g_30th_celebration_chase_cards from "./30th-celebration-chase-cards";
+import * as g_chaos_rising_chase_cards from "./chaos-rising-chase-cards";
+import * as g_perfect_order_chase_cards from "./perfect-order-chase-cards";
+import * as g_ascended_heroes_chase_cards from "./ascended-heroes-chase-cards";
+import * as g_phantasmal_flames_chase_cards from "./phantasmal-flames-chase-cards";
+import * as g_mega_evolution_chase_cards from "./mega-evolution-chase-cards";
+import * as g_pokemon_legendary_stadium_cards from "./pokemon-legendary-stadium-cards";
+import * as g_every_mega_evolution_pokemon_ex from "./every-mega-evolution-pokemon-ex";
 
 export const GUIDE_MODULES: Record<GuideSlug, GuideModule> = {
   "how-many-packs-in-pokemon-products": howManyPacks,
@@ -64,4 +73,13 @@ export const GUIDE_MODULES: Record<GuideSlug, GuideModule> = {
   "best-pokemon-elite-trainer-boxes-australia": bestEtbAu,
   "pokemon-tcg-gift-guide-australia": giftAu,
   "best-pokemon-tcg-product-for-beginners": beginners,
+  "flowing-fists-mega-lucario-z": g_flowing_fists_mega_lucario_z,
+  "30th-celebration-chase-cards": g_30th_celebration_chase_cards,
+  "chaos-rising-chase-cards": g_chaos_rising_chase_cards,
+  "perfect-order-chase-cards": g_perfect_order_chase_cards,
+  "ascended-heroes-chase-cards": g_ascended_heroes_chase_cards,
+  "phantasmal-flames-chase-cards": g_phantasmal_flames_chase_cards,
+  "mega-evolution-chase-cards": g_mega_evolution_chase_cards,
+  "pokemon-legendary-stadium-cards": g_pokemon_legendary_stadium_cards,
+  "every-mega-evolution-pokemon-ex": g_every_mega_evolution_pokemon_ex,
 };

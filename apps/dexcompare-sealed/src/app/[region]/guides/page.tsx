@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
-import { guidesFor } from "@/content/guides";
+import { latestGuides } from "@/content/guides";
 import { COUNTRY_GUIDE } from "@/content/guides/country-prices";
 import { andList, fixedPacks, newestReleased, packsBySeries, upcomingSets } from "@/content/guides/facts";
 import { GuideCard, GuideThumb, guideHref, setHref, typeHref } from "@/content/guides/kit";
@@ -29,7 +29,7 @@ export function generateMetadata({ params }: { params: { region: string } }): Me
 
 export default async function GuidesIndex({ params }: { params: { region: string } }) {
   const r = regionOrNotFound(params.region);
-  const list = guidesFor(r.region);
+  const list = latestGuides(r.region);
   const [etbNow, etbBefore] = packsBySeries("etb");
   const today = new Date().toISOString().slice(0, 10);
   const thumbs = await guideThumbs(r, list, today);

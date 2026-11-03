@@ -180,8 +180,9 @@ test("the sidebar (xl): product types, sets, deals and the rest, under each layo
   assert.deepEqual(groups.map((g) => g.title), ["Shop by product", "Sets", "Deals & stock", "More"]);
   for (const l of groups.flatMap((g) => g.links)) assert.match(l.href, /^\/au\/|^\/forum$/, l.href);
   assert.deepEqual(groups[1].links[0], { href: "/au/preorders/delta-reign", label: "Delta Reign pre-orders" }, "an open pre-order hub leads the sets");
-  assert.equal(groups[1].links[1].label, "30th Celebration", "then the newest released set");
-  assert.ok(!navGroups("au", "2026-11-06")[1].links.some((l) => l.label.endsWith("pre-orders")), "gone on release day");
+  assert.deepEqual(groups[1].links[1], { href: "/au/preorders/flowing-fists", label: "Flowing Fists pre-orders" }, "every open hub, soonest first");
+  assert.equal(groups[1].links[2].label, "30th Celebration", "then the newest released set");
+  assert.ok(!navGroups("au", "2026-11-06")[1].links.some((l) => l.label === "Delta Reign pre-orders"), "gone on release day");
   assert.equal(groups[1].links.at(-1)!.href, "/au/sets");
   assert.ok(navGroups("us", "2026-11-25")[2].links.some((l) => l.label === "Black Friday"), "Black Friday in season");
   assert.ok(!navGroups("au", "2026-09-15")[2].links.some((l) => l.label === "Black Friday"), "not out of season");
@@ -277,7 +278,8 @@ test("landing page: per request behind the CDN, short: hero, one fair paragraph,
   assert.match(page, /<HomeRegionGrid initial=\{picks\} preorder=\{preorder\} \/>/);
   // What moved to /about, the guides index and the region homes stays off the landing page.
   assert.doesNotMatch(page, /FAQPage|faqLdOf|GuideCard|RegionsCompared|SuggestedTypeLinks|EbayStrip|AdSlot/);
-  assert.equal((page.match(/<section/g) ?? []).length, 2, "the hero and the fair paragraph; the grid is its own section");
+  assert.equal((page.match(/<section/g) ?? []).length, 3, "the hero, the fair paragraph and the newest guides (owner, 2026-11-03); the grid is its own section");
+  assert.match(page, /<LatestGuides region=\{X_DEFAULT_REGION\} \/>/, "the newest guides as plain links, one hop from the landing page");
   const suggest = src("components/RegionSuggest.tsx");
   assert.doesNotMatch(suggest, /> Continue to \{|Choose your region <span/);
   assert.match(suggest, /setAttribute\("action", `\/\$\{region\}\/sealed`\)/);

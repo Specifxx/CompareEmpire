@@ -88,7 +88,7 @@ test("candidate sets: the soonest upcoming booster-box set first, then the newes
   assert.ok(c.length >= 4);
   for (const s of c) assert.ok(!s.noBoosterBox, s.name);
   assert.ok(c.slice(1).every((s) => s.releaseDate <= TODAY));
-  assert.ok(candidateSets("2026-11-06")[0].releaseDate <= "2026-11-06", "after release, the newest released set leads");
+  assert.ok(candidateSets("2027-02-05")[0].releaseDate <= "2027-02-05", "after release, the newest released set leads");
 });
 
 test("market lines: every market in REGION_LIST order, its cheapest OPEN listing of the set and type, per pack from packs.ts", () => {

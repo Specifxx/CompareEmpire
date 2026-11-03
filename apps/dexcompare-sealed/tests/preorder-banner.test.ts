@@ -26,9 +26,10 @@ test("the landing page links the hub in all seven regions", () => {
 });
 
 test("on and after release day: no banner (the registry retires it), and the hub leaves the sitemap", () => {
-  assert.equal(renderToStaticMarkup(React.createElement(PreorderBanner, { region: "au", today: "2026-11-06" })), "");
-  assert.equal(renderToStaticMarkup(React.createElement(PreorderRegionLinks, { today: "2026-11-06" })), "");
-  assert.equal(openPreorderGuides("2026-11-06").length, 0);
+  assert.doesNotMatch(renderToStaticMarkup(React.createElement(PreorderBanner, { region: "au", today: "2026-11-06" })), /delta-reign/);
+  assert.doesNotMatch(renderToStaticMarkup(React.createElement(PreorderRegionLinks, { today: "2026-11-06" })), /delta-reign/);
+  assert.ok(!openPreorderGuides("2026-11-06").some((g) => g.set.code === "me6"));
+  assert.equal(renderToStaticMarkup(React.createElement(PreorderBanner, { region: "au", today: "2027-02-05" })), "", "nothing once every set is out");
   const before = staticSitemap({}, undefined, "2026-10-22").map((e) => e.url);
   const after = staticSitemap({}, undefined, "2026-11-06").map((e) => e.url);
   for (const r of REGION_LIST) {

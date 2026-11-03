@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Icon } from "@/components/Icon";
 import { RegionSuggest } from "@/components/RegionSuggest";
 import { HomeRegionGrid } from "@/components/HomeRegionGrid";
+import { LatestGuides } from "@/components/LatestGuides";
 import { RegionChips } from "@/components/RegionChips";
 import { regionPicks } from "@/lib/picks";
 import { openPreorderGuides } from "@/lib/preorder-guides";
@@ -119,6 +120,19 @@ export default async function Landing() {
       <div className="mb-10 mt-10">
         <HomeRegionGrid initial={picks} preorder={preorder} />
       </div>
+
+      {/* The newest guides (2026-11-03): one link from the landing page to every new set guide, server-rendered for crawlers. */}
+      <section className="page mb-12" aria-labelledby="guides-h">
+        <div className="mb-4 flex flex-wrap items-end justify-between gap-x-4 gap-y-1">
+          <h2 id="guides-h" className="font-display text-xl font-bold tracking-tight sm:text-2xl">
+            New Pokémon TCG set guides
+          </h2>
+          <Link href={`/${X_DEFAULT_REGION}/guides`} prefetch={false} className="text-sm font-semibold text-brand hover:underline">
+            All guides →
+          </Link>
+        </div>
+        <LatestGuides region={X_DEFAULT_REGION} />
+      </section>
     </div>
   );
 }

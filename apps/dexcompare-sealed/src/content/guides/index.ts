@@ -49,7 +49,16 @@ export type GuideSlug =
   | "pitch-black-chase-cards"
   | "best-pokemon-elite-trainer-boxes-australia"
   | "pokemon-tcg-gift-guide-australia"
-  | "best-pokemon-tcg-product-for-beginners";
+  | "best-pokemon-tcg-product-for-beginners"
+  | "flowing-fists-mega-lucario-z"
+  | "30th-celebration-chase-cards"
+  | "chaos-rising-chase-cards"
+  | "perfect-order-chase-cards"
+  | "ascended-heroes-chase-cards"
+  | "phantasmal-flames-chase-cards"
+  | "mega-evolution-chase-cards"
+  | "pokemon-legendary-stadium-cards"
+  | "every-mega-evolution-pokemon-ex";
 
 export interface Guide {
   slug: GuideSlug;
@@ -426,6 +435,116 @@ export const GUIDES: readonly Guide[] = [
     ebay: { context: "type:decks", heading: "Pokémon decks on eBay" },
     tools: ["value-checker"],
   },
+  // The set guides (2026-11-03): one per set of the Mega Evolution series, its chase cards and what is new, from the publisher's
+  // announcements (set-reveal.tsx REVEALS, sourced there), plus two explainers: Legendary Stadiums and every Mega ex so far.
+  {
+    slug: "flowing-fists-mega-lucario-z",
+    title: "Pokémon Flowing Fists: Mega Lucario Z ex and what we know",
+    description: "Pokémon TCG Flowing Fists, the first set of 2027 (5 February): Mega Lucario Z ex, its Japanese source set Aura Seeker, and how to pre-order.",
+    kicker: "Flowing Fists",
+    published: "2026-11-03",
+    updated: "2026-11-03",
+    regions: "all",
+    topic: { types: ["booster-box", "etb", "booster-bundle"], sets: ["flowing-fists", "delta-reign"] },
+    ebay: { context: "type:booster-boxes", heading: "Pokémon booster boxes on eBay" },
+    tools: ["value-checker", "trade-calculator"],
+  },
+  {
+    slug: "30th-celebration-chase-cards",
+    title: "Pokémon 30th Celebration chase cards: the Pikachu rares",
+    description: "Pokémon TCG 30th Celebration: the 30 Pikachu rares, the new Futuristic rare, the returning classics, every product's promos and today's prices.",
+    kicker: "30th Celebration",
+    published: "2026-11-03",
+    updated: "2026-11-03",
+    regions: "all",
+    topic: { types: ["booster-box", "etb", "booster-bundle"], sets: ["30th-celebration", "pitch-black"] },
+    ebay: { context: "type:booster-boxes", heading: "Pokémon booster boxes on eBay" },
+    tools: ["value-checker", "trade-calculator"],
+  },
+  {
+    slug: "chaos-rising-chase-cards",
+    title: "Pokémon Chaos Rising chase cards: the Mega ex",
+    description: "Pokémon TCG Chaos Rising chase cards: Mega Greninja ex, Mega Floette ex and the other Mega ex, the set's rarity counts, and which product to buy today.",
+    kicker: "Chaos Rising",
+    published: "2026-11-03",
+    updated: "2026-11-03",
+    regions: "all",
+    topic: { types: ["booster-box", "etb", "booster-bundle"], sets: ["chaos-rising", "perfect-order"] },
+    ebay: { context: "type:booster-boxes", heading: "Pokémon booster boxes on eBay" },
+    tools: ["value-checker", "trade-calculator"],
+  },
+  {
+    slug: "perfect-order-chase-cards",
+    title: "Pokémon Perfect Order chase cards: the Mega ex",
+    description: "Pokémon TCG Perfect Order chase cards: Mega Zygarde ex, Mega Starmie ex and more, the rarity counts, and which Perfect Order box or ETB to buy today.",
+    kicker: "Perfect Order",
+    published: "2026-11-03",
+    updated: "2026-11-03",
+    regions: "all",
+    topic: { types: ["booster-box", "etb", "booster-bundle"], sets: ["perfect-order", "ascended-heroes"] },
+    ebay: { context: "type:booster-boxes", heading: "Pokémon booster boxes on eBay" },
+    tools: ["value-checker", "trade-calculator"],
+  },
+  {
+    slug: "ascended-heroes-chase-cards",
+    title: "Pokémon Ascended Heroes chase cards: 13 Mega ex",
+    description: "Pokémon TCG Ascended Heroes: Mega Dragonite ex and 12 more Mega ex, the new Mega attack rare, why there is no booster box, and today's ETB prices.",
+    kicker: "Ascended Heroes",
+    published: "2026-11-03",
+    updated: "2026-11-03",
+    regions: "all",
+    topic: { types: ["booster-box", "etb", "booster-bundle"], sets: ["ascended-heroes", "phantasmal-flames"] },
+    ebay: { context: "type:booster-boxes", heading: "Pokémon booster boxes on eBay" },
+    tools: ["value-checker", "trade-calculator"],
+  },
+  {
+    slug: "phantasmal-flames-chase-cards",
+    title: "Pokémon Phantasmal Flames chase cards: Mega Charizard X",
+    description: "Pokémon TCG Phantasmal Flames chase cards: Mega Charizard X ex, Mega Gengar ex and more, and what its booster box, ETB and bundle cost today.",
+    kicker: "Phantasmal Flames",
+    published: "2026-11-03",
+    updated: "2026-11-03",
+    regions: "all",
+    topic: { types: ["booster-box", "etb", "booster-bundle"], sets: ["phantasmal-flames", "mega-evolution"] },
+    ebay: { context: "type:booster-boxes", heading: "Pokémon booster boxes on eBay" },
+    tools: ["value-checker", "trade-calculator"],
+  },
+  {
+    slug: "mega-evolution-chase-cards",
+    title: "Pokémon Mega Evolution set chase cards: the first Mega ex",
+    description: "The first Mega Evolution set's chase cards: Mega Lucario ex, Mega Gardevoir ex and the rest of its 10 Mega ex, the rarity counts, and today's sealed prices.",
+    kicker: "Mega Evolution",
+    published: "2026-11-03",
+    updated: "2026-11-03",
+    regions: "all",
+    topic: { types: ["booster-box", "etb", "booster-bundle"], sets: ["mega-evolution", "black-bolt"] },
+    ebay: { context: "type:booster-boxes", heading: "Pokémon booster boxes on eBay" },
+    tools: ["value-checker", "trade-calculator"],
+  },
+  {
+    slug: "pokemon-legendary-stadium-cards",
+    title: "Pokémon Legendary Stadium cards explained (Delta Reign)",
+    description: "How Delta Reign's Legendary Stadiums work: two half cards played as one Stadium, the three Stadiums and what they do, and what Delta Reign costs today.",
+    kicker: "New mechanic",
+    published: "2026-11-03",
+    updated: "2026-11-03",
+    regions: "all",
+    topic: { types: ["booster-box", "etb", "booster-bundle"], sets: ["delta-reign", "pitch-black"] },
+    ebay: { context: "type:booster-boxes", heading: "Pokémon booster boxes on eBay" },
+    tools: ["value-checker", "trade-calculator"],
+  },
+  {
+    slug: "every-mega-evolution-pokemon-ex",
+    title: "Every Pokémon Mega Evolution ex so far, set by set",
+    description: "Every Mega Evolution Pokémon ex announced in the Pokémon TCG's Mega Evolution series, set by set, how Mega ex work, and each set's cheapest box today.",
+    kicker: "Mega Evolution",
+    published: "2026-11-03",
+    updated: "2026-11-03",
+    regions: "all",
+    topic: { types: ["booster-box", "etb", "booster-bundle"], sets: ["mega-evolution", "phantasmal-flames", "ascended-heroes", "perfect-order", "chaos-rising", "pitch-black", "delta-reign", "flowing-fists"] },
+    ebay: { context: "type:booster-boxes", heading: "Pokémon booster boxes on eBay" },
+    tools: ["value-checker", "trade-calculator"],
+  },
 ];
 
 export const GUIDE_BY_SLUG: ReadonlyMap<string, Guide> = new Map(GUIDES.map((g) => [g.slug, g]));
@@ -438,6 +557,14 @@ export function guideRegions(g: Guide): Region[] {
 /** The guides offered in a region, in registry order. */
 export function guidesFor(region: Region): Guide[] {
   return GUIDES.filter((g) => guideRegions(g).includes(region));
+}
+
+/** The guides offered in a region, newest first (by `published`; a later registry entry first on the same day): the guides index,
+ *  the region home's and the landing page's "latest guides", so a crawler reaches every new post from the home page. */
+export function latestGuides(region: Region, n = Infinity): Guide[] {
+  const list = guidesFor(region);
+  const at = new Map(list.map((g, i) => [g.slug, i]));
+  return [...list].sort((a, b) => b.published.localeCompare(a.published) || at.get(b.slug)! - at.get(a.slug)!).slice(0, n);
 }
 
 /** The guide at /<region>/guides/<slug>, or null: an unknown slug, or a guide not offered in that region. */

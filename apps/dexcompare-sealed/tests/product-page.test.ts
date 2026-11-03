@@ -385,7 +385,7 @@ test("in-stock alternatives: one tagged-template query, LIMIT 4, same set first,
   const codes = values[4] as string[];
   assert.equal(codes[0], "cel30", "released sets newest first (30th Celebration, out 2026-09-16)");
   assert.ok(codes.indexOf("me5") < codes.indexOf("sv8"), "Pitch Black before Surging Sparks");
-  assert.equal(codes[codes.length - 1], "me6", "a set still to come (Delta Reign) last");
+  assert.deepEqual(codes.slice(-2), ["me6", "me7"], "the sets still to come (Delta Reign, then Flowing Fists) last");
   assert.deepEqual(codes, setCodesNewestFirst("2026-10-14"));
   assert.equal(values[5], 4);
   assert.equal(out[2].releaseDate, null);
