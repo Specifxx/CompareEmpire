@@ -13,6 +13,7 @@ import { Icon, type IconName } from "@/components/Icon";
 import { ProductGrid } from "@/components/ProductGrid";
 import { ProductRail } from "@/components/ProductRail";
 import { SearchBox } from "@/components/SearchBox";
+import { HeroSparks } from "@/components/HeroSparks";
 import { RegionChips } from "@/components/RegionChips";
 import { Empty, Section } from "@/components/Section";
 import { LatestGuides } from "@/components/LatestGuides";
@@ -99,6 +100,8 @@ export default async function RegionHome({ params }: { params: { region: string 
   return (
     <div>
       <section className="relative overflow-hidden border-b border-line bg-surface">
+        {/* The living background (owner, 2026-11-03): motes that part around the pointer, sparks on a click. */}
+        <HeroSparks />
         <div className="page relative grid gap-10 py-8 sm:py-12 lg:grid-cols-[minmax(0,1fr)_400px] lg:items-center">
           <div className="min-w-0">
             <Breadcrumbs items={[{ href: "/", label: "DexCompare" }, { label: r.name }]} />
