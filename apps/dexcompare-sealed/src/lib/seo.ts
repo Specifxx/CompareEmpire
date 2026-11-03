@@ -127,7 +127,7 @@ export function organizationJsonLd() {
     "@id": ORG_ID,
     name: SITE_NAME,
     url: SITE_URL,
-    logo: `${SITE_URL}/logo.svg`,
+    logo: `${SITE_URL}/logo.png`,
     description: SITE_TAGLINE,
     contactPoint: { "@type": "ContactPoint", email: CONTACT_EMAIL, contactType: "customer support", url: `${SITE_URL}/contact` },
     ...(SOCIAL_LINKS.length ? { sameAs: SOCIAL_LINKS } : {}),
@@ -255,7 +255,7 @@ export function articleJsonLd(a: { title: string; description: string; path: str
     image: a.image || DEFAULT_OG_IMAGE.url,
     inLanguage: "en",
     author: org,
-    publisher: { ...org, logo: { "@type": "ImageObject", url: `${SITE_URL}/logo.svg` } },
+    publisher: { ...org, logo: { "@type": "ImageObject", url: `${SITE_URL}/logo.png` } },
   };
 }
 
