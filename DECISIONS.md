@@ -431,6 +431,7 @@ rejected once, approved.
 - Crawl paths: the newest six guides are plain server-rendered links on every region home and on the landing page
   (`LatestGuides`), and the guides index lists newest first. The landing page grows by that one section; the rest of
   its 2026-10-25 "short page" rule stands.
+
 ## 2026-11-03 — DexCompare's logo is a ball again (owner: "bring back the Pokéball")
 
 The owner missed the Pokéball-style mark the site launched with: it said "Pokémon" at a glance in the tab, in
