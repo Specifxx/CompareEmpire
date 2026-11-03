@@ -223,7 +223,7 @@ const NOT_SEALED =
 // pencils and erasers are judged by merch(): the TCG's own Figure Collections,
 // Pencil Tins and Eraser Blisters (boosters inside) stay.
 const ACCESSORY =
-  /\bmoncolle\b|\btakara\s*tomy\b|\bre-?ment\b|\bgashapon\b|\bblind\s*box\b|\bbath\s*bomb\b|\bwith\s*(?:sweets|candy|candies|gum|chewing\s*gum|snacks?)\b|\bpokepla\b|\bmodel\s*kit\b|\bquick\s*model\b|\bbandai\b|\bmetallic\s*figure\b|\bvinyl\b|\bbuilding\s*toy\b|\bmega\s*bloks\b|\bbox\s*sign\b|\bplastic\s*model\b|\bplamo\b|\bsleeves\b|\bdeck\s*shields?\b|\bdeck\s*(?:box|case|protectors?)\b|\bd-?\s*box\b|\bultra\s*pro\b|\balcove\b|\bflip\s*box\b|\bcard\s*(?:case|holder|protectors?|saver)\b|\btop\s*-?\s*loaders?\b|\bplay\s*-?\s*mats?\b|\bportfolio\b|\balbums?\b|\bstorage\b|\bacrylic\b|\bprotectors?\b|\bmagnetic\b|\buv\s*(?:case|protection|resistant)\b|\bdisplay\s*(?:stand|frame)\b|\bcarry(?:ing)?\s*case\b|\bdice\b|\bdamage\s*counters?\b|\bplush(?:ie)?s?\b|\bfunko\b|\blego\b|\bmega\s*construx\b|\bkeychains?\b|\blanyards?\b|\bbackpacks?\b|\bt-?\s*shirts?\b|\bhoodie\b|\bmug\b|\bpuzzle\b|\bnintendo\b|\bswitch\b|\bvideo\s*game\b|\bstickers?\s*(?:book|sheet|pack)\b|\bbooster\s*box\s*protector\b/i;
+  /\bmoncolle\b|\btakara\s*tomy\b|\btomy\b|\bsanei\b|\bfunism\b|\bre-?ment\b|\bgashapon\b|\bblind\s*box\b|\bbath\s*bomb\b|\bwith\s*(?:sweets|candy|candies|gum|chewing\s*gum|snacks?)\b|\bpokepla\b|\bmodel\s*kit\b|\bquick\s*model\b|\bbandai\b|\bmetallic\s*figure\b|\bvinyl\b|\bbuilding\s*toy\b|\bmega\s*bloks\b|\bbox\s*sign\b|\bplastic\s*model\b|\bplamo\b|\bsleeves\b|\bdeck\s*shields?\b|\bdeck\s*(?:box|case|protectors?)\b|\bd-?\s*box\b|\bultra\s*pro\b|\balcove\b|\bflip\s*box\b|\bcard\s*(?:case|holder|protectors?|saver)\b|\btop\s*-?\s*loaders?\b|\bplay\s*-?\s*mats?\b|\bportfolio\b|\balbums?\b|\bstorage\b|\bacrylic\b|\bprotectors?\b|\bmagnetic\b|\buv\s*(?:case|protection|resistant)\b|\bdisplay\s*(?:stand|frame)\b|\bcarry(?:ing)?\s*case\b|\bdice\b|\bdamage\s*counters?\b|\bplush(?:ie)?s?\b|\bfunko\b|\blego\b|\bmega\s*construx\b|\bkeychains?\b|\blanyards?\b|\bbackpacks?\b|\bt-?\s*shirts?\b|\bhoodie\b|\bmug\b|\bpuzzle\b|\bnintendo\b|\bswitch\b|\bvideo\s*game\b|\bstickers?\s*(?:book|sheet|pack)\b|\bbooster\s*box\s*protector\b/i;
 // "Binder" is an accessory unless it's the sealed Binder Collection.
 const BINDER = /\bbinder\b/i;
 
@@ -860,7 +860,14 @@ export function cleanName(title: string): string {
  * ("pre-orders", "booster-boxes"): those must say "Pokémon" outright, since a
  * set name alone could be another game's.
  */
+// A store's category label in front of the name, never part of it: "Poke: Celebrations Collector Chest", "English TCG: Lumiose
+// City Mini Tin". Left in, the label became one of the product's signature words and the listing a one-store twin of the real
+// product, missing from its comparison (2026-11-03). "Pokémon:" / "TCG:" lead-ins are cleanName's; this one runs before
+// identification so the groupKey agrees too.
+const STORE_PREFIX = /^\s*(?:poke|english\s*tcg)\s*[:\-–—|]\s*/i;
+
 export function identify(title: string, opts: { strict?: boolean } = {}): SealedIdentity | Rejection {
+  title = title.replace(STORE_PREFIX, "");
   // "S&V" is Scarlet & Violet; a trailing " | Pokemon TCG" / " | <store>" is
   // filler (stripFiller) that would otherwise read as the title's words.
   // ("Mega Evolutions Mini Tin" is the Mega Evolution series, not XY Evolutions.)
