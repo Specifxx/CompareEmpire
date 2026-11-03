@@ -431,3 +431,15 @@ rejected once, approved.
 - Crawl paths: the newest six guides are plain server-rendered links on every region home and on the landing page
   (`LatestGuides`), and the guides index lists newest first. The landing page grows by that one section; the rest of
   its 2026-10-25 "short page" rule stands.
+## 2026-11-03 — DexCompare's logo is a ball again (owner: "bring back the Pokéball")
+
+The owner missed the Pokéball-style mark the site launched with: it said "Pokémon" at a glance in the tab, in
+Google's results and in the header. The 2026-11-01 booster pack (#84) is replaced by a red-and-white ball.
+
+- It is ours, not the official ball: the band is tilted (−14°), the button holds the brand's yellow price spark,
+  and the colours are DexCompare's red and ink. Don't straighten the band or draw a plain button.
+- One source: `apps/dexcompare-sealed/src/lib/logo-mark.ts`. The header/footer/phone-menu mark, `icon.svg`,
+  `public/logo.svg` and both share-image renderers draw from it; `favicon.ico` (16/32/48), `apple-icon.png` (180,
+  on white) and `public/logo.png` (512, the Organization/publisher logo Google reads) are rendered from it. The
+  new `manifest.ts` lists them. `tests/logo.test.ts` fails if a copy drifts. No ids, gradients or clip paths, so a
+  copy inside the hidden phone menu still draws.

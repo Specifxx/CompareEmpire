@@ -5,6 +5,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { ImageResponse } from "next/og";
+import { BALL_DATA_URI } from "@/lib/logo-mark";
 
 export const OG_SIZE = { width: 1200, height: 630 };
 
@@ -75,13 +76,7 @@ export function ogCard({ lines, sub, chips, tag, size = 64 }: OgCard): ImageResp
       >
         <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", width: 650 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <svg width="64" height="64" viewBox="0 0 64 64">
-              <rect width="64" height="64" rx="16" fill={BRAND} />
-              <path d="M19 15l2.6-3 2.6 3 2.6-3 2.6 3 2.6-3 2.6 3 2.6-3 2.6 3 2.6-3 2.6 3V49l-2.6 3-2.6-3-2.6 3-2.6-3-2.6 3-2.6-3-2.6 3-2.6-3-2.6 3-2.6-3z" fill="#fff" />
-              <rect x="19" y="18" width="26" height="2.5" fill="#f4cfc5" />
-              <rect x="19" y="43.5" width="26" height="2.5" fill="#f4cfc5" />
-              <path d="M32 22.5Q33.6 30.4 41.5 32 33.6 33.6 32 41.5 30.4 33.6 22.5 32 30.4 30.4 32 22.5z" fill="#ffcb05" stroke={BRAND} strokeWidth={1.6} strokeLinejoin="round" />
-            </svg>
+            <img src={BALL_DATA_URI} width={64} height={64} alt="" />
             <div style={{ display: "flex", fontSize: 42, fontWeight: 800, letterSpacing: -1 }}>
               Dex<span style={{ color: BRAND }}>Compare</span>
             </div>

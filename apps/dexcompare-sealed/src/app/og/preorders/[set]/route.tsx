@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { ImageResponse } from "next/og";
+import { BALL_DATA_URI } from "@/lib/logo-mark";
 import { OG_SIZE } from "@/lib/og-card";
 import { preorderGuideBySlug } from "@/lib/preorder-guides";
 import { PREORDER_OG_ART } from "@/lib/preorder-og";
@@ -56,13 +57,7 @@ export function GET(_req: Request, { params }: { params: { set: string } }) {
       >
         <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", width: 660, padding: "56px 0 56px 64px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <svg width="56" height="56" viewBox="0 0 64 64">
-              <rect width="64" height="64" rx="16" fill={BRAND} />
-              <path d="M19 15l2.6-3 2.6 3 2.6-3 2.6 3 2.6-3 2.6 3 2.6-3 2.6 3 2.6-3 2.6 3V49l-2.6 3-2.6-3-2.6 3-2.6-3-2.6 3-2.6-3-2.6 3-2.6-3-2.6 3-2.6-3z" fill="#fff" />
-              <rect x="19" y="18" width="26" height="2.5" fill="#f4cfc5" />
-              <rect x="19" y="43.5" width="26" height="2.5" fill="#f4cfc5" />
-              <path d="M32 22.5Q33.6 30.4 41.5 32 33.6 33.6 32 41.5 30.4 33.6 22.5 32 30.4 30.4 32 22.5z" fill="#ffcb05" stroke={BRAND} strokeWidth={1.6} strokeLinejoin="round" />
-            </svg>
+            <img src={BALL_DATA_URI} width={56} height={56} alt="" />
             <div style={{ display: "flex", fontSize: 40, fontWeight: 800, letterSpacing: -1 }}>
               Dex<span style={{ color: BRAND }}>Compare</span>
             </div>
