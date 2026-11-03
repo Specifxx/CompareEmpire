@@ -8,18 +8,20 @@ import { HAND_SETS, SETS } from "../src/lib/sets";
 
 const TODAY = "2026-11-03";
 const g = (groupId: number, name: string, publishedOn: string, abbreviation: string | null = null): TcgGroup => ({ groupId, name, abbreviation, publishedOn: `${publishedOn}T00:00:00` });
-const KNOWN = HAND_SETS.map((s) => ({ code: s.code, name: s.name, slug: s.slug }));
+const KNOWN = HAND_SETS.map((s) => ({ code: s.code, name: s.name, slug: s.slug, releaseDate: s.releaseDate }));
+// A real old set in the list (Surging Sparks, 2024) sets the group-id floor at 23000: every test group above it is "new".
+const FLOOR = g(23000, "SV08: Surging Sparks", "2024-11-08", "SV08");
 
 test("an upcoming set group is taken; known sets, promos, galleries, decks and far-off or old groups are not", () => {
   const groups = [
-    g(1, "ME06: Delta Reign", "2026-11-06", "ME06"), // known
-    g(2, "ME08: Storm Crown", "2027-03-26", "ME08"),
-    g(3, "ME: Mega Evolution Promos", "2026-12-01", "MEP"),
-    g(4, "ME08: Storm Crown Trainer Gallery", "2027-03-26"),
-    g(5, "League & Championship Cards", "2026-12-01"),
-    g(6, "Battle Academy 2027", "2027-01-10"),
-    g(7, "ME09: Far Away", "2027-09-01", "ME09"),
-    g(8, "SV08: Surging Sparks", "2024-11-08", "SV08"),
+    g(30001, "ME06: Delta Reign", "2026-11-06", "ME06"), // known
+    g(30002, "ME08: Storm Crown", "2027-03-26", "ME08"),
+    g(30003, "ME: Mega Evolution Promos", "2026-12-01", "MEP"),
+    g(30004, "ME08: Storm Crown Trainer Gallery", "2027-03-26"),
+    g(30005, "League & Championship Cards", "2026-12-01"),
+    g(30006, "Battle Academy 2027", "2027-01-10"),
+    g(30007, "ME09: Far Away", "2027-09-01", "ME09"),
+    FLOOR,
   ];
   const { take, skipped } = candidates(groups, KNOWN, TODAY);
   assert.deepEqual(
@@ -30,7 +32,7 @@ test("an upcoming set group is taken; known sets, promos, galleries, decks and f
 });
 
 test("a name inside a known set's name is refused, and a too-short name", () => {
-  const { take, skipped } = candidates([g(9, "ME08: Delta", "2027-01-01", "ME08"), g(10, "ME: Rev", "2027-01-01", "ZZ")], KNOWN, TODAY);
+  const { take, skipped } = candidates([FLOOR, g(30009, "ME08: Delta", "2027-01-01", "ME08"), g(30010, "ME: Rev", "2027-01-01", "ZZ")], KNOWN, TODAY);
   assert.deepEqual(take, []);
   assert.equal(skipped.length, 2);
   assert.ok(nameInside("Delta", "Delta Reign"));
@@ -59,16 +61,16 @@ test("TCGplayer's catalogue decides: a sealed set at all, and whether a booster 
 });
 
 test("merge: sealed groups only, first slug and code kept, a failed read keeps yesterday's entry, hand-written sets win", () => {
-  const take = candidates([g(2, "ME08: Storm Crown", "2027-03-26", "ME08"), g(11, "ME: Pocket Pals", "2027-02-20", "PKP")], KNOWN, TODAY).take;
+  const take = candidates([FLOOR, g(30002, "ME08: Storm Crown", "2027-03-26", "ME08"), g(30011, "ME: Pocket Pals", "2027-02-20", "PKP")], KNOWN, TODAY).take;
   const products = new Map<number, string[]>([
-    [2, ["Storm Crown Booster Box", "Storm Crown Elite Trainer Box"]],
-    [11, ["Pikachu - 001/050"]],
+    [30002, ["Storm Crown Booster Box", "Storm Crown Elite Trainer Box"]],
+    [30011, ["Pikachu - 001/050"]],
   ]);
   const out = mergeDiscovered([], take, products, "Mega Evolution", KNOWN, TODAY);
-  assert.deepEqual(out, [{ code: "me8", name: "Storm Crown", slug: "storm-crown", series: "Mega Evolution", releaseDate: "2027-03-26", tcgGroupId: 2, firstSeen: TODAY }]);
+  assert.deepEqual(out, [{ code: "me8", name: "Storm Crown", slug: "storm-crown", series: "Mega Evolution", releaseDate: "2027-03-26", tcgGroupId: 30002, firstSeen: TODAY }]);
 
   const before: DiscoveredSet[] = [{ ...out[0], slug: "storm-crown-old", releaseDate: "2027-03-20", firstSeen: "2026-10-01" }];
-  const moved = mergeDiscovered(before, take, new Map([[2, ["Storm Crown Elite Trainer Box"]]]), "Mega Evolution", KNOWN, TODAY);
+  const moved = mergeDiscovered(before, take, new Map([[30002, ["Storm Crown Elite Trainer Box"]]]), "Mega Evolution", KNOWN, TODAY);
   assert.equal(moved[0].slug, "storm-crown-old");
   assert.equal(moved[0].firstSeen, "2026-10-01");
   assert.equal(moved[0].releaseDate, "2027-03-26");
@@ -89,4 +91,13 @@ test("data/sets/discovered.json is well formed; SETS stays newest first with uni
   assert.equal(new Set(SETS.map((s) => s.code)).size, SETS.length);
   assert.equal(new Set(SETS.map((s) => s.slug)).size, SETS.length);
   for (let i = 1; i < SETS.length; i++) assert.ok(SETS[i - 1].releaseDate >= SETS[i].releaseDate, SETS[i].code);
+});
+
+test("old groups TCGplayer re-dated are never new: only group ids above the newest year-old known set are read", () => {
+  const groups = [FLOOR, g(1422, "POP Series 1", "2026-11-02", "POP"), g(1300, "Black & White", "2026-11-02", "BW1"), g(30002, "ME08: Storm Crown", "2027-03-26", "ME08")];
+  assert.deepEqual(
+    candidates(groups, KNOWN, TODAY).take.map((c) => c.code),
+    ["me8"],
+  );
+  assert.deepEqual(candidates([g(30002, "ME08: Storm Crown", "2027-03-26", "ME08")], KNOWN, TODAY).take, [], "no floor, nothing read");
 });

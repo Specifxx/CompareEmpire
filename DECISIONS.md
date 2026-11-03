@@ -474,3 +474,28 @@ The owner's 2026-11-03 SEO audit asked DexCompare for FAQPage and Product schema
   guides, no FAQPage); its FAQ lives on `/about`, and the region homes carry "How DexCompare works".
 - The family block's heading is "Deals on other card games", as on MTG Compare: the Black Friday copy test bans
   "on sale" and was failing on `main`.
+
+## 2026-11-03 — DexCompare: new Pokémon sets find themselves (TCGplayer's catalogue)
+
+The owner (2026-11-03): "We need a fresh pipeline of new products for all our sites, that's where our demand is. For
+example the Pokemon preorder." DexCompare's pre-order pages, Coming soon block and set pages already followed
+`lib/sets.ts`, but that list was typed by hand, and until a set was added every store pre-order naming it was refused.
+Same fix as MTG Compare's (Specifxx/mtgcompare #66), with TCGplayer as the source because Pokémon has no Scryfall.
+
+**What.** The sealed import first runs `apps/dexcompare-sealed/scripts/discover-sets.ts`: TCGCSV's Pokémon group list
+(TCGplayer's catalogue as public JSON) and, for each candidate, its product list. The result is
+`apps/dexcompare-sealed/data/sets/discovered.json`, committed with the data snapshot and merged into `SETS`.
+
+- A group is taken when it is due within 180 days (or out within 60), is not a promo, gallery, vault, deck, league or
+  event group, and TCGplayer itself lists an Elite Trainer Box or booster product in it.
+- `noBoosterBox` unless TCGplayer lists a Booster Box or Display: a store's "booster box" of a set that never had one
+  is a store-made lot, so it is refused until TCGplayer shows the real one.
+- Name and street date are TCGplayer's (`publishedOn`); code from its abbreviation (ME08 → me8); series from that
+  prefix, else the newest hand-written set's. The slug is fixed when first seen (a live URL).
+- TCGplayer re-stamps old groups' dates (POP Series read "2026-11-02"), so only group ids above the newest
+  year-old known set's are read: ids only grow.
+- Refused and listed in the job summary: a name under four letters, and a name inside a known set's name.
+- TCGplayer opens a set's group only weeks before release (2026-11-03: Delta Reign yes, Flowing Fists, Feb 2027,
+  not yet), so a set announced earlier is still added by hand for its early pre-order page; discovery is the safety net.
+- A hand-written entry with the same code or slug always wins. Never fails the import.
+  `apps/dexcompare-sealed/tests/set-discovery.test.ts`.

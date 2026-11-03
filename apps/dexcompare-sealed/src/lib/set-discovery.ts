@@ -125,8 +125,23 @@ export interface Skip {
 
 type Known = { code: string; name: string; slug: string };
 
-/** The TCGplayer groups worth a product read: in the date window, not a promo/gallery/deck group, not already known. */
-export function candidates(groups: readonly TcgGroup[], known: readonly Known[], today: string): { take: Candidate[]; skipped: Skip[] } {
+/**
+ * TCGplayer re-stamps old groups' `publishedOn` (2026-11-03: the POP Series and Burger King promos read "2026-11-02"), so a date alone
+ * cannot say a group is new. Group ids only grow: the floor is the highest id among groups that are hand-written sets released over a
+ * year ago, and only groups above it are read. null (no such group found) reads none.
+ */
+export function groupIdFloor(groups: readonly TcgGroup[], known: readonly (Known & { releaseDate: string })[], today: string): number | null {
+  const yearAgo = addDays(today, -365);
+  const old = new Set(known.filter((k) => k.releaseDate < yearAgo).map((k) => k.slug));
+  let floor: number | null = null;
+  for (const g of groups) if (old.has(setSlug(cleanGroupName(g.name))) && (floor === null || g.groupId > floor)) floor = g.groupId;
+  return floor;
+}
+
+/** The TCGplayer groups worth a product read: newer than the floor, in the date window, not a promo/gallery/deck group, not known. */
+export function candidates(groups: readonly TcgGroup[], known: readonly (Known & { releaseDate: string })[], today: string): { take: Candidate[]; skipped: Skip[] } {
+  const floor = groupIdFloor(groups, known, today);
+  if (floor === null) return { take: [], skipped: [{ name: "(all)", why: "no hand-written set found in TCGplayer's list to date the groups by" }] };
   const from = addDays(today, -DISCOVER_BEHIND_DAYS);
   const to = addDays(today, DISCOVER_AHEAD_DAYS);
   const codes = new Set(known.map((k) => k.code));
@@ -134,6 +149,7 @@ export function candidates(groups: readonly TcgGroup[], known: readonly Known[],
   const take: Candidate[] = [];
   const skipped: Skip[] = [];
   for (const g of groups) {
+    if (g.groupId <= floor) continue;
     const date = (g.publishedOn ?? "").slice(0, 10);
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || date < from || date > to) continue;
     if (NOT_A_SET.test(g.name)) continue;
