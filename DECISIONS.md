@@ -460,3 +460,17 @@ push through and the page under the pop-up never re-renders.
 
 **SEO.** No new URL exists: the link is the canonical product page, which a reload, a share or a crawler gets in full
 server HTML. Never a `?view=` or `#` variant (duplicate URLs, extra CDN copies). Pinned by `tests/quick-view-url.test.ts`.
+
+## 2026-11-03 — DexCompare SEO audit: alt text on every photo; schema and landing already in place
+
+The owner's 2026-11-03 SEO audit asked DexCompare for FAQPage and Product schema, alt text and a fuller homepage.
+
+- Every product, set-logo, eBay, guide-thumbnail, family and embed photo now carries the product, set or listing
+  name as its alt. `apps/dexcompare-sealed/tests/seo-audit.test.ts` fails on an `<img>` with `alt=""` outside the
+  share images and the quick view.
+- Already in place, not rebuilt: Product + AggregateOffer and BreadcrumbList on product pages, FAQPage on `/about`
+  and every guide, ItemList on set, type and deal pages, hreflang on region pages.
+- The landing page stays short (owner's rule of 2026-11-03, `tests/shell.test.ts`: hero, fair paragraph, newest
+  guides, no FAQPage); its FAQ lives on `/about`, and the region homes carry "How DexCompare works".
+- The family block's heading is "Deals on other card games", as on MTG Compare: the Black Friday copy test bans
+  "on sale" and was failing on `main`.
