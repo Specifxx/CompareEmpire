@@ -544,3 +544,18 @@ agrees; the grid shows "Your channel here" spots, never an invented creator), ap
 site never handles the money. `CreatorsCornerBadge` is the bubble in the landing hero and every region home (top-right
 from sm, a centred pill on a phone); the sidebar's "More", the footer and the static sitemap link the page. Prerendered
 like /about: no data or request read. Not called "partners" anywhere: that word means the affiliate links.
+
+## 2026-11-03 — DexCompare: the daily Price Duel, on sealed prices
+
+The card sites' share loop (Gundam, Lorcana, YGO, Cyberpunk, OP: `/daily`, a Wordle-shaped "which is worth more?") comes to
+sealed. `/<region>/daily` (`src/lib/daily.ts`, `daily-data.ts`, `components/DailyGame.tsx`): ten pairs of in-stock products a day,
+the one that costs more at the region's cheapest in-stock store price wins, an emoji grid and a streak to paste anywhere
+(`utm_medium=daily`; Vercel events `daily_done { score }` and `share { kind: "daily" }`). Why: price comparisons are not shared,
+scores are; the growth report of 3 Nov counted 14 share taps and 0 visits in a week.
+
+- Per region, not global: the answer is the region's own price, in its own currency, from the browse index the region page already
+  reads (one `marketProducts` read, CDN-cached a day with a week of puzzles inside; the client picks today's at midnight UTC).
+- A product is picked by a hash of (day, slug), so an import that adds or drops products keeps almost every pair; a pair is only
+  made from prices 1.25 to 8 times apart so a day's moves don't flip an answer; nothing under 5 units (packs, sleeves) or over
+  2,000 (cases) plays; a sold-out or TCGplayer-only row never does. Puzzle #1 is 2026-11-03; never move the epoch.
+- Linked from the sidebar's "More", the footer and the sitemap. `tests/daily.test.ts`.
