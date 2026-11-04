@@ -10342,6 +10342,17 @@
     ]
   },
   {
+    "key": "miniaturemarket",
+    "name": "Miniature Market",
+    "base": "https://www.miniaturemarket.com",
+    "market": "US",
+    "platform": "shopware",
+    "country": "US",
+    "collections": [
+      "/trading-card-games/pokemon.html"
+    ]
+  },
+  {
     "key": "eclipsegamesau",
     "name": "Eclipse Games",
     "base": "https://eclipsegames.com.au",
@@ -10373,6 +10384,18 @@
     "country": "AU",
     "collections": [
       "pokemon"
+    ]
+  },
+  {
+    "key": "grandjgames",
+    "name": "Grand J Games",
+    "base": "https://grandjgames.com",
+    "market": "AU",
+    "platform": "bigcommerce",
+    "country": "AU",
+    "collections": [
+      "/tcgs/pokemon/",
+      "/tcgs/pokemon/pokemon-preorders/"
     ]
   },
   {
