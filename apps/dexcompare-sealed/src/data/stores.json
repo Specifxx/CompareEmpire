@@ -10342,6 +10342,17 @@
     ]
   },
   {
+    "key": "miniaturemarket",
+    "name": "Miniature Market",
+    "base": "https://www.miniaturemarket.com",
+    "market": "US",
+    "platform": "shopware",
+    "country": "US",
+    "collections": [
+      "/trading-card-games/pokemon.html"
+    ]
+  },
+  {
     "key": "eclipsegamesau",
     "name": "Eclipse Games",
     "base": "https://eclipsegames.com.au",
