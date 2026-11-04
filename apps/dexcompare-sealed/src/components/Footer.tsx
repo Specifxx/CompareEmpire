@@ -21,7 +21,7 @@ export function footerColumns(region: Region | null, listed?: ReadonlySet<string
     { href: "/forum", label: "Community forum (beta)" },
     { href: "/creators", label: "Creators" },
     { href: "/contact", label: "Contact" },
-    { href: "/contact#suggest", label: "Suggest a store" },
+    { href: "/list-your-store", label: "List your store" },
     { href: "/how-we-pick-stores", label: "How we pick stores" },
     { href: "/terms", label: "Terms" },
     { href: "/privacy", label: "Privacy" },
