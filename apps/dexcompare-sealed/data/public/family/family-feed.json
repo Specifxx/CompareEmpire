@@ -1,7 +1,7 @@
 {
  "v": 1,
  "site": "dex",
- "generatedAt": "2026-11-04T01:13:34.895Z",
+ "generatedAt": "2026-11-04T16:58:56.954Z",
  "links": {
   "AU": {
    "deals": "https://dexcompare.app/au/deals"
@@ -36,9 +36,9 @@
    "currency": "AUD",
    "store": "Turtle TCG",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/684444_in_1000x1000.jpg",
-   "refCents": 33495,
+   "refCents": 33000,
    "refLabel": "median store price",
-   "savingPct": 46
+   "savingPct": 45
   },
   {
    "kind": "deal",
@@ -120,9 +120,9 @@
    "currency": "NZD",
    "store": "The Game Tree NZ",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/684106_in_1000x1000.jpg",
-   "refCents": 6750,
+   "refCents": 6500,
    "refLabel": "median store price",
-   "savingPct": 28
+   "savingPct": 25
   },
   {
    "kind": "deal",
@@ -198,15 +198,15 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "US",
-   "title": "30th Celebration Ditto Premium Collection",
-   "url": "https://dexcompare.app/us/p/30th-celebration-ditto-premium-collection",
-   "cents": 8998,
+   "title": "Journey Together - 3 Pack Blister - Scrafty",
+   "url": "https://dexcompare.app/us/p/journey-together-3-pack-blister-scrafty",
+   "cents": 1500,
    "currency": "USD",
-   "store": "Black Panther Sports Cards",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/704189_in_1000x1000.jpg",
-   "refCents": 17000,
+   "store": "Devastation Store Miami",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/610948_in_1000x1000.jpg",
+   "refCents": 2799,
    "refLabel": "median store price",
-   "savingPct": 47
+   "savingPct": 46
   },
   {
    "kind": "deal",
@@ -296,6 +296,20 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "UK",
+   "title": "Nihil Zero Japanese Booster Pack (M3)",
+   "url": "https://dexcompare.app/uk/p/nihil-zero-m3-japanese-booster-pack",
+   "cents": 195,
+   "currency": "GBP",
+   "store": "Collectors Kingdom",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/674454_in_1000x1000.jpg",
+   "refCents": 350,
+   "refLabel": "median store price",
+   "savingPct": 44
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "UK",
    "title": "Stellar Crown Elite Trainer Box",
    "url": "https://dexcompare.app/uk/p/stellar-crown-elite-trainer-box",
    "cents": 5995,
@@ -303,20 +317,6 @@
    "store": "TCGShopUK",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/557350_in_1000x1000.jpg",
    "refCents": 10500,
-   "refLabel": "median store price",
-   "savingPct": 43
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "UK",
-   "title": "White Flare Japanese Booster Box (SV11W)",
-   "url": "https://dexcompare.app/uk/p/white-flare-sv11w-japanese-booster-box",
-   "cents": 8495,
-   "currency": "GBP",
-   "store": "TCGShopUK",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/637386_in_1000x1000.jpg",
-   "refCents": 14999,
    "refLabel": "median store price",
    "savingPct": 43
   },
@@ -382,7 +382,7 @@
    "region": "CA",
    "title": "Ascended Heroes Tech Sticker Collection",
    "url": "https://dexcompare.app/ca/p/ascended-heroes-tech-sticker-collection",
-   "cents": 4120,
+   "cents": 4119,
    "currency": "CAD",
    "store": "L'Atelier TCG",
    "image": "https://cdn.shopify.com/s/files/1/0063/4971/7559/files/raw--3_716a5e57-6ac3-4765-85a0-ea007bc9bcc0.png?v=1768503070",
@@ -403,20 +403,6 @@
    "refCents": 4995,
    "refLabel": "median store price",
    "savingPct": 40
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "EU",
-   "title": "151 Mini Tin",
-   "url": "https://dexcompare.app/eu/p/151-mini-tin",
-   "cents": 2990,
-   "currency": "EUR",
-   "store": "Spielewelt Amberg",
-   "image": "https://cdn.shopify.com/s/files/1/0620/7658/4128/files/151-MiniTins.webp?v=1696533572",
-   "refCents": 5745,
-   "refLabel": "median store price",
-   "savingPct": 48
   },
   {
    "kind": "deal",
@@ -491,6 +477,20 @@
   {
    "kind": "deal",
    "cluster": "cards",
+   "region": "EU",
+   "title": "Abyss Eye Japanese Booster Box (M5)",
+   "url": "https://dexcompare.app/eu/p/abyss-eye-m5-japanese-booster-box",
+   "cents": 6990,
+   "currency": "EUR",
+   "store": "Toy Treasure",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/695112_in_1000x1000.jpg",
+   "refCents": 11990,
+   "refLabel": "median store price",
+   "savingPct": 42
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
    "region": "SG",
    "title": "Mega Brave Japanese Booster Pack (M1L)",
    "url": "https://dexcompare.app/sg/p/mega-brave-m1l-japanese-booster-pack",
@@ -522,7 +522,7 @@
    "region": "SG",
    "title": "Pitch Black Elite Trainer Box",
    "url": "https://dexcompare.app/sg/p/pitch-black-elite-trainer-box",
-   "cents": 8788,
+   "cents": 8804,
    "currency": "SGD",
    "store": "TEFUDA",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/692947_in_1000x1000.jpg",
