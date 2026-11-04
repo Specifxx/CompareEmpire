@@ -366,6 +366,11 @@ export async function loadGuideData(slug: GuideSlug, r: RegionInfo, now: Date = 
       for (const [c, v] of counts) openCount[c] = v.open;
       return done({ sets: codes, bySet: Object.fromEntries(cal), openCount, deals, fresh });
     }
+    case "pokemon-tcg-2026-in-sets": {
+      // The year's six Mega Evolution sets: their cheapest box, ETB and bundle (calendarProducts, about 9 rows a set, ≤ 54 rows).
+      const codes = ["me2pt5", "me3", "me4", "me5", "cel30", "me6"];
+      return done({ sets: codes, bySet: Object.fromEntries(await calendarProducts(r.market, codes)), openCount: {} });
+    }
     case "cheapest-pokemon-booster-box":
     case "pokemon-booster-box-price-australia":
       return done({ cards: await openBoxes(r.market) });

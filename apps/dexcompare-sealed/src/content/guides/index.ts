@@ -40,6 +40,7 @@ export type GuideSlug =
   | "how-to-check-pokemon-card-value"
   | "ebay-vs-australian-stores-pokemon-fees"
   | "pokemon-tcg-market-wrap"
+  | "pokemon-tcg-2026-in-sets"
   | "cheapest-pokemon-booster-box"
   | "pokemon-booster-box-price-australia"
   | "delta-reign-booster-box-price"
@@ -310,6 +311,18 @@ export const GUIDES: readonly Guide[] = [
     updated: "2026-10-21",
     regions: "all",
     topic: { types: ["booster-box", "etb", "booster-bundle"] },
+    ebay: { context: "sealed", heading: "Sealed Pokémon on eBay" },
+    tools: ["value-checker", "trade-calculator"],
+  },
+  {
+    slug: "pokemon-tcg-2026-in-sets",
+    title: "Pokémon TCG in 2026: the Mega Evolution year, set by set",
+    description: "Every 2026 English set with its release date and today's cheapest box, ETB and bundle, the release cadence since 2020, and what the publisher has dated next.",
+    kicker: "The year in sets",
+    published: "2026-11-04",
+    updated: "2026-11-04",
+    regions: "all",
+    topic: { types: ["booster-box", "etb", "booster-bundle"], sets: ["delta-reign", "30th-celebration", "pitch-black", "chaos-rising", "perfect-order", "ascended-heroes"] },
     ebay: { context: "sealed", heading: "Sealed Pokémon on eBay" },
     tools: ["value-checker", "trade-calculator"],
   },
