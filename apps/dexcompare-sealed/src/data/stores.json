@@ -10387,6 +10387,18 @@
     ]
   },
   {
+    "key": "grandjgames",
+    "name": "Grand J Games",
+    "base": "https://grandjgames.com",
+    "market": "AU",
+    "platform": "bigcommerce",
+    "country": "AU",
+    "collections": [
+      "/tcgs/pokemon/",
+      "/tcgs/pokemon/pokemon-preorders/"
+    ]
+  },
+  {
     "key": "cardchasersmtl",
     "name": "Card Chasers",
     "base": "https://cardchasersmtl.com",
