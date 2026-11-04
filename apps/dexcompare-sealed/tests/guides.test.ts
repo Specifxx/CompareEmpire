@@ -169,6 +169,10 @@ function fixture(slug: GuideSlug): GuideData {
         bySet: { [released[0]]: headline(released[0], 800).map((p) => ({ ...p, medianOpenCents: (p.lowestPriceCents ?? 0) + 1500 })) },
         deals: [card(released[1], "Booster Box", 19900, 9), card(released[2], "Elite Trainer Box", 5499, 6)].map((p) => ({ ...p, medianOpenCents: (p.lowestPriceCents ?? 0) + 2500 })),
       };
+    case "pokemon-tcg-2026-in-sets": {
+      const codes = ["me2pt5", "me3", "me4", "me5", "cel30", "me6"];
+      return { ...d, sets: codes, bySet: Object.fromEntries(codes.map((c, i) => [c, headline(c, 760 + i * 30)])) };
+    }
     case "pokemon-tcg-market-wrap": {
       const around = setsAround(TODAY);
       const soon = around.soon.map((s) => s.code);
@@ -327,7 +331,7 @@ const PAIRS = GUIDES.filter((g) => !ONLY || ONLY.has(g.slug)).flatMap((g) => gui
 
 test("registry: unique slugs, ISO editorial dates (updated ≥ published), descriptions ≤ 160, titles that fit a <title>", () => {
   assert.equal(new Set(GUIDES.map((g) => g.slug)).size, GUIDES.length);
-  assert.equal(GUIDES.length, 39);
+  assert.equal(GUIDES.length, 40);
   for (const g of GUIDES) {
     assert.match(g.slug, /^[a-z0-9]+(?:-[a-z0-9]+)*$/);
     for (const d of [g.published, g.updated]) {
@@ -370,9 +374,9 @@ test("the MSRP guide is US-only, the five Australian guides AU-only; every other
   for (const r of REGION_LIST.filter((x) => x.region !== "us")) {
     assert.equal(guideFor("pokemon-tcg-msrp", r.region), null, r.region);
     assert.ok(!guidesFor(r.region).some((g) => g.slug === "pokemon-tcg-msrp"), r.region);
-    assert.equal(guidesFor(r.region).length, r.region === "au" ? 38 : 33, r.region);
+    assert.equal(guidesFor(r.region).length, r.region === "au" ? 39 : 34, r.region);
   }
-  assert.equal(guidesFor("us").length, 34);
+  assert.equal(guidesFor("us").length, 35);
   for (const g of GUIDES.filter((x) => x.slug !== "pokemon-tcg-msrp" && !AU_ONLY.includes(x.slug))) assert.equal(guideRegions(g).length, 7, g.slug);
   assert.equal(guideFor("no-such-guide", "au"), null);
 });
