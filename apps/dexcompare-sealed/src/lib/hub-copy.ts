@@ -17,6 +17,7 @@ import { withPokemon } from "./seo";
 import { SERIES_ORDER, SETS, type PokemonSet } from "./sets";
 import { OFFER_STALE_MS } from "./sealed-offers";
 import { SITE_NAME } from "./site";
+import type { StoreConfig } from "./stores";
 
 // ─── Titles ────────────────────────────────────────────────────────────────────
 // The root layout's template adds " | DexCompare". A title that would run past 65 characters with it goes out as
@@ -351,7 +352,7 @@ export const STORE_MIN_LISTED = 3;
 export function storeIntro(o: {
   name: string;
   host: string;
-  platform: "shopify" | "woocommerce" | "tcgplayer";
+  platform: StoreConfig["platform"];
   r: Pick<RegionInfo, "inName" | "adjective" | "currency">;
   rows: readonly { productType: string; listed: number; inStock: number; cheapest: number; sets: readonly string[] }[];
   storesInRegion: number;
