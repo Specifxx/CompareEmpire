@@ -11648,52 +11648,6 @@
     }
    ]
   },
-  "hbtcollectables": {
-   "market": "AU",
-   "currency": "AUD",
-   "measuredAt": "2026-11-02T11:50:01.400Z",
-   "points": [
-    {
-     "subtotalCents": 1399,
-     "rates": {
-      "syd": 1200,
-      "mel": 1200,
-      "bne": 1200,
-      "adl": 1200,
-      "per": 1200,
-      "hba": 1200,
-      "drw": 1200,
-      "cbr": 1200
-     }
-    },
-    {
-     "subtotalCents": 15900,
-     "rates": {
-      "syd": 1600,
-      "mel": 1600,
-      "bne": 1600,
-      "adl": 1600,
-      "per": 1600,
-      "hba": 1600,
-      "drw": 1600,
-      "cbr": 1600
-     }
-    },
-    {
-     "subtotalCents": 31900,
-     "rates": {
-      "syd": 1200,
-      "mel": 1200,
-      "bne": 1200,
-      "adl": 1200,
-      "per": 1200,
-      "hba": 1200,
-      "drw": 1200,
-      "cbr": 1200
-     }
-    }
-   ]
-  },
   "heavenscollectibles": {
    "market": "CA",
    "currency": "CAD",
