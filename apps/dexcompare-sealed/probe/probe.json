@@ -1,0 +1,1459 @@
+[
+ {
+  "key": "curacards",
+  "name": "Cura Cards",
+  "base": "https://curacards.com.au",
+  "market": "AU",
+  "platform": "shopify",
+  "currency": "AUD",
+  "currencyOk": true,
+  "country": "AU",
+  "collections": [
+   "sealed-product"
+  ],
+  "sealedProducts": 1,
+  "inStock": 1,
+  "allFound": 1,
+  "read": [
+   {
+    "handle": "sealed-product",
+    "ok": true,
+    "products": 9,
+    "accepted": 1
+   },
+   {
+    "handle": "pokemon-go",
+    "ok": true,
+    "products": 41,
+    "accepted": 0
+   },
+   {
+    "handle": "eevee-pokemon-cards",
+    "ok": true,
+    "products": 4,
+    "accepted": 0
+   },
+   {
+    "handle": "gengar-pokemon-cards",
+    "ok": true,
+    "products": 2,
+    "accepted": 0
+   },
+   {
+    "handle": "pikachu-pokemon-cards",
+    "ok": true,
+    "products": 6,
+    "accepted": 0
+   },
+   {
+    "handle": "flareon-pokemon-cards",
+    "ok": true,
+    "products": 3,
+    "accepted": 0
+   },
+   {
+    "handle": "vintage-pokemon-cards",
+    "ok": true,
+    "products": 83,
+    "accepted": 0
+   },
+   {
+    "handle": "clefairy-pokemon-cards",
+    "ok": true,
+    "products": 2,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "not-pokemon": 5,
+   "unclassified": 4,
+   "not-sealed": 140
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "MEGA Gengar ex Japanese - Pokemon Starter Set"
+   }
+  ],
+  "error": null,
+  "ms": 4402
+ },
+ {
+  "key": "gamesparadise",
+  "name": "Games Paradise",
+  "base": "https://gamesparadise.com.au",
+  "market": "AU",
+  "platform": "shopify",
+  "currency": "AUD",
+  "currencyOk": true,
+  "country": "AU",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "pokemon-sealed",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-sealed-products",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-tcg",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "sealed",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pre-orders",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "preorders",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "booster-boxes",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   }
+  ],
+  "rejections": {},
+  "samples": [],
+  "error": null,
+  "ms": 4448
+ },
+ {
+  "key": "jenesmtg",
+  "name": "Jenes MTG",
+  "base": "https://jenesmtg.com.au",
+  "market": "AU",
+  "platform": "shopify",
+  "currency": "AUD",
+  "currencyOk": true,
+  "country": "AU",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "pokemon-sealed",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-sealed-products",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-tcg",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "sealed",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pre-orders",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "preorders",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "booster-boxes",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   }
+  ],
+  "rejections": {},
+  "samples": [],
+  "error": null,
+  "ms": 3964
+ },
+ {
+  "key": "tcg",
+  "name": "Gumnut Games",
+  "base": "https://tcg.gumnut.com.au",
+  "market": "AU",
+  "platform": "shopify",
+  "currency": "AUD",
+  "currencyOk": true,
+  "country": "AU",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "pokemon-sealed",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-sealed-products",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-tcg",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "sealed",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pre-orders",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "preorders",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "booster-boxes",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   }
+  ],
+  "rejections": {},
+  "samples": [],
+  "error": null,
+  "ms": 4039
+ },
+ {
+  "key": "eclipsegamesau",
+  "name": "Eclipse Games AU",
+  "base": "https://eclipsegames.com.au",
+  "market": "AU",
+  "platform": "shopify",
+  "currency": "AUD",
+  "currencyOk": true,
+  "country": "AU",
+  "collections": [
+   "pokemon-trading-card-game",
+   "pokemon-elite-trainer-boxes"
+  ],
+  "sealedProducts": 167,
+  "inStock": 48,
+  "allFound": 168,
+  "read": [
+   {
+    "handle": "pokemon-booster-boxes",
+    "ok": true,
+    "products": 132,
+    "accepted": 61
+   },
+   {
+    "handle": "pokemon-booster-packs",
+    "ok": true,
+    "products": 30,
+    "accepted": 4
+   },
+   {
+    "handle": "pokemon-elite-trainer-boxes",
+    "ok": true,
+    "products": 23,
+    "accepted": 22
+   },
+   {
+    "handle": "pokemon-tcg-promos-collection-boxes",
+    "ok": true,
+    "products": 63,
+    "accepted": 25
+   },
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 336,
+    "accepted": 164
+   },
+   {
+    "handle": "pokemon-tcg",
+    "ok": true,
+    "products": 324,
+    "accepted": 162
+   },
+   {
+    "handle": "pokemon-trading-card-game",
+    "ok": true,
+    "products": 340,
+    "accepted": 165
+   },
+   {
+    "handle": "booster-boxes",
+    "ok": true,
+    "products": 530,
+    "accepted": 62
+   }
+  ],
+  "rejections": {
+   "foreign": 595,
+   "no-set": 12,
+   "unclassified": 104,
+   "vague": 15,
+   "not-pokemon": 320,
+   "not-sealed": 17,
+   "accessory": 47,
+   "multiple": 3
+  },
+  "samples": [
+   {
+    "reason": "no-set",
+    "title": "Pokemon TCG Supercharged Breaker Booster Box Japanese"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon TCG - SV10 Destined Rivals Half Booster Box"
+   },
+   {
+    "reason": "vague",
+    "title": "Pokemon TCG Future Flash & Ancient Roar Booster Box Japanese Bundle"
+   },
+   {
+    "reason": "vague",
+    "title": "Pokemon TCG Snow Hazard & Clay burst Japanese Booster Box Bundle"
+   },
+   {
+    "reason": "vague",
+    "title": "Pokemon TCG Cyber Judge & Wild Force Japanese Booster Box Bundle Set"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon TCG Sword & Shield 25th Anniversary Golden BOX Japanese"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon TCG - Glory of Team Rocket Attache Case Japanese"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Card Game Scarlet & Violet Start Deck Generations Reshiram EX/Morobarrel EX Japanese"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Card Game Scarlet & Violet Start Deck Generations Lugia EX/Tyranitar EX Japanese"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Card Game Scarlet & Violet Start Deck Generations Dialga EX/Lucario EX Japanese"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Card Game Scarlet & Violet Start Deck Generations Xerneas EX/Onburn EX Japanese"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Card Game Scarlet & Violet Start Deck Generations Zacian EX/Mawhip EX Japanese"
+   }
+  ],
+  "error": null,
+  "ms": 9227
+ },
+ {
+  "key": "hobbyco",
+  "name": "Hobbyco",
+  "base": "https://hobbyco.com.au",
+  "market": "AU",
+  "platform": "shopify",
+  "currency": "AUD",
+  "currencyOk": true,
+  "country": "AU",
+  "collections": [
+   "pokemon"
+  ],
+  "sealedProducts": 177,
+  "inStock": 1,
+  "allFound": 177,
+  "read": [
+   {
+    "handle": "bundled-pokemon-snap-kits",
+    "ok": true,
+    "products": 31,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 405,
+    "accepted": 177
+   },
+   {
+    "handle": "pokemon-trading-card-game",
+    "ok": true,
+    "products": 7,
+    "accepted": 2
+   },
+   {
+    "handle": "pre-orders",
+    "ok": true,
+    "products": 355,
+    "accepted": 0
+   },
+   {
+    "handle": "new-arrivals",
+    "ok": true,
+    "products": 750,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-kits",
+    "ok": true,
+    "products": 59,
+    "accepted": 0
+   },
+   {
+    "handle": "bandai-pokemon",
+    "ok": true,
+    "products": 66,
+    "accepted": 0
+   },
+   {
+    "handle": "halloween-pokemon",
+    "ok": true,
+    "products": 59,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "accessory": 675,
+   "unclassified": 112,
+   "no-set": 7,
+   "not-sealed": 415,
+   "vague": 3,
+   "not-pokemon": 327,
+   "foreign": 14
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Pikachu"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Charizard"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Gengar"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Charmander"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Eevee"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Squirtle"
+   },
+   {
+    "reason": "unclassified",
+    "title": "POKEMON - Eevee"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Dragonite"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Bulbasaur"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon - Tyranitar"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon  Raikou"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon  Suicune"
+   }
+  ],
+  "error": null,
+  "ms": 10842
+ },
+ {
+  "key": "cardchasersmtl",
+  "name": "Card Chasers MTL",
+  "base": "https://cardchasersmtl.com",
+  "market": "CA",
+  "platform": "shopify",
+  "currency": "CAD",
+  "currencyOk": true,
+  "country": "CA",
+  "collections": [
+   "pokemon"
+  ],
+  "sealedProducts": 81,
+  "inStock": 78,
+  "allFound": 81,
+  "read": [
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 92,
+    "accepted": 81
+   },
+   {
+    "handle": "new-releases",
+    "ok": true,
+    "products": 22,
+    "accepted": 1
+   },
+   {
+    "handle": "r2s-pokemon",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "unclassified": 2,
+   "no-set": 7,
+   "accessory": 3,
+   "not-pokemon": 20
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Pokemon TCG Sword & Shield Elite Trainer Box Plus Zamazenta"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon TCG Sword & Shield Elite Trainer Box Plus Zacian"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokemon TCG: First Partner Series 2 Booster Pack"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokemon TCG: Black & White Booster Pack"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokemon TCG: Black & White Noble Victories Booster Pack"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokemon TCG: Black & White Next Destinies Booster Pack"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokemon TCG: Black & White Dark Explorers Booster Pack"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokemon TCG: Diamond & Pearl Booster Pack"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokemon TCG: Diamond & Pearl Stormfront Booster Pack"
+   }
+  ],
+  "error": null,
+  "ms": 4219
+ },
+ {
+  "key": "eclipsetcg",
+  "name": "Eclipse TCG",
+  "base": "https://eclipsetcg.be",
+  "market": "EU",
+  "platform": "shopify",
+  "currency": "EUR",
+  "currencyOk": true,
+  "country": "BE",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 3,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-english",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pre-orders",
+    "ok": true,
+    "products": 3,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-francais-1",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-japonais-1",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "unclassified": 3,
+   "not-pokemon": 3
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Mega Brave (JP)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Incandescent Arcana (JP)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Ninja Spinner (JP)"
+   }
+  ],
+  "error": null,
+  "ms": 4209
+ },
+ {
+  "key": "gameroost",
+  "name": "Game Roost",
+  "base": "https://gameroost.co.nz",
+  "market": "NZ",
+  "platform": "shopify",
+  "currency": "NZD",
+  "currencyOk": true,
+  "country": "NZ",
+  "collections": [
+   "pokemon-auckland"
+  ],
+  "sealedProducts": 4,
+  "inStock": 4,
+  "allFound": 4,
+  "read": [
+   {
+    "handle": "pre-order",
+    "ok": true,
+    "products": 10,
+    "accepted": 1
+   },
+   {
+    "handle": "new-releases",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-auckland",
+    "ok": true,
+    "products": 4,
+    "accepted": 4
+   }
+  ],
+  "rejections": {
+   "not-pokemon": 9
+  },
+  "samples": [],
+  "error": null,
+  "ms": 2362
+ },
+ {
+  "key": "capybaracards",
+  "name": "capybaracards.com",
+  "base": "https://capybaracards.com",
+  "market": "SG",
+  "platform": "shopify",
+  "currency": "SGD",
+  "currencyOk": true,
+  "country": "SG",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "sealed-products",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   }
+  ],
+  "rejections": {},
+  "samples": [],
+  "error": null,
+  "ms": 1410
+ },
+ {
+  "key": "toyworld",
+  "name": "Toyworld NZ",
+  "base": "https://toyworld.co.nz",
+  "market": "NZ",
+  "platform": "shopify",
+  "currency": "NZD",
+  "currencyOk": true,
+  "country": "NZ",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 65,
+    "accepted": 0
+   },
+   {
+    "handle": "featured-pokemon",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "accessory": 43,
+   "unclassified": 21,
+   "not-sealed": 1
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "You Monkey Time Teacher Watch - Pikachu"
+   },
+   {
+    "reason": "unclassified",
+    "title": "MEGA Pokémon - Vulpix Evolution Set"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Surprise Attack Poke Ball Battle Game Larvitar & Scorbunny With Poké Ball & Ultra Ball"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Surprise Attack Game Chimchar + Wynaut"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Clip N Go Lechonk & Heavy Ball"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Clip N Go Chespin & Friend Ball"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Clip N Go Treecko & Nest Ball"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Surprise Attack Poke Ball Battle Game Togetic With Stand & Bulbasaur #4 With Luxury Ball & Great Ball"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Clip N Go Chimchar & Repeat Ball"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Clip N Go  Bandolier Set With Eevee"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Surprise Attack Game Pikachu + Treecko"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Clip N Go Tinkatink & Heal Ball"
+   }
+  ],
+  "error": null,
+  "ms": 2000
+ },
+ {
+  "key": "magictraders",
+  "name": "Magic Traders",
+  "base": "https://magictraders.nl",
+  "market": "EU",
+  "platform": "shopify",
+  "currency": "EUR",
+  "currencyOk": true,
+  "country": "NL",
+  "collections": [
+   "pokemon",
+   "pokemon-booster-packs"
+  ],
+  "sealedProducts": 323,
+  "inStock": 83,
+  "allFound": 323,
+  "read": [
+   {
+    "handle": "pokemon-tins",
+    "ok": true,
+    "products": 31,
+    "accepted": 30
+   },
+   {
+    "handle": "pokemon-blisters",
+    "ok": true,
+    "products": 51,
+    "accepted": 47
+   },
+   {
+    "handle": "pokemon-booster-boxes",
+    "ok": true,
+    "products": 108,
+    "accepted": 38
+   },
+   {
+    "handle": "pokemon-booster-packs",
+    "ok": true,
+    "products": 64,
+    "accepted": 58
+   },
+   {
+    "handle": "pokemon-elite-trainer-box",
+    "ok": true,
+    "products": 43,
+    "accepted": 42
+   },
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 392,
+    "accepted": 302
+   },
+   {
+    "handle": "pre-orders",
+    "ok": true,
+    "products": 19,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-decks",
+    "ok": true,
+    "products": 7,
+    "accepted": 7
+   }
+  ],
+  "rejections": {
+   "unclassified": 24,
+   "accessory": 4,
+   "foreign": 110,
+   "no-set": 28,
+   "multiple": 3,
+   "vague": 3,
+   "not-pokemon": 19
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Pokémon TCG: Celebrations Mini Tins: 8-Tin Display Box (Sealed)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon - Scarlet & Violet Paradox Rift Boosterblister"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon - Scarlet & Violet Paldea Evolved Boosterblister"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon TCG: MEGA Starter Set ex – Eevee EX (Japanese)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon TCG: Special Box Pokémon Center Fukuoka – Fukuoka’s Pikachu Promo (Japanese)"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokémon TCG: Nihil Zero Booster Box"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon TCG: MEGA Start Deck 100 Battle Collection (Japans)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon TCG: Paldea Evolved Halve Booster Box (18 packs)"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokémon TCG: Inferno X Booster Box"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon TCG: Special Box Pokémon Center Hiroshima – Hiroshima’s Pikachu Promo (Japanese)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon TCG: Special Box Pokémon Center Tohoku – Tohoku’s Pikachu Promo (Japanese)"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokémon TCG: Mega Brave Booster Box"
+   }
+  ],
+  "error": null,
+  "ms": 5934
+ },
+ {
+  "key": "jeuxkingdom",
+  "name": "Jeux Kingdom",
+  "base": "https://jeuxkingdom.com",
+  "market": "SG",
+  "platform": "shopify",
+  "currency": "SGD",
+  "currencyOk": true,
+  "country": "SG",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 1,
+    "accepted": 0
+   },
+   {
+    "handle": "sealed-product",
+    "ok": true,
+    "products": 12,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "unclassified": 1,
+   "not-pokemon": 11,
+   "not-sealed": 1
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Pokémon TCG: Scarlet & Violet - Black Bolt & White Flare"
+   }
+  ],
+  "error": null,
+  "ms": 2313
+ },
+ {
+  "key": "cardarena",
+  "name": "Card Arena",
+  "base": "https://cardarena.sg",
+  "market": "SG",
+  "platform": "shopify",
+  "currency": "SGD",
+  "currencyOk": true,
+  "country": "SG",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "pokemon-sealed",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-sealed-products",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-tcg",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "sealed",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pre-orders",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "preorders",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "booster-boxes",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   }
+  ],
+  "rejections": {},
+  "samples": [],
+  "error": null,
+  "ms": 4015
+ },
+ {
+  "key": "gameshaventcg",
+  "name": "Games Haven",
+  "base": "https://gameshaventcg.com",
+  "market": "SG",
+  "platform": "shopify",
+  "currency": "SGD",
+  "currencyOk": true,
+  "country": "SG",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "new-arrivals",
+    "ok": true,
+    "products": 750,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "not-pokemon": 728,
+   "foreign": 8,
+   "not-sealed": 13,
+   "accessory": 1
+  },
+  "samples": [],
+  "error": null,
+  "ms": 3525
+ },
+ {
+  "key": "obocollectibles",
+  "name": "OBO Collectibles",
+  "base": "https://obocollectibles.com",
+  "market": "SG",
+  "platform": "shopify",
+  "currency": "SGD",
+  "currencyOk": true,
+  "country": "SG",
+  "collections": [
+   "pokemon"
+  ],
+  "sealedProducts": 2,
+  "inStock": 2,
+  "allFound": 2,
+  "read": [
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 2,
+    "accepted": 2
+   },
+   {
+    "handle": "sealed-product",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "pre-orders",
+    "ok": true,
+    "products": 1,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-jap",
+    "ok": true,
+    "products": 1,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-eng",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "not-pokemon": 1,
+   "unclassified": 1
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "ST04"
+   }
+  ],
+  "error": null,
+  "ms": 2718
+ },
+ {
+  "key": "leisuregames",
+  "name": "Leisure Games",
+  "base": "https://leisuregames.com",
+  "market": "UK",
+  "platform": "shopify",
+  "currency": "GBP",
+  "currencyOk": true,
+  "country": "GB",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "pre-orders",
+    "ok": true,
+    "products": 41,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "not-pokemon": 38,
+   "multiple": 2,
+   "foreign": 1
+  },
+  "samples": [],
+  "error": null,
+  "ms": 1065
+ },
+ {
+  "key": "cardgiants",
+  "name": "Card Giants",
+  "base": "https://cardgiants.com",
+  "market": "US",
+  "platform": "shopify",
+  "currency": "USD",
+  "currencyOk": true,
+  "country": "US",
+  "collections": [
+   "pokemon"
+  ],
+  "sealedProducts": 3,
+  "inStock": 2,
+  "allFound": 3,
+  "read": [
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 12,
+    "accepted": 3
+   },
+   {
+    "handle": "tins",
+    "ok": true,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "new-arrivals",
+    "ok": true,
+    "products": 30,
+    "accepted": 0
+   },
+   {
+    "handle": "pokemon-value",
+    "ok": true,
+    "products": 8,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "not-sealed": 6,
+   "unclassified": 8,
+   "no-set": 4,
+   "not-pokemon": 29
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Pokemon 50ct. PresstiBundle (5 Holo or Rare Cards Guaranteed)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon 3ct. PresstiPack"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokemon 8ct. PresstiPrime Pack"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokemon 4ct. PresstiPicks Pack"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Jumbo Surprise Bag"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Surprise Bag"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon 3ct. PresstiPack"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon 50ct. PresstiBundle (5 Holo or Rare Cards Guaranteed)"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokemon 8ct. PresstiPrime Pack"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokemon 4ct. PresstiPicks Pack"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Surprise Bag"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokemon Jumbo Surprise Bag"
+   }
+  ],
+  "error": null,
+  "ms": 2497
+ },
+ {
+  "key": "madatsutcg",
+  "name": "Madatsu TCG",
+  "base": "https://madatsutcg.com",
+  "market": "EU",
+  "platform": "woocommerce",
+  "currency": null,
+  "currencyOk": false,
+  "country": "DE",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [],
+  "rejections": {},
+  "samples": [],
+  "error": "charges ?, market EU is EUR",
+  "ms": 2816
+ },
+ {
+  "key": "ilantcgbelgium",
+  "name": "Ilan TCG Belgium",
+  "base": "https://ilantcgbelgium.com",
+  "market": "EU",
+  "platform": "woocommerce",
+  "currency": null,
+  "currencyOk": false,
+  "country": "DE",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [],
+  "rejections": {},
+  "samples": [],
+  "error": "charges ?, market EU is EUR",
+  "ms": 3270
+ },
+ {
+  "key": "mg",
+  "name": "Mind Games",
+  "base": "https://m-g.com.au",
+  "market": "AU",
+  "platform": "woocommerce",
+  "currency": "AUD",
+  "currencyOk": true,
+  "country": "AU",
+  "collections": [
+   "pokemon"
+  ],
+  "sealedProducts": 19,
+  "inStock": 4,
+  "allFound": 19,
+  "read": [
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 24,
+    "accepted": 19
+   }
+  ],
+  "rejections": {
+   "accessory": 2,
+   "vague": 2,
+   "multiple": 1
+  },
+  "samples": [
+   {
+    "reason": "vague",
+    "title": "Pokemon – 2-Pack Blister"
+   },
+   {
+    "reason": "vague",
+    "title": "Pokemon – 30th Celebration – Ultra Premium Day/Night Collection"
+   }
+  ],
+  "error": null,
+  "ms": 7823
+ },
+ {
+  "key": "teamboardgame",
+  "name": "teamboardgame.com",
+  "base": "https://teamboardgame.com",
+  "market": "SG",
+  "platform": "woocommerce",
+  "currency": "SGD",
+  "currencyOk": true,
+  "country": "SG",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [
+   {
+    "handle": "search:pokemon",
+    "ok": true,
+    "products": 8,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "unclassified": 1,
+   "accessory": 7
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Pokémon GOITA"
+   }
+  ],
+  "error": null,
+  "ms": 7821
+ },
+ {
+  "key": "gamingotaku",
+  "name": "Gaming Otaku",
+  "base": "https://gamingotaku.com",
+  "market": "SG",
+  "platform": "woocommerce",
+  "currency": "SGD",
+  "currencyOk": true,
+  "country": "SG",
+  "collections": [
+   "pokemon"
+  ],
+  "sealedProducts": 36,
+  "inStock": 31,
+  "allFound": 36,
+  "read": [
+   {
+    "handle": "pokemon",
+    "ok": true,
+    "products": 104,
+    "accepted": 36
+   }
+  ],
+  "rejections": {
+   "foreign": 22,
+   "not-sealed": 43,
+   "no-set": 2,
+   "unclassified": 1
+  },
+  "samples": [
+   {
+    "reason": "no-set",
+    "title": "Pokémon Play! Prize Pack Series Five Booster Pack"
+   },
+   {
+    "reason": "unclassified",
+    "title": "Pokémon McDonald’s Collection 2024 Dragon Discovery Booster Pack"
+   },
+   {
+    "reason": "no-set",
+    "title": "Pokémon TCG Trick or Trade 2024 BOOster Pack"
+   }
+  ],
+  "error": null,
+  "ms": 14452
+ }
+]
