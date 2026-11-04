@@ -1,0 +1,204 @@
+[
+ {
+  "key": "gamegoblins",
+  "name": "Game Goblins",
+  "base": "https://gamegoblins.com",
+  "market": "US",
+  "platform": "bigcommerce",
+  "currency": "USD",
+  "currencyOk": true,
+  "country": "US",
+  "collections": [
+   "/collectible-games/pokemon/"
+  ],
+  "sealedProducts": 1,
+  "inStock": 0,
+  "allFound": 1,
+  "read": [
+   {
+    "handle": "/collectible-games/pokemon/",
+    "ok": true,
+    "products": 1,
+    "accepted": 1
+   }
+  ],
+  "rejections": {},
+  "samples": [],
+  "error": null,
+  "ms": 1155
+ },
+ {
+  "key": "miniaturemarket",
+  "name": "Miniature Market",
+  "base": "https://www.miniaturemarket.com",
+  "market": "US",
+  "platform": "shopware",
+  "currency": null,
+  "currencyOk": true,
+  "country": "US",
+  "collections": [
+   "/trading-card-games/pokemon.html"
+  ],
+  "sealedProducts": 90,
+  "inStock": 62,
+  "allFound": 90,
+  "read": [
+   {
+    "handle": "/trading-card-games/pokemon.html",
+    "ok": true,
+    "products": 91,
+    "accepted": 90
+   }
+  ],
+  "rejections": {
+   "accessory": 1
+  },
+  "samples": [],
+  "error": null,
+  "ms": 1665
+ },
+ {
+  "key": "grandjgames",
+  "name": "Grand J Games",
+  "base": "https://grandjgames.com",
+  "market": "AU",
+  "platform": "bigcommerce",
+  "currency": "AUD",
+  "currencyOk": true,
+  "country": "AU",
+  "collections": [
+   "/sealed-product/pokemon/elite-trainer-box/",
+   "/tcgs/pokemon/pokemon-preorders/"
+  ],
+  "sealedProducts": 2,
+  "inStock": 1,
+  "allFound": 2,
+  "read": [
+   {
+    "handle": "/temp/tcg/pokemon-tcg/",
+    "ok": true,
+    "products": 5,
+    "accepted": 0
+   },
+   {
+    "handle": "/temp/pokemon/",
+    "ok": false,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "/sealed-product/pokemon/elite-trainer-box/",
+    "ok": true,
+    "products": 2,
+    "accepted": 1
+   },
+   {
+    "handle": "/pokemon-tcg/energy/sun-moon/",
+    "ok": false,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "/pokemon-tcg/sword-shield-sets/",
+    "ok": true,
+    "products": 300,
+    "accepted": 0
+   },
+   {
+    "handle": "/pokemon-tcg/energy/sword-shield/",
+    "ok": false,
+    "products": 0,
+    "accepted": 0
+   },
+   {
+    "handle": "/tcgs/pokemon/pokemon-preorders/",
+    "ok": true,
+    "products": 1,
+    "accepted": 1
+   },
+   {
+    "handle": "/events-and-tournaments/past-results/2023-12-03-pokemon-league-cup/",
+    "ok": false,
+    "products": 0,
+    "accepted": 0
+   }
+  ],
+  "rejections": {
+   "foreign": 5,
+   "unclassified": 173,
+   "not-sealed": 126,
+   "accessory": 2
+  },
+  "samples": [
+   {
+    "reason": "unclassified",
+    "title": "Pokemon 30th Celebrations Elite Trainer Bundle"
+   },
+   {
+    "reason": "unclassified",
+    "title": "[SWSH01][SSH-001/202UR] Celebi V (Holo)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "[SWSH01][SSH-002/202C] Roselia"
+   },
+   {
+    "reason": "unclassified",
+    "title": "[SWSH01][SSH-003/202C] Roselia"
+   },
+   {
+    "reason": "unclassified",
+    "title": "[SWSH01][SSH-004/202R] Roserade"
+   },
+   {
+    "reason": "unclassified",
+    "title": "[SWSH01][SSH-005/202C] Cottonee"
+   },
+   {
+    "reason": "unclassified",
+    "title": "[SWSH01][SSH-006/202R] Whimsicott"
+   },
+   {
+    "reason": "unclassified",
+    "title": "[SWSH01][SSH-007/202C] Maractus"
+   },
+   {
+    "reason": "unclassified",
+    "title": "[SWSH01][SSH-008/202R] Durant"
+   },
+   {
+    "reason": "unclassified",
+    "title": "[SWSH01][SSH-009/202UR] Dhelmise V (Holo)"
+   },
+   {
+    "reason": "unclassified",
+    "title": "[SWSH01][SSH-010/202C] Grookey"
+   },
+   {
+    "reason": "unclassified",
+    "title": "[SWSH01][SSH-012/202UC] Thwackey"
+   }
+  ],
+  "error": null,
+  "ms": 11548
+ },
+ {
+  "key": "magicmadhouse",
+  "name": "Magic Madhouse",
+  "base": "https://magicmadhouse.co.uk",
+  "market": "UK",
+  "platform": "bigcommerce",
+  "currency": null,
+  "currencyOk": false,
+  "country": "GB",
+  "collections": [],
+  "sealedProducts": 0,
+  "inStock": 0,
+  "allFound": 0,
+  "read": [],
+  "rejections": {},
+  "samples": [],
+  "error": "charges ?, market UK is GBP",
+  "ms": 15455
+ }
+]
