@@ -559,3 +559,15 @@ scores are; the growth report of 3 Nov counted 14 share taps and 0 visits in a w
   made from prices 1.25 to 8 times apart so a day's moves don't flip an answer; nothing under 5 units (packs, sleeves) or over
   2,000 (cases) plays; a sold-out or TCGplayer-only row never does. Puzzle #1 is 2026-11-03; never move the epoch.
 - Linked from the sidebar's "More", the footer and the sitemap. `tests/daily.test.ts`.
+
+## 2026-11-04 — DexCompare: big-store gap, 7 stores from the per-region research
+
+The owner asked for every big store captured with no gaps, on every site. Research per region named 23 Pokémon sealed
+candidates not in `apps/dexcompare-sealed/src/data/stores.json`; a runner probe (`scripts/probe-stores.ts`) read each
+the way the import does, and seven read sealed Pokémon in their region's currency: **Eclipse Games** (AU: 167 sealed, 48
+in stock), **Hobbyco** (AU: 177 sealed), **Mind Games** (AU, the national chain, WooCommerce: 19 sealed), **Card Chasers**
+(CA: 81 sealed, 78 in stock), **Magic Traders** (EU: 323 sealed, 83 in stock), **Game Roost** (NZ), **Gaming Otaku**
+(SG, WooCommerce: 36 sealed, 31 in stock). Read but too thin to list (one to three products): Cura Cards, OBO Collectibles,
+Card Giants; no Pokémon sealed at all: Games Paradise, Jenes, Gumnut, Eclipse TCG (Japanese only), Toyworld NZ (toys),
+Capybara, Card Arena, Games Haven, Jeux Kingdom, Leisure Games, Team Board Game; ILAN TCG and Madatsu state no currency.
+Not addable, and why (the same list every card site hit): the biggest US and UK names run platforms with no public feed or a robots.txt that forbids reading — BigCommerce (Star City Games, Game Nerdz, Game Goblins, ToyWiz, Magic Madhouse), CrystalCommerce stores whose robots.txt disallows everything (Three Kings Loot, Carta Magica, Gamekeeper, The Connection, Card Titan, Collector's Cache, Nerd Rage, Pastimes), bot walls that answer 403 or a Cloudflare challenge (Chaos Cards, Big Orbit, Wayland, Firestorm, Mighty Ape AU and NZ, Gamesmen, EB Games, MTG Mate, Imaginaire, Le Valet, Bazaar of Magic, FantasyWelt, Keepseven, Nedgame, Poromagia, Dave & Adam's, Pro-Play, Pokémon Center, Red Hobby) and custom storefronts (Card Kingdom, CoolStuffInc, ABUGames, CoreTCG, Ideal808, Noble Knight, Miniature Market, Play-in, Parkage, Agora Hobby, Hobby Master NZ). A bot wall is never worked around. A BigCommerce reader would unlock the most (Star City Games, Miniature Market, Game Nerdz, Magic Madhouse, Game Goblins) and is the next adapter worth writing.
