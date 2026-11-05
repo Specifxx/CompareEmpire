@@ -5,6 +5,8 @@ import { offerLink, offerRetailer, REL_SPONSORED, TCGPLAYER_KEY, TCGPLAYER_RETAI
 import { ebayRowNote, moreClosedLabel, moreOpenLabel, splitRows, tableFooter, type PriceFloor } from "@/lib/ebay-offer-row";
 import { money, timeAgo } from "@/lib/format";
 import { amazonFor, amazonHref, AMAZON_REL } from "@/lib/amazon";
+import { AMAZON_CLOCK, type AmazonLive } from "@/lib/amazon-live";
+import { AMAZON_PRICE_DISCLAIMER } from "./AmazonPrice";
 import { DUTIES_NOTE, REGIONS, type Region } from "@/lib/regions";
 import { addressCount, shippingCell } from "@/lib/shipping";
 import { SHIP_UNKNOWN } from "@/lib/shipping-quote";
@@ -70,7 +72,7 @@ export function OfferTable({
    * 2026-10-26). TCGplayer's row is its offer among `offers` in the US; elsewhere `tcgplayer`, the US$ offer (usMarketplace), shown in US$
    * and never the best price; with neither, a TCGplayer search. Null: TCGplayer, if among `offers`, ranks with the stores.
    */
-  pinned?: { productName: string; tcgplayer: TcgplayerMatch | null } | null;
+  pinned?: { productName: string; tcgplayer: TcgplayerMatch | null; amazon?: AmazonLive | null } | null;
 }) {
   const r = REGIONS[region];
   const { rows, tcg, amazon, storeOffers } = offerRowsData({ offers, region, packs, placement, numbered, bestLabel, product, pinned: ebay ? pinned : null });
@@ -111,7 +113,8 @@ export function OfferTable({
           &ldquo;Not checked recently&rdquo; means we couldn&rsquo;t read that store for over three days, so its stock is unknown. No store pays
           to be listed or to rank higher: <Link href="/about" prefetch={false} className="underline underline-offset-2 hover:text-ink">how DexCompare works</Link>.
           {tcg && " TCGplayer is a US marketplace of many sellers, pinned under eBay; its link is an affiliate link, and outside the US its price is in US$ and never compared with the stores'."}
-          {amazon && ` ${amazon.name} is pinned under TCGplayer as a search: we don't read Amazon's prices, so it is never ranked or the best price, and its link is an affiliate link. As an Amazon Associate I earn from qualifying purchases.`}
+          {amazon && !amazon.live && ` ${amazon.name} is pinned under TCGplayer as a search: we don't read Amazon's prices, so it is never ranked or the best price, and its link is an affiliate link. As an Amazon Associate I earn from qualifying purchases.`}
+          {amazon?.live && ` ${amazon.name} is pinned under TCGplayer with Amazon's own price for this listing, shown with its time and never ranked or the best price; its link is an affiliate link. As an Amazon Associate I earn from qualifying purchases. * ${AMAZON_PRICE_DISCLAIMER}`}
           {storeOffers.some((o) => o.marketplace) && " TCGplayer is a marketplace of many sellers; it ranks by price and stock like any store, and its link is an affiliate link."}
         </p>
         {ebay && <p>{ebayRowNote(region).trim()}</p>}
@@ -142,7 +145,7 @@ export function offerRowsData({
   bestLabel?: { short: string; full: string };
   product?: string;
   /** OfferTable passes it only with an eBay row (the product page). */
-  pinned?: { productName: string; tcgplayer: TcgplayerMatch | null } | null;
+  pinned?: { productName: string; tcgplayer: TcgplayerMatch | null; amazon?: AmazonLive | null } | null;
 }) {
   const r = REGIONS[region];
   const now = Date.now();
@@ -188,7 +191,7 @@ export function offerRowsData({
     };
   });
   const tcg = pin ? tcgRow(tcgOffer, pin, region, placement, now, product) : null;
-  const amazon = pin ? amazonRow(pin.productName, region, now, product) : null;
+  const amazon = pin ? amazonRow(pin.productName, region, now, product, pin.amazon ?? null) : null;
   return { rows, tcg, amazon, storeOffers };
 }
 
@@ -245,10 +248,13 @@ function tcgRow(offer: OfferView | null, pin: { productName: string; tcgplayer: 
  * The pinned Amazon row (owner, 2026-10-29: Amazon on DexCompare, like the eBay and TCGplayer rows), where the region has an Amazon tag
  * (lib/amazon.ts): a search for the product on the region's Amazon (its ASIN page when we know it), no price, never the best price.
  */
-function amazonRow(productName: string, region: Region, now: number, product?: string): StoreRowData | null {
+function amazonRow(productName: string, region: Region, now: number, product?: string, live: AmazonLive | null = null): StoreRowData | null {
   const a = amazonFor(region);
-  const href = a && amazonHref(region, product ?? "", productName, "amazon-table");
+  const href = a && (live?.url ?? amazonHref(region, product ?? "", productName, "amazon-table"));
   if (!a || !href) return null;
+  const clock = AMAZON_CLOCK[region];
+  // The item's own listing when the daily import matched one, and its price when this build fetched it under 24 hours ago (2026-11-05).
+  const priced = live?.cents && live.at && clock ? { price: money(live.cents, REGIONS[region].market), at: live.at, timeZone: clock.timeZone, zoneLabel: clock.label } : null;
   return {
     key: `amazon-${region}`,
     kind: "amazon",
@@ -264,7 +270,7 @@ function amazonRow(productName: string, region: Region, now: number, product?: s
     state: "open",
     best: false,
     host: a.host.replace(/^www\./, ""),
-    title: `Search ${a.label} for ${productName}`,
+    title: live ? `${productName} on ${a.label}` : `Search ${a.label} for ${productName}`,
     href,
     rel: AMAZON_REL,
     sponsored: true,
@@ -273,6 +279,7 @@ function amazonRow(productName: string, region: Region, now: number, product?: s
     ago: "",
     search: true,
     searchText: `Amazon’s own price, in ${a.currency}`,
+    ...(priced ? { live: priced } : {}),
     ...(region === "nz" ? { note: "delivers to NZ for many items" } : {}),
   };
 }
