@@ -1,7 +1,7 @@
 {
  "v": 1,
  "site": "dex",
- "generatedAt": "2026-11-04T16:58:56.954Z",
+ "generatedAt": "2026-11-05T01:22:43.539Z",
  "links": {
   "AU": {
    "deals": "https://dexcompare.app/au/deals"
@@ -36,9 +36,9 @@
    "currency": "AUD",
    "store": "Turtle TCG",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/684444_in_1000x1000.jpg",
-   "refCents": 33000,
+   "refCents": 33248,
    "refLabel": "median store price",
-   "savingPct": 45
+   "savingPct": 46
   },
   {
    "kind": "deal",
@@ -156,6 +156,20 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "US",
+   "title": "Delta Reign 3 Pack Blister",
+   "url": "https://dexcompare.app/us/p/delta-reign-3-pack-blister",
+   "cents": 1499,
+   "currency": "USD",
+   "store": "Game Grid Key LLC",
+   "image": "https://cdn.shopify.com/s/files/1/0936/4737/2569/files/219_88212d3e-4d7d-4252-a1bc-0e69a94ae10d.png?v=1787724069",
+   "refCents": 2995,
+   "refLabel": "median store price",
+   "savingPct": 50
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "US",
    "title": "Stellar Crown Build & Battle Box",
    "url": "https://dexcompare.app/us/p/stellar-crown-build-and-battle-box",
    "cents": 2500,
@@ -193,20 +207,6 @@
    "refCents": 2499,
    "refLabel": "median store price",
    "savingPct": 48
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "US",
-   "title": "Journey Together - 3 Pack Blister - Scrafty",
-   "url": "https://dexcompare.app/us/p/journey-together-3-pack-blister-scrafty",
-   "cents": 1500,
-   "currency": "USD",
-   "store": "Devastation Store Miami",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/610948_in_1000x1000.jpg",
-   "refCents": 2799,
-   "refLabel": "median store price",
-   "savingPct": 46
   },
   {
    "kind": "deal",
@@ -282,6 +282,20 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "UK",
+   "title": "30th Celebration Mew Figure Collection",
+   "url": "https://dexcompare.app/uk/p/30th-celebration-mew-figure-collection",
+   "cents": 2999,
+   "currency": "GBP",
+   "store": "TCG Group",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/704193_in_1000x1000.jpg",
+   "refCents": 5500,
+   "refLabel": "median store price",
+   "savingPct": 45
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "UK",
    "title": "Black Bolt Japanese Booster Box (SV11B)",
    "url": "https://dexcompare.app/uk/p/black-bolt-sv11b-japanese-booster-box",
    "cents": 8995,
@@ -305,20 +319,6 @@
    "refCents": 350,
    "refLabel": "median store price",
    "savingPct": 44
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "UK",
-   "title": "Stellar Crown Elite Trainer Box",
-   "url": "https://dexcompare.app/uk/p/stellar-crown-elite-trainer-box",
-   "cents": 5995,
-   "currency": "GBP",
-   "store": "TCGShopUK",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/557350_in_1000x1000.jpg",
-   "refCents": 10500,
-   "refLabel": "median store price",
-   "savingPct": 43
   },
   {
    "kind": "deal",
@@ -352,15 +352,15 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "CA",
-   "title": "Storm Emeralda Japanese Booster Pack (M6)",
-   "url": "https://dexcompare.app/ca/p/storm-emeralda-m6-japanese-booster-pack",
-   "cents": 495,
+   "title": "Pokémon Card 151 Japanese Booster Box (SV2a)",
+   "url": "https://dexcompare.app/ca/p/pokemon-card-151-sv2a-japanese-booster-box",
+   "cents": 35000,
    "currency": "CAD",
-   "store": "TonkaTom's TCG Station",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/709111_in_1000x1000.jpg",
-   "refCents": 842,
+   "store": "HPW CARDS INC.",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/565243_in_1000x1000.jpg",
+   "refCents": 61299,
    "refLabel": "median store price",
-   "savingPct": 41
+   "savingPct": 43
   },
   {
    "kind": "deal",
@@ -394,13 +394,13 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "CA",
-   "title": "First Partner Illustration Collection (Series 3)",
-   "url": "https://dexcompare.app/ca/p/first-partner-illustration-collection-series-3",
-   "cents": 2995,
+   "title": "Terastal Festival ex Japanese Booster Pack (SV8a)",
+   "url": "https://dexcompare.app/ca/p/terastal-festival-ex-sv8a-japanese-booster-pack",
+   "cents": 1599,
    "currency": "CAD",
-   "store": "401 Games",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/695400_in_1000x1000.jpg",
-   "refCents": 4995,
+   "store": "Adventurebox",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/603429_in_1000x1000.jpg",
+   "refCents": 2672,
    "refLabel": "median store price",
    "savingPct": 40
   },
@@ -522,7 +522,7 @@
    "region": "SG",
    "title": "Pitch Black Elite Trainer Box",
    "url": "https://dexcompare.app/sg/p/pitch-black-elite-trainer-box",
-   "cents": 8804,
+   "cents": 8801,
    "currency": "SGD",
    "store": "TEFUDA",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/692947_in_1000x1000.jpg",
