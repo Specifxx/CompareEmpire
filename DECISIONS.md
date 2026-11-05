@@ -613,3 +613,13 @@ The request is filed as a `suggest-store` report with `issue: "owner"`; RiftComp
 those first and asks for a reply within two days. No email is asked for (the reports branch is public); no pop-up,
 no cold email. RiftCompare and OP Compare keep their `/stores/suggest` page (now the owner pitch) and redirect
 `/list-your-store` to it.
+## 2026-11-05 — DexCompare: Pickup-only listings are left out, never shown with a shipping price
+
+Ported from MTG Compare (its DECISIONS.md, same date), after a visitor reported a pre-order there shown with the store's measured
+postage while the store's page says it is collected in store. The feed reader now carries Shopify's `requires_shipping` per variant
+(a variant the store never posts is never the price; the posted one is, even when dearer), and a product whose title, tags or
+description say pickup only, in-store only, collection only, no shipping, cannot be shipped or "this item does not ship"
+(`src/lib/pickup-only.ts`, Shopify and WooCommerce) is left out of the store's rows altogether. Left out, not labelled: a listing the
+store will not post is not a price a visitor elsewhere can pay, and the measured postage does not apply to it. "Pickup available" and
+shipping policy ("cannot be shipped to PO boxes", "we do not ship internationally") are not refusals; a rule here may only refuse more,
+never loosen, and every wording is in `tests/pickup-only.test.ts`.
