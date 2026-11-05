@@ -44,6 +44,9 @@ export type GuideSlug =
   | "cheapest-pokemon-booster-box"
   | "pokemon-booster-box-price-australia"
   | "delta-reign-booster-box-price"
+  | "phantasmal-flames-booster-box-price"
+  | "destined-rivals-booster-box-price"
+  | "black-bolt-booster-box-price"
   | "delta-reign-chase-cards"
   | "delta-reign-card-list"
   | "delta-reign-booster-box-vs-etb"
@@ -360,6 +363,43 @@ export const GUIDES: readonly Guide[] = [
     updated: "2026-10-23",
     regions: "all",
     topic: { types: ["booster-box", "etb", "booster-bundle"], sets: ["delta-reign", "pitch-black"] },
+    ebay: { context: "type:booster-boxes", heading: "Pokémon booster boxes on eBay" },
+    tools: ["value-checker", "trade-calculator"],
+  },
+  // The set booster box price guides (2026-11-05): set-booster-box-price.tsx, one per set with a "<set> booster box price" query.
+  {
+    slug: "phantasmal-flames-booster-box-price",
+    title: "Pokémon Phantasmal Flames booster box price today",
+    description: "What the Pokémon TCG Phantasmal Flames booster box, Elite Trainer Box and booster bundle cost today, store by store, with the price per pack.",
+    kicker: "Phantasmal Flames",
+    published: "2026-11-05",
+    updated: "2026-11-05",
+    regions: "all",
+    topic: { types: ["booster-box", "etb", "booster-bundle"], sets: ["phantasmal-flames", "mega-evolution"] },
+    ebay: { context: "type:booster-boxes", heading: "Pokémon booster boxes on eBay" },
+    tools: ["value-checker", "trade-calculator"],
+  },
+  {
+    slug: "destined-rivals-booster-box-price",
+    title: "Pokémon Destined Rivals booster box price today",
+    description: "What the Pokémon TCG Destined Rivals booster box, Elite Trainer Box and booster bundle cost today, store by store, with the price per pack and Journey Together.",
+    kicker: "Destined Rivals",
+    published: "2026-11-05",
+    updated: "2026-11-05",
+    regions: "all",
+    topic: { types: ["booster-box", "etb", "booster-bundle"], sets: ["destined-rivals", "journey-together"] },
+    ebay: { context: "type:booster-boxes", heading: "Pokémon booster boxes on eBay" },
+    tools: ["value-checker", "trade-calculator"],
+  },
+  {
+    slug: "black-bolt-booster-box-price",
+    title: "Pokémon Black Bolt booster box price today",
+    description: "What the Pokémon TCG Black Bolt booster box, Elite Trainer Box and booster bundle cost today, store by store, with the price per pack and White Flare beside it.",
+    kicker: "Black Bolt",
+    published: "2026-11-05",
+    updated: "2026-11-05",
+    regions: "all",
+    topic: { types: ["booster-box", "etb", "booster-bundle"], sets: ["black-bolt", "white-flare"] },
     ebay: { context: "type:booster-boxes", heading: "Pokémon booster boxes on eBay" },
     tools: ["value-checker", "trade-calculator"],
   },

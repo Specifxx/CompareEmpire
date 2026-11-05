@@ -26,6 +26,9 @@ import * as yearInSets from "./pokemon-tcg-2026-in-sets";
 import * as cheapestBox from "./cheapest-pokemon-booster-box";
 import * as boxPriceAu from "./pokemon-booster-box-price-australia";
 import * as deltaReignBox from "./delta-reign-booster-box-price";
+import * as phantasmalFlamesBox from "./phantasmal-flames-booster-box-price";
+import * as destinedRivalsBox from "./destined-rivals-booster-box-price";
+import * as blackBoltBox from "./black-bolt-booster-box-price";
 import * as deltaReignChase from "./delta-reign-chase-cards";
 import * as deltaReignList from "./delta-reign-card-list";
 import * as deltaReignBoxVsEtb from "./delta-reign-booster-box-vs-etb";
@@ -68,6 +71,9 @@ export const GUIDE_MODULES: Record<GuideSlug, GuideModule> = {
   "cheapest-pokemon-booster-box": cheapestBox,
   "pokemon-booster-box-price-australia": boxPriceAu,
   "delta-reign-booster-box-price": deltaReignBox,
+  "phantasmal-flames-booster-box-price": phantasmalFlamesBox,
+  "destined-rivals-booster-box-price": destinedRivalsBox,
+  "black-bolt-booster-box-price": blackBoltBox,
   "delta-reign-chase-cards": deltaReignChase,
   "delta-reign-card-list": deltaReignList,
   "delta-reign-booster-box-vs-etb": deltaReignBoxVsEtb,
