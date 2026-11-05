@@ -234,6 +234,14 @@ export async function loadGuideData(slug: GuideSlug, r: RegionInfo, now: Date = 
     return { ...emptyGuideData(today, await checkedAt), listedSets: [...sets].filter(([, c]) => c.products > 0).map(([code]) => code), listedTypes: [...types], ...d };
   };
 
+  // The set booster box price guides: the set read whole (open products only, cheapest first) and the set shown beside it for its
+  // cheapest box, ETB and bundle (calendarProducts, ≤ 9 rows), the Delta Reign guide's shape.
+  const setBox = async (code: string, other: string) => {
+    const [list, cal] = await Promise.all([productsBySet(r.market, code), calendarProducts(r.market, [other])]);
+    const open = sortCards(list.filter(cardOpen));
+    return done({ sets: [code, other], bySet: { [code]: open, [other]: cal.get(other) ?? [] }, openCount: { [code]: open.length } });
+  };
+
   switch (slug) {
     case "how-many-packs-in-pokemon-products": {
       // The newest set with headline product in stock here: the three newest released sets are read (≤ 27 rows) and the block
@@ -390,6 +398,12 @@ export async function loadGuideData(slug: GuideSlug, r: RegionInfo, now: Date = 
       const open = sortCards(list.filter(cardOpen));
       return done({ sets: ["me6", "me5"], bySet: { me6: open, me5: cal.get("me5") ?? [] }, openCount: { me6: open.length } });
     }
+    case "phantasmal-flames-booster-box-price":
+      return setBox("me2", "me1");
+    case "destined-rivals-booster-box-price":
+      return setBox("sv10", "sv9");
+    case "black-bolt-booster-box-price":
+      return setBox("zsv10pt5", "rsv10pt5");
     case "delta-reign-chase-cards":
     case "delta-reign-card-list":
     case "delta-reign-booster-box-vs-etb":
