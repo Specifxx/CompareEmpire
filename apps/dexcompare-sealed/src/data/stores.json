@@ -123,6 +123,17 @@
     ]
   },
   {
+    "key": "collectorsguildau",
+    "name": "Collectors Guild Australia",
+    "base": "https://collectorsguild.com.au",
+    "market": "AU",
+    "platform": "shopify",
+    "country": "AU",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
     "key": "crithit",
     "name": "Crit Hit",
     "base": "https://crithit.com.au",
