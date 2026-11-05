@@ -1,7 +1,7 @@
 {
  "v": 1,
  "site": "dex",
- "generatedAt": "2026-11-05T01:22:43.539Z",
+ "generatedAt": "2026-11-05T17:13:59.781Z",
  "links": {
   "AU": {
    "deals": "https://dexcompare.app/au/deals"
@@ -36,9 +36,9 @@
    "currency": "AUD",
    "store": "Turtle TCG",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/684444_in_1000x1000.jpg",
-   "refCents": 33248,
+   "refCents": 32998,
    "refLabel": "median store price",
-   "savingPct": 46
+   "savingPct": 45
   },
   {
    "kind": "deal",
@@ -53,20 +53,6 @@
    "refCents": 15995,
    "refLabel": "median store price",
    "savingPct": 44
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "AU",
-   "title": "30th Celebration Booster Pack",
-   "url": "https://dexcompare.app/au/p/30th-celebration-booster-pack",
-   "cents": 1600,
-   "currency": "AUD",
-   "store": "Groovy Collectables",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/696613_in_1000x1000.jpg",
-   "refCents": 2790,
-   "refLabel": "median store price",
-   "savingPct": 43
   },
   {
    "kind": "deal",
@@ -113,6 +99,20 @@
   {
    "kind": "deal",
    "cluster": "cards",
+   "region": "AU",
+   "title": "Snow Hazard Japanese Booster Pack (SV2P)",
+   "url": "https://dexcompare.app/au/p/snow-hazard-sv2p-japanese-booster-pack",
+   "cents": 399,
+   "currency": "AUD",
+   "store": "One Stop Poke Shop",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/565238_in_1000x1000.jpg",
+   "refCents": 600,
+   "refLabel": "median store price",
+   "savingPct": 34
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
    "region": "NZ",
    "title": "League Battle Deck - Mega Lucario ex",
    "url": "https://dexcompare.app/nz/p/league-battle-deck-mega-lucario-ex",
@@ -120,9 +120,23 @@
    "currency": "NZD",
    "store": "The Game Tree NZ",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/684106_in_1000x1000.jpg",
-   "refCents": 6500,
+   "refCents": 6750,
    "refLabel": "median store price",
-   "savingPct": 25
+   "savingPct": 28
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "NZ",
+   "title": "Ascended Heroes - Focused Fighters Premium Collection",
+   "url": "https://dexcompare.app/nz/p/ascended-heroes-focused-fighters-premium-collection",
+   "cents": 29999,
+   "currency": "NZD",
+   "store": "OCARE",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/706959_in_1000x1000.jpg",
+   "refCents": 34999,
+   "refLabel": "median store price",
+   "savingPct": 14
   },
   {
    "kind": "deal",
@@ -134,7 +148,7 @@
    "currency": "NZD",
    "store": "Card Collective NZ",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/692944_in_1000x1000.jpg",
-   "refCents": 1095,
+   "refCents": 1090,
    "refLabel": "median store price",
    "savingPct": 13
   },
@@ -162,7 +176,7 @@
    "currency": "USD",
    "store": "Game Grid Key LLC",
    "image": "https://cdn.shopify.com/s/files/1/0936/4737/2569/files/219_88212d3e-4d7d-4252-a1bc-0e69a94ae10d.png?v=1787724069",
-   "refCents": 2995,
+   "refCents": 2997,
    "refLabel": "median store price",
    "savingPct": 50
   },
@@ -282,12 +296,26 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "UK",
-   "title": "30th Celebration Mew Figure Collection",
-   "url": "https://dexcompare.app/uk/p/30th-celebration-mew-figure-collection",
+   "title": "Destined Rivals Elite Trainer Box",
+   "url": "https://dexcompare.app/uk/p/destined-rivals-elite-trainer-box",
+   "cents": 5199,
+   "currency": "GBP",
+   "store": "Rare Pokémon Cards UK",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/624676_in_1000x1000.jpg",
+   "refCents": 9999,
+   "refLabel": "median store price",
+   "savingPct": 48
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "UK",
+   "title": "30th Celebration Mewtwo Figure Collection",
+   "url": "https://dexcompare.app/uk/p/30th-celebration-mewtwo-figure-collection",
    "cents": 2999,
    "currency": "GBP",
    "store": "TCG Group",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/704193_in_1000x1000.jpg",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/704194_in_1000x1000.jpg",
    "refCents": 5500,
    "refLabel": "median store price",
    "savingPct": 45
@@ -305,20 +333,6 @@
    "refCents": 16449,
    "refLabel": "median store price",
    "savingPct": 45
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "UK",
-   "title": "Nihil Zero Japanese Booster Pack (M3)",
-   "url": "https://dexcompare.app/uk/p/nihil-zero-m3-japanese-booster-pack",
-   "cents": 195,
-   "currency": "GBP",
-   "store": "Collectors Kingdom",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/674454_in_1000x1000.jpg",
-   "refCents": 350,
-   "refLabel": "median store price",
-   "savingPct": 44
   },
   {
    "kind": "deal",
@@ -358,9 +372,9 @@
    "currency": "CAD",
    "store": "HPW CARDS INC.",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/565243_in_1000x1000.jpg",
-   "refCents": 61299,
+   "refCents": 59999,
    "refLabel": "median store price",
-   "savingPct": 43
+   "savingPct": 42
   },
   {
    "kind": "deal",
@@ -422,20 +436,6 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "EU",
-   "title": "Celebrations Elite Trainer Box",
-   "url": "https://dexcompare.app/eu/p/celebrations-elite-trainer-box",
-   "cents": 22990,
-   "currency": "EUR",
-   "store": "PokeMillon",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/242811_in_1000x1000.jpg",
-   "refCents": 43995,
-   "refLabel": "median store price",
-   "savingPct": 48
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "EU",
    "title": "Mask of Change Japanese Booster Pack (SV6)",
    "url": "https://dexcompare.app/eu/p/mask-of-change-sv6-japanese-booster-pack",
    "cents": 250,
@@ -443,6 +443,20 @@
    "store": "Lake Cards",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/565220_in_1000x1000.jpg",
    "refCents": 470,
+   "refLabel": "median store price",
+   "savingPct": 47
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "EU",
+   "title": "Fusion Strike Booster Pack",
+   "url": "https://dexcompare.app/eu/p/fusion-strike-booster-pack",
+   "cents": 995,
+   "currency": "EUR",
+   "store": "Nordic Legends",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/247646_in_1000x1000.jpg",
+   "refCents": 1895,
    "refLabel": "median store price",
    "savingPct": 47
   },
@@ -470,9 +484,9 @@
    "currency": "EUR",
    "store": "Spielewelt Amberg",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/501256_in_1000x1000.jpg",
-   "refCents": 1095,
+   "refCents": 1047,
    "refLabel": "median store price",
-   "savingPct": 45
+   "savingPct": 43
   },
   {
    "kind": "deal",
@@ -520,15 +534,29 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "SG",
+   "title": "Delta Reign Booster Box",
+   "url": "https://dexcompare.app/sg/p/delta-reign-booster-box",
+   "cents": 13500,
+   "currency": "SGD",
+   "store": "Team Card Game",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/712094_in_1000x1000.jpg",
+   "refCents": 26000,
+   "refLabel": "median store price",
+   "savingPct": 48
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "SG",
    "title": "Pitch Black Elite Trainer Box",
    "url": "https://dexcompare.app/sg/p/pitch-black-elite-trainer-box",
-   "cents": 8801,
+   "cents": 8994,
    "currency": "SGD",
    "store": "TEFUDA",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/692947_in_1000x1000.jpg",
    "refCents": 15000,
    "refLabel": "median store price",
-   "savingPct": 41
+   "savingPct": 40
   },
   {
    "kind": "deal",
@@ -548,29 +576,15 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "SG",
-   "title": "Delta Reign Booster Box",
-   "url": "https://dexcompare.app/sg/p/delta-reign-booster-box",
-   "cents": 13500,
+   "title": "Prismatic Evolutions Elite Trainer Box",
+   "url": "https://dexcompare.app/sg/p/prismatic-evolutions-elite-trainer-box",
+   "cents": 19473,
    "currency": "SGD",
-   "store": "Team Card Game",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/712094_in_1000x1000.jpg",
-   "refCents": 21448,
+   "store": "Sawadeekard",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/593355_in_1000x1000.jpg",
+   "refCents": 30000,
    "refLabel": "median store price",
-   "savingPct": 37
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "SG",
-   "title": "Ninja Spinner Japanese Booster Box (M4)",
-   "url": "https://dexcompare.app/sg/p/ninja-spinner-m4-japanese-booster-box",
-   "cents": 8500,
-   "currency": "SGD",
-   "store": "Cardboard Collectible",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/683774_in_1000x1000.jpg",
-   "refCents": 12632,
-   "refLabel": "median store price",
-   "savingPct": 33
+   "savingPct": 35
   }
  ]
 }
