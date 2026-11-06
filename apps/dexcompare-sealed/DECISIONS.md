@@ -70,3 +70,14 @@ sites shares its thumbs; this site stores nothing and fetches the tally in the b
 step). One vote per browser per store, a few per network, marketplaces (eBay, Amazon, TCGplayer…) get none. Votes never
 order prices, hide a store or decide the cheapest. RiftCompare's DECISIONS.md, 2026-11-06, has the rules; change the
 component there first and copy it.
+
+## 2026-11-06 — Buy links open the store's checkout
+
+**Decision (owner: "for all the sites that we can, send them directly to the checkout page, with the item in the
+basket"):** an in-stock Shopify store row opens that store's checkout with the priced item in the cart, through
+Shopify's cart permalink (`/cart/<variant id>:1`), as RiftCompare, OP Compare and MTG Compare do. `feeds.ts` keeps each
+variant's id, `priceOf` names the in-stock variant it priced, and the importer stores it as `?variant=<id>` on the offer
+URL (still the product page with that variant picked). `offerLink` turns it into the cart link, tagged
+`utm_source=dexcompare&utm_medium=referral&utm_content=checkout`; `offerRef` and its SQL twin strip the variant. Awin
+stores keep their tracked link; TCGplayer, eBay, Amazon and non-Shopify stores are unchanged. `lib/checkout-link.ts`,
+`tests/checkout-link.test.ts`. Revert by removing the `shopifyCartUrl` block in `offerLink`.
