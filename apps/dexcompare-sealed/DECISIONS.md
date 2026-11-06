@@ -1,4 +1,26 @@
 
+## 2026-11-06: Black Friday and Cyber Monday price watch pages
+
+The owner's October numbers (2026-11-06): the US made 73% of affiliate earnings at a US$108 average order, one US$6.4k order
+earned as much as twelve ordinary days, and eBay credits only a purchase made within 24 hours of the click. His asks: Black
+Friday and Cyber Monday "price watch" pages this week, so Google indexes them before 27 and 30 November, and the high end of
+the market (sealed, graded, vintage) in its own prominent sections, each ending in a live eBay listing.
+
+- `/[region]/cyber-monday` joins `/[region]/black-friday`: ONE component (`components/HolidaySalePage.tsx`) under two URLs,
+  thin routes, `lib/black-friday.ts` `eventCopy(event)` for the words. The Black Friday page's URL, title, h1 and metadata are
+  unchanged; both pages are in the sitemap for every region and link each other.
+- Under the deals table, a **price watch** (`lib/price-watch.ts`, `#price-watch`): the dearest sealed in stock today (the
+  region's ProductStat rows, dearest first, in stock only), the week's moves down (`priceMovesData(market).down`, the
+  price-moves page's rows), older sets still in stock (one product per set from `olderInStockData`) and graded chase-card
+  searches (`GRADED_SEARCHES`: PSA 10 Charizard, Umbreon VMAX, Pikachu, Mew ex 151, Rayquaza, BGS 10). Every row ends in a
+  tagged eBay search button (`placement: "price-watch"`, in `PLACEMENTS`), and the graded block carries the chase `EbayStrip`.
+- Why searches and strips, not listings in the HTML: this site holds no eBay listing in its server data for singles (the strips
+  fetch at request time by design, DECISIONS "eBay listing strips"), and a graded slab is never a store row. A search link
+  still carries the EPN tag and starts the 24-hour credit window on the click.
+- The words keep `BANNED_COPY`: "down this week" and "dearest in stock", never "price drops", "was", "sale" or urgency;
+  `tests/price-watch.test.ts` renders the Cyber Monday page in `files` mode and sweeps it, and pins the sitemap entry.
+- US-first by the owner's numbers, but every region gets its own page in its own currency: the US page is `/us/cyber-monday`.
+
 ## 2026-11-05: Amazon's own price on the product page's Amazon row, from the Creators API
 
 The owner's US Associates account was approved today and he asked for Amazon's API prices as price rows on every site.

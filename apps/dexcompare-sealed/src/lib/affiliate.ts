@@ -74,6 +74,7 @@ export const PLACEMENTS = [
   "listings-quickview-mini", // a product card's quick view: the small eBay + TCGplayer pair's eBay row, the product's own listings (owner, 2026-11-03)
   "listings-side", // every region page, wide screens only: the eBay sealed rail down the far left of the screen (components/SideAds.tsx, owner, 2026-11-03)
   "listings-notfound", // the 404 page
+  "price-watch", // /[region]/black-friday and /[region]/cyber-monday: the eBay search beside each price watch row (dearest sealed, moves down, older sets, graded chase cards)
   // The highlighted eBay button of a POPULAR product or set (lib/popular.ts HOT_SETS: 30th Celebration first): eBay's blue
   // search button inside a strip's own top line (EbayStrip `highlight`), and the compact CTA that strip becomes. One placement
   // per surface, so the owner can see which highlight earns: the region home's sealed strip, a hot set's page, a hot product's page.
