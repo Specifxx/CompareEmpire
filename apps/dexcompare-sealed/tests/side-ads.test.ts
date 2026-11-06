@@ -52,3 +52,11 @@ test("the quick view carries the product page's eBay + TCGplayer mini pair under
   assert.match(api, /context: `item:\$\{p\.slug\}`/, "the product's own listings");
   assert.match(api, /amazon: null/, "no Amazon link in a pop-up (Associates Operating Agreement)");
 });
+
+test("the home page gets the same rails, in the visitor's region, read per request (never at build)", () => {
+  const home = src("app/(site)/page.tsx");
+  assert.match(home, /^export const dynamic = "force-dynamic"/m);
+  assert.match(home, /<SoftSideAds tiles=\{railTiles\} \/>/);
+  assert.match(home, /tcgplayerTiles\(\)\.catch\(/, "a failed read shows no TCGplayer rail, never an error page");
+  assert.match(src("components/SideAds.tsx"), /export function SoftSideAds[\s\S]*?useSoftRegion\(\)/);
+});
