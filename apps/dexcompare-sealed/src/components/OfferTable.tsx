@@ -68,7 +68,7 @@ export function OfferTable({
   /** The product's slug: the rows' buttons go through /go and their click events name it (lib/click-events.ts). */
   product?: string;
   /**
-   * The product page (with `ebay`): eBay and TCGplayer pinned at the top, eBay first, TCGplayer second, then the stores (owner,
+   * The product page (with `ebay`): eBay, Amazon and TCGplayer pinned at the top in that order (owner, 2026-11-06), then the stores (owner,
    * 2026-10-26). TCGplayer's row is its offer among `offers` in the US; elsewhere `tcgplayer`, the US$ offer (usMarketplace), shown in US$
    * and never the best price; with neither, a TCGplayer search. Null: TCGplayer, if among `offers`, ranks with the stores.
    */
@@ -112,9 +112,9 @@ export function OfferTable({
           Prices are each store&rsquo;s own, in {r.currency}, read from their public product listings about twice a day; each row says when.
           &ldquo;Not checked recently&rdquo; means we couldn&rsquo;t read that store for over three days, so its stock is unknown. No store pays
           to be listed or to rank higher: <Link href="/about" prefetch={false} className="underline underline-offset-2 hover:text-ink">how DexCompare works</Link>.
-          {tcg && " TCGplayer is a US marketplace of many sellers, pinned under eBay; its link is an affiliate link, and outside the US its price is in US$ and never compared with the stores'."}
-          {amazon && !amazon.live && ` ${amazon.name} is pinned under TCGplayer as a search: we don't read Amazon's prices, so it is never ranked or the best price, and its link is an affiliate link. As an Amazon Associate I earn from qualifying purchases.`}
-          {amazon?.live && ` ${amazon.name} is pinned under TCGplayer with Amazon's own price for this listing, shown with its time and never ranked or the best price; its link is an affiliate link. As an Amazon Associate I earn from qualifying purchases. * ${AMAZON_PRICE_DISCLAIMER}`}
+          {tcg && " TCGplayer is a US marketplace of many sellers, pinned under eBay and Amazon; its link is an affiliate link, and outside the US its price is in US$ and never compared with the stores'."}
+          {amazon && !amazon.live && ` ${amazon.name} is pinned under eBay: with no price from Amazon it is a search, never ranked or the best price, and its link is an affiliate link. As an Amazon Associate I earn from qualifying purchases.`}
+          {amazon?.live && ` ${amazon.name} is pinned under eBay with Amazon's own price for this listing, shown with its time and never ranked or the best price; its link is an affiliate link. As an Amazon Associate I earn from qualifying purchases. * ${AMAZON_PRICE_DISCLAIMER}`}
           {storeOffers.some((o) => o.marketplace) && " TCGplayer is a marketplace of many sellers; it ranks by price and stock like any store, and its link is an affiliate link."}
         </p>
         {ebay && <p>{ebayRowNote(region).trim()}</p>}
@@ -266,11 +266,14 @@ function amazonRow(productName: string, region: Region, now: number, product?: s
     product,
     perPack: null,
     ship: null,
-    cents: 0,
+    // Amazon's own price when this build fetched one: the cart list's line (lib/cart-list.ts drops it after 24 hours). Never ranked:
+    // the row is pinned outside the ranking and is never `top`.
+    cents: priced && live?.cents ? live.cents : 0,
     open: true,
     state: "open",
     best: false,
     host: a.host.replace(/^www\./, ""),
+    ...(priced && live ? { cart: { productUrl: href, currency: REGIONS[region].currency } } : {}),
     title: live ? `${productName} on ${a.label}` : `Search ${a.label} for ${productName}`,
     href,
     rel: AMAZON_REL,
@@ -279,7 +282,7 @@ function amazonRow(productName: string, region: Region, now: number, product?: s
     lastSeen: new Date(now).toISOString(),
     ago: "",
     search: true,
-    searchText: `Amazon’s own price, in ${a.currency}`,
+    searchText: "Also check on Amazon",
     ...(priced ? { live: priced } : {}),
     ...(region === "nz" ? { note: "delivers to NZ for many items" } : {}),
   };

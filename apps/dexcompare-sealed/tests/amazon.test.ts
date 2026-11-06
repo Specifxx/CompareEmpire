@@ -168,7 +168,7 @@ test("GA4: off unless a measurement ID is set; consent defaults to denied in the
   assert.match(src("app/layout.tsx"), /\{GA4_ID && \(/);
 });
 
-test("in stock, Amazon is a search row pinned in the price table under eBay and TCGplayer: no price, never the best price", () => {
+test("in stock, Amazon is a search row pinned in the price table right under eBay (owner, 2026-11-06): no price, never the best price", () => {
   const table = src("components/OfferTable.tsx");
   assert.match(table, /const amazon = pin \? amazonRow\(/);
   assert.match(table, /amazonHref\(region, product \?\? "", productName, "amazon-table"\)/);
@@ -176,7 +176,7 @@ test("in stock, Amazon is a search row pinned in the price table under eBay and 
   const strip = src("components/EbayStrip.tsx");
   assert.match(strip, /node: <StoreRow key=\{amazon\.key\} d=\{amazon\} preorder=\{preorder\} top=\{false\} \/>/);
   const rows = src("components/OfferRows.tsx");
-  assert.match(rows, /d\.kind === "amazon" && d\.amazonRegion \? \(\s*<AmazonLink region=\{d\.amazonRegion\}/);
+  assert.match(rows, /d\.kind === "amazon" && d\.amazonRegion \? \(\s*<div className=\{ROW_ACTIONS\}>[\s\S]{0,400}<AmazonLink region=\{d\.amazonRegion\}/);
   const page = src("app/[region]/p/[slug]/page.tsx");
   assert.doesNotMatch(page, /AmazonPanel/, "the table row replaces the old panel");
 });
