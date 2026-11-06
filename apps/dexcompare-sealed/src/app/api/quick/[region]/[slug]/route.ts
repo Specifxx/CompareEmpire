@@ -10,6 +10,7 @@ import { packsFor } from "@/lib/packs";
 import { REGIONS, isRegion } from "@/lib/regions";
 import { isPreorderSet } from "@/lib/release";
 import { offerStock } from "@/lib/sealed-offers";
+import { amazonLiveFor } from "@/lib/amazon-live";
 import { priceGap, shareText } from "@/lib/share-link";
 import { money } from "@/lib/format";
 import { TYPE_BY_LABEL } from "@/lib/sealed-title";
@@ -42,7 +43,12 @@ export async function GET(_req: Request, { params }: { params: { region: string;
   // TCGplayer products (topped up with the newest sets'), affiliate-tagged here under the quick view's own placement.
   const tiles = await setTcgplayerTiles(p.setCode, p.slug).catch(() => []);
   const setName = (p.setCode ? SET_BY_CODE.get(p.setCode)?.name : null) ?? "";
-  const { rows, tcg, storeOffers } = offerRowsData({ offers: p.offers, region, packs, placement: "quickview-table", product: p.slug, pinned: { productName: p.name, tcgplayer } });
+  // The product page's Amazon row and tagged link (owner, 2026-11-06: a visitor-opened view of this one product is the Associates
+  // policy's "pop-up windows in conjunction with your Site promoting Products closely associated with the materials on your Site"),
+  // the item's own page where the import found its ASIN, but never Amazon's price: that stays on the product page (24-hour licence).
+  const found = amazonLiveFor(p.slug, r.region);
+  const amazonLink = found ? { asin: found.asin, url: found.url } : null;
+  const { rows, tcg, amazon, storeOffers } = offerRowsData({ offers: p.offers, region, packs, placement: "quickview-table", product: p.slug, pinned: { productName: p.name, tcgplayer, amazon: amazonLink } });
   const stores = storeOffers.filter((o) => !o.marketplace);
   return Response.json(
     {
@@ -51,8 +57,7 @@ export async function GET(_req: Request, { params }: { params: { region: string;
       inStock: stores.filter((o) => offerStock(o) === "open").length,
       rows,
       tcg,
-      // No Amazon link in a pop-up window (Associates Operating Agreement, 2026-11-02): the product page carries it.
-      amazon: null,
+      amazon,
       ebay: { slug: p.slug, query: ebayQuery(p.name, tcgplayer), floor, packs: rowPacks(type?.key, packs), context: `item:${p.slug}` },
       ads: {
         tcg: tiles.map((t) => ({ slug: t.slug, name: t.name, imageUrl: thumb(t.imageUrl, 120) ?? t.imageUrl, priceCents: t.priceCents, href: tcgplayerAffiliateUrl(t.url, region, "tcgplayer-strip-quickview") })),

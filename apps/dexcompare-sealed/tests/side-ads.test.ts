@@ -44,14 +44,14 @@ test("the region layout mounts the rails once, after the footer; the server HTML
   assert.equal(layout.match(/<SideAds /g)?.length, 1);
 });
 
-test("the quick view carries the product page's eBay + TCGplayer mini pair under its own placements, and still no Amazon", () => {
+test("the quick view carries the product page's eBay + TCGplayer mini pair under its own placements, and the product page's Amazon link (owner, 2026-11-06)", () => {
   const qv = src("components/QuickView.tsx");
   assert.match(qv, /<MiniSealedAds[\s\S]*ebayPlacement="listings-quickview-mini"[\s\S]*tcgPlacement="tcgplayer-strip-quickview"/);
   for (const p of ["listings-quickview-mini", "tcgplayer-strip-quickview"]) assert.ok((PLACEMENTS as readonly string[]).includes(p), `${p} is a placement`);
   const api = src("app/api/quick/[region]/[slug]/route.ts");
   assert.match(api, /tcgplayerAffiliateUrl\(t\.url, region, "tcgplayer-strip-quickview"\)/, "tiles tagged on the server");
   assert.match(api, /context: `item:\$\{p\.slug\}`/, "the product's own listings");
-  assert.match(api, /amazon: null/, "no Amazon link in a pop-up (Associates Operating Agreement)");
+  assert.doesNotMatch(api, /amazon: null/, "the product page's tagged Amazon link, without its price (tests/amazon-api.test.ts)");
 });
 
 test("the home page gets the same rails, in the visitor's region, read per request (never at build)", () => {

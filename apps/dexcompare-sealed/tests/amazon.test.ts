@@ -131,7 +131,6 @@ test("set, type and Japanese pages: no Amazon category search (Operating Agreeme
   for (const p of ["app/[region]/sets/[set]/page.tsx", "app/[region]/type/[type]/page.tsx", "app/[region]/japanese/page.tsx"]) {
     assert.doesNotMatch(src(p), /<AmazonLink|amazonUrl\(/, p);
   }
-  assert.doesNotMatch(src("app/api/quick/[region]/[slug]/route.ts"), /^\s+amazon,$/m, "no Amazon row in the quick view");
 });
 
 test("disclosure: the statement word for word in every page's footer, and the disclosure page linked from it and in the sitemap", () => {
