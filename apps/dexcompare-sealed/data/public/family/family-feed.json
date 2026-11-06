@@ -1,7 +1,7 @@
 {
  "v": 1,
  "site": "dex",
- "generatedAt": "2026-11-06T10:34:37.146Z",
+ "generatedAt": "2026-11-06T16:38:42.032Z",
  "links": {
   "AU": {
    "deals": "https://dexcompare.app/au/deals"
@@ -184,6 +184,20 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "US",
+   "title": "Delta Reign 3 Pack Blister",
+   "url": "https://dexcompare.app/us/p/delta-reign-3-pack-blister",
+   "cents": 1499,
+   "currency": "USD",
+   "store": "Game Grid Key LLC",
+   "image": "https://cdn.shopify.com/s/files/1/0936/4737/2569/files/219_88212d3e-4d7d-4252-a1bc-0e69a94ae10d.png?v=1787724069",
+   "refCents": 2995,
+   "refLabel": "median store price",
+   "savingPct": 50
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "US",
    "title": "Stellar Crown Build & Battle Box",
    "url": "https://dexcompare.app/us/p/stellar-crown-build-and-battle-box",
    "cents": 2500,
@@ -253,20 +267,6 @@
   {
    "kind": "deal",
    "cluster": "cards",
-   "region": "US",
-   "title": "Black Bolt Japanese Booster Box (SV11B)",
-   "url": "https://dexcompare.app/us/p/black-bolt-sv11b-japanese-booster-box",
-   "cents": 15999,
-   "currency": "USD",
-   "store": "Burbank Sportscards",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/637384_in_1000x1000.jpg",
-   "refCents": 22495,
-   "refLabel": "median store price",
-   "savingPct": 29
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
    "region": "UK",
    "title": "Origin Forme Palkia VSTAR League Battle Deck",
    "url": "https://dexcompare.app/uk/p/origin-forme-palkia-vstar-league-battle-deck",
@@ -324,20 +324,6 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "UK",
-   "title": "30th Celebration Mewtwo Figure Collection",
-   "url": "https://dexcompare.app/uk/p/30th-celebration-mewtwo-figure-collection",
-   "cents": 2995,
-   "currency": "GBP",
-   "store": "OBSIDIA TCG",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/704194_in_1000x1000.jpg",
-   "refCents": 5500,
-   "refLabel": "median store price",
-   "savingPct": 46
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "UK",
    "title": "Black Bolt Japanese Booster Box (SV11B)",
    "url": "https://dexcompare.app/uk/p/black-bolt-sv11b-japanese-booster-box",
    "cents": 8995,
@@ -347,6 +333,20 @@
    "refCents": 16449,
    "refLabel": "median store price",
    "savingPct": 45
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "UK",
+   "title": "Nihil Zero Japanese Booster Pack (M3)",
+   "url": "https://dexcompare.app/uk/p/nihil-zero-m3-japanese-booster-pack",
+   "cents": 195,
+   "currency": "GBP",
+   "store": "Collectors Kingdom",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/674454_in_1000x1000.jpg",
+   "refCents": 350,
+   "refLabel": "median store price",
+   "savingPct": 44
   },
   {
    "kind": "deal",
@@ -396,7 +396,7 @@
    "region": "CA",
    "title": "Ascended Heroes Tech Sticker Collection",
    "url": "https://dexcompare.app/ca/p/ascended-heroes-tech-sticker-collection",
-   "cents": 4119,
+   "cents": 4133,
    "currency": "CAD",
    "store": "L'Atelier TCG",
    "image": "https://cdn.shopify.com/s/files/1/0063/4971/7559/files/raw--3_716a5e57-6ac3-4765-85a0-ea007bc9bcc0.png?v=1768503070",
@@ -478,20 +478,6 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "EU",
-   "title": "Fusion Strike Booster Pack",
-   "url": "https://dexcompare.app/eu/p/fusion-strike-booster-pack",
-   "cents": 995,
-   "currency": "EUR",
-   "store": "Nordic Legends",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/247646_in_1000x1000.jpg",
-   "refCents": 1895,
-   "refLabel": "median store price",
-   "savingPct": 47
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "EU",
    "title": "Origin Forme Palkia VSTAR League Battle Deck",
    "url": "https://dexcompare.app/eu/p/origin-forme-palkia-vstar-league-battle-deck",
    "cents": 1795,
@@ -501,6 +487,20 @@
    "refCents": 3324,
    "refLabel": "median store price",
    "savingPct": 46
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "EU",
+   "title": "30th Celebration Ditto Premium Collection",
+   "url": "https://dexcompare.app/eu/p/30th-celebration-ditto-premium-collection",
+   "cents": 6000,
+   "currency": "EUR",
+   "store": "GoRetroGaming",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/704189_in_1000x1000.jpg",
+   "refCents": 10790,
+   "refLabel": "median store price",
+   "savingPct": 44
   },
   {
    "kind": "deal",
@@ -576,15 +576,15 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "SG",
-   "title": "Ninja Spinner Japanese Booster Box (M4)",
-   "url": "https://dexcompare.app/sg/p/ninja-spinner-m4-japanese-booster-box",
-   "cents": 8500,
+   "title": "Prismatic Evolutions Elite Trainer Box",
+   "url": "https://dexcompare.app/sg/p/prismatic-evolutions-elite-trainer-box",
+   "cents": 19473,
    "currency": "SGD",
-   "store": "Cardboard Collectible",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/683774_in_1000x1000.jpg",
-   "refCents": 12632,
+   "store": "Sawadeekard",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/593355_in_1000x1000.jpg",
+   "refCents": 30000,
    "refLabel": "median store price",
-   "savingPct": 33
+   "savingPct": 35
   },
   {
    "kind": "deal",
