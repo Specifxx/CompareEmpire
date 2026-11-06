@@ -78,7 +78,7 @@ export function Header({ region, listed }: { region: Region | null; listed?: Rea
           {/* A discreet, labelled sponsored item (xl and up only): eBay's search, tagged. Not a section of the site. */}
           {region && <EbayNavLink region={region} />}
         </nav>
-        <div className="hdr-search min-w-0 flex-1 lg:ml-auto lg:w-44 lg:flex-none xl:w-48">{region ? <SearchBox region={region} size="sm" /> : <SoftSearchBox />}</div>
+        <div className="hdr-search min-w-0 flex-1 lg:ml-auto lg:min-w-[7rem] lg:max-w-48">{region ? <SearchBox region={region} size="sm" /> : <SoftSearchBox />}</div>
         <ThemeToggle className="hidden sm:flex" />
         {region ? <RegionSwitcher region={region} compact /> : <SoftRegionSwitcher />}
         <MobileMenu region={region} groups={groups} built={built} className="lg:hidden" />
