@@ -13,6 +13,7 @@ import { SearchBox } from "./SearchBox";
 import { HeaderNavItems, SoftHeaderNavItems, SoftRegionSwitcher, SoftSearchBox, type HeaderNavItem } from "./HeaderNav";
 import { shopMenuColumns } from "./ShopMenu";
 import { ThemeToggle } from "./ThemeToggle";
+import { CartHeaderLink } from "./cart/CartHeaderLink";
 
 /**
  * The desktop nav (lg and up), in order. `also`: other paths (under the region) that count as the section, for its current
@@ -81,6 +82,8 @@ export function Header({ region, listed }: { region: Region | null; listed?: Rea
         <div className="hdr-search min-w-0 flex-1 lg:ml-auto lg:min-w-[7rem] lg:max-w-48">{region ? <SearchBox region={region} size="sm" /> : <SoftSearchBox />}</div>
         <ThemeToggle className="hidden sm:flex" />
         {region ? <RegionSwitcher region={region} compact /> : <SoftRegionSwitcher />}
+        {/* The cart list (components/cart, owner 2026-11-06): every width, with its count. */}
+        <CartHeaderLink />
         <MobileMenu region={region} groups={groups} built={built} className="lg:hidden" />
       </div>
     </header>
