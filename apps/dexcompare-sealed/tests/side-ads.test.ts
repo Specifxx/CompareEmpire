@@ -5,17 +5,18 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { PLACEMENTS } from "../src/lib/affiliate";
-import { MAX_TILES, MIN_WIDTH, TILE_H, tilesThatFit } from "../src/components/SideAds";
+import { MAX_TILES, MIN_WIDTH, TILE_H, mergeListings, railFits } from "../src/components/SideAds";
 
 const src = (p: string) => readFileSync(new URL(`../src/${p}`, import.meta.url), "utf8");
 
 test("side rails: wide screens only, the same width in the hook and the class, drawn in the browser after a matchMedia check", () => {
-  assert.equal(MIN_WIDTH, 1864, "the 1480px shell plus two 160px rails with 16px gutters");
+  assert.equal(MIN_WIDTH, 1280, "every regular 16:9 and 16:10 screen (owner, 2026-11-06)");
+  assert.match(src("app/globals.css"), /max-width: min\(1480px, calc\(100vw - 320px\)\)/, "the shell leaves the rails their room");
   const s = src("components/SideAds.tsx");
   assert.match(s, /^"use client";/, "a client component");
-  assert.match(s, /min-\[1864px\]:flex/, "the CSS gate says the same width");
+  assert.match(s, /min-\[1280px\]:flex/, "the CSS gate says the same width");
   assert.match(s, /window\.matchMedia\(`\(min-width: \$\{MIN_WIDTH\}px\)`\)/, "mounted only when the viewport fits");
-  assert.match(s, /const \[fit, setFit\] = useState\(0\);[\s\S]*if \(fit < 1\) return null;/, "nothing is rendered before the check or when nothing fits (no SSR markup)");
+  assert.match(s, /const \[fit, setFit\] = useState\(false\);[\s\S]*if \(!fit\) return null;/, "nothing is rendered before the check or when nothing fits (no SSR markup)");
   assert.match(s, /"fixed z-30 hidden flex-col/, "fixed beside the shell: takes no space, below the header (z-40) and the quick view (z-50)");
   for (const p of ["listings-side", "tcgplayer-strip-side"]) assert.ok((PLACEMENTS as readonly string[]).includes(p), `${p} is a placement`);
   assert.match(s, /useListings\(\{ region, context: "sealed", placement, min: 1, eager: true \}\)/, "the eBay rail shares the home strip's sealed request");
@@ -24,14 +25,16 @@ test("side rails: wide screens only, the same width in the hook and the class, d
   assert.doesNotMatch(s, /amazon/i, "no Amazon in a rail");
 });
 
-test("side rails: as many whole tiles as the window's height fits, never a clipped one, at most six", () => {
-  assert.equal(tilesThatFit(0), 0);
-  assert.equal(tilesThatFit(350), 0, "too short for one tile: no rail");
-  assert.equal(tilesThatFit(400), 1);
-  assert.equal(tilesThatFit(720), 2, "a 720px window fits two");
-  assert.equal(tilesThatFit(1080), 4, "a 1080px window fits four");
-  assert.equal(tilesThatFit(10_000), MAX_TILES);
-  assert.ok(TILE_H > 180 && TILE_H < 240, `a tile is ${TILE_H}px tall`);
+test("side rails: up to ten tiles that scroll inside the rail, popular sealed first, no listing twice", () => {
+  assert.equal(MAX_TILES, 10);
+  assert.ok(!railFits(300), "too short for one whole tile: no rail");
+  assert.ok(railFits(720), "a 1280×720 window has rails");
+  assert.ok(TILE_H > 160 && TILE_H < 240, `a tile is ${TILE_H}px tall`);
+  assert.match(src("components/SideAds.tsx"), /overflow-y-auto/, "the list scrolls");
+  const item = (id: string) => ({ id }) as never;
+  const ready = (ids: string[]) => ({ status: "ready", a: { items: ids.map(item) } }) as never;
+  const merged = mergeListings([ready(["a", "b", "c", "d", "e", "f", "g", "h"]), ready(["c", "i", "j", "k", "l"]), { status: "none" } as never]);
+  assert.deepEqual(merged.map((i: { id: string }) => i.id), ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]);
 });
 
 test("the region layout mounts the rails once, after the footer; the server HTML of a page never holds them", () => {

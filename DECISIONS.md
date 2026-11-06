@@ -623,3 +623,23 @@ description say pickup only, in-store only, collection only, no shipping, cannot
 store will not post is not a price a visitor elsewhere can pay, and the measured postage does not apply to it. "Pickup available" and
 shipping policy ("cannot be shipped to PO boxes", "we do not ship internationally") are not refusals; a rule here may only refuse more,
 never loosen, and every wording is in `tests/pickup-only.test.ts`.
+
+## 2026-11-06 — DexCompare: side rails on every regular screen, scrolling through ten popular products
+
+**Decision (owner: "I do not see those ads on the left and right side of the screen … it should appear on regular 16:9
+screens … 16:10 even … scrollable … up to 10 products … popular products"):** the side rails now show from 1280px wide,
+not 1864px. Below 1864px the shell gives up 160px a side for them (`globals.css`: `.max-w-shell` and `xl:max-w-shell` are
+`min(1480px, 100vw - 320px)` from 1280px), so a 1280, 1366, 1440, 1536, 1600 or 1680px window gets a 136px rail on each
+side, 12px from the window and from the page; from 1864px the shell is its full 1480px and the rails sit just outside it as
+before. Each rail runs from under the header to the window's foot and its list scrolls through up to ten tiles, popular
+first, instead of as many as the height fitted (at most six). A window too short for one whole tile shows none.
+
+**Still true:** browser-only (mounted after a matchMedia check, nothing in the server HTML, so no SEO change), fixed (CLS
+0; the shell rule is CSS, identical in the server HTML, so nothing moves when the rails mount), labelled Ad, rel
+sponsored under their own placements, never a store, never Amazon.
+
+**Cost:** the content column is narrower between 1280 and 1864px (960px at 1280). Pages already lay out at those
+widths (a 1024px laptop gets the same), so nothing breaks; revisit if clicks per visit fall on laptops.
+
+DexCompare's eBay rail tops the sealed feed up from the booster box and Elite Trainer Box feeds (each stores at most eight
+rows), no listing twice; the TCGplayer rail already had ten (`tcgplayerTiles`).

@@ -16,40 +16,45 @@ import { OutboundLink } from "./OutboundLink";
 // stacked down the far left of a wide screen, the newest sets' TCGplayer products down the far right, both OUTSIDE the page shell
 // (max-w-shell, 1480px), fixed beside it under the sticky header.
 //
-//   • Browser only, wide screens only. Nothing is in the server HTML: the rails mount after hydration and only while the viewport is
-//     at least MIN_WIDTH wide, so crawlers, laptops, tablets and phones never see them (no SEO change, no layout change, CLS 0: a
-//     fixed element takes no space). The eBay rail asks /api/ebay/<region>?c=sealed only once it is mounted; the TCGplayer tiles are
-//     the pre-footer strip's (lib/data.ts tcgplayerTiles), already on the client as its props.
-//   • As many tiles as the window's height fits, never a clipped one; a window too short for one tile shows no rail.
+//   • Browser only, from 1280px wide (owner 2026-11-06: every regular 16:9 and 16:10 screen). Nothing is in the server HTML: the rails
+//     mount after hydration and only while the viewport is at least MIN_WIDTH wide, so crawlers, tablets and phones never see them (no
+//     SEO change, CLS 0: a fixed element takes no space; the room beside the shell is CSS, globals.css). The eBay rail asks /api/ebay/<region> for the sealed, booster box and
+//     Elite Trainer Box feeds only once it is mounted (CDN-cached, shared with the strips); the TCGplayer tiles are the pre-footer strip's (lib/data.ts tcgplayerTiles), already on the client as its props.
+//   • Each rail runs from under the header to the window's foot and scrolls through up to ten tiles, popular first (owner
+//     2026-11-06); a window too short for one whole tile shows no rail.
 //   • Labelled "Ad" with the affiliate note, every link rel sponsored under its own placement (listings-side, tcgplayer-strip-side).
 //     Not a pop-up: nothing moves, covers content or asks for anything.
 
-/** The shell is 1480px; each rail is RAIL_W wide with GUTTER on both sides of it. */
+/**
+ * From MIN_WIDTH (1280px: every common 16:9 and 16:10 laptop and monitor, owner 2026-11-06: "it should appear on regular 16:9
+ * screens … 16:10 even") a rail RAIL_W wide sits on each side of the shell, GUTTER from the window's edge and GUTTER from the
+ * shell. Below 1864px the shell gives up that room (globals.css: max-width min(1480px, 100vw - 320px)); from 1864px it is its full
+ * 1480px and the rails sit just outside it.
+ */
 const SHELL_W = 1480;
-export const RAIL_W = 160;
-const GUTTER = 16;
-export const MIN_WIDTH = SHELL_W + 2 * (RAIL_W + 2 * GUTTER); // 1864: the RAIL class below says the same
+export const RAIL_W = 136;
+const GUTTER = 12;
+export const MIN_WIDTH = 1280; // the RAIL class below and the globals.css shell rule say the same
 /** Vertical budget: the sticky header (--hdr, 64px from lg) and a gutter above, a gutter below, the rail's own top line and note. */
 const TOP = 64 + GUTTER;
 const HEAD = 30;
 const NOTE = 34;
 const PAD = 2 * 8;
-const GAP = 8;
 /** One tile: 8px padding, a (RAIL_W - 16 - 16)px square picture, two title lines (36px) and a price line (20px). */
 export const TILE_H = 8 + (RAIL_W - PAD - 16) + 6 + 36 + 20 + 8;
-export const MAX_TILES = 6;
+/** Up to ten tiles, popular first; the list scrolls inside the rail (owner, 2026-11-06: "scrollable … up to 10 products"). */
+export const MAX_TILES = 10;
 
-/** How many tiles a window of this height fits (0: no rail). Pure, for the tests. */
-export function tilesThatFit(innerHeight: number): number {
-  const room = innerHeight - TOP - GUTTER - HEAD - NOTE - PAD;
-  return Math.max(0, Math.min(MAX_TILES, Math.floor((room + GAP) / (TILE_H + GAP))));
+/** Whether a window this tall holds a rail with at least one whole tile in view (the rest scroll). Pure, for the tests. */
+export function railFits(innerHeight: number): boolean {
+  return innerHeight - TOP - GUTTER - HEAD - NOTE - PAD >= TILE_H;
 }
 
 export function SideAds({ region, tiles }: { region: Region; tiles: TcgplayerTile[] }) {
-  const [fit, setFit] = useState(0);
+  const [fit, setFit] = useState(false);
   useEffect(() => {
     const mq = window.matchMedia(`(min-width: ${MIN_WIDTH}px)`);
-    const update = () => setFit(mq.matches ? tilesThatFit(window.innerHeight) : 0);
+    const update = () => setFit(mq.matches && railFits(window.innerHeight));
     update();
     mq.addEventListener("change", update);
     window.addEventListener("resize", update, { passive: true });
@@ -58,29 +63,34 @@ export function SideAds({ region, tiles }: { region: Region; tiles: TcgplayerTil
       window.removeEventListener("resize", update);
     };
   }, []);
-  if (fit < 1) return null;
+  if (!fit) return null;
   return (
     <>
-      <EbayRail region={region} fit={fit} />
-      {tiles.length >= 2 && <TcgRail region={region} tiles={tiles} fit={fit} />}
+      <EbayRail region={region} />
+      {tiles.length >= 2 && <TcgRail region={region} tiles={tiles} />}
     </>
   );
 }
 
-const RAIL = "fixed z-30 hidden flex-col rounded-xl border border-line bg-surface p-2 shadow-card min-[1864px]:flex";
+const LIST = "rail-scroll grid min-h-0 flex-1 content-start gap-2 overflow-y-auto overscroll-contain";
+const RAIL = "fixed z-30 hidden flex-col rounded-xl border border-line bg-surface p-2 shadow-card min-[1280px]:flex";
 const TILE = "group flex flex-col rounded-lg border border-line bg-surface p-2 transition-colors hover:border-ink/40";
-const EDGE = `calc(50% - ${SHELL_W / 2 + GUTTER + RAIL_W}px)`;
-const railStyle = (side: "left" | "right"): CSSProperties => ({ top: `calc(var(--hdr) + ${GUTTER}px)`, width: RAIL_W, ...(side === "left" ? { left: EDGE } : { right: EDGE }) });
+const EDGE = `max(${GUTTER}px, calc(50% - ${SHELL_W / 2 + GUTTER + RAIL_W}px))`;
+const railStyle = (side: "left" | "right"): CSSProperties => ({ top: `calc(var(--hdr) + ${GUTTER}px)`, bottom: GUTTER, width: RAIL_W, ...(side === "left" ? { left: EDGE } : { right: EDGE }) });
 
-function EbayRail({ region, fit }: { region: Region; fit: number }) {
+function EbayRail({ region }: { region: Region }) {
   const placement: Placement = "listings-side";
+  // Ten popular sealed listings: the sealed feed (the home strip's own request, so it is shared, not repeated), topped up from the
+  // booster box and Elite Trainer Box feeds (each at most eight rows, lib/ebay-context.ts), no listing twice.
   const { ref, state } = useListings({ region, context: "sealed", placement, min: 1, eager: true });
-  const items = state.status === "ready" ? state.a.items.slice(0, fit) : null;
+  const boxes = useListings({ region, context: "type:booster-boxes", placement, min: 1, eager: true }).state;
+  const etbs = useListings({ region, context: "type:elite-trainer-boxes", placement, min: 1, eager: true }).state;
+  const items = state.status === "ready" ? mergeListings([state, boxes, etbs]) : null;
   if (state.status === "none") return null;
   return (
     <div ref={ref} role="group" data-ad={placement} aria-label="Sponsored: sealed Pokémon on eBay" className={RAIL} style={railStyle("left")}>
       <Head brand={<EbayMark className="text-lg" />} />
-      <ul role="list" className="grid gap-2">
+      <ul role="list" className={LIST}>
         {items
           ? items.map((i) => (
               <li key={i.id}>
@@ -94,14 +104,33 @@ function EbayRail({ region, fit }: { region: Region; fit: number }) {
                 </OutboundLink>
               </li>
             ))
-          : Array.from({ length: fit }, (_, n) => <li key={n} aria-hidden="true" className="rounded-lg bg-raised" style={{ height: TILE_H }} />)}
+          : Array.from({ length: 3 }, (_, n) => <li key={n} aria-hidden="true" className="rounded-lg bg-raised" style={{ height: TILE_H }} />)}
       </ul>
       <Note href={ebaySearchUrl("Pokemon sealed", region, placement)} retailer={ebayRetailer(region)} placement={placement} label="All on eBay →" />
     </div>
   );
 }
 
-function TcgRail({ region, tiles, fit }: { region: Region; tiles: TcgplayerTile[]; fit: number }) {
+type ListingsState = ReturnType<typeof useListings>["state"];
+type Listing = Extract<ListingsState, { status: "ready" }>["a"]["items"][number];
+
+/** The ready feeds' listings in order, no listing twice, at most MAX_TILES. Pure, for the tests. */
+export function mergeListings(states: ListingsState[]): Listing[] {
+  const seen = new Set<string>();
+  const out: Listing[] = [];
+  for (const st of states) {
+    if (st.status !== "ready") continue;
+    for (const i of st.a.items) {
+      if (out.length >= MAX_TILES) return out;
+      if (seen.has(i.id)) continue;
+      seen.add(i.id);
+      out.push(i);
+    }
+  }
+  return out;
+}
+
+function TcgRail({ region, tiles }: { region: Region; tiles: TcgplayerTile[] }) {
   const placement: Placement = "tcgplayer-strip-side";
   const us = region === "us";
   const price = (cents: number) => (us ? money(cents, "US") : `US${money(cents, "US")}`);
@@ -109,13 +138,13 @@ function TcgRail({ region, tiles, fit }: { region: Region; tiles: TcgplayerTile[
     <div role="group" data-ad={placement} aria-label="Sponsored: Pokémon sealed on TCGplayer" className={RAIL} style={railStyle("right")}>
       <Head
         brand={
-          <span className="text-base font-black tracking-tight" aria-label="TCGplayer">
+          <span className="text-[15px] font-black tracking-tight" aria-label="TCGplayer">
             TCG<span className="text-[#1f6fe5]">player</span>
           </span>
         }
       />
-      <ul role="list" className="grid gap-2">
-        {tiles.slice(0, fit).map((t) => (
+      <ul role="list" className={LIST}>
+        {tiles.slice(0).map((t) => (
           <li key={t.slug}>
             <OutboundLink href={tcgplayerAffiliateUrl(t.url, region, placement)} rel={REL_SPONSORED} retailer={TCGPLAYER_RETAILER} placement={placement} className={TILE} title={`${t.name} · ${price(t.priceCents)}`}>
               <span className="plate relative block aspect-square w-full overflow-hidden rounded-md">
@@ -135,7 +164,7 @@ function TcgRail({ region, tiles, fit }: { region: Region; tiles: TcgplayerTile[
 
 function Head({ brand }: { brand: ReactNode }) {
   return (
-    <div className="mb-2 flex h-[22px] items-center justify-between px-1">
+    <div className="mb-2 flex h-[22px] shrink-0 items-center justify-between px-1">
       {brand}
       <span className="rounded bg-raised px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted">Ad</span>
     </div>
@@ -144,7 +173,7 @@ function Head({ brand }: { brand: ReactNode }) {
 
 function Note({ href, retailer, placement, label, usd = false }: { href: string; retailer: string; placement: Placement; label: string; usd?: boolean }) {
   return (
-    <p className="mt-2 flex h-[26px] flex-col justify-center px-1 text-[10px] leading-[13px] text-muted">
+    <p className="mt-2 flex h-[26px] shrink-0 flex-col justify-center px-1 text-[10px] leading-[13px] text-muted">
       <OutboundLink href={href} rel={REL_SPONSORED} retailer={retailer} placement={placement} className="truncate font-bold text-brand">
         {label}
       </OutboundLink>
