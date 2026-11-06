@@ -1,7 +1,7 @@
 {
  "v": 1,
  "site": "dex",
- "generatedAt": "2026-11-05T17:13:59.781Z",
+ "generatedAt": "2026-11-06T01:26:57.966Z",
  "links": {
   "AU": {
    "deals": "https://dexcompare.app/au/deals"
@@ -36,7 +36,7 @@
    "currency": "AUD",
    "store": "Turtle TCG",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/684444_in_1000x1000.jpg",
-   "refCents": 32998,
+   "refCents": 33000,
    "refLabel": "median store price",
    "savingPct": 45
   },
@@ -176,7 +176,7 @@
    "currency": "USD",
    "store": "Game Grid Key LLC",
    "image": "https://cdn.shopify.com/s/files/1/0936/4737/2569/files/219_88212d3e-4d7d-4252-a1bc-0e69a94ae10d.png?v=1787724069",
-   "refCents": 2997,
+   "refCents": 2995,
    "refLabel": "median store price",
    "savingPct": 50
   },
@@ -310,12 +310,12 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "UK",
-   "title": "30th Celebration Mewtwo Figure Collection",
-   "url": "https://dexcompare.app/uk/p/30th-celebration-mewtwo-figure-collection",
+   "title": "30th Celebration Mew Figure Collection",
+   "url": "https://dexcompare.app/uk/p/30th-celebration-mew-figure-collection",
    "cents": 2999,
    "currency": "GBP",
    "store": "TCG Group",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/704194_in_1000x1000.jpg",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/704193_in_1000x1000.jpg",
    "refCents": 5500,
    "refLabel": "median store price",
    "savingPct": 45
@@ -324,13 +324,13 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "UK",
-   "title": "Black Bolt Japanese Booster Box (SV11B)",
-   "url": "https://dexcompare.app/uk/p/black-bolt-sv11b-japanese-booster-box",
-   "cents": 8995,
+   "title": "30th Celebration Mewtwo Figure Collection",
+   "url": "https://dexcompare.app/uk/p/30th-celebration-mewtwo-figure-collection",
+   "cents": 2999,
    "currency": "GBP",
-   "store": "TCGShopUK",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/637384_in_1000x1000.jpg",
-   "refCents": 16449,
+   "store": "TCG Group",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/704194_in_1000x1000.jpg",
+   "refCents": 5500,
    "refLabel": "median store price",
    "savingPct": 45
   },
@@ -361,6 +361,20 @@
    "refCents": 22995,
    "refLabel": "median store price",
    "savingPct": 43
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "CA",
+   "title": "30th Celebration Figure Collection - Assorted (Mew or Mewtwo)",
+   "url": "https://dexcompare.app/ca/p/30th-celebration-figure-collection-assorted-mew-or-mewtwo-pokemon-tcg",
+   "cents": 9999,
+   "currency": "CAD",
+   "store": "Game Shack",
+   "image": "https://cdn.shopify.com/s/files/1/0573/2951/6611/files/hero-assorted-both-versions_192bd4fa-0911-4a8a-ba66-c33448c801bf.jpg?v=1787221372",
+   "refCents": 17240,
+   "refLabel": "median store price",
+   "savingPct": 42
   },
   {
    "kind": "deal",
@@ -407,20 +421,6 @@
   {
    "kind": "deal",
    "cluster": "cards",
-   "region": "CA",
-   "title": "Terastal Festival ex Japanese Booster Pack (SV8a)",
-   "url": "https://dexcompare.app/ca/p/terastal-festival-ex-sv8a-japanese-booster-pack",
-   "cents": 1599,
-   "currency": "CAD",
-   "store": "Adventurebox",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/603429_in_1000x1000.jpg",
-   "refCents": 2672,
-   "refLabel": "median store price",
-   "savingPct": 40
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
    "region": "EU",
    "title": "Paradox Rift Booster Box",
    "url": "https://dexcompare.app/eu/p/paradox-rift-booster-box",
@@ -429,6 +429,20 @@
    "store": "Collector Expert",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/512821_in_1000x1000.jpg",
    "refCents": 27999,
+   "refLabel": "median store price",
+   "savingPct": 48
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "EU",
+   "title": "Celebrations Elite Trainer Box",
+   "url": "https://dexcompare.app/eu/p/celebrations-elite-trainer-box",
+   "cents": 22990,
+   "currency": "EUR",
+   "store": "PokeMillon",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/242811_in_1000x1000.jpg",
+   "refCents": 43995,
    "refLabel": "median store price",
    "savingPct": 48
   },
@@ -491,20 +505,6 @@
   {
    "kind": "deal",
    "cluster": "cards",
-   "region": "EU",
-   "title": "Abyss Eye Japanese Booster Box (M5)",
-   "url": "https://dexcompare.app/eu/p/abyss-eye-m5-japanese-booster-box",
-   "cents": 6990,
-   "currency": "EUR",
-   "store": "Toy Treasure",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/695112_in_1000x1000.jpg",
-   "refCents": 11990,
-   "refLabel": "median store price",
-   "savingPct": 42
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
    "region": "SG",
    "title": "Mega Brave Japanese Booster Pack (M1L)",
    "url": "https://dexcompare.app/sg/p/mega-brave-m1l-japanese-booster-pack",
@@ -550,7 +550,7 @@
    "region": "SG",
    "title": "Pitch Black Elite Trainer Box",
    "url": "https://dexcompare.app/sg/p/pitch-black-elite-trainer-box",
-   "cents": 8994,
+   "cents": 8991,
    "currency": "SGD",
    "store": "TEFUDA",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/692947_in_1000x1000.jpg",
