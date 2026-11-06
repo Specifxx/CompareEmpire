@@ -643,3 +643,6 @@ widths (a 1024px laptop gets the same), so nothing breaks; revisit if clicks per
 
 DexCompare's eBay rail tops the sealed feed up from the booster box and Elite Trainer Box feeds (each stores at most eight
 rows), no listing twice; the TCGplayer rail already had ten (`tcgplayerTiles`).
+
+**Addendum (owner, 2026-11-06: "the home page must have this as well"):** the home page gets the same rails, in the
+visitor's suggested or picked region (`SoftSideAds`, the way its header and sidebar follow the visitor).
