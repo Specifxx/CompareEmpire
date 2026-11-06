@@ -49,3 +49,12 @@ One credential serves every store: `AMAZON_CREATORS_AU_CLIENT_ID` / `_CLIENT_SEC
 Vercel Production variables (the same values as Compare Empire's and MTG Compare's; `AMAZON_CREATORS_<REGION>_*` would override for one
 store). Access is per marketplace and opens by itself once that store's account has qualifying sales (about 10 in 30
 days); a refused store is skipped, so the feature costs nothing until then and switches on without a code change.
+
+## 2026-11-06 — Awin: a store that accepts the family pays from the next build, with no step by hand
+
+**Decision (owner: "check if we are making the most of Awin, and if it's not there, just do it"):** the family's Awin
+account (Compare Empire, publisher 3144410) is read each morning by Compare Empire's `scripts/awin-sync.ts`, which
+publishes the programmes that accepted us, with their tracked domains, in its public `data/awin/programmes.json`.
+DexCompare copies it first in its build (`scripts/fetch-awin.ts` → `src/lib/awin-programmes.json`; the committed copy is
+an empty list). `offerLink` turns a link to a joined advertiser's own domain (Magic Madhouse, Chaos Cards, Zatu…,
+whichever accept) into its Awin deep link, `sponsored`, with the affiliate note. Order and prices never change.

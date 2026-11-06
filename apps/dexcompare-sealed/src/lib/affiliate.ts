@@ -11,6 +11,7 @@
 //
 // Pure (no database, no store registry): BrowseGrid imports this in the browser.
 import { REGIONS, type Region } from "./regions";
+import { awinUrl, clickref } from "./awin";
 
 // ─── Placements ────────────────────────────────────────────────────────────────
 // Where on the site an outbound link sits. One list for both jobs: the affiliate
@@ -469,6 +470,9 @@ export function offerLink(store: string, url: string, region: Region, placement:
     const href = tcgplayerAffiliateUrl(url, region, placement);
     if (href !== url) return { href, rel: REL_SPONSORED, sponsored: true };
   }
+  // A store that accepted the family on Awin (src/lib/awin.ts): the same page through its tracked deep link.
+  const awin = awinUrl(url, clickref("dex", region, placement));
+  if (awin) return { href: awin, rel: REL_SPONSORED, sponsored: true };
   return { href: url, rel: REL_STORE, sponsored: false };
 }
 
