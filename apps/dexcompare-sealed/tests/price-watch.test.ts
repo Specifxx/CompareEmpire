@@ -24,7 +24,7 @@ test("olderShelf keeps one product per set, skips empty sets and respects the li
     { set: set("c"), items: ["c1"] },
     { set: set("d"), items: ["d1"] },
   ];
-  assert.deepEqual(olderShelf(groups, 2).map((r) => [r.set.id, r.item]), [["a", "a1"], ["c", "c1"]]);
+  assert.deepEqual(olderShelf(groups, 2).map((r) => [(r.set as unknown as { id: string }).id, r.item]), [["a", "a1"], ["c", "c1"]]);
   assert.equal(olderShelf([], 5).length, 0);
 });
 

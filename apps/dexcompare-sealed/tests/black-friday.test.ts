@@ -62,3 +62,13 @@ test("the sitemap lists the page in every region", () => {
   const urls = staticSitemap({}).map((e) => e.url);
   for (const r of REGION_LIST) assert.ok(urls.includes(`${SITE_URL}/${r.region}/black-friday`), r.region);
 });
+
+test("the strip shows Black Friday from 1 November, then Cyber Monday, then nothing", async () => {
+  const { saleStrip } = await import("../src/lib/black-friday");
+  assert.equal(saleStrip("2026-10-31"), null);
+  assert.equal(saleStrip("2026-11-01")?.key, "blackFriday");
+  assert.equal(saleStrip("2026-11-28")?.key, "blackFriday");
+  assert.equal(saleStrip("2026-11-29")?.key, "cyberMonday");
+  assert.equal(saleStrip("2026-12-01")?.key, "cyberMonday");
+  assert.equal(saleStrip("2026-12-02"), null);
+});

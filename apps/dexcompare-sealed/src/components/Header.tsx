@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { inSeason } from "@/lib/black-friday";
+import { inSeason, saleStrip } from "@/lib/black-friday";
 import { navGroups } from "@/lib/nav";
 import { openPreorderGuides } from "@/lib/preorder-guides";
 import { REGIONS, X_DEFAULT_REGION, type Region } from "@/lib/regions";
@@ -32,7 +32,9 @@ export const HEADER_NAV: { key: SectionKey; label: string; also?: string[]; xl?:
 export function headerNav(today = new Date().toISOString().slice(0, 10)): typeof HEADER_NAV {
   if (!inSeason(today)) return HEADER_NAV;
   // xl only: at lg (1024) the row has no room for a seventh item; the phone menu, the footer and the region home link it there.
-  return [HEADER_NAV[0], { key: "blackFriday", label: "Black Friday", xl: true }, ...HEADER_NAV.slice(1)];
+  // From the Sunday after Black Friday to the day after Cyber Monday the entry is Cyber Monday's (saleStrip).
+  const cm = saleStrip(today)?.key === "cyberMonday";
+  return [HEADER_NAV[0], cm ? { key: "cyberMonday", label: "Cyber Monday", xl: true } : { key: "blackFriday", label: "Black Friday", xl: true }, ...HEADER_NAV.slice(1)];
 }
 
 /** The desktop nav's items for a region, links and all (the "All sealed" dropdown's included). */
