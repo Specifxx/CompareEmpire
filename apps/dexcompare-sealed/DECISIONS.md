@@ -131,3 +131,14 @@ the owner accepted the remaining risk. The quick view shows the link only (the i
 else the tagged search), never Amazon's price: that stays on the product page under the 24-hour licence. Uninvited
 overlays (a phone ad dock, a corner card, an exit pop-up) still never carry Amazon, and an Amazon page is never framed
 (item (n)).
+
+## 2026-11-07: A case holds a fixed number of units, and eBay far under the median is never the best price
+
+Ported from MTG Compare the same day (an eBay seller's feedback there: a 120-pack sleeved case was a six-box case's "best
+price, 26% below the median"; `rowPacks` skips every pack check on a case). `wrongCaseQuantity` (`sealed-title.ts`) refuses a
+case title whose stated counts are none of the case's: Booster Box Case 6 boxes / 216 packs, ETB Case 10 / 90, Booster
+Bundle Case 10 or 25 bundles / 60 or 150 packs (both are sold as "the case"), and a sleeved booster case. "Booster Case x2",
+"Master Case (60 bundles)", "Sleeved Booster Box Case - 144 packs" go; several "Nx" adding up to the case ("5x Koraidon, 5x
+Miraidon") stay. It runs in `refusedForType` (import and read) and `identify()`. And an eBay listing under 75% of the
+in-stock stores' median (two or more stores) is shown in its row but is never the best price (`ebayFloorFor`,
+`ebayMayBeBest`, `ebay-offer-row.ts`). The count is not put in the eBay query: Browse needs every keyword in the title.
