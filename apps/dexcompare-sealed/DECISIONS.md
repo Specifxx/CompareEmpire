@@ -142,6 +142,7 @@ Bundle Case 10 or 25 bundles / 60 or 150 packs (both are sold as "the case"), an
 Miraidon") stay. It runs in `refusedForType` (import and read) and `identify()`. And an eBay listing under 75% of the
 in-stock stores' median (two or more stores) is shown in its row but is never the best price (`ebayFloorFor`,
 `ebayMayBeBest`, `ebay-offer-row.ts`). The count is not put in the eBay query: Browse needs every keyword in the title.
+
 ## 2026-11-07 — The low-traction cull: tins, blisters, decks and collections must be a comparison
 
 Owner, 2026-11-07: apply Compare Empire's focus cull to every site ("any products that are not trendy, or very low traction or
@@ -157,6 +158,7 @@ the "Crawled – currently not indexed" pile the SEO audit found.
 - Neon and the price history keep every product, so one that qualifies again returns at the same URL with its chart.
 - A culled product's URL 301s to its type page in the same region (`data/public/culled.json`, `lib/culled.ts`).
 - The exporter's half-size guard compares listed rows with the last listed rows once a focused export exists.
+
 ## 2026-11-07: Three listings to index a region page; the sitemap lists the core
 
 The owner's Search Console and Bing audit (2026-11-07) found thousands of region product pages "Crawled" or
