@@ -13,6 +13,7 @@ import * as pcEtb from "./pokemon-center-etb-vs-elite-trainer-box";
 import * as cheapest from "./cheapest-way-to-buy-pokemon-packs";
 import * as whereToBuy from "./where-to-buy-pokemon-cards-online";
 import * as resealed from "./how-to-avoid-resealed-pokemon-products";
+import * as blackFriday from "./pokemon-black-friday-2026";
 import * as buildBattle from "./pokemon-build-and-battle-box";
 import * as whereToBuyAu from "./where-to-buy-pokemon-cards-australia";
 import * as megaEvolution from "./pokemon-mega-evolution-sealed-price-guide";
@@ -58,6 +59,7 @@ export const GUIDE_MODULES: Record<GuideSlug, GuideModule> = {
   "cheapest-way-to-buy-pokemon-packs": cheapest,
   "where-to-buy-pokemon-cards-online": whereToBuy,
   "how-to-avoid-resealed-pokemon-products": resealed,
+  "pokemon-black-friday-2026": blackFriday,
   "pokemon-build-and-battle-box": buildBattle,
   "where-to-buy-pokemon-cards-australia": whereToBuyAu,
   "pokemon-mega-evolution-sealed-price-guide": megaEvolution,

@@ -188,3 +188,11 @@ endpoint. `src/app/api/ebay/marketplace-deletion/route.ts` answers the challenge
 sha256(code + `EBAY_VERIFICATION_TOKEN` + endpoint) and acknowledges notices; it stores nothing (we hold no eBay user
 data). The token must be the same value as on eBay's page, in Vercel Production; a missing token answers 500 so it shows.
 `tests/ebay-deletion.test.ts` pins it. Never remove the route while the keyset exists.
+
+## Black Friday guide (2026-11-07)
+
+Owner: get the Black Friday pages indexed and ranking. The sale pages were already in the sitemap and the daily IndexNow
+run (it submits the whole sitemap). Added the guide `pokemon-black-friday-2026` in every region. It gives the dates, the newest three
+released sets with headline product in stock (the resealed guide's read: cheapest store and middle store price for the
+booster box, ETB and bundle), as the prices to read a Black Friday price against, and five checks. It links both sale pages
+and they link back to it. It makes no claim about what will be cheaper on the day.

@@ -62,6 +62,7 @@ function fixture(slug: GuideSlug): GuideData {
       return { ...d, sets: [released[0]], bySet: { [released[0]]: headline(released[0], 800) } };
     case "booster-box-vs-etb-vs-booster-bundle":
     case "pokemon-tcg-msrp":
+    case "pokemon-black-friday-2026":
       return { ...d, sets: released, bySet: Object.fromEntries(released.map((c, i) => [c, headline(c, 700 + i * 40)])) };
     case "are-pokemon-booster-boxes-worth-it": {
       const codes = newestReleased(TODAY, 3, (s) => !s.noBoosterBox).map((s) => s.code);
@@ -345,7 +346,7 @@ const PAIRS = GUIDES.filter((g) => !ONLY || ONLY.has(g.slug)).flatMap((g) => gui
 
 test("registry: unique slugs, ISO editorial dates (updated ≥ published), descriptions ≤ 160, titles that fit a <title>", () => {
   assert.equal(new Set(GUIDES.map((g) => g.slug)).size, GUIDES.length);
-  assert.equal(GUIDES.length, 43);
+  assert.equal(GUIDES.length, 44);
   for (const g of GUIDES) {
     assert.match(g.slug, /^[a-z0-9]+(?:-[a-z0-9]+)*$/);
     for (const d of [g.published, g.updated]) {
@@ -388,9 +389,9 @@ test("the MSRP guide is US-only, the five Australian guides AU-only; every other
   for (const r of REGION_LIST.filter((x) => x.region !== "us")) {
     assert.equal(guideFor("pokemon-tcg-msrp", r.region), null, r.region);
     assert.ok(!guidesFor(r.region).some((g) => g.slug === "pokemon-tcg-msrp"), r.region);
-    assert.equal(guidesFor(r.region).length, r.region === "au" ? 42 : 37, r.region);
+    assert.equal(guidesFor(r.region).length, r.region === "au" ? 43 : 38, r.region);
   }
-  assert.equal(guidesFor("us").length, 38);
+  assert.equal(guidesFor("us").length, 39);
   for (const g of GUIDES.filter((x) => x.slug !== "pokemon-tcg-msrp" && !AU_ONLY.includes(x.slug))) assert.equal(guideRegions(g).length, 7, g.slug);
   assert.equal(guideFor("no-such-guide", "au"), null);
 });
