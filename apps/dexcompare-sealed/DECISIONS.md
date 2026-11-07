@@ -177,3 +177,14 @@ to the Saturday after Black Friday, then its `/cyber-monday` to the day after Cy
 `lib/black-friday.ts`, tested). The xl header entry switches to Cyber Monday on the same day; the sidebar and footer list
 both pages. A link, never a pop-up (pop-up policy: nothing uninvited on a visit's first page), never a countdown or any
 BANNED_COPY phrase. The strip covers the widths (phone, lg) where the header has no room for the entry.
+
+## 2026-11-07 — eBay's account-deletion endpoint is back
+
+eBay checks every production keyset's Marketplace Account Deletion endpoint and disables a keyset whose endpoint keeps
+failing. DexCompare's keyset is registered at `https://dexcompare.app/api/ebay/marketplace-deletion` (the old site's
+route; `archived/dexcompare/EBAY_GROWTH_CHECK.md`), but the sealed port never carried that route over, so the address
+fell into `/api/ebay/[region]` and answered 400. Found in the all-keys check after eBay warned about Compare Empire's
+endpoint. `src/app/api/ebay/marketplace-deletion/route.ts` answers the challenge with
+sha256(code + `EBAY_VERIFICATION_TOKEN` + endpoint) and acknowledges notices; it stores nothing (we hold no eBay user
+data). The token must be the same value as on eBay's page, in Vercel Production; a missing token answers 500 so it shows.
+`tests/ebay-deletion.test.ts` pins it. Never remove the route while the keyset exists.
