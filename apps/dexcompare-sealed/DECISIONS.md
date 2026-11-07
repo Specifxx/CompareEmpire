@@ -157,3 +157,14 @@ the "Crawled – currently not indexed" pile the SEO audit found.
 - Neon and the price history keep every product, so one that qualifies again returns at the same URL with its chart.
 - A culled product's URL 301s to its type page in the same region (`data/public/culled.json`, `lib/culled.ts`).
 - The exporter's half-size guard compares listed rows with the last listed rows once a focused export exists.
+## 2026-11-07: Three listings to index a region page; the sitemap lists the core
+
+The owner's Search Console and Bing audit (2026-11-07) found thousands of region product pages "Crawled" or
+"Discovered – currently not indexed": the same product exists at seven region URLs, and a page where one or two stores
+list it is a store's shelf inside the template, which Google buckets as thin. `productTier` (`src/lib/index-tiers.ts`)
+now needs three listings (stores, plus an open marketplace offer) for a region page to be indexable (`MIN_INDEX_LISTINGS`):
+0–2 is thin, noindex, follow, out of the sitemap and out of hreflang (the page's `regionAlternates` already advertises
+only the regions where `productNoindex` is false). The sitemap's strong tier is now the core: in stock at three or more
+stores (`STRONG_IN_STOCK`), or a headline product five or more stores list (`STRONG_HEADLINE_LISTED`); everything between
+stays indexable and linked, out of the sitemap. Every page stays live and every URL is unchanged. Loosen the constants
+once Search Console shows the core indexed (recheck ~25 Nov). `tests/index-tiers.test.ts`.
