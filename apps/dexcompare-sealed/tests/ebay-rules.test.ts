@@ -105,3 +105,17 @@ test("audit: right rows stay (an 18-pack display, a 2-pack mini tin, live-sale n
   ] as [string, TypeKey][])
     assert.ok(!refused(t, type), `${type}: ${t}`);
 });
+
+// Visitor feedback 2026-11-07 (MTG Compare: a 120-pack sleeved case as a six-box case's best price). Real eBay and store titles, 2026-11-07.
+test("cases: a stated quantity that is not the case's is another product", () => {
+  assert.equal(refused("Pokémon TCG Delta Reign Booster Case x2 English Factory Sealed ME06 | Ships 11/6", "booster-box-case"), true);
+  assert.equal(refused("Pokemon Paldea Evolved Sleeved Booster Box Case - 144 packs", "booster-box-case"), true);
+  assert.equal(refused("Pokémon - Prismatic Evolutions Booster Bundle Master Case (60 bundles)", "booster-bundle-case"), true);
+  assert.equal(refused("Pokemon Scarlet & Violet Obsidian Flames Booster Box Sealed Case x1 (6 Boxes)", "booster-box-case"), false);
+  assert.equal(refused("Pokemon MEGA EVOLUTIONS PITCH BLACK Sealed Booster Case (216 PACKS) BRAND NEW", "booster-box-case"), false);
+  assert.equal(refused("Pokemon Prismatic Evolutions (SV8.5) Booster Bundle Case! 25 Bundles - 150 Packs", "booster-bundle-case"), false);
+  assert.equal(refused("Pokemon TCG 151 Scarlet and Violet Booster Bundle Sealed Case (10 x Bundles)", "booster-bundle-case"), false);
+  assert.equal(refusedForType("Pokémon Scarlet & Violet Elite Trainer Box Sealed Case (5x Koraidon, 5x Miraidon)", "etb-case"), false);
+  assert.equal(refused("Pokemon TCG ME2.5 Ascended Heroes Elite Trainer Boxes Case (EN)", "etb-case"), false);
+  assert.equal(refused("Pokemon SV8.5 Prismatic Evolutions Elite Trainer Box [x10] Sealed Case", "etb-case"), false);
+});

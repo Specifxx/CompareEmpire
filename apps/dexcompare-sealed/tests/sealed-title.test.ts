@@ -783,3 +783,12 @@ test("toy brands sold beside the cards are not sealed product: Sanei plush, TOMY
   assert.equal(key("TOMY: Pokemon Battle Figure Pack - Pikachu & Eevee"), "REJECT:accessory");
   assert.equal(key("Funism: Pokemon Home Collection - Bulbasaur"), "REJECT:accessory");
 });
+
+// Visitor feedback 2026-11-07: a store's sleeved or master case is not the case (store titles read 2026-11-07).
+test("cases: a store's other quantity is not the case", () => {
+  assert.equal(classify("Pokemon Paldea Evolved Sleeved Booster Box Case - 144 packs"), null);
+  assert.equal(classify("Pokemon Scarlet & Violet Surging Sparks 20x Booster Bundle Sealed Case"), null);
+  assert.equal(classify("Pokémon - Prismatic Evolutions Booster Bundle Master Case (60 bundles)"), null);
+  assert.equal(classify("Pokemon TCG ME2.5 Ascended Heroes Elite Trainer Boxes Case (EN)"), "etb-case");
+  assert.equal(classify("ME2.5 Ascended Heroes - Booster Bundle Case (Sealed Case of 25)"), "booster-bundle-case");
+});

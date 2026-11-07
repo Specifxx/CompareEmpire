@@ -5,7 +5,7 @@ import { tcgplayerAffiliateUrl, tcgplayerSearchUrl } from "@/lib/affiliate";
 import { thumb } from "@/lib/images";
 import { SET_BY_CODE } from "@/lib/sets";
 import { marketplaceOf } from "@/lib/ebay-context";
-import { rowPacks } from "@/lib/ebay-offer-row";
+import { ebayFloorFor, rowPacks } from "@/lib/ebay-offer-row";
 import { packsFor } from "@/lib/packs";
 import { REGIONS, isRegion } from "@/lib/regions";
 import { isPreorderSet } from "@/lib/release";
@@ -38,7 +38,8 @@ export async function GET(_req: Request, { params }: { params: { region: string;
   const best = p.offers.find((o) => offerStock(o) === "open");
   const cheapestCents = best?.priceCents ?? p.offers.reduce<number | null>((m, o) => (m == null || o.priceCents < m ? o.priceCents : m), null);
   const ebayComparable = marketplaceOf(region).currency === r.currency;
-  const floor = cheapestCents != null && ebayComparable ? { value: (cheapestCents * 0.4) / 100, currency: r.currency } : null;
+  const here = p.stats.find((s) => s.market === r.market) ?? null;
+  const floor = ebayComparable ? ebayFloorFor(cheapestCents, r.currency, here?.medianOpenCents, here?.inStockStores ?? 0) : null;
   // The small eBay + TCGplayer pair the pop-up shows above the rows (owner, 2026-11-03), the product page's MiniSealedAds: the set's
   // TCGplayer products (topped up with the newest sets'), affiliate-tagged here under the quick view's own placement.
   const tiles = await setTcgplayerTiles(p.setCode, p.slug).catch(() => []);

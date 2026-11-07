@@ -1,7 +1,7 @@
 // Which eBay listings are NOT one unit of a sealed product: shared by the importer (ebay-normalise.ts, ebay-sweep.ts) and the
 // website's read path (ebay-read.ts drops a stored row that today's rules refuse). Pure; imports only the title normaliser, so the
 // route's chain stays free of the importer's modules (tests/ebay-api.test.ts).
-import { normalizeTitle, type TypeKey } from "./sealed-title";
+import { normalizeTitle, wrongCaseQuantity, type TypeKey } from "./sealed-title";
 import { SETS } from "./sets";
 
 const CASE_TYPES = new Set<TypeKey>(["booster-box-case", "etb-case", "booster-bundle-case"]);
@@ -80,6 +80,8 @@ export function refusedForType(title: string, type: TypeKey): boolean {
   const t = foldTitle(title);
   if ((type === "booster-pack" || type === "sleeved-booster") && SEVERAL_PACKS.test(t)) return true;
   if (CASE_TYPES.has(type) && (CASE_FRESH.test(t) || WITH_A_CASE.test(t))) return true;
+  // A case holds a fixed number of units: "Booster Case x2", a 60-bundle master case, a sleeved case is another product (2026-11-07).
+  if (CASE_TYPES.has(type) && wrongCaseQuantity(title, type)) return true;
   // "151 Elite Trainer Box, Non-Pokemon Center": the regular ETB, whatever "Pokemon Center" made the classifier read.
   if (type === "pc-etb" && NOT_PC.test(t)) return true;
   // A regular ETB page takes no Pokémon Center ETB ("Pokemon Centre ETB ... 11 Packs"), unless the listing says it is not one.
