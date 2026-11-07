@@ -1,7 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { REGION_LIST, REGIONS } from "../src/lib/regions";
-import { regionOfSitemapId, regionSitemap, SITEMAP_IDS, sitemapIdOf, STATIC_SITEMAP_ID, staticSitemap } from "../src/lib/sitemap";
+import { regionOfSitemapId, regionSitemap, SITEMAP_IDS, SITEMAP_STORE_PAGES, sitemapIdOf, STATIC_SITEMAP_ID, staticSitemap } from "../src/lib/sitemap";
+import { SITEMAP_PRODUCTS, sitemapProductSlugs } from "../src/lib/index-tiers";
 import { SITE_URL } from "../src/lib/site";
 import { STORES } from "../src/lib/stores";
 import { GUIDES, guideRegions } from "../src/content/guides";
@@ -46,22 +47,33 @@ test("static sitemap: root, trust pages, every region's landing pages, every sto
   assert.deepEqual([at("/au/cheapest-packs").changeFrequency, at("/au/cheapest-packs").priority], ["daily", 0.6]);
   assert.deepEqual([at("/au/this-week").changeFrequency, at("/au/this-week").priority], ["daily", 0.5]);
   assert.deepEqual([at("/au/guides").changeFrequency, at("/au/guides").priority, at("/au/guides").lastModified], ["weekly", 0.5, undefined], "an editorial index: no import-time lastmod");
-  for (const s of STORES) assert.ok(urls.has(`${SITE_URL}/${s.market.toLowerCase()}/stores/${s.key}`), s.key);
+  for (const s of STORES) assert.ok(!urls.has(`${SITE_URL}/${s.market.toLowerCase()}/stores/${s.key}`), `${s.key}: store pages are not listed (2026-11-07)`);
   assert.equal(entries.find((e) => e.url === `${SITE_URL}/au`)?.lastModified, when);
   assert.equal(entries.find((e) => e.url === `${SITE_URL}/us`)?.lastModified, undefined);
   assert.equal(urls.size, entries.length, "no duplicate URLs");
 });
 
-test("static sitemap with activeStores: only the stores that list something and are not dormant get a URL", () => {
-  const [kept, dropped] = [STORES[0], STORES[1]];
-  const entries = staticSitemap({}, [kept.key, "not-a-store"]);
-  onSite(entries);
-  const storeUrls = entries.filter((e) => /\/stores\/[^/]+$/.test(e.url)).map((e) => e.url);
-  assert.deepEqual(storeUrls, [`${SITE_URL}/${kept.market.toLowerCase()}/stores/${kept.key}`]);
-  assert.ok(!entries.some((e) => e.url.endsWith(`/stores/${dropped.key}`)), "a store outside the active list is left out");
-  for (const r of REGION_LIST) assert.ok(entries.some((e) => e.url === `${SITE_URL}/${r.region}/stores`), "the directory pages stay");
-  assert.equal(staticSitemap({}).filter((e) => /\/stores\/[^/]+$/.test(e.url)).length, STORES.length, "without the list (the build), every store");
-  assert.equal(staticSitemap({}, []).filter((e) => /\/stores\/[^/]+$/.test(e.url)).length, 0);
+test("store pages are out of the sitemap (2026-11-07), the directories stay", () => {
+  assert.equal(SITEMAP_STORE_PAGES, false);
+  for (const entries of [staticSitemap({}), staticSitemap({}, [STORES[0].key]), staticSitemap({}, [])]) {
+    onSite(entries);
+    assert.equal(entries.filter((e) => /\/stores\/[^/]+$/.test(e.url)).length, 0);
+    for (const r of REGION_LIST) assert.ok(entries.some((e) => e.url === `${SITE_URL}/${r.region}/stores`), "the directory pages stay");
+  }
+});
+
+test("the sitemap names each region's most-stocked strong products, capped", () => {
+  const st = (inStockStores: number, listedStores = inStockStores) => ({ inStockStores, listedStores, marketplaceOpen: false });
+  const rows = [
+    { slug: "thin", productType: "Booster Box", s: st(0, 1) },
+    { slug: "b", productType: "Booster Box", s: st(4, 9) },
+    { slug: "a", productType: "Booster Box", s: st(9, 9) },
+    { slug: "c", productType: "Booster Box", s: st(4, 12) },
+  ];
+  assert.deepEqual(sitemapProductSlugs("US", rows), ["a", "c", "b"], "strong only, most in stock first, then most listed");
+  const many = Array.from({ length: 500 }, (_, i) => ({ slug: `p${i}`, productType: "Booster Box", s: st(3 + (i % 7)) }));
+  for (const [m, cap] of Object.entries(SITEMAP_PRODUCTS)) assert.equal(sitemapProductSlugs(m, many).length, cap, m);
+  assert.ok(SITEMAP_PRODUCTS.US >= SITEMAP_PRODUCTS.NZ);
 });
 
 test("region sitemap: known types and sets only, every comparable product, all on SITE_URL", () => {

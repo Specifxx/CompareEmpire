@@ -46,9 +46,9 @@ test("the product page's robots tag and hreflang set follow productNoindex", () 
   assert.match(page, /return !productNoindex\(p\.stats\.find\(\(st\) => st\.market === x\.market\), p\.productType\);/);
 });
 
-test("the sitemap: strong products only; sets and types from three comparable products", () => {
+test("the sitemap: strong products only (capped per region); sets and types from three comparable products", () => {
   const route = src("app/sitemap.ts");
-  assert.match(route, /productInSitemap\(r, r\.product\.productType\)/);
+  assert.match(route, /sitemapProductSlugs\(market, rows\.map/);
   assert.equal((route.match(/HAVING COUNT\(\*\) >= \$\{MIN_HUB_PRODUCTS\}/g) ?? []).length, 2);
   assert.match(route, /c >= MIN_HUB_PRODUCTS/);
   // regionSitemap itself lists what it is given
