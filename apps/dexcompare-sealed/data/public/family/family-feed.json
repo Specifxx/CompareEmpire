@@ -1,7 +1,7 @@
 {
  "v": 1,
  "site": "dex",
- "generatedAt": "2026-11-07T00:39:12.530Z",
+ "generatedAt": "2026-11-07T15:26:54.837Z",
  "links": {
   "AU": {
    "deals": "https://dexcompare.app/au/deals"
@@ -64,7 +64,7 @@
    "currency": "AUD",
    "store": "Turtle TCG",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/684444_in_1000x1000.jpg",
-   "refCents": 33000,
+   "refCents": 32998,
    "refLabel": "median store price",
    "savingPct": 45
   },
@@ -123,6 +123,20 @@
    "refCents": 6750,
    "refLabel": "median store price",
    "savingPct": 28
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "NZ",
+   "title": "Delta Reign Booster Pack",
+   "url": "https://dexcompare.app/nz/p/delta-reign-booster-pack",
+   "cents": 990,
+   "currency": "NZD",
+   "store": "Animal Kingdoms",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/712099_in_1000x1000.jpg",
+   "refCents": 1199,
+   "refLabel": "median store price",
+   "savingPct": 17
   },
   {
    "kind": "deal",
@@ -198,20 +212,6 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "US",
-   "title": "ex Battle Decks - Greninja ex",
-   "url": "https://dexcompare.app/us/p/ex-battle-decks-greninja-ex",
-   "cents": 1299,
-   "currency": "USD",
-   "store": "Northeast Games & Hobbies",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/527671_in_1000x1000.jpg",
-   "refCents": 2500,
-   "refLabel": "median store price",
-   "savingPct": 48
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "US",
    "title": "Chaos Rising - 3 Pack Blister",
    "url": "https://dexcompare.app/us/p/chaos-rising-3-pack-blister",
    "cents": 1299,
@@ -233,6 +233,20 @@
    "store": "Black Wolf Collectibles",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/565230_in_1000x1000.jpg",
    "refCents": 550,
+   "refLabel": "median store price",
+   "savingPct": 46
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "US",
+   "title": "30th Celebration - Knock Out Collection",
+   "url": "https://dexcompare.app/us/p/30th-celebration-knock-out-collection",
+   "cents": 1499,
+   "currency": "USD",
+   "store": "Retrofix Games",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/704152_in_1000x1000.jpg",
+   "refCents": 2775,
    "refLabel": "median store price",
    "savingPct": 46
   },
@@ -408,20 +422,6 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "CA",
-   "title": "Ascended Heroes Tech Sticker Collection",
-   "url": "https://dexcompare.app/ca/p/ascended-heroes-tech-sticker-collection",
-   "cents": 4133,
-   "currency": "CAD",
-   "store": "L'Atelier TCG",
-   "image": "https://cdn.shopify.com/s/files/1/0063/4971/7559/files/raw--3_716a5e57-6ac3-4765-85a0-ea007bc9bcc0.png?v=1768503070",
-   "refCents": 6999,
-   "refLabel": "median store price",
-   "savingPct": 41
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "CA",
    "title": "Terastal Festival ex Japanese Booster Pack (SV8a)",
    "url": "https://dexcompare.app/ca/p/terastal-festival-ex-sv8a-japanese-booster-pack",
    "cents": 1599,
@@ -429,6 +429,20 @@
    "store": "Adventurebox",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/603429_in_1000x1000.jpg",
    "refCents": 2672,
+   "refLabel": "median store price",
+   "savingPct": 40
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "CA",
+   "title": "First Partner Illustration Collection (Series 2)",
+   "url": "https://dexcompare.app/ca/p/first-partner-illustration-collection-series-2-2",
+   "cents": 2999,
+   "currency": "CAD",
+   "store": "Breakaway Sports Cards",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/688712_in_1000x1000.jpg",
+   "refCents": 4999,
    "refLabel": "median store price",
    "savingPct": 40
   },
@@ -492,20 +506,6 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "EU",
-   "title": "30th Celebration Ditto Premium Collection",
-   "url": "https://dexcompare.app/eu/p/30th-celebration-ditto-premium-collection",
-   "cents": 6000,
-   "currency": "EUR",
-   "store": "GoRetroGaming",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/704189_in_1000x1000.jpg",
-   "refCents": 10790,
-   "refLabel": "median store price",
-   "savingPct": 44
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "EU",
    "title": "Obsidian Flames Booster Pack",
    "url": "https://dexcompare.app/eu/p/obsidian-flames-booster-pack",
    "cents": 599,
@@ -513,6 +513,20 @@
    "store": "Spielewelt Amberg",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/501256_in_1000x1000.jpg",
    "refCents": 1047,
+   "refLabel": "median store price",
+   "savingPct": 43
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "EU",
+   "title": "30th Celebration Ditto Premium Collection",
+   "url": "https://dexcompare.app/eu/p/30th-celebration-ditto-premium-collection",
+   "cents": 6000,
+   "currency": "EUR",
+   "store": "GoRetroGaming",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/704189_in_1000x1000.jpg",
+   "refCents": 10590,
    "refLabel": "median store price",
    "savingPct": 43
   },
@@ -564,13 +578,13 @@
    "region": "SG",
    "title": "Pitch Black Elite Trainer Box",
    "url": "https://dexcompare.app/sg/p/pitch-black-elite-trainer-box",
-   "cents": 9142,
+   "cents": 8983,
    "currency": "SGD",
    "store": "TEFUDA",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/692947_in_1000x1000.jpg",
    "refCents": 14000,
    "refLabel": "median store price",
-   "savingPct": 35
+   "savingPct": 36
   },
   {
    "kind": "deal",
@@ -592,7 +606,7 @@
    "region": "SG",
    "title": "Chaos Rising Elite Trainer Box",
    "url": "https://dexcompare.app/sg/p/chaos-rising-elite-trainer-box",
-   "cents": 8874,
+   "cents": 8844,
    "currency": "SGD",
    "store": "TEFUDA",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/684450_in_1000x1000.jpg",
