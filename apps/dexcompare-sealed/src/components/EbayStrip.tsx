@@ -20,7 +20,7 @@ import {
   type FeedKind,
 } from "@/lib/ebay-context";
 import { FEED_FIRST_INDEX, preFooterPlan } from "@/lib/ebay-ads";
-import { listingCents, pickListing, type PriceFloor } from "@/lib/ebay-offer-row";
+import { listingCents, pickListing, type PriceFloor, ebayMayBeBest } from "@/lib/ebay-offer-row";
 import { money } from "@/lib/format";
 import { isRegion, REGIONS, type Region } from "@/lib/regions";
 import type { EbayHighlight } from "./Ebay";
@@ -714,7 +714,8 @@ export function useEbayPick({ region, slug, floor, packs, placement }: { region:
   const item = a ? pickListing(a.items, floor, packs) : null;
   const cents = item && item.price.currency === REGIONS[region]?.currency ? listingCents(item.price.value) : null;
   // Only a NEW listing, priced in the stores' currency, can be the best price (a used or graded box is not the product the stores sell).
-  const bestable = item != null && cents != null && !conditionLabel(item.condition);
+  // Nor one far under the stores' median (lib/ebay-offer-row.ts ebayMayBeBest): it is still shown, never "Best price".
+  const bestable = item != null && cents != null && !conditionLabel(item.condition) && ebayMayBeBest(cents, floor);
   return { ref, item, cents, bestable, age: a ? formatAge(now - a.fetchedAtMs) : "" };
 }
 

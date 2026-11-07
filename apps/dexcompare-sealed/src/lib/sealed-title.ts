@@ -274,6 +274,34 @@ function countedUnits(t: string): boolean {
   return true;
 }
 
+// ─── A case's quantity (visitor feedback 2026-11-07, an eBay seller) ──────────────
+// On MTG Compare a 120-pack sleeved case was a six-box case's cheapest offer, "26% below the median". A Pokémon case is a fixed
+// number of units: six Booster Boxes (216 packs), ten Elite Trainer Boxes (90 packs), ten or twenty-five Booster Bundles (60 or
+// 150 packs: both are sold as "the case", every store title on 2026-11-07 says one or the other). A title that states a count,
+// none of them the case's ("Booster Case x2", "Master Case (60 bundles)", "Sleeved Booster Box Case - 144 packs"), is another
+// product. Only stated counts are read ("6x", "x6", "[x10]", "case of 10", "6 Boxes", "25 Bundles", "10-Box", "216 Packs");
+// several "Nx" that add up to the case ("5x Koraidon, 5x Miraidon") are the case. Silence passes.
+const CASE_UNITS: Partial<Record<TypeKey, readonly number[]>> = { "booster-box-case": [6], "etb-case": [10], "booster-bundle-case": [10, 25] };
+const CASE_PACKS: Partial<Record<TypeKey, readonly number[]>> = { "booster-box-case": [216], "etb-case": [90], "booster-bundle-case": [60, 150] };
+const CASE_X = /(?<![\d.])\b(\d{1,2})\s*x\b(?!\s*\d)|\bx\s*(\d{1,2})\b(?!\s*(?:booster\s*)?packs?\b)/g;
+const CASE_NAMED = /\bcase\s+of\s+(?:x\s*)?(\d{1,2})\b|(?<![\d.])\b(\d{1,2})\s*(?:(?:booster|sealed|factory)\s+){0,2}(?:boxes|displays|bundles|etbs|elite\s+trainer\s+boxes)\b|\b(\d{1,2})-(?:box|display|bundle|etb)\b/g;
+const CASE_PACK_COUNT = /\b(\d{2,3})\s*(?:x\s*)?(?:(?:sleeved|booster)\s*)*(?:packs?|boosters)\b/g;
+
+/** Does this title, read as a case `type`, state only quantities that are not the case's, or sleeved boosters? Only refuses. */
+export function wrongCaseQuantity(title: string, type: TypeKey): boolean {
+  const units = CASE_UNITS[type];
+  if (!units) return false;
+  const t = normalizeTitle(title).toLowerCase();
+  if (type === "booster-box-case" && /\bsleeved\b/.test(t)) return true;
+  const xs = [...t.matchAll(CASE_X)].map((m) => Number(m[1] ?? m[2])).filter((n) => n > 1);
+  const named = [...t.matchAll(CASE_NAMED)].map((m) => Number(m[1] ?? m[2] ?? m[3])).filter((n) => n > 1);
+  const stated = [...xs, ...named];
+  const sum = xs.reduce((a, b) => a + b, 0);
+  if (stated.length && !stated.some((n) => units.includes(n)) && !(xs.length > 1 && units.includes(sum))) return true;
+  const packs = [...t.matchAll(CASE_PACK_COUNT)].map((m) => Number(m[1])).filter((n) => n >= 40);
+  return packs.length > 0 && !packs.some((n) => CASE_PACKS[type]!.includes(n));
+}
+
 // Words that name a kind of product, for twoProducts.
 const PRODUCT_WORD = "(?:elite\\s*trainer\\s*box|etb|booster\\s*box|booster\\s*bundle|booster\\s*packs?|display|tins?|blisters?|decks?|collection|calendar|pin|box|kit)";
 const PRODUCT_WORD_RE = new RegExp(`\\b${PRODUCT_WORD}\\b`, "g");
@@ -409,10 +437,8 @@ export function classify(title: string): TypeKey | null {
   // Pokémon Center ETBs are not the plain ETB or its case.
   const etbVariant = /\bplus\b/.test(t) ? "plus" : /pokemon\s*center|\bpc\b/.test(t) ? "pc" : null;
   if (caseWord) {
-    if (etb) return etbVariant ? null : "etb-case";
-    if (bundle) return "booster-bundle-case";
-    if (box || /\bdisplay\b|booster\s*case/.test(t)) return "booster-box-case";
-    return null;
+    const c: TypeKey | null = etb ? (etbVariant ? null : "etb-case") : bundle ? "booster-bundle-case" : box || /\bdisplay\b|booster\s*case/.test(t) ? "booster-box-case" : null;
+    return c && wrongCaseQuantity(title, c) ? null : c;
   }
   // A title naming both an ETB and a booster box is whichever it names first:
   // "Booster Box 151 Pokemon Center Elite Trainer Box (Exclusive)" sells the box.

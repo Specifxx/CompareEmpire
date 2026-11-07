@@ -132,6 +132,31 @@ else the tagged search), never Amazon's price: that stays on the product page un
 overlays (a phone ad dock, a corner card, an exit pop-up) still never carry Amazon, and an Amazon page is never framed
 (item (n)).
 
+## 2026-11-07: A case holds a fixed number of units, and eBay far under the median is never the best price
+
+Ported from MTG Compare the same day (an eBay seller's feedback there: a 120-pack sleeved case was a six-box case's "best
+price, 26% below the median"; `rowPacks` skips every pack check on a case). `wrongCaseQuantity` (`sealed-title.ts`) refuses a
+case title whose stated counts are none of the case's: Booster Box Case 6 boxes / 216 packs, ETB Case 10 / 90, Booster
+Bundle Case 10 or 25 bundles / 60 or 150 packs (both are sold as "the case"), and a sleeved booster case. "Booster Case x2",
+"Master Case (60 bundles)", "Sleeved Booster Box Case - 144 packs" go; several "Nx" adding up to the case ("5x Koraidon, 5x
+Miraidon") stay. It runs in `refusedForType` (import and read) and `identify()`. And an eBay listing under 75% of the
+in-stock stores' median (two or more stores) is shown in its row but is never the best price (`ebayFloorFor`,
+`ebayMayBeBest`, `ebay-offer-row.ts`). The count is not put in the eBay query: Browse needs every keyword in the title.
+## 2026-11-07 — The low-traction cull: tins, blisters, decks and collections must be a comparison
+
+Owner, 2026-11-07: apply Compare Empire's focus cull to every site ("any products that are not trendy, or very low traction or
+conversion, we probably want to get rid of"). On 2026-11-07 DexCompare listed 9,358 products; 8,738 were tins, blisters, decks
+and collections, 5,725 were in stock nowhere and only 1,346 were in stock at two or more stores in any market. Search Console
+had essentially nothing on product pages (the property's 56 days: the home page). Thousands of one-store or no-store pages are
+the "Crawled – currently not indexed" pile the SEO audit found.
+
+- `lib/focus.ts` decides what the exporter writes to data/public/: a product stays with search demand (a click or 10+ impressions,
+  from the `demand` branch), a set under 120 days old or upcoming, two in-stock sources in one market, or — for core products
+  (boxes, ETBs, bundles, packs, cases, Japanese) — any listing at all, so an out-of-print box stays. Tins, blisters, decks and
+  collections need the comparison. ≈9,360 → 1,960 products on 2026-11-07's data.
+- Neon and the price history keep every product, so one that qualifies again returns at the same URL with its chart.
+- A culled product's URL 301s to its type page in the same region (`data/public/culled.json`, `lib/culled.ts`).
+- The exporter's half-size guard compares listed rows with the last listed rows once a focused export exists.
 ## 2026-11-07 — Black Friday strip (owner: "capture all of the Black Friday SEO")
 
 One line under the header on every region page, in the server HTML, linking that region's `/black-friday` from 1 November
