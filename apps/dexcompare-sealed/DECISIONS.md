@@ -196,3 +196,29 @@ run (it submits the whole sitemap). Added the guide `pokemon-black-friday-2026` 
 released sets with headline product in stock (the resealed guide's read: cheapest store and middle store price for the
 booster box, ETB and bundle), as the prices to read a Black Friday price against, and five checks. It links both sale pages
 and they link back to it. It makes no claim about what will be cheaper on the day.
+
+## 2026-11-07 — Why Google sends DexCompare almost nothing, and a sitemap of its best pages only
+
+The owner asked why RiftCompare does well in Google while DexCompare can't reach 50 clicks a day. Search Console (the
+`sc-domain:dexcompare.app` property; the old `https://www.dexcompare.app/` property only sees redirects since the apex became
+canonical on 2026-10-27) answered it: in 90 days **only the home page has ever had an impression**, all of them for the
+search "dexcompare". URL Inspection of 81 sitemap URLs: 79 "URL is unknown to Google", 2 (the home page) indexed. RiftCompare's
+sample: 20 of 25 indexed. The pages themselves are fine read as Googlebot (200, self-canonical, 280 ms, price in the server
+HTML, no noindex; `crawl-audit-sites`), so it is not a ranking loss to bigger Pokémon sites: Google has not crawled past the
+home page since the move. The history explains it: the 5xx months on the old database, two host moves in three days
+(apex → www 10-25, www → apex 10-27), and www without DNS from 10-26 until today, so every URL Google knew failed and it cut
+the crawl to almost nothing.
+
+What changed:
+- **The sitemap names the core only**: each region's most-stocked strong products (`SITEMAP_PRODUCTS` in `lib/index-tiers.ts`:
+  US 300, CA and AU 200, UK and EU 150, NZ and SG 60; ~1,100 instead of 2,420) and no store pages (`SITEMAP_STORE_PAGES`; ~900
+  URLs). Hubs, guides, tools and seasonal pages are unchanged. Every page left out stays indexable and linked. With a few URLs
+  crawled a day, 6,400 listed URLs spread them over store pages and the long tail. The import's live-sitemap floor is 600.
+- **RiftCompare's Pokémon section links here with clean URLs** (TCGEmpire, the same day): its ~700 links carried
+  `?utm_source=riftcompare…`, which this site's robots.txt disallows (`/*?`), so Googlebot could follow none of them from our
+  best-crawled site.
+- `www.dexcompare.app` resolves again (owner, 2026-11-07) and 308s every path to the apex, so Google's ~8,900 old www URLs now
+  lead somewhere.
+
+Widen `SITEMAP_PRODUCTS` once Search Console shows most listed product pages "Indexed" (recheck ~2026-11-25). Don't flip the
+canonical host again: each move resets what Google knows.

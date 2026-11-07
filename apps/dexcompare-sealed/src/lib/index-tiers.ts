@@ -52,7 +52,25 @@ export function productTier(s: TierStat, productType: string): IndexTier {
 /** Noindex: no stats row in this market, or a thin one. */
 export const productNoindex = (s: TierStat | null | undefined, productType: string): boolean => !s || productTier(s, productType) === "thin";
 
-/** In the sitemap: strong only. */
+/**
+ * The sitemap's product cap per region (2026-11-07). Search Console had 79 of 81 sampled sitemap URLs as "unknown to Google":
+ * after the 5xx months and the October host moves, Google crawls this site a few pages a day, and a 6,400-URL sitemap spread
+ * that across store pages and long-tail products. The sitemap now names each region's most-stocked strong products only
+ * (`sitemapProductSlugs`); every other strong or middle page stays indexable and linked, just not listed. Widen these once
+ * Search Console shows most listed product pages "Indexed" (recheck ~2026-11-25).
+ */
+export const SITEMAP_PRODUCTS: Record<string, number> = { US: 300, CA: 200, AU: 200, UK: 150, EU: 150, NZ: 60, SG: 60 };
+
+/** The region's strong products, most in-stock stores first (then most listed), capped at SITEMAP_PRODUCTS. */
+export function sitemapProductSlugs(market: string, rows: { slug: string; productType: string; s: TierStat }[]): string[] {
+  return rows
+    .filter((r) => productInSitemap(r.s, r.productType))
+    .sort((a, b) => b.s.inStockStores - a.s.inStockStores || b.s.listedStores - a.s.listedStores || a.slug.localeCompare(b.slug))
+    .slice(0, SITEMAP_PRODUCTS[market] ?? 60)
+    .map((r) => r.slug);
+}
+
+/** In the sitemap: strong only (and within the region's cap, sitemapProductSlugs). */
 export const productInSitemap = (s: TierStat, productType: string): boolean => productTier(s, productType) === "strong";
 
 /**

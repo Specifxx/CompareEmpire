@@ -5,7 +5,7 @@ import { prisma } from "@/lib/db";
 import { isComparable, statsInMarket } from "@/lib/public-data/joins";
 import { routeRaw } from "@/lib/public-data/route";
 import { activeStoreKeys } from "@/lib/hub-data";
-import { MIN_HUB_PRODUCTS, productInSitemap } from "@/lib/index-tiers";
+import { MIN_HUB_PRODUCTS, sitemapProductSlugs } from "@/lib/index-tiers";
 import { regionOfSitemapId, SITEMAP_IDS, STATIC_SITEMAP_ID, regionSitemap, staticSitemap } from "@/lib/sitemap";
 import { REGION_LIST, type Market } from "@/lib/regions";
 import { thinSections } from "@/lib/section-thin";
@@ -89,13 +89,13 @@ async function setsInMarket(market: Market): Promise<string[]> {
   return rows.map((r) => r.k);
 }
 
-/** The market's strong product pages (lib/index-tiers.ts): the only products the sitemap lists. */
+/** The market's most-stocked strong product pages (lib/index-tiers.ts, capped per region): the only products the sitemap lists. */
 async function strongSlugs(market: Market): Promise<string[]> {
   const rows = await prisma.productStat.findMany({
     where: { market, ...COMPARABLE },
     select: { inStockStores: true, listedStores: true, marketplaceOpen: true, product: { select: { slug: true, productType: true } } },
   });
-  return rows.filter((r) => productInSitemap(r, r.product.productType)).map((r) => r.product.slug);
+  return sitemapProductSlugs(market, rows.map((r) => ({ slug: r.product.slug, productType: r.product.productType, s: r })));
 }
 
 /** When the market's stores were last written by an import (StoreStat.updatedAt, current state). */

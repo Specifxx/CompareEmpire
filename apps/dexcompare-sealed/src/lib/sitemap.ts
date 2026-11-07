@@ -18,6 +18,9 @@ import { STORES } from "./stores";
 
 export const STATIC_SITEMAP_ID = 0;
 
+/** Whether each store's own page is listed (off since 2026-11-07; see staticSitemap). */
+export const SITEMAP_STORE_PAGES = false;
+
 /** /sitemap/<id>.xml per region, in REGION_LIST order: au=1, us=2, uk=3, ca=4, nz=5, eu=6, sg=7. */
 export function sitemapIdOf(region: Region): number {
   return REGION_LIST.findIndex((r) => r.region === region) + 1;
@@ -93,7 +96,10 @@ export function staticSitemap(
     // Pre-order pages, until release day (they are noindexed from then on: lib/preorder-guides.ts).
     for (const { set } of openPreorderGuides(today)) out.push(url(`/${r.region}/preorders/${set.slug}`, m, "daily", 0.8));
   }
-  for (const s of STORES) {
+  // Store pages are out of the sitemap since 2026-11-07 (SITEMAP_STORE_PAGES): nobody searches a shop's page on a comparison
+  // site, and ~900 of them were a seventh of the sitemap while Google read a few URLs a day. They stay indexable, linked from
+  // each region's /stores directory (which stays listed).
+  for (const s of SITEMAP_STORE_PAGES ? STORES : []) {
     if (active && !active.has(s.key)) continue;
     const r = regionOfMarket(s.market);
     if (r) out.push(url(`/${r.region}/stores/${s.key}`, lastmod[s.market], "daily", 0.4));
