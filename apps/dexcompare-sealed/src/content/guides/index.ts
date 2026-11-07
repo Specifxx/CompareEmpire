@@ -20,6 +20,7 @@ import { REGION_LIST } from "../../lib/regions";
 import type { TypeKey } from "../../lib/sealed-title";
 
 export type GuideSlug =
+  | "pokemon-black-friday-2026"
   | "how-many-packs-in-pokemon-products"
   | "booster-box-vs-etb-vs-booster-bundle"
   | "are-pokemon-booster-boxes-worth-it"
@@ -195,6 +196,17 @@ export const GUIDES: readonly Guide[] = [
     regions: "all",
     topic: { types: ["booster-box", "etb", "booster-bundle", "collection"] },
     ebay: { context: "sealed", heading: "Sealed Pokémon on eBay" },
+  },
+  {
+    slug: "pokemon-black-friday-2026",
+    title: "Pokémon TCG Black Friday 2026: the prices to beat",
+    description: "Pokémon TCG Black Friday and Cyber Monday 2026: the newest sets’ booster boxes, ETBs and bundles at the cheapest store today, and five checks before you pay.",
+    kicker: "Black Friday",
+    published: "2026-11-07",
+    updated: "2026-11-07",
+    regions: "all",
+    topic: { types: ["booster-box", "etb", "booster-bundle"] },
+    ebay: { context: "type:booster-boxes", heading: "Pokémon booster boxes on eBay" },
   },
   {
     slug: "how-to-avoid-resealed-pokemon-products",

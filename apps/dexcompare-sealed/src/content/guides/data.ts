@@ -423,6 +423,13 @@ export async function loadGuideData(slug: GuideSlug, r: RegionInfo, now: Date = 
       const open = sortCards(list.filter(cardOpen));
       return done({ sets: [code, prev], bySet: { [code]: open, [prev]: cal.get(prev) ?? [] }, openCount: { [code]: open.length } });
     }
+    case "pokemon-black-friday-2026": {
+      // The resealed guide's read for up to three of the four newest released sets with headline product in stock here (≤ 36 rows read).
+      const codes = newestReleased(today, 4).map((s) => s.code);
+      const bySet = Object.fromEntries(await calendarProducts(r.market, codes));
+      const picks = codes.filter((c) => bySet[c]?.length).slice(0, 3);
+      return done({ sets: picks, bySet: Object.fromEntries(picks.map((c) => [c, bySet[c]])) });
+    }
     case "how-to-avoid-resealed-pokemon-products": {
       // As the pack-count guide: the newest released set with headline product in stock here (≤ 27 rows read).
       const codes = newestReleased(today, 3).map((s) => s.code);
