@@ -12,6 +12,8 @@ import { SITE_NAME } from "./site";
 /** The longest title that still gets the " | DexCompare" suffix (R8): over it, the title goes out as title.absolute. */
 export const TITLE_MAX = 65;
 const SUFFIX = ` | ${SITE_NAME}`;
+/** The longest product title at all (Bing flags titles over ~70 characters; Google cuts them about there). */
+export const TITLE_HARD_MAX = 70;
 
 /** A title for Next's metadata: a plain string (templated, " | DexCompare" added) or { absolute } when that would run past 65 characters. */
 export type PageTitle = string | { absolute: string };
@@ -44,7 +46,13 @@ export function openWhere(open: readonly { marketplace: boolean }[], noun: strin
  */
 export function productTitle(o: { name: string; market: string; inName: string; cheapestCents: number | null; where: string | null }): PageTitle {
   const name = withPokemon(o.name);
-  const t = o.cheapestCents != null && o.where ? `${name} — from ${money(o.cheapestCents, o.market)} ${o.where}` : `${name} — price & stock in ${o.inName}`;
+  // A ladder (2026-11-08, Bing's "title too long"): the fullest title that fits TITLE_HARD_MAX, dropping first "and on TCGplayer",
+  // then the store count, then the price; a name longer than that alone goes out as it is.
+  const price = o.cheapestCents != null && o.where ? money(o.cheapestCents, o.market) : null;
+  const ladder = price
+    ? [`${name} — from ${price} ${o.where}`, `${name} — from ${price} ${o.where!.replace(/ and on TCGplayer$/, "")}`, `${name} — from ${price}`]
+    : [`${name} — price & stock in ${o.inName}`, `${name} — price & stock`];
+  const t = ladder.find((x) => x.length <= TITLE_HARD_MAX) ?? name;
   return fitTitle(t);
 }
 
