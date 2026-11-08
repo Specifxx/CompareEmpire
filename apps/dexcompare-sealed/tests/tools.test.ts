@@ -228,14 +228,15 @@ test("store intro: its own numbers, its range of sets, how often it is cheapest;
   assert.equal(storeIndexable({ listed: 3, dormant: false }), true);
 });
 
-test("sitemap: the tools index and every tool in every region, once each", () => {
+test("sitemap: the tools index in every region, every tool once in each indexed region (US, AU, UK, CA) and nowhere else", () => {
   const urls = staticSitemap({}).map((e) => e.url);
   for (const r of REGION_LIST) {
     assert.ok(urls.includes(`${SITE_URL}/${r.region}/tools`), r.region);
-    for (const t of TOOLS) assert.equal(urls.filter((u) => u === `${SITE_URL}/${r.region}/tools/${t.slug}`).length, 1, `${r.region}/${t.slug}`);
+    const indexed = ["us", "au", "uk", "ca"].includes(r.region);
+    for (const t of TOOLS) assert.equal(urls.filter((u) => u === `${SITE_URL}/${r.region}/tools/${t.slug}`).length, indexed ? 1 : 0, `${r.region}/${t.slug}`);
   }
   // and the new guides, AU-only ones in AU only
   assert.ok(urls.includes(`${SITE_URL}/au/guides/where-to-buy-pokemon-cards-australia`));
   assert.ok(!urls.includes(`${SITE_URL}/us/guides/where-to-buy-pokemon-cards-australia`));
-  for (const r of REGION_LIST) assert.ok(urls.includes(`${SITE_URL}/${r.region}/guides/pokemon-tcg-market-wrap`), r.region);
+  for (const r of REGION_LIST) assert.equal(urls.includes(`${SITE_URL}/${r.region}/guides/pokemon-tcg-market-wrap`), ["us", "au", "uk", "ca"].includes(r.region), r.region);
 });

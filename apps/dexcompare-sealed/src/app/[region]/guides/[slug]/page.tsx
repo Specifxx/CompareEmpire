@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { detailIndexed } from "@/lib/index-tiers";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { Ago } from "@/components/Ago";
@@ -31,7 +32,9 @@ export function generateMetadata({ params }: { params: { region: string; slug: s
     description: g.description,
     path: `/${r.region}/guides/${g.slug}`,
     // hreflang lists only the regions the guide is offered in (the MSRP guide: the US alone).
-    alternates: regionAlternates(r.region, `/guides/${g.slug}`, guideRegions(g)),
+    // Indexed in INDEXED_DETAIL_REGIONS only (2026-11-08): elsewhere noindex, its own canonical and no hreflang.
+    alternates: detailIndexed(r.region) ? regionAlternates(r.region, `/guides/${g.slug}`, guideRegions(g).filter(detailIndexed)) : undefined,
+    noindex: !detailIndexed(r.region),
   });
   return {
     ...meta,

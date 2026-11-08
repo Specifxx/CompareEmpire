@@ -15,6 +15,7 @@ import { JAPANESE_TYPES, PRODUCT_TYPES } from "./sealed-title";
 import { SETS } from "./sets";
 import { SITE_URL } from "./site";
 import { STORES } from "./stores";
+import { detailIndexed } from "./index-tiers";
 
 export const STATIC_SITEMAP_ID = 0;
 
@@ -106,11 +107,11 @@ export function staticSitemap(
   }
   // Every guide, in each region it is offered in (the registry is pure: no database read). No lastmod: a guide's live blocks
   // change with each import, but its text only when it is edited.
-  for (const r of REGION_LIST) for (const g of guidesFor(r.region)) out.push(url(`/${r.region}/guides/${g.slug}`, null, "weekly", 0.6));
+  for (const r of REGION_LIST) for (const g of detailIndexed(r.region) ? guidesFor(r.region) : []) out.push(url(`/${r.region}/guides/${g.slug}`, null, "weekly", 0.6));
   // The tools (src/content/tools): the index and every tool, in every region. No lastmod: their copy changes only when edited.
   for (const r of REGION_LIST) {
     out.push(url(`/${r.region}/tools`, null, "monthly", 0.5));
-    for (const t of TOOLS) if (toolRegions(t).includes(r.region)) out.push(url(`/${r.region}/tools/${t.slug}`, null, "monthly", 0.6));
+    for (const t of TOOLS) if (detailIndexed(r.region) && toolRegions(t).includes(r.region)) out.push(url(`/${r.region}/tools/${t.slug}`, null, "monthly", 0.6));
   }
   // The one guide that compares every market, at its single region-less URL.
   out.push(url(COUNTRY_GUIDE.path, null, "weekly", 0.6));

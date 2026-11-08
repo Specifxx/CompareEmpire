@@ -222,3 +222,22 @@ What changed:
 
 Widen `SITEMAP_PRODUCTS` once Search Console shows most listed product pages "Indexed" (recheck ~2026-11-25). Don't flip the
 canonical host again: each move resets what Google knows.
+
+## 2026-11-08 — Google indexes the four big regions' products and guides; the footer links one "Our sites" page
+
+The owner's Claude in Chrome audit of Search Console (2026-11-08): nothing blocks Google (clean pages, 169 ms, no host
+problems, no manual action), 8,899 URLs "Discovered – currently not indexed", Googlebot spends 70% of its fetches on scripts
+and JSON, no outside site links here, and ~9,000 site-wide keyword footer links come from our own sites. CamCompare, newer,
+is indexed (2.77K pages) and hides 1,841 thin pages; this site offered all 6,408 to Google, seven regional copies of most
+products and of every guide.
+
+- **NZ, SG and EU product, guide and tool pages are `noindex`** (`INDEXED_DETAIL_REGIONS` in `lib/index-tiers.ts`: US, AU,
+  UK, CA), out of the sitemap and out of every hreflang set. Their region home, sealed, set and type hubs stay indexable, and
+  every page stays for visitors. Products with fewer than three listings were already `noindex` (2026-11-07). The sitemap's
+  products: US 300, CA and AU 200, UK 150 (`SITEMAP_PRODUCTS`).
+- **The footer links `/our-sites` once** instead of eight keyword-titled sister links on every page; that page lists each
+  other site once by its plain name. The other sites' footers still link here site-wide (their own repos; to be changed the
+  same way).
+- Not changed: the scripts Googlebot fetches (27 per page) are Next's own chunks, and no cheap cut was found.
+
+Never change the host again. Recheck ~2026-11-25; add EU back first when the core is indexed.
