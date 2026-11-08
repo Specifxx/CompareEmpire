@@ -147,6 +147,9 @@ jobs:
           AMAZON_CREATORS_AU_CLIENT_ID: ${{ secrets.AMAZON_CREATORS_AU_CLIENT_ID }}
           AMAZON_CREATORS_AU_CLIENT_SECRET: ${{ secrets.AMAZON_CREATORS_AU_CLIENT_SECRET }}
           AMAZON_CREATORS_AU_VERSION: ${{ secrets.AMAZON_CREATORS_AU_VERSION }}
+          AMAZON_CREATORS_US_CLIENT_ID: ${{ secrets.AMAZON_CREATORS_US_CLIENT_ID }}
+          AMAZON_CREATORS_US_CLIENT_SECRET: ${{ secrets.AMAZON_CREATORS_US_CLIENT_SECRET }}
+          AMAZON_CREATORS_US_VERSION: ${{ secrets.AMAZON_CREATORS_US_VERSION }}
         run: npx tsx scripts/amazon-asins.ts
 
       - name: Deal and restock feed
