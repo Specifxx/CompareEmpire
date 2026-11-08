@@ -49,6 +49,16 @@ export function productTier(s: TierStat, productType: string): IndexTier {
   return "middle";
 }
 
+/**
+ * The regions whose product, guide and tool pages Google is asked to index (owner, 2026-11-08, after the Search Console audit:
+ * a new site with no outside links offering seven near-identical regional copies of every product and guide gets cautious
+ * treatment). NZ, SG and EU keep every page for visitors, but their product, guide and tool pages are `noindex`, out of the
+ * sitemap and out of every hreflang set. Their home, sealed, set and type hubs stay indexable. Add a region back once the core
+ * is indexed (recheck ~2026-11-25).
+ */
+export const INDEXED_DETAIL_REGIONS: readonly string[] = ["us", "au", "uk", "ca"];
+export const detailIndexed = (region: string): boolean => INDEXED_DETAIL_REGIONS.includes(region);
+
 /** Noindex: no stats row in this market, or a thin one. */
 export const productNoindex = (s: TierStat | null | undefined, productType: string): boolean => !s || productTier(s, productType) === "thin";
 
@@ -59,14 +69,14 @@ export const productNoindex = (s: TierStat | null | undefined, productType: stri
  * (`sitemapProductSlugs`); every other strong or middle page stays indexable and linked, just not listed. Widen these once
  * Search Console shows most listed product pages "Indexed" (recheck ~2026-11-25).
  */
-export const SITEMAP_PRODUCTS: Record<string, number> = { US: 300, CA: 200, AU: 200, UK: 150, EU: 150, NZ: 60, SG: 60 };
+export const SITEMAP_PRODUCTS: Record<string, number> = { US: 300, CA: 200, AU: 200, UK: 150, EU: 0, NZ: 0, SG: 0 };
 
 /** The region's strong products, most in-stock stores first (then most listed), capped at SITEMAP_PRODUCTS. */
 export function sitemapProductSlugs(market: string, rows: { slug: string; productType: string; s: TierStat }[]): string[] {
   return rows
     .filter((r) => productInSitemap(r.s, r.productType))
     .sort((a, b) => b.s.inStockStores - a.s.inStockStores || b.s.listedStores - a.s.listedStores || a.slug.localeCompare(b.slug))
-    .slice(0, SITEMAP_PRODUCTS[market] ?? 60)
+    .slice(0, SITEMAP_PRODUCTS[market] ?? 0)
     .map((r) => r.slug);
 }
 
