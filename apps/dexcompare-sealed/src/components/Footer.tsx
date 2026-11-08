@@ -36,7 +36,7 @@ export function footerColumns(region: Region | null, listed?: ReadonlySet<string
   return [
     {
       title: "Shop",
-      links: [s("boosterBoxes", "Booster boxes"), s("etbs", "Elite Trainer Boxes"), s("bundles", "Booster bundles"), s("upcs", "Ultra-Premium Collections"), s("tins", "Tins"), s("japanese", "Japanese booster boxes"), s("perPack", "Cheapest per pack")],
+      links: [s("boosterBoxes", "Booster boxes"), s("etbs", "Elite Trainer Boxes"), s("bundles", "Booster bundles"), s("upcs", "Ultra-Premium Collections"), s("tins", "Tins"), s("japanese", "Japanese booster boxes"), s("pokemon", "Shop by Pokémon"), s("perPack", "Cheapest per pack")],
     },
     // The newest released set first, the one on pre-order second (release.ts featureOrder): never a pre-order at the top.
     { title: "Latest sets", links: menuSets(6, undefined, listed).map((c) => SET_BY_CODE.get(c)!).map((set) => ({ href: `/${region}/sets/${set.slug}`, label: set.name })) },

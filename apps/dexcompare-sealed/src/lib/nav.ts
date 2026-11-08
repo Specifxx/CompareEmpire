@@ -33,6 +33,7 @@ export function navGroups(region: Region, today: string = new Date().toISOString
         s("tins", "Tins"),
         type("booster-packs", "Booster packs"),
         s("japanese", "Japanese boxes"),
+        s("pokemon", "Shop by Pokémon"),
         s("sealed", "All sealed"),
       ],
     },

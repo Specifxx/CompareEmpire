@@ -45,6 +45,7 @@ export const SECTION_PATHS = {
   upcs: "/type/ultra-premium-collections",
   tins: "/type/tins",
   japanese: "/japanese",
+  pokemon: "/pokemon",
   perPack: "/cheapest-packs",
   sets: "/sets",
   releases: "/releases",

@@ -125,6 +125,8 @@ export interface RegionSitemapData {
   setCodes: Iterable<string>;
   /** Slugs of the market's comparable products (data.ts COMPARABLE). */
   productSlugs: Iterable<string>;
+  /** Pokémon hubs (lib/pokemon-hubs.ts) with POKEMON_INDEX_MIN comparable products; empty outside INDEXED_DETAIL_REGIONS. */
+  pokemonSlugs?: Iterable<string>;
   lastmod: Date | null;
 }
 
@@ -139,6 +141,9 @@ export function regionSitemap(r: RegionInfo, d: RegionSitemapData): MetadataRout
   for (const t of japanese) out.push(url(`/${r.region}/type/${t.slug}`, d.lastmod, "daily", 0.6));
   const codes = new Set(d.setCodes);
   for (const s of SETS) if (codes.has(s.code)) out.push(url(`/${r.region}/sets/${s.slug}`, d.lastmod, "daily", 0.6));
+  const pokemon = [...(d.pokemonSlugs ?? [])];
+  if (pokemon.length) out.push(url(`/${r.region}/pokemon`, d.lastmod, "daily", 0.6));
+  for (const slug of pokemon) out.push(url(`/${r.region}/pokemon/${slug}`, d.lastmod, "daily", 0.6));
   for (const slug of d.productSlugs) out.push(url(`/${r.region}/p/${slug}`, d.lastmod, "daily", 0.7));
   return out;
 }
