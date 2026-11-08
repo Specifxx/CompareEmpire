@@ -25,13 +25,11 @@ export function BallParts() {
 }
 
 export function LogoMark({ className = "h-8 w-8" }: { className?: string }) {
-  // In a host span so the Christmas Santa hat (globals.css .xmas-logo-hat, hidden outside the season) can sit on the mark.
   return (
-    <span className="xmas-hat-host">
+    <span className="relative inline-flex shrink-0">
       <svg viewBox="0 0 64 64" className={className} aria-hidden="true">
         <BallParts />
       </svg>
-      <span aria-hidden="true" className="xmas-logo-hat" />
     </span>
   );
 }

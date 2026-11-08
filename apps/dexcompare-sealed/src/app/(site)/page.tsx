@@ -14,7 +14,6 @@ import { DEFAULT_OG_IMAGE } from "@/lib/seo";
 import { SITE_NAME, SITE_URL, sectionHref } from "@/lib/site";
 import { STORES } from "@/lib/stores";
 import { GhostTeaser, HalloweenDecor } from "@/components/season/HalloweenDecor";
-import { ChristmasDecor } from "@/components/season/ChristmasDecor";
 import { ChristmasGifts } from "@/components/season/ChristmasGifts";
 import { CreatorsCornerBadge } from "@/components/creators/CreatorsCornerBadge";
 
@@ -67,7 +66,6 @@ export default async function Landing() {
           {/* The creators hub, above the fold (owner, 2026-11-03): top-right corner from sm, a centred pill above the headline on a phone. */}
           <CreatorsCornerBadge />
           <HalloweenDecor />
-          <ChristmasDecor />
           <GhostTeaser />
           <ChristmasGifts />
           <h1 className="mx-auto max-w-3xl font-display text-4xl font-bold leading-[1.05] tracking-tight sm:text-6xl">
