@@ -5,7 +5,9 @@
 import { cardSelect, OPEN, toCard, type ProductCardData } from "./data";
 import { prisma } from "./db";
 import type { Market } from "./regions";
-import { isOpen, statsInMarket } from "./public-data/joins";
+import { Prisma } from "@prisma/client";
+import { ascNullsLast, cardRow, isComparable, isOpen, statsInMarket } from "./public-data/joins";
+import { namesPokemon, pokemonOfName, pokemonSqlPattern, type PokemonHub } from "./pokemon-hubs";
 import { routeRaw } from "./public-data/route";
 import { publicRows } from "./public-data/store";
 import { STORE_MIN_LISTED } from "./hub-copy";
@@ -175,4 +177,61 @@ export async function activeStoreKeys(): Promise<string[]> {
   const rows = await routeRaw(fromFiles, () => prisma.$queryRaw<{ keys: string[] | null }[]>`
     SELECT array_agg("store" ORDER BY "store") AS "keys" FROM "StoreStat" WHERE "listed" >= ${STORE_MIN_LISTED} AND NOT "dormant"`);
   return rows[0]?.keys ?? [];
+}
+
+// ─── Pokémon hubs (lib/pokemon-hubs.ts, DECISIONS.md 2026-11-08) ──────────────────────────────────────────────────────
+
+export interface PokemonPageData {
+  /** Open products, cheapest first (at most TYPE_OPEN_TAKE). */
+  open: ProductCardData[];
+  /** Sold out everywhere, most-listed first (at most TYPE_SOLD_TAKE). */
+  sold: ProductCardData[];
+  openCount: number;
+  /** Comparable products (open, or listed by 2+ stores): what decides indexing. */
+  comparable: number;
+}
+
+type PokemonRaw = ReturnType<typeof cardRow>;
+const POKEMON_COLUMNS = Prisma.sql`s."lowestPriceCents", s."inStockStores", s."listedStores", s."marketplaceOpen", s."medianOpenCents", p.slug, p.name, p."productType", p."setCode", p."imageUrl"`;
+const rawToCard = (r: PokemonRaw): ProductCardData =>
+  toCard({
+    lowestPriceCents: r.lowestPriceCents,
+    inStockStores: r.inStockStores,
+    listedStores: r.listedStores,
+    marketplaceOpen: r.marketplaceOpen,
+    medianOpenCents: r.medianOpenCents,
+    product: { slug: r.slug, name: r.name, productType: r.productType, setCode: r.setCode, imageUrl: r.imageUrl },
+  });
+
+/** One Pokémon's products in the market: one scoped read (names matching the Pokémon, capped at 400 rows). */
+export async function pokemonPageData(market: Market, hub: PokemonHub): Promise<PokemonPageData> {
+  const fromFiles = (): PokemonRaw[] => statsInMarket(market).filter(({ p }) => namesPokemon(hub, String(p.name))).map(cardRow).slice(0, 400);
+  const rows = await routeRaw(fromFiles, () => prisma.$queryRaw<PokemonRaw[]>`
+    SELECT ${POKEMON_COLUMNS}
+    FROM "ProductStat" s JOIN "Product" p ON p."id" = s."productId"
+    WHERE s."market" = ${market} AND p."name" ~* ${pokemonSqlPattern(hub)}
+    LIMIT 400`);
+  const open = rows.filter((r) => r.inStockStores > 0 || r.marketplaceOpen);
+  const sold = rows.filter((r) => r.inStockStores === 0 && !r.marketplaceOpen);
+  return {
+    open: open.sort((a, b) => ascNullsLast(a.lowestPriceCents, b.lowestPriceCents) || a.name.localeCompare(b.name)).slice(0, TYPE_OPEN_TAKE).map(rawToCard),
+    sold: sold.sort((a, b) => b.listedStores - a.listedStores || a.name.localeCompare(b.name)).slice(0, TYPE_SOLD_TAKE).map(rawToCard),
+    openCount: open.length,
+    comparable: rows.filter((r) => r.inStockStores > 0 || r.marketplaceOpen || r.listedStores >= 2).length,
+  };
+}
+
+/** Per Pokémon, how many comparable products the market lists (the index page and the sitemap): one read of names only. */
+export async function pokemonCounts(market: Market): Promise<Map<string, number>> {
+  const fromFiles = () =>
+    statsInMarket(market)
+      .filter(({ s }) => isComparable(s))
+      .map(({ p }) => ({ name: String(p.name) }));
+  const rows = await routeRaw(fromFiles, () => prisma.$queryRaw<{ name: string }[]>`
+    SELECT p."name" FROM "ProductStat" s JOIN "Product" p ON p."id" = s."productId"
+    WHERE s."market" = ${market} AND (s."inStockStores" > 0 OR s."marketplaceOpen" OR s."listedStores" >= 2)
+    LIMIT 5000`);
+  const out = new Map<string, number>();
+  for (const { name } of rows) for (const h of pokemonOfName(name)) out.set(h.slug, (out.get(h.slug) ?? 0) + 1);
+  return out;
 }

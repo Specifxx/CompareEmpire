@@ -4,8 +4,9 @@ import { COMPARABLE } from "@/lib/data";
 import { prisma } from "@/lib/db";
 import { isComparable, statsInMarket } from "@/lib/public-data/joins";
 import { routeRaw } from "@/lib/public-data/route";
-import { activeStoreKeys } from "@/lib/hub-data";
-import { MIN_HUB_PRODUCTS, sitemapProductSlugs } from "@/lib/index-tiers";
+import { activeStoreKeys, pokemonCounts } from "@/lib/hub-data";
+import { POKEMON_INDEX_MIN } from "@/lib/pokemon-hubs";
+import { detailIndexed, MIN_HUB_PRODUCTS, sitemapProductSlugs } from "@/lib/index-tiers";
 import { regionOfSitemapId, SITEMAP_IDS, STATIC_SITEMAP_ID, regionSitemap, staticSitemap } from "@/lib/sitemap";
 import { REGION_LIST, type Market } from "@/lib/regions";
 import { thinSections } from "@/lib/section-thin";
@@ -42,13 +43,15 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
     }
     const r = regionOfSitemapId(n);
     if (!r) return [];
-    const [typeLabels, setCodes, productSlugs, lastmod] = await Promise.all([
+    const [typeLabels, setCodes, productSlugs, lastmod, pokemon] = await Promise.all([
       typesInMarket(r.market),
       setsInMarket(r.market),
       strongSlugs(r.market),
       lastImport(r.market),
+      detailIndexed(r.region) ? pokemonCounts(r.market) : Promise.resolve(new Map<string, number>()),
     ]);
-    return regionSitemap(r, { typeLabels, setCodes, productSlugs, lastmod });
+    const pokemonSlugs = [...pokemon].filter(([, n]) => n >= POKEMON_INDEX_MIN).map(([slug]) => slug);
+    return regionSitemap(r, { typeLabels, setCodes, productSlugs, pokemonSlugs, lastmod });
   } catch (e) {
     if (process.env.NEXT_PHASE === "phase-production-build") {
       console.error(`sitemap/${n}: database unavailable at build (${(e as Error).message}); written without products until the first refresh.`);

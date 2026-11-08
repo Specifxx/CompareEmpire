@@ -88,6 +88,7 @@ export const MENU_ROWS: { key: SectionKey; label: string; glyph: IconName | Glyp
   { key: "etbs", label: "ETBs", glyph: "etb" },
   { key: "bundles", label: "Booster bundles", glyph: "bundle" },
   { key: "japanese", label: "Japanese boxes", glyph: "cube" },
+  { key: "pokemon", label: "Shop by Pokémon", glyph: "grid" },
   { key: "perPack", label: "Cheapest per pack", glyph: "pack" },
   { key: "sets", label: "Sets", glyph: "layers" },
   { key: "releases", label: "Releases", glyph: "calendar" },
