@@ -20,10 +20,10 @@ import ToolsIndex from "../src/app/[region]/tools/page";
 (globalThis as unknown as { React: typeof React }).React = React;
 const text = (html: string) => html.replace(/<script[\s\S]*?<\/script>/g, " ").replace(/<[^>]+>/g, " ").replace(/&#x27;|&#39;/g, "'").replace(/&amp;/g, "&").replace(/\s+/g, " ");
 
-test("registry: five tools, unique slugs, descriptions ≤ 160, titles that fit a <title>, an FAQ of four or more, guides that exist, no banned copy", () => {
+test("registry: six tools, unique slugs, descriptions ≤ 160, titles that fit a <title>, an FAQ of four or more, guides that exist, no banned copy", () => {
   assert.deepEqual(
     TOOLS.map((t) => t.slug),
-    ["value-checker", "trade-calculator", "selling-fee-calculator", "grading-value-calculator", "deck-builder"],
+    ["is-this-a-good-price", "value-checker", "trade-calculator", "selling-fee-calculator", "grading-value-calculator", "deck-builder"],
   );
   for (const t of TOOLS) {
     assert.ok(t.description.length <= 160, `${t.slug}: description ${t.description.length}`);
