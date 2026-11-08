@@ -34,4 +34,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+      # Which URLs were sent when (src/lib/indexnow.ts pickUrls): new URLs first, then each again about weekly, 100 a request
+      # (Bing, 2026-11-08: no whole-sitemap dumps). Kept in the Actions cache, never committed.
+      - uses: actions/cache/restore@v4
+        with:
+          path: apps/dexcompare-sealed/.indexnow-state.json
+          key: dexcompare-indexnow-state-${{ github.run_id }}
+          restore-keys: dexcompare-indexnow-state-
       - run: npx --yes tsx scripts/indexnow-submit.ts
+      - uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: apps/dexcompare-sealed/.indexnow-state.json
+          key: dexcompare-indexnow-state-${{ github.run_id }}

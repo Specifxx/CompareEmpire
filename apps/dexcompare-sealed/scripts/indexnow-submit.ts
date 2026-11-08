@@ -11,7 +11,11 @@
 // when the sitemap is empty: a "0 of N submitted" on a green run is invisible.
 // A first submission for a host is often answered 403 SiteVerificationNotCompleted
 // while the engine fetches the key file; the run waits and retries a few times.
-import { INDEXNOW_BATCH, isIndexNowKey, sitemapUrls, submissionPlan } from "../src/lib/indexnow";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { INDEXNOW_BATCH, isIndexNowKey, nextState, pickUrls, sitemapUrls, submissionPlan, type SentState } from "../src/lib/indexnow";
+
+// Kept between runs by the workflow's Actions cache; a missing or unreadable file means "nothing sent yet".
+const STATE_FILE = process.env.INDEXNOW_STATE || ".indexnow-state.json";
 
 const UA = "DexCompare-indexnow (+https://dexcompare.app)";
 
@@ -48,10 +52,19 @@ async function main() {
     return;
   }
 
-  console.log(`IndexNow: ${plan.urls.length} URLs for ${plan.host}.`);
+  const today = new Date().toISOString().slice(0, 10);
+  let state: SentState = {};
+  try {
+    if (existsSync(STATE_FILE)) state = JSON.parse(readFileSync(STATE_FILE, "utf8")) as SentState;
+  } catch {
+    state = {};
+  }
+  const pick = pickUrls(plan.urls, state, today);
+  console.log(`IndexNow: ${plan.urls.length} sitemap URLs for ${plan.host}; sending ${pick.length} (new, then unsent for a week), ${INDEXNOW_BATCH} a request.`);
+  const done: string[] = [];
   let sent = 0;
-  for (let i = 0; i < plan.urls.length; i += INDEXNOW_BATCH) {
-    const batch = plan.urls.slice(i, i + INDEXNOW_BATCH);
+  for (let i = 0; i < pick.length; i += INDEXNOW_BATCH) {
+    const batch = pick.slice(i, i + INDEXNOW_BATCH);
     const n = i / INDEXNOW_BATCH + 1;
     for (let attempt = 1; ; attempt++) {
       const r = await fetch("https://api.indexnow.org/indexnow", {
@@ -63,6 +76,7 @@ async function main() {
       console.log(`batch ${n}: ${batch.length} URLs → HTTP ${r.status}${body ? ` — ${body}` : ""}`);
       if (r.ok) {
         sent += batch.length;
+        done.push(...batch);
         break;
       }
       // The engine is still fetching the key file for a new host: wait and retry, a few times.
@@ -72,9 +86,11 @@ async function main() {
       }
       break;
     }
+    if (i + INDEXNOW_BATCH < pick.length) await sleep(2_000);
   }
-  console.log(`IndexNow: ${sent} of ${plan.urls.length} URLs submitted for ${plan.host}.`);
-  if (sent < plan.urls.length) {
+  writeFileSync(STATE_FILE, JSON.stringify(nextState(plan.urls, state, done, today)));
+  console.log(`IndexNow: ${sent} of ${pick.length} URLs submitted for ${plan.host}.`);
+  if (sent < pick.length) {
     console.error("IndexNow refused part of the submission (above): failing the run.");
     process.exitCode = 1;
   }

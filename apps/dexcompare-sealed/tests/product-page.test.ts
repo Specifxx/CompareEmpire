@@ -282,7 +282,12 @@ test("the title: Pokémon + name + the cheapest open price and where; TCGplayer 
   assert.equal(openWhere(open(0, true), "US store"), "on TCGplayer");
   assert.equal(openWhere(open(1, false), "Australian store"), "at 1 Australian store");
   const t = productTitle({ name: "Pitch Black Elite Trainer Box", market: "US", inName: "the US", cheapestCents: 5499, where: "at 19 US stores and on TCGplayer" });
-  assert.deepEqual(t, { absolute: "Pokémon Pitch Black Elite Trainer Box — from $54.99 at 19 US stores and on TCGplayer" });
+  assert.deepEqual(t, { absolute: "Pokémon Pitch Black Elite Trainer Box — from $54.99 at 19 US stores" }, "too long with 'and on TCGplayer': the next rung");
+  const long = productTitle({ name: "Shrouded Fable Special Illustration Collection Kingdra ex", market: "US", inName: "the US", cheapestCents: 3999, where: "at 4 US stores and on TCGplayer" });
+  assert.ok(renderedTitle(long).length <= 70, renderedTitle(long));
+  assert.match(renderedTitle(long), /^Pokémon Shrouded Fable Special Illustration Collection Kingdra ex/);
+  const short = productTitle({ name: "151 ETB", market: "US", inName: "the US", cheapestCents: 5499, where: "at 3 US stores and on TCGplayer" });
+  assert.equal(renderedTitle(short), "Pokémon 151 ETB — from $54.99 at 3 US stores and on TCGplayer", "a short name keeps the full title");
   const sold = productTitle({ name: "Vivid Voltage ETB", market: "UK", inName: "the UK", cheapestCents: null, where: null });
   assert.equal(sold, "Pokémon Vivid Voltage ETB — price & stock in the UK");
   assert.equal(renderedTitle(sold), "Pokémon Vivid Voltage ETB — price & stock in the UK | DexCompare");

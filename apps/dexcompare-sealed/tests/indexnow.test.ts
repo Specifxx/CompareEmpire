@@ -41,7 +41,7 @@ test("the request names the host of the sitemap's own URLs (www), never the apex
 test("the job fails loudly: a refused batch, no key file, an empty sitemap; daily after the evening import", () => {
   const s = read("scripts/indexnow-submit.ts");
   assert.match(s, /host: plan\.host, key, keyLocation: plan\.keyLocation/);
-  assert.match(s, /if \(sent < plan\.urls\.length\) \{[\s\S]*?process\.exitCode = 1/);
+  assert.match(s, /if \(sent < pick\.length\) \{[\s\S]*?process\.exitCode = 1/);
   assert.match(s, /does not serve a key[\s\S]*?process\.exitCode = 1/);
   assert.match(s, /listed no page URLs[\s\S]*?process\.exitCode = 1/);
   assert.match(s, /SiteVerificationNotCompleted/, "a new host's first answer is retried, not a failure on the spot");
@@ -56,4 +56,21 @@ test("the key file route reads no data and is built once per deploy", () => {
   assert.match(route, /export const dynamic = "force-static"/);
   assert.match(route, /indexNowKey\(\)/);
   assert.doesNotMatch(route, /@\/lib\/(db|data)/);
+});
+
+test("IndexNow sends small batches: new URLs first, then each about weekly, never the whole sitemap (Bing, 2026-11-08)", async () => {
+  const { INDEXNOW_BATCH, INDEXNOW_RUN_MAX, nextState, pickUrls } = await import("../src/lib/indexnow");
+  assert.ok(INDEXNOW_BATCH <= 100 && INDEXNOW_RUN_MAX <= 500);
+  const urls = ["a", "b", "c", "d"].map((x) => `https://dexcompare.app/${x}`);
+  const [a, b, c, d] = urls;
+  assert.deepEqual(pickUrls(urls, {}, "2026-11-08", 2), [a, b], "nothing sent yet: sitemap order, capped");
+  const sent = { [a!]: "2026-11-08", [b!]: "2026-10-20", [c!]: "2026-10-30", "https://dexcompare.app/gone": "2026-10-01" };
+  assert.deepEqual(pickUrls(urls, sent, "2026-11-08"), [d, b, c], "new first, then the longest-unsent; today's never again");
+  assert.deepEqual(pickUrls(urls, { [a!]: "2026-11-05", [b!]: "2026-11-05", [c!]: "2026-11-05", [d!]: "2026-11-05" }, "2026-11-08"), [], "all sent this week");
+  const next = nextState(urls, sent, [d!], "2026-11-08");
+  assert.equal(next[d!], "2026-11-08");
+  assert.equal(next["https://dexcompare.app/gone"], undefined, "URLs no longer in the sitemap are forgotten");
+  const script = readFileSync(new URL("../scripts/indexnow-submit.ts", import.meta.url), "utf8");
+  assert.match(script, /pickUrls\(plan\.urls, state, today\)/);
+  assert.doesNotMatch(script, /plan\.urls\.slice\(i/, "never the whole sitemap");
 });

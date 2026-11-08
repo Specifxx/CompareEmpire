@@ -64,5 +64,34 @@ export function submissionPlan(urls: readonly string[]): SubmissionPlan | null {
   return { origin, host, keyLocation: `${origin}/indexnow.txt`, urls: same, dropped: urls.length - same.length };
 }
 
-/** IndexNow takes at most 10,000 URLs per request. */
-export const INDEXNOW_BATCH = 10_000;
+/**
+ * Small batches (2026-11-08, Bing Webmaster: "IndexNow is in batch mode"): IndexNow takes 10,000 URLs a request, but Bing
+ * wants a few URLs as they change, not the whole sitemap every day.
+ */
+export const INDEXNOW_BATCH = 100;
+/** The most URLs one run sends: new URLs first, then the longest-unsent, never one sent in the last REFRESH_DAYS. */
+export const INDEXNOW_RUN_MAX = 300;
+export const INDEXNOW_REFRESH_DAYS = 7;
+
+/** When each URL was last sent (ISO date), kept between runs in the Actions cache (scripts/indexnow-submit.ts). */
+export type SentState = Record<string, string>;
+
+/**
+ * What a run sends: URLs never sent (in sitemap order, hubs first), then those sent longest ago and at least REFRESH_DAYS ago,
+ * up to INDEXNOW_RUN_MAX. Every price page changes daily, so a sitemap lastmod says nothing; this sends each URL about weekly.
+ */
+export function pickUrls(urls: readonly string[], sent: SentState, today: string, max = INDEXNOW_RUN_MAX, refreshDays = INDEXNOW_REFRESH_DAYS): string[] {
+  const fresh = urls.filter((u) => !sent[u]);
+  const cutoff = new Date(Date.parse(`${today}T00:00:00Z`) - refreshDays * 86_400_000).toISOString().slice(0, 10);
+  const stale = urls.filter((u) => sent[u] && sent[u]! <= cutoff).sort((a, b) => sent[a]!.localeCompare(sent[b]!));
+  return [...fresh, ...stale].slice(0, max);
+}
+
+/** The state after a run: today for what was sent, and only URLs still in the sitemap. */
+export function nextState(urls: readonly string[], sent: SentState, done: readonly string[], today: string): SentState {
+  const keep = new Set(urls);
+  const out: SentState = {};
+  for (const [u, d] of Object.entries(sent)) if (keep.has(u)) out[u] = d;
+  for (const u of done) out[u] = today;
+  return out;
+}

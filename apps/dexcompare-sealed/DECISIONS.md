@@ -263,3 +263,20 @@ it uses the full screen … maybe the same for the DexCompare / MTG Compare engi
   shortcuts become one sideways row). Region homes show the first two of `hotPicks` (owner's featuring order, photo first) under the
   same "Hot right now" h2; the landing page shows the default region's two most-stocked (`lib/picks.ts`) and swaps to the visitor's
   region through `/api/picks/<region>`. Same h1 words, links, URLs, titles and metadata; nothing in the cards is a heading.
+
+## 2026-11-08 — Bing's recommendations: short product titles, IndexNow in small batches
+
+Bing ranks this site for real searches already (93 clicks, 451 queries, 129 pages; owner's Webmaster Tools read, 2026-11-08),
+so its four recommendations were checked one by one:
+
+- **"Important pages missing from the sitemap"** (`/ca/preorders/delta-reign`, `/uk/this-week`): every region's `this-week` is
+  in the sitemap, and so is every open pre-order page. Delta Reign came out on 6 Nov, so its pre-order page left the sitemap and
+  is `noindex` on purpose (`lib/preorder-guides.ts`); the set page carries those searches. Bing last read the sitemap on 3 Nov.
+- **Titles too long**: a product title is now the fullest rung of a ladder that fits 70 characters (`TITLE_HARD_MAX`,
+  `productTitle`): it drops "and on TCGplayer", then the store count, then the price.
+- **IndexNow in batch mode**: the daily job sent the whole sitemap in one request. It now sends at most 300 URLs a run, 100 a
+  request: URLs never sent first (sitemap order, hubs first), then each again about weekly (`pickUrls`), remembered in the
+  Actions cache (never committed). Every price page changes daily, so a lastmod-based pick would still be the whole sitemap.
+- **Links from high-quality sites**: not a code change.
+
+The www → apex redirect is Vercel's domain setting and stays as it is.
