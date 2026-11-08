@@ -289,3 +289,12 @@ now 301 to `/au/tools/value-checker`, AU like the other legacy redirects. The la
 (`components/home/PopularPages.tsx`): plain server-rendered links to the newest set in the US, CA, AU and UK, the open
 pre-order, cheapest packs, the cheapest-packs guide, Black Friday, the value checker and the by-country guide, so each is one
 click from the page Google reads. Only regions whose detail pages are indexed (`INDEXED_DETAIL_REGIONS`).
+
+## 2026-11-08 — The alert form asks, unticked, for a weekly price drops email
+
+Owner, on the 2026-11-08 competitor scan: "implement all of this" (gap #5, a weekly email of the biggest price drops).
+The shared `PriceAlertForm.tsx` (byte-identical on every sister site) gains one UNTICKED box, "Also email me this site's
+biggest price drops once a week", sent as `weekly` beside the alert. RiftCompare's alert service does the rest
+(TCGEmpire DECISIONS.md, "A weekly biggest-drops email for the sister sites"): it rides the same double opt-in, builds
+one edition a week from this site's own `/alert-feed.json`, links only to this site's pages (no eBay or Amazon), and
+every email has a one-click stop. This site still stores no address and holds no mail key, and nothing new pops up.
