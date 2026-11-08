@@ -313,6 +313,20 @@ and sees whether it is a good price.
   above it "you can pay less", with the saving. A listing that was out of stock says so instead. eBay, Amazon, marketplaces, stores
   we don't read and unmatched pages fall back to a search from the link's words, and the visitor types the price.
 - Pasting a link into the header search opens the checker (`#link=` in the fragment, so the CDN keeps one copy of the page).
+## 2026-11-08 — Shop by Pokémon: one hub per Pokémon
+
+Owner approved the competitor scan's search-by-need hubs (2026-11-08). Collectors search "Charizard box" or "Umbreon
+collection", not a set name. `/<region>/pokemon/<slug>` lists the sealed products whose OWN NAME names that Pokémon, whole
+words only (Mew is not Mewtwo; `lib/pokemon-hubs.ts`, `tests/pokemon-hubs.test.ts`), cheapest first, with the sold-out ones
+behind the stock filter like a type page; `/<region>/pokemon` is the index. About 60 Pokémon, from every name on 3+ products
+(trainers, sets and mechanics such as "Mega" or "Team Rocket" are not Pokémon and have no hub).
+
+- One scoped read per page (`pokemonPageData`, capped at 400 rows; a Postgres `~*` word-boundary match in db mode), rendered
+  per request and held by the CDN for a day like every hub. No ISR, no prewarming.
+- Indexed only with 3+ comparable products AND only in the four indexed regions (`INDEXED_DETAIL_REGIONS`: US, AU, UK, CA);
+  otherwise `noindex, follow`. The sitemap lists those hubs only; hreflang names only those regions.
+- Linked from the header's shop menu, the sidebar, the phone menu and the footer ("Shop by Pokémon").
+
 
 ## 2026-11-08 — Store badges, free price data and My collection (competitor scan)
 

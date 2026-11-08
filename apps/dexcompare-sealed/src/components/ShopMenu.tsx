@@ -31,6 +31,7 @@ export function shopMenuColumns(region: Region, today: string = new Date().toISO
         s("tins", "Tins"),
         type("booster-packs", "Booster packs"),
         s("japanese", "Japanese boxes"),
+        s("pokemon", "Shop by Pokémon"),
       ],
     },
     { title: "By set", links: [...sets, s("sets", "Every set →")] },
