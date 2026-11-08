@@ -1,7 +1,7 @@
 {
  "v": 1,
  "site": "dex",
- "generatedAt": "2026-11-07T15:26:54.837Z",
+ "generatedAt": "2026-11-08T00:50:35.382Z",
  "links": {
   "AU": {
    "deals": "https://dexcompare.app/au/deals"
@@ -36,9 +36,9 @@
    "currency": "AUD",
    "store": "Grand J Games",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/695400_in_1000x1000.jpg",
-   "refCents": 7500,
+   "refCents": 7750,
    "refLabel": "median store price",
-   "savingPct": 47
+   "savingPct": 48
   },
   {
    "kind": "deal",
@@ -64,7 +64,7 @@
    "currency": "AUD",
    "store": "Turtle TCG",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/684444_in_1000x1000.jpg",
-   "refCents": 32998,
+   "refCents": 33000,
    "refLabel": "median store price",
    "savingPct": 45
   },
@@ -240,20 +240,6 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "US",
-   "title": "30th Celebration - Knock Out Collection",
-   "url": "https://dexcompare.app/us/p/30th-celebration-knock-out-collection",
-   "cents": 1499,
-   "currency": "USD",
-   "store": "Retrofix Games",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/704152_in_1000x1000.jpg",
-   "refCents": 2775,
-   "refLabel": "median store price",
-   "savingPct": 46
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "US",
    "title": "Journey Together - 3 Pack Blister - Scrafty",
    "url": "https://dexcompare.app/us/p/journey-together-3-pack-blister-scrafty",
    "cents": 1500,
@@ -263,6 +249,20 @@
    "refCents": 2799,
    "refLabel": "median store price",
    "savingPct": 46
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "US",
+   "title": "Delta Reign Single Pack Blister [Spritzee]",
+   "url": "https://dexcompare.app/us/p/delta-reign-single-pack-blister-spritzee",
+   "cents": 600,
+   "currency": "USD",
+   "store": "DK's Cards",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/712108_in_1000x1000.jpg",
+   "refCents": 1099,
+   "refLabel": "median store price",
+   "savingPct": 45
   },
   {
    "kind": "deal",
@@ -296,20 +296,6 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "UK",
-   "title": "Pokémon Card 151 Japanese Booster Box (SV2a)",
-   "url": "https://dexcompare.app/uk/p/pokemon-card-151-sv2a-japanese-booster-box",
-   "cents": 14995,
-   "currency": "GBP",
-   "store": "TCGShopUK",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/565243_in_1000x1000.jpg",
-   "refCents": 29247,
-   "refLabel": "median store price",
-   "savingPct": 49
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "UK",
    "title": "Scarlet & Violet Elite Trainer Box",
    "url": "https://dexcompare.app/uk/p/scarlet-violet-elite-trainer-box",
    "cents": 2576,
@@ -331,6 +317,20 @@
    "store": "Rare Pokémon Cards UK",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/624676_in_1000x1000.jpg",
    "refCents": 9999,
+   "refLabel": "median store price",
+   "savingPct": 48
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "UK",
+   "title": "Pokémon Card 151 Japanese Booster Box (SV2a)",
+   "url": "https://dexcompare.app/uk/p/pokemon-card-151-sv2a-japanese-booster-box",
+   "cents": 14995,
+   "currency": "GBP",
+   "store": "TCGShopUK",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/565243_in_1000x1000.jpg",
+   "refCents": 28999,
    "refLabel": "median store price",
    "savingPct": 48
   },
@@ -386,7 +386,7 @@
    "currency": "CAD",
    "store": "Mad Merchant Cards and Games Limited",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/695400_in_1000x1000.jpg",
-   "refCents": 4997,
+   "refCents": 4995,
    "refLabel": "median store price",
    "savingPct": 44
   },
@@ -606,7 +606,7 @@
    "region": "SG",
    "title": "Chaos Rising Elite Trainer Box",
    "url": "https://dexcompare.app/sg/p/chaos-rising-elite-trainer-box",
-   "cents": 8844,
+   "cents": 8843,
    "currency": "SGD",
    "store": "TEFUDA",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/684450_in_1000x1000.jpg",
