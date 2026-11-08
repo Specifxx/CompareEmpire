@@ -250,3 +250,16 @@ logo, candy-cane stripes and seasonal palette swaps) is gone, with its art in `p
 touch, drawn in the site's own colours: the gifts line in the hero (`ChristmasGifts`, `.xmas-pill`), a plain pill that inherits the hero's text colour, with no gift icon or red glow. It still starts and ends by itself (`lib/season.ts`, 1 November to
 Boxing Day), and the tests pin that nothing else comes back. Black Friday and Cyber Monday (strip, pages, nav) are
 unchanged. The same rule went to every sister site: the site's own identity first.
+
+## 2026-11-08 — Full-width shell and a featured-product hero
+
+Owner, 2026-11-08: "I really like how the KaeYoung and ScentCompare engine works and how they feature some products on the hero and how
+it uses the full screen … maybe the same for the DexCompare / MTG Compare engine."
+
+- **Full width.** From 1280px the shell runs from the eBay rail's edge to the TCGplayer rail's (`.max-w-shell` margins of 136px, not a
+  max-width: `100vw` counts a desktop scrollbar), so the sidebar sits flush against the left rail; `.page` widened to 1440px.
+- **The hero** (landing page and every region home) is two columns from lg: the words, search, region row, shortcuts and stat chips
+  on the left; two big product cards on the right (`components/home/HeroCards.tsx`; under the words on a phone, where the type
+  shortcuts become one sideways row). Region homes show the first two of `hotPicks` (owner's featuring order, photo first) under the
+  same "Hot right now" h2; the landing page shows the default region's two most-stocked (`lib/picks.ts`) and swaps to the visitor's
+  region through `/api/picks/<region>`. Same h1 words, links, URLs, titles and metadata; nothing in the cards is a heading.
