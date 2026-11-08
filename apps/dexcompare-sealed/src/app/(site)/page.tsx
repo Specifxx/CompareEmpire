@@ -17,6 +17,7 @@ import { GhostTeaser, HalloweenDecor } from "@/components/season/HalloweenDecor"
 import { ChristmasDecor } from "@/components/season/ChristmasDecor";
 import { ChristmasGifts } from "@/components/season/ChristmasGifts";
 import { CreatorsCornerBadge } from "@/components/creators/CreatorsCornerBadge";
+import { SoftHeroCards } from "@/components/home/SoftHeroCards";
 
 // Rendered per request and kept by Vercel's CDN for a day (next.config.js CDN_PAGES), never at build: the page carries
 // the default region's five most-stocked products (lib/picks.ts), read from the public data files, so a crawler's first fetch has them. It reads no cookie, header or session: one copy for all.
@@ -62,47 +63,58 @@ export default async function Landing() {
   const preorder = open ? { slug: open.set.slug, name: open.set.name } : null;
   return (
     <div>
+      {/* The full-width hero (owner, 2026-11-08: KaeYoung and ScentCompare's, "feature some products on the hero"): the words, region
+          row, search and shortcuts on the left, two popular products on the right (under the words on a phone), in the visitor's
+          region. Same h1, same links. */}
       <section>
-        <div className="page relative pb-10 pt-8 text-center sm:pb-14 sm:pt-16">
-          {/* The creators hub, above the fold (owner, 2026-11-03): top-right corner from sm, a centred pill above the headline on a phone. */}
+        <div className="page relative grid gap-8 pb-10 pt-8 sm:pb-14 sm:pt-12 lg:grid-cols-[minmax(0,1fr)_minmax(340px,480px)] lg:items-center lg:gap-10">
+          {/* The creators hub, above the fold (owner, 2026-11-03): top-right corner from sm, a pill above the headline on a phone. */}
           <CreatorsCornerBadge />
           <HalloweenDecor />
           <ChristmasDecor />
           <GhostTeaser />
-          <ChristmasGifts />
-          <h1 className="mx-auto max-w-3xl font-display text-4xl font-bold leading-[1.05] tracking-tight sm:text-6xl">
-            Pokémon sealed, in stock, <span className="text-brand">cheapest first.</span>
-          </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-muted sm:mt-5 sm:text-lg">
-            {STORES.length} independent stores in {REGION_LIST.length} regions, read about twice a day. Free, no sign-up.
-          </p>
-          {/* The 404's search markup: a plain GET form, so it works without script. RegionSuggest points it at the visitor's region. */}
-          {/* The region row, with flags (owner, 2026-11-02): picks in place, like the header's switcher. */}
-          <RegionChips className="mt-6 justify-center" />
-          <form
-            id="landing-search"
-            action={`/${X_DEFAULT_REGION}/sealed`}
-            method="get"
-            role="search"
-            className="mx-auto mt-6 flex max-w-md items-center gap-2 rounded-full border border-line bg-surface p-1.5 pl-4 shadow-card focus-within:border-ink/40"
-          >
-            <Icon name="search" size={18} className="text-faint" />
-            <input
-              name="q"
-              type="search"
-              placeholder="Search a set or product"
-              aria-label="Search sealed products"
-              className="min-w-0 flex-1 bg-transparent py-1.5 text-base outline-none placeholder:text-faint sm:text-sm"
-            />
-            <button type="submit" className="btn-ghost min-h-11 px-4">
-              Search
-            </button>
-          </form>
-          {/* The shortcuts (owner, 2026-10-28): the most-used pages straight from the hero, in the visitor's region, instead of a
-              "Continue to <region>" step before any navigation. */}
-          <div className="mx-auto mt-4 max-w-2xl">
-            <RegionSuggest formId="landing-search" links={HERO_LINKS} />
+          <div className="min-w-0">
+            <ChristmasGifts />
+            <h1 className="max-w-3xl font-display text-4xl font-bold leading-[1.05] tracking-tight sm:text-6xl">
+              Pokémon sealed, in stock, <span className="text-brand">cheapest first.</span>
+            </h1>
+            <p className="mt-4 max-w-2xl text-base leading-7 text-muted sm:mt-5 sm:text-lg">
+              {STORES.length} independent stores in {REGION_LIST.length} regions, read about twice a day. Free, no sign-up.
+            </p>
+            {/* The region row, with flags (owner, 2026-11-02): picks in place, like the header's switcher. */}
+            <RegionChips className="mt-6" />
+            {/* The 404's search markup: a plain GET form, so it works without script. RegionSuggest points it at the visitor's region. */}
+            <form
+              id="landing-search"
+              action={`/${X_DEFAULT_REGION}/sealed`}
+              method="get"
+              role="search"
+              className="mt-5 flex max-w-xl items-center gap-2 rounded-full border border-line bg-surface p-1.5 pl-4 shadow-card focus-within:border-ink/40"
+            >
+              <Icon name="search" size={18} className="text-faint" />
+              <input
+                name="q"
+                type="search"
+                placeholder="Search a set or product"
+                aria-label="Search sealed products"
+                className="min-w-0 flex-1 bg-transparent py-1.5 text-base outline-none placeholder:text-faint sm:text-sm"
+              />
+              <button type="submit" className="btn-primary min-h-11 px-5">
+                Search
+              </button>
+            </form>
+            {/* The shortcuts (owner, 2026-10-28): the most-used pages straight from the hero, in the visitor's region, instead of a
+                "Continue to <region>" step before any navigation. */}
+            <div className="mt-4 max-w-2xl">
+              <RegionSuggest formId="landing-search" links={HERO_LINKS} />
+            </div>
+            <div className="mt-5 flex flex-wrap items-center gap-2 text-sm">
+              <span className="hero-stat"><b className="tabular">{STORES.length}</b> stores</span>
+              <span className="hero-stat"><b className="tabular">{REGION_LIST.length}</b> regions</span>
+              <span className="hero-stat">Checked twice a day</span>
+            </div>
           </div>
+          <SoftHeroCards initial={picks} />
         </div>
       </section>
 
