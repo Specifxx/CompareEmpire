@@ -74,6 +74,9 @@ const nextConfig = {
       { source: "/restock", destination: "/au", permanent: true },
       { source: "/restock/:slug", destination: "/au", permanent: true },
       { source: "/deals", destination: "/au/deals", permanent: true },
+      // The old value checker, still Bing's top DexCompare page on 2026-11-08 (it 404ed): the sealed value checker tool.
+      { source: "/card-value", destination: "/au/tools/value-checker", permanent: true },
+      { source: "/bulk-pricer", destination: "/au/tools/value-checker", permanent: true },
       // The old site's guides and blog posts whose subject the sealed site now covers, each to the page that answers it. Only
       // slugs that existed under that prefix (apps/dexcompare/src/lib/articles.ts: category "guide" → /guides, "blog" → /blog)
       // are mapped; tests/guides.test.ts checks every one. They come before the blanket rule below, which matches /guides too.

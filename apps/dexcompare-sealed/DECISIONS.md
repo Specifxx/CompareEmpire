@@ -280,3 +280,12 @@ so its four recommendations were checked one by one:
 - **Links from high-quality sites**: not a code change.
 
 The www → apex redirect is Vercel's domain setting and stays as it is.
+
+## 2026-11-08 — The landing page links the pages Bing ranks; the old value checker URL redirects
+
+Google crawls the home page and little else, while Bing already ranks the newest set's pages, the cheapest-packs guide, the
+pre-order pages and `/card-value`. `/card-value` was the old singles site's value checker and 404ed: it (and `/bulk-pricer`)
+now 301 to `/au/tools/value-checker`, AU like the other legacy redirects. The landing page gains "Popular right now"
+(`components/home/PopularPages.tsx`): plain server-rendered links to the newest set in the US, CA, AU and UK, the open
+pre-order, cheapest packs, the cheapest-packs guide, Black Friday, the value checker and the by-country guide, so each is one
+click from the page Google reads. Only regions whose detail pages are indexed (`INDEXED_DETAIL_REGIONS`).

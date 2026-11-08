@@ -2,6 +2,7 @@
 // prints must be packs.ts's and rrp.ts's, its copy must never match BANNED_COPY or talk about pull rates, EV or investing, and it
 // carries exactly one eBay unit plus, in the US only, one labelled TCGplayer link), and the old site's guide and blog redirects.
 import { test } from "node:test";
+import { TOOLS } from "../src/content/tools";
 import assert from "node:assert/strict";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { createRequire } from "node:module";
@@ -685,6 +686,7 @@ function served(path: string): boolean {
   if (!section) return existsSync(new URL("[region]/page.tsx", APP));
   if (section === "guides") return slug ? !!guideFor(slug, region as Region) : existsSync(new URL("[region]/guides/page.tsx", APP));
   if (section === "sets" && slug) return SET_BY_SLUG.has(slug) && existsSync(new URL("[region]/sets/[set]/page.tsx", APP));
+  if (section === "tools" && slug) return TOOLS.some((t) => t.slug === slug) && existsSync(new URL("[region]/tools/[tool]/page.tsx", APP));
   if (slug) return false;
   return existsSync(new URL(`[region]/${section}/page.tsx`, APP)) || RELEASE_ROUTES.has(section);
 }
@@ -726,6 +728,7 @@ test("legacy redirects: every specific source was a real old guide or blog post,
   assert.equal(to("/blog/pitch-black-preorder-guide"), "/au/sets/pitch-black");
   assert.equal(to("/blog/chaos-rising-restock-playbook"), "/au/sets/chaos-rising");
   assert.equal(to("/deals"), "/au/deals");
+  assert.equal(to("/card-value"), "/au/tools/value-checker", "the old value checker, Bing's top page on 2026-11-08");
   assert.equal(to("/guides/how-to-spot-fake-pokemon-cards"), "/about", "a singles-only guide still goes to About");
   assert.equal(to("/blog/pokemon-cards-as-an-investment"), undefined, "a singles-only blog post is left alone");
   assert.equal(to("/au/guides/pokemon-tcg-msrp"), undefined, "the new hub is never redirected");

@@ -17,6 +17,7 @@ import { GhostTeaser, HalloweenDecor } from "@/components/season/HalloweenDecor"
 import { ChristmasGifts } from "@/components/season/ChristmasGifts";
 import { CreatorsCornerBadge } from "@/components/creators/CreatorsCornerBadge";
 import { SoftHeroCards } from "@/components/home/SoftHeroCards";
+import { PopularPages } from "@/components/home/PopularPages";
 
 // Rendered per request and kept by Vercel's CDN for a day (next.config.js CDN_PAGES), never at build: the page carries
 // the default region's five most-stocked products (lib/picks.ts), read from the public data files, so a crawler's first fetch has them. It reads no cookie, header or session: one copy for all.
@@ -137,6 +138,8 @@ export default async function Landing() {
       <div className="mb-10 mt-10">
         <HomeRegionGrid initial={picks} preorder={preorder} />
       </div>
+
+      <PopularPages />
 
       {/* The newest guides (2026-11-03): one link from the landing page to every new set guide, server-rendered for crawlers. */}
       <section className="page mb-12" aria-labelledby="guides-h">
