@@ -1,7 +1,7 @@
 {
  "v": 1,
  "site": "dex",
- "generatedAt": "2026-11-09T00:31:40.195Z",
+ "generatedAt": "2026-11-09T05:35:32.924Z",
  "links": {
   "AU": {
    "deals": "https://dexcompare.app/au/deals"
@@ -64,7 +64,7 @@
    "currency": "AUD",
    "store": "Turtle TCG",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/684444_in_1000x1000.jpg",
-   "refCents": 33000,
+   "refCents": 32998,
    "refLabel": "median store price",
    "savingPct": 45
   },
@@ -72,27 +72,13 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "AU",
-   "title": "Prismatic Evolutions: 2-Pack Blister",
-   "url": "https://dexcompare.app/au/p/prismatic-evolutions-2-pack-blister",
-   "cents": 8995,
+   "title": "Storm Emeralda Japanese Booster Pack (M6)",
+   "url": "https://dexcompare.app/au/p/storm-emeralda-m6-japanese-booster-pack",
+   "cents": 500,
    "currency": "AUD",
-   "store": "The Wandering Collector",
-   "image": "https://cdn.shopify.com/s/files/1/0622/1280/0754/files/Pokemon_Scarlet_and_Violet_8.5_Prismatic_Evolutions_2-Pack_Blister_1.png?v=1739641027",
-   "refCents": 15995,
-   "refLabel": "median store price",
-   "savingPct": 44
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "AU",
-   "title": "Black Bolt Japanese Booster Pack (SV11B)",
-   "url": "https://dexcompare.app/au/p/black-bolt-sv11b-japanese-booster-pack",
-   "cents": 1000,
-   "currency": "AUD",
-   "store": "Hightide Tabletop Gaming",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/636736_in_1000x1000.jpg",
-   "refCents": 1598,
+   "store": "One Stop Poke Shop",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/709111_in_1000x1000.jpg",
+   "refCents": 799,
    "refLabel": "median store price",
    "savingPct": 37
   },
@@ -109,6 +95,20 @@
    "refCents": 3999,
    "refLabel": "median store price",
    "savingPct": 37
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "AU",
+   "title": "Shiny Star V Japanese Booster Box (S4a)",
+   "url": "https://dexcompare.app/au/p/shiny-star-v-s4a-japanese-booster-box",
+   "cents": 24995,
+   "currency": "AUD",
+   "store": "Eclipse Games",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/565369_in_1000x1000.jpg",
+   "refCents": 39000,
+   "refLabel": "median store price",
+   "savingPct": 36
   },
   {
    "kind": "deal",
@@ -212,6 +212,20 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "US",
+   "title": "Delta Reign Single Pack Blister [Spritzee]",
+   "url": "https://dexcompare.app/us/p/delta-reign-single-pack-blister-spritzee",
+   "cents": 600,
+   "currency": "USD",
+   "store": "DK's Cards",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/712108_in_1000x1000.jpg",
+   "refCents": 1149,
+   "refLabel": "median store price",
+   "savingPct": 48
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "US",
    "title": "Chaos Rising - 3 Pack Blister",
    "url": "https://dexcompare.app/us/p/chaos-rising-3-pack-blister",
    "cents": 1299,
@@ -235,20 +249,6 @@
    "refCents": 11338,
    "refLabel": "median store price",
    "savingPct": 47
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "US",
-   "title": "30th Celebration - Knock Out Collection",
-   "url": "https://dexcompare.app/us/p/30th-celebration-knock-out-collection",
-   "cents": 1499,
-   "currency": "USD",
-   "store": "Retrofix Games",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/704152_in_1000x1000.jpg",
-   "refCents": 2799,
-   "refLabel": "median store price",
-   "savingPct": 46
   },
   {
    "kind": "deal",
@@ -310,20 +310,6 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "UK",
-   "title": "Destined Rivals Elite Trainer Box",
-   "url": "https://dexcompare.app/uk/p/destined-rivals-elite-trainer-box",
-   "cents": 5199,
-   "currency": "GBP",
-   "store": "Rare Pokémon Cards UK",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/624676_in_1000x1000.jpg",
-   "refCents": 9999,
-   "refLabel": "median store price",
-   "savingPct": 48
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "UK",
    "title": "Pokémon Card 151 Japanese Booster Box (SV2a)",
    "url": "https://dexcompare.app/uk/p/pokemon-card-151-sv2a-japanese-booster-box",
    "cents": 14995,
@@ -359,6 +345,20 @@
    "store": "Collectors Kingdom",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/674454_in_1000x1000.jpg",
    "refCents": 350,
+   "refLabel": "median store price",
+   "savingPct": 44
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "UK",
+   "title": "Perfect Order Booster Pack",
+   "url": "https://dexcompare.app/uk/p/perfect-order-booster-pack",
+   "cents": 365,
+   "currency": "GBP",
+   "store": "Rare Pokémon Cards UK",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/672398_in_1000x1000.jpg",
+   "refCents": 649,
    "refLabel": "median store price",
    "savingPct": 44
   },
@@ -548,20 +548,6 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "SG",
-   "title": "Pitch Black Booster Box",
-   "url": "https://dexcompare.app/sg/p/pitch-black-booster-box",
-   "cents": 12500,
-   "currency": "SGD",
-   "store": "Game Academia Singapore",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/692939_in_1000x1000.jpg",
-   "refCents": 25000,
-   "refLabel": "median store price",
-   "savingPct": 50
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "SG",
    "title": "Nihil Zero Japanese Booster Pack (M3)",
    "url": "https://dexcompare.app/sg/p/nihil-zero-m3-japanese-booster-pack",
    "cents": 247,
@@ -613,6 +599,20 @@
    "refCents": 13000,
    "refLabel": "median store price",
    "savingPct": 32
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "SG",
+   "title": "Mega Dream ex Japanese Booster Pack (M2a)",
+   "url": "https://dexcompare.app/sg/p/mega-dream-ex-m2a-japanese-booster-pack",
+   "cents": 968,
+   "currency": "SGD",
+   "store": "Sawadeekard",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/666255_in_1000x1000.jpg",
+   "refCents": 1400,
+   "refLabel": "median store price",
+   "savingPct": 31
   }
  ]
 }
