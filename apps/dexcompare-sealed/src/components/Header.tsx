@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { inSeason, saleStrip } from "@/lib/black-friday";
 import { navGroups } from "@/lib/nav";
-import { openPreorderGuides } from "@/lib/preorder-guides";
 import { REGIONS, X_DEFAULT_REGION, type Region } from "@/lib/regions";
 import { sectionHref, SECTION_PATHS, type SectionKey } from "@/lib/site";
 import { EbayNavLink } from "./Ebay";
@@ -11,7 +10,7 @@ import { NavLink } from "./NavLink";
 import { RegionSwitcher } from "./RegionSwitcher";
 import { SearchBox } from "./SearchBox";
 import { HeaderNavItems, SoftHeaderNavItems, SoftRegionSwitcher, SoftSearchBox, type HeaderNavItem } from "./HeaderNav";
-import { setsMenuColumns, shopMenuColumns } from "./ShopMenu";
+import { dealsMenuColumns, guidesMenuColumns, pokemonMenuColumns, setsMenuColumns, shopMenuColumns } from "./ShopMenu";
 import { ThemeToggle } from "./ThemeToggle";
 import { CartHeaderLink } from "./cart/CartHeaderLink";
 
@@ -23,8 +22,8 @@ export const HEADER_NAV: { key: SectionKey; label: string; also?: string[]; xl?:
   { key: "deals", label: "Deals", also: [SECTION_PATHS.perPack, SECTION_PATHS.thisWeek, SECTION_PATHS.backInStock, SECTION_PATHS.priceMoves, SECTION_PATHS.outOfPrint] },
   { key: "sealed", label: "All sealed", also: ["/type"] },
   { key: "sets", label: "Sets" },
-  { key: "releases", label: "Releases" },
-  { key: "guides", label: "Guides" },
+  { key: "pokemon", label: "Pokémon", also: ["/pokemon", "/japanese"] },
+  { key: "guides", label: "Guides", also: [SECTION_PATHS.tools, SECTION_PATHS.releases] },
   { key: "stores", label: "Stores" },
 ];
 
@@ -37,19 +36,25 @@ export function headerNav(today = new Date().toISOString().slice(0, 10)): typeof
   return [HEADER_NAV[0], cm ? { key: "cyberMonday", label: "Cyber Monday", xl: true } : { key: "blackFriday", label: "Black Friday", xl: true }, ...HEADER_NAV.slice(1)];
 }
 
-/** The desktop nav's items for a region, links and all (the "All sealed" dropdown's included). */
-// While a set is on pre-order, "Releases" becomes that set's pre-order hub ("Delta Reign pre-orders", lib/preorder-guides.ts): the
-// pre-order pages are the family's most visited, and the release calendar stays in the sidebar and phone menu. Gone on release day.
+/**
+ * The desktop nav's items for a region, links and all: Deals, All sealed, Sets, Pokémon and Guides each open a mega menu
+ * (components/NavMenu.tsx; the columns are in components/ShopMenu.tsx). The pre-order hub that "Releases" used to become while a set
+ * is on pre-order leads the Deals menu's "Coming soon" column, with the release calendar (owner, 2026-11-09).
+ */
 export function headerNavItems(region: Region, today = new Date().toISOString().slice(0, 10), listed?: ReadonlySet<string> | null): HeaderNavItem[] {
-  const pre = openPreorderGuides(today)[0];
   return headerNav(today).map((n) => ({
-    href: n.key === "releases" && pre ? `/${region}/preorders/${pre.set.slug}` : sectionHref(region, n.key),
-    label: n.key === "releases" && pre ? `${pre.set.name} pre-orders` : n.label,
-    also: n.key === "releases" && pre ? [`/${region}${SECTION_PATHS.releases}`] : n.also?.map((p) => `/${region}${p}`),
+    href: sectionHref(region, n.key),
+    label: n.label,
+    also: n.also?.map((p) => `/${region}${p}`),
     xl: n.xl,
-    // The sealed browse item opens the category dropdown (components/ShopMenu.tsx): by product, by set, by value.
-    menu: n.key === "sealed" ? shopMenuColumns(region, today, listed) : n.key === "sets" ? setsMenuColumns(region, today, listed) : undefined,
-    menuKind: n.key === "sets" ? "sets" : n.key === "sealed" ? "shop" : undefined,
+    menu:
+      n.key === "sealed" ? shopMenuColumns(region, today, listed)
+      : n.key === "sets" ? setsMenuColumns(region, today, listed)
+      : n.key === "deals" ? dealsMenuColumns(region, today)
+      : n.key === "pokemon" ? pokemonMenuColumns(region)
+      : n.key === "guides" ? guidesMenuColumns(region)
+      : undefined,
+    menuKind: n.key === "sets" ? "sets" : n.key === "sealed" ? "shop" : n.key === "deals" ? "deals" : n.key === "pokemon" ? "pokemon" : n.key === "guides" ? "guides" : undefined,
   }));
 }
 

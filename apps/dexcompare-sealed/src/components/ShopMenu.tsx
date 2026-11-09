@@ -1,3 +1,5 @@
+import { openPreorderGuides } from "@/lib/preorder-guides";
+import { pokemonPath, POKEMON_BY_SLUG } from "@/lib/pokemon-hubs";
 import { featureOrder, menuSets } from "@/lib/release";
 import type { Region } from "@/lib/regions";
 import { slugify } from "@/lib/sealed-title";
@@ -72,4 +74,39 @@ export function shopMenuColumns(region: Region, today: string = new Date().toISO
       links: [s("perPack", "Cheapest per pack"), s("backInStock", "Back in stock"), s("priceMoves", "Price moves"), s("outOfPrint", "Older sets in stock"), s("sealed", "Browse & filter all →")],
     },
   ];
+}
+
+/** The Pokémon a collector asks for first (lib/pokemon-hubs.ts names; each has a hub page at /<region>/pokemon/<slug>). */
+const POKEMON_MENU = ["charizard", "pikachu", "eevee", "umbreon", "mewtwo", "gengar", "lucario", "greninja"];
+
+/**
+ * The header's "Pokémon" dropdown (owner, 2026-11-09: a fan of one Pokémon does not care about the rest): the hubs fans search for,
+ * the index of all of them, and the Japanese boxes. Static, no read.
+ */
+export function pokemonMenuColumns(region: Region): MenuColumn[] {
+  const hub = (slug: string): MenuLink => ({ href: pokemonPath(region, slug), label: POKEMON_BY_SLUG.get(slug)!.name });
+  return [
+    { title: "Shop by Pokémon", href: sectionHref(region, "pokemon"), links: [...POKEMON_MENU.slice(0, 4).map(hub), { href: sectionHref(region, "pokemon"), label: "Every Pokémon →" }] },
+    { title: "And more", links: POKEMON_MENU.slice(4).map(hub) },
+    { title: "Japan", links: [{ href: sectionHref(region, "japanese"), label: "Japanese boxes" }] },
+  ];
+}
+
+/** The header's "Deals" dropdown: the best prices, stock and price movement, and what is coming (pre-order hubs while open, the calendar). */
+export function dealsMenuColumns(region: Region, today: string = new Date().toISOString().slice(0, 10)): MenuColumn[] {
+  const s = (key: SectionKey, label: string): MenuLink => ({ href: sectionHref(region, key), label });
+  return [
+    { title: "Best prices", href: sectionHref(region, "deals"), links: [s("deals", "Today's deals"), s("perPack", "Cheapest per pack"), s("thisWeek", "This week")] },
+    { title: "Stock & moves", links: [s("backInStock", "Back in stock"), s("priceMoves", "Price moves"), s("outOfPrint", "Older sets in stock")] },
+    {
+      title: "Coming soon",
+      links: [...openPreorderGuides(today).map(({ set }) => ({ href: `/${region}/preorders/${set.slug}`, label: `${set.name} pre-orders` })), s("releases", "Release calendar")],
+    },
+  ];
+}
+
+/** The header's "Guides" dropdown: reading and tools, the places that are not a product. */
+export function guidesMenuColumns(region: Region): MenuColumn[] {
+  const s = (key: SectionKey, label: string): MenuLink => ({ href: sectionHref(region, key), label });
+  return [{ title: "Learn & play", links: [s("guides", "Buying guides"), s("tools", "Tools"), s("daily", "Price Duel game"), { href: "/creators", label: "Creators" }, { href: "/forum", label: "Community forum" }] }];
 }
