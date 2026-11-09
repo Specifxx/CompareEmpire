@@ -122,6 +122,7 @@ async function main() {
       .sort()
       .map(([m, s]) => `| ${m} | ${s.stores} | ${s.ok} | ${s.offers} | ${s.inStock} |`),
     ``,
+    `Product pages opened for the cheapest in-stock rows: ${summary.pageCheck ? `${summary.pageCheck.checked}; written as sold out: ${summary.pageCheck.demoted.length}${summary.pageCheck.closedShops.length ? ` (online ordering off: ${summary.pageCheck.closedShops.join(", ")})` : ""}` : "skipped"}`,
     `Low-price outliers dropped: ${summary.outliers}`,
     `High-price outliers dropped: ${summary.highOutliers}`,
     `Marketplace placeholder asks dropped: ${summary.placeholders}`,

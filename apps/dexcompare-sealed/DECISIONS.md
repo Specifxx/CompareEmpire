@@ -374,3 +374,20 @@ DECISIONS.md, same date) because this site has no database, no mail key and no S
   when there are none (no layout shift), and no pop-up. At most three at once.
 - Labelled "Featured listing", "Paid link", "Not part of the comparison"; link `rel="sponsored nofollow noopener"`. Never a
   price row, best price, deal, alert or ranking input. `tests/featured-ads.test.ts` pins the label, the dates and the service.
+
+## 2026-11-09: open the product page of the cheapest in-stock rows (Reddit: "the cheapest stores have no stock")
+
+A Reddit commenter on the Delta Reign ETB post said the cheapest "in stock" stores had none, and opening them by hand proved it:
+Dynamic Card Collectors (US$75.00, "In Store Only"), Wulf Gaming (US$84.99, "Available in store only", theme script holds stock under
+a metafield threshold for the counter) and CARDPOPUSA (US$79.99, banner "Online ordering temporarily unavailable", no add-to-cart).
+Their Shopify feeds say `available: true`, `requires_shipping: true` and carry no pickup wording, so `pickup-only.ts` (2026-11-05)
+could not see them: the signal is only on the rendered page.
+
+- `verifyCheapestPages` (importer.ts, after `demoteSuspectStores`) opens the page of each product's and market's cheapest in-stock
+  store rows (4 must pass, up to 10 tries, 350 ms apart per store, robots.txt honoured, 25 minute budget) and writes a row whose page
+  says so as sold out. `pageStockVerdict` (page-stock-check.ts) reads only server-rendered text and markup, never script text (Wulf's
+  "Not sold online" sits in the JS of every page). A shop-wide notice writes every row of that shop as sold out.
+- Fails open: an unreadable page leaves the feed's answer. Rules may only refuse more. Add the real wording to
+  `tests/page-stock-check.test.ts` for every store that turns up. `SKIP_PAGE_CHECK=1` skips it. The import summary shows the count.
+- Not covered: "preorder" or "presale" wording (Kitchen Table's page still says "Presale item" after release day, with a live add-to-cart),
+  and stock only a script reveals. Both are left as the feed says.
