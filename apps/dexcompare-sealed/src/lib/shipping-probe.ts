@@ -85,7 +85,7 @@ export function shippingAddressQuery(a: ProbeAddress, useCode = false): string {
 // ── What goes in a cart ─────────────────────────────────────────────────────
 // One item a cart: a product page row is one item at its price. The ladder covers what decides the quote: the parcel (a pack, a
 // bundle, a box) and the order value (free over $X). Rungs are in the market's currency, major units.
-export const DEFAULT_LADDER = [40, 80, 150, 300] as const;
+export const DEFAULT_LADDER = [40, 80, 150, 250, 400] as const;
 
 export interface Candidate {
   id: number; // Shopify variant id

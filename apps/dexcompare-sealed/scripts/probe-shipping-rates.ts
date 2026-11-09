@@ -4,7 +4,7 @@
 //
 // HOW, per store (src/data/stores.json; Shopify only, a WooCommerce store has no public quote and shows "Shipping at checkout"):
 //   1. read its Pokémon sealed collections (products.json?country=XX, as the importer does) for in-stock sealed products;
-//   2. pick single items at a ladder of prices (its cheapest, then ~40/80/150/300 in its currency: planItems);
+//   2. pick single items at a ladder of prices (its cheapest, then ~40/80/150/250/400 in its currency: planItems);
 //   3. per item, with a FRESH cookie jar: POST /cart/add.js (one unit), read /cart.js back for the real subtotal and currency, then
 //      GET /cart/shipping_rates.json for each address. After an address that returns no rate, the next is asked on a fresh cart (an
 //      unserved address can poison the cart's later quotes: the old probe's Trinket Mage finding).

@@ -423,3 +423,16 @@ ported to this niche's own dimension, the era. Same change as MTG Compare's (the
 - Not done: removing the side panel (the menus do not yet cover its deep groups, and it carries the current-section state for the
   deep levels; revisit once the menus have been in use), a phone bottom sheet (the `<dialog>` menu stays), and the side rails and
   footer links, which are the owner's own decisions. Deals is a hover menu: nothing is added to the deploy cadence.
+
+## 2026-11-09 — A store's damaged-box variant is never its price; the shipping probe reads a $250 and a $400 cart
+
+A store (Collectors Guild Australia) asked for two things: the delivered price (A$249.95 + A$9.99 standard delivery) rather than "Shipping
+at checkout", and standard boxes compared apart from boxes sold with cosmetic damage.
+
+- `priceOf` picks a listing's cheapest orderable variant, so a store selling "Damaged Box" and "Standard" as options of one product put the
+  damaged copy's lower price on the page. A variant whose title reads as damage (`DAMAGED_VARIANT`) is now dropped when the store lists
+  others, and a product whose every variant is damaged has no listing. We do not build a per-condition price list: damaged stock stays out
+  of the comparison (title rules already refuse it), so every price on a page is for an intact box.
+- Shipping: the measurement already existed and shows `+ $9.99 shipping` once a store's measured carts bracket the price. This store's carts
+  were $149.95 ($9.99) and $464.95 (free), so a $249.95 row read "Free–$9.99". The ladder is now 40/80/150/250/400 (was 300) so more rows
+  fall between two measured carts of the same quote; the next weekly run writes the new points. A quote is never guessed.
