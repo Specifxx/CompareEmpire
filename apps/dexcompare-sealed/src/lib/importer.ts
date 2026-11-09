@@ -36,7 +36,8 @@ import {
   type CollectionRead,
   type FeedProduct,
 } from "./feeds";
-import { RateLimitedError, REQUEST_DELAY_MS, SCRAPE_HEADERS, sleep } from "./scrape-http";
+import { pageStockVerdict } from "./page-stock-check";
+import { get as getPage, RateLimitedError, REQUEST_DELAY_MS, robotsAllows, SCRAPE_HEADERS, sleep } from "./scrape-http";
 import { readHtmlCategory, type HtmlPlatform } from "./storefront-html";
 import { usMsrpCents } from "./rrp";
 import { canonicalName, cleanName, floorCents, identifyAny, isIdentity, roughUsdCents, slugify, type SealedIdentity, type TypeKey } from "./sealed-title";
@@ -411,6 +412,87 @@ export function demoteSuspectStores(reads: StoreRead[]): { store: string; low: n
     console.warn(`  suspect stock: ${r.store.key} has ${low} in-stock prices under half the market median; its rows are written as sold out`);
   }
   return demoted;
+}
+
+// The product pages opened per product and market: the cheapest rows in stock must each pass before they are believed.
+const PAGE_CHECK_PER_GROUP = 4;
+const PAGE_CHECK_MAX_PER_GROUP_TRIES = 10;
+const PAGE_CHECK_MAX_MS = 25 * 60_000;
+
+/**
+ * A store's feed says "available" for boxes its own page will not sell online (stock held for the shop counter, online ordering
+ * switched off). For every product and market, open the page of each of the cheapest in-stock store rows (PAGE_CHECK_PER_GROUP
+ * that pass; a failing row is written as sold out and the next one is tried) and write the ones whose page says otherwise as sold
+ * out (src/lib/page-stock-check.ts). A shop-wide notice ("online ordering unavailable") writes every row of that shop as sold out.
+ * Fails open: a page that cannot be read, a robots.txt that disallows it or an exhausted time budget leaves the row as the feed said.
+ */
+export async function verifyCheapestPages(
+  reads: StoreRead[],
+  fetchPage: (url: string) => Promise<string | null> = async (u) => {
+    const t = await getPage(u, "text").catch(() => null);
+    return typeof t === "string" ? t : null;
+  },
+  budgetMs = PAGE_CHECK_MAX_MS,
+): Promise<{ checked: number; demoted: { store: string; title: string; reason: string }[]; closedShops: string[] }> {
+  const started = Date.now();
+  const demoted: { store: string; title: string; reason: string }[] = [];
+  const closedShops = new Set<string>();
+  const groups = new Map<string, { read: StoreRead; row: ImportRow }[]>();
+  for (const r of reads) {
+    if (!r.ok || isMarketplace(r.store)) continue;
+    for (const row of r.rows) {
+      if (!row.inStock || !/^https?:/.test(row.url)) continue;
+      const k = `${r.store.market}|${row.identity.groupKey}`;
+      (groups.get(k) ?? groups.set(k, []).get(k)!).push({ read: r, row });
+    }
+  }
+  const lastHit = new Map<string, number>();
+  const robots = new Map<string, (path: string) => boolean>();
+  let checked = 0;
+  async function open(read: StoreRead, row: ImportRow): Promise<string | null> {
+    const host = new URL(read.store.base).host;
+    let allowed = robots.get(host);
+    if (!allowed) robots.set(host, (allowed = await robotsAllows(read.store.base)));
+    const u = new URL(row.url);
+    if (!allowed(u.pathname)) return null;
+    // One request at a time per store, REQUEST_DELAY_MS apart, however many groups run at once.
+    const wait = (lastHit.get(host) ?? 0) + REQUEST_DELAY_MS - Date.now();
+    lastHit.set(host, Math.max(Date.now(), (lastHit.get(host) ?? 0) + REQUEST_DELAY_MS));
+    if (wait > 0) await sleep(wait);
+    checked++;
+    try {
+      return await fetchPage(row.url);
+    } catch {
+      return null; // a 429 or a network error: believe the feed
+    }
+  }
+  await mapLimit([...groups.values()], 6, async (list) => {
+    list.sort((a, b) => a.row.priceCents - b.row.priceCents);
+    let passed = 0;
+    let tries = 0;
+    for (const { read, row } of list) {
+      if (passed >= PAGE_CHECK_PER_GROUP || tries >= PAGE_CHECK_MAX_PER_GROUP_TRIES || Date.now() - started > budgetMs) break;
+      if (!row.inStock) continue; // a shop-wide notice already wrote it as sold out
+      tries++;
+      const html = await open(read, row);
+      if (html == null) {
+        passed++;
+        continue;
+      }
+      const v = pageStockVerdict(html);
+      if (v.ok) {
+        passed++;
+        continue;
+      }
+      if (v.shopWide) {
+        closedShops.add(read.store.key);
+        for (const x of read.rows) x.inStock = false;
+      } else row.inStock = false;
+      demoted.push({ store: read.store.key, title: row.title, reason: v.reason });
+      console.warn(`  page says not buyable online: ${read.store.key} "${row.title}" (${v.reason}); written as sold out`);
+    }
+  });
+  return { checked, demoted, closedShops: [...closedShops].sort() };
 }
 
 /**
@@ -990,6 +1072,7 @@ export interface ImportSummary {
   offers: number;
   outliers: number; // store rows dropped as far below the market (dropLowOutliers)
   highOutliers: number; // …and far above it (dropHighOutliers)
+  pageCheck: { checked: number; demoted: { store: string; title: string; reason: string }[]; closedShops: string[] } | null; // verifyCheapestPages
   suspectStores: { store: string; low: number }[]; // stores whose rows were written as sold out (demoteSuspectStores)
   placeholders: number; // marketplace placeholder asks dropped
   dormant: string[]; // store keys (dormantStores)
@@ -1032,6 +1115,8 @@ export async function runImport(opts: { only?: string[]; concurrency?: number } 
   });
 
   const suspectStores = demoteSuspectStores(reads);
+  const pageCheck = process.env.SKIP_PAGE_CHECK === "1" ? null : await verifyCheapestPages(reads);
+  if (pageCheck) console.log(`page check: ${pageCheck.checked} product pages opened, ${pageCheck.demoted.length} written as sold out${pageCheck.closedShops.length ? `, shops with online ordering off: ${pageCheck.closedShops.join(", ")}` : ""}`);
   const outliers = dropLowOutliers(reads);
   const highOutliers = dropHighOutliers(reads, now);
   const placeholders = dropPlaceholderAsks(reads, now);
@@ -1079,6 +1164,7 @@ export async function runImport(opts: { only?: string[]; concurrency?: number } 
     offers,
     outliers,
     highOutliers,
+    pageCheck,
     suspectStores,
     placeholders,
     dormant: [...dormant].sort(),
