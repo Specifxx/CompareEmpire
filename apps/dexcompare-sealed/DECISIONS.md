@@ -391,3 +391,18 @@ could not see them: the signal is only on the rendered page.
   `tests/page-stock-check.test.ts` for every store that turns up. `SKIP_PAGE_CHECK=1` skips it. The import summary shows the count.
 - Not covered: "preorder" or "presale" wording (Kitchen Table's page still says "Presale item" after release day, with a live add-to-cart),
   and stock only a script reveals. Both are left as the feed says.
+
+## 2026-11-09: Navigation audit: browse sets by series (era), not only by newest
+
+Bill: navigation is very important; a collector deep in one space wants to get to it fast. Product type (ETB, booster box, UPC,
+Japanese, "Shop by Pokémon") was already one click, but sets were a flat list of the newest eight: a collector who thinks "Scarlet &
+Violet" or "Sword & Shield" had to open the sets page and scroll. Reference: SportsCardCompare's sport/brand menus (waxcompare #13),
+ported to this niche's own dimension, the era. Same change as MTG Compare's (the two share this engine).
+
+- The header's "Sets" item now opens a dropdown (`setsMenuColumns`, ShopMenu.tsx): one column per series (up to four), its newest
+  sets under it, heading and "All <series> sets" to that series' block on `/sets` (`/sets#scarlet-and-violet`; the page already had
+  the ids and the chip row). The sidebar and phone menu get a "Sets by series" group from the same `navGroups` list.
+- No new page, no new read: the lists come from `sets.ts`, and a set (or series) no store lists in the region is left out (`listed`).
+  URLs, titles, canonicals, h1s and JSON-LD are untouched.
+- Not done: a `/series/<slug>` hub or a series filter on the browse grid (new indexable pages, owner's call); the side rails and the
+  footer's "Our sites" link fall short of the rubric's "no clutter" item but are the owner's own revenue and family decisions.
