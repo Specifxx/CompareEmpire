@@ -66,6 +66,7 @@ export function staticSitemap(
     url("/contact", null, "yearly", 0.1),
     url("/how-we-pick-stores", null, "monthly", 0.3),
     url("/list-your-store", null, "monthly", 0.3),
+    url("/advertise", null, "monthly", 0.2),
     url("/affiliate-disclosure", null, "yearly", 0.1),
   ];
   for (const r of REGION_LIST) {

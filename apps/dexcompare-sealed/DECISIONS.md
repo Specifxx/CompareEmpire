@@ -358,3 +358,19 @@ Fewer than six stores, or no real gap, keep the earlier text card, so a thin pro
 page's own in-stock store offers (never eBay or TCGplayer, never converted); caching is unchanged (drawn on first share, kept by the CDN
 for a day). Reddit freezes a post's thumbnail, so this had to be live before the post (released with `[deploy][urgent]` at the owner's
 request, the one case the 12 hour gate allows).
+
+## 2026-11-09: Paid featured listings, US$100 a week (owner)
+
+Owner: "the ability to have a featured listing on dexcompare and for people to pay for a direct spot on the website via Stripe.
+$100 per featured listing per week", the link "any website or eBay or etc.". Built as RiftCompare's shared service (its
+DECISIONS.md, same date) because this site has no database, no mail key and no Stripe.
+
+- `/advertise` (static, in the footer and sitemap) holds the form (`FeatureListingForm`): title, blurb, link, photo address,
+  price text, region, 1 to 4 weeks, email, and a box confirming the listing is legal and theirs. It posts to
+  `riftcompare.com/api/sister-ads` and sends the visitor to Stripe Checkout; the card is held, not charged, until the owner
+  approves, so a refused listing costs the seller nothing. `/advertise/thanks` is noindex.
+- The banner (`FeaturedAds`, region home only) is drawn in the browser from `riftcompare.com/api/sister-ads/dex` once the page
+  is idle: no release is needed to start an ad and none to end it (the banner checks each ad's own dates), nothing is reserved
+  when there are none (no layout shift), and no pop-up. At most three at once.
+- Labelled "Featured listing", "Paid link", "Not part of the comparison"; link `rel="sponsored nofollow noopener"`. Never a
+  price row, best price, deal, alert or ranking input. `tests/featured-ads.test.ts` pins the label, the dates and the service.

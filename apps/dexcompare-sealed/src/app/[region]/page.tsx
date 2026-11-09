@@ -45,6 +45,7 @@ import { setCountsGrouped, typeLabelsInMarket } from "@/lib/hub-data";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { CreatorsCornerBadge } from "@/components/creators/CreatorsCornerBadge";
 import { Flag } from "@/components/Flag";
+import { FeaturedAds } from "@/components/FeaturedAds";
 
 // Rendered per request and kept by Vercel's CDN for a day (next.config.js, CDN_PAGES), never ISR: an ISR write
 // costs about twenty renders, and the data only changes with a release, which empties the CDN anyway.
@@ -216,6 +217,8 @@ export default async function RegionHome({ params }: { params: { region: string 
             </Link>
           ))}
         </div>
+        {/* Paid featured listings (lib/featured-ads.ts): drawn in the browser from RiftCompare's feed, nothing when there are none. */}
+        <FeaturedAds region={r.market} className="mt-8" />
         {deals.length > 0 && (
           <Section title={dealsCopy.rail} kicker={dealsCopy.railKicker} href={`/${r.region}/deals`} linkLabel="All deals">
             <ProductRail products={deals} region={r.region} eager={4} label={dealsCopy.rail} />
