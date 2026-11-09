@@ -348,3 +348,13 @@ collection worth"; Scryfall grew on free data credited with a link; price sites 
   worth today, the change since the items were added, the change since the last look (one total per market and day in
   `ce_vault_days_v1`), and a share line with the real totals (`utm_medium=collection`). Values are the price to buy it again
   at a store, and the page says so. Linked from the footer.
+
+## 2026-11-09 — The product share card draws the spread as a stats chart
+
+Owner, 2026-11-09: the link preview for a product should look like a graph of stats, to go with a Reddit post. Where six or more
+stores have the product in stock in the region, `/og/p/<region>/<slug>` (the product page's og:image) now draws `lib/og-card-stats.tsx`:
+four tiles (cheapest, median, dearest, dearest vs cheapest) over one bar per store, cheapest to dearest, with the median dashed.
+Fewer than six stores, or no real gap, keep the earlier text card, so a thin product never gets a chart of two bars. The prices are the
+page's own in-stock store offers (never eBay or TCGplayer, never converted); caching is unchanged (drawn on first share, kept by the CDN
+for a day). Reddit freezes a post's thumbnail, so this had to be live before the post (released with `[deploy][urgent]` at the owner's
+request, the one case the 12 hour gate allows).
