@@ -51,7 +51,7 @@ test("priceToCents, the address query and the NZ addresses", () => {
 test("planItems: the cheapest item, then one per rung within 1.6x of it, each once", () => {
   const c = (id: number, d: number) => ({ id, priceCents: d * 100, title: `#${id}` });
   const items = planItems([c(1, 595), c(2, 7), c(3, 50), c(4, 160), c(5, 80), c(6, 81)]);
-  assert.deepEqual(items.map((i) => i.id), [2, 3, 5, 4]); // 300 rung: 595 is over 1.6x, left out
+  assert.deepEqual(items.map((i) => i.id), [2, 3, 5, 4, 1]); // 250 rung: 160 is under it, left out; 400 rung: 595 is within 1.6x
   assert.deepEqual(planItems([]), []);
   assert.equal(isCandidate({ productTitle: "Gift Card", available: true, priceCents: 5000 }), false);
   assert.equal(isCandidate({ productTitle: "Prismatic Evolutions Elite Trainer Box", available: false, priceCents: 5000 }), false);
