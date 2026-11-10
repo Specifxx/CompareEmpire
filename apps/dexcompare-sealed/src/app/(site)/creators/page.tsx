@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { readPriceHistory } from "@/lib/price-history";
+import { publishedWeeks } from "@/lib/weekly-chart";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { CreatorCard, PackIcon } from "@/components/creators/CreatorCard";
 import { featuredCreators } from "@/lib/creators";
@@ -83,6 +85,7 @@ export default function CreatorsPage() {
     mainEntity: FAQS.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
   };
 
+  const latestChart = publishedWeeks(readPriceHistory(), "US")[0] ?? null;
   return (
     <div className="page max-w-5xl py-8 sm:py-12">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(collection) }} />
@@ -204,6 +207,13 @@ export default function CreatorsPage() {
         <a href="https://github.com/Specifxx/compareempiretake2/tree/reels/movers" target="_blank" rel="noopener" className="btn-primary mt-4 inline-flex min-h-11 items-center px-5">
           Get this week&rsquo;s video
         </a>
+        <p className="mt-4 max-w-2xl text-[15px] leading-7 text-muted">
+          Want the full list behind it?{" "}
+          <Link href={latestChart ? `/us/charts/${latestChart}` : "/us/charts"} prefetch={false} className="font-semibold text-ink underline underline-offset-2 hover:text-brand">
+            This week&rsquo;s price chart
+          </Link>{" "}
+          ranks the top 20 risers with last week&rsquo;s places and the biggest falls, with a dated link you can share.
+        </p>
       </section>
 
       {/* How to work with us */}

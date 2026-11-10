@@ -164,6 +164,9 @@ export default async function RegionHome({ params }: { params: { region: string 
               <Link href={`/${r.region}/price-moves`} prefetch={false} className="chip min-h-10">
                 Price moves
               </Link>
+              <Link href={`/${r.region}/charts`} prefetch={false} className="chip min-h-10">
+                Weekly chart
+              </Link>
               {QUICK_TYPES.map((slug) => {
                 const t = PRODUCT_TYPES.find((x) => x.slug === slug)!;
                 return (

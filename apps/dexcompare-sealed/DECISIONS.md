@@ -521,3 +521,14 @@ after the visitor has scrolled half a screen, never for a member, on the Premium
 rating card or a dialog is open. It carries `data-ad`, so the phone dock yields to it and a visit holds one unit at a time. ✕ silences it 14 days,
 opening Premium 30; it shows at most once a visit. RiftCompare removed its own sliders on 2026-11-03 (owner), so this is Dex's alone, at the owner's
 2026-11-10 request. The post is a static page, `/premium/restock-alerts` (not a guide: guides need a live price block), in the sitemap with `/premium`.
+
+## 2026-11-10: The weekly price chart (X3)
+
+A dated page per week and region, `/<region>/charts/<YYYY-MM-DD>` (the week's last day, a Sunday), the same as MTG Compare's
+(ported from `Specifxx/mtgcompare`, same engine): the 20 products whose cheapest in-stock price rose most that week with last
+week's rank (▲, ▼, = or New), and the 10 biggest falls. `/<region>/charts` shows the latest week, canonical on the dated page.
+It gives creators and Reddit posts one permanent link per week with real numbers. Pure, from `data/public/price-history.json`
+alone (`lib/weekly-chart.ts`), so a past week draws exactly as it was. Real moves only: in stock at 2+ stores on both days, a
+move of 5% to under 50%. A week with fewer than 5 such moves publishes nothing. Published weeks in indexed regions are in the
+sitemap; the share image (`/og/charts/<region>/<week>`) is static. The home's chips and `/creators` link it.
+`tests/weekly-chart.test.ts`.
