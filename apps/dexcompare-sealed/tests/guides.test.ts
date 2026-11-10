@@ -240,6 +240,7 @@ function fixture(slug: GuideSlug): GuideData {
         ]),
       };
     case "pokemon-tcg-gift-guide-australia":
+    case "pokemon-tcg-christmas-gift-guide":
       return {
         ...d,
         cards: sorted([
@@ -321,6 +322,7 @@ const SEO_GUIDES: GuideSlug[] = [
   "delta-reign-booster-box-price",
   "best-pokemon-elite-trainer-boxes-australia",
   "pokemon-tcg-gift-guide-australia",
+  "pokemon-tcg-christmas-gift-guide",
 ];
 
 const render = (slug: GuideSlug, region: Region, data: GuideData = fixture(slug)) => renderToStaticMarkup(React.createElement(GUIDE_MODULES[slug].Body, { r: REGIONS[region], data }));
@@ -347,7 +349,7 @@ const PAIRS = GUIDES.filter((g) => !ONLY || ONLY.has(g.slug)).flatMap((g) => gui
 
 test("registry: unique slugs, ISO editorial dates (updated ≥ published), descriptions ≤ 160, titles that fit a <title>", () => {
   assert.equal(new Set(GUIDES.map((g) => g.slug)).size, GUIDES.length);
-  assert.equal(GUIDES.length, 44);
+  assert.equal(GUIDES.length, 45);
   for (const g of GUIDES) {
     assert.match(g.slug, /^[a-z0-9]+(?:-[a-z0-9]+)*$/);
     for (const d of [g.published, g.updated]) {
@@ -390,10 +392,11 @@ test("the MSRP guide is US-only, the five Australian guides AU-only; every other
   for (const r of REGION_LIST.filter((x) => x.region !== "us")) {
     assert.equal(guideFor("pokemon-tcg-msrp", r.region), null, r.region);
     assert.ok(!guidesFor(r.region).some((g) => g.slug === "pokemon-tcg-msrp"), r.region);
-    assert.equal(guidesFor(r.region).length, r.region === "au" ? 43 : 38, r.region);
+    assert.equal(guidesFor(r.region).length, r.region === "au" ? 43 : r.region === "uk" || r.region === "ca" ? 39 : 38, r.region);
   }
-  assert.equal(guidesFor("us").length, 39);
-  for (const g of GUIDES.filter((x) => x.slug !== "pokemon-tcg-msrp" && !AU_ONLY.includes(x.slug))) assert.equal(guideRegions(g).length, 7, g.slug);
+  assert.equal(guidesFor("us").length, 40);
+  assert.deepEqual(guideRegions(GUIDE_BY_SLUG.get("pokemon-tcg-christmas-gift-guide")!), ["us", "uk", "ca"]);
+  for (const g of GUIDES.filter((x) => x.slug !== "pokemon-tcg-msrp" && !AU_ONLY.includes(x.slug) && x.slug !== "pokemon-tcg-christmas-gift-guide")) assert.equal(guideRegions(g).length, 7, g.slug);
   assert.equal(guideFor("no-such-guide", "au"), null);
 });
 

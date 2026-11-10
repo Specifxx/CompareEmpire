@@ -36,6 +36,7 @@ import * as deltaReignBoxVsEtb from "./delta-reign-booster-box-vs-etb";
 import * as pitchBlackChase from "./pitch-black-chase-cards";
 import * as bestEtbAu from "./best-pokemon-elite-trainer-boxes-australia";
 import * as giftAu from "./pokemon-tcg-gift-guide-australia";
+import * as giftXmas from "./pokemon-tcg-christmas-gift-guide";
 import * as beginners from "./best-pokemon-tcg-product-for-beginners";
 import * as g_flowing_fists_mega_lucario_z from "./flowing-fists-mega-lucario-z";
 import * as g_30th_celebration_chase_cards from "./30th-celebration-chase-cards";
@@ -82,6 +83,7 @@ export const GUIDE_MODULES: Record<GuideSlug, GuideModule> = {
   "pitch-black-chase-cards": pitchBlackChase,
   "best-pokemon-elite-trainer-boxes-australia": bestEtbAu,
   "pokemon-tcg-gift-guide-australia": giftAu,
+  "pokemon-tcg-christmas-gift-guide": giftXmas,
   "best-pokemon-tcg-product-for-beginners": beginners,
   "flowing-fists-mega-lucario-z": g_flowing_fists_mega_lucario_z,
   "30th-celebration-chase-cards": g_30th_celebration_chase_cards,

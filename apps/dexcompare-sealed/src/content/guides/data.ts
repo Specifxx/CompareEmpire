@@ -386,6 +386,7 @@ export async function loadGuideData(slug: GuideSlug, r: RegionInfo, now: Date = 
       // Every open ETB and Pokémon Center ETB, cheapest first (at most 120 of each: a market holds about 60 open ETBs).
       return done({ cards: (await Promise.all(ETB_TYPES.map((t) => openOfType(r.market, t, 120)))).flat() });
     case "pokemon-tcg-gift-guide-australia":
+    case "pokemon-tcg-christmas-gift-guide":
       // The 40 cheapest open products of each gift type (≤ 360 small rows): enough to fill every budget band.
       return done({ cards: (await Promise.all(GIFT_TYPES.map((t) => openOfType(r.market, t, 40)))).flat() });
     case "best-pokemon-tcg-product-for-beginners":
