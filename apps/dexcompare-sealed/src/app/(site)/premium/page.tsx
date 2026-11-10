@@ -43,6 +43,7 @@ export default function PremiumPage() {
           It does not remove ads, change which stores are shown or in what order, or promise stock: alerts use the same store feeds as the site, so a product that sells out within hours can be gone by the time you click.
           Prices are the lowest in-stock store price, before postage.
         </p>
+        <p className="text-sm"><a href="/premium/restock-alerts">How a back-in-stock alert works</a></p>
         <p className="text-sm text-muted">Questions? <a href={`mailto:${CONTACT_EMAIL}`} className="underline">{CONTACT_EMAIL}</a>. Billing is managed in your RiftCompare account.</p>
       </div>
     </div>

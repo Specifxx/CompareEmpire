@@ -5,6 +5,7 @@ import { SiteAnalytics } from "@/components/SiteAnalytics";
 import { ShareArrival } from "@/components/ShareArrival";
 import { QuickView } from "@/components/QuickView";
 import { RateCard } from "@/components/site-reviews/RateCard";
+import { PremiumCorner } from "@/components/premium/PremiumCorner";
 import { IMPACT_SITE_VERIFICATIONS } from "@/lib/affiliate";
 import { ADSENSE_CLIENT, adsenseScriptSrc } from "@/lib/adsense";
 import { GA4_ID, ga4BootScript, ga4ScriptSrc } from "@/lib/ga4";
@@ -89,6 +90,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {children}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(siteJsonLd()) }} />
         <QuickView />
+        <PremiumCorner />
         {/* Rate us (owner, 2026-11-03): the corner card, asking only after real use; RiftCompare keeps the ratings. */}
         <RateCard />
         <SiteAnalytics />
