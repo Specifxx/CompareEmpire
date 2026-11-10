@@ -552,3 +552,19 @@ dodgy". So:
   slide in the server HTML, paused on hover, focus and reduced motion, hidden for a member. Not fixed, not a pop-up. The corner card now
   arms on a visit's second page (was third), after a smaller scroll, still once a visit and silenced by ✕.
 - `/premium/return` stays for any old RiftCompare link still in flight; nothing links to it.
+
+## 2026-11-10: The sweep's calls move from eBay.de to Australia and the UK (owner: "use the recommendation")
+
+The catalogue sweep shared its 2,100 calls by product count × audience weight, which gave US 912, EU (eBay.de) 459, UK 339,
+CA 214 and AU 176. Measured over the 30 days to 11 Nov (`/mnt/project-files/strategy/ebay-site-region-split-2026-11-10.html`):
+Australia earned A$72.72, 28% of the site's eBay money, at A$0.41 per daily sweep call against A$0.11 in the US and the EU and
+A$0.07 in the UK, and its searches stopped on budget, not on eBay's last page (788 of 2,640 Australian products had a listing).
+eBay.de matched 4% of the listings it read. The owner approved the recommended split on 2026-11-10.
+
+- `SWEEP_SHARE` in `src/lib/ebay-sweep.ts` is now a fixed split: **US 912, UK 400, EU 300, AU 274, CA 214** of the default 2,100
+  (proportional to a smaller sweep). Product counts no longer decide it. The US keeps the most and is still swept first
+  (`MARKETPLACE_ORDER`); what a marketplace leaves unspent still rolls forward to the next by the same shares.
+- `MARKET_WEIGHT` is unchanged: it still ranks which fixed and per-product feeds the budget buys first.
+- The run cap, the keyset (shared with OP Compare) and the fixed feeds do not change. `tests/ebay-sweep.test.ts` pins the split.
+- Recheck about 24 Nov: eBay earnings by tag (dex-au-*, dex-uk-*, dex-eu-*) against the 30 days to 11 Nov, and the job log's
+  Sweep table for each marketplace's pages and why it stopped.
