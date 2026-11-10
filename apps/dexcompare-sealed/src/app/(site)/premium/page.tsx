@@ -18,7 +18,7 @@ export default function PremiumPage() {
       <Breadcrumbs items={[{ href: "/", label: SITE_NAME }, { label: "Premium" }]} />
       <div className="prose-dex mt-6">
         <h1>{SITE_NAME} Premium</h1>
-        <p>
+        <p className="text-lg">
           Comparing Pokémon sealed prices stays free, and so do price alerts and the weekly biggest-drops email. Premium is for people who hunt sold-out product.
         </p>
       </div>
@@ -34,9 +34,9 @@ export default function PremiumPage() {
         </ul>
         <h2>How it works</h2>
         <p>
-          Premium is a <strong>RiftCompare Premium</strong> membership, our sister site, so one account and one payment cover both. You sign up and pay on riftcompare.com (Stripe),
-          then sign in there and come straight back. {SITE_NAME} stores nothing about you: your browser keeps a sign-in token and asks RiftCompare whether your membership is active.
-          If it lapses, the extras stop at the next check; your free alerts keep working.
+          Sign in on {SITE_NAME} with Google or an emailed link (no password), pick monthly or yearly, and start the 14-day trial through Stripe&rsquo;s secure checkout.
+          You are not charged until day 15, and you can cancel any time from <strong>Manage billing</strong> on this page. Your membership also works on our sister site RiftCompare,
+          with the same account. If it lapses, the extras stop; your free alerts keep working.
         </p>
         <h2>What it does not do</h2>
         <p>
@@ -44,7 +44,7 @@ export default function PremiumPage() {
           Prices are the lowest in-stock store price, before postage.
         </p>
         <p className="text-sm"><a href="/premium/restock-alerts">How a back-in-stock alert works</a></p>
-        <p className="text-sm text-muted">Questions? <a href={`mailto:${CONTACT_EMAIL}`} className="underline">{CONTACT_EMAIL}</a>. Billing is managed in your RiftCompare account.</p>
+        <p className="text-sm text-muted">Questions? <a href={`mailto:${CONTACT_EMAIL}`} className="underline">{CONTACT_EMAIL}</a>. Billing: Manage billing on this page once you are signed in.</p>
       </div>
     </div>
   );

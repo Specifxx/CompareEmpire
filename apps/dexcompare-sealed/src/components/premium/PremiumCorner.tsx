@@ -7,7 +7,7 @@ import { readStored, PREMIUM_PRICE_LINE } from "@/lib/premium-member";
 // The Premium corner card (owner, 2026-11-10: "the slider that RiftCompare used to use, pointing to Premium"). One small card in the foot of
 // the page, never a modal, with the rules that keep it from being a pop-up for a new visitor:
 //   • Browser only, nothing in the server HTML.
-//   • Never on a visit's first two pages: it arms on the third distinct page (sessionStorage), and once armed shows only after the visitor has
+//   • Never on a visit's first page: it arms on the second distinct page (owner, 2026-11-10 follow-up: more visible) (sessionStorage), and once armed shows only after the visitor has
 //     scrolled, so a searcher's landing screen is never covered.
 //   • Never for a member (a stored Premium sign-in), on the Premium, watches or sign-in-return pages, on a product page (the buy bar is there)
 //     or while the rating card, a dialog or another ad unit is on screen: a visit holds one unit at a time. It carries [data-ad], so the phone
@@ -18,8 +18,8 @@ import { readStored, PREMIUM_PRICE_LINE } from "@/lib/premium-member";
 const SEEN_KEY = "dex_pc_pages";
 const SHOWN_KEY = "dex_pc_shown";
 const SILENT_KEY = "dex_pc_silent_until";
-const ARM_PAGES = 3;
-const SCROLL_ARM = 0.5;
+const ARM_PAGES = 2;
+const SCROLL_ARM = 0.3;
 const DAY = 86_400_000;
 const OFF_PATHS = [/^\/premium/, /^\/watches/, /\/p\//];
 
@@ -77,14 +77,19 @@ export function PremiumCorner() {
     <aside
       data-ad
       aria-label="DexCompare Premium"
-      className="fixed bottom-3 left-1/2 z-40 w-[calc(100%-1.5rem)] max-w-md -translate-x-1/2 rounded-xl border border-line bg-surface p-4 shadow-lg"
+      className="premium-slide-in fixed bottom-3 left-1/2 z-40 w-[calc(100%-1.5rem)] max-w-md -translate-x-1/2 overflow-hidden rounded-2xl bg-gradient-to-br from-[#1d2b5a] to-[#3b2a7a] p-4 text-white shadow-2xl"
     >
-      <button type="button" onClick={() => silence(14)} aria-label="Close" className="absolute right-2 top-2 rounded p-1 text-muted hover:text-ink">
+      <button type="button" onClick={() => silence(14)} aria-label="Close" className="absolute right-2 top-2 rounded p-1 text-white/70 hover:text-white">
         ✕
       </button>
-      <p className="pr-6 text-sm font-semibold text-ink">Premium: an email when sold-out Pokémon product is back in stock</p>
-      <p className="mt-1 text-xs text-muted">{PREMIUM_PRICE_LINE}.</p>
-      <a href="/premium" onClick={() => silence(30)} className="btn-primary mt-3 inline-flex text-sm">
+      <p className="text-[11px] font-bold uppercase tracking-wider text-amber-300">New · DexCompare Premium</p>
+      <p className="mt-0.5 pr-6 font-display text-lg font-bold leading-snug">Sold out? Get an email the day it&rsquo;s back.</p>
+      <p className="mt-1 text-xs text-white/75">{PREMIUM_PRICE_LINE}.</p>
+      <a
+        href="/premium"
+        onClick={() => silence(30)}
+        className="mt-3 inline-flex min-h-10 items-center rounded-full bg-gradient-to-r from-amber-400 to-orange-500 px-5 text-sm font-bold text-white"
+      >
         Try Premium free
       </a>
     </aside>

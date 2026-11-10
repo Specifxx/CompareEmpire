@@ -18,6 +18,7 @@ import { ChristmasGifts } from "@/components/season/ChristmasGifts";
 import { CreatorsCornerBadge } from "@/components/creators/CreatorsCornerBadge";
 import { SoftHeroCards } from "@/components/home/SoftHeroCards";
 import { PopularPages } from "@/components/home/PopularPages";
+import { PremiumSlides } from "@/components/premium/PremiumSlides";
 
 // Rendered per request and kept by Vercel's CDN for a day (next.config.js CDN_PAGES), never at build: the page carries
 // the default region's five most-stocked products (lib/picks.ts), read from the public data files, so a crawler's first fetch has them. It reads no cookie, header or session: one copy for all.
@@ -120,6 +121,9 @@ export default async function Landing() {
       {/* The owner's short landing page (2026-10-25): one paragraph on how it is fair, the region's five, the hot buttons, the
           footer. The long text, the FAQ, the regions and what we compare live on /about; the guides on each region's guides index;
           the market reports and the sister sites on each region home. Everything here is server-rendered. */}
+      <div className="page mb-10">
+        <PremiumSlides />
+      </div>
       <section className="page" aria-labelledby="fair-h">
         <div className="mx-auto max-w-2xl text-center">
           <h2 id="fair-h" className="sr-only">

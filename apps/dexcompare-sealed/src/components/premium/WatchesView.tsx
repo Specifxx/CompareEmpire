@@ -29,7 +29,7 @@ export function WatchesView() {
   if (state.s === "out") {
     return (
       <p>
-        Sign in to see your watches. <a className="underline" href={PREMIUM_SIGN_IN}>Sign in with your RiftCompare account</a> or <Link className="underline" href="/premium">see Premium</Link>.
+        Sign in to see your watches. <a className="underline" href={PREMIUM_SIGN_IN}>Sign in</a> or <Link className="underline" href="/premium">see Premium</Link>.
       </p>
     );
   }
