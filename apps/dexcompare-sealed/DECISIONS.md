@@ -512,3 +512,12 @@ Creators API credentials exist (GitHub secrets and Vercel Production, through th
 - The FAQPage JSON-LD goes with the visible answers (`<details>`, in the server HTML). Titles, descriptions, URLs, canonicals,
   hreflang and the sitemap are untouched, and this does not redo the page-weight work (site review X1). No indexing request or
   sitemap resubmit for Dex; the rechecks stay 14 and 25 Nov. Pinned by `tests/hub-summary.test.ts`, on the committed data files.
+
+## 2026-11-10: The Premium corner card and the announcement post (owner)
+
+Owner: "the slider that RiftCompare used to use, pointing to Premium", a Premium post, and Premium used as soon as possible. `PremiumCorner`
+(root layout, browser only) is one small card at the foot of the page, never a modal: it arms on the third distinct page of a visit, shows only
+after the visitor has scrolled half a screen, never for a member, on the Premium or watches pages, on a product page (the buy bar), or while the
+rating card or a dialog is open. It carries `data-ad`, so the phone dock yields to it and a visit holds one unit at a time. ✕ silences it 14 days,
+opening Premium 30; it shows at most once a visit. RiftCompare removed its own sliders on 2026-11-03 (owner), so this is Dex's alone, at the owner's
+2026-11-10 request. The post is a static page, `/premium/restock-alerts` (not a guide: guides need a live price block), in the sitemap with `/premium`.
