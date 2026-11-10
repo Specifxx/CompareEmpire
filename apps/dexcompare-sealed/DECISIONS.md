@@ -512,3 +512,14 @@ Creators API credentials exist (GitHub secrets and Vercel Production, through th
 - The FAQPage JSON-LD goes with the visible answers (`<details>`, in the server HTML). Titles, descriptions, URLs, canonicals,
   hreflang and the sitemap are untouched, and this does not redo the page-weight work (site review X1). No indexing request or
   sitemap resubmit for Dex; the rechecks stay 14 and 25 Nov. Pinned by `tests/hub-summary.test.ts`, on the committed data files.
+
+## 2026-11-10: The weekly price chart (X3)
+
+A dated page per week and region, `/<region>/charts/<YYYY-MM-DD>` (the week's last day, a Sunday), the same as MTG Compare's
+(ported from `Specifxx/mtgcompare`, same engine): the 20 products whose cheapest in-stock price rose most that week with last
+week's rank (▲, ▼, = or New), and the 10 biggest falls. `/<region>/charts` shows the latest week, canonical on the dated page.
+It gives creators and Reddit posts one permanent link per week with real numbers. Pure, from `data/public/price-history.json`
+alone (`lib/weekly-chart.ts`), so a past week draws exactly as it was. Real moves only: in stock at 2+ stores on both days, a
+move of 5% to under 50%. A week with fewer than 5 such moves publishes nothing. Published weeks in indexed regions are in the
+sitemap; the share image (`/og/charts/<region>/<week>`) is static. The home's chips and `/creators` link it.
+`tests/weekly-chart.test.ts`.
