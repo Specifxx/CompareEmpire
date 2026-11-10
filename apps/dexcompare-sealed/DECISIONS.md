@@ -436,3 +436,21 @@ at checkout", and standard boxes compared apart from boxes sold with cosmetic da
 - Shipping: the measurement already existed and shows `+ $9.99 shipping` once a store's measured carts bracket the price. This store's carts
   were $149.95 ($9.99) and $464.95 (free), so a $249.95 row read "Free–$9.99". The ladder is now 40/80/150/250/400 (was 300) so more rows
   fall between two measured carts of the same quote; the next weekly run writes the new points. A quote is never guessed.
+
+## 2026-11-10: DexCompare Premium, a RiftCompare Premium account that works here (owner)
+
+Owner (Bill): build DexCompare Premium now, one account for RiftCompare and DexCompare, whatever is easiest; free price alerts and
+the weekly drops email keep running. This site has no accounts, no Stripe and no database, so it holds nothing: RiftCompare's
+DECISIONS.md, same date, has the server half.
+
+- `/premium` (static, footer link) offers "Start 14-day free trial" (riftcompare.com/premium) and "sign in"
+  (riftcompare.com/sister-premium/dex). That sign-in returns to `/premium/return#t=<token>`; the token lives in the URL fragment,
+  is stored in localStorage (`dex_premium_v1`) and the fragment is removed (`lib/premium-member.ts`). The browser asks
+  `riftcompare.com/api/sister-premium/status` (at most hourly) what it is worth; RiftCompare re-reads the account each time, so a
+  lapsed member loses the extras at the next check. No page reads a cookie, header or session; pages stay static and CDN-cached.
+- Members get: a "Tell me when it's back in stock" button on a product with no in-stock price in the visitor's region
+  (`RestockAlert`, shown under the price-alert form, never a pop-up; non-members see one quiet line to /premium), up to 200 price
+  alerts, and `/watches` (noindex), their watches with stop buttons. Free alerts stay free and ungated.
+- Not done on purpose: ad-free (the eBay and TCGplayer rails are this site's income), faster restock checks (imports run about
+  twice a day), a synced collection (sealed only, so a vault is thin), the cheapest-delivered basket planner (next, if members ask).
+- Pinned by `tests/premium-member.test.ts`.
