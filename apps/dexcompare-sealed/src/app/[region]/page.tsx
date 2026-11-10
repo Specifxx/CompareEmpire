@@ -9,6 +9,8 @@ import { Ago } from "@/components/Ago";
 import { RecentlyViewed } from "@/components/Recent";
 import { firstHotSet, hotSetHighlight, NoPreFooter } from "@/components/Ebay";
 import { EbayStrip } from "@/components/EbayStrip";
+import { HubFaqSection, HubSummaryText } from "@/components/HubSummary";
+import { hubSummary } from "@/lib/hub-summary";
 import { Icon, type IconName } from "@/components/Icon";
 import { ProductGrid } from "@/components/ProductGrid";
 import { ProductRail } from "@/components/ProductRail";
@@ -109,6 +111,18 @@ export default async function RegionHome({ params }: { params: { region: string 
     median: p.medianOpenCents,
     pre: isPreorderSet(p.setCode),
   }));
+  // The server-rendered summary and FAQ (SEO-1, 2026-11-10): today's numbers from the rails above (the newest boxes and ETBs in stock)
+  // and the market overview; the cheapest named is the cheapest of those, never claimed for the whole market.
+  const summary = hubSummary({
+    r,
+    subject: "newest booster boxes and Elite Trainer Boxes",
+    countSubject: "Pokémon sealed products",
+    products: [...boxes, ...etbs],
+    complete: false,
+    openTotal: overview.inStock,
+    storeCount,
+    tcgplayer: r.market === "US",
+  });
   const other = REGIONS[nearestRegion(r.region)];
   const preorderLink = { href: `/${r.region}/releases`, label: "Pre-orders" };
 
@@ -309,6 +323,13 @@ export default async function RegionHome({ params }: { params: { region: string 
         {/* Every set listed here, so every set page is two clicks from the landing page and its products three (2026-10-25). */}
         <SetIndex r={r} counts={setCounts} types={listedTypes} />
         <HowItWorks r={r} stores={storeCount} />
+        <section aria-labelledby="today-h" className="mt-16 max-w-3xl">
+          <h2 id="today-h" className="font-display text-xl font-bold tracking-tight">
+            Pokémon sealed prices in {r.inName} today
+          </h2>
+          <HubSummaryText title={`Pokémon sealed prices in ${r.inName} today`} paragraphs={summary.paragraphs} />
+        </section>
+        <HubFaqSection faq={summary.faq} />
         {/* The site's own star score and approved reviews (owner, 2026-11-03), loaded in the browser; nothing until there is a rating. */}
         <SiteReviews />
         <CompareOtherTcgs />

@@ -18,6 +18,9 @@ import { lastCheckedAt, marketsWithSet, productsBySet, setTcgplayerTiles, type P
 import { cardOpen } from "@/lib/compact";
 import { gridPageHasRoomForFooter } from "@/lib/ebay-ads";
 import { money, timeAgo } from "@/lib/format";
+import { HubFaqSection, HubSummaryText } from "@/components/HubSummary";
+import { hubSummary } from "@/lib/hub-summary";
+import { storesInMarket } from "@/lib/stores";
 import { cheapestWayIn, prevNextSet, releaseChip, setDescription, setFacts, setIntro, setTitle, shortDate, titleText } from "@/lib/hub-copy";
 import { thumb } from "@/lib/images";
 import { cheapestPerPackByType, type PerPackPick } from "@/lib/per-pack";
@@ -114,6 +117,8 @@ export default async function SetPage({ params }: { params: { region: string; se
       highlight={setSealedHighlight(s)}
     />
   );
+  // The server-rendered summary and FAQ (SEO-1, 2026-11-10): only today's numbers from the products this page loaded.
+  const summary = hubSummary({ r, subject: `${name} sealed products`, products, complete: true, storeCount: storesInMarket(r.market).length, tcgplayer: us });
   const ld = itemListJsonLd({
     name: `${name} sealed products in ${r.inName}`,
     path,
@@ -188,6 +193,8 @@ export default async function SetPage({ params }: { params: { region: string; se
           </p>
         )}
       </section>
+
+      <HubSummaryText title={`${name} prices in ${r.inName} today`} paragraphs={summary.paragraphs} />
 
       {pre && preorderPath(r.region, s.code) && (
         <Link
@@ -287,6 +294,7 @@ export default async function SetPage({ params }: { params: { region: string; se
           {next && <SetLink r={r} s={next} dir="next" />}
         </nav>
       )}
+      <HubFaqSection faq={summary.faq} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(ld) }} />
     </div>
   );

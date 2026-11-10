@@ -494,3 +494,21 @@ while in Canada and the UK it is a US$ price shipped from the US, and Amazon CA 
 Amazon refuses the AU credential for their tags (`data/amazon/status-ca.json`, `status-uk.json`: "InvalidAssociate"). The import
 workflow now passes `AMAZON_CREATORS_CA_*`, `_UK_*` and `_EU_*` through, so their prices appear as soon as those accounts' own
 Creators API credentials exist (GitHub secrets and Vercel Production, through the owner's secrets script).
+
+## 2026-11-10: Hubs get a data-built summary and a FAQ (SEO indexing plan, SEO-1)
+
+- Google fetched `/us/type/booster-boxes` on 9 Nov (canonical right, fetch fine) and left it "Crawled, currently not indexed":
+  787 characters of prose in 565 KB of HTML. That is a verdict on the page, so more indexing requests cannot change it. The type
+  hubs, set hubs and region homes now carry a server-rendered summary and four to six FAQ answers, all computed from the rows
+  the page already loads (`lib/hub-summary.ts`, `components/HubSummary.tsx`): the cheapest in-stock product and its price and
+  store count, the middle price, the spread, how many products two or more stores stock and how many sit at least 10% under their
+  stores' middle price, the cheapest pack, and how prices are read. About 2,300 characters on the US booster box hub, different
+  in each region because the numbers are.
+- Every number comes from the data files; the copy says "today" and "right now" and is tested against `BANNED_COPY` (no pull
+  rates, expected value, investment or trend claims). A hub with too little data says less, not filler: each sentence and
+  each question exists only when its number does. On a hub that loads only its cheapest rows (a type hub's 48) the spread says
+  "among the cheapest N shown", and the region home says "among the newest booster boxes and ETBs", never "the cheapest" of
+  the whole market. The cheapest store is named by its in-stock store count, not its name (the cards do not carry it).
+- The FAQPage JSON-LD goes with the visible answers (`<details>`, in the server HTML). Titles, descriptions, URLs, canonicals,
+  hreflang and the sitemap are untouched, and this does not redo the page-weight work (site review X1). No indexing request or
+  sitemap resubmit for Dex; the rechecks stay 14 and 25 Nov. Pinned by `tests/hub-summary.test.ts`, on the committed data files.
