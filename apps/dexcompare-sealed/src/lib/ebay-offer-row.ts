@@ -139,6 +139,13 @@ export function ebayRowNote(region: string): string {
 // The split happens AFTER ranking, so the eBay listing keeps its honest place: when it arrives in the browser and ranks into the first
 // eight, the eighth store row moves into the first group, and the visible part keeps its height (every row is the same height).
 
+/**
+ * Rows past this place in the server's (price) order are drawn lean: store, stock, price, button (site review X1, 2026-11-10; OfferTable
+ * offerRowsData sets `lean`, OfferRows.tsx LeanRow draws it). Here, not in OfferRows.tsx: a server module importing a value from a
+ * "use client" module gets a client reference, not the number.
+ */
+export const FULL_ROWS = 20;
+
 /** Rows shown before the collapsed groups. */
 // ALL rows show (owner, 2026-10-24: "I want it to be all there visible"); the groups appear only if this is lowered again.
 export const VISIBLE_ROWS = 1000;

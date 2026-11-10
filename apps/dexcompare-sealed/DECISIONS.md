@@ -454,3 +454,24 @@ DECISIONS.md, same date, has the server half.
 - Not done on purpose: ad-free (the eBay and TCGplayer rails are this site's income), faster restock checks (imports run about
   twice a day), a synced collection (sealed only, so a vault is thin), the cheapest-delivered basket planner (next, if members ask).
 - Pinned by `tests/premium-member.test.ts`.
+## 2026-11-10: Product page weight cut by 42% (site review X1)
+
+Measured on a local production build with today's data: /us/p/delta-reign-booster-box was 811 KB of HTML (297 KB of it the React
+payload), /ca the same. 330 KB was the 82-row price table: ~4 KB a row, ~1.5 KB of it the store thumbs' inline styles and SVG, the
+rest utility class lists, the shipping sentence twice (tooltip and screen-reader text) and a cart icon. Flags were ~2 KB of inline
+SVG each, ~16 a page, in the HTML and again in the payload. After: 474 KB (239 KB payload), every store row and link still in the
+server HTML, and the title, meta tags, canonical, hreflang, JSON-LD, headings and the set of links byte-identical (compared).
+
+- Rows past `FULL_ROWS` (20, `lib/ebay-offer-row.ts`) in the server's price order are lean (`OfferRows.tsx` LeanRow): store, stock
+  pill, price, button. Their data drops the listing title, cart line, per-pack price, host and shipping text; the shipping cents
+  stay, so "Price + shipping" still ranks them. Every row is still visible (the owner's 2026-10-24 "all there visible").
+- The row's cells, `StockPill` and `ProductCard` use short classes from `globals.css` (`.or-*`, `.sp-*`, `.pc-*`) built with
+  `@apply` from the same utilities, so they look the same. `StoreVote` reads `components/store-vote.css` (imported by the root
+  layout, never by the component, so node tests can load it).
+- The shipping sentence is said once, in "How these prices work", not on every row.
+- `Flag` is an `<img>` of `public/flags/<code>.svg`, written from `FLAGS` by `scripts/write-flags.tsx`.
+- Not done, and why: the review asked for the rows as a server-only component so they are "not serialised a second time". In the
+  App Router a server component's output is in the RSC payload too (as an element tree, ~3x the size of the row data the client
+  list takes now), and the rows must stay a client list because "Price + shipping" re-ranks them and the eBay row is placed among
+  them in the browser. Trimming the row data was the way to shrink the payload. The 300 KB target needs the header, footer and
+  side rails slimmed next; they are the same on every page.

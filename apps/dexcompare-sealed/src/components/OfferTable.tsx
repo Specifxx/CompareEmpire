@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import type { OfferView } from "@/lib/data";
 import { offerLink, offerRetailer, REL_SPONSORED, TCGPLAYER_KEY, TCGPLAYER_RETAILER, tcgplayerSearchUrl, type Placement } from "@/lib/affiliate";
-import { ebayRowNote, moreClosedLabel, moreOpenLabel, splitRows, tableFooter, type PriceFloor } from "@/lib/ebay-offer-row";
+import { ebayRowNote, FULL_ROWS, moreClosedLabel, moreOpenLabel, splitRows, tableFooter, type PriceFloor } from "@/lib/ebay-offer-row";
 import { money, timeAgo } from "@/lib/format";
 import { amazonFor, amazonHref, AMAZON_REL } from "@/lib/amazon";
 import { AMAZON_CLOCK, type AmazonLive } from "@/lib/amazon-live";
@@ -161,6 +161,39 @@ export function offerRowsData({
     const state = offerStock(o, now);
     const link = offerLink(o.store, o.url, region, placement);
     const open = state === "open";
+    // Past FULL_ROWS a row is drawn lean (OfferRows.tsx LeanRow), so its data drops what only the full row draws (site review X1):
+    // the listing's title, the cart line, the per-pack price and the shipping text (its cents stay: "Price + shipping" ranks by them).
+    if (i >= FULL_ROWS) {
+      const ship = o.marketplace ? null : shippingCell(o.store, r.market, o.priceCents, (c) => money(c, r.market));
+      return {
+        ...(numbered && open ? { rank: ++rank } : {}),
+        ...(bestLabel && o === cheapestOpen ? { badge: bestLabel } : {}),
+        key: o.store,
+        cents: o.priceCents,
+        open,
+        state,
+        best: o === cheapestOpen,
+        name: o.storeName,
+        host: "",
+        title: "",
+        marketplace: o.marketplace,
+        href: link.href,
+        rel: link.rel,
+        sponsored: link.sponsored,
+        retailer: offerRetailer(o.store, o.storeName, r.market),
+        placement,
+        region,
+        product,
+        position: i + 1,
+        price: money(o.priceCents, r.market),
+        perPack: null,
+        lastSeen: "",
+        ago: "",
+        ship: ship && { min: ship.min, max: ship.max, text: "", hint: "", title: "" },
+        lean: true,
+      };
+    }
+    const ship = o.marketplace ? null : shippingCell(o.store, r.market, o.priceCents, (c) => money(c, r.market));
     return {
       ...(numbered && open ? { rank: ++rank } : {}),
       ...(bestLabel && o === cheapestOpen ? { badge: bestLabel } : {}),
@@ -187,7 +220,8 @@ export function offerRowsData({
       perPack: packs && open && o.priceCents > 0 ? money(Math.round(o.priceCents / packs), r.market) : null,
       lastSeen: o.lastSeen,
       ago: timeAgo(o.lastSeen, now),
-      ship: o.marketplace ? null : shippingCell(o.store, r.market, o.priceCents, (c) => money(c, r.market)),
+      // The sentence (`title`) is said once under the table, not on every row (OfferRows.tsx ShipLine).
+      ship: ship && { ...ship, title: "" },
       ...(o.marketplace ? {} : { cart: { productUrl: o.url, currency: r.currency } }),
     };
   });
