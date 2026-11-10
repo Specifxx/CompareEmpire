@@ -1,7 +1,7 @@
 {
  "v": 1,
  "site": "dex",
- "generatedAt": "2026-11-10T03:42:44.018Z",
+ "generatedAt": "2026-11-10T17:27:41.137Z",
  "links": {
   "AU": {
    "deals": "https://dexcompare.app/au/deals"
@@ -36,9 +36,9 @@
    "currency": "AUD",
    "store": "Grand J Games",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/688712_in_1000x1000.jpg",
-   "refCents": 7750,
+   "refCents": 7500,
    "refLabel": "median store price",
-   "savingPct": 48
+   "savingPct": 47
   },
   {
    "kind": "deal",
@@ -254,6 +254,20 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "US",
+   "title": "League Battle Deck - Mega Lucario ex",
+   "url": "https://dexcompare.app/us/p/league-battle-deck-mega-lucario-ex",
+   "cents": 1395,
+   "currency": "USD",
+   "store": "Geekery Games",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/684106_in_1000x1000.jpg",
+   "refCents": 2499,
+   "refLabel": "median store price",
+   "savingPct": 44
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "US",
    "title": "Inferno X Japanese Booster Box (M2)",
    "url": "https://dexcompare.app/us/p/inferno-x-m2-japanese-booster-box",
    "cents": 10499,
@@ -263,20 +277,6 @@
    "refCents": 18747,
    "refLabel": "median store price",
    "savingPct": 44
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "US",
-   "title": "30th Celebration - Mini Tin - Zapdos",
-   "url": "https://dexcompare.app/us/p/30th-celebration-mini-tin-zapdos",
-   "cents": 2395,
-   "currency": "USD",
-   "store": "Maine Phase Hobbies & Games",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/704181_in_1000x1000.jpg",
-   "refCents": 3495,
-   "refLabel": "median store price",
-   "savingPct": 31
   },
   {
    "kind": "deal",
@@ -303,6 +303,20 @@
    "store": "Rare Pokémon Cards UK",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/478335_in_1000x1000.jpg",
    "refCents": 5000,
+   "refLabel": "median store price",
+   "savingPct": 48
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "UK",
+   "title": "Destined Rivals Elite Trainer Box",
+   "url": "https://dexcompare.app/uk/p/destined-rivals-elite-trainer-box",
+   "cents": 5199,
+   "currency": "GBP",
+   "store": "Rare Pokémon Cards UK",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/624676_in_1000x1000.jpg",
+   "refCents": 9999,
    "refLabel": "median store price",
    "savingPct": 48
   },
@@ -338,29 +352,15 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "UK",
-   "title": "English TCG: Mega Greninja ex Premium Collection",
-   "url": "https://dexcompare.app/uk/p/english-tcg-mega-greninja-ex-premium-collection",
-   "cents": 3544,
-   "currency": "GBP",
-   "store": "Rare Pokémon Cards UK",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/690660_in_1000x1000.jpg",
-   "refCents": 6299,
-   "refLabel": "median store price",
-   "savingPct": 44
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "UK",
    "title": "Perfect Order Booster Pack",
    "url": "https://dexcompare.app/uk/p/perfect-order-booster-pack",
    "cents": 365,
    "currency": "GBP",
    "store": "Rare Pokémon Cards UK",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/672398_in_1000x1000.jpg",
-   "refCents": 639,
+   "refCents": 650,
    "refLabel": "median store price",
-   "savingPct": 43
+   "savingPct": 44
   },
   {
    "kind": "deal",
@@ -428,7 +428,7 @@
    "currency": "CAD",
    "store": "Just-a-Hobby",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/696613_in_1000x1000.jpg",
-   "refCents": 2199,
+   "refCents": 2200,
    "refLabel": "median store price",
    "savingPct": 41
   },
@@ -520,15 +520,15 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "EU",
-   "title": "30th Celebration Ditto Premium Collection",
-   "url": "https://dexcompare.app/eu/p/30th-celebration-ditto-premium-collection",
-   "cents": 6000,
+   "title": "Glory of Team Rocket Japanese Booster Pack (SV10)",
+   "url": "https://dexcompare.app/eu/p/glory-of-team-rocket-sv10-japanese-booster-pack",
+   "cents": 390,
    "currency": "EUR",
-   "store": "GoRetroGaming",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/704189_in_1000x1000.jpg",
-   "refCents": 10590,
+   "store": "Toy Treasure",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/629198_in_1000x1000.jpg",
+   "refCents": 700,
    "refLabel": "median store price",
-   "savingPct": 43
+   "savingPct": 44
   },
   {
    "kind": "deal",
@@ -550,13 +550,13 @@
    "region": "SG",
    "title": "Pitch Black Elite Trainer Box",
    "url": "https://dexcompare.app/sg/p/pitch-black-elite-trainer-box",
-   "cents": 8750,
+   "cents": 8600,
    "currency": "SGD",
    "store": "TEFUDA",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/692947_in_1000x1000.jpg",
    "refCents": 14000,
    "refLabel": "median store price",
-   "savingPct": 38
+   "savingPct": 39
   },
   {
    "kind": "deal",
@@ -604,13 +604,13 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "SG",
-   "title": "Chaos Rising Elite Trainer Box",
-   "url": "https://dexcompare.app/sg/p/chaos-rising-elite-trainer-box",
-   "cents": 9000,
+   "title": "First Partner Illustration Collection (Series 2)",
+   "url": "https://dexcompare.app/sg/p/first-partner-illustration-collection-series-2-2",
+   "cents": 3100,
    "currency": "SGD",
    "store": "TEFUDA",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/684450_in_1000x1000.jpg",
-   "refCents": 13000,
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/688712_in_1000x1000.jpg",
+   "refCents": 4500,
    "refLabel": "median store price",
    "savingPct": 31
   }
