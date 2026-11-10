@@ -475,3 +475,22 @@ server HTML, and the title, meta tags, canonical, hreflang, JSON-LD, headings an
   list takes now), and the rows must stay a client list because "Price + shipping" re-ranks them and the eBay row is placed among
   them in the browser. Trimming the row data was the way to shrink the payload. The 300 KB target needs the header, footer and
   side rails slimmed next; they are the same on every page.
+
+## 2026-11-10: Canada and UK already show every paid row the US does (site review DEX-1)
+
+The review asked why Canada (1,218 visitors, under A$5.25) and the UK (820, A$10.06) earn so little beside the US (1,637, A$551)
+and to add whatever paid rows /ca and /uk lack. Checked on a local build of /us, /ca, /uk and /au /p/delta-reign-booster-box and
+their quick views (/api/quick/<region>/<slug>):
+
+| Paid row, in order | US | CA | UK |
+|---|---|---|---|
+| eBay (that country's eBay, a priced listing in the browser) | ebay.com, `dex-us-…` | ebay.ca, `dex-ca-…` | ebay.co.uk, `dex-uk-…` |
+| Amazon | amazon.com, priced (US credential) | amazon.ca search, `compareempire-20` + `dex-ca-amazon-table` | amazon.co.uk search, `compareempi03-21` + `dex-uk-amazon-table` |
+| TCGplayer | ranked US$ offer through /go, `sharedid=dex-us-…` | US$ offer, "ships from the US", `sharedid=dex-ca-…` | same, `sharedid=dex-uk-…` |
+
+Every row is present, pinned in the same order and tagged per region, on the product page and in the quick view. Nothing was missing
+to add. The gap is elsewhere: in the US the TCGplayer row is a comparable price (often the best one) in the buyer's own currency,
+while in Canada and the UK it is a US$ price shipped from the US, and Amazon CA and UK show a search instead of a price because
+Amazon refuses the AU credential for their tags (`data/amazon/status-ca.json`, `status-uk.json`: "InvalidAssociate"). The import
+workflow now passes `AMAZON_CREATORS_CA_*`, `_UK_*` and `_EU_*` through, so their prices appear as soon as those accounts' own
+Creators API credentials exist (GitHub secrets and Vercel Production, through the owner's secrets script).
