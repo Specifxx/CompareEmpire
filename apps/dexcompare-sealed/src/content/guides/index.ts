@@ -54,6 +54,7 @@ export type GuideSlug =
   | "pitch-black-chase-cards"
   | "best-pokemon-elite-trainer-boxes-australia"
   | "pokemon-tcg-gift-guide-australia"
+  | "pokemon-tcg-christmas-gift-guide"
   | "best-pokemon-tcg-product-for-beginners"
   | "flowing-fists-mega-lucario-z"
   | "30th-celebration-chase-cards"
@@ -484,6 +485,18 @@ export const GUIDES: readonly Guide[] = [
     published: "2026-10-26",
     updated: "2026-10-26",
     regions: ["au"],
+    topic: { types: ["booster-bundle", "etb", "tin", "collection", "build-battle", "booster-box", "blister"] },
+    ebay: { context: "sealed", heading: "Pokémon sealed on eBay" },
+    tools: ["value-checker"],
+  },
+  {
+    slug: "pokemon-tcg-christmas-gift-guide",
+    title: "Pokémon TCG Christmas gift guide, by budget",
+    description: "Pokémon TCG Christmas gifts in stock at stores today, by budget: blisters and tins, bundles, ETBs, boxes, and what each one holds.",
+    kicker: "Gift guide",
+    published: "2026-11-10",
+    updated: "2026-11-10",
+    regions: ["us", "uk", "ca"],
     topic: { types: ["booster-bundle", "etb", "tin", "collection", "build-battle", "booster-box", "blister"] },
     ebay: { context: "sealed", heading: "Pokémon sealed on eBay" },
     tools: ["value-checker"],
