@@ -16,6 +16,8 @@ import { SETS } from "./sets";
 import { SITE_URL } from "./site";
 import { STORES } from "./stores";
 import { detailIndexed } from "./index-tiers";
+import { readPriceHistory } from "./price-history";
+import { publishedWeeks } from "./weekly-chart";
 
 export const STATIC_SITEMAP_ID = 0;
 
@@ -108,6 +110,9 @@ export function staticSitemap(
   }
   // Every guide, in each region it is offered in (the registry is pure: no database read). No lastmod: a guide's live blocks
   // change with each import, but its text only when it is edited.
+  // The weekly charts (lib/weekly-chart.ts): every published week, in the indexed regions. A week's page never changes once it ends.
+  const history = readPriceHistory();
+  for (const r of REGION_LIST) for (const w of detailIndexed(r.region) ? publishedWeeks(history, r.market) : []) out.push(url(`/${r.region}/charts/${w}`, new Date(`${w}T00:00:00Z`), "weekly", 0.5));
   for (const r of REGION_LIST) for (const g of detailIndexed(r.region) ? guidesFor(r.region) : []) out.push(url(`/${r.region}/guides/${g.slug}`, null, "weekly", 0.6));
   // The tools (src/content/tools): the index and every tool, in every region. No lastmod: their copy changes only when edited.
   for (const r of REGION_LIST) {

@@ -439,3 +439,10 @@ export async function loadGuideData(slug: GuideSlug, r: RegionInfo, now: Date = 
     }
   }
 }
+
+/** Product cards for a list of slugs in one market (the weekly chart's rows), unordered. */
+export async function cardsFor(market: Market, slugs: readonly string[]): Promise<ProductCardData[]> {
+  if (!slugs.length) return [];
+  const rows = await prisma.productStat.findMany({ where: { market, product: { slug: { in: [...slugs] } } }, select: cardSelect });
+  return rows.map(toCard);
+}
