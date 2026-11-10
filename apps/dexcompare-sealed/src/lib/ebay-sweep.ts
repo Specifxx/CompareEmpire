@@ -30,7 +30,7 @@ import { refusedForType, refusedListing } from "./ebay-rules";
 import type { PlanRow } from "./ebay-store";
 import { HOT_SET_QUERY, HOT_SETS } from "./popular";
 import { identifyAny, isIdentity, normalizeTitle, PRODUCT_TYPES, TYPE_BY_KEY, TYPE_BY_LABEL, type TypeKey } from "./sealed-title";
-import { MARKET_WEIGHT, MARKETPLACE_OF_REGION } from "./ebay-context";
+import { MARKETPLACE_OF_REGION } from "./ebay-context";
 import type { Region } from "./regions";
 import { SETS } from "./sets";
 
@@ -573,12 +573,20 @@ export async function sweepWithHot(
 }
 
 /**
- * How a sweep budget is shared between marketplaces: by how many products each lists × its audience weight (MARKET_WEIGHT: the US
- * first, then the UK and the EU, then Australia and Canada), with a floor so a small one still gets a few pages. The importer asks
- * again before each marketplace with what is left, so what one leaves unspent rolls forward in MARKETPLACE_ORDER.
+ * The catalogue sweep's split of its calls between marketplaces (owner, 2026-11-10: "use the recommendation"; DECISIONS.md). Measured
+ * 30 days to 11 Nov: Australia earned A$0.41 per daily sweep call against 0.11 in the US and the EU and 0.07 in the UK, and its sweep
+ * stopped on budget, while eBay.de took 459 calls for 4% of its listings matched. Of the default 2,100: US 912, UK 400, EU 300, AU 274,
+ * CA 214. The US keeps the most and is still swept first (MARKETPLACE_ORDER).
+ */
+export const SWEEP_SHARE: Record<MarketplaceId, number> = { EBAY_US: 912, EBAY_GB: 400, EBAY_DE: 300, EBAY_AU: 274, EBAY_CA: 214 };
+
+/**
+ * How a sweep budget is shared between marketplaces: by SWEEP_SHARE (fixed, not by product count since 2026-11-10), with a floor so a
+ * small one still gets a few pages. The importer asks again before each marketplace with what is left, so what one leaves unspent rolls
+ * forward in MARKETPLACE_ORDER, split by the same shares.
  */
 export function marketplaceShares(indexes: readonly SweepIndex[], budget: number, minShare = 0.08): Map<MarketplaceId, number> {
-  const w = (x: SweepIndex) => x.products.length * MARKET_WEIGHT[x.marketplace];
+  const w = (x: SweepIndex) => (x.products.length > 0 ? SWEEP_SHARE[x.marketplace] : 0);
   const total = indexes.reduce((a, x) => a + w(x), 0);
   const out = new Map<MarketplaceId, number>();
   if (!total || budget <= 0) {

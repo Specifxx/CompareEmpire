@@ -10,7 +10,7 @@
 //     4. sets     chase cards of the 30 most recently released sets, 1 query each           (5 × 30  = 150)
 //     5. sweep    the CATALOGUE SWEEP (ebay-sweep.ts): broad searches paged 200 listings a call, each listing
 //                 handed to the product the classifier says it is: an item feed for EVERY product it finds,
-//                 cheap ones included (EBAY_SWEEP_CALLS, default 2,100, shared by marketplace by product count × audience,
+//                 cheap ones included (EBAY_SWEEP_CALLS, default 2,100, shared by marketplace by ebay-sweep.ts SWEEP_SHARE,
 //                 in MARKETPLACE_ORDER); each marketplace starts with the HOT PASS (the hot sets' own searches, at most
 //                 half its share)
 //     6. items    one query per (marketplace, product) the sweep did NOT cover, whatever the sweep left of the run cap:

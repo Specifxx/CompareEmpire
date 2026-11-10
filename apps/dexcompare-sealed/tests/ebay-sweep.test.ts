@@ -11,6 +11,7 @@ import {
   hotSweepQueries,
   isFiller,
   marketplaceShares,
+  SWEEP_SHARE,
   matchListing,
   setWordsIn,
   SWEEP_PAGE,
@@ -216,27 +217,32 @@ test("paging: 200 a page with the offset, round-robin across queries, stops at t
   assert.equal(tight[0].stopped, "budget");
 });
 
-test("shares: by product count x audience weight (the US first), with a floor for a small marketplace, never more than the budget", () => {
+test("shares: the owner's fixed split (2026-11-10), the US first and largest, never more than the budget, unspent rolls forward", () => {
   const rows = [...catalogue(), ...Array.from({ length: 40 }, (_, i) => planRow("tin", "CA", 2000, { name: `Tin - Pikachu ${i}`, productId: `ca${i}` }))];
   const vocab = sweepVocabulary(rows);
   const ix = (["EBAY_US", "EBAY_AU", "EBAY_CA"] as const).map((m) => buildSweepIndex(rows, m, vocab));
   assert.deepEqual(ix.map((x) => x.products.length), [8, 1, 40]);
+  // product counts no longer decide: Canada's 40 products do not outbid the US's 8
   const sh = marketplaceShares(ix, 1000);
-  const total = [...sh.values()].reduce((a, b) => a + b, 0);
-  assert.ok(total <= 1000);
-  assert.ok(sh.get("EBAY_CA")! > sh.get("EBAY_US")!, "five times the products at a quarter of the weight: more pages");
-  assert.ok(sh.get("EBAY_AU")! >= 70, "the floor");
-  // the same products at the US's weight, the UK's and Canada's: the US's share is the largest, Canada's the smallest
-  const same = (["EBAY_US", "EBAY_GB", "EBAY_DE", "EBAY_AU", "EBAY_CA"] as const).map((marketplace) => ({ ...ix[0], marketplace }));
-  const s2 = marketplaceShares(same, 1000);
-  assert.ok(s2.get("EBAY_US")! > s2.get("EBAY_GB")! && s2.get("EBAY_GB")! === s2.get("EBAY_DE")! && s2.get("EBAY_DE")! > s2.get("EBAY_AU")! && s2.get("EBAY_AU")! > s2.get("EBAY_CA")!, JSON.stringify([...s2]));
-  // the first full run's catalogue (2026-10-11: US 2,538, UK 2,169, EU 1,593, AU 2,339, CA 3,526 products): the US gets the most
-  const sized = (marketplace: "EBAY_US" | "EBAY_GB" | "EBAY_DE" | "EBAY_AU" | "EBAY_CA", n: number) => ({ ...ix[0], marketplace, products: Array.from({ length: n }, () => ix[0].products[0]) });
-  const real = marketplaceShares([sized("EBAY_US", 2538), sized("EBAY_GB", 2169), sized("EBAY_DE", 1593), sized("EBAY_AU", 2339), sized("EBAY_CA", 3526)], 2100);
-  const us = real.get("EBAY_US")!;
-  assert.ok([...real].every(([m, v]) => m === "EBAY_US" || v < us), JSON.stringify([...real]));
-  assert.ok(real.get("EBAY_GB")! > real.get("EBAY_AU")! && real.get("EBAY_GB")! > real.get("EBAY_CA")!, "the UK before Australia and Canada");
-  assert.ok([...real.values()].reduce((a, b) => a + b, 0) <= 2100);
+  assert.ok([...sh.values()].reduce((a, b) => a + b, 0) <= 1000);
+  assert.ok(sh.get("EBAY_US")! > sh.get("EBAY_AU")! && sh.get("EBAY_AU")! > sh.get("EBAY_CA")!, JSON.stringify([...sh]));
+  // the default 2,100, asked again before each marketplace in MARKETPLACE_ORDER as the importer does: US 912 / UK 400 / EU 300 / AU 274 / CA 214
+  const all = (["EBAY_US", "EBAY_GB", "EBAY_DE", "EBAY_AU", "EBAY_CA"] as const).map((marketplace) => ({ ...ix[0], marketplace }));
+  assert.deepEqual(SWEEP_SHARE, { EBAY_US: 912, EBAY_GB: 400, EBAY_DE: 300, EBAY_AU: 274, EBAY_CA: 214 });
+  const walk = (spentOf: (m: string, budget: number) => number) => {
+    let left = 2100;
+    const got: Record<string, number> = {};
+    all.forEach((x, i) => {
+      const b = marketplaceShares(all.slice(i), left).get(x.marketplace)!;
+      got[x.marketplace] = b;
+      left -= spentOf(x.marketplace, b);
+    });
+    return got;
+  };
+  assert.deepEqual(walk((_, b) => b), { EBAY_US: 912, EBAY_GB: 400, EBAY_DE: 300, EBAY_AU: 274, EBAY_CA: 214 });
+  // eBay.de stops early: what it leaves goes on to Australia and Canada
+  const short = walk((m, b) => (m === "EBAY_DE" ? 100 : b));
+  assert.ok(short.EBAY_AU > 274 && short.EBAY_CA > 214, JSON.stringify(short));
 });
 
 // ─── hot sets (src/lib/popular.ts) ──────────────────────────────────────────────
