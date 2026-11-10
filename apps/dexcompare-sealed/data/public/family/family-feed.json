@@ -1,7 +1,7 @@
 {
  "v": 1,
  "site": "dex",
- "generatedAt": "2026-11-09T20:01:54.641Z",
+ "generatedAt": "2026-11-10T03:42:44.018Z",
  "links": {
   "AU": {
    "deals": "https://dexcompare.app/au/deals"
@@ -30,29 +30,15 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "AU",
-   "title": "First Partner Illustration Collection (Series 3)",
-   "url": "https://dexcompare.app/au/p/first-partner-illustration-collection-series-3",
-   "cents": 3995,
-   "currency": "AUD",
-   "store": "Grand J Games",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/695400_in_1000x1000.jpg",
-   "refCents": 7700,
-   "refLabel": "median store price",
-   "savingPct": 48
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "AU",
    "title": "First Partner Illustration Collection (Series 2)",
    "url": "https://dexcompare.app/au/p/first-partner-illustration-collection-series-2-2",
    "cents": 3995,
    "currency": "AUD",
    "store": "Grand J Games",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/688712_in_1000x1000.jpg",
-   "refCents": 7250,
+   "refCents": 7750,
    "refLabel": "median store price",
-   "savingPct": 45
+   "savingPct": 48
   },
   {
    "kind": "deal",
@@ -113,6 +99,20 @@
   {
    "kind": "deal",
    "cluster": "cards",
+   "region": "AU",
+   "title": "Snow Hazard Japanese Booster Pack (SV2P)",
+   "url": "https://dexcompare.app/au/p/snow-hazard-sv2p-japanese-booster-pack",
+   "cents": 399,
+   "currency": "AUD",
+   "store": "One Stop Poke Shop",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/565238_in_1000x1000.jpg",
+   "refCents": 600,
+   "refLabel": "median store price",
+   "savingPct": 34
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
    "region": "NZ",
    "title": "League Battle Deck - Mega Lucario ex",
    "url": "https://dexcompare.app/nz/p/league-battle-deck-mega-lucario-ex",
@@ -128,20 +128,6 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "NZ",
-   "title": "Delta Reign Booster Pack",
-   "url": "https://dexcompare.app/nz/p/delta-reign-booster-pack",
-   "cents": 990,
-   "currency": "NZD",
-   "store": "Animal Kingdoms",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/712099_in_1000x1000.jpg",
-   "refCents": 1199,
-   "refLabel": "median store price",
-   "savingPct": 17
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "NZ",
    "title": "Surging Sparks Booster Pack",
    "url": "https://dexcompare.app/nz/p/surging-sparks-booster-pack",
    "cents": 1500,
@@ -151,6 +137,20 @@
    "refCents": 1798,
    "refLabel": "median store price",
    "savingPct": 17
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "NZ",
+   "title": "Delta Reign Booster Pack",
+   "url": "https://dexcompare.app/nz/p/delta-reign-booster-pack",
+   "cents": 990,
+   "currency": "NZD",
+   "store": "Animal Kingdoms",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/712099_in_1000x1000.jpg",
+   "refCents": 1159,
+   "refLabel": "median store price",
+   "savingPct": 15
   },
   {
    "kind": "deal",
@@ -218,9 +218,9 @@
    "currency": "USD",
    "store": "Apollo's Vault",
    "image": "https://cdn.shopify.com/s/files/1/1704/1809/files/Pokemon-MegaEvolution-ChaosRising-3PackBlister.png?v=1773419641",
-   "refCents": 2450,
+   "refCents": 2499,
    "refLabel": "median store price",
-   "savingPct": 47
+   "savingPct": 48
   },
   {
    "kind": "deal",
@@ -235,20 +235,6 @@
    "refCents": 11338,
    "refLabel": "median store price",
    "savingPct": 47
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "US",
-   "title": "Ancient Roar Japanese Booster Pack (SV4K)",
-   "url": "https://dexcompare.app/us/p/ancient-roar-sv4k-japanese-booster-pack",
-   "cents": 295,
-   "currency": "USD",
-   "store": "Black Wolf Collectibles",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/565230_in_1000x1000.jpg",
-   "refCents": 550,
-   "refLabel": "median store price",
-   "savingPct": 46
   },
   {
    "kind": "deal",
@@ -281,6 +267,20 @@
   {
    "kind": "deal",
    "cluster": "cards",
+   "region": "US",
+   "title": "30th Celebration - Mini Tin - Zapdos",
+   "url": "https://dexcompare.app/us/p/30th-celebration-mini-tin-zapdos",
+   "cents": 2395,
+   "currency": "USD",
+   "store": "Maine Phase Hobbies & Games",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/704181_in_1000x1000.jpg",
+   "refCents": 3495,
+   "refLabel": "median store price",
+   "savingPct": 31
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
    "region": "UK",
    "title": "Origin Forme Palkia VSTAR League Battle Deck",
    "url": "https://dexcompare.app/uk/p/origin-forme-palkia-vstar-league-battle-deck",
@@ -296,29 +296,43 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "UK",
-   "title": "Destined Rivals Elite Trainer Box",
-   "url": "https://dexcompare.app/uk/p/destined-rivals-elite-trainer-box",
-   "cents": 5199,
+   "title": "Scarlet & Violet Elite Trainer Box",
+   "url": "https://dexcompare.app/uk/p/scarlet-violet-elite-trainer-box",
+   "cents": 2576,
    "currency": "GBP",
    "store": "Rare Pokémon Cards UK",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/624676_in_1000x1000.jpg",
-   "refCents": 9849,
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/478335_in_1000x1000.jpg",
+   "refCents": 5000,
    "refLabel": "median store price",
-   "savingPct": 47
+   "savingPct": 48
   },
   {
    "kind": "deal",
    "cluster": "cards",
    "region": "UK",
-   "title": "30th Celebration Mewtwo Figure Collection",
-   "url": "https://dexcompare.app/uk/p/30th-celebration-mewtwo-figure-collection",
-   "cents": 2995,
+   "title": "Pokémon Card 151 Japanese Booster Box (SV2a)",
+   "url": "https://dexcompare.app/uk/p/pokemon-card-151-sv2a-japanese-booster-box",
+   "cents": 14995,
    "currency": "GBP",
-   "store": "OBSIDIA TCG",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/704194_in_1000x1000.jpg",
-   "refCents": 5499,
+   "store": "TCGShopUK",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/565243_in_1000x1000.jpg",
+   "refCents": 28999,
    "refLabel": "median store price",
-   "savingPct": 46
+   "savingPct": 48
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "UK",
+   "title": "Black Bolt Japanese Booster Box (SV11B)",
+   "url": "https://dexcompare.app/uk/p/black-bolt-sv11b-japanese-booster-box",
+   "cents": 8995,
+   "currency": "GBP",
+   "store": "TCGShopUK",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/637384_in_1000x1000.jpg",
+   "refCents": 16449,
+   "refLabel": "median store price",
+   "savingPct": 45
   },
   {
    "kind": "deal",
@@ -347,20 +361,6 @@
    "refCents": 639,
    "refLabel": "median store price",
    "savingPct": 43
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "UK",
-   "title": "Mega Dream ex Japanese Booster Pack (M2a)",
-   "url": "https://dexcompare.app/uk/p/mega-dream-ex-m2a-japanese-booster-pack",
-   "cents": 699,
-   "currency": "GBP",
-   "store": "Impact League TCG",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/666255_in_1000x1000.jpg",
-   "refCents": 1200,
-   "refLabel": "median store price",
-   "savingPct": 42
   },
   {
    "kind": "deal",
@@ -422,6 +422,20 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "CA",
+   "title": "30th Celebration Booster Pack",
+   "url": "https://dexcompare.app/ca/p/30th-celebration-booster-pack",
+   "cents": 1299,
+   "currency": "CAD",
+   "store": "Just-a-Hobby",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/696613_in_1000x1000.jpg",
+   "refCents": 2199,
+   "refLabel": "median store price",
+   "savingPct": 41
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "CA",
    "title": "Pokemon GO V Battle Deck Bundle [Mewtwo V/Melmetal V]",
    "url": "https://dexcompare.app/ca/p/go-battle-deck-mewtwo-v-melmetal-v",
    "cents": 1300,
@@ -431,20 +445,6 @@
    "refCents": 2201,
    "refLabel": "median store price",
    "savingPct": 41
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "CA",
-   "title": "Perfect Order Sleeved Booster",
-   "url": "https://dexcompare.app/ca/p/perfect-order-sleeved-booster",
-   "cents": 595,
-   "currency": "CAD",
-   "store": "Taps Games",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/672412_in_1000x1000.jpg",
-   "refCents": 995,
-   "refLabel": "median store price",
-   "savingPct": 40
   },
   {
    "kind": "deal",
@@ -550,7 +550,7 @@
    "region": "SG",
    "title": "Pitch Black Elite Trainer Box",
    "url": "https://dexcompare.app/sg/p/pitch-black-elite-trainer-box",
-   "cents": 8739,
+   "cents": 8750,
    "currency": "SGD",
    "store": "TEFUDA",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/692947_in_1000x1000.jpg",
@@ -606,7 +606,7 @@
    "region": "SG",
    "title": "Chaos Rising Elite Trainer Box",
    "url": "https://dexcompare.app/sg/p/chaos-rising-elite-trainer-box",
-   "cents": 8980,
+   "cents": 9000,
    "currency": "SGD",
    "store": "TEFUDA",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/684450_in_1000x1000.jpg",
