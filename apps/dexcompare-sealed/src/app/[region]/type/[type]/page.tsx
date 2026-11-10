@@ -6,6 +6,7 @@ import { Ago } from "@/components/Ago";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { NoPreFooter } from "@/components/Ebay";
 import { EbayStrip } from "@/components/EbayStrip";
+import { HubFaqSection, HubSummaryText } from "@/components/HubSummary";
 import { Icon } from "@/components/Icon";
 import { StockFilter } from "@/components/StockFilter";
 import { ProductGrid } from "@/components/ProductGrid";
@@ -14,6 +15,8 @@ import { lastCheckedAt, marketsWithType } from "@/lib/data";
 import { gridPageHasRoomForFooter } from "@/lib/ebay-ads";
 import { money, plural, timeAgo } from "@/lib/format";
 import { dealsAnchor, shortDate, titleText, typeDescription, typeMsrpFact, typeName, typePacksFact, typePerPackRows, typeTitle } from "@/lib/hub-copy";
+import { hubSummary } from "@/lib/hub-summary";
+import { storesInMarket } from "@/lib/stores";
 import { typeIndexRows, typePageData, typeLabelsInMarket } from "@/lib/hub-data";
 import { regionOfMarket, regionOrNotFound, type Market, type RegionInfo } from "@/lib/regions";
 import { RRP_NOTE } from "@/lib/rrp";
@@ -97,6 +100,8 @@ export default async function TypePage({ params }: { params: { region: string; t
       search={{ kind: "sealed", query: t.label, label: `Search ${name} on eBay` }}
     />
   );
+  // The server-rendered summary and FAQ (SEO-1, 2026-11-10): only today's numbers from the rows this page loaded.
+  const summary = hubSummary({ r, subject: t.plural.toLowerCase(), products: [...open, ...sold], complete: !more && soldCount <= sold.length, openTotal: openCount, soldTotal: soldCount, storeCount: storesInMarket(r.market).length, tcgplayer: r.market === "US" });
   const ld = itemListJsonLd({
     name: `${name} in ${r.inName}`,
     path,
@@ -167,6 +172,8 @@ export default async function TypePage({ params }: { params: { region: string; t
         </li>
         {/* No Amazon category search here (2026-11-02): Amazon's Operating Agreement wants every link to lead to a specific product. */}
       </ul>
+
+      <HubSummaryText title={`${name} in ${r.inName} today`} paragraphs={summary.paragraphs} />
 
       <nav aria-label="Other product types" className="mt-3">
         {/* One row that scrolls sideways at every width: a wrapping row changes its line count when the web font arrives. */}
@@ -284,6 +291,7 @@ export default async function TypePage({ params }: { params: { region: string; t
           </ul>
         </section>
       )}
+      <HubFaqSection faq={summary.faq} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(ld) }} />
     </div>
   );
