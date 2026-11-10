@@ -46,7 +46,7 @@ export default function RestockAlertsPost() {
         <h2>What it costs and how to try it</h2>
         <p>
           Premium is a RiftCompare Premium membership, our sister site, so one account and one payment cover both. It costs US$4.99 a month or US$39.99 a year, with 14 days free (a card is needed) and
-          cancel any time. You sign up on RiftCompare, then come straight back here. {SITE_NAME} stores nothing about you. <Link href="/premium">See the Premium page</Link> to start the free trial.
+          cancel any time. You sign in here with Google or an emailed link and pay through Stripe&rsquo;s secure checkout, without leaving {SITE_NAME}. <Link href="/premium">See the Premium page</Link> to start the free trial.
         </p>
         <h2>What an alert can’t promise</h2>
         <p>

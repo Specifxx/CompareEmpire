@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { join } from "node:path";
-import { PREMIUM_BUY, PREMIUM_SERVICE, PREMIUM_SIGN_IN, tokenFromHash, untilLine } from "../src/lib/premium-member";
+import { codeFromHash, PREMIUM_SERVICE, PREMIUM_SIGN_IN, tokenFromHash, untilLine } from "../src/lib/premium-member";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const read = (f: string) => readFileSync(join(ROOT, f), "utf8");
@@ -17,10 +17,20 @@ test("the token is taken from a fragment, and only a three-part token", () => {
   for (const bad of ["", "#", "#t=", "#t=abc", "#t=a.b", "#t=<script>.a.b", "#token=a.b.c"]) assert.equal(tokenFromHash(bad), null, bad);
 });
 
-test("sign-in, buying and the service are RiftCompare's, and the token is never put in a URL we build", () => {
+test("an emailed link's code is taken from a fragment, and only a three-part code", () => {
+  const c = "aaa.bbb_-1.ccc-_2";
+  assert.equal(codeFromHash(`#c=${c}`), c);
+  for (const bad of ["", "#c=", "#c=a.b", "#t=a.b.c", "#c=<x>.a.b"]) assert.equal(codeFromHash(bad), null, bad);
+});
+
+test("sign-in happens on DexCompare (owner, 2026-11-10): no link sends the visitor to RiftCompare to sign in or pay", () => {
   assert.equal(PREMIUM_SERVICE, "https://riftcompare.com");
-  assert.equal(PREMIUM_SIGN_IN, "https://riftcompare.com/sister-premium/dex");
-  assert.ok(PREMIUM_BUY.startsWith("https://riftcompare.com/premium"));
+  assert.equal(PREMIUM_SIGN_IN, "/account");
+  for (const f of ["src/components/premium/PremiumPanel.tsx", "src/components/premium/SignIn.tsx", "src/components/premium/WatchesView.tsx", "src/components/premium/RestockAlert.tsx", "src/components/premium/PremiumCorner.tsx", "src/components/premium/PremiumSlides.tsx"]) {
+    assert.doesNotMatch(read(f), /href=["{`][^"}`]*riftcompare\.com/, f);
+  }
+  assert.match(read("src/app/(site)/account/page.tsx"), /index: false/);
+  assert.match(read("src/app/(site)/account/verify/page.tsx"), /index: false/);
   const lib = read("src/lib/premium-member.ts");
   assert.doesNotMatch(lib, /[?&](?:t|token)=\$\{/);
   assert.match(lib, /credentials: "omit"/);

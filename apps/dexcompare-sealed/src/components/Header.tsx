@@ -88,6 +88,16 @@ export function Header({ region, listed }: { region: Region | null; listed?: Rea
           {region && <EbayNavLink region={region} />}
         </nav>
         <div className="hdr-search min-w-0 flex-1 lg:ml-auto lg:min-w-[7rem] lg:max-w-48">{region ? <SearchBox region={region} size="sm" /> : <SoftSearchBox />}</div>
+        {/* Premium (owner, 2026-11-10: "a nice Premium button on the homepage people can see"): every width, a star alone on a phone. */}
+        <Link
+          href="/premium"
+          prefetch={false}
+          aria-label="DexCompare Premium"
+          className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 px-2.5 text-sm font-bold text-white shadow-sm transition hover:brightness-105 sm:px-3.5"
+        >
+          <svg aria-hidden viewBox="0 0 20 20" className="h-4 w-4 fill-current"><path d="M10 1.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L10 14.9l-5.2 2.7 1-5.8L1.5 7.7l5.9-.9z" /></svg>
+          <span className="hidden sm:inline">Premium</span>
+        </Link>
         <ThemeToggle className="hidden sm:flex" />
         {region ? <RegionSwitcher region={region} compact /> : <SoftRegionSwitcher />}
         {/* The cart list (components/cart, owner 2026-11-06): every width, with its count. */}

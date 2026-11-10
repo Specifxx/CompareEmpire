@@ -3,11 +3,15 @@
 // sent to RiftCompare's /api/sister-premium/* to ask what it is worth. RiftCompare re-reads the account on every call, so a lapsed
 // membership stops working at the next check and nothing about it is copied here. DECISIONS.md, 2026-11-10.
 //
-// The token reaches this browser in the URL FRAGMENT of /premium/return (never sent to a server, never in a log), is stored, and
-// the fragment is removed. Browser-only: no page here reads a cookie, header or the session.
+// Since the owner's 2026-11-10 follow-up ("sign in via DexCompare, never on the RiftCompare website") the visitor never leaves this site to
+// sign in or pay: /account offers "Continue with Google" (Google Identity Services; Google's ID token goes to RiftCompare's API, which
+// checks it against this site's public client id) or an emailed link (/account/verify#c=…). Either way RiftCompare's API answers with
+// the token, kept in this browser. Checkout and billing open Stripe straight from here. Browser-only: no page here reads a cookie,
+// header or the session.
 export const PREMIUM_SERVICE = "https://riftcompare.com";
-export const PREMIUM_SIGN_IN = `${PREMIUM_SERVICE}/sister-premium/dex`;
-export const PREMIUM_BUY = `${PREMIUM_SERVICE}/premium?from=dex`;
+/** DexCompare's Google sign-in client (public by design; Google checks the page's origin). Empty: the Google button is hidden. */
+export const DEX_GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_DEX_GOOGLE_CLIENT_ID || "";
+export const PREMIUM_SIGN_IN = "/account";
 export const PREMIUM_STORE_KEY = "dex_premium_v1";
 /** How long a cached "is a member" answer is trusted before the browser asks again. */
 export const PREMIUM_RECHECK_MS = 60 * 60 * 1000;
@@ -132,4 +136,69 @@ export function untilLine(until: string | null): string {
   if (!until) return "";
   const d = new Date(until);
   return Number.isNaN(d.getTime()) ? "" : d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+}
+
+type ApiAnswer = { ok?: boolean; error?: string; token?: string; premium?: boolean; until?: string | null; who?: string; url?: string; sent?: boolean };
+
+async function premiumApi(path: string, body: unknown): Promise<{ status: number; j: ApiAnswer }> {
+  try {
+    const r = await fetch(`${PREMIUM_SERVICE}/api/sister-premium/${path}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+      credentials: "omit",
+    });
+    return { status: r.status, j: ((await r.json().catch(() => ({}))) as ApiAnswer) || {} };
+  } catch {
+    return { status: 0, j: { error: "Couldn't reach the server. Check your connection and try again." } };
+  }
+}
+
+export type SignInResult = { ok: true; info: StoredPremium } | { ok: false; message: string };
+
+function keep(j: ApiAnswer): SignInResult {
+  if (!j.token) return { ok: false, message: j.error || "Sign-in failed. Try again." };
+  const info: StoredPremium = { t: j.token, premium: j.premium === true, until: j.until ?? null, who: j.who ?? "", checkedAt: Date.now() };
+  writeStored(info);
+  return { ok: true, info };
+}
+
+/** "Continue with Google": Google's ID token (from Google Identity Services on this page) for a DexCompare sign-in. */
+export async function signInWithGoogle(credential: string): Promise<SignInResult> {
+  const { j } = await premiumApi("sign-in", { method: "google", credential });
+  return keep(j);
+}
+
+/** Email a 20-minute sign-in link (from alerts@dexcompare.app) that lands on /account/verify. */
+export async function emailSignInLink(email: string): Promise<{ ok: boolean; message: string }> {
+  const { j } = await premiumApi("sign-in", { method: "email", email });
+  return j.ok && j.sent ? { ok: true, message: `Check ${email} for your sign-in link (it works for 20 minutes).` } : { ok: false, message: j.error || "Couldn't send the email. Try again." };
+}
+
+/** The code from an emailed link's `#c=` fragment. */
+export function codeFromHash(hash: string): string | null {
+  const m = /^#?(?:.*&)?c=([A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+)(?:&.*)?$/.exec(hash || "");
+  return m && m[1].length < 4096 ? m[1] : null;
+}
+
+export async function signInWithCode(code: string): Promise<SignInResult> {
+  const { j } = await premiumApi("sign-in", { method: "link", code });
+  return keep(j);
+}
+
+/** Open Stripe Checkout for the signed-in member (14 days free, card needed). Returns the URL to go to, or a message. */
+export async function startCheckout(token: string, plan: "monthly" | "annual"): Promise<{ url: string } | { message: string; signIn?: boolean }> {
+  const { status, j } = await premiumApi("checkout", { token, plan });
+  if (j.url) return { url: j.url };
+  if (status === 401) {
+    writeStored(null);
+    return { message: "Please sign in again.", signIn: true };
+  }
+  return { message: j.error || "Couldn't open checkout. Try again." };
+}
+
+/** Stripe's billing portal for the member (change plan, card, cancel). */
+export async function openBilling(token: string): Promise<{ url: string } | { message: string }> {
+  const { j } = await premiumApi("portal", { token });
+  return j.url ? { url: j.url } : { message: j.error || "Couldn't open billing. Try again." };
 }

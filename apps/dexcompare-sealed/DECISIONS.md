@@ -532,3 +532,23 @@ alone (`lib/weekly-chart.ts`), so a past week draws exactly as it was. Real move
 move of 5% to under 50%. A week with fewer than 5 such moves publishes nothing. Published weeks in indexed regions are in the
 sitemap; the share image (`/og/charts/<region>/<week>`) is static. The home's chips and `/creators` link it.
 `tests/weekly-chart.test.ts`.
+
+## 2026-11-10: Premium signs in and pays on DexCompare, a Premium button and a home-page slider (owner)
+
+The owner looked at the first Premium release and asked for three changes: "a nice Premium button … on the homepage that people can
+see", "a slider", and sign-in "via DexCompare … I don't want them to go into the RiftCompare website to sign in, because that's very
+dodgy". So:
+
+- **Sign-in is `/account`** (noindex): "Continue with Google" (Google Identity Services, DexCompare's own Google client, its public id in
+  `NEXT_PUBLIC_DEX_GOOGLE_CLIENT_ID` / `DEX_GOOGLE_CLIENT_ID`) or an emailed 20-minute link from alerts@dexcompare.app that lands on
+  `/account/verify#c=…`. The browser sends Google's ID token or the link's code to RiftCompare's `/api/sister-premium/sign-in` (exact-origin
+  CORS), which checks it, finds or creates the RiftCompare account (the admin and Stripe stay there) and answers with this site's
+  session token. No password, no secret on this site, and the visitor never sees riftcompare.com.
+- **Checkout and billing open from `/premium`**: a Monthly / Yearly picker, "Start 14-day free trial" asks RiftCompare's
+  `/api/sister-premium/checkout` for a Stripe Checkout session that returns to `/premium?welcome=1`; a member gets "Manage billing"
+  (Stripe's portal, back to `/premium`). Signed out, the trial button signs in first and comes back with the plan kept.
+- **A Premium button in the header** at every width (a star alone on a phone) and "Premium" in the menu's More group.
+- **The slider is in-page** (`PremiumSlides`, home and region home): a banner in the page's flow that turns through three slides, first
+  slide in the server HTML, paused on hover, focus and reduced motion, hidden for a member. Not fixed, not a pop-up. The corner card now
+  arms on a visit's second page (was third), after a smaller scroll, still once a visit and silenced by ✕.
+- `/premium/return` stays for any old RiftCompare link still in flight; nothing links to it.
