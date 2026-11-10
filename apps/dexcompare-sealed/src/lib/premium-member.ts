@@ -10,7 +10,7 @@
 // header or the session.
 export const PREMIUM_SERVICE = "https://riftcompare.com";
 /** DexCompare's Google sign-in client (public by design; Google checks the page's origin). Empty: the Google button is hidden. */
-export const DEX_GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_DEX_GOOGLE_CLIENT_ID || "";
+export const DEX_GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_DEX_GOOGLE_CLIENT_ID || "36388598689-mqo784k6r1s3ndeiht9eu98dgsdbaked.apps.googleusercontent.com";
 export const PREMIUM_SIGN_IN = "/account";
 export const PREMIUM_STORE_KEY = "dex_premium_v1";
 /** How long a cached "is a member" answer is trusted before the browser asks again. */
