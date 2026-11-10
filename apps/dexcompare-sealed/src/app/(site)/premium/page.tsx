@@ -17,8 +17,11 @@ export default function PremiumPage() {
     <div className="page max-w-3xl py-12">
       <Breadcrumbs items={[{ href: "/", label: SITE_NAME }, { label: "Premium" }]} />
       <div className="prose-dex mt-6">
-        <h1>{SITE_NAME} Premium</h1>
-        <p className="text-lg">
+        <p className="text-xs font-bold uppercase tracking-wider text-brand-strong">New · 14 days free</p>
+        <h1 className="mt-1 font-display text-4xl font-bold leading-tight sm:text-5xl">
+          {SITE_NAME} <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">Premium</span>
+        </h1>
+        <p className="mt-3 text-lg">
           Comparing Pokémon sealed prices stays free, and so do price alerts and the weekly biggest-drops email. Premium is for people who hunt sold-out product.
         </p>
       </div>
