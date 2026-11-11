@@ -1,7 +1,7 @@
 {
  "v": 1,
  "site": "dex",
- "generatedAt": "2026-11-10T17:27:41.137Z",
+ "generatedAt": "2026-11-11T01:38:27.412Z",
  "links": {
   "AU": {
    "deals": "https://dexcompare.app/au/deals"
@@ -156,20 +156,6 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "NZ",
-   "title": "Ascended Heroes - Focused Fighters Premium Collection",
-   "url": "https://dexcompare.app/nz/p/ascended-heroes-focused-fighters-premium-collection",
-   "cents": 29999,
-   "currency": "NZD",
-   "store": "OCARE",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/706959_in_1000x1000.jpg",
-   "refCents": 34999,
-   "refLabel": "median store price",
-   "savingPct": 14
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "NZ",
    "title": "Pitch Black Booster Pack",
    "url": "https://dexcompare.app/nz/p/pitch-black-booster-pack",
    "cents": 950,
@@ -254,6 +240,20 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "US",
+   "title": "Inferno X Japanese Booster Box (M2)",
+   "url": "https://dexcompare.app/us/p/inferno-x-m2-japanese-booster-box",
+   "cents": 10499,
+   "currency": "USD",
+   "store": "Burbank Sportscards",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/655968_in_1000x1000.jpg",
+   "refCents": 19497,
+   "refLabel": "median store price",
+   "savingPct": 46
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "US",
    "title": "League Battle Deck - Mega Lucario ex",
    "url": "https://dexcompare.app/us/p/league-battle-deck-mega-lucario-ex",
    "cents": 1395,
@@ -261,20 +261,6 @@
    "store": "Geekery Games",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/684106_in_1000x1000.jpg",
    "refCents": 2499,
-   "refLabel": "median store price",
-   "savingPct": 44
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "US",
-   "title": "Inferno X Japanese Booster Box (M2)",
-   "url": "https://dexcompare.app/us/p/inferno-x-m2-japanese-booster-box",
-   "cents": 10499,
-   "currency": "USD",
-   "store": "Burbank Sportscards",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/655968_in_1000x1000.jpg",
-   "refCents": 18747,
    "refLabel": "median store price",
    "savingPct": 44
   },
@@ -352,13 +338,13 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "UK",
-   "title": "Perfect Order Booster Pack",
-   "url": "https://dexcompare.app/uk/p/perfect-order-booster-pack",
-   "cents": 365,
+   "title": "Nihil Zero Japanese Booster Pack (M3)",
+   "url": "https://dexcompare.app/uk/p/nihil-zero-m3-japanese-booster-pack",
+   "cents": 195,
    "currency": "GBP",
-   "store": "Rare Pokémon Cards UK",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/672398_in_1000x1000.jpg",
-   "refCents": 650,
+   "store": "Collectors Kingdom",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/674454_in_1000x1000.jpg",
+   "refCents": 350,
    "refLabel": "median store price",
    "savingPct": 44
   },
@@ -386,9 +372,9 @@
    "currency": "CAD",
    "store": "Mad Merchant Cards and Games Limited",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/695400_in_1000x1000.jpg",
-   "refCents": 4995,
+   "refCents": 4903,
    "refLabel": "median store price",
-   "savingPct": 44
+   "savingPct": 43
   },
   {
    "kind": "deal",
@@ -422,20 +408,6 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "CA",
-   "title": "30th Celebration Booster Pack",
-   "url": "https://dexcompare.app/ca/p/30th-celebration-booster-pack",
-   "cents": 1299,
-   "currency": "CAD",
-   "store": "Just-a-Hobby",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/696613_in_1000x1000.jpg",
-   "refCents": 2200,
-   "refLabel": "median store price",
-   "savingPct": 41
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "CA",
    "title": "Pokemon GO V Battle Deck Bundle [Mewtwo V/Melmetal V]",
    "url": "https://dexcompare.app/ca/p/go-battle-deck-mewtwo-v-melmetal-v",
    "cents": 1300,
@@ -449,14 +421,28 @@
   {
    "kind": "deal",
    "cluster": "cards",
+   "region": "CA",
+   "title": "Terastal Festival ex Japanese Booster Pack (SV8a)",
+   "url": "https://dexcompare.app/ca/p/terastal-festival-ex-sv8a-japanese-booster-pack",
+   "cents": 1599,
+   "currency": "CAD",
+   "store": "Adventurebox",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/603429_in_1000x1000.jpg",
+   "refCents": 2672,
+   "refLabel": "median store price",
+   "savingPct": 40
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
    "region": "EU",
-   "title": "Obsidian Flames Booster Pack",
-   "url": "https://dexcompare.app/eu/p/obsidian-flames-booster-pack",
-   "cents": 599,
+   "title": "151 Mini Tin",
+   "url": "https://dexcompare.app/eu/p/151-mini-tin",
+   "cents": 2990,
    "currency": "EUR",
    "store": "Spielewelt Amberg",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/501256_in_1000x1000.jpg",
-   "refCents": 1147,
+   "image": "https://cdn.shopify.com/s/files/1/0620/7658/4128/files/151-MiniTins.webp?v=1696533572",
+   "refCents": 5745,
    "refLabel": "median store price",
    "savingPct": 48
   },
@@ -606,13 +592,13 @@
    "region": "SG",
    "title": "First Partner Illustration Collection (Series 2)",
    "url": "https://dexcompare.app/sg/p/first-partner-illustration-collection-series-2-2",
-   "cents": 3100,
+   "cents": 3150,
    "currency": "SGD",
    "store": "TEFUDA",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/688712_in_1000x1000.jpg",
    "refCents": 4500,
    "refLabel": "median store price",
-   "savingPct": 31
+   "savingPct": 30
   }
  ]
 }
