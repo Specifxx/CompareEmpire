@@ -241,8 +241,10 @@ test("the phone menu: every group of the sidebar under the region, then the regi
 test("root layout: both faces use display 'optional' (no font-swap layout shift), and the Impact meta block is unchanged", () => {
   const layout = src("app/layout.tsx");
   assert.equal(layout.match(/display: "optional"/g)?.length, 2);
-  assert.match(layout, /Inter\(\{[^}]*display: "optional"/);
-  assert.match(layout, /Bricolage_Grotesque\(\{[^}]*display: "optional"/);
+  assert.match(layout, /inter-latin-wght\.woff2[^}]*display: "optional"/);
+  assert.match(layout, /bricolage-grotesque-latin-wght\.woff2[^}]*display: "optional"/);
+  // Self-hosted: next/font/google fetches Google's CSS at build time and crashed the 2026-11-11 production build.
+  assert.doesNotMatch(layout, /next\/font\/google/);
   assert.doesNotMatch(layout, /display: "swap"/);
   // The same pins as tests/affiliate.test.ts.
   assert.match(layout, /IMPACT_SITE_VERIFICATIONS\.map\(\(value\) =>[\s\S]*name: "impact-site-verification", value/);
