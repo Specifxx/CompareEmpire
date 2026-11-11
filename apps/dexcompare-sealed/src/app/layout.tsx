@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Bricolage_Grotesque, Inter } from "next/font/google";
+import localFont from "next/font/local";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { SiteAnalytics } from "@/components/SiteAnalytics";
 import { ShareArrival } from "@/components/ShareArrival";
@@ -24,8 +24,9 @@ import "@/components/site-reviews/site-reviews.css";
 // Font display is optional, not swap: both faces are preloaded, so a warm visit renders in them from the first paint, and a slow
 // first visit keeps the size-adjusted fallback for that page instead of re-wrapping every line when the font lands (that swap
 // measured CLS 0.209 on /us/type/booster-boxes; 0 with "optional").
-const sans = Inter({ subsets: ["latin"], variable: "--font-sans", display: "optional" });
-const display = Bricolage_Grotesque({ subsets: ["latin"], variable: "--font-display", display: "optional", weight: ["600", "700", "800"] });
+// Self-hosted: the Google font loader fetched Google's CSS at build time and crashed the production build (RiftCompare 2026-11-05).
+const sans = localFont({ src: "./fonts/inter-latin-wght.woff2", weight: "100 900", variable: "--font-sans", display: "optional" });
+const display = localFont({ src: "./fonts/bricolage-grotesque-latin-wght.woff2", weight: "600 800", variable: "--font-display", display: "optional" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
