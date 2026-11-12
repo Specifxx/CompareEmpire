@@ -572,3 +572,19 @@ eBay.de matched 4% of the listings it read. The owner approved the recommended s
 ## 2026-11-12: front pages feature the dearer products
 
 Owner: "promote the more expensive items, so when users buy them we get more commission". Where the site chooses what to FEATURE (the landing page's five picks and side-rail TCGplayer tiles, the region home's hero cards, deals rail, pre-order grid and TCGplayer strip) it keeps only products at or above US$100 (`FEATURE_MIN_USD_CENTS`, `lib/feature-floor.ts`; other markets through `roughUsdCents`) and puts the dearer first. Real US data of 2026-11-12: median in-stock product $53, top quartile from $140; booster boxes $460, Elite Trainer Boxes $155, Pokémon Center ETBs $250, cases $1,200+; booster bundles $70, tins $42, decks, blisters and packs under $100. So the floor keeps boxes, ETBs, cases and Ultra-Premium Collections and drops the cheap tail. The deals rail ranks by the saving in money, not percent. Cheap products stay listed, searchable and linked from their type and set pages; URLs, titles, metadata, JSON-LD, the sitemap and each product's price-ordered store rows are unchanged, the reference price stays TCGplayer's market, eBay is still never a deal, and no commission rate is read. The landing hero tops up to five picks if fewer clear the floor; the pre-order grid falls back to every pre-order when none does. To change the bar, change the one constant.
+
+## 2026-11-12: a tasteful Christmas layer (owner: "more festive again", after the 8 November tone-down)
+
+On 2026-11-08 the owner had the over-the-top Christmas theme stripped ("the theme must match the domain"); on 2026-11-12 he asked for
+it to be more festive again. Accents only, behind the existing season window (1 November to 26 December, the visitor's date, `?season=`):
+
+- **A gift-guide banner** in the landing hero replaces the small gifts pill (`components/season/ChristmasGifts.tsx`): one line of server
+  HTML, an inline `currentColor` gift icon, "Christmas gift guide" (not a heading) and, from 2xl, a short subline, linking the EXISTING
+  `/us/guides/pokemon-tcg-christmas-gift-guide`. A cranberry-then-pine 3px left edge; the card colours are the site's own.
+- **A 3px two-tone hairline** at the top of the page (`body` border, a hard-stop gradient, cranberry then pine), pure CSS, with
+  `--xmas-red` and `--xmas-green` tokens that are lighter in the dark theme. The Black Friday strip takes the cranberry token as a left
+  edge; the old gifts pill (kept in the shared CSS block) takes the pine one. No new elements.
+- **One off switch**: `CHRISTMAS_FESTIVE_LAYER` in `lib/season.ts`. It gates the banner markup and `data-festive` on `<html>`, which the CSS keys
+  on. False after New Year removes it; the window closing on 26 December does it anyway. The window logic is unchanged.
+- Still absent, and pinned by `tests/christmas.test.ts`: snow, flakes, lights, hats, candy stripes, canvas, animation, palette swaps, pop-ups,
+  side rails, images, webfonts, extra requests. No URL, title, meta or heading changed; no `revalidate` touched.

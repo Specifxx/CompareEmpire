@@ -19,6 +19,11 @@
 // decides it. `?season=christmas` previews it, `?season=off` hides any season.
 export type Season = "halloween" | "christmas";
 
+/** The one switch for the festive layer (owner, 2026-11-12, "more festive again", after the 2026-11-08 tone-down): the home
+ *  page's gift-guide banner and the data-festive attribute that the top hairline and the pill/strip accents key on in globals.css.
+ *  Set it to false after New Year to remove them; the layer also ends by itself when the season window closes on 26 December. */
+export const CHRISTMAS_FESTIVE_LAYER = true;
+
 /** Inclusive month/day window, in the visitor's local time. Month is 1-12. */
 export const SEASONS: Record<Season, { from: [number, number]; to: [number, number] }> = {
   // Through Halloween night; gone on 1 November.
