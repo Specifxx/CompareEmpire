@@ -639,3 +639,13 @@ pixels down a product page. Every visitor has to be won again, so nothing compou
 
 The owner: no Amazon where Amazon doesn't sell the item (RiftCompare first). `amazonCarries` (lib/amazon.ts) hides the product page's and quick view's Amazon row
 for cases and Japanese editions unless the import found a real ASIN.
+
+## 2026-11-12: the page check also refuses gated sales
+
+- Reddit (r/PokemonDealsUK, Delta Reign ETB): several of the UK's cheapest stores sell only by raffle, lottery or after attending shop events, and
+  a store's feed cannot say so. `pageStockVerdict` (`src/lib/page-stock-check.ts`), which already opens the page of the cheapest in-stock rows at
+  import, now also writes a row as sold out when its page carries gate wording (raffle entry, enter the raffle, sign in to view this release,
+  account at least N days old, N prior orders, spent at least £N, invite only, must attend events, GameOn's `gate_keeper` markup). Only wording a gate
+  uses counts; a bare "raffle" in a footer does not. Fails open like the rest of the check.
+- Not done: comparing a page's own price with the feed's (themes show the default variant, Markets can change the currency; a wrong guess would
+  hide good prices). Prices and stock are as fresh as the import, which runs at 08:47 and 20:47 UTC; the page check re-reads the cheapest rows then.

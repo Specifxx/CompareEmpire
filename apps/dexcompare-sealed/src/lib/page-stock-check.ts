@@ -25,6 +25,25 @@ const ITEM_NOT_ONLINE = /\bin[- ]?store\s+only\b|\bnot\s+(?:sold|available(?:\s+
 // Markup a theme renders for a held-for-the-shop product (Wulf Gaming: `<form class="wsc-form ... is-instore">`).
 const ITEM_HELD_CLASS = /\bclass\s*=\s*["'][^"']*\b(?:is-instore|in-store-only|instore-only)\b[^"']*["']/i;
 
+// The page gates the sale behind an account, a raffle or an invitation: a price a visitor cannot simply pay (2026-11-12, Reddit on the
+// Delta Reign ETB: "most of the cheapest prices are invite only", raffles, lotteries, "play at the shop's card events a few times" to
+// qualify). GameOn.games' Gatekeeper says "Please sign in to view this release", "Account at least 7 days old", "At least 1 prior
+// order", "Raffle Entry" and carries `gate_keeper` in its markup. Wording only a gate uses; a bare "raffle" in a footer does not count.
+const SALE_GATED = new RegExp(
+  [
+    String.raw`\braffle\s+entr(?:y|ies)\b|\benter\s+(?:the\s+|our\s+)?(?:raffle|lottery|draw)\b|\blottery\s+(?:entry|sale)\b`,
+    String.raw`\bsign\s*in\s+to\s+view\s+(?:this|the)\s+(?:release|product|item)\b`,
+    String.raw`\baccount\s+(?:must\s+be\s+|needs\s+to\s+be\s+)?at\s+least\s+\d+\s+(?:days?|weeks?|months?)\s+old\b`,
+    String.raw`\bat\s+least\s+\d+\s+prior\s+orders?\b|\bspent\s+at\s+least\s+[£$€]\s?\d`,
+    String.raw`\binvit(?:e|ation)[- ]?only\b|\bby\s+invitation\b|\binvitation\s+(?:required|only)\b|\brequest\s+(?:an?\s+)?invit(?:e|ation)\b`,
+    String.raw`\b(?:must|need\s+to|required\s+to)\s+(?:have\s+)?(?:attend(?:ed)?|play(?:ed)?)\b[^.]{0,80}\bevents?\b`,
+    String.raw`\bto\s+(?:qualify|be\s+eligible)\s+(?:to\s+(?:buy|purchase)|for\s+(?:purchase|this\s+release))\b`,
+  ].join("|"),
+  "i",
+);
+// Markup of the Gatekeeper app (present without JavaScript).
+const GATE_MARKUP = /\bgate_keeper\b|\bgatekeeper\.[a-z0-9.-]+|data-verify-checkout-releases-only/i;
+
 export type PageVerdict = { ok: true } | { ok: false; reason: string; shopWide: boolean };
 
 /** What a product page's own text says about buying it online. Pure. */
@@ -35,5 +54,6 @@ export function pageStockVerdict(html: string): PageVerdict {
   // The class check runs on the raw page but only counts markup, never script text (scripts removed here).
   const markup = html.replace(/<!--[\s\S]*?-->/g, " ").replace(/<(script|style|svg|noscript|template)\b[\s\S]*?<\/\1>/gi, " ");
   if (ITEM_HELD_CLASS.test(markup)) return { ok: false, reason: "held for the shop", shopWide: false };
+  if (SALE_GATED.test(text) || GATE_MARKUP.test(html)) return { ok: false, reason: "sale gated (raffle, invite or account rules)", shopWide: false };
   return { ok: true };
 }
