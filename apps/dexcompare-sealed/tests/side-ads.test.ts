@@ -58,7 +58,7 @@ test("the home page gets the same rails, in the visitor's region, read per reque
   const home = src("app/(site)/page.tsx");
   assert.match(home, /^export const dynamic = "force-dynamic"/m);
   assert.match(home, /<SoftSideAds tiles=\{railTiles\} \/>/);
-  assert.match(home, /tcgplayerTiles\(\)\.catch\(/, "a failed read shows no TCGplayer rail, never an error page");
+  assert.match(home, /tcgplayerTiles\(\{ minCents: FEATURE_MIN_USD_CENTS \}\)\.catch\(/, "a failed read shows no TCGplayer rail, never an error page");
   assert.match(src("components/SideAds.tsx"), /export function SoftSideAds[\s\S]*?useSoftRegion\(\)/);
 });
 
