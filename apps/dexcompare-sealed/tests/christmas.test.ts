@@ -3,7 +3,9 @@ import assert from "node:assert/strict";
 import vm from "node:vm";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { SEASON_BOOT_SCRIPT, seasonAt, seasonMarkupLive } from "../src/lib/season";
+import { CHRISTMAS_FESTIVE_LAYER, SEASON_BOOT_SCRIPT, seasonAt, seasonMarkupLive } from "../src/lib/season";
+import { GUIDE_BY_SLUG, guideRegions } from "../src/content/guides";
+import { X_DEFAULT_REGION } from "../src/lib/regions";
 
 // The Christmas season (owner, 2026-11-01: "make all of the sites Christmas
 // themed"). These pin its window (1 November to Boxing Day, gone on 27
@@ -47,15 +49,33 @@ test("the boot script stamps Christmas from the visitor's date and takes a ?seas
   assert.equal(boot(at(2026, 11, 20), "?season=bogus"), null);
 });
 
-test("Christmas is one quiet line in the site's own colours (owner, 2026-11-08: the theme must match the domain)", () => {
+test("Christmas is tasteful accents in the site's own colours (owner, 2026-11-08 tone-down, 2026-11-12 more festive)", () => {
   const css = read("src/app/globals.css");
-  for (const gone of [".xmas-snow", ".xmas-lights", ".xmas-art", ".xmas-hero", ".xmas-logo-hat", "/xmas/", "#dc2626 0 10px"]) {
+  for (const gone of [".xmas-snow", ".xmas-lights", ".xmas-art", ".xmas-hero", ".xmas-logo-hat", "/xmas/", "#dc2626 0 10px", "snowfall", "flake"]) {
     assert.ok(!css.includes(gone), `${gone} is gone`);
   }
+  const block = css.slice(css.indexOf("xmas-common:start"), css.indexOf("xmas-common:end"));
+  assert.doesNotMatch(block.replace(/\/\*[\s\S]*?\*\//g, ""), /@keyframes|animation|canvas|repeating-linear-gradient|45deg/, "no animation, canvas or candy stripes");
   assert.doesNotMatch(css, /data-season="christmas"\][^{]*\{[^}]*--(c-ink|bg|surface|brand)/, "no palette swap");
   assert.match(css, /:root\[data-season="christmas"\] \.xmas-pill-row \{\s*display: flex;/);
   assert.match(css, /\.xmas-pill \{[^}]*color: inherit;/, "drawn in the site's own colours");
+  assert.match(css, /\[data-season="christmas"\]\[data-festive\] \.xmas-banner \{\s*display: flex;/, "the banner needs the season and the switch");
+  assert.match(css, /\[data-season="christmas"\]\[data-festive\] body \{[^}]*border-top: 3px solid[^}]*linear-gradient\(90deg, rgb\(var\(--xmas-red\)\) 50%, rgb\(var\(--xmas-green\)\) 50%\)/, "a 3px two-tone hairline, hard stop");
+  assert.match(css, /\[data-holiday-strip\] \{\s*box-shadow: inset 3px 0 0 rgb\(var\(--xmas-red\)\)/, "the Black Friday strip takes the token");
+  assert.match(css, /:root:not\(\[data-theme="light"\]\) \{\s*--xmas-red/, "dark-theme tokens");
   const gifts = read("src/components/season/ChristmasGifts.tsx");
   assert.match(gifts, /seasonMarkupLive\("christmas"\)/);
-  assert.doesNotMatch(gifts, /xmas-pill-icon/);
+  assert.match(gifts, /CHRISTMAS_FESTIVE_LAYER/);
+  assert.doesNotMatch(gifts, /<h[1-6]|canvas|snow|flake/, "the banner is not a heading");
+  assert.match(gifts, /currentColor/);
+});
+
+test("the festive layer has one off switch, and the gift guide it links exists", () => {
+  assert.equal(CHRISTMAS_FESTIVE_LAYER, true);
+  assert.match(read("src/app/layout.tsx"), /data-festive=\{CHRISTMAS_FESTIVE_LAYER/);
+  const gifts = read("src/components/season/ChristmasGifts.tsx");
+  const slug = /guides\/([a-z0-9-]+)`/.exec(gifts)?.[1] ?? "";
+  const g = GUIDE_BY_SLUG.get(slug);
+  assert.ok(g, `guide ${slug} exists`);
+  assert.ok(guideRegions(g!).includes(X_DEFAULT_REGION), "and covers the default region");
 });
