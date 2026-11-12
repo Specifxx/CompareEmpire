@@ -170,7 +170,9 @@ export function QuickView() {
             </svg>
           </button>
         </div>
-        <div className="flex-1 overflow-y-auto p-4 sm:p-5">
+        {/* Prices first on a phone (calm palette, 2026-11-12): the ad pair sat above the rows and pushed every store's price off the
+            first screen of the sheet. Below sm it follows the price table; from sm, where the rows are in view either way, it leads. */}
+        <div className="flex flex-1 flex-col overflow-y-auto p-4 sm:p-5">
           {/* The product page's small eBay + TCGplayer pair (owner, 2026-11-03: "a tiny visual … one TCGplayer side scrollable ad, and then
               one eBay side scrollable ad" with every quick view): the product's own eBay listings and the set's TCGplayer products.
               The same component as the page (EbayStrip.tsx MiniSealedAds); no Amazon link in a pop-up. */}
@@ -183,14 +185,14 @@ export function QuickView() {
               tcgPlacement="tcgplayer-strip-quickview"
               ebayQuery={got.ebay.query}
               tcgSearchHref={got.ads?.tcgSearch ?? ""}
-              className="mb-4"
+              className="order-last mt-4 shrink-0 sm:order-none sm:mb-4 sm:mt-0"
             />
           )}
           <h3 className="mb-3 text-sm font-semibold">Every store&rsquo;s price</h3>
           {data === "loading" ? (
             <Skeleton />
           ) : data ? (
-            <div className="card overflow-hidden">
+            <div className="card shrink-0 overflow-hidden">
               <OfferRowsWithEbay rows={data.rows} tcg={data.tcg} amazon={data.amazon} region={head.region} slug={data.ebay.slug} query={data.ebay.query} floor={data.ebay.floor} packs={data.ebay.packs} allowBest={!data.preorder} preorder={data.preorder} />
             </div>
           ) : (
@@ -198,7 +200,7 @@ export function QuickView() {
           )}
         </div>
         <div className="border-t border-line p-4 sm:px-5">
-          <Link href={head.href} prefetch={false} onClick={hide} className="btn-primary flex w-full justify-center px-5 py-2.5 text-[15px]">
+          <Link href={head.href} prefetch={false} onClick={hide} className="btn-ghost flex w-full justify-center px-5 py-2.5 text-[15px]">
             See price history and details <span aria-hidden>→</span>
           </Link>
         </div>

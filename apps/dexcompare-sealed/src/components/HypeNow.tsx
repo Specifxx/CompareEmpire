@@ -44,7 +44,7 @@ export function HypeNow({ region }: { region: Region }) {
             <ul role="list" className="mt-2 grid gap-1 text-sm">
               {guides.map((g) => (
                 <li key={g.slug}>
-                  <Link href={`/${region}/guides/${g.slug}`} prefetch={false} className="text-brand-strong hover:underline">
+                  <Link href={`/${region}/guides/${g.slug}`} prefetch={false} className="text-muted underline-offset-2 hover:text-ink hover:underline">
                     {g.label}
                   </Link>
                 </li>

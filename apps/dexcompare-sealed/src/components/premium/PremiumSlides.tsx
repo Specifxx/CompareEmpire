@@ -43,10 +43,8 @@ export function PremiumSlides({ className = "" }: { className?: string }) {
       onMouseLeave={() => setPaused(false)}
       onFocus={() => setPaused(true)}
       onBlur={() => setPaused(false)}
-      className={`relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#1d2b5a] via-[#28397a] to-[#3b2a7a] text-white shadow-lift ${className}`}
+      className={`card relative overflow-hidden ${className}`}
     >
-      <div aria-hidden className="pointer-events-none absolute -right-10 -top-16 h-56 w-56 rounded-full bg-amber-400/25 blur-3xl" />
-      <div aria-hidden className="pointer-events-none absolute -bottom-20 left-1/3 h-56 w-56 rounded-full bg-sky-400/20 blur-3xl" />
       <div className="relative grid items-center gap-5 p-6 sm:grid-cols-[1fr_auto] sm:p-8">
         <div className="grid min-h-[132px] sm:min-h-[112px]">
           {SLIDES.map((s, n) => (
@@ -58,9 +56,9 @@ export function PremiumSlides({ className = "" }: { className?: string }) {
               aria-hidden={n !== i}
               className={`col-start-1 row-start-1 transition-all duration-500 ${n === i ? "translate-x-0 opacity-100" : "pointer-events-none translate-x-6 opacity-0"}`}
             >
-              <p className="text-xs font-bold uppercase tracking-wider text-amber-300">{s.kicker}</p>
+              <p className="eyebrow"><span aria-hidden className="text-amber-500">★ </span>{s.kicker}</p>
               <p className="mt-1 font-display text-2xl font-bold leading-tight sm:text-3xl">{s.title}</p>
-              <p className="mt-2 max-w-xl text-sm text-white/80 sm:text-base">{s.body}</p>
+              <p className="mt-2 max-w-xl text-sm text-muted sm:text-base">{s.body}</p>
             </div>
           ))}
         </div>
@@ -68,11 +66,11 @@ export function PremiumSlides({ className = "" }: { className?: string }) {
           <Link
             href="/premium"
             prefetch={false}
-            className="inline-flex min-h-11 items-center gap-2 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 px-6 font-bold text-white shadow-md transition hover:brightness-105"
+            className="btn-tcg min-h-11 px-6 font-bold"
           >
             Try Premium free
           </Link>
-          <span className="text-xs text-white/70">14 days free · cancel any time</span>
+          <span className="text-xs text-muted">14 days free · cancel any time</span>
         </div>
       </div>
       <div className="relative flex gap-2 px-6 pb-4 sm:px-8">
@@ -83,7 +81,7 @@ export function PremiumSlides({ className = "" }: { className?: string }) {
             aria-label={`Show slide ${n + 1}`}
             aria-current={n === i}
             onClick={() => setI(n)}
-            className={`h-1.5 rounded-full transition-all ${n === i ? "w-6 bg-white" : "w-1.5 bg-white/40 hover:bg-white/70"}`}
+            className={`h-1.5 rounded-full transition-all ${n === i ? "w-6 bg-ink" : "w-1.5 bg-ink/30 hover:bg-ink/60"}`}
           />
         ))}
       </div>
