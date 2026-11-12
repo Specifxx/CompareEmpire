@@ -593,3 +593,26 @@ it to be more festive again. Accents only, behind the existing season window (1 
 ## 2026-11-12: the festive layer is released urgently (owner)
 
 The owner said to deploy the festive layer urgently once every site had it, so this merge carries `[deploy] [urgent]` in its subject: one production build now, instead of waiting for the next release. No other change.
+
+## 2026-11-12: a sign-up people can see (price alert beside the best price, a weekly-drops box on the hubs)
+
+Owner, 2026-11-12: growth has stalled and he wants it fixed with no work from him. Measured the same day: DexCompare had 4,958
+visitors in the week to 11 Nov, most of them from Reddit posts, and RiftCompare's alert service counted 0 alerts and 0 weekly
+subscribers for this site since alerts launched on 2 Nov. The only sign-up was a text link under the whole price table, 4,237
+pixels down a product page. Every visitor has to be won again, so nothing compounds.
+
+- **The price alert moves under the best price.** `PriceAlertForm` gets `prominent`: a real button (`btn-ghost`, a bell) in the
+  server HTML right under the best-price card, on in-stock and sold-out products alike ("Email me when a store has it at my
+  price" when nothing is in stock). The form still opens in place on a tap, never by itself, and its fields, copy, unticked
+  weekly box and privacy line are unchanged. The old link under the table is gone (one form per page). Premium's
+  back-in-stock watch stays where it was and stays Premium.
+- **A weekly-drops box on the hubs** (`WeeklyDropsBox`): the region home (above the first eBay strip), deals, a set's page (after
+  its products), price moves and this week. One email field. It posts `kind: "weekly"` to the alert service: no product, no
+  price, no alert; the same double opt-in (one confirmation, nothing else until the click). No heading tag, so each page's
+  outline is unchanged; a fixed height in the server HTML, so nothing moves; never a pop-up, never on a product page.
+- **Drawn from 14 Nov** (`lib/weekly-box.ts`): the service takes `kind: "weekly"` from RiftCompare's release after 12 Nov, so
+  the server leaves the box out until then rather than show a form that would answer with an error.
+- **Counted**: `alert_open`, `alert_created` and `weekly_signup` (placement, region) in Web Analytics; RiftCompare's Monday report
+  lists alerts and weekly subscribers per site.
+- Unchanged: every URL, title, meta, canonical, JSON-LD and heading; no address is stored here; no pop-up.
+- Measure on 19 Nov: sign-ups per 100 visitors. If it captures here and on MTG Compare, the other sister sites get the same.
