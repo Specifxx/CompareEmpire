@@ -72,7 +72,7 @@ export function OfferTable({
    * 2026-10-26). TCGplayer's row is its offer among `offers` in the US; elsewhere `tcgplayer`, the US$ offer (usMarketplace), shown in US$
    * and never the best price; with neither, a TCGplayer search. Null: TCGplayer, if among `offers`, ranks with the stores.
    */
-  pinned?: { productName: string; tcgplayer: TcgplayerMatch | null; amazon?: AmazonLive | null } | null;
+  pinned?: { productName: string; tcgplayer: TcgplayerMatch | null; amazon?: AmazonLive | null; /** A type Amazon does not carry (lib/amazon.ts amazonCarries): no Amazon row. */ noAmazon?: boolean } | null;
 }) {
   const r = REGIONS[region];
   const { rows, tcg, amazon, storeOffers } = offerRowsData({ offers, region, packs, placement, numbered, bestLabel, product, pinned: ebay ? pinned : null });
@@ -145,7 +145,7 @@ export function offerRowsData({
   bestLabel?: { short: string; full: string };
   product?: string;
   /** OfferTable passes it only with an eBay row (the product page). */
-  pinned?: { productName: string; tcgplayer: TcgplayerMatch | null; amazon?: AmazonLive | null } | null;
+  pinned?: { productName: string; tcgplayer: TcgplayerMatch | null; amazon?: AmazonLive | null; /** A type Amazon does not carry (lib/amazon.ts amazonCarries): no Amazon row. */ noAmazon?: boolean } | null;
 }) {
   const r = REGIONS[region];
   const now = Date.now();
@@ -226,7 +226,7 @@ export function offerRowsData({
     };
   });
   const tcg = pin ? tcgRow(tcgOffer, pin, region, placement, now, product) : null;
-  const amazon = pin ? amazonRow(pin.productName, region, now, product, pin.amazon ?? null) : null;
+  const amazon = pin && !pin.noAmazon ? amazonRow(pin.productName, region, now, product, pin.amazon ?? null) : null;
   return { rows, tcg, amazon, storeOffers };
 }
 

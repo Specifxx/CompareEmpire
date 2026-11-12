@@ -11,6 +11,7 @@ import { REGIONS, isRegion } from "@/lib/regions";
 import { isPreorderSet } from "@/lib/release";
 import { offerStock } from "@/lib/sealed-offers";
 import { amazonLiveFor } from "@/lib/amazon-live";
+import { amazonCarries } from "@/lib/amazon";
 import { priceGap, shareText } from "@/lib/share-link";
 import { money } from "@/lib/format";
 import { TYPE_BY_LABEL } from "@/lib/sealed-title";
@@ -49,7 +50,7 @@ export async function GET(_req: Request, { params }: { params: { region: string;
   // the item's own page where the import found its ASIN, but never Amazon's price: that stays on the product page (24-hour licence).
   const found = amazonLiveFor(p.slug, r.region);
   const amazonLink = found ? { asin: found.asin, url: found.url } : null;
-  const { rows, tcg, amazon, storeOffers } = offerRowsData({ offers: p.offers, region, packs, placement: "quickview-table", product: p.slug, pinned: { productName: p.name, tcgplayer, amazon: amazonLink } });
+  const { rows, tcg, amazon, storeOffers } = offerRowsData({ offers: p.offers, region, packs, placement: "quickview-table", product: p.slug, pinned: { productName: p.name, tcgplayer, amazon: amazonLink, noAmazon: !amazonCarries(type?.key, !!found) } });
   const stores = storeOffers.filter((o) => !o.marketplace);
   return Response.json(
     {

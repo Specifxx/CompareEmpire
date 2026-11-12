@@ -169,7 +169,7 @@ test("GA4: off unless a measurement ID is set; consent defaults to denied in the
 
 test("in stock, Amazon is a search row pinned in the price table right under eBay (owner, 2026-11-06): no price, never the best price", () => {
   const table = src("components/OfferTable.tsx");
-  assert.match(table, /const amazon = pin \? amazonRow\(/);
+  assert.match(table, /const amazon = pin && !pin\.noAmazon \? amazonRow\(/);
   assert.match(table, /amazonHref\(region, product \?\? "", productName, "amazon-table"\)/);
   assert.match(table, /search: true,/);
   const strip = src("components/EbayStrip.tsx");
