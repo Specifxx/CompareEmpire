@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Icon } from "@/components/Icon";
 import { RegionSuggest } from "@/components/RegionSuggest";
 import { SoftSideAds } from "@/components/SideAds";
+import { FEATURE_MIN_USD_CENTS } from "@/lib/feature-floor";
 import { tcgplayerTiles, type TcgplayerTile } from "@/lib/data";
 import { HomeRegionGrid } from "@/components/HomeRegionGrid";
 import { LatestGuides } from "@/components/LatestGuides";
@@ -54,7 +55,7 @@ const HERO_LINKS = [
 
 export default async function Landing() {
   // The side rails' TCGplayer tiles, as on the region pages (this page is force-dynamic: read per request, never at build).
-  const railTiles = await tcgplayerTiles().catch((): TcgplayerTile[] => []);
+  const railTiles = await tcgplayerTiles({ minCents: FEATURE_MIN_USD_CENTS }).catch((): TcgplayerTile[] => []);
   // The default region's five, from the public data files: the server HTML is already filled. A failed read renders the page without them.
   const picks = await regionPicks(X_DEFAULT_REGION).catch((e) => {
     console.error("[landing] data read failed", e);
