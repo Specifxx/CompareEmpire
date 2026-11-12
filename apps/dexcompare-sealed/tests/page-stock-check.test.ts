@@ -52,3 +52,20 @@ test("a failing row is written as sold out, the next cheapest is opened, a close
   assert.deepEqual(out.closedShops, ["closed"]);
   assert.equal(out.demoted.length, 2);
 });
+
+import { pageStockVerdict as gateVerdict } from "../src/lib/page-stock-check";
+test("a gated release page is not a buyable price", () => {
+  const gated = [
+    '<div class="gate_keeper"><h2>Please sign in to view this release</h2><li>Account at least 7 days old</li><li>At least 1 prior order</li><button>Enter raffle</button></div>',
+    "<p>To qualify you must have attended our local card events a few times.</p>",
+    "<p>Invite only: request an invite below.</p>",
+  ];
+  for (const h of gated) assert.equal(gateVerdict(`<html><body>${h}</body></html>`).ok, false, h);
+  const plain = "<html><body><h1>Delta Reign ETB</h1><p>Win a prize in our monthly raffle at the shop. Free delivery over £50.</p><button>Add to cart</button></body></html>";
+  assert.equal(gateVerdict(plain).ok, true);
+});
+
+test("Thistle Tavern and Obsidia gate wording", () => {
+  for (const h of ["Please sign in with your Thistle Tavern customer account to buy this restricted product", "This product is allocated via the Lottery System"])
+    assert.equal(gateVerdict(`<html><body><p>${h}</p></body></html>`).ok, false, h);
+});
