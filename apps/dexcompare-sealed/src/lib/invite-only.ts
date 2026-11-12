@@ -51,6 +51,10 @@ export function inviteOnlyUrl(url: string | null | undefined): boolean {
 // page HTML carries "gate_keeper" / "Raffle Entry"). A store listed here has its tagged release products left out.
 const GATED_RELEASES: Record<string, { host: string; tag: RegExp }> = {
   gameon: { host: "gameon.games", tag: /^pre-?orders?$/i },
+  // Thistle Tavern (UK): "sign in to buy this restricted product", three event tickets in 56 days to qualify as a Local Player; tagged "<Game> Player".
+  thistletavern: { host: "thistletavern.com", tag: /(?:^|\s)player$/i },
+  // Obsidia TCG (UK): "allocated via the Lottery System"; tagged "lottery" (a tag the invite-only reader also refuses at import).
+  obsidiatcg: { host: "obsidia-tcg.store", tag: /^lottery$/i },
 };
 
 /** Whether a store known to gate its releases lists this product as one (by host and tag). */

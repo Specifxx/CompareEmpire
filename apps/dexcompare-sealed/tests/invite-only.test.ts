@@ -61,3 +61,11 @@ test("a Spanish edition marked ES at the end is refused", () => {
   assert.equal(identify("Pokemon TCG Scarlet & Violet: Stellar Crown - Booster Box ES"), "foreign");
   assert.notEqual(identify("Pokemon TCG Scarlet & Violet: Stellar Crown - Booster Box"), "foreign");
 });
+
+test("Thistle Tavern's player-tagged and Obsidia's lottery-tagged products are gated", () => {
+  assert.equal(gatedRelease("https://thistletavern.com", ["Delta Reign", "limit1", "Pokémon", "Pokémon Player"]), true);
+  assert.equal(gatedRelease("https://thistletavern.com", ["Delta Reign", "Pokémon"]), false);
+  assert.equal(gatedRelease("https://obsidia-tcg.store", ["Elite Trainer Box", "lottery", "R14161"]), true);
+  assert.equal(isInviteOnly(inviteText(["Delta Reign Elite Trainer Box", "Elite Trainer Box, lottery, R14161"])), true);
+  assert.equal(gatedStoreRow("thistletavern", true), true);
+});

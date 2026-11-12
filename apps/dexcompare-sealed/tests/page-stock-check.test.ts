@@ -64,3 +64,8 @@ test("a gated release page is not a buyable price", () => {
   const plain = "<html><body><h1>Delta Reign ETB</h1><p>Win a prize in our monthly raffle at the shop. Free delivery over £50.</p><button>Add to cart</button></body></html>";
   assert.equal(gateVerdict(plain).ok, true);
 });
+
+test("Thistle Tavern and Obsidia gate wording", () => {
+  for (const h of ["Please sign in with your Thistle Tavern customer account to buy this restricted product", "This product is allocated via the Lottery System"])
+    assert.equal(gateVerdict(`<html><body><p>${h}</p></body></html>`).ok, false, h);
+});

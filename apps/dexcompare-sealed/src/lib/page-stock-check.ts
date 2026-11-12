@@ -32,6 +32,7 @@ const ITEM_HELD_CLASS = /\bclass\s*=\s*["'][^"']*\b(?:is-instore|in-store-only|i
 const SALE_GATED = new RegExp(
   [
     String.raw`\braffle\s+entr(?:y|ies)\b|\benter\s+(?:the\s+|our\s+)?(?:raffle|lottery|draw)\b|\blottery\s+(?:entry|sale)\b`,
+    String.raw`\ballocated\s+via\s+the\s+lottery\b|\blottery\s+system\b|\brestricted\s+product\b|\bqualify\s+you\s+as\s+a\s+local\s+player\b`,
     String.raw`\bsign\s*in\s+to\s+view\s+(?:this|the)\s+(?:release|product|item)\b`,
     String.raw`\baccount\s+(?:must\s+be\s+|needs\s+to\s+be\s+)?at\s+least\s+\d+\s+(?:days?|weeks?|months?)\s+old\b`,
     String.raw`\bat\s+least\s+\d+\s+prior\s+orders?\b|\bspent\s+at\s+least\s+[£$€]\s?\d`,

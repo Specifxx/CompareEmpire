@@ -649,3 +649,6 @@ for cases and Japanese editions unless the import found a real ASIN.
   uses counts; a bare "raffle" in a footer does not. Fails open like the rest of the check.
 - Not done: comparing a page's own price with the feed's (themes show the default variant, Markets can change the currency; a wrong guess would
   hide good prices). Prices and stock are as fresh as the import, which runs at 08:47 and 20:47 UTC; the page check re-reads the cheapest rows then.
+- Also gated by store (`GATED_RELEASES`): Thistle Tavern (tag "<Game> Player": sign in, three event tickets in 56 days) and Obsidia TCG (tag "lottery",
+  "allocated via the Lottery System"). On the Delta Reign UK ETB the three cheapest "in stock" rows (GameOn £49.99, Obsidia £54.95, Thistle £58.00)
+  were all gated; the first price anyone could pay was £79.95.
