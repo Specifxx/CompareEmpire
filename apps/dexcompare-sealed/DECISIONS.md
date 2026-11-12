@@ -588,3 +588,8 @@ it to be more festive again. Accents only, behind the existing season window (1 
   on. False after New Year removes it; the window closing on 26 December does it anyway. The window logic is unchanged.
 - Still absent, and pinned by `tests/christmas.test.ts`: snow, flakes, lights, hats, candy stripes, canvas, animation, palette swaps, pop-ups,
   side rails, images, webfonts, extra requests. No URL, title, meta or heading changed; no `revalidate` touched.
+
+
+## 2026-11-12: the festive layer is released urgently (owner)
+
+The owner said to deploy the festive layer urgently once every site had it, so this merge carries `[deploy] [urgent]` in its subject: one production build now, instead of waiting for the next release. No other change.
