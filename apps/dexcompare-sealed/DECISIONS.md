@@ -652,3 +652,27 @@ for cases and Japanese editions unless the import found a real ASIN.
 - Also gated by store (`GATED_RELEASES`): Thistle Tavern (tag "<Game> Player": sign in, three event tickets in 56 days) and Obsidia TCG (tag "lottery",
   "allocated via the Lottery System"). On the Delta Reign UK ETB the three cheapest "in stock" rows (GameOn £49.99, Obsidia £54.95, Thistle £58.00)
   were all gated; the first price anyone could pay was £79.95.
+
+## 2026-11-12 — A calmer palette: three colours, three jobs (owner left the design to us)
+
+The owner: "way too much going on … too many colors … I click on the quick view pop up and I see all the colored rows … this is a bit much",
+and left the redesign to us. Counted on the US home page and the quick view before the change: 14 competing accents (the gold Premium button, the
+blue-to-purple Premium card, the maroon sale strip, violet pre-order cards, eBay-blue and TCGplayer-blue buttons and price tags, a blue-tinted ad
+box, green stock pills on every card and row, green, amber and sky-blue row outlines, orange chips, links and motes). The rule now:
+
+- **Orange (`--brand`) is the one thing to press**: the Search button and the best price's button, plus section links. A price table has ONE
+  filled orange button. Every other buy button (`.btn-soft`: the other stores, and the pinned eBay, Amazon and TCGplayer rows) is neutral.
+- **Green (`--open`) is money**: a saving ("16% below the median", "Save 16%") and the best-price row (`.or-hl`: a raised ground, a 3px green
+  edge, the "Best price" badge). Stock is a 6px dot beside grey words (`.sp-*`), not a tinted pill, and nothing pulses.
+- **Everything else is neutral.** The row outlines of 2026-11-06 and 11-07 are gone (the classes stay as hooks); the rows keep their order, their
+  "Ad" / "Marketplace" tags and every link. Ads (`.ad-box`, `.btn-ad`, the TCGplayer strip, the mini pair) are a dashed neutral box with the
+  "Ad" label and an ink-filled button: as easy to see and press as the blue one, without a new hue. Logos (eBay, TCGplayer) keep their colours.
+  Premium is the site's own card with a gold star; the pre-order and sale cards are plain cards; the hero's drifting motes are neutral (a click's
+  sparks keep the brand colours); the region chip in use is the ink chip.
+- **Quick view, phone**: the eBay + TCGplayer mini pair follows the price table below `sm` (it had pushed every store's price off the sheet's
+  first screen); from `sm` it still leads. The footer's "See price history and details" is a ghost button, so it no longer outshouts the buy buttons.
+- The hero's type chips are one sideways row at every width (they were five wrapped rows on a desktop).
+- Unchanged: URLs, titles, metadata, headings, text, JSON-LD and every link in the server HTML; the festive hairline and gift-guide card; the
+  headline's accent word. Classes and tokens only, so the light theme follows.
+- Measure a week on (19 Nov): outbound clicks per placement (`product-table`, `quickview-table`, the eBay and TCGplayer placements) against the
+  week before. If the pinned eBay row's clicks fall, give that row's button the ink fill (`.btn-ad`) before bringing any outline back.

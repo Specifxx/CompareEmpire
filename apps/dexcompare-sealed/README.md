@@ -144,8 +144,8 @@ have changed; check eBay."
     "Still deciding?" rows.
 * **The price table's eBay row** (`listings-offer-row`, the owner's call: DexCompare compares websites, and eBay is one): a product's
   cheapest own eBay listing is a row of its price table, PINNED FIRST, TCGplayer's second, then the stores cheapest first (owner,
-  2026-10-26). Every row has the store rows' layout and only the button colour tells them apart: eBay blue (`.btn-ad`), TCGplayer
-  ink (`.btn-tcg`), the cheapest store red (`.btn-primary`), the other stores soft. The eBay row is labelled "Ad", with its age on
+  2026-10-26). Every row has the store rows' layout; since the calm palette (2026-11-12, DECISIONS.md) the table has ONE coloured
+  button, the cheapest store's red (`.btn-primary`), and every other row's is the neutral `.btn-soft`, with no outlines. The eBay row is labelled "Ad", with its age on
   the row; an eBay search for the product when it has none. The cheapest row of the whole table is tinted and says "Best price":
   the eBay listing when it is new and cheaper than every in-stock store (not on a pre-order), TCGplayer when its offer is in the
   region's currency and cheaper, else the cheapest store; when eBay or TCGplayer wins, the cheapest store reads "Best store price",
@@ -187,9 +187,9 @@ have changed; check eBay."
     `{retailer, placement}` per click, the href eBay's own URL, unedited), thumbnails from `*.ebayimg.com` as plain lazy `<img>`
     (no-referrer; a tile whose picture fails hides itself), an "Ad" label (eBay) or "affiliate link" (TCGplayer) next to every
     unit and link, and the affiliate disclosure in the unit; store links stay plain and commissions never change the store order;
-  * **eBay buttons are eBay blue** (`.btn-ad`, #3665f3 with white text, 4.9:1; it was a grey outline): the Marketplaces panel's
-    eBay row on every product page, the sold-out box, the table row and the highlight buttons. They never pass for the site's red
-    actions, and every unit around one carries its "Ad" label (the owner to confirm the blue against EPN's brand guidelines);
+  * **ad buttons are ink-filled** (`.btn-ad`: the site's ink, white in dark mode; eBay's blue until the calm palette of
+    2026-11-12): the Marketplaces panel's eBay row on every product page, the sold-out box and the highlight buttons. They never
+    pass for the site's red actions, and every unit around one carries its "Ad" label;
   * a unit of its own (a dashed, tinted box or tile), never inside a ranked table or row, but for the owner's calls on the product
     page: the price table's one eBay row, the best-price card when that new listing is cheaper than every in-stock store, and that
     same listing's price in the sold-out box and the Marketplaces panel (see `listings-offer-row`, `listings-best-price`,

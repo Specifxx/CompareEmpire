@@ -8,15 +8,14 @@ export function CreatorsCornerBadge({ className = "" }: { className?: string }) 
     <Link
       href="/creators"
       prefetch={false}
-      className={`group relative z-20 mb-4 inline-flex min-h-9 items-center gap-2 rounded-full border border-brand/30 bg-surface py-1.5 pl-2 pr-3.5 text-xs font-bold text-ink shadow-card transition hover:-translate-y-0.5 hover:border-brand sm:absolute sm:right-4 sm:top-4 sm:mb-0 sm:text-sm ${className}`}
+      className={`group relative z-20 mb-4 inline-flex min-h-9 items-center gap-2 rounded-full border border-line bg-surface py-1.5 pl-2 pr-3.5 text-xs font-bold text-ink shadow-card transition hover:-translate-y-0.5 hover:border-ink/30 sm:absolute sm:right-4 sm:top-4 sm:mb-0 sm:text-sm ${className}`}
     >
-      <span className="relative flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-brand to-spark text-[13px]" aria-hidden>
+      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-raised text-[13px]" aria-hidden>
         ✨
-        <span className="absolute -right-0.5 -top-0.5 h-2 w-2 animate-ping rounded-full bg-brand" />
       </span>
       <span>
         Pokémon creators
-        <span className="ml-1.5 font-semibold text-brand group-hover:text-brand-strong">Buy them a pack →</span>
+        <span className="ml-1.5 font-semibold text-muted group-hover:text-ink">Buy them a pack →</span>
       </span>
     </Link>
   );

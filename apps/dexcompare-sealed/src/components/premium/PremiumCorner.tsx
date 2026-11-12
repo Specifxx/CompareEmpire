@@ -77,18 +77,18 @@ export function PremiumCorner() {
     <aside
       data-ad
       aria-label="DexCompare Premium"
-      className="premium-slide-in fixed bottom-3 left-1/2 z-40 w-[calc(100%-1.5rem)] max-w-md -translate-x-1/2 overflow-hidden rounded-2xl bg-gradient-to-br from-[#1d2b5a] to-[#3b2a7a] p-4 text-white shadow-2xl"
+      className="premium-slide-in fixed bottom-3 left-1/2 z-40 w-[calc(100%-1.5rem)] max-w-md -translate-x-1/2 overflow-hidden rounded-2xl border border-line bg-surface p-4 text-ink shadow-2xl"
     >
-      <button type="button" onClick={() => silence(14)} aria-label="Close" className="absolute right-2 top-2 rounded p-1 text-white/70 hover:text-white">
+      <button type="button" onClick={() => silence(14)} aria-label="Close" className="absolute right-2 top-2 rounded p-1 text-muted hover:text-ink">
         ✕
       </button>
-      <p className="text-[11px] font-bold uppercase tracking-wider text-amber-300">New · DexCompare Premium</p>
+      <p className="text-[11px] font-bold uppercase tracking-wider text-muted"><span aria-hidden className="text-amber-500">★ </span>New · DexCompare Premium</p>
       <p className="mt-0.5 pr-6 font-display text-lg font-bold leading-snug">Sold out? Get an email the day it&rsquo;s back.</p>
-      <p className="mt-1 text-xs text-white/75">{PREMIUM_PRICE_LINE}.</p>
+      <p className="mt-1 text-xs text-muted">{PREMIUM_PRICE_LINE}.</p>
       <a
         href="/premium"
         onClick={() => silence(30)}
-        className="mt-3 inline-flex min-h-10 items-center rounded-full bg-gradient-to-r from-amber-400 to-orange-500 px-5 text-sm font-bold text-white"
+        className="btn-tcg mt-3 min-h-10 px-5 font-bold"
       >
         Try Premium free
       </a>

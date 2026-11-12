@@ -56,7 +56,7 @@ export function HeroSparks() {
       vy: -(0.12 + Math.random() * 0.35),
       r: Math.random() < 0.1 ? 2.2 + Math.random() * 1.2 : 0.8 + Math.random() * 1.4,
       a: 0.25 + Math.random() * 0.5,
-      tint: Math.random() < 0.7 ? 0 : Math.random() < 0.6 ? 1 : Math.random() < 0.5 ? 2 : 3,
+      tint: 3, // calm palette (2026-11-12): the drifting motes are neutral; only a click's sparks take the brand colours
       life: Infinity,
       max: Infinity,
     });
