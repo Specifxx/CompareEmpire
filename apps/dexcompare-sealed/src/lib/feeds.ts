@@ -6,7 +6,7 @@
 // Everything is normalised to FeedProduct so the importer has one code path.
 import { REQUEST_DELAY_MS, get, robotsAllows, sleep } from "./scrape-http";
 import { isPickupOnly, pickupText } from "./pickup-only";
-import { inviteOnlyUrl, inviteText, isInviteOnly } from "./invite-only";
+import { gatedRelease, inviteOnlyUrl, inviteText, isInviteOnly } from "./invite-only";
 import { decodeEntities } from "./sealed-title";
 
 export interface FeedVariant {
@@ -126,7 +126,8 @@ export async function readShopifyCollection(
         pickupOnly: isPickupOnly(pickupText([p.title, Array.isArray(p.tags) ? p.tags.join(", ") : p.tags, p.body_html])),
         inviteOnly:
           isInviteOnly(inviteText([p.title, Array.isArray(p.tags) ? p.tags.join(", ") : p.tags, p.body_html, ...(p.variants ?? []).map((v) => v.title)])) ||
-          inviteOnlyUrl(productUrl(base, p)),
+          inviteOnlyUrl(productUrl(base, p)) ||
+          gatedRelease(base, p.tags),
       });
     }
     if (data.products.length < SHOPIFY_PAGE) break;

@@ -45,3 +45,19 @@ test("priceOf never prices an invite-only product", () => {
   assert.equal(priceOf(p, 0), null);
   assert.notEqual(priceOf({ ...p, inviteOnly: false }, 0), null);
 });
+
+import { gatedRelease, gatedStoreRow } from "../src/lib/invite-only";
+import { identify } from "../src/lib/sealed-title";
+
+test("GameOn's tagged releases are gated; other stores' pre-orders are not", () => {
+  assert.equal(gatedRelease("https://www.gameon.games", ["Pre-order"]), true);
+  assert.equal(gatedRelease("https://www.gameon.games", ["Booster Box"]), false);
+  assert.equal(gatedRelease("https://other.example", ["Pre-order"]), false);
+  assert.equal(gatedStoreRow("gameon", true), true);
+  assert.equal(gatedStoreRow("gameon", false), false);
+});
+
+test("a Spanish edition marked ES at the end is refused", () => {
+  assert.equal(identify("Pokemon TCG Scarlet & Violet: Stellar Crown - Booster Box ES"), "foreign");
+  assert.notEqual(identify("Pokemon TCG Scarlet & Violet: Stellar Crown - Booster Box"), "foreign");
+});
