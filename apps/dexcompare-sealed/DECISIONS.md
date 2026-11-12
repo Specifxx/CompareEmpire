@@ -625,3 +625,12 @@ pixels down a product page. Every visitor has to be won again, so nothing compou
   reader also drops any such Offer row an older export holds, so it takes effect on the next release without waiting for an import. Rules may only refuse more.
 - **Measured in the committed export (85,142 offers)**: 1 row matched (cellysports, CA, a raffle page at C$399.99). Tags and descriptions are
   not kept in the export, so the live importer is what finds the rest; Amazon was already filtered (only IN_STOCK / IN_STOCK_SCARCE listings).
+
+## 2026-11-12: gated releases (GameOn) and Spanish "ES" editions
+
+- GameOn.games (UK) gates its releases behind a "Gatekeeper" (account age, prior order, raffle entry) that the Shopify feed does not mention
+  (tag only "Pre-order"): its ETBs showed £49.99 against a £109.99 market and were the UK cheapest. `GATED_RELEASES` in
+  `src/lib/invite-only.ts` leaves that store's Pre-order-tagged products out at import, and the reader drops its in-stock rows from older exports.
+  Add a store there when its page shows the same gate. Fetching each cheap row's page HTML for gate wording was not done (a request per row).
+- A title ending "<box|bundle|display|deck|…> ES" is the Spanish edition (Devastation Store's "Stellar Crown - Booster Box ES" had been
+  matched to the English box at US$150 against a US$319.99 median): refused as foreign (8 rows in the export).

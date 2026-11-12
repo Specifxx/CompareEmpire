@@ -181,6 +181,8 @@ const FOREIGN = new RegExp(
     // A language code in brackets, or after a dash at the end: "(JAP)", "[DE]", "- FR".
     "[(\\[]\\s*(?:jp|jpn|jap|kr|kor|cn|sc|tc|th|id|de|ger|dt|fr|fra|it|ita|es|spa|pt|nl|pl)\\s*[)\\]]",
     "\\s-\\s*(?:jp|jpn|jap|kr|cn|de|fr|it|es|pt|nl|pl)\\s*$",
+    // "ES" after a product word at the very end is the Spanish edition ("Stellar Crown - Booster Box ES"): a bare ES alone is a word.
+    "\\b(?:box|boxes|bundle|display|deck|collection|tin|blister|pack|packs|etb)\\s+es\\s*$",
     // A bare code at the very end ("Mew's Revenge FR"); not IT or ES, which are words.
     "\\s(?:jp|jpn|jap|kr|cn|de|fr|pt|nl|pl)\\s*$",
     // Japanese set codes (English sets are "SV4.5", never "SV4a"): SV2A, SV11B, M6A, S12a.

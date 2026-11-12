@@ -45,3 +45,21 @@ export function inviteOnlyUrl(url: string | null | undefined): boolean {
     return false;
   }
 }
+
+// Stores that put releases behind an account gate ("Gatekeeper": sign in, an account at least 7 days old, a prior order, a raffle entry)
+// without saying so in the feed (2026-11-12, GameOn.games UK: ETBs at £49.99 against a £109.99 market, tagged only "Pre-order"; the
+// page HTML carries "gate_keeper" / "Raffle Entry"). A store listed here has its tagged release products left out.
+const GATED_RELEASES: Record<string, { host: string; tag: RegExp }> = {
+  gameon: { host: "gameon.games", tag: /^pre-?orders?$/i },
+};
+
+/** Whether a store known to gate its releases lists this product as one (by host and tag). */
+export function gatedRelease(base: string, tags: string[] | string | undefined): boolean {
+  const list = Array.isArray(tags) ? tags : (tags ?? "").split(",");
+  return Object.values(GATED_RELEASES).some((g) => base.includes(g.host) && list.some((t) => g.tag.test(t.trim())));
+}
+
+/** An in-stock row of a store that gates its releases: its price is not one a visitor can pay, and an older export cannot say which rows are releases. */
+export function gatedStoreRow(store: string | undefined, inStock: unknown): boolean {
+  return !!store && store in GATED_RELEASES && inStock === true;
+}
