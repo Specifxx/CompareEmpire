@@ -156,10 +156,10 @@ const DAMAGED_VARIANT = /\b(?:damaged?|dent(?:ed|s)?|crushed|creased|torn|imperf
 /**
  * Pick the price a product lists at: the cheapest orderable variant at or above the floor. A variant the store never posts
  * (Shopify requires_shipping false: pickup only, a service) is not a listing, and a product whose feed text says "pickup only" is
- * left out altogether (src/lib/pickup-only.ts): a visitor elsewhere cannot buy it, and the store's measured postage does not apply.
+ * left out altogether (src/lib/pickup-only.ts), as is an invite-only, raffle or lottery listing (src/lib/invite-only.ts): a visitor elsewhere cannot buy it, and the store's measured postage does not apply.
  */
 export function priceOf(p: FeedProduct, floor: number): { priceCents: number; inStock: boolean; variantId?: number } | null {
-  if (p.pickupOnly) return null;
+  if (p.pickupOnly || p.inviteOnly) return null;
   const posted = p.variants.filter((v) => v.requiresShipping !== false);
   // With several options, drop the multi-unit ones. A single variant is the
   // product itself, whatever its (often "Default Title") name says.

@@ -616,3 +616,12 @@ pixels down a product page. Every visitor has to be won again, so nothing compou
   lists alerts and weekly subscribers per site.
 - Unchanged: every URL, title, meta, canonical, JSON-LD and heading; no address is stored here; no pop-up.
 - Measure on 19 Nov: sign-ups per 100 visitors. If it captures here and on MTG Compare, the other sister sites get the same.
+
+## 2026-11-12: invite-only, raffle and lottery listings are never a price
+
+- **Why**: a visitor reported that most of the cheapest prices were invite-only offers nobody can simply buy.
+- **Rule**: `src/lib/invite-only.ts` reads the title, link, tags, description and option names (Shopify) or name, description and link
+  (Woo). "Invite only", "by invitation", "request an invite", raffle, lottery, ballot and draw entries are dropped by `priceOf`; the public-data
+  reader also drops any such Offer row an older export holds, so it takes effect on the next release without waiting for an import. Rules may only refuse more.
+- **Measured in the committed export (85,142 offers)**: 1 row matched (cellysports, CA, a raffle page at C$399.99). Tags and descriptions are
+  not kept in the export, so the live importer is what finds the rest; Amazon was already filtered (only IN_STOCK / IN_STOCK_SCARCE listings).
