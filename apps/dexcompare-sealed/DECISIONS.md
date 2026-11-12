@@ -634,3 +634,8 @@ pixels down a product page. Every visitor has to be won again, so nothing compou
   Add a store there when its page shows the same gate. Fetching each cheap row's page HTML for gate wording was not done (a request per row).
 - A title ending "<box|bundle|display|deck|…> ES" is the Spanish edition (Devastation Store's "Stellar Crown - Booster Box ES" had been
   matched to the English box at US$150 against a US$319.99 median): refused as foreign (8 rows in the export).
+
+## 2026-11-12 — Amazon only where Amazon carries the product (owner)
+
+The owner: no Amazon where Amazon doesn't sell the item (RiftCompare first). `amazonCarries` (lib/amazon.ts) hides the product page's and quick view's Amazon row
+for cases and Japanese editions unless the import found a real ASIN.

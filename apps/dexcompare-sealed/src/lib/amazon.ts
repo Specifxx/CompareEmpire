@@ -124,3 +124,10 @@ export function amazonHref(region: Region, slug: string, name: string, placement
   const host = AMAZON_STORES[region]?.host;
   return amazonUrl(region, { name, asin: (host && AMAZON_ASINS[host]?.[slug]) || null }, placement);
 }
+
+/**
+ * Sealed types Amazon carries (owner, 2026-11-12: no Amazon link where Amazon doesn't sell the item). A real ASIN says yes; otherwise
+ * never a case or a Japanese edition.
+ */
+export const AMAZON_EXCLUDED_TYPES: ReadonlySet<string> = new Set(["booster-box-case", "etb-case", "booster-bundle-case", "jp-booster-box", "jp-booster-pack"]);
+export const amazonCarries = (typeKey: string | null | undefined, hasAsin = false): boolean => hasAsin || (!!typeKey && !AMAZON_EXCLUDED_TYPES.has(typeKey));

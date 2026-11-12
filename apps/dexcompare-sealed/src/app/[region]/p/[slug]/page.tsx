@@ -16,6 +16,7 @@ import { marketplaceOf } from "@/lib/ebay-context";
 import { ebayQuery, SoldOutCallout } from "@/components/Marketplaces";
 import { OfferTable } from "@/components/OfferTable";
 import { amazonLiveFor } from "@/lib/amazon-live";
+import { amazonCarries } from "@/lib/amazon";
 import { ReportPrice } from "@/components/ReportForms";
 import { PriceAlertForm } from "@/components/PriceAlertForm";
 import { RestockAlert } from "@/components/premium/RestockAlert";
@@ -643,7 +644,7 @@ export default async function ProductPage({ params }: { params: { region: string
             preorder={pre}
             packs={packs}
             ebay={{ slug: p.slug, query: ebayQ, floor: ebayFloor, packs: rowPacks(type?.key, packs) }}
-            pinned={{ productName: p.name, tcgplayer, amazon: amazonLiveFor(p.slug, r.region) }}
+            pinned={{ productName: p.name, tcgplayer, amazon: amazonLiveFor(p.slug, r.region), noAmazon: !amazonCarries(type?.key, !!amazonLiveFor(p.slug, r.region)) }}
             notes={notes}
           />
         ) : (
