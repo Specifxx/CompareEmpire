@@ -288,6 +288,8 @@ function amazonRow(productName: string, region: Region, now: number, product?: s
   const href = a && (live?.url ?? amazonHref(region, product ?? "", productName, "amazon-table"));
   if (!a || !href) return null;
   const clock = AMAZON_CLOCK[region];
+  // Amazon only with a real price (owner, 2026-11-12): no price, no row.
+  if (!live?.cents || !live.at || !clock) return null;
   // The item's own listing when the daily import matched one, and its price when this build fetched it under 24 hours ago (2026-11-05).
   const priced = live?.cents && live.at && clock ? { price: money(live.cents, REGIONS[region].market), at: live.at, timeZone: clock.timeZone, zoneLabel: clock.label } : null;
   return {

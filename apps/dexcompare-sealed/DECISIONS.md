@@ -676,3 +676,9 @@ box, green stock pills on every card and row, green, amber and sky-blue row outl
   headline's accent word. Classes and tokens only, so the light theme follows.
 - Measure a week on (19 Nov): outbound clicks per placement (`product-table`, `quickview-table`, the eBay and TCGplayer placements) against the
   week before. If the pinned eBay row's clicks fall, give that row's button the ink fill (`.btn-ad`) before bringing any outline back.
+
+## 2026-11-12: Only eBay and TCGplayer are paid rows
+
+Owner: "we just want eBay and TCGplayer as the paid links at the top. That is why our revenue is declining." The DexCompare sealed
+product table's pinned Amazon row now exists only when this build fetched a real Amazon price (`amazonRow` returns null
+otherwise). `tests/paid-rows.test.ts` pins it.

@@ -136,15 +136,11 @@ test("pinned TCGplayer: third, under eBay and Amazon (owner, 2026-11-06), its ow
   const offers = [tcgOffer, offer("alpha", 5000), offer("beta", 6000)];
   const us = render(React.createElement(OfferTable, { offers, region: "us", preorder: false, ebay: { slug: "x", query: "X", floor: null, packs: null }, pinned: { productName: "X", tcgplayer: null } }));
   const rows = [...us.matchAll(/<li data-offer-row=""([^>]*)>/g)].map((m) => m[1]);
-  assert.equal(rows.length, 5);
+  assert.equal(rows.length, 4, "no Amazon row without an Amazon price (owner, 2026-11-12)");
   assert.match(rows[0], /data-ad="listings-offer-row"/);
-  assert.match(rows[1], /data-row="amazon"/, "Amazon US second, right under eBay (owner, 2026-11-06), a search row, never highlighted");
-  assert.doesNotMatch(rows[1], /or-hl/);
-  assert.ok(rows[1].includes(PIN_OUTLINE.amazon), "its amber outline");
-  assert.match(rows[2], /data-row="tcgplayer"/, "TCGplayer third");
-  assert.match(us, /href="https:\/\/www\.amazon\.com\/s\?k=Pokemon\+X&amp;tag=[a-z0-9-]+-2\d&amp;ascsubtag=dex-us-amazon-table"/);
-  assert.match(us, />Check Amazon <span aria-hidden="true">↗<\/span><span class="sr-only"> on Amazon US<\/span>/);
-  assert.match(rows[2], /or-hl/, "cheapest of the whole table: highlighted");
+  assert.doesNotMatch(us, /data-row="amazon-/);
+  assert.match(rows[1], /data-row="tcgplayer"/, "TCGplayer right under eBay");
+  assert.match(rows[1], /or-hl/, "cheapest of the whole table: highlighted");
   assert.match(us, /data-best="tcg"/);
   assert.match(us, />Best store price</, "the cheapest store says so");
   assert.equal([...us.matchAll(/class="btn-primary/g)].length, 1, "the cheapest store keeps the one red button");
@@ -163,7 +159,7 @@ test("pinned TCGplayer: third, under eBay and Amazon (owner, 2026-11-06), its ow
   assert.match(uk, /US\$1\.00/);
   assert.match(uk, /US\$, ships from the US/);
   assert.match(uk, /data-best="store"/, "a US$ price is never compared with the stores' £");
-  assert.match(uk, /data-row="amazon"[^]*tag=compareempi03-21/, "Amazon UK row with the owner's UK tag (2026-11-02)");
+  assert.doesNotMatch(uk, /data-row="amazon/, "no Amazon row without a price (owner, 2026-11-12)");
   // no match: a TCGplayer search
   const none = render(React.createElement(OfferTable, { offers: [offer("alpha", 5000)], region: "uk", preorder: false, ebay: { slug: "x", query: "X", floor: null, packs: null }, pinned: { productName: "X", tcgplayer: null } }));
   assert.match(none, />Search <span aria-hidden="true">↗<\/span><span class="sr-only"> on TCGplayer/);
