@@ -1,4 +1,3 @@
-import Link from "next/link";
 import type { Metadata } from "next";
 import { Icon } from "@/components/Icon";
 import { RegionSuggest } from "@/components/RegionSuggest";
@@ -6,7 +5,6 @@ import { SoftSideAds } from "@/components/SideAds";
 import { FEATURE_MIN_USD_CENTS } from "@/lib/feature-floor";
 import { tcgplayerTiles, type TcgplayerTile } from "@/lib/data";
 import { HomeRegionGrid } from "@/components/HomeRegionGrid";
-import { LatestGuides } from "@/components/LatestGuides";
 import { RegionChips } from "@/components/RegionChips";
 import { regionPicks } from "@/lib/picks";
 import { openPreorderGuides } from "@/lib/preorder-guides";
@@ -19,10 +17,9 @@ import { ChristmasGifts } from "@/components/season/ChristmasGifts";
 import { CreatorsCornerBadge } from "@/components/creators/CreatorsCornerBadge";
 import { SoftHeroCards } from "@/components/home/SoftHeroCards";
 import { PopularPages } from "@/components/home/PopularPages";
-import { PremiumSlides } from "@/components/premium/PremiumSlides";
 
 // Rendered per request and kept by Vercel's CDN for a day (next.config.js CDN_PAGES), never at build: the page carries
-// the default region's five most-stocked products (lib/picks.ts), read from the public data files, so a crawler's first fetch has them. It reads no cookie, header or session: one copy for all.
+// the default region's ten most-stocked products (lib/picks.ts), read from the public data files, so a crawler's first fetch has them. It reads no cookie, header or session: one copy for all.
 export const dynamic = "force-dynamic";
 
 const TITLE = `${SITE_NAME} — Pokémon sealed prices & stock from ${STORES.length} stores`;
@@ -56,7 +53,7 @@ const HERO_LINKS = [
 export default async function Landing() {
   // The side rails' TCGplayer tiles, as on the region pages (this page is force-dynamic: read per request, never at build).
   const railTiles = await tcgplayerTiles({ minCents: FEATURE_MIN_USD_CENTS }).catch((): TcgplayerTile[] => []);
-  // The default region's five, from the public data files: the server HTML is already filled. A failed read renders the page without them.
+  // The default region's ten, from the public data files: the server HTML is already filled. A failed read renders the page without them.
   const picks = await regionPicks(X_DEFAULT_REGION).catch((e) => {
     console.error("[landing] data read failed", e);
     return [];
@@ -119,45 +116,15 @@ export default async function Landing() {
         </div>
       </section>
 
-      {/* The owner's short landing page (2026-10-25): one paragraph on how it is fair, the region's five, the hot buttons, the
-          footer. The long text, the FAQ, the regions and what we compare live on /about; the guides on each region's guides index;
-          the market reports and the sister sites on each region home. Everything here is server-rendered. */}
-      <div className="page mb-10">
-        <PremiumSlides />
-      </div>
-      <section className="page" aria-labelledby="fair-h">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 id="fair-h" className="sr-only">
-            How {SITE_NAME} ranks stores
-          </h2>
-          <p className="text-[15px] leading-7 text-muted">
-            Every product&rsquo;s stores are ranked by price and stock only: in stock first, cheapest first, each store&rsquo;s own price in your currency.
-            No store pays to be listed or to rank, and every affiliate link is marked.{" "}
-            <Link href="/about" className="inline-flex min-h-11 items-center font-semibold text-ink underline underline-offset-2 hover:text-brand sm:min-h-0">
-              How it works
-            </Link>
-          </p>
-        </div>
-      </section>
-
+      {/* The owner's trim (2026-11-13): no Premium promo, no explainer paragraph and no guides list here; the space goes to
+          products, ten of the region's most stocked instead of five. The explanation is on /about, Premium on /premium, the guides on
+          each region's guides index (a hot button below). Everything here is server-rendered. */}
       <div className="mb-10 mt-10">
         <HomeRegionGrid initial={picks} preorder={preorder} />
       </div>
 
       <PopularPages />
 
-      {/* The newest guides (2026-11-03): one link from the landing page to every new set guide, server-rendered for crawlers. */}
-      <section className="page mb-12" aria-labelledby="guides-h">
-        <div className="mb-4 flex flex-wrap items-end justify-between gap-x-4 gap-y-1">
-          <h2 id="guides-h" className="font-display text-xl font-bold tracking-tight sm:text-2xl">
-            New Pokémon TCG set guides
-          </h2>
-          <Link href={`/${X_DEFAULT_REGION}/guides`} prefetch={false} className="text-sm font-semibold text-brand hover:underline">
-            All guides →
-          </Link>
-        </div>
-        <LatestGuides region={X_DEFAULT_REGION} />
-      </section>
       {/* The side rails from 1280px, browser-only, in the visitor's region (components/SideAds.tsx; owner 2026-11-06: "the home page must have this as well"). */}
       <SoftSideAds tiles={railTiles} />
     </div>

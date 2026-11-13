@@ -725,3 +725,20 @@ next release that `go_click` is back near `buy_click`'s TCGplayer and store coun
 ## 2026-11-13: the price alert button is in the quick view too
 
 Measured 6–12 Nov: 2,735 of 5,092 buy clicks started in the quick view (`quickview-table`), against about 1,000 from the product page, and the "Email me when the price drops" button (2026-11-12) was on the product page only; it had no taps in its first day and a half. Most visitors compare in the panel and never open the page. The quick route now sends `alert` (the service's site key, the product id, the region's lowest in-stock store price and its market) and `QuickView` draws the same `PriceAlertForm` above its footer link: a button, the form opens in place on a tap, never by itself (no pop-up inside the pop-up). A response the CDN kept from before has no `alert` and draws nothing. `QuickView` takes the site key from the route, never from `lib/alert-feed.ts`, which reads files. `tests/quick-view-alert.test.ts`.
+
+## 2026-11-13: the home pages are trimmed: no Premium promo, no "how it works", no guides list; ten products
+
+Owner: "get rid of Dex Compare Premium from the homepage. No point crowding all the spot on the homepage … how it works as well … the guides,
+we probably don't need that as well … fill it with more actual product details."
+
+- **Landing page** (`app/(site)/page.tsx`): the Premium slides, the "how DexCompare ranks stores / How it works" paragraph and the "New Pokémon TCG
+  set guides" list are gone. "Most stocked in <region> today" is ten products, two rows of five (ten rows on a phone), from the same pool
+  (`lib/picks.ts` `PICK_SLOTS`, the region's newest in-stock booster boxes and Elite Trainer Boxes, up to sixteen); the second row's photos load
+  lazily. The hero, the hot buttons and "Popular right now" stay.
+- **Region homes** (`app/[region]/page.tsx`): the Premium slides, the "New Pokémon set guides" section and "How DexCompare works" are gone; the
+  product rails, deals, latest sets, the market report, the set index, the summary and the FAQ stay.
+- **Nothing is deleted from the site.** Premium stays live at `/premium` (header, account menu, product pages), how it works is on `/about`, and
+  the guides are on each region's guides index, linked from the header, the sidebar and the landing page's "Buying guides" button. This reverses
+  the 2026-11-03 "newest guides one hop from the landing page" link block; the guides stay in the sitemap.
+
+URLs, titles, metadata, h1s and JSON-LD are unchanged. Released with `[deploy] [urgent]` in the merge subject, as the owner asked.

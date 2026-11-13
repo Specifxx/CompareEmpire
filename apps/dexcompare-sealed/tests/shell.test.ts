@@ -268,7 +268,7 @@ test("landing metadata: hreflang for the seven region homes plus x-default '/', 
   assert.ok(title.length <= 65, title);
 });
 
-test("landing page: per request behind the CDN, short: hero, one fair paragraph, the region's five, the hot buttons, nothing else", () => {
+test("landing page: per request behind the CDN, short: hero, the region's ten, the hot buttons, the popular links, nothing else", () => {
   const page = src("app/(site)/page.tsx");
   // It reads today's listings (the default region's five): per request, never at build, kept by the CDN.
   assert.match(page, /^export const dynamic = "force-dynamic";/m);
@@ -278,12 +278,13 @@ test("landing page: per request behind the CDN, short: hero, one fair paragraph,
   // No "Continue to <region>" step (owner, 2026-10-28): the search, then the shortcuts in the visitor's region.
   assert.match(page, /<form\s+id="landing-search"\s+action=\{`\/\$\{X_DEFAULT_REGION\}\/sealed`\}\s+method="get"/);
   assert.match(page, /<\/form>[\s\S]*<RegionSuggest formId="landing-search" links=\{HERO_LINKS\} \/>/);
-  assert.match(page, /ranked by price and stock only[\s\S]*No store pays to be listed or to rank, and every affiliate link is marked\.[\s\S]*href="\/about"[\s\S]*How it works/);
   assert.match(page, /<HomeRegionGrid initial=\{picks\} preorder=\{preorder\} \/>/);
   // What moved to /about, the guides index and the region homes stays off the landing page.
   assert.doesNotMatch(page, /FAQPage|faqLdOf|GuideCard|RegionsCompared|SuggestedTypeLinks|EbayStrip|AdSlot/);
-  assert.equal((page.match(/<section/g) ?? []).length, 3, "the hero, the fair paragraph and the newest guides (owner, 2026-11-03); the grid is its own section");
-  assert.match(page, /<LatestGuides region=\{X_DEFAULT_REGION\} \/>/, "the newest guides as plain links, one hop from the landing page");
+  // The owner's trim (2026-11-13): no Premium promo, no "how it works" paragraph, no guides list; on the region home no "How DexCompare works" either.
+  assert.equal((page.match(/<section/g) ?? []).length, 1, "the hero; the grid and the popular links are their own sections");
+  assert.doesNotMatch(page, /PremiumSlides|LatestGuides|fair-h|How it works/);
+  assert.doesNotMatch(src("app/[region]/page.tsx"), /PremiumSlides|LatestGuides|HowItWorks|How DexCompare works/);
   const suggest = src("components/RegionSuggest.tsx");
   assert.doesNotMatch(suggest, /> Continue to \{|Choose your region <span/);
   assert.match(suggest, /setAttribute\("action", `\/\$\{region\}\/sealed`\)/);
