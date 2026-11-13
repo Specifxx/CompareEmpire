@@ -6,24 +6,22 @@ export const OTHER_TCGS: readonly { url: string; anchor: string; site: string; b
   { url: "https://mtgcompare.app", anchor: "Magic: The Gathering sealed prices", site: "MTG Compare", blurb: "Magic: The Gathering booster boxes and bundles, compared across stores." },
 ];
 
-export function CompareOtherTcgs({ className = "mt-14" }: { className?: string }) {
+/** One quiet line (2026-11-13: it was a heading and three cards): a label, then each sister site by what it compares. */
+export function CompareOtherTcgs({ className = "mt-16 sm:mt-20" }: { className?: string }) {
   return (
-    <section className={className} aria-labelledby="other-tcgs-h" data-other-tcgs="">
-      <h2 id="other-tcgs-h" className="font-display text-xl font-bold tracking-tight">
+    <nav className={`flex flex-wrap items-baseline gap-x-5 gap-y-2 border-t border-line pt-6 text-sm ${className}`} aria-labelledby="other-tcgs-h" data-other-tcgs="">
+      <p id="other-tcgs-h" className="eyebrow">
         Compare other TCGs
-      </h2>
-      <ul className="mt-3 grid gap-3 sm:grid-cols-3">
+      </p>
+      <ul className="flex flex-wrap gap-x-5 gap-y-2">
         {OTHER_TCGS.map((s) => (
-          <li key={s.url} className="card p-4">
-            <a href={s.url} rel="noopener" className="font-display text-[15px] font-bold text-ink underline-offset-2 hover:text-brand hover:underline">
+          <li key={s.url}>
+            <a href={s.url} rel="noopener" title={`${s.site}: ${s.blurb}`} className="font-medium text-muted underline-offset-2 transition-colors hover:text-ink hover:underline">
               {s.anchor}
             </a>
-            <span className="mt-1 block text-sm leading-6 text-muted">
-              {s.site}: {s.blurb}
-            </span>
           </li>
         ))}
       </ul>
-    </section>
+    </nav>
   );
 }

@@ -142,23 +142,3 @@ export function EbaySearchLink({
 
 const Arrow = () => <span aria-hidden="true">↗</span>;
 
-/**
- * The header's "eBay" item, with its "Ad" mark: desktop (xl and up) only. A phone's
- * sticky header would put it on screen with the page's own unit, and from lg to xl
- * the nav has no room for it (the region switcher would be pushed off the edge).
- */
-export function EbayNavLink({ region }: { region: Region }) {
-  return (
-    <span data-ad="header" className="hidden shrink-0 xl:inline-flex">
-      <EbaySearchLink
-        region={region}
-        query=""
-        placement="header"
-        title="Ad: affiliate link to Pokémon sealed searches on eBay. We may earn a commission, at no cost to you."
-        className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium text-muted hover:bg-raised hover:text-ink"
-      >
-        eBay <AdPill /> <Arrow />
-      </EbaySearchLink>
-    </span>
-  );
-}

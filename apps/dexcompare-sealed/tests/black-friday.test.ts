@@ -6,7 +6,8 @@ import * as React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { findBannedCopy } from "../src/lib/copy-rules";
 import { bfCopy, blackFriday, cyberMonday, inSeason, seasonYear } from "../src/lib/black-friday";
-import { headerNav, HEADER_NAV } from "../src/components/Header";
+import { headerNavItems, HEADER_NAV } from "../src/components/Header";
+import { dealsMenuColumns } from "../src/components/ShopMenu";
 import { REGION_LIST, REGIONS } from "../src/lib/regions";
 import { staticSitemap } from "../src/lib/sitemap";
 import { SITE_URL } from "../src/lib/site";
@@ -26,9 +27,24 @@ test("dates: Black Friday is the day after the fourth Thursday of November; Cybe
   assert.equal(inSeason("2026-07-01"), false);
 });
 
-test("the nav shows Black Friday after Deals in season only", () => {
-  assert.deepEqual(headerNav("2026-10-22").map((n) => n.label).slice(0, 2), ["Deals", "Black Friday"]);
-  assert.deepEqual(headerNav("2026-07-01"), HEADER_NAV);
+test("in season the two sale pages lead the Deals menu; the header's row stays five sections all year", () => {
+  // Black Friday was an entry of its own in the row (after Deals, xl only) until 2026-11-13: the row had outgrown the page's
+  // column. Both sale pages were in the sidebar, which is gone, so the menu carries both: every page, the region-less ones
+  // included, still links them. The strip under the header (HolidayStrip) and the footer link them on every region page too.
+  const first = (today: string) => dealsMenuColumns("us", today)[0].links.map((l) => l.label);
+  assert.deepEqual(first("2026-10-22").slice(0, 3), ["Black Friday", "Cyber Monday", "Today's deals"]);
+  assert.equal(dealsMenuColumns("us", "2026-10-22")[0].links[0].href, "/us/black-friday");
+  assert.equal(dealsMenuColumns("us", "2026-10-22")[0].links[1].href, "/us/cyber-monday");
+  assert.deepEqual(first("2026-11-29").slice(0, 3), ["Cyber Monday", "Black Friday", "Today's deals"], "Cyber Monday's leads from the Sunday after Black Friday");
+  assert.equal(dealsMenuColumns("au", "2026-11-29")[0].links[0].href, "/au/cyber-monday");
+  assert.equal(first("2026-07-01")[0], "Today's deals", "out of season: no sale link");
+  for (const today of ["2026-10-22", "2026-11-29", "2026-07-01"]) {
+    assert.deepEqual(headerNavItems("us", today).map((n) => n.label), HEADER_NAV.map((n) => n.label), today);
+  }
+  assert.deepEqual(HEADER_NAV.map((n) => n.label), ["Deals", "All sealed", "Sets", "Pokémon", "Guides"]);
+  // the sale pages light "Deals" in the row
+  const deals = headerNavItems("us", "2026-11-13")[0];
+  assert.ok(deals.also?.includes("/us/black-friday") && deals.also?.includes("/us/cyber-monday"));
 });
 
 test("the copy never claims a sale, a former price or urgency", () => {

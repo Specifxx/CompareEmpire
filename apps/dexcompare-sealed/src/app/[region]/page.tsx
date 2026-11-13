@@ -2,45 +2,33 @@ import { WeeklyDropsBox } from "@/components/WeeklyDropsBox";
 import { weeklyBoxLive } from "@/lib/weekly-box";
 import { ALERT_SITE_KEY } from "@/lib/alert-feed";
 import Link from "next/link";
-import { SiteReviews } from "@/components/site-reviews/SiteReviews";
-import { inSeason } from "@/lib/black-friday";
-import { CORE_SALES, salesInSeason } from "@/lib/sale-seasons";
-import { PreorderBanner } from "@/components/PreorderBanner";
 import { cache } from "react";
 import type { Metadata } from "next";
 import { Ago } from "@/components/Ago";
 import { RecentlyViewed } from "@/components/Recent";
-import { firstHotSet, hotSetHighlight, NoPreFooter } from "@/components/Ebay";
-import { EbayStrip } from "@/components/EbayStrip";
+import { NoPreFooter } from "@/components/Ebay";
 import { HubFaqSection, HubSummaryText } from "@/components/HubSummary";
 import { hubSummary } from "@/lib/hub-summary";
-import { Icon, type IconName } from "@/components/Icon";
 import { ProductGrid } from "@/components/ProductGrid";
-import { ProductRail } from "@/components/ProductRail";
 import { SearchBox } from "@/components/SearchBox";
-import { HeroCards, type HeroCard } from "@/components/home/HeroCards";
-import { HeroSparks } from "@/components/HeroSparks";
+import { Hero, HeroPill, riseAt, WaysIn, type Way } from "@/components/home/Hero";
 import { RegionChips } from "@/components/RegionChips";
-import { Empty, Section } from "@/components/Section";
-import { StockPill } from "@/components/StockPill";
+import { Empty, Section, type EmptyAction } from "@/components/Section";
+import { Tabs, type Tab } from "@/components/Tabs";
+import { Fold, Folds } from "@/components/Fold";
 import { homeRails, regionOverview, tcgplayerTiles, type ProductCardData } from "@/lib/data";
 import { InlineAds } from "@/components/InlineAds";
-import { dealsCopy, dealsInMarket, fitTitle, homeCopy, nearestRegion, stockLabel } from "@/lib/deals";
+import { dealsCopy, dealsInMarket, fitTitle, homeCopy, nearestRegion } from "@/lib/deals";
 import { cardOpen } from "@/lib/compact";
 import { money, plural, timeAgo } from "@/lib/format";
 import { thumb } from "@/lib/images";
-import { hotPicks } from "@/lib/hot-picks";
 import { FEATURE_MIN_USD_CENTS, featured as featuredByPrice, featureWorthy, priciestFirst } from "@/lib/feature-floor";
 import { COUNTRY_GUIDE } from "@/content/guides/country-prices";
 import { openPreorderGuides } from "@/lib/preorder-guides";
 import { featureOrder, isPreorderSet, formatRelease } from "@/lib/release";
 import { REGION_LIST, REGIONS, regionOrNotFound, type Market, type RegionInfo } from "@/lib/regions";
 import { ogCardImage, pageMeta, regionAlternates } from "@/lib/seo";
-import { PRODUCT_TYPES } from "@/lib/sealed-title";
 import { SET_BY_CODE, SETS, type PokemonSet } from "@/lib/sets";
-import { stockHeadline } from "@/lib/stock";
-import { olderInStockData } from "@/lib/stock-data";
-import { StockRow } from "@/components/StockRow";
 import { storesInMarket } from "@/lib/stores";
 import { loadMarketReport } from "@/lib/market-report";
 import { RegionReport, RegionsCompared } from "@/components/MarketReport";
@@ -48,10 +36,7 @@ import { CompareOtherTcgs } from "@/components/CompareOtherTcgs";
 import { SetIndex } from "@/components/SetIndex";
 import { setCountsGrouped, typeLabelsInMarket } from "@/lib/hub-data";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
-import { CreatorsCornerBadge } from "@/components/creators/CreatorsCornerBadge";
-import { Flag } from "@/components/Flag";
 import { FeaturedAds } from "@/components/FeaturedAds";
-import { HypeNow } from "@/components/HypeNow";
 
 // Rendered per request and kept by Vercel's CDN for a day (next.config.js, CDN_PAGES), never ISR: an ISR write
 // costs about twenty renders, and the data only changes with a release, which empties the CDN anyway.
@@ -78,50 +63,40 @@ export async function generateMetadata({ params }: { params: { region: string } 
   };
 }
 
-const QUICK_TYPES = ["booster-boxes", "elite-trainer-boxes", "booster-bundles", "collections", "ultra-premium-collections", "tins", "booster-packs", "blisters"];
-
+/**
+ * A region's home, the minimal look (owner, 2026-11-13: "we're making things too complicated … get rid of the products on the hero
+ * … cull the features that we show"; DECISIONS.md). Six blocks and no more: the hero (words, the search, the regions, six ways in,
+ * never a product), ONE shelf of what is in stock with its lists behind tabs, the latest sets, the weekly email, the page's one ad
+ * block, then the reading matter folded to a line each. What left the page is one click away in the header's menus and the footer:
+ * the creators badge, the type chips, the pre-order and sale cards (the pre-order hub is the hero's one pill; the sale has the strip
+ * under the header), the hype buttons, both eBay strips, the older-sets rows and the reviews.
+ */
 export default async function RegionHome({ params }: { params: { region: string } }) {
   const r = regionOrNotFound(params.region);
-  const [{ boxes, etbs, preorders, latestSets: bySet }, overview, allDeals, report, older, setCounts, listedTypes, tcgTiles] = await Promise.all([
+  const [{ boxes, etbs, preorders, latestSets: bySet }, overview, allDeals, report, setCounts, listedTypes, tcgTiles] = await Promise.all([
     homeRails(r.market),
     getOverview(r.market),
     dealsInMarket(r.market, { take: 24 }),
     loadMarketReport(r.market),
-    olderInStockData(r.market).catch(() => []),
     setCountsGrouped(r.market),
     typeLabelsInMarket(r.market),
     tcgplayerTiles({ take: 12, minCents: FEATURE_MIN_USD_CENTS }).catch(() => []),
   ]);
   // The seven regions side by side, moved here from the landing page (2026-10-25).
   const reports = await Promise.all(REGION_LIST.map((x) => (x.region === r.region ? report : loadMarketReport(x.market)))).catch(() => [report]);
-  // The soonest upcoming set with a pre-order page: the rail's "see all" goes there.
+  // The soonest upcoming set with a pre-order page: the hero's pill and the pre-order tab's "see all" go there.
   const preorderGuide = openPreorderGuides()[0] ?? null;
   const storeCount = storesInMarket(r.market).length;
-  // The newest released set leads, the set on pre-order second (release.ts featureOrder): a pre-order is never the top card.
+  // The newest released set leads, the set on pre-order second (release.ts featureOrder): a pre-order is never the first tile.
   const latestSets = featureOrder(SETS.filter((s) => bySet.has(s.code)).slice(0, 4).map((s) => s.code)).map((c) => SET_BY_CODE.get(c)!);
-  // The owner's most wanted set that is out (lib/popular.ts HOT_SETS: 30th Celebration first) gets the sealed strip's highlighted
-  // eBay button, "Shop 30th Celebration on eBay": inside that strip's own top line, so the page keeps its two units.
-  const hotHighlight = hotSetHighlight(firstHotSet());
-  // The deals rail and the pre-order grid feature the dearer products (lib/feature-floor.ts, owner 2026-11-12): deals by the biggest saving
-  // in money; the pre-order grid keeps every pre-order only when none clears the floor.
+  // The deals and the pre-orders feature the dearer products (lib/feature-floor.ts, owner 2026-11-12): deals by the biggest saving
+  // in money; the pre-orders keep every one only when none clears the floor.
   const deals = priciestFirst(allDeals.filter((p) => featureWorthy(p.lowestPriceCents, r.market)), r.market, (p) => (p.medianOpenCents ?? 0) - (p.lowestPriceCents ?? 0)).slice(0, 8);
   const preorderShelf = (() => {
     const top = featuredByPrice(preorders, r.market, (p) => p.lowestPriceCents, 8);
     return top.length ? top : preorders;
   })();
-  const hot = hotPicks(preorders, boxes, undefined, r.market);
-  // The hero's two cards: the hot picks in their own order (lib/hot-picks.ts), the ones with a photo first.
-  const heroCards: HeroCard[] = [...hot.filter((p) => p.imageUrl), ...hot.filter((p) => !p.imageUrl)].slice(0, 2).map((p) => ({
-    slug: p.slug,
-    name: p.name,
-    type: p.productType,
-    img: p.imageUrl,
-    cents: p.lowestPriceCents,
-    stores: p.inStockStores || p.listedStores,
-    median: p.medianOpenCents,
-    pre: isPreorderSet(p.setCode),
-  }));
-  // The server-rendered summary and FAQ (SEO-1, 2026-11-10): today's numbers from the rails above (the newest boxes and ETBs in stock)
+  // The server-rendered summary and FAQ (SEO-1, 2026-11-10): today's numbers from the shelf (the newest boxes and ETBs in stock)
   // and the market overview; the cheapest named is the cheapest of those, never claimed for the whole market.
   const summary = hubSummary({
     r,
@@ -135,296 +110,243 @@ export default async function RegionHome({ params }: { params: { region: string 
   });
   const other = REGIONS[nearestRegion(r.region)];
   const preorderLink = { href: `/${r.region}/releases`, label: "Pre-orders" };
+  // The hero's ways in: the six pages most visitors want next. Never products.
+  const ways: Way[] = [
+    { href: `/${r.region}/type/booster-boxes`, label: "Booster boxes", icon: "box" },
+    { href: `/${r.region}/type/elite-trainer-boxes`, label: "Elite Trainer Boxes", icon: "etb" },
+    { href: `/${r.region}/type/booster-bundles`, label: "Booster bundles", icon: "bundle" },
+    { href: `/${r.region}/releases`, label: "Pre-orders", icon: "calendar" },
+    { href: `/${r.region}/deals`, label: "Deals", icon: "tag" },
+    { href: `/${r.region}/sets`, label: "All sets", icon: "sets" },
+  ];
+  // The one shelf (components/Tabs.tsx): every list is server-rendered and stays in the HTML; a tab only chooses which is shown.
+  const shelf: Tab[] = [
+    {
+      label: "Booster boxes",
+      panel: (
+        <Shelf
+          r={r}
+          heading={`Booster boxes in stock in ${r.inName}, newest sets first`}
+          products={boxes}
+          href={`/${r.region}/type/booster-boxes`}
+          all="All booster boxes"
+          empty="No booster boxes in stock right now."
+          emptyActions={[preorderLink, { href: `/${other.region}/type/booster-boxes`, label: `Booster boxes in ${other.inName}` }]}
+        />
+      ),
+    },
+    {
+      label: "Elite Trainer Boxes",
+      panel: (
+        <Shelf
+          r={r}
+          heading={`Elite Trainer Boxes in stock in ${r.inName}, newest sets first`}
+          products={etbs}
+          href={`/${r.region}/type/elite-trainer-boxes`}
+          all="All Elite Trainer Boxes"
+          empty="No Elite Trainer Boxes in stock right now."
+          emptyActions={[preorderLink, { href: `/${other.region}/type/elite-trainer-boxes`, label: `ETBs in ${other.inName}` }]}
+        />
+      ),
+    },
+    ...(deals.length
+      ? [
+          {
+            label: "Deals",
+            panel: <Shelf r={r} heading={dealsCopy.rail} note={`${dealsCopy.railKicker} of the stores that have it in stock.`} products={deals} href={`/${r.region}/deals`} all="All deals" />,
+          },
+        ]
+      : []),
+    ...(preorderShelf.length
+      ? [
+          {
+            label: "Pre-orders",
+            panel: (
+              <Shelf
+                r={r}
+                heading={`Open for pre-order in ${r.inName}`}
+                products={preorderShelf}
+                href={preorderGuide ? `/${r.region}/preorders/${preorderGuide.set.slug}` : `/${r.region}/releases`}
+                all={preorderGuide ? `Compare ${preorderGuide.set.name} pre-orders` : "Release calendar"}
+              />
+            ),
+          },
+        ]
+      : []),
+  ];
 
   return (
     <div>
-      <section className="relative overflow-hidden border-b border-line bg-surface">
-        {/* The living background (owner, 2026-11-03): motes that part around the pointer, sparks on a click. */}
-        <HeroSparks />
-        <div className="page relative grid gap-8 py-8 sm:py-12 lg:grid-cols-[minmax(0,1fr)_minmax(340px,480px)] lg:items-center lg:gap-10">
-          <div className="min-w-0">
-            <Breadcrumbs items={[{ href: "/", label: "DexCompare" }, { label: r.name }]} />
-            {/* The creators hub, above the fold on every region home too (owner, 2026-11-03); a pill under the breadcrumb on a phone. */}
-            <CreatorsCornerBadge className="sm:right-6 sm:top-8" />
-            <div className="eyebrow">
-              <Flag code={r.short} /> {r.name} · prices in {r.currency}
-            </div>
-            <h1 className="mt-3 max-w-3xl font-display text-3xl font-bold leading-[1.1] tracking-tight sm:text-5xl">
-              Compare Pokémon booster box &amp; ETB prices in <span className="text-brand">{r.inName}</span>
-            </h1>
-            <p className="mt-3 max-w-2xl text-base leading-7 text-muted sm:text-lg">
-              Today&rsquo;s prices and stock from {plural(storeCount, `${r.adjective} store`)}
-              {r.market === "US" && " and TCGplayer"}, cheapest first.
-            </p>
-            <div className="mt-6 max-w-2xl">
-              <SearchBox region={r.region} size="lg" />
-            </div>
-            <RegionChips region={r.region} className="mt-4" />
-            {/* One sideways row at every width (calm palette, 2026-11-12): wrapped, the thirteen chips were five rows of the hero on a
-                desktop. Every link is still in the HTML, and the sidebar lists the same types. */}
-            <nav aria-label="Shop by type" className="scroller mt-4 gap-2">
-              <Link href={`/${r.region}/deals`} prefetch={false} className="chip min-h-10 font-semibold">
-                <Icon name="tag" size={16} className="text-muted" /> Deals
-              </Link>
-              <Link href={`/${r.region}/back-in-stock`} prefetch={false} className="chip min-h-10 font-semibold">
-                <Icon name="check" size={16} className="text-muted" /> Back in stock
-              </Link>
-              <Link href={`/${r.region}/out-of-print`} prefetch={false} className="chip min-h-10">
-                Older sets in stock
-              </Link>
-              <Link href={`/${r.region}/price-moves`} prefetch={false} className="chip min-h-10">
-                Price moves
-              </Link>
-              <Link href={`/${r.region}/charts`} prefetch={false} className="chip min-h-10">
-                Weekly chart
-              </Link>
-              {QUICK_TYPES.map((slug) => {
-                const t = PRODUCT_TYPES.find((x) => x.slug === slug)!;
-                return (
-                  <Link key={slug} href={`/${r.region}/type/${slug}`} prefetch={false} className="chip min-h-10">
-                    {t.plural}
-                  </Link>
-                );
-              })}
-            </nav>
-            {/* The stat line as chips (2026-11-08, the KaeYoung / ScentCompare hero). */}
-            <p className="mt-5 flex flex-wrap items-center gap-2 text-sm">
-              <span className="hero-stat">
-                <span className="h-2 w-2 shrink-0 rounded-full bg-open" aria-hidden="true" />
-                <b className="tabular">{storeCount.toLocaleString("en")}</b> stores
-              </span>
-              <span className="hero-stat">
-                <b className="tabular">{overview.inStock.toLocaleString("en")}</b> in stock
-              </span>
-              {/* A live <time>: the page is cached for a day, so a fixed "3 hours ago" would freeze. */}
-              <span className="hero-stat">checked {overview.lastChecked ? <Ago iso={overview.lastChecked.toISOString()} initial={timeAgo(overview.lastChecked)} /> : "twice a day"}</span>
-            </p>
-          </div>
-          {heroCards.length > 0 && (
-            <aside aria-labelledby="hot-now">
-              <h2 id="hot-now" className="eyebrow mb-3">
-                Hot right now
-              </h2>
-              {/* Two big product cards (owner, 2026-11-08: "feature some products on the hero", as KaeYoung and ScentCompare do). */}
-              <HeroCards cards={heroCards} region={r.region} />
-            </aside>
-          )}
+      <Hero>
+        {/* Where the page sits (and its BreadcrumbList), out of the centred column's way: the hero's top left corner. */}
+        <div className="hero-crumbs">
+          <Breadcrumbs items={[{ href: "/", label: "DexCompare" }, { label: r.name }]} />
         </div>
-      </section>
+        {/* The one small line above the headline: the next set's pre-order hub while one is open (it was a card under the hero). */}
+        {preorderGuide && (
+          <HeroPill href={`/${r.region}/preorders/${preorderGuide.set.slug}`}>
+            <span>
+              <b>{preorderGuide.set.name}</b> pre-orders · out {formatRelease(preorderGuide.set.releaseDate)}
+            </span>
+          </HeroPill>
+        )}
+        <h1 className="hero-h1 hero-h1-long rise-solid">
+          Compare Pokémon booster box &amp; ETB prices in <span className="text-brand">{r.inName}</span>
+        </h1>
+        <p className="hero-sub rise" style={riseAt(1)}>
+          Today&rsquo;s prices and stock from {plural(storeCount, `${r.adjective} store`)}
+          {r.market === "US" && " and TCGplayer"}, cheapest first.
+        </p>
+        <div className="hero-search rise" style={riseAt(2)}>
+          <SearchBox region={r.region} size="lg" />
+        </div>
+        <RegionChips region={r.region} className="rise mt-6 justify-center" style={riseAt(3)} />
+        <WaysIn links={ways} label={`Popular pages in ${r.inName}`} />
+        {/* One quiet line of facts (it was three chips). A live <time>: the page is cached for a day, so a fixed "3 hours ago" would freeze. */}
+        <p className="hero-meta rise" style={riseAt(5)}>
+          <span>
+            <span className="live" aria-hidden="true" /> <b>{storeCount.toLocaleString("en")}</b> stores
+          </span>
+          <span aria-hidden="true">·</span>
+          <span>
+            <b>{overview.inStock.toLocaleString("en")}</b> in stock
+          </span>
+          <span aria-hidden="true">·</span>
+          <span>checked {overview.lastChecked ? <Ago iso={overview.lastChecked.toISOString()} initial={timeAgo(overview.lastChecked)} /> : "twice a day"}</span>
+        </p>
+      </Hero>
 
-      {/* The page carries two strips of its own (sealed, chase cards): no third one above the footer. */}
+      {/* The page places its own ad block (below): none above the footer. */}
       <NoPreFooter />
       <div className="page">
-        {/* The next set on pre-order, when there is one: its hub, the page people compare pre-orders on (components/PreorderBanner). */}
-        <div className="mt-8 grid gap-3">
-          <PreorderBanner region={r.region} />
-          {inSeason(new Date().toISOString().slice(0, 10)) && (
-            <Link
-              href={`/${r.region}/black-friday`}
-              prefetch={false}
-              className="card flex flex-wrap items-center justify-between gap-3 px-5 py-4 transition-shadow hover:shadow-lift"
-            >
-              <span>
-                <span className="font-display text-lg font-bold">Black Friday deals in {r.inName}</span>
-                <span className="block text-sm text-muted">Every product furthest under the median store price today, biggest gap first.</span>
-              </span>
-              <span className="shrink-0 text-sm font-semibold text-brand-strong">See the deals →</span>
-            </Link>
-          )}
-          {salesInSeason(CORE_SALES, new Date().toISOString().slice(0, 10)).map((sale) => (
-            <Link
-              key={sale.slug}
-              href={`/${r.region}/${sale.slug}`}
-              prefetch={false}
-              className="card flex flex-wrap items-center justify-between gap-3 px-5 py-4 transition-shadow hover:shadow-lift"
-            >
-              <span>
-                <span className="font-display text-lg font-bold">{sale.linkLabel} in {r.inName}</span>
-                <span className="block text-sm text-muted">Every product furthest under the median store price today, biggest gap first.</span>
-              </span>
-              <span className="shrink-0 text-sm font-semibold text-brand-strong">See the deals →</span>
-            </Link>
-          ))}
-        </div>
-        <HypeNow region={r.region} />
         {/* Paid featured listings (lib/featured-ads.ts): drawn in the browser from RiftCompare's feed, nothing when there are none. */}
-        <FeaturedAds region={r.market} className="mt-8" />
-        {deals.length > 0 && (
-          <Section title={dealsCopy.rail} kicker={dealsCopy.railKicker} href={`/${r.region}/deals`} linkLabel="All deals">
-            <ProductRail products={deals} region={r.region} eager={4} label={dealsCopy.rail} />
+        <FeaturedAds region={r.market} className="mt-2" />
+
+        {overview.products === 0 ? (
+          <div className="mt-10">
+            <Empty actions={[{ href: `/${other.region}`, label: `DexCompare ${other.name}` }]}>We&rsquo;re still reading {r.adjective} stores for the first time. Check back shortly.</Empty>
+          </div>
+        ) : (
+          <Section title="In stock today" className="reveal mt-8 sm:mt-12">
+            <Tabs tabs={shelf} label={`In stock in ${r.inName} today`} />
+          </Section>
+        )}
+
+        {latestSets.length > 0 && (
+          <Section title="Latest sets" href={`/${r.region}/sets`} linkLabel="All sets" className="reveal mt-16 sm:mt-24">
+            <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {latestSets.map((s) => (
+                <li key={s.code} className="flex">
+                  <SetTile r={r} s={s} items={bySet.get(s.code) ?? []} />
+                </li>
+              ))}
+            </ul>
           </Section>
         )}
 
         {/* The weekly price-drops email, one field (components/WeeklyDropsBox.tsx, 2026-11-12). */}
-        {weeklyBoxLive() && <WeeklyDropsBox site={ALERT_SITE_KEY} region={r.market} siteName="DexCompare" placement="home" className="mt-10 max-w-2xl" buttonClassName="btn-primary" />}
-        {/* The page's first eBay unit, under the deals rail: sealed listings as an image strip (imported from eBay once a day, fetched in the
-            browser once it is near the viewport), with the owner's hot set as its highlighted button; with none to list, the compact CTA row.
-            The chase-card strip follows the booster-box rail, far enough down that the two never share a phone screen. */}
-        <EbayStrip region={r.region} context="sealed" placement="listings-home-sealed" className="mt-14" search={{ kind: "sealed", query: "" }} highlight={hotHighlight} />
+        {weeklyBoxLive() && <WeeklyDropsBox site={ALERT_SITE_KEY} region={r.market} siteName="DexCompare" placement="home" className="reveal mx-auto mt-16 max-w-2xl sm:mt-24" buttonClassName="btn-primary" />}
 
-        {latestSets.length > 0 && (
-          <Section title="Latest sets" kicker="New & upcoming" href={`/${r.region}/sets`} linkLabel="All sets">
-            <div className="grid gap-4 md:grid-cols-2">
-              {latestSets.map((s) => (
-                <SetCard key={s.code} r={r} s={s} items={bySet.get(s.code) ?? []} />
-              ))}
-            </div>
-          </Section>
-        )}
+        {/* The page's one ad block (owner, 2026-11-13): real eBay listings and TCGplayer products, labelled, under everything the
+            visitor came for. The two eBay strips that sat between the lists are gone with the lists' own sections. */}
+        <InlineAds region={r.region} tiles={tcgTiles} className="reveal mt-16 sm:mt-24" />
 
-        {preorders.length > 0 && (
-          <Section
-            title="Open for pre-order"
-            kicker="Upcoming sets"
-            href={preorderGuide ? `/${r.region}/preorders/${preorderGuide.set.slug}` : `/${r.region}/releases`}
-            linkLabel={preorderGuide ? `Compare ${preorderGuide.set.name} pre-orders` : "Release calendar"}
-          >
-            <ProductGrid products={preorderShelf} region={r.region} />
-          </Section>
-        )}
-
-        <Section title="Booster boxes in stock" kicker="Newest sets first" href={`/${r.region}/type/booster-boxes`}>
-          {boxes.length ? (
-            <ProductGrid products={boxes} region={r.region} />
-          ) : (
-            <Empty actions={[preorderLink, { href: `/${r.region}/type/booster-boxes`, label: "All booster boxes" }, { href: `/${other.region}/type/booster-boxes`, label: `Booster boxes in ${other.inName}` }]}>
-              No booster boxes in stock right now.
-            </Empty>
+        {/* The reading matter: in the HTML for a crawler and for find-in-page, one line each until opened (components/Fold.tsx). */}
+        <Folds label={`More about Pokémon sealed prices in ${r.inName}`}>
+          <RegionReport rep={report} />
+          <RegionsCompared reports={reports} />
+          {/* Every set listed here, so every set page is two clicks from the landing page and its products three (2026-10-25). */}
+          <SetIndex r={r} counts={setCounts} types={listedTypes} />
+          {summary.paragraphs.length > 0 && (
+            <Fold id="today-h" title={`Pokémon sealed prices in ${r.inName} today`}>
+              <HubSummaryText title={`Pokémon sealed prices in ${r.inName} today`} paragraphs={summary.paragraphs} />
+              <p className="mt-4 max-w-3xl text-sm text-muted">
+                How do booster box prices in {r.inName} compare with the other six markets?{" "}
+                <Link href={COUNTRY_GUIDE.path} prefetch={false} className="font-semibold text-brand hover:underline">
+                  Booster box prices by country →
+                </Link>
+              </p>
+            </Fold>
           )}
-          <p className="mt-4 text-sm text-muted">
-            How do booster box prices in {r.inName} compare with the other six markets?{" "}
-            <Link href={COUNTRY_GUIDE.path} prefetch={false} className="font-semibold text-brand hover:underline">
-              Booster box prices by country →
-            </Link>
-          </p>
-        </Section>
-
-        {/* The second unit: chase cards, after the booster-box rail (a viewport and more below the sealed strip). */}
-        <EbayStrip region={r.region} context="chase" placement="listings-home" className="mt-14" search={{ kind: "card", query: "" }} />
-
-        <Section title="Elite Trainer Boxes in stock" kicker="Newest sets first" href={`/${r.region}/type/elite-trainer-boxes`}>
-          {etbs.length ? (
-            <ProductGrid products={etbs} region={r.region} />
-          ) : (
-            <Empty actions={[preorderLink, { href: `/${r.region}/type/elite-trainer-boxes`, label: "All ETBs" }, { href: `/${other.region}/type/elite-trainer-boxes`, label: `ETBs in ${other.inName}` }]}>
-              No Elite Trainer Boxes in stock right now.
-            </Empty>
-          )}
-        </Section>
-
-        {/* Real sealed products on TCGplayer (2026-10-28), after the ETB rail: well below the comparison above it. */}
-        <InlineAds region={r.region} tiles={tcgTiles} className="mt-14" />
-
-        <RegionReport rep={report} />
-        <RegionsCompared reports={reports} />
-        {older.length > 0 && (
-          <Section title="Older sets still in stock" kicker="Released 18+ months ago" href={`/${r.region}/out-of-print`} linkLabel="All older sets in stock">
-            <p className="-mt-2 mb-4 max-w-2xl text-sm text-muted">
-              Booster boxes, Elite Trainer Boxes and bundles from older sets that {r.adjective} stores, often local game stores, still have on the shelf. Today&rsquo;s stock and price only; older product&rsquo;s prices can move.
-            </p>
-            <ol className="grid grid-cols-[minmax(0,1fr)] gap-3 md:grid-cols-[repeat(2,minmax(0,1fr))]">
-              {older.slice(0, 4).map((g) => (
-                <li key={g.set.code}>
-                  <StockRow p={g.items[0]} r={r} />
-                </li>
-              ))}
-            </ol>
-          </Section>
-        )}
-
-        {/* Every set listed here, so every set page is two clicks from the landing page and its products three (2026-10-25). */}
-        <SetIndex r={r} counts={setCounts} types={listedTypes} />
-        <section aria-labelledby="today-h" className="mt-16 max-w-3xl">
-          <h2 id="today-h" className="font-display text-xl font-bold tracking-tight">
-            Pokémon sealed prices in {r.inName} today
-          </h2>
-          <HubSummaryText title={`Pokémon sealed prices in ${r.inName} today`} paragraphs={summary.paragraphs} />
-        </section>
+        </Folds>
         <HubFaqSection faq={summary.faq} />
-        {/* The site's own star score and approved reviews (owner, 2026-11-03), loaded in the browser; nothing until there is a rating. */}
-        <SiteReviews />
         <CompareOtherTcgs />
         {/* The visitor's own recently viewed products, from this browser's storage: rendered at the end, so nothing above moves. */}
         <RecentlyViewed region={r.region} />
-
-        {overview.products === 0 && (
-          <div className="mt-10">
-            <Empty actions={[{ href: `/${other.region}`, label: `DexCompare ${other.name}` }]}>We&rsquo;re still reading {r.adjective} stores for the first time. Check back shortly.</Empty>
-          </div>
-        )}
       </div>
     </div>
   );
 }
 
-/**
- * A latest-set card: its header links to the set (the logo, or, for a set with none yet, its booster box or ETB on a plate), and each
- * headline product is its own row linking to its page.
- */
-function SetCard({ r, s, items: all }: { r: RegionInfo; s: PokemonSet; items: ProductCardData[] }) {
-  const order = ["Booster Box", "Elite Trainer Box", "Booster Bundle"];
-  const items = all
-    .filter((p) => p.productType !== "Pokémon Center Elite Trainer Box")
-    .sort((a, b) => order.indexOf(a.productType) - order.indexOf(b.productType))
-    .slice(0, 3);
-  const pre = isPreorderSet(s.code);
-  const art = s.logo ? null : thumb(all.find((p) => p.imageUrl && (p.productType === "Booster Box" || p.productType === "Elite Trainer Box"))?.imageUrl, 200);
+/** One list of the shelf: its products, then the way to all of them. The heading is for a screen reader's outline (the tab says it). */
+function Shelf({
+  r,
+  heading,
+  note,
+  products,
+  href,
+  all,
+  empty,
+  emptyActions,
+}: {
+  r: RegionInfo;
+  heading: string;
+  note?: string;
+  products: ProductCardData[];
+  href: string;
+  all: string;
+  empty?: string;
+  emptyActions?: EmptyAction[];
+}) {
   return (
-    <div className="card flex flex-col overflow-hidden">
-      <Link href={`/${r.region}/sets/${s.slug}`} prefetch={false} className="group flex min-h-[4.5rem] items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-raised sm:px-5">
-        <span className="flex min-w-0 items-center gap-3">
-          {s.logo ? (
-            <img src={s.logo} alt={`${s.name} logo`} width={96} height={40} className="h-10 w-24 shrink-0 object-contain" loading="lazy" decoding="async" />
-          ) : art ? (
-            <span className="plate flex h-12 w-12 shrink-0 items-center justify-center">
-              <img src={art} alt={s.name} width={48} height={48} className="h-full w-full object-contain p-1" loading="lazy" decoding="async" />
-            </span>
-          ) : (
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-brand-soft font-display font-bold text-brand-strong">{s.name.slice(0, 1)}</span>
-          )}
-          <span className="min-w-0">
-            <span className="block font-display text-lg font-bold leading-tight group-hover:text-brand">{s.name}</span>
-            <span className="block text-xs text-faint">
-              {pre ? "Releases" : "Released"} {formatRelease(s.releaseDate)}
-            </span>
-          </span>
+    <>
+      <h3 className="sr-only">{heading}</h3>
+      {note && <p className="-mt-1 mb-5 text-sm text-muted">{note}</p>}
+      {products.length ? <ProductGrid products={products} region={r.region} /> : <Empty actions={emptyActions}>{empty}</Empty>}
+      <p className="mt-8 flex justify-center sm:mt-10">
+        <Link href={href} prefetch={false} className="btn-ghost min-h-11 px-5">
+          {all} <span aria-hidden="true">→</span>
+        </Link>
+      </p>
+    </>
+  );
+}
+
+/**
+ * A latest set, as one tile: its logo (or, for a set with none yet, its booster box or ETB on a plate), its name and release date,
+ * and what its headline product costs today. The whole tile is the link to the set's page, which lists every product.
+ */
+function SetTile({ r, s, items }: { r: RegionInfo; s: PokemonSet; items: ProductCardData[] }) {
+  const order = ["Booster Box", "Elite Trainer Box", "Booster Bundle"];
+  const lead = items
+    .filter((p) => cardOpen(p) && order.includes(p.productType))
+    .sort((a, b) => order.indexOf(a.productType) - order.indexOf(b.productType))[0];
+  const pre = isPreorderSet(s.code);
+  const art = s.logo ? null : thumb(items.find((p) => p.imageUrl && (p.productType === "Booster Box" || p.productType === "Elite Trainer Box"))?.imageUrl, 200);
+  return (
+    <Link href={`/${r.region}/sets/${s.slug}`} prefetch={false} className="set-tile group">
+      {s.logo ? (
+        <span className="set-tile-art">
+          <img src={s.logo} alt={`${s.name} logo`} width={96} height={40} className="h-full w-full object-contain" loading="lazy" decoding="async" />
         </span>
-        {pre ? (
-          <span className="sp sp-pre shrink-0">Pre-order</span>
-        ) : (
-          <Icon name="arrow-right" size={18} className="shrink-0 text-faint transition-transform group-hover:translate-x-0.5 group-hover:text-brand" />
+      ) : art ? (
+        <span className="set-tile-art plate">
+          <img src={art} alt={s.name} width={56} height={56} className="h-full w-full object-contain p-1 mix-blend-multiply" loading="lazy" decoding="async" />
+        </span>
+      ) : (
+        <span className="set-tile-art bg-brand-soft font-display text-lg font-bold text-brand-strong">{s.name.slice(0, 1)}</span>
+      )}
+      <span className="min-w-0">
+        <span className="block truncate font-display text-base font-bold leading-tight transition-colors group-hover:text-brand">{s.name}</span>
+        <span className="mt-0.5 block text-xs text-faint">
+          {pre ? "Releases" : "Released"} {formatRelease(s.releaseDate)}
+        </span>
+        {lead && (
+          <span className="mt-1 block truncate text-sm text-muted">
+            {lead.productType} from <b className="tabular font-semibold text-ink">{money(lead.lowestPriceCents, r.market)}</b>
+          </span>
         )}
-      </Link>
-      <ul className="divide-y divide-line border-t border-line">
-        {items.length ? (
-          items.map((p) => (
-            <li key={p.slug}>
-              <Link href={`/${r.region}/p/${p.slug}`} prefetch={false} className="flex min-h-11 items-center justify-between gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-raised sm:px-5">
-                <span className="text-muted">{p.productType}</span>
-                <span className="tabular text-right font-semibold">
-                  {cardOpen(p) ? (
-                    <>
-                      <span className="block text-xs font-normal text-muted sm:inline sm:text-sm">
-                        {stockLabel(p)}
-                        <span className="hidden sm:inline font-normal text-faint"> · </span>
-                      </span>
-                      {money(p.lowestPriceCents, r.market)}
-                    </>
-                  ) : (
-                    <span className="text-faint">{stockHeadline(p).text}</span>
-                  )}
-                </span>
-              </Link>
-            </li>
-          ))
-        ) : (
-          <li>
-            <Link href={`/${r.region}/sets/${s.slug}`} prefetch={false} className="flex min-h-11 items-center px-4 py-2.5 text-sm text-muted hover:bg-raised sm:px-5">
-              See every {s.name} product
-            </Link>
-          </li>
-        )}
-      </ul>
-    </div>
+      </span>
+    </Link>
   );
 }

@@ -1,21 +1,18 @@
 import type { Metadata } from "next";
 import { Icon } from "@/components/Icon";
-import { RegionSuggest } from "@/components/RegionSuggest";
 import { SoftSideAds } from "@/components/SideAds";
 import { FEATURE_MIN_USD_CENTS } from "@/lib/feature-floor";
 import { tcgplayerTiles, type TcgplayerTile } from "@/lib/data";
 import { HomeRegionGrid } from "@/components/HomeRegionGrid";
 import { RegionChips } from "@/components/RegionChips";
 import { regionPicks } from "@/lib/picks";
-import { openPreorderGuides } from "@/lib/preorder-guides";
 import { REGION_LIST, X_DEFAULT_REGION } from "@/lib/regions";
 import { DEFAULT_OG_IMAGE } from "@/lib/seo";
 import { SITE_NAME, SITE_URL, sectionHref } from "@/lib/site";
 import { STORES } from "@/lib/stores";
-import { GhostTeaser, HalloweenDecor } from "@/components/season/HalloweenDecor";
 import { ChristmasGifts } from "@/components/season/ChristmasGifts";
-import { CreatorsCornerBadge } from "@/components/creators/CreatorsCornerBadge";
-import { SoftHeroCards } from "@/components/home/SoftHeroCards";
+import { Hero, riseAt, type Way } from "@/components/home/Hero";
+import { SoftWaysIn } from "@/components/home/SoftWaysIn";
 import { PopularPages } from "@/components/home/PopularPages";
 
 // Rendered per request and kept by Vercel's CDN for a day (next.config.js CDN_PAGES), never at build: the page carries
@@ -41,91 +38,63 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
 };
 
-// The hero's shortcuts, built for the default region (RegionSuggest moves them to the visitor's).
-const HERO_LINKS = [
-  { href: sectionHref(X_DEFAULT_REGION, "boosterBoxes"), label: "Booster boxes" },
-  { href: sectionHref(X_DEFAULT_REGION, "etbs"), label: "Elite Trainer Boxes" },
-  { href: sectionHref(X_DEFAULT_REGION, "bundles"), label: "Booster bundles" },
-  { href: sectionHref(X_DEFAULT_REGION, "japanese"), label: "Japanese boxes" },
-  { href: sectionHref(X_DEFAULT_REGION, "deals"), label: "Deals" },
+// The hero's ways in, built for the default region (SoftWaysIn moves them to the visitor's): six tiles, never products.
+const HERO_LINKS: Way[] = [
+  { href: sectionHref(X_DEFAULT_REGION, "boosterBoxes"), label: "Booster boxes", icon: "box" },
+  { href: sectionHref(X_DEFAULT_REGION, "etbs"), label: "Elite Trainer Boxes", icon: "etb" },
+  { href: sectionHref(X_DEFAULT_REGION, "bundles"), label: "Booster bundles", icon: "bundle" },
+  { href: sectionHref(X_DEFAULT_REGION, "japanese"), label: "Japanese boxes", icon: "japan" },
+  { href: sectionHref(X_DEFAULT_REGION, "deals"), label: "Deals", icon: "tag" },
+  { href: sectionHref(X_DEFAULT_REGION, "sets"), label: "All sets", icon: "sets" },
 ];
 
 export default async function Landing() {
-  // The side rails' TCGplayer tiles, as on the region pages (this page is force-dynamic: read per request, never at build).
+  // The phone dock's TCGplayer tiles, as on the region pages (this page is force-dynamic: read per request, never at build).
   const railTiles = await tcgplayerTiles({ minCents: FEATURE_MIN_USD_CENTS }).catch((): TcgplayerTile[] => []);
   // The default region's ten, from the public data files: the server HTML is already filled. A failed read renders the page without them.
   const picks = await regionPicks(X_DEFAULT_REGION).catch((e) => {
     console.error("[landing] data read failed", e);
     return [];
   });
-  const open = openPreorderGuides()[0];
-  const preorder = open ? { slug: open.set.slug, name: open.set.name } : null;
   return (
     <div>
-      {/* The full-width hero (owner, 2026-11-08: KaeYoung and ScentCompare's, "feature some products on the hero"): the words, region
-          row, search and shortcuts on the left, two popular products on the right (under the words on a phone), in the visitor's
-          region. Same h1, same links. */}
-      <section>
-        <div className="page relative grid gap-8 pb-10 pt-8 sm:pb-14 sm:pt-12 lg:grid-cols-[minmax(0,1fr)_minmax(340px,480px)] lg:items-center lg:gap-10">
-          {/* The creators hub, above the fold (owner, 2026-11-03): top-right corner from sm, a pill above the headline on a phone. */}
-          <CreatorsCornerBadge />
-          <HalloweenDecor />
-          <GhostTeaser />
-          <div className="min-w-0">
-            <ChristmasGifts />
-            <h1 className="max-w-3xl font-display text-4xl font-bold leading-[1.05] tracking-tight sm:text-6xl">
-              Pokémon sealed, in stock, <span className="text-brand">cheapest first.</span>
-            </h1>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-muted sm:mt-5 sm:text-lg">
-              {STORES.length} independent stores in {REGION_LIST.length} regions, read about twice a day. Free, no sign-up.
-            </p>
-            {/* The region row, with flags (owner, 2026-11-02): picks in place, like the header's switcher. */}
-            <RegionChips className="mt-6" />
-            {/* The 404's search markup: a plain GET form, so it works without script. RegionSuggest points it at the visitor's region. */}
-            <form
-              id="landing-search"
-              action={`/${X_DEFAULT_REGION}/sealed`}
-              method="get"
-              role="search"
-              className="mt-5 flex max-w-xl items-center gap-2 rounded-full border border-line bg-surface p-1.5 pl-4 shadow-card focus-within:border-ink/40"
-            >
-              <Icon name="search" size={18} className="text-faint" />
-              <input
-                name="q"
-                type="search"
-                placeholder="Search a set or product"
-                aria-label="Search sealed products"
-                className="min-w-0 flex-1 bg-transparent py-1.5 text-base outline-none placeholder:text-faint sm:text-sm"
-              />
-              <button type="submit" className="btn-primary min-h-11 px-5">
-                Search
-              </button>
-            </form>
-            {/* The shortcuts (owner, 2026-10-28): the most-used pages straight from the hero, in the visitor's region, instead of a
-                "Continue to <region>" step before any navigation. */}
-            <div className="mt-4 max-w-2xl">
-              <RegionSuggest formId="landing-search" links={HERO_LINKS} />
-            </div>
-            <div className="mt-5 flex flex-wrap items-center gap-2 text-sm">
-              <span className="hero-stat"><b className="tabular">{STORES.length}</b> stores</span>
-              <span className="hero-stat"><b className="tabular">{REGION_LIST.length}</b> regions</span>
-              <span className="hero-stat">Checked twice a day</span>
-            </div>
-          </div>
-          <SoftHeroCards initial={picks} />
+      {/* The hero (owner, 2026-11-13: "get rid of the products on the hero"; it reverses the 2026-11-08 featured cards): the words,
+          the search, the region row and six ways in, centred. Same h1, same search form. Nothing else lives here: no creators badge,
+          no stat chips, no product. The Christmas gift guide is its one small line, in season. */}
+      <Hero>
+        <ChristmasGifts />
+        <h1 className="hero-h1 rise-solid">
+          Pokémon sealed, in stock, <span className="text-brand">cheapest first.</span>
+        </h1>
+        <p className="hero-sub rise" style={riseAt(1)}>
+          {STORES.length} independent stores in {REGION_LIST.length} regions, read about twice a day. Free, no sign-up.
+        </p>
+        {/* The 404's search markup: a plain GET form, so it works without script. SoftWaysIn points it at the visitor's region. */}
+        <div className="hero-search rise" style={riseAt(2)}>
+          <form id="landing-search" action={`/${X_DEFAULT_REGION}/sealed`} method="get" role="search" className="flex items-center gap-2 border p-1.5">
+            <Icon name="search" size={20} className="shrink-0 text-faint" />
+            <input name="q" type="search" placeholder="Search a set or product" aria-label="Search sealed products" className="min-w-0 flex-1 bg-transparent py-1.5 outline-none placeholder:text-faint" />
+            <button type="submit" className="btn-primary min-h-11 px-6">
+              Search
+            </button>
+          </form>
         </div>
-      </section>
+        {/* The region row, with flags (owner, 2026-11-02): picks in place, like the header's switcher. */}
+        <RegionChips className="rise mt-6 justify-center" style={riseAt(3)} />
+        <SoftWaysIn formId="landing-search" links={HERO_LINKS} />
+      </Hero>
 
       {/* The owner's trim (2026-11-13): no Premium promo, no explainer paragraph and no guides list here; the space goes to
-          products, ten of the region's most stocked instead of five. The explanation is on /about, Premium on /premium, the guides on
-          each region's guides index (a hot button below). Everything here is server-rendered. */}
-      <div className="mb-10 mt-10">
-        <HomeRegionGrid initial={picks} preorder={preorder} />
+          products, ten of the region's most stocked. The explanation is on /about, Premium on /premium, the guides on
+          each region's guides index. Everything here is server-rendered. */}
+      <div className="reveal mb-16 mt-6 sm:mt-10">
+        <HomeRegionGrid initial={picks} />
       </div>
 
       <PopularPages />
 
-      {/* The side rails from 1280px, browser-only, in the visitor's region (components/SideAds.tsx; owner 2026-11-06: "the home page must have this as well"). */}
+      {/* The phone dock (below 1280px, after a scroll), browser-only, in the visitor's region (components/SideAds.tsx; the side rails
+          that shared the file were removed 2026-11-13; owner 2026-11-06: "the home page must have this as well"). */}
       <SoftSideAds tiles={railTiles} />
     </div>
   );
