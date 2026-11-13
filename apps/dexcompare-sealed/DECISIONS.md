@@ -709,3 +709,15 @@ turns, eBay first, scrolling sideways when the column is narrower (`.scroller`).
   drawn when it nears the viewport; under three tiles the box is removed. The phone dock stays and yields to the block (`[data-ad]`).
 - **Paid links:** eBay and TCGplayer only (no Amazon in the block); `rel` sponsored; placements `listings-inline` and `tcgplayer-strip-inline` (the side
   placements are removed). Never a store row, best price, deal or alert. `tests/side-ads.test.ts` pins it. The rail code (`SIDE_RAILS`, the two rails) is deleted.
+
+## 2026-11-13: A bot on /go is sent on unrecorded and untagged
+
+Found while checking why earnings fell: Vercel shows 30,819 `go_click` events for 6 to 12 November against 3,990 the week before
+(about 500 a day until 9 November, then 3,740, 12,436 and 12,018 on 10, 11 and 12 November), nearly all `product-table`, from more
+"devices" than the site had visitors. A crawler that ignores robots.txt and sends a browser's User-Agent was opening every /go link;
+the same days Impact counted thousands of TCGplayer clicks with no sales on the card sites. The old check in `src/app/go/route.ts`
+only looked for "bot" in the User-Agent. `/go` now uses the card sites' rule (`src/lib/bot-click.ts` `looksLikeBot`: no User-Agent,
+a crawler's name, no Accept-Language or no Sec-Fetch-Mode): such a request is still redirected, but no event is recorded and a
+TCGplayer link goes to TCGplayer's own page instead of our Impact link (`untaggedDest`), so the network never counts it as our
+click. The rule may only mark obvious bots; a person is never refused a link. `tests/click-events.test.ts` pins it. Check after the
+next release that `go_click` is back near `buy_click`'s TCGplayer and store count.
