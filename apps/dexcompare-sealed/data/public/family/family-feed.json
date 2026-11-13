@@ -1,7 +1,7 @@
 {
  "v": 1,
  "site": "dex",
- "generatedAt": "2026-11-12T17:52:12.682Z",
+ "generatedAt": "2026-11-13T02:15:12.510Z",
  "links": {
   "AU": {
    "deals": "https://dexcompare.app/au/deals"
@@ -50,7 +50,7 @@
    "currency": "AUD",
    "store": "Turtle TCG",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/684444_in_1000x1000.jpg",
-   "refCents": 32998,
+   "refCents": 33000,
    "refLabel": "median store price",
    "savingPct": 45
   },
@@ -226,20 +226,6 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "US",
-   "title": "Pokémon Card 151 Japanese Booster Box (SV2a)",
-   "url": "https://dexcompare.app/us/p/pokemon-card-151-sv2a-japanese-booster-box",
-   "cents": 24499,
-   "currency": "USD",
-   "store": "CardsHQ",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/565243_in_1000x1000.jpg",
-   "refCents": 46299,
-   "refLabel": "median store price",
-   "savingPct": 47
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "US",
    "title": "Journey Together - 3 Pack Blister - Scrafty",
    "url": "https://dexcompare.app/us/p/journey-together-3-pack-blister-scrafty",
    "cents": 1500,
@@ -254,29 +240,43 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "US",
-   "title": "League Battle Deck - Mega Lucario ex",
-   "url": "https://dexcompare.app/us/p/league-battle-deck-mega-lucario-ex",
-   "cents": 1395,
+   "title": "Delta Reign Checklane Blister",
+   "url": "https://dexcompare.app/us/p/delta-reign-checklane-blister",
+   "cents": 549,
    "currency": "USD",
-   "store": "Geekery Games",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/684106_in_1000x1000.jpg",
-   "refCents": 2500,
+   "store": "Keystone Games LLC",
+   "image": "https://cdn.shopify.com/s/files/1/0936/4737/2569/files/220_d6961cd6-9b24-4cc2-9f55-ac87d8825e6e.png?v=1787724140",
+   "refCents": 999,
    "refLabel": "median store price",
-   "savingPct": 44
+   "savingPct": 45
   },
   {
    "kind": "deal",
    "cluster": "cards",
    "region": "US",
-   "title": "Shiny Treasure ex Japanese Booster Pack (SV4a)",
-   "url": "https://dexcompare.app/us/p/shiny-treasure-ex-sv4a-japanese-booster-pack",
-   "cents": 1300,
+   "title": "Grafaiai ex Box",
+   "url": "https://dexcompare.app/us/p/grafaiai-ex-box",
+   "cents": 2200,
    "currency": "USD",
-   "store": "Lucky Hits Inc",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/565233_in_1000x1000.jpg",
-   "refCents": 2049,
+   "store": "Devastation Store Miami",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/546458_in_1000x1000.jpg",
+   "refCents": 3999,
    "refLabel": "median store price",
-   "savingPct": 37
+   "savingPct": 45
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "US",
+   "title": "Inferno X Japanese Booster Box (M2)",
+   "url": "https://dexcompare.app/us/p/inferno-x-m2-japanese-booster-box",
+   "cents": 10499,
+   "currency": "USD",
+   "store": "Burbank Sportscards",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/655968_in_1000x1000.jpg",
+   "refCents": 18995,
+   "refLabel": "median store price",
+   "savingPct": 45
   },
   {
    "kind": "deal",
@@ -408,6 +408,20 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "CA",
+   "title": "30th Celebration - Binder Collection",
+   "url": "https://dexcompare.app/ca/p/30th-celebration-binder-collection-wave-2",
+   "cents": 6995,
+   "currency": "CAD",
+   "store": "401 Games",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/704169_in_1000x1000.jpg",
+   "refCents": 11999,
+   "refLabel": "median store price",
+   "savingPct": 42
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "CA",
    "title": "Pokemon GO V Battle Deck Bundle [Mewtwo V/Melmetal V]",
    "url": "https://dexcompare.app/ca/p/go-battle-deck-mewtwo-v-melmetal-v",
    "cents": 1300,
@@ -431,20 +445,6 @@
    "refCents": 4751,
    "refLabel": "median store price",
    "savingPct": 41
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "CA",
-   "title": "Terastal Festival ex Japanese Booster Pack (SV8a)",
-   "url": "https://dexcompare.app/ca/p/terastal-festival-ex-sv8a-japanese-booster-pack",
-   "cents": 1599,
-   "currency": "CAD",
-   "store": "Adventurebox",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/603429_in_1000x1000.jpg",
-   "refCents": 2672,
-   "refLabel": "median store price",
-   "savingPct": 40
   },
   {
    "kind": "deal",
