@@ -683,11 +683,14 @@ Owner: "we just want eBay and TCGplayer as the paid links at the top. That is wh
 product table's pinned Amazon row now exists only when this build fetched a real Amazon price (`amazonRow` returns null
 otherwise). `tests/paid-rows.test.ts` pins it.
 
-## 2026-11-13: A guide for the Ultra-Premium Collections (UPC)
+## 2026-11-13: The Ultra-Premium Collections (UPC) are a hub, not a guide
 
-UPC searches were not covered by a page of their own: the type page lists them, no guide answered "pokemon upc price". New guide
-`pokemon-ultra-premium-collection-price` (every curated UPC in stock, cheapest first, the 30th Celebration Day and Night boxes side by
-side, what is inside, checks before buying). It reads one capped type query and lists only the twelve curated names (`UPC_NAMES`), so
-store-noise duplicates never show. The only outside facts are the 30th Celebration's release date, US list price and contents,
-attributed to ICv2 and Cardlines in the text; no aftermarket multiple is quoted. Paid rows follow the 2026-11-12 rule: eBay strip and
-TCGplayer link only, no Amazon. Measure clicks and Search Console impressions for "pokemon upc" a week on (20 Nov).
+UPC searches had no page of their own. A guide shipped first (#201) and the owner asked for a hub, like Rift Compare's hubs: new route
+`/<region>/ultra-premium-collections` (the 30th Celebration Day and Night boxes side by side with their photos and store counts, every
+curated UPC in stock cheapest first, sold out after, what is inside, a short FAQ, the eBay strip and the US TCGplayer link, no Amazon).
+It reads the type page's one capped query and lists only the twelve curated names (`UPC_NAMES`), never a store-noise duplicate. The
+guide URL 301s to the hub (`next.config.js`) and the guide is gone from the registry. Own share card `/og/upc` (the two box photos in
+`public/upc/`, TCGplayer's, saved once; no price on it, since Reddit and X freeze the image). The only outside facts are the 30th
+Celebration's release date, US list price and contents, attributed to ICv2 and Cardlines; no aftermarket multiple is quoted. The type
+page stays (it lists everything of the type); the hub is the curated landing page. Measure Search Console impressions for "pokemon upc"
+and clicks on the hub a week on (20 Nov).

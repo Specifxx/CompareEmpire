@@ -65,6 +65,8 @@ const nextConfig = {
     return [
       // No apex → www redirect here (2026-10-26 outage): www.dexcompare.app lost its DNS record, and this rule sent every
       // visitor to a host that did not resolve. The apex is the canonical host since 2026-10-27 (lib/site.ts).
+      // The UPC page was a guide for a few hours (2026-11-13) before it became a hub.
+      { source: "/:region(au|us|uk|ca|nz|eu|sg)/guides/pokemon-ultra-premium-collection-price", destination: "/:region/ultra-premium-collections", permanent: true },
       { source: "/sealed", destination: "/au/sealed", permanent: true },
       { source: "/sealed/:slug", destination: "/au/sealed", permanent: true },
       { source: "/browse", destination: "/au/sealed", permanent: true },

@@ -48,7 +48,6 @@ export type GuideSlug =
   | "phantasmal-flames-booster-box-price"
   | "destined-rivals-booster-box-price"
   | "black-bolt-booster-box-price"
-  | "pokemon-ultra-premium-collection-price"
   | "delta-reign-chase-cards"
   | "delta-reign-card-list"
   | "delta-reign-booster-box-vs-etb"
@@ -403,18 +402,6 @@ export const GUIDES: readonly Guide[] = [
     regions: "all",
     topic: { types: ["booster-box", "etb", "booster-bundle"], sets: ["destined-rivals", "journey-together"] },
     ebay: { context: "type:booster-boxes", heading: "Pokémon booster boxes on eBay" },
-    tools: ["value-checker", "trade-calculator"],
-  },
-  {
-    slug: "pokemon-ultra-premium-collection-price",
-    title: "Pokémon Ultra-Premium Collection (UPC) prices today",
-    description: "Every Pokémon Ultra-Premium Collection (UPC) ranked by price today, store by store, led by the 30th Celebration Day and Night boxes, with what is inside.",
-    kicker: "Ultra-Premium Collection",
-    published: "2026-11-13",
-    updated: "2026-11-13",
-    regions: "all",
-    topic: { types: ["upc"], sets: ["30th-celebration"] },
-    ebay: { context: "type:ultra-premium-collections", heading: "Ultra-Premium Collections on eBay" },
     tools: ["value-checker", "trade-calculator"],
   },
   {
