@@ -1,7 +1,7 @@
 {
  "v": 1,
  "site": "dex",
- "generatedAt": "2026-11-13T02:15:12.510Z",
+ "generatedAt": "2026-11-13T17:31:11.032Z",
  "links": {
   "AU": {
    "deals": "https://dexcompare.app/au/deals"
@@ -72,20 +72,6 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "AU",
-   "title": "Shiny Star V Japanese Booster Box (S4a)",
-   "url": "https://dexcompare.app/au/p/shiny-star-v-s4a-japanese-booster-box",
-   "cents": 24995,
-   "currency": "AUD",
-   "store": "Eclipse Games",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/565369_in_1000x1000.jpg",
-   "refCents": 39000,
-   "refLabel": "median store price",
-   "savingPct": 36
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "AU",
    "title": "Snow Hazard Japanese Booster Pack (SV2P)",
    "url": "https://dexcompare.app/au/p/snow-hazard-sv2p-japanese-booster-pack",
    "cents": 399,
@@ -100,15 +86,29 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "AU",
-   "title": "Glory of Team Rocket Japanese Booster Box (SV10)",
-   "url": "https://dexcompare.app/au/p/glory-of-team-rocket-sv10-japanese-booster-box",
-   "cents": 19995,
+   "title": "Abyss Eye Japanese Booster Pack (M5)",
+   "url": "https://dexcompare.app/au/p/abyss-eye-m5-japanese-booster-pack",
+   "cents": 400,
    "currency": "AUD",
-   "store": "Trainer Town",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/629197_in_1000x1000.jpg",
-   "refCents": 30250,
+   "store": "One Stop Poke Shop",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/695111_in_1000x1000.jpg",
+   "refCents": 600,
    "refLabel": "median store price",
-   "savingPct": 34
+   "savingPct": 33
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "AU",
+   "title": "Mega Brave Japanese Booster Pack (M1L)",
+   "url": "https://dexcompare.app/au/p/mega-brave-m1l-japanese-booster-pack",
+   "cents": 400,
+   "currency": "AUD",
+   "store": "One Stop Poke Shop",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/647498_in_1000x1000.jpg",
+   "refCents": 600,
+   "refLabel": "median store price",
+   "savingPct": 33
   },
   {
    "kind": "deal",
@@ -123,20 +123,6 @@
    "refCents": 6750,
    "refLabel": "median store price",
    "savingPct": 28
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "NZ",
-   "title": "Surging Sparks Booster Pack",
-   "url": "https://dexcompare.app/nz/p/surging-sparks-booster-pack",
-   "cents": 1500,
-   "currency": "NZD",
-   "store": "Card Masters",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/565604_in_1000x1000.jpg",
-   "refCents": 1798,
-   "refLabel": "median store price",
-   "savingPct": 17
   },
   {
    "kind": "deal",
@@ -268,15 +254,15 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "US",
-   "title": "Inferno X Japanese Booster Box (M2)",
-   "url": "https://dexcompare.app/us/p/inferno-x-m2-japanese-booster-box",
-   "cents": 10499,
+   "title": "Shiny Treasure ex Japanese Booster Pack (SV4a)",
+   "url": "https://dexcompare.app/us/p/shiny-treasure-ex-sv4a-japanese-booster-pack",
+   "cents": 1300,
    "currency": "USD",
-   "store": "Burbank Sportscards",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/655968_in_1000x1000.jpg",
-   "refCents": 18995,
+   "store": "Lucky Hits Inc",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/565233_in_1000x1000.jpg",
+   "refCents": 2049,
    "refLabel": "median store price",
-   "savingPct": 45
+   "savingPct": 37
   },
   {
    "kind": "deal",
@@ -450,6 +436,20 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "EU",
+   "title": "Mega Dream ex Japanese Booster Pack (M2a)",
+   "url": "https://dexcompare.app/eu/p/mega-dream-ex-m2a-japanese-booster-pack",
+   "cents": 690,
+   "currency": "EUR",
+   "store": "Toy Treasure",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/666255_in_1000x1000.jpg",
+   "refCents": 1349,
+   "refLabel": "median store price",
+   "savingPct": 49
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "EU",
    "title": "Origin Forme Palkia VSTAR League Battle Deck",
    "url": "https://dexcompare.app/eu/p/origin-forme-palkia-vstar-league-battle-deck",
    "cents": 1795,
@@ -485,20 +485,6 @@
    "store": "Collector Expert",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/512821_in_1000x1000.jpg",
    "refCents": 27999,
-   "refLabel": "median store price",
-   "savingPct": 48
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "EU",
-   "title": "Celebrations Elite Trainer Box",
-   "url": "https://dexcompare.app/eu/p/celebrations-elite-trainer-box",
-   "cents": 22990,
-   "currency": "EUR",
-   "store": "PokeMillon",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/242811_in_1000x1000.jpg",
-   "refCents": 43995,
    "refLabel": "median store price",
    "savingPct": 48
   },
