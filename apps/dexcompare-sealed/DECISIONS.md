@@ -721,3 +721,7 @@ a crawler's name, no Accept-Language or no Sec-Fetch-Mode): such a request is st
 TCGplayer link goes to TCGplayer's own page instead of our Impact link (`untaggedDest`), so the network never counts it as our
 click. The rule may only mark obvious bots; a person is never refused a link. `tests/click-events.test.ts` pins it. Check after the
 next release that `go_click` is back near `buy_click`'s TCGplayer and store count.
+
+## 2026-11-13: the price alert button is in the quick view too
+
+Measured 6–12 Nov: 2,735 of 5,092 buy clicks started in the quick view (`quickview-table`), against about 1,000 from the product page, and the "Email me when the price drops" button (2026-11-12) was on the product page only; it had no taps in its first day and a half. Most visitors compare in the panel and never open the page. The quick route now sends `alert` (the service's site key, the product id, the region's lowest in-stock store price and its market) and `QuickView` draws the same `PriceAlertForm` above its footer link: a button, the form opens in place on a tap, never by itself (no pop-up inside the pop-up). A response the CDN kept from before has no `alert` and draws nothing. `QuickView` takes the site key from the route, never from `lib/alert-feed.ts`, which reads files. `tests/quick-view-alert.test.ts`.
