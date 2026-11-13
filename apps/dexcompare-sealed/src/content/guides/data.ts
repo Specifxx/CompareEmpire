@@ -405,9 +405,6 @@ export async function loadGuideData(slug: GuideSlug, r: RegionInfo, now: Date = 
       return setBox("sv10", "sv9");
     case "black-bolt-booster-box-price":
       return setBox("zsv10pt5", "rsv10pt5");
-    case "pokemon-ultra-premium-collection-price":
-      // Every open UPC in the region, cheapest first (a market holds about 10 to 20; capped at 60 small rows).
-      return done({ cards: await openOfType(r.market, "Ultra-Premium Collection", 60) });
     case "delta-reign-chase-cards":
     case "delta-reign-card-list":
     case "delta-reign-booster-box-vs-etb":

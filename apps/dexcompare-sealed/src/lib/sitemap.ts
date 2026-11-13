@@ -91,6 +91,8 @@ export function staticSitemap(
     for (const p of ["/boxing-day", "/january-sales", "/lunar-new-year"]) out.push(url(`/${r.region}${p}`, m, "daily", 0.6));
     if (!skip.has("/cheapest-packs")) out.push(url(`/${r.region}/cheapest-packs`, m, "daily", 0.6));
     out.push(url(`/${r.region}/this-week`, m, "daily", 0.5));
+    // The Ultra-Premium Collection hub (2026-11-13): every UPC, the 30th Celebration Day and Night boxes first.
+    out.push(url(`/${r.region}/ultra-premium-collections`, m, "daily", 0.7));
     // The stock pages (lib/stock.ts): back in stock and price moves are built from the daily price history, older sets from today's
     // stock; all change with each import.
     out.push(url(`/${r.region}/back-in-stock`, m, "daily", 0.6));
