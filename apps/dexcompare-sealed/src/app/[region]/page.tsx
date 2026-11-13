@@ -25,7 +25,7 @@ import { Empty, Section } from "@/components/Section";
 import { LatestGuides } from "@/components/LatestGuides";
 import { StockPill } from "@/components/StockPill";
 import { homeRails, regionOverview, tcgplayerTiles, type ProductCardData } from "@/lib/data";
-import { TcgplayerStrip } from "@/components/TcgplayerStrip";
+import { InlineAds } from "@/components/InlineAds";
 import { dealsCopy, dealsInMarket, fitTitle, homeCopy, nearestRegion, stockLabel } from "@/lib/deals";
 import { cardOpen } from "@/lib/compact";
 import { money, plural, timeAgo } from "@/lib/format";
@@ -320,7 +320,7 @@ export default async function RegionHome({ params }: { params: { region: string 
         </Section>
 
         {/* Real sealed products on TCGplayer (2026-10-28), after the ETB rail: well below the comparison above it. */}
-        <TcgplayerStrip tiles={tcgTiles} region={r.region} placement="tcgplayer-strip-home" title="Pokémon sealed on TCGplayer" className="mt-14" />
+        <InlineAds region={r.region} tiles={tcgTiles} className="mt-14" />
 
         <RegionReport rep={report} />
         <RegionsCompared reports={reports} />

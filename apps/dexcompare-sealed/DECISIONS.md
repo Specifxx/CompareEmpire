@@ -694,3 +694,18 @@ guide URL 301s to the hub (`next.config.js`) and the guide is gone from the regi
 Celebration's release date, US list price and contents, attributed to ICv2 and Cardlines; no aftermarket multiple is quoted. The type
 page stays (it lists everything of the type); the hub is the curated landing page. Measure Search Console impressions for "pokemon upc"
 and clicks on the hub a week on (20 Nov).
+
+## 2026-11-13: one horizontal in-page ad block in place of the side rails
+
+Owner: with the side rails off (the side rails were switched off earlier on 2026-11-13), replace them with ONE bigger, subtler, horizontal ad block inside the page that looks native: the site's own
+dashed `.ad-box`, a small "Ad" pill, six larger tiles (172px pictures, the logo word, two title lines, price and "View"), eBay's and TCGplayer's taking
+turns, eBay first, scrolling sideways when the column is narrower (`.scroller`). No pop-up, nothing fixed, no side space.
+
+- **Where, once a page** (`components/InlineAds.tsx`): the region home between sections (where the TCGplayer strip was), below a product page's "More
+  from <set>" and below a set page's grid, never beside a buy button or above a price; every other region page gets it from the layout directly above
+  the footer. The pre-footer eBay strip, the pre-footer TCGplayer strip and `TcgplayerStrip` are gone (replaced, so a page has one such block). The
+  page's own eBay strips, the quick view's mini pair and the in-feed tiles are unchanged; the in-feed tiles still start past the 6th listing.
+- **Browser only, CLS 0:** the server HTML holds an empty box of the block's height; tiles are fetched (the sealed feed the strips share, CDN-cached) and
+  drawn when it nears the viewport; under three tiles the box is removed. The phone dock stays and yields to the block (`[data-ad]`).
+- **Paid links:** eBay and TCGplayer only (no Amazon in the block); `rel` sponsored; placements `listings-inline` and `tcgplayer-strip-inline` (the side
+  placements are removed). Never a store row, best price, deal or alert. `tests/side-ads.test.ts` pins it. The rail code (`SIDE_RAILS`, the two rails) is deleted.

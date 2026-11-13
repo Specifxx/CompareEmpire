@@ -42,7 +42,7 @@ export const PLACEMENTS = [
   "tcgplayer-strip-mini", // product page: the small eBay + TCGplayer pair's TCGplayer row, under the best price (owner, 2026-10-29)
   "tcgplayer-strip-footer", // every other region page: the TCGplayer strip above the footer (owner, 2026-10-29)
   "tcgplayer-strip-dock", // every page with the rails, narrow screens only: the phone dock's TCGplayer half (components/AdDock.tsx, owner, 2026-11-06)
-  "tcgplayer-strip-side", // every region page, wide screens only: the TCGplayer rail down the far right of the screen (components/SideAds.tsx, owner, 2026-11-03)
+  "tcgplayer-strip-inline", // the in-page ad block (components/InlineAds.tsx, owner 2026-11-13): its TCGplayer tiles and links
   "tcgplayer-strip-quickview", // a product card's quick view: the small eBay + TCGplayer pair's TCGplayer row (owner, 2026-11-03)
   "header", // the "eBay" item in the site header (desktop nav, xl and up only)
   // eBay LISTING STRIPS (components/EbayStrip.tsx): real listings imported once a day (scripts/ebay-import.ts), read
@@ -76,7 +76,7 @@ export const PLACEMENTS = [
   "listings-product-mini", // product page: the small eBay + TCGplayer pair's eBay row, under the best price (owner, 2026-10-29)
   "listings-quickview-mini", // a product card's quick view: the small eBay + TCGplayer pair's eBay row, the product's own listings (owner, 2026-11-03)
   "listings-dock", // every page with the rails, narrow screens only: the phone dock's eBay half (components/AdDock.tsx, owner, 2026-11-06)
-  "listings-side", // every region page, wide screens only: the eBay sealed rail down the far left of the screen (components/SideAds.tsx, owner, 2026-11-03)
+  "listings-inline", // the in-page ad block (components/InlineAds.tsx, owner 2026-11-13): its eBay tiles and links
   "listings-notfound", // the 404 page
   "price-watch", // /[region]/black-friday and /[region]/cyber-monday: the eBay search beside each price watch row (dearest sealed, moves down, older sets, graded chase cards)
   // The highlighted eBay button of a POPULAR product or set (lib/popular.ts HOT_SETS: 30th Celebration first): eBay's blue
