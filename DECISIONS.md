@@ -674,3 +674,7 @@ a word, so phones show one at a time.
 
 **Measure:** the dock's placements against the strips' in the ~11-10 / ~11-17 checks. If pages per visit drop on phones,
 raise DOCK_ARM or drop the dock from that site first.
+
+## 2026-11-13: urgent release
+
+Owner asked for every site to be released now: the unpriced-Amazon fix, Fetch as an ordinary store row and the blue TCGplayer button had been merged without a deploy marker. One build, via this commit's subject.
