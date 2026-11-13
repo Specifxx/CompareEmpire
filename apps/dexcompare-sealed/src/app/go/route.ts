@@ -1,4 +1,5 @@
 import { track } from "@vercel/analytics/server";
+import { looksLikeBot, untaggedDest } from "@/lib/bot-click";
 import { goEvent, parseGo } from "@/lib/go";
 
 // The first-party click redirect (lib/click-events.ts goHref, lib/go.ts): a store or TCGplayer offer's button is /go?u=…&s=…, which
@@ -29,11 +30,10 @@ export function GET(req: Request): Response {
     });
   }
   const [name, props] = goEvent(p);
-  // Bots and link previewers follow links too: count only what a browser asked for.
-  const ua = req.headers.get("user-agent") ?? "";
-  if (!/bot|crawl|spider|preview|slurp|facebookexternalhit|curl|wget/i.test(ua)) {
-    console.log(JSON.stringify({ event: name, ...props }));
-    waitUntil(track(name, props, { request: req }).catch(() => {}));
-  }
+  // Bots and link previewers follow links too: count only what a browser asked for (lib/bot-click.ts). A bot is still
+  // sent on, but unrecorded, and to TCGplayer's own page rather than through our affiliate link.
+  if (looksLikeBot(req.headers)) return new Response(null, { status: 302, headers: { ...HEADERS, Location: untaggedDest(p.dest) } });
+  console.log(JSON.stringify({ event: name, ...props }));
+  waitUntil(track(name, props, { request: req }).catch(() => {}));
   return new Response(null, { status: 302, headers: { ...HEADERS, Location: p.dest } });
 }

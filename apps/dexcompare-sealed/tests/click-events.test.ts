@@ -95,3 +95,19 @@ test("the /go route: edge, 302, uncached and noindex, the event after the respon
   assert.match(route, /waitUntil\(track\(/);
   assert.match(readFileSync("src/app/robots.ts", "utf8"), /disallow: \["\/api\/", "\/go", "\/\*\?"\]/);
 });
+
+test("/go: a bot is sent on unrecorded, and to TCGplayer untagged; a browser's navigation is a person", async () => {
+  const { looksLikeBot, untaggedDest } = await import("../src/lib/bot-click");
+  const person = { "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36", "accept-language": "en-US,en;q=0.9", "sec-fetch-mode": "navigate" };
+  assert.equal(looksLikeBot(new Headers(person)), false);
+  assert.equal(looksLikeBot(new Headers({ ...person, "user-agent": "Mozilla/5.0 (compatible; AhrefsBot/7.0)" })), true);
+  assert.equal(looksLikeBot(new Headers({ "user-agent": person["user-agent"] })), true, "a browser's name alone, with no language or fetch mode, is a script");
+  assert.equal(looksLikeBot(new Headers({ ...person, "user-agent": "" })), true);
+  const page = "https://www.tcgplayer.com/product/453470/crown-zenith-elite-trainer-box";
+  assert.equal(untaggedDest(`https://partner.tcgplayer.com/c/7385758/1780961/21018?u=${encodeURIComponent(page)}&sharedid=dex-us-product-best`), page);
+  assert.equal(untaggedDest("https://partner.tcgplayer.com/c/7385758/1780961/21018?u=https%3A%2F%2Fevil.example%2F"), "https://partner.tcgplayer.com/c/7385758/1780961/21018?u=https%3A%2F%2Fevil.example%2F", "never an open redirect");
+  assert.equal(untaggedDest(storeUrl), storeUrl);
+  const route = readFileSync("src/app/go/route.ts", "utf8");
+  assert.match(route, /if \(looksLikeBot\(req\.headers\)\) return new Response\(null, \{ status: 302, headers: \{ \.\.\.HEADERS, Location: untaggedDest\(p\.dest\) \} \}\);/);
+  assert.ok(route.indexOf("looksLikeBot(req.headers)") < route.indexOf("track(name"), "the bot check comes before the event");
+});
