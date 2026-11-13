@@ -1,7 +1,7 @@
 "use client";
 
 // The landing page's region block (cut to the owner's short shape 2026-10-25): a switcher for the seven regions, "Most stocked in
-// <region> today" (five in-stock products, lib/picks.ts: the newest booster boxes and Elite Trainer Boxes ordered by how many of
+// <region> today" (ten in-stock products, lib/picks.ts: the newest booster boxes and Elite Trainer Boxes ordered by how many of
 // the region's stores have them in stock), then the hot buttons, the region's most-used pages. The
 // server HTML is the same for everyone, crawlers included, and already filled with the default region's (the US) picks; in the
 // browser it moves to the visitor's region (RegionSuggest.tsx useSuggestedRegion: saved, language, time zone, then /api/geo) through
@@ -19,7 +19,7 @@ import { Icon, type IconName } from "./Icon";
 import { pickRegion, useSuggestedRegion, type RegionSource } from "./RegionSuggest";
 import { Flag } from "@/components/Flag";
 
-const SLOTS = 5;
+const SLOTS = 10;
 
 const cache = new Map<Region, Promise<Pick[]>>();
 function picksFor(region: Region): Promise<Pick[]> {
@@ -109,7 +109,7 @@ export function HomeRegionGrid({ initial, preorder = null }: { initial: Pick[]; 
           </li>
         ))}
       </ul>
-      {/* Phones: five rows of fixed height; from sm, five cards in a row. */}
+      {/* Phones: ten rows of fixed height; from sm, two rows of five cards (owner, 2026-11-13: more products here). */}
       <ol className="mt-4 grid gap-2 sm:grid-cols-5 sm:gap-3" aria-busy={list ? undefined : true}>
         {Array.from({ length: SLOTS }, (_, i) => {
           const p = list?.[i];
@@ -119,7 +119,7 @@ export function HomeRegionGrid({ initial, preorder = null }: { initial: Pick[]; 
                 <Link href={`/${r.region}/p/${p.slug}`} prefetch={false} className="group flex h-full items-center sm:flex-col sm:items-stretch">
                   <div className="plate m-2 flex h-[4.5rem] w-[4.5rem] shrink-0 items-center justify-center p-1.5 sm:h-36 sm:w-auto sm:p-3">
                     {p.img ? (
-                      <img src={thumb(p.img, 240)!} alt={p.name} width={140} height={140} loading="eager" decoding="async" className="h-full w-full object-contain mix-blend-multiply" />
+                      <img src={thumb(p.img, 240)!} alt={p.name} width={140} height={140} loading={i < 5 ? "eager" : "lazy"} decoding="async" className="h-full w-full object-contain mix-blend-multiply" />
                     ) : (
                       <span className="text-[10px] font-semibold text-faint">{p.type}</span>
                     )}

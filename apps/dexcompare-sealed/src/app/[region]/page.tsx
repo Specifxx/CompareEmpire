@@ -22,7 +22,6 @@ import { HeroCards, type HeroCard } from "@/components/home/HeroCards";
 import { HeroSparks } from "@/components/HeroSparks";
 import { RegionChips } from "@/components/RegionChips";
 import { Empty, Section } from "@/components/Section";
-import { LatestGuides } from "@/components/LatestGuides";
 import { StockPill } from "@/components/StockPill";
 import { homeRails, regionOverview, tcgplayerTiles, type ProductCardData } from "@/lib/data";
 import { InlineAds } from "@/components/InlineAds";
@@ -53,7 +52,6 @@ import { CreatorsCornerBadge } from "@/components/creators/CreatorsCornerBadge";
 import { Flag } from "@/components/Flag";
 import { FeaturedAds } from "@/components/FeaturedAds";
 import { HypeNow } from "@/components/HypeNow";
-import { PremiumSlides } from "@/components/premium/PremiumSlides";
 
 // Rendered per request and kept by Vercel's CDN for a day (next.config.js, CDN_PAGES), never ISR: an ISR write
 // costs about twenty renders, and the data only changes with a release, which empties the CDN anyway.
@@ -248,7 +246,6 @@ export default async function RegionHome({ params }: { params: { region: string 
             </Link>
           ))}
         </div>
-        <PremiumSlides className="mt-8" />
         <HypeNow region={r.region} />
         {/* Paid featured listings (lib/featured-ads.ts): drawn in the browser from RiftCompare's feed, nothing when there are none. */}
         <FeaturedAds region={r.market} className="mt-8" />
@@ -285,10 +282,6 @@ export default async function RegionHome({ params }: { params: { region: string 
             <ProductGrid products={preorderShelf} region={r.region} />
           </Section>
         )}
-
-        <Section title="New Pokémon set guides" kicker="Sets, chase cards and mechanics" href={`/${r.region}/guides`} linkLabel="All guides">
-          <LatestGuides region={r.region} />
-        </Section>
 
         <Section title="Booster boxes in stock" kicker="Newest sets first" href={`/${r.region}/type/booster-boxes`}>
           {boxes.length ? (
@@ -341,7 +334,6 @@ export default async function RegionHome({ params }: { params: { region: string 
 
         {/* Every set listed here, so every set page is two clicks from the landing page and its products three (2026-10-25). */}
         <SetIndex r={r} counts={setCounts} types={listedTypes} />
-        <HowItWorks r={r} stores={storeCount} />
         <section aria-labelledby="today-h" className="mt-16 max-w-3xl">
           <h2 id="today-h" className="font-display text-xl font-bold tracking-tight">
             Pokémon sealed prices in {r.inName} today
@@ -434,45 +426,5 @@ function SetCard({ r, s, items: all }: { r: RegionInfo; s: PokemonSet; items: Pr
         )}
       </ul>
     </div>
-  );
-}
-
-function HowItWorks({ r, stores }: { r: RegionInfo; stores: number }) {
-  const steps: { icon: IconName; t: string; d: React.ReactNode }[] = [
-    {
-      icon: "store",
-      t: "We read the stores",
-      d: (
-        <>
-          Twice a day, the sealed Pokémon listings of{" "}
-          <Link href={`/${r.region}/stores`} prefetch={false} className="font-medium text-brand-strong underline-offset-2 hover:underline">
-            {plural(stores, `${r.adjective} store`)}
-          </Link>
-          {r.market === "US" ? " and TCGplayer’s sellers" : ""}, in {r.currency}.
-        </>
-      ),
-    },
-    { icon: "check", t: "You see who has it", d: "Every product page lists who carries it, in stock or sold out, cheapest in-stock price first." },
-    { icon: "arrow-right", t: "You buy from the store", d: "Click through and buy on the store’s own page. No store pays to rank higher." },
-  ];
-  return (
-    <section className="mt-16" aria-labelledby="how">
-      <h2 id="how" className="font-display text-xl font-bold tracking-tight">
-        How DexCompare works
-      </h2>
-      <ol className="mt-4 grid gap-3 md:grid-cols-3">
-        {steps.map((s) => (
-          <li key={s.t} className="flex gap-3 rounded-xl border border-line bg-surface p-4">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-soft text-brand-strong">
-              <Icon name={s.icon} size={18} />
-            </span>
-            <div>
-              <h3 className="font-display font-bold">{s.t}</h3>
-              <p className="mt-1 text-sm leading-6 text-muted">{s.d}</p>
-            </div>
-          </li>
-        ))}
-      </ol>
-    </section>
   );
 }
