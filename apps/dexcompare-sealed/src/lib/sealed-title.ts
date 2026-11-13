@@ -672,6 +672,8 @@ const UPC_CANON: { key: string; name: string; re: RegExp; sets?: string[] }[] = 
   { key: "celebrations", name: "Celebrations Ultra-Premium Collection", re: /\bcelebrations\b|\b25th\b/, sets: ["cel25"] },
   { key: "hidden-fates", name: "Hidden Fates Ultra-Premium Collection", re: /\bhidden\s*fates\b|\brayquaza\b/, sets: ["sm115"] },
 ];
+/** The twelve curated UPC product names (the guides list only these, never a store-noise duplicate). */
+export const UPC_NAMES: readonly string[] = UPC_CANON.map((c) => c.name);
 const UPC_30TH = /\b30th\b|\bcelebration\b(?!s)/;
 
 /** The curated UPC a title names, "vague" for a 30th Celebration UPC that doesn't say which, or null. */

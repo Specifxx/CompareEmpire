@@ -682,3 +682,12 @@ box, green stock pills on every card and row, green, amber and sky-blue row outl
 Owner: "we just want eBay and TCGplayer as the paid links at the top. That is why our revenue is declining." The DexCompare sealed
 product table's pinned Amazon row now exists only when this build fetched a real Amazon price (`amazonRow` returns null
 otherwise). `tests/paid-rows.test.ts` pins it.
+
+## 2026-11-13: A guide for the Ultra-Premium Collections (UPC)
+
+UPC searches were not covered by a page of their own: the type page lists them, no guide answered "pokemon upc price". New guide
+`pokemon-ultra-premium-collection-price` (every curated UPC in stock, cheapest first, the 30th Celebration Day and Night boxes side by
+side, what is inside, checks before buying). It reads one capped type query and lists only the twelve curated names (`UPC_NAMES`), so
+store-noise duplicates never show. The only outside facts are the 30th Celebration's release date, US list price and contents,
+attributed to ICv2 and Cardlines in the text; no aftermarket multiple is quoted. Paid rows follow the 2026-11-12 rule: eBay strip and
+TCGplayer link only, no Amazon. Measure clicks and Search Console impressions for "pokemon upc" a week on (20 Nov).
