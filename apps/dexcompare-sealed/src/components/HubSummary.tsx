@@ -17,15 +17,16 @@ export function HubSummaryText({ paragraphs, title }: { paragraphs: readonly str
 export function HubFaqSection({ faq, id = "hub-faq" }: { faq: readonly HubFaq[]; id?: string }) {
   if (faq.length < 2) return null;
   return (
-    <section className="mt-14 max-w-3xl" aria-labelledby={id}>
+    <section className="mt-16 max-w-3xl sm:mt-20" aria-labelledby={id}>
       <h2 id={id} className="font-display text-2xl font-bold tracking-tight">
         Questions about these prices
       </h2>
-      <div className="mt-5 grid gap-3">
+      {/* Lines, not boxes (the minimal look, 2026-11-13): each question a row that opens (globals.css .faq). */}
+      <div className="mt-4 border-t border-line">
         {faq.map((f) => (
-          <details key={f.q} className="card p-5">
-            <summary className="cursor-pointer font-semibold">{f.q}</summary>
-            <p className="mt-2 text-sm leading-6 text-muted">{f.a}</p>
+          <details key={f.q} className="faq">
+            <summary>{f.q}</summary>
+            <p>{f.a}</p>
           </details>
         ))}
       </div>

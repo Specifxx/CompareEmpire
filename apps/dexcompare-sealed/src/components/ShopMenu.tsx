@@ -1,3 +1,4 @@
+import { inSeason, saleStrip } from "@/lib/black-friday";
 import { openPreorderGuides } from "@/lib/preorder-guides";
 import { pokemonPath, POKEMON_BY_SLUG } from "@/lib/pokemon-hubs";
 import { featureOrder, menuSets } from "@/lib/release";
@@ -10,7 +11,7 @@ export type MenuLink = { href: string; label: string };
 /** `href`: the column's heading is a link too (the series columns go to their block on the sets page). */
 export type MenuColumn = { title: string; links: MenuLink[]; href?: string };
 
-/** The series (era) the header's "Sets" menu and the sidebar's "Sets by series" group draw, newest first, and how many each shows. */
+/** The series (era) the header's "Sets" menu and the phone menu's "Sets by series" group draw, newest first, and how many each shows. */
 export const SETS_MENU_SERIES = 4;
 const PER_SERIES = 4;
 
@@ -25,7 +26,7 @@ export function listedSeries(listed?: ReadonlySet<string> | null): string[] {
 /**
  * The desktop "Sets" dropdown: one column per series (the era a collector says: "Scarlet & Violet", "Universes Beyond"), its newest
  * sets under it, and the heading goes to the series' block on the sets page. Only sets the region lists, so no dead link; the same
- * destinations as the sidebar and phone menu, a static list with no read. Pure.
+ * destinations as the phone menu, a static list with no read. Pure.
  */
 export function setsMenuColumns(region: Region, today: string = new Date().toISOString().slice(0, 10), listed?: ReadonlySet<string> | null): MenuColumn[] {
   return listedSeries(listed)
@@ -49,7 +50,9 @@ export function setsMenuColumns(region: Region, today: string = new Date().toISO
 export function shopMenuColumns(region: Region, today: string = new Date().toISOString().slice(0, 10), listed?: ReadonlySet<string> | null): MenuColumn[] {
   const s = (key: SectionKey, label: string): MenuLink => ({ href: sectionHref(region, key), label });
   const type = (slug: string, label: string): MenuLink => ({ href: `/${region}/type/${slug}`, label });
-  const sets = menuSets(7, today, listed)
+  // Eight, as the phone menu lists (lib/nav.ts): the sidebar that listed them on every desktop page is gone (2026-11-13), and with
+  // seven here the eighth newest set had lost its link from every page.
+  const sets = menuSets(8, today, listed)
     .map((c) => SET_BY_CODE.get(c)!)
     .map((set) => ({ href: `/${region}/sets/${set.slug}`, label: set.releaseDate > today ? `${set.name} (pre-order)` : set.name }));
   return [
@@ -92,11 +95,19 @@ export function pokemonMenuColumns(region: Region): MenuColumn[] {
   ];
 }
 
-/** The header's "Deals" dropdown: the best prices, stock and price movement, and what is coming (pre-order hubs while open, the calendar). */
+/**
+ * The header's "Deals" dropdown: the best prices, stock and price movement, and what is coming (pre-order hubs while open, the
+ * calendar). In season (lib/black-friday.ts inSeason: October to a week after Cyber Monday) the two sale pages lead it, the one
+ * whose strip is up first (saleStrip: Black Friday, then Cyber Monday): Black Friday was an entry of its own in the header's row
+ * until 2026-11-13, and both were in the sidebar, so every page still links both.
+ */
 export function dealsMenuColumns(region: Region, today: string = new Date().toISOString().slice(0, 10)): MenuColumn[] {
   const s = (key: SectionKey, label: string): MenuLink => ({ href: sectionHref(region, key), label });
+  const bf = s("blackFriday", "Black Friday");
+  const cm = s("cyberMonday", "Cyber Monday");
+  const sale = !inSeason(today) ? [] : saleStrip(today)?.key === "cyberMonday" ? [cm, bf] : [bf, cm];
   return [
-    { title: "Best prices", href: sectionHref(region, "deals"), links: [s("deals", "Today's deals"), s("perPack", "Cheapest per pack"), s("thisWeek", "This week")] },
+    { title: "Best prices", href: sectionHref(region, "deals"), links: [...sale, s("deals", "Today's deals"), s("perPack", "Cheapest per pack"), s("thisWeek", "This week")] },
     { title: "Stock & moves", links: [s("backInStock", "Back in stock"), s("priceMoves", "Price moves"), s("outOfPrint", "Older sets in stock")] },
     {
       title: "Coming soon",
@@ -108,5 +119,9 @@ export function dealsMenuColumns(region: Region, today: string = new Date().toIS
 /** The header's "Guides" dropdown: reading and tools, the places that are not a product. */
 export function guidesMenuColumns(region: Region): MenuColumn[] {
   const s = (key: SectionKey, label: string): MenuLink => ({ href: sectionHref(region, key), label });
-  return [{ title: "Learn & play", links: [s("guides", "Buying guides"), s("tools", "Tools"), s("daily", "Price Duel game"), { href: "/creators", label: "Creators" }, { href: "/forum", label: "Community forum" }] }];
+  return [
+    { title: "Learn & play", links: [s("guides", "Buying guides"), s("tools", "Tools"), s("daily", "Price Duel game"), { href: "/creators", label: "Creators" }, { href: "/forum", label: "Community forum" }] },
+    // Stores had an entry of its own in the header's row until 2026-11-13 (five sections now); the weekly chart was a chip of the home's hero.
+    { title: "The data", links: [s("stores", "Stores we compare"), { href: `/${region}/charts`, label: "Weekly chart" }, s("releases", "Release calendar")] },
+  ];
 }

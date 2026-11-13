@@ -1,6 +1,9 @@
 // The homepages' market report (lib/market-report.ts): server components, so every sentence and every product link is in the
-// initial HTML. RegionReport closes a region home; RegionsCompared sets the seven regions side by side after it.
+// initial HTML. RegionReport closes a region home; RegionsCompared sets the seven regions side by side after it. Each is a fold
+// since 2026-11-13 (components/Fold.tsx; owner: fewer things on a page): its heading is one line of the page, still an <h2>, and
+// the report opens under it. Closed or open, a crawler reads all of it.
 import Link from "next/link";
+import { Fold } from "./Fold";
 import type { ProductCardData } from "@/lib/data";
 import { money, plural } from "@/lib/format";
 import { perPackSentence, preorderSentence, rangeSentence, spreadSentence, stockSentence, type MarketReport, type TypeRange } from "@/lib/market-report";
@@ -67,12 +70,8 @@ export function RegionReport({ rep }: { rep: MarketReport }) {
   const stock = stockSentence(rep.stock, r);
   const pre = preorderSentence(rep.preorder, r);
   return (
-    <section className="mt-16" aria-labelledby="report-h" data-market-report={r.region}>
-      <div className="eyebrow mb-1">From today&rsquo;s prices</div>
-      <h2 id="report-h" className="font-display text-2xl font-bold tracking-tight sm:text-[28px]">
-        Pokémon sealed prices in {r.inName} this week
-      </h2>
-      <p className="mt-3 max-w-3xl text-[15px] leading-7 text-muted">
+    <Fold id="report-h" title={`Pokémon sealed prices in ${r.inName} this week`} data-market-report={r.region}>
+      <p className="max-w-3xl text-[15px] leading-7 text-muted">
         We read {plural(rep.overview.stores, `${r.adjective} store`)} with Pokémon sealed listed. Between them they list {rep.overview.products.toLocaleString("en")} sealed products, and{" "}
         {rep.overview.inStock.toLocaleString("en")} of those can be bought today. Every figure below is the cheapest in-stock price at a single store, in {r.currency},
         before shipping.
@@ -127,11 +126,11 @@ export function RegionReport({ rep }: { rep: MarketReport }) {
           </div>
         )}
       </div>
-    </section>
+    </Fold>
   );
 }
 
-/** The landing page: the seven regions side by side (each in its own currency: no conversion), then one paragraph per region. */
+/** The seven regions side by side (each in its own currency: no conversion), then one paragraph per region. */
 export function RegionsCompared({ reports }: { reports: MarketReport[] }) {
   const live = reports.filter((x) => x.types.length);
   if (!live.length) return null;
@@ -140,12 +139,9 @@ export function RegionsCompared({ reports }: { reports: MarketReport[] }) {
   const fewest = live.reduce((a, b) => (b.overview.inStock < a.overview.inStock ? b : a));
   const preSet = live.find((x) => x.preorder)?.preorder?.set ?? null;
   return (
-    <section className="page mt-14" aria-labelledby="regions-compared-h" data-regions-compared="">
-      <div className="mx-auto max-w-3xl">
-        <h2 id="regions-compared-h" className="font-display text-2xl font-bold tracking-tight">
-          Pokémon booster box and ETB prices this week, region by region
-        </h2>
-        <p className="mt-3 text-[15px] leading-7 text-muted">
+    <Fold id="regions-compared-h" title="Pokémon booster box and ETB prices this week, region by region" data-regions-compared="">
+      <div className="max-w-3xl">
+        <p className="text-[15px] leading-7 text-muted">
           Each region is priced in its own currency, so the figures below are not converted: a booster box costs what its stores charge there. {most.r.name} has the most sealed
           product in stock today ({most.overview.inStock.toLocaleString("en")} products across {plural(most.overview.stores, "store")}){most !== fewest ? `, and ${fewest.r.name} the least (${fewest.overview.inStock.toLocaleString("en")} across ${plural(fewest.overview.stores, "store")})` : ""}. Every
           price is a single store&rsquo;s own listing, before shipping.
@@ -239,7 +235,6 @@ export function RegionsCompared({ reports }: { reports: MarketReport[] }) {
           </div>
         )}
       </div>
-    </section>
+    </Fold>
   );
 }
-

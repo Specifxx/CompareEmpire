@@ -4,11 +4,12 @@ import assert from "node:assert/strict";
 import * as React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { AppRouterContext } from "next/dist/shared/lib/app-router-context.shared-runtime";
-import { Header } from "../src/components/Header";
+import { Header, headerNavItems } from "../src/components/Header";
 import { dealsMenuColumns, guidesMenuColumns, setsMenuColumns, shopMenuColumns } from "../src/components/ShopMenu";
 import { TYPE_BY_SLUG } from "../src/lib/sealed-title";
 import { SET_BY_SLUG, SETS } from "../src/lib/sets";
 import { menuSets } from "../src/lib/release";
+import { navGroups } from "../src/lib/nav";
 
 (globalThis as unknown as { React: typeof React }).React = React;
 const router = { back() {}, forward() {}, refresh() {}, push() {}, replace() {}, prefetch() {} };
@@ -72,15 +73,28 @@ test("sets menu: one column per series (the era), newest sets under it, heading 
   assert.match(nav, /data-menu="sets"/);
 });
 
+test("the header's menus link every set the phone menu lists: no set lost its link from every page when the sidebar went (2026-11-13)", () => {
+  for (const [region, today] of [["us", "2026-11-13"], ["au", "2026-10-28"], ["uk", "2027-02-10"]] as const) {
+    const inMenus = new Set(headerNavItems(region, today).flatMap((n) => (n.menu ?? []).flatMap((c) => c.links.map((l) => l.href))));
+    const sets = navGroups(region, today).find((g) => g.title === "Sets")!.links.map((l) => l.href);
+    assert.ok(sets.filter((h) => /\/sets\/[^/]+$/.test(h)).length === 8, "the phone menu lists eight sets");
+    for (const h of sets) assert.ok(inMenus.has(h), `${h} is in a header menu`);
+    assert.equal(shopMenuColumns(region, today)[1].links.length, 9, "eight sets and the way to every set");
+  }
+});
+
 test("Deals and Guides open mega menus of real links in the HTML (owner, 2026-11-09)", () => {
   const html = render(React.createElement(Header, { region: "au" }));
   const nav = /<nav class="hidden items-center gap-0\.5 lg:flex" aria-label="Main">([\s\S]*?)<\/nav>/.exec(html)?.[1] ?? "";
   for (const h of ["/au/cheapest-packs", "/au/back-in-stock", "/au/price-moves", "/au/releases", "/au/tools", "/forum", "/au/pokemon/charizard"]) assert.match(nav, new RegExp(`href="${h}"`), h);
+  // Stores left the row for the Guides menu on 2026-11-13 (five sections), with the weekly chart the home's hero used to link.
+  for (const h of ["/au/stores", "/au/charts"]) assert.match(nav, new RegExp(`href="${h}"`), h);
   assert.match(nav, /data-menu="deals"/);
   assert.match(nav, /data-menu="guides"/);
   assert.match(nav, /data-menu="pokemon"/);
   assert.equal((nav.match(/data-nav-trigger/g) ?? []).length, 5, "Deals, All sealed, Sets, Pokémon and Guides carry a menu");
-  assert.ok(dealsMenuColumns("au", "2026-11-09").length === 3 && guidesMenuColumns("au").length === 1);
+  assert.ok(dealsMenuColumns("au", "2026-11-09").length === 3 && guidesMenuColumns("au").length === 2);
+  assert.deepEqual(guidesMenuColumns("au").map((c) => c.title), ["Learn & play", "The data"]);
 });
 
 test("NavMenu: hover intent, click toggle, Escape, arrow keys, focus-out and aria, one file for the family", async () => {

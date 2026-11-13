@@ -47,7 +47,7 @@ export function featureSort<T extends { setCode: string | null }>(items: readonl
 }
 
 /**
- * The newest `n` sets for a menu (the footer's "Latest sets", the shop dropdown, the sidebar and phone menu), in featureOrder.
+ * The newest `n` sets for a menu (the footer's "Latest sets", the shop dropdown and the phone menu), in featureOrder.
  * `listed` is the set of codes with at least one product in the region (lib/data.ts listedSetCodes): a set no store lists yet
  * has no page (its set page is a real 404), so linking it from every page was a dead link site-wide (2026-11-03: Flowing
  * Fists, announced 21 October for 5 February, in the footer and both menus). Without `listed` (a page outside a region, the
