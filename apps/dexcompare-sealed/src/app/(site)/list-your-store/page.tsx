@@ -20,7 +20,10 @@ export default function ListYourStorePage() {
     <div className="page max-w-3xl py-12">
       <Breadcrumbs items={[{ href: "/", label: SITE_NAME }, { label: "List your store" }]} />
       <div className="prose-dex mt-6">
+        {/* The page draws the h1 in the inner pages' header style; the shared component skips its own (2026-11-14). */}
+        <h1>List your store on {SITE_NAME}</h1>
         <ListYourStore
+          showTitle={false}
           badge={storeBadge(SITE_URL, SITE_NAME, "Pokémon sealed")}
           site={SITE_NAME}
           what="Pokémon sealed product"

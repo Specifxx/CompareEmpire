@@ -995,3 +995,29 @@ With "Add to cart" beside the store's button, a phone row's second column took t
 PRICE" on the cheapest row). Below 640px a full row is now name and stock, price, host, then the cart button and the store's
 button side by side at full width (`globals.css`, after `.or-act`). The name keeps the whole row and the cart button says "Add to
 cart" in full. Lean rows, the order of rows and every paid row's wording are unchanged.
+
+## 2026-11-14: Inner-page redesign reviewed; the creators page and the two shared store pages join it
+
+An independent review of today's design work (#214 polish, #216 inner pages) against a build of the commit before it
+(62165d2), at 390x844 and 1440x900 in dark and light: 23 URLs' server HTML (every page type, three product pages, 404)
+kept their title, meta description, robots, canonical, hreflang, Open Graph, JSON-LD, h1, h2s, internal links and words;
+the only differences are #215's (every store read, so store counts, new "Other <type>" links and the Pokémon hub FAQ).
+14 page types in both themes: no horizontal overflow, no layout shift over 0.01, no console or hydration errors, focus
+visible, no new text under 4.5:1 (the TCGplayer logo's blue word was under it before too), and the hover lift is off under
+reduced motion. Sitemap (1,842 URLs, a 60-URL sample all 200 and indexable), robots.txt and the 404 status are sound.
+
+What this entry changes, the pages #216 left in their old look:
+
+- `/creators`: the hero is the inner pages' header (eyebrow, `ph-h1`, `ph-lede`, the same two buttons) instead of a framed
+  box with blurred brand and spark blobs and three tilted gradient placeholder cards; "love" is no longer brand-coloured
+  (the brand colour is for what is pressed); the tipping box is a `note` with a neutral icon instead of a spark gradient;
+  the open-spot tiles' icon is neutral and their hover no longer tints; "Option N" labels are plain eyebrows; section
+  headings use `sec-h2` / `sub-h2`.
+- `/how-we-pick-stores` and `/list-your-store`: the page draws the h1 (same words) through `.prose-dex h1`, and the shared
+  component, which every Compare Empire repo carries byte for byte, is called with its own `showTitle={false}` instead
+  of drawing a hand-sized inline h1. The component file is unchanged.
+- `.gc-thumb` (guide cards) moves in 200 ms, not 300, inside the 120 to 220 ms motion rule.
+
+No paid link, ad block, placement name, affiliate tag, row order, URL, redirect, title, meta description, canonical,
+robots, Open Graph or JSON-LD changed, and the quick view is untouched, so the 19 November clicks-per-placement recheck is
+unaffected. Premium and sign-in keep their look (Premium is a sales page; changing it is the owner's call).
