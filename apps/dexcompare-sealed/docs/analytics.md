@@ -57,6 +57,13 @@ All values are ids, slugs, codes and numbers (at most 255 characters): never a n
 `buy_click` and `go_click` count the same offer clicks two ways: the browser's (blocked by ad blockers, carries the page) and the
 server's (counted by `/go` itself, so no blocker can hide it). Expect `go_click` ≥ `buy_click` for offer placements.
 
+### The quick view's A/B tests (20 November to 3 December 2026)
+
+`ab_seen`, `ab_paid`, `ab_tcg`, `ab_ebay`, `ab_amazon`, `ab_store`, `ab_mini_tcg`, `ab_mini_ebay`, each with one property `k`
+(`us:ab-`: region, then the visitor's arm in the `order`, `mini` and `cta` tests, `-` where a test does not apply). Each is sent
+once a visit, so a count is a number of visits. `src/lib/ab.ts` says what each arm shows; DECISIONS.md, 2026-11-14, has the rules.
+RiftCompare's Monday report reads them.
+
 ## `/go`, the first-party redirect
 
 A store or TCGplayer **offer** button (the best-price card, the price table, the phone buy bar, the pre-order lists) links to

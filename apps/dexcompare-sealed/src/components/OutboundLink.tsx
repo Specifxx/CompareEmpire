@@ -3,6 +3,7 @@
 import { track } from "@vercel/analytics";
 import type { ReactNode } from "react";
 import type { Placement } from "@/lib/affiliate";
+import { abClick, useAb } from "@/lib/ab-client";
 import { buyEvents, goHref, type BuyItem } from "@/lib/click-events";
 import type { Region } from "@/lib/regions";
 
@@ -51,7 +52,10 @@ export function OutboundLink({
   /** Route through /go: the region and the store key the destination must belong to. */
   go?: { region: Region; store: string };
 }) {
+  // Inside the quick view during an A/B test (lib/ab.ts): the click also counts for the visitor's arms. Null everywhere else.
+  const ab = useAb();
   function record() {
+    abClick(ab, retailer, placement, rel);
     try {
       for (const [name, props] of buyEvents({ retailer, placement, rel, pathname: window.location.pathname, item })) track(name, props);
     } catch {

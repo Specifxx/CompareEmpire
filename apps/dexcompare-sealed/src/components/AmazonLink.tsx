@@ -2,6 +2,7 @@
 
 import { track } from "@vercel/analytics";
 import type { ReactNode } from "react";
+import { abClick, useAb } from "@/lib/ab-client";
 import { AMAZON_REL, amazonLabel, type AmazonPlacement } from "@/lib/amazon";
 import type { Region } from "@/lib/regions";
 import { amazonClickEvent, amazonGa4Params, buyEvents } from "@/lib/click-events";
@@ -22,7 +23,9 @@ declare global {
  * `product` is the product's slug, or what the link searches for ("set:phantasmal-flames", "type:elite-trainer-boxes", "guide:…").
  */
 export function AmazonLink({ region, href, product, placement, className, children }: { region: Region; href: string; product: string; placement: AmazonPlacement; className?: string; children: ReactNode }) {
+  const ab = useAb();
   function record() {
+    abClick(ab, amazonLabel(region), placement, AMAZON_REL);
     try {
       const pathname = window.location.pathname;
       for (const [name, props] of buyEvents({ retailer: amazonLabel(region), placement, rel: AMAZON_REL, pathname, item: { product, store: region === "nz" ? "amazon-au" : `amazon-${region}` } })) track(name, props);
