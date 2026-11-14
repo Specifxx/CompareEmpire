@@ -81,8 +81,8 @@ export default async function CheapestPacksPage({ params }: { params: { region: 
       <Breadcrumbs items={[{ href: `/${r.region}`, label: r.name }, { label: "Cheapest per pack" }]} />
       <header className="max-w-3xl">
         <div className="eyebrow">Price per pack · {r.name}</div>
-        <h1 className="mt-2 font-display text-3xl font-bold tracking-tight sm:text-4xl">{packsCopy.h1(r)}</h1>
-        <p className="mt-3 leading-7 text-muted">
+        <h1 className="mt-2 ph-h1">{packsCopy.h1(r)}</h1>
+        <p className="ph-lede">
           {lede.lead} {checked ? <Ago iso={checked.toISOString()} initial={timeAgo(checked)} /> : "twice a day"}
           {lede.tail}
         </p>
@@ -166,7 +166,7 @@ function Answer({ r, row }: { r: RegionInfo; row: PerPackRow }) {
     <Link
       href={`/${r.region}/p/${row.p.slug}`}
       prefetch={false}
-      className="group card mt-6 grid grid-cols-[3.5rem_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2 p-4 transition-shadow hover:shadow-lift sm:max-w-3xl sm:grid-cols-[5rem_minmax(0,1fr)_auto] sm:gap-x-5 sm:p-5"
+      className="group tile mt-6 grid grid-cols-[3.5rem_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2 p-4 sm:max-w-3xl sm:grid-cols-[5rem_minmax(0,1fr)_auto] sm:gap-x-5 sm:p-5"
     >
       <span className="plate flex h-14 w-14 items-center justify-center sm:row-span-2 sm:h-20 sm:w-20">
         {img ? <img src={img} alt={row.p.name} width={80} height={80} decoding="async" fetchPriority="high" className="h-full w-full object-contain p-1.5" /> : <Icon name="tag" className="text-faint" />}
@@ -258,7 +258,7 @@ function PackTable({ r, rows, showType = false, caption }: { r: RegionInfo; rows
             return (
               <tr key={row.p.slug}>
                 <td className="w-10 pl-3 text-xs font-bold tabular-nums text-muted sm:w-12">
-                  {i === 0 ? <span className="rounded-full bg-open-soft px-2 py-1 text-open">1</span> : i + 1}
+                  {i === 0 ? <span className="rounded-full bg-raised px-2 py-1 text-open ring-1 ring-inset ring-line">1</span> : i + 1}
                 </td>
                 <td>
                   {/* The whole cell is the link (on a phone it holds the row's facts: a tap target of 60 px and more, not one line of text). */}

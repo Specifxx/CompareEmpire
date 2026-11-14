@@ -58,7 +58,7 @@ export default function About() {
   return (
     <div className="page max-w-3xl py-12">
       <Breadcrumbs items={[{ href: "/", label: "DexCompare" }, { label: "About" }]} />
-      <h1 className="font-display text-4xl font-extrabold tracking-tight">How DexCompare works</h1>
+      <h1 className="ph-h1">How DexCompare works</h1>
       <div className="prose-dex mt-6">
         <p>
           DexCompare compares Pokémon TCG <b>sealed product</b> — booster boxes, Elite Trainer Boxes, booster bundles, collections,

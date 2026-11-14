@@ -82,8 +82,8 @@ export function GuideBody({ guide, r, outline, data }: { guide: Guide; r: Region
       <GuideProducts r={r} data={data} />
       {outline.sections.map((s, i) => (
         <Fragment key={s.id}>
-          <section aria-labelledby={s.id} className="mt-12">
-            <h2 id={s.id} className="mb-4 font-display text-xl font-bold tracking-tight text-ink sm:text-2xl">
+          <section aria-labelledby={s.id} className="mt-12 sm:mt-14">
+            <h2 id={s.id} className="sub-h2 mb-4 scroll-mt-24 text-ink">
               {s.title}
             </h2>
             {s.body}
@@ -105,13 +105,13 @@ export function Prose({ children }: { children: ReactNode }) {
 
 /** The opening answer: a little larger than the prose under it. */
 export function Lede({ children }: { children: ReactNode }) {
-  return <p className="text-lg leading-8 text-ink/80 [&_strong]:font-semibold [&_strong]:text-ink">{children}</p>;
+  return <p className="text-pretty text-lg leading-8 text-ink/85 sm:text-xl sm:leading-9 [&_strong]:font-semibold [&_strong]:text-ink">{children}</p>;
 }
 
 /** A quiet aside: an info icon and a sentence or two. */
 export function Note({ children }: { children: ReactNode }) {
   return (
-    <div className="my-6 flex gap-3 rounded-xl border border-line bg-raised p-4 text-sm leading-6 text-muted">
+    <div className="note my-6 flex gap-3 p-4 text-[15px] leading-6 text-muted">
       <Icon name="info" size={18} className="mt-0.5 shrink-0 text-faint" />
       <div className="min-w-0 [&_a]:font-medium [&_a]:text-brand [&_a]:underline [&_a]:underline-offset-2 [&_strong]:font-semibold [&_strong]:text-ink">{children}</div>
     </div>
@@ -303,7 +303,7 @@ export function StackTable({ caption, head, rows, align = "right", compact = fal
             <tr
               key={row.key}
               data-type={row.type}
-              className={`grid ${grid} items-start gap-x-3 gap-y-2 border-b border-line px-2 py-3 last:border-0 sm:table-row sm:px-0 ${row.highlight ? "rounded-lg bg-open-soft/50 sm:rounded-none" : ""}`}
+              className={`grid ${grid} items-start gap-x-3 gap-y-2 border-b border-line px-2 py-3 last:border-0 sm:table-row sm:px-0 ${row.highlight ? "rounded-lg bg-raised sm:rounded-none" : ""}`}
             >
               <th scope="row" className={`${span} text-left align-top font-normal sm:py-3 sm:pl-2 sm:pr-3`}>
                 {row.th}
@@ -415,8 +415,8 @@ export function Checklist({ items }: { items: ReactNode[] }) {
   return (
     <ol className="my-6 grid gap-2">
       {items.map((it, i) => (
-        <li key={i} className="flex gap-3 rounded-xl border border-line bg-surface p-3.5 text-[15px] leading-6 text-ink/90">
-          <span aria-hidden="true" className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-open-soft text-open">
+        <li key={i} className="flex gap-3 note p-3.5 text-[15px] leading-6 text-ink/90">
+          <span aria-hidden="true" className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-raised text-muted ring-1 ring-inset ring-line">
             <Icon name="check" size={14} strokeWidth={2.5} />
           </span>
           <span className="min-w-0">{it}</span>
@@ -429,7 +429,7 @@ export function Checklist({ items }: { items: ReactNode[] }) {
 /** "If you… → consider…": a decision list, two columns from sm. */
 export function Decisions({ rows }: { rows: { when: ReactNode; then: ReactNode }[] }) {
   return (
-    <dl className="my-6 divide-y divide-line overflow-hidden rounded-xl border border-line bg-surface">
+    <dl className="note my-6 divide-y divide-line overflow-hidden">
       {rows.map((row, i) => (
         <div key={i} className="grid gap-1 p-4 sm:grid-cols-[minmax(0,13rem)_minmax(0,1fr)] sm:gap-6">
           <dt className="font-semibold leading-6 text-ink">{row.when}</dt>
@@ -445,10 +445,10 @@ export function FactRows({ rows }: { rows: { key: string; figure: ReactNode; uni
   return (
     <ul role="list" className="my-6 grid gap-3">
       {rows.map((row) => (
-        <li key={row.key} data-type={row.type} className="card flex gap-4 p-4 sm:gap-5 sm:p-5">
-          <div className="flex h-16 w-16 shrink-0 flex-col items-center justify-center self-start rounded-lg bg-brand-soft text-brand-strong sm:h-20 sm:w-20">
+        <li key={row.key} data-type={row.type} className="note flex gap-4 p-4 sm:gap-5 sm:p-5">
+          <div className="flex h-16 w-16 shrink-0 flex-col items-center justify-center self-start rounded-xl bg-raised text-ink ring-1 ring-inset ring-line sm:h-20 sm:w-20">
             <span className="tabular font-display text-2xl font-extrabold leading-none sm:text-3xl">{row.figure}</span>
-            <span className="mt-1 text-[11px] font-semibold uppercase tracking-wide">{row.unit}</span>
+            <span className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-muted">{row.unit}</span>
           </div>
           <div className="min-w-0">
             <div className="font-display text-lg font-bold leading-snug text-ink">{row.title}</div>
@@ -587,7 +587,7 @@ export function Toc({ sections }: { sections: readonly Pick<GuideSection, "id" |
 /** The phone table of contents: closed by default, so the answer stays in the first screen. */
 export function TocDisclosure({ sections }: { sections: readonly Pick<GuideSection, "id" | "title">[] }) {
   return (
-    <details className="card mt-6 lg:hidden">
+    <details className="note mt-6 lg:hidden">
       <summary className="flex min-h-12 cursor-pointer items-center justify-between gap-3 px-4 font-semibold">
         <span>On this page</span>
         <span className="text-xs font-normal text-muted">{plural(sections.length, "section")}</span>
@@ -615,13 +615,13 @@ export function GuideThumb({ r, guide, product }: { r: RegionInfo; guide: { slug
   const img = product ? thumb(product.imageUrl, 400) : null;
   if (!product || !img) {
     return (
-      <div className="relative aspect-[1200/630] overflow-hidden rounded-xl bg-raised ring-1 ring-line">
+      <div className="relative aspect-[1200/630] overflow-hidden rounded-2xl bg-raised ring-1 ring-line">
         <img src={`/og/guides/${guide.slug}`} alt={`${guide.slug.replace(/-/g, " ")} guide`} width={1200} height={630} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />
       </div>
     );
   }
   return (
-    <div className="plate relative aspect-[1200/630]">
+    <div className="plate relative aspect-[1200/630] !rounded-2xl">
       <img
         src={img}
         srcSet={thumbSet(product.imageUrl, [200, 400]) ?? undefined}
@@ -648,19 +648,19 @@ const TYPE_SHORT: Record<string, string> = { "Elite Trainer Box": "ETB", "Pokém
 export function GuideCard({ r, guide, headingLevel = 2, product }: { r: RegionInfo; guide: Guide; headingLevel?: 2 | 3; product?: ProductCardData | null }) {
   const H = headingLevel === 2 ? "h2" : "h3";
   return (
-    <Link href={guideHref(r, guide.slug)} prefetch={false} className="card group flex h-full flex-col overflow-hidden transition-shadow hover:shadow-lift">
-      <div className="p-2 pb-0">
+    <Link href={guideHref(r, guide.slug)} prefetch={false} className="gc group">
+      <div className="gc-thumb">
         <GuideThumb r={r} guide={guide} product={product} />
       </div>
-      <div className="flex flex-1 flex-col p-4 pt-3 sm:p-5 sm:pt-4">
+      <div className="gc-body">
         <span className="eyebrow">{guide.kicker}</span>
-        <H className="mt-2 font-display text-lg font-bold leading-snug tracking-tight group-hover:text-brand sm:text-xl">{guide.title}</H>
-        <p className="mt-2 line-clamp-3 flex-1 text-[15px] leading-6 text-muted">{guide.description}</p>
-        <span className="mt-4 flex items-center justify-between gap-3 text-xs text-muted">
+        <H className="gc-title">{guide.title}</H>
+        <p className="gc-desc">{guide.description}</p>
+        <span className="gc-foot">
           <span>
             Updated <time dateTime={guide.updated}>{formatRelease(guide.updated)}</time>
           </span>
-          <span className="flex items-center gap-1 font-semibold text-brand">
+          <span className="gc-read">
             Read <Icon name="arrow-right" size={14} />
           </span>
         </span>

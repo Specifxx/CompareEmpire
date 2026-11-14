@@ -337,20 +337,54 @@ body {
     flex: none;
     scroll-snap-align: start;
   }
+  /* Reading matter (About, the legal pages, a guide's paragraphs): a measure of about 68 characters, 16px on a phone and 17px from
+     sm, a clear step between the heading sizes, and lists with quiet markers. Links are the brand colour (the thing to press). */
+  .prose-dex {
+    @apply max-w-[68ch] text-base leading-7 text-muted sm:text-[17px] sm:leading-8;
+  }
   .prose-dex p {
-    @apply mb-4 leading-7 text-muted;
+    @apply mb-5 text-pretty;
+  }
+  .prose-dex h1 {
+    @apply ph-h1 mb-5;
   }
   .prose-dex h2 {
-    @apply mb-3 mt-8 font-display text-xl font-bold text-ink;
+    @apply mb-3 mt-12 scroll-mt-24 font-display text-2xl font-bold leading-tight tracking-tight text-ink first:mt-0;
+  }
+  .prose-dex h3 {
+    @apply mb-2 mt-8 font-display text-lg font-bold leading-snug text-ink;
   }
   .prose-dex a {
-    @apply font-medium text-brand underline underline-offset-2;
+    @apply font-medium text-brand underline decoration-brand/40 underline-offset-[3px] transition-colors hover:decoration-brand;
+  }
+  .prose-dex b,
+  .prose-dex strong {
+    @apply font-semibold text-ink;
   }
   .prose-dex ul {
-    @apply mb-4 list-disc space-y-1 pl-5 text-muted;
+    @apply mb-5 list-disc space-y-2 pl-5 marker:text-faint;
   }
   .prose-dex ol {
-    @apply mb-4 list-decimal space-y-1 pl-5 text-muted;
+    @apply mb-5 list-decimal space-y-2 pl-5 marker:font-semibold marker:text-faint;
+  }
+  .prose-dex li {
+    @apply pl-1;
+  }
+  .prose-dex blockquote {
+    @apply my-6 border-l-2 border-line pl-4 text-ink/90;
+  }
+  .prose-dex hr {
+    @apply my-10 border-line;
+  }
+  /* A table wider than a phone scrolls inside its own box; the page never does. */
+  .prose-dex table {
+    @apply my-6 block w-full overflow-x-auto text-left text-[15px] leading-6;
+  }
+  .prose-dex th {
+    @apply whitespace-nowrap border-b border-line px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-faint first:pl-0;
+  }
+  .prose-dex td {
+    @apply border-b border-line px-3 py-2.5 align-top first:pl-0;
   }
 }
 
@@ -1127,5 +1161,109 @@ a.hero-pill:hover {
   from {
     border-bottom-color: transparent;
     background-color: rgb(var(--bg) / 0);
+  }
+}
+
+/* ── Inner pages (2026-11-14): every page that is not a home page speaks the home page's language. One page header (where the page
+   sits, the headline in the hero's voice a size down, one line under it, one line of facts), sections with the home shelf's
+   heading, tiles in the latest sets' shape, neutral callouts, and tables that scroll inside their own box. Classes only: no
+   script, no new colour, nothing that moves once drawn. DECISIONS.md, 2026-11-14. ───────────────────────────────────────────── */
+@layer components {
+  .ph-h1 {
+    @apply text-balance font-display font-bold;
+    font-size: clamp(1.875rem, 1.45rem + 2vw, 2.75rem);
+    line-height: 1.08;
+    letter-spacing: -0.028em;
+  }
+  /* A product's name is long: the same voice, a size down. */
+  .ph-h1-sm {
+    @apply font-display font-bold;
+    font-size: clamp(1.5rem, 1.2rem + 1.3vw, 2.125rem);
+    line-height: 1.12;
+    letter-spacing: -0.022em;
+  }
+  .ph-lede {
+    @apply mt-3 max-w-2xl text-pretty text-base leading-7 text-muted sm:mt-4 sm:text-lg sm:leading-8;
+  }
+  .ph-meta {
+    @apply mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted;
+  }
+  .ph-meta b {
+    @apply font-semibold tabular-nums text-ink;
+  }
+  .live-dot {
+    @apply inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-open;
+  }
+  /* The home shelf's heading (components/Section.tsx), for a section a page writes itself; .sub-h2 for a part of one. */
+  .sec-h2 {
+    @apply font-display text-2xl font-bold tracking-tight sm:text-3xl;
+  }
+  .sub-h2 {
+    @apply font-display text-xl font-bold tracking-tight sm:text-2xl;
+  }
+  /* A link drawn as a tile (a guide, a tool, a way on): the latest sets' shape. It lifts on hover; never a tint. */
+  .tile {
+    @apply rounded-2xl border border-line bg-surface/60 transition-[transform,border-color,background-color,box-shadow] duration-200 ease-out;
+  }
+  a.tile:hover,
+  .tile:has(> a:hover) {
+    @apply -translate-y-0.5 border-ink/25 bg-surface shadow-lift;
+  }
+  a.tile:active {
+    transform: scale(0.98);
+  }
+  /* The small round ground an icon sits on inside a tile or a row: neutral, as the hero's ways in. */
+  .tile-icon {
+    @apply flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-raised text-muted ring-1 ring-inset ring-line;
+  }
+  /* Something worth knowing beside the main thing (the next set, the cheapest way in): a neutral box with a hairline. What is
+     money inside it is green; what is pressed is the brand colour; the box itself is never tinted. */
+  .note {
+    @apply rounded-2xl border border-line bg-surface/60;
+  }
+  /* A small neutral label on a row ("Pre-order", "Coming soon"): the calm palette's tag, never a tinted pill. */
+  .tag {
+    @apply inline-flex items-center whitespace-nowrap rounded-full border border-line bg-raised px-2 py-0.5 text-[11px] font-semibold leading-4 text-muted;
+  }
+  /* A guide as a card (content/guides/kit.tsx GuideCard): the product card's shape. The picture on its plate, then the words on
+     the page's own ground: no frame around the card. The picture lifts on hover, as a product's does. */
+  .gc {
+    @apply flex h-full flex-col rounded-2xl outline-offset-4;
+  }
+  .gc-thumb {
+    @apply rounded-2xl transition-[transform,box-shadow] duration-300 ease-out group-hover:-translate-y-1 group-hover:shadow-lift;
+  }
+  .gc-body {
+    @apply flex flex-1 flex-col px-1 pt-4;
+  }
+  .gc-title {
+    @apply mt-2 text-balance font-display text-lg font-bold leading-snug tracking-tight transition-colors group-hover:text-brand sm:text-xl;
+  }
+  .gc-desc {
+    @apply mt-2 line-clamp-3 flex-1 text-[15px] leading-6 text-muted;
+  }
+  .gc-foot {
+    @apply mt-3 flex items-center justify-between gap-3 text-xs text-faint;
+  }
+  .gc-read {
+    @apply flex items-center gap-1 font-semibold text-muted transition-colors group-hover:text-brand;
+  }
+  /* A data table in its own box: it scrolls sideways inside the box on a phone, the page never does. */
+  .tbl-wrap {
+    @apply overflow-x-auto rounded-2xl border border-line bg-surface;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tile,
+  .gc-thumb {
+    transition: none;
+  }
+  .group:hover .gc-thumb {
+    transform: none;
+  }
+  a.tile:hover,
+  .tile:has(> a:hover),
+  a.tile:active {
+    transform: none;
   }
 }

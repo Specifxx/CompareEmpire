@@ -99,17 +99,17 @@ export default async function DealsPage({ params }: { params: { region: string }
       {!room && <NoPreFooter />}
       <Breadcrumbs items={[{ href: `/${r.region}`, label: r.name }, { label: "Deals" }]} />
       <header className="max-w-3xl">
-        <div className="eyebrow flex items-center gap-1.5 text-brand-strong">
+        <div className="eyebrow flex items-center gap-1.5">
           <Icon name="tag" size={14} /> Deals · {r.name}
         </div>
-        <h1 className="mt-2 font-display text-3xl font-bold tracking-tight sm:text-4xl">{dealsCopy.h1(r)}</h1>
-        <p className="mt-3 leading-7 text-muted">
+        <h1 className="mt-2 ph-h1">{dealsCopy.h1(r)}</h1>
+        <p className="ph-lede">
           {lede.lead} {checked ? <Ago iso={checked.toISOString()} initial={timeAgo(checked)} /> : "twice a day"}
           {lede.tail}
         </p>
         {deals.length > 0 && (
-          <p className="mt-3 inline-flex items-center gap-2 rounded-full bg-open-soft px-3 py-1 text-sm font-semibold text-open">
-            <span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
+          <p className="ph-meta font-semibold text-open">
+            <span className="live-dot" aria-hidden="true" />
             {dealsCopy.summary(deals.length, best)}
           </p>
         )}
@@ -237,7 +237,7 @@ function PerPackTop({ r, rows }: { r: RegionInfo; rows: PerPackRow[] }) {
         <li key={row.p.slug}>
           <Link href={`/${r.region}/p/${row.p.slug}`} prefetch={false} className="group flex min-h-14 items-center gap-3 rounded-lg px-2.5 py-2 transition-colors hover:bg-raised">
             <span
-              className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold tabular ${i === 0 ? "bg-open-soft text-open" : "bg-raised text-muted"}`}
+              className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold tabular ${i === 0 ? "bg-raised text-open ring-1 ring-inset ring-line" : "bg-raised text-muted"}`}
               aria-hidden="true"
             >
               {i + 1}

@@ -41,7 +41,7 @@ export function NotFoundSearch() {
         action={`/${region}/sealed`}
         method="get"
         role="search"
-        className="mx-auto mt-8 flex max-w-md items-center gap-2 rounded-full border border-line bg-surface p-1.5 pl-4 shadow-card focus-within:border-ink/40"
+        className="mx-auto mt-8 flex min-h-14 max-w-xl items-center gap-2 rounded-full border border-line bg-surface p-1.5 pl-5 shadow-lift transition-[border-color,box-shadow] duration-200 focus-within:border-brand/70 focus-within:shadow-[0_0_0_4px_rgb(var(--brand)/0.14)]"
       >
         <Icon name="search" size={18} className="text-faint" />
         <input
@@ -55,19 +55,19 @@ export function NotFoundSearch() {
           Search
         </button>
       </form>
-      <p className="mt-2 text-xs text-muted">
+      <p className="mt-3 text-xs text-muted">
         <Flag code={r.short} /> Searches stores in {r.inName}
       </p>
-      <h2 className="eyebrow mt-10">Where to next</h2>
-      <ul className="mx-auto mt-3 grid max-w-3xl grid-cols-2 gap-2 text-left sm:grid-cols-3">
+      <h2 className="eyebrow mt-12">Where to next</h2>
+      <ul className="mx-auto mt-4 flex max-w-3xl flex-wrap justify-center gap-2">
         {MENU_ROWS.map((row) => (
-          <li key={row.key} className="flex">
+          <li key={row.key}>
             <Link
               href={sectionHref(region, row.key)}
               prefetch={false}
-              className="card group flex min-h-12 flex-1 items-center gap-2.5 px-2.5 py-2 text-sm font-medium transition-colors hover:border-ink/30"
+              className="chip group min-h-10"
             >
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-raised text-muted group-hover:text-ink">
+              <span className="flex shrink-0 items-center justify-center text-muted group-hover:text-ink [&>svg]:h-4 [&>svg]:w-4">
                 <Glyph name={row.glyph} />
               </span>
               {row.label}
@@ -75,19 +75,19 @@ export function NotFoundSearch() {
           </li>
         ))}
       </ul>
-      <h2 className="eyebrow mt-10">Latest sets</h2>
-      <ul className="mx-auto mt-3 grid max-w-3xl grid-cols-2 gap-2 text-left sm:grid-cols-3">
+      <h2 className="eyebrow mt-12">Latest sets</h2>
+      <ul className="mx-auto mt-4 grid max-w-3xl grid-cols-2 gap-2.5 text-left sm:grid-cols-3 sm:gap-3">
         {SETS.slice(0, 6).map((s) => (
           <li key={s.slug} className="flex">
-            <Link href={`/${region}/sets/${s.slug}`} prefetch={false} className="card flex min-h-14 flex-1 flex-col justify-center px-3.5 py-2.5 transition-colors hover:border-ink/30">
+            <Link href={`/${region}/sets/${s.slug}`} prefetch={false} className="tile flex min-h-14 flex-1 flex-col justify-center px-4 py-3">
               <span className="text-sm font-semibold leading-snug">{s.name}</span>
               <span className="text-xs text-muted">{shortDate(s.releaseDate)}</span>
             </Link>
           </li>
         ))}
       </ul>
-      <h2 className="eyebrow mt-10">Or pick your region</h2>
-      <ul className="mx-auto mt-3 flex max-w-2xl flex-wrap justify-center gap-2">
+      <h2 className="eyebrow mt-12">Or pick your region</h2>
+      <ul className="mx-auto mt-4 flex max-w-2xl flex-wrap justify-center gap-2">
         {REGION_LIST.map((x) => (
           <li key={x.region}>
             <Link href={`/${x.region}`} aria-current={x.region === inPath ? "true" : undefined} className={`chip min-h-10 ${x.region === inPath ? "chip-on" : ""}`}>
@@ -112,7 +112,7 @@ export function NotFoundSearch() {
 export function NotFoundEbay() {
   const { known, region } = usePathRegion();
   return (
-    <div style={{ visibility: known ? "visible" : "hidden" }} className="mx-auto mt-10 max-w-3xl text-left">
+    <div style={{ visibility: known ? "visible" : "hidden" }} className="mx-auto mt-12 max-w-3xl text-left">
       <EbayStrip region={region ?? X_DEFAULT_REGION} context="sealed" variant="slim" placement="listings-notfound" regionKnown={false} search={{ kind: "sealed", query: "" }} />
     </div>
   );

@@ -144,7 +144,7 @@ export default async function SetPage({ params }: { params: { region: string; se
           <div className="min-w-0 sm:self-end">
             <div className="eyebrow">{s.series} series</div>
             <div className="mt-1 flex items-start justify-between gap-3">
-              <h1 id="set-title" className="min-w-0 break-words font-display text-3xl font-bold tracking-tight sm:text-4xl">
+              <h1 id="set-title" className="min-w-0 break-words ph-h1">
                 {name}
               </h1>
               <ShareButton title={name} path={`/${r.region}/sets/${s.slug}`} kind="set" />
@@ -162,14 +162,14 @@ export default async function SetPage({ params }: { params: { region: string; se
               <Link
                 href={`/${r.region}/p/${way.p.slug}`}
                 prefetch={false}
-                className="group flex min-h-11 items-center gap-3 rounded-xl bg-open-soft px-4 py-2.5 text-sm text-ink transition-colors hover:bg-open-soft/70 sm:justify-self-start"
+                className="tile group flex min-h-11 items-center gap-3 px-4 py-2.5 text-sm text-ink sm:justify-self-start"
               >
-                <Icon name="tag" size={18} className="text-open" />
+                <Icon name="tag" size={18} className="text-muted" />
                 <span className="min-w-0">
                   <span className="text-muted">{pre ? "Cheapest pre-order per pack:" : "Cheapest way in:"}</span> <span className="font-semibold">{way.p.productType}</span> at{" "}
-                  <span className="tabular font-bold">{money(way.perPack, r.market)}</span> a pack
+                  <span className="tabular font-bold text-open">{money(way.perPack, r.market)}</span> a pack
                 </span>
-                <Icon name="arrow-right" size={18} className="ml-auto text-open transition-transform group-hover:translate-x-0.5" />
+                <Icon name="arrow-right" size={18} className="ml-auto text-muted transition-transform group-hover:translate-x-0.5" />
               </Link>
             ) : (
               <span className="hidden sm:block" />
@@ -201,13 +201,13 @@ export default async function SetPage({ params }: { params: { region: string; se
         <Link
           href={preorderPath(r.region, s.code)!}
           prefetch={false}
-          className="card mt-4 flex flex-wrap items-center justify-between gap-3 border-pre/40 bg-pre-soft/40 px-5 py-4 transition-shadow hover:shadow-lift"
+          className="tile mt-4 flex flex-wrap items-center justify-between gap-3 px-5 py-4"
         >
           <span>
             <span className="font-semibold">{s.name} pre-orders, store by store</span>
             <span className="block text-sm text-muted">Every {r.adjective} store taking pre-orders, cheapest first, with what is in each box and the key dates.</span>
           </span>
-          <span className="shrink-0 text-sm font-semibold text-pre">Compare pre-orders →</span>
+          <span className="shrink-0 text-sm font-semibold text-brand">Compare pre-orders →</span>
         </Link>
       )}
       <Section id="products" title={`${s.name} sealed products`} kicker={products.length ? `${products.length} listed in ${r.inName}` : undefined} className="mt-10 sm:mt-12">
@@ -253,10 +253,10 @@ export default async function SetPage({ params }: { params: { region: string; se
 
       <section aria-labelledby="about-set" className="mt-16 grid gap-6 sm:mt-20 lg:grid-cols-[minmax(0,1fr)_22rem] lg:gap-10">
         <div>
-          <h2 id="about-set" className="font-display text-2xl font-bold tracking-tight sm:text-3xl">
+          <h2 id="about-set" className="sec-h2">
             About {name}
           </h2>
-          <div className="mt-4 max-w-2xl space-y-3 leading-7 text-muted">
+          <div className="prose-dex mt-4">
             {/* The page's answer in a sentence (it was above the grid until 2026-11-13). */}
             <p>{setDescription(s, r, products)}</p>
             {setIntro(s, r, products).map((t) => (
@@ -276,7 +276,7 @@ export default async function SetPage({ params }: { params: { region: string; se
             </ul>
           </nav>
         </div>
-        <div className="card self-start p-5">
+        <div className="note self-start p-5">
           <h3 className="eyebrow">Set facts</h3>
           <dl className="mt-3 divide-y divide-line text-sm">
             {facts.map((f) => (
@@ -317,15 +317,15 @@ function SetChips({ s, pre, open, total }: { s: PokemonSet; pre: boolean; open: 
   return (
     <>
       <li>
-        <span className={`inline-flex min-h-8 items-center gap-1.5 rounded-full px-3 text-xs font-semibold ${pre ? "bg-pre-soft text-pre" : "bg-raised text-ink ring-1 ring-line"}`}>
-          <Icon name="calendar" size={14} />
+        <span className="inline-flex min-h-8 items-center gap-1.5 rounded-full bg-raised px-3 text-xs font-semibold text-ink ring-1 ring-inset ring-line">
+          <Icon name="calendar" size={14} className="text-muted" />
           <time dateTime={s.releaseDate}>{releaseChip(s)}</time>
         </span>
       </li>
       {total > 0 && (
         <li>
-          <span className={`inline-flex min-h-8 items-center gap-1.5 rounded-full px-3 text-xs font-semibold ${open ? (pre ? "bg-pre-soft text-pre" : "bg-open-soft text-open") : "bg-sold-soft text-sold"}`}>
-            <span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
+          <span className={`inline-flex min-h-8 items-center gap-1.5 rounded-full bg-raised px-3 text-xs font-semibold ring-1 ring-inset ring-line ${open ? "text-ink" : "text-muted"}`}>
+            <span className={`h-1.5 w-1.5 rounded-full ${open ? (pre ? "bg-pre" : "bg-open") : "bg-sold"}`} aria-hidden="true" />
             {open ? `${open} ${pre ? "open for pre-order" : "in stock"}` : "None in stock right now"}
           </span>
         </li>
@@ -403,7 +403,7 @@ function PerPackStrip({ r, items }: { r: RegionInfo; items: PerPackPick[] }) {
         const cheapest = perPack === floor;
         return (
           <li key={p.slug}>
-            <Link href={`/${r.region}/p/${p.slug}`} prefetch={false} className={`card flex h-full flex-col gap-1 p-4 transition-shadow hover:shadow-lift ${cheapest ? "border-open" : ""}`}>
+            <Link href={`/${r.region}/p/${p.slug}`} prefetch={false} className={`tile flex h-full flex-col gap-1 p-4`}>
               <span className="text-xs font-semibold uppercase tracking-wide text-muted">{t?.label ?? p.productType}</span>
               <span className="tabular font-display text-xl font-extrabold sm:text-2xl">
                 {money(perPack, r.market)} <span className="whitespace-nowrap text-sm font-semibold text-muted">/ pack</span>
@@ -426,7 +426,7 @@ function SetLink({ r, s, dir }: { r: RegionInfo; s: PokemonSet; dir: "prev" | "n
     <Link
       href={`/${r.region}/sets/${s.slug}`}
       prefetch={false}
-      className={`card group flex min-h-16 items-center gap-3 p-4 transition-shadow hover:shadow-lift ${dir === "next" ? "flex-row-reverse text-right" : ""}`}
+      className={`tile group flex min-h-16 items-center gap-3 p-4 ${dir === "next" ? "flex-row-reverse text-right" : ""}`}
     >
       <Icon name="arrow-right" size={20} className={`text-muted transition-transform group-hover:text-brand ${dir === "prev" ? "rotate-180 group-hover:-translate-x-0.5" : "group-hover:translate-x-0.5"}`} />
       <span className="min-w-0">

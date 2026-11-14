@@ -10,7 +10,7 @@ export default function WatchesPage() {
   return (
     <div className="page max-w-3xl py-12">
       <Breadcrumbs items={[{ href: "/", label: SITE_NAME }, { label: "My watches" }]} />
-      <h1 className="mt-6 text-2xl font-bold">My watches</h1>
+      <h1 className="ph-h1 mt-6">My watches</h1>
       <div className="mt-6">
         <WatchesView />
       </div>

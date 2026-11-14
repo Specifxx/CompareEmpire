@@ -84,9 +84,9 @@ export default async function ReleasesPage({ params }: { params: { region: strin
     const c = counts.get(s.code);
     const picks = cheapest.get(s.code) ?? [];
     return (
-      <li className="card flex flex-col gap-4 p-5 md:flex-row md:items-start md:gap-6">
+      <li className="note flex flex-col gap-4 p-5 md:flex-row md:items-start md:gap-6">
         <div className="md:w-56 md:shrink-0">
-          <div className={`text-sm font-semibold ${future ? "text-pre" : "text-open"}`}>
+          <div className="eyebrow">
             {relativeDay(s.releaseDate, today).replace(/^./, (ch) => ch.toUpperCase())}
           </div>
           <time dateTime={s.releaseDate} className="mt-0.5 block font-display text-xl font-bold">
@@ -95,7 +95,7 @@ export default async function ReleasesPage({ params }: { params: { region: strin
           <div className="mt-1 text-xs text-muted">{s.series}</div>
         </div>
         <div className="min-w-0 flex-1">
-          <h3 className="font-display text-2xl font-bold leading-tight">
+          <h3 className="font-display text-xl font-bold leading-tight sm:text-2xl">
             <Link href={`/${r.region}/sets/${s.slug}`} prefetch={false} className="inline-flex min-h-11 items-center hover:text-brand">
               {s.name}
             </Link>
@@ -104,7 +104,7 @@ export default async function ReleasesPage({ params }: { params: { region: strin
             {c ? (
               <>
                 {plural(c.products, "product")} listed in {r.inName} ·{" "}
-                <span className={c.inStock ? `font-semibold ${future ? "text-pre" : "text-open"}` : ""}>
+                <span className={c.inStock ? "font-semibold text-ink" : ""}>
                   {c.inStock} {future ? "open for pre-order" : "in stock"}
                 </span>
               </>
@@ -113,7 +113,7 @@ export default async function ReleasesPage({ params }: { params: { region: strin
             )}
           </p>
           {future && preorderPath(r.region, s.code) && (
-            <Link href={preorderPath(r.region, s.code)!} prefetch={false} className="mt-2 inline-block text-sm font-semibold text-pre hover:underline">
+            <Link href={preorderPath(r.region, s.code)!} prefetch={false} className="mt-2 inline-block text-sm font-semibold text-brand hover:underline">
               Compare {s.name} pre-orders store by store →
             </Link>
           )}
@@ -146,16 +146,16 @@ export default async function ReleasesPage({ params }: { params: { region: strin
   return (
     <div className="page py-8">
       <Breadcrumbs items={[{ href: `/${r.region}`, label: r.name }, { label: "Releases" }]} />
-      <h1 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">Pokémon TCG release dates {year}</h1>
-      <p className="mt-3 max-w-2xl leading-7 text-muted">
+      <h1 className="ph-h1">Pokémon TCG release dates {year}</h1>
+      <p className="ph-lede">
         {/* One text node, so nothing in it moves when the web font arrives. */}
         {`The release calendar for ${r.inName}: upcoming sets and the ones out in the last ${RECENT_DAYS} days, with what ${r.adjective} stores have in stock or open for pre-order today, then every set of ${year} and ${year - 1}. Dates are the English-language release dates; stores may ship pre-orders a few days either side.`}
       </p>
 
       <NextSetBox r={r} next={next} c={nextCount} today={today} />
 
-      <section className="mt-12" aria-labelledby="upcoming">
-        <h2 id="upcoming" className="mb-4 font-display text-2xl font-bold tracking-tight">
+      <section className="mt-12 sm:mt-14" aria-labelledby="upcoming">
+        <h2 id="upcoming" className="mb-4 sec-h2">
           Upcoming
         </h2>
         {upcoming.length ? (
@@ -170,7 +170,7 @@ export default async function ReleasesPage({ params }: { params: { region: strin
       </section>
 
       <section className="mt-12" aria-labelledby="recent">
-        <h2 id="recent" className="mb-4 font-display text-2xl font-bold tracking-tight">
+        <h2 id="recent" className="mb-4 sec-h2">
           Just released
         </h2>
         {recent.length ? (
@@ -226,15 +226,15 @@ function NextSetBox({ r, next, c, today }: { r: RegionInfo; next: PokemonSet | n
   if (!next) return null;
   const path = `/${r.region}/sets/${next.slug}`;
   return (
-    <section aria-labelledby="next-set" className="mt-6 rounded-2xl border border-pre/25 bg-pre-soft p-5 sm:p-6">
-      <div className="text-xs font-semibold uppercase tracking-[0.12em] text-pre">Next set</div>
+    <section aria-labelledby="next-set" className="note mt-8 p-5 sm:p-7">
+      <div className="eyebrow">Next set</div>
       <p id="next-set" className="mt-1 font-display text-2xl font-bold leading-tight text-ink sm:text-3xl">
         <Link href={path} prefetch={false} className="hover:underline">
           {withPokemon(next.name)}
         </Link>
-        : <time dateTime={next.releaseDate}>{formatRelease(next.releaseDate)}</time> <span className="text-pre">({relativeDay(next.releaseDate, today)})</span>
+        : <time dateTime={next.releaseDate}>{formatRelease(next.releaseDate)}</time> <span className="text-muted">({relativeDay(next.releaseDate, today)})</span>
       </p>
-      <p className="mt-2 text-sm text-ink/80">
+      <p className="mt-2 text-sm text-muted">
         {next.series} series ·{" "}
         {c ? (
           <>
@@ -258,13 +258,13 @@ function NextSetBox({ r, next, c, today }: { r: RegionInfo; next: PokemonSet | n
 function YearTable({ id, title, r, sets, counts, now, empty }: { id: string; title: string; r: RegionInfo; sets: PokemonSet[]; counts: Map<string, SetCount>; now: Date; empty: string }) {
   return (
     <section className="mt-12" aria-labelledby={id}>
-      <h2 id={id} className="mb-4 font-display text-2xl font-bold tracking-tight">
+      <h2 id={id} className="mb-4 sec-h2">
         {title}
       </h2>
       {sets.length ? (
-        <div className="card overflow-hidden">
+        <div className="tbl-wrap">
           <table className="w-full text-sm">
-            <thead className="border-b border-line bg-raised text-left text-xs font-semibold uppercase tracking-wide text-muted">
+            <thead className="border-b border-line text-left text-[11px] font-semibold uppercase tracking-wide text-faint">
               <tr>
                 <th scope="col" className="px-3 py-2.5 sm:px-5">
                   Set
@@ -285,7 +285,7 @@ function YearTable({ id, title, r, sets, counts, now, empty }: { id: string; tit
                 const c = counts.get(s.code);
                 const pre = isPreorderSet(s.code, now);
                 return (
-                  <tr key={s.code} className="hover:bg-raised">
+                  <tr key={s.code} className="transition-colors hover:bg-raised">
                     <th scope="row" className="px-3 py-3 text-left font-semibold sm:px-5">
                       {c ? (
                         <Link href={`/${r.region}/sets/${s.slug}`} prefetch={false} className="inline-flex min-h-10 items-center hover:text-brand">
@@ -301,12 +301,12 @@ function YearTable({ id, title, r, sets, counts, now, empty }: { id: string; tit
                       <time dateTime={s.releaseDate} className="whitespace-nowrap">
                         {shortDate(s.releaseDate)}
                       </time>
-                      {pre && <span className="mt-0.5 block w-fit rounded-full bg-pre-soft px-1.5 py-px text-xs font-semibold text-pre sm:ml-1.5 sm:mt-0 sm:inline">Pre-order</span>}
+                      {pre && <span className="tag mt-0.5 flex w-fit sm:ml-1.5 sm:mt-0 sm:inline-flex">Pre-order</span>}
                     </td>
                     <td className="whitespace-nowrap px-3 py-3 text-right sm:px-5">
                       {c ? (
                         <>
-                          <span className={`font-semibold ${c.inStock ? (pre ? "text-pre" : "text-open") : "text-muted"}`}>
+                          <span className={`font-semibold ${c.inStock ? "text-ink" : "text-muted"}`}>
                             {c.inStock} {pre ? "on pre-order" : "in stock"}
                           </span>
                           <span className="block text-xs text-muted">of {plural(c.products, "product")}</span>

@@ -60,7 +60,7 @@ export function HomeRegionGrid({ initial }: { initial: Pick[] }) {
   const list = picks.region === region ? picks.list : null;
   return (
     <section id="regions" aria-labelledby="home-grid-h" className="page scroll-mt-20" data-home-grid="">
-      <h2 id="home-grid-h" className="font-display text-2xl font-bold tracking-tight sm:text-3xl">
+      <h2 id="home-grid-h" className="sec-h2">
         Most stocked in {r.inName} today
       </h2>
       {/* Ten slots (owner, 2026-11-13: more products here), each the same size whatever it holds (globals.css .hg-*): a row on a

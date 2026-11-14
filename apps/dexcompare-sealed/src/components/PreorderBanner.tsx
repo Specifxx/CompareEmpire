@@ -23,7 +23,7 @@ export function PreorderBanner({ region, today = new Date().toISOString().slice(
             href={`/${region}/preorders/${set.slug}`}
             prefetch={false}
             data-preorder-banner={set.slug}
-            className="card flex flex-wrap items-center justify-between gap-3 px-5 py-4 transition-shadow hover:shadow-lift"
+            className="tile flex flex-wrap items-center justify-between gap-3 px-5 py-4"
           >
             <span className="min-w-0">
               <span className="eyebrow">Pre-order · out {formatRelease(set.releaseDate)}</span>

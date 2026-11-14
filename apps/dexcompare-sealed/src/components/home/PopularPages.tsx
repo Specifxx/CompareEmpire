@@ -32,7 +32,7 @@ export function popularLinks(today = new Date().toISOString().slice(0, 10)): { h
 export function PopularPages() {
   return (
     <section className="page mb-12" aria-labelledby="popular-h">
-      <h2 id="popular-h" className="mb-4 font-display text-xl font-bold tracking-tight sm:text-2xl">
+      <h2 id="popular-h" className="mb-4 sub-h2">
         Popular right now
       </h2>
       <ul className="flex flex-wrap gap-2">

@@ -26,7 +26,7 @@ export function Section({
       <div className="mb-6 flex flex-wrap items-end justify-between gap-x-4 gap-y-1">
         <div className="min-w-0">
           {kicker && <div className="eyebrow mb-1">{kicker}</div>}
-          <h2 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">{title}</h2>
+          <h2 className="sec-h2">{title}</h2>
         </div>
         {href && (
           <Link href={href} prefetch={false} className="-mb-2.5 inline-flex min-h-10 shrink-0 items-center text-sm font-semibold text-muted transition-colors hover:text-ink">
@@ -65,7 +65,7 @@ export function Empty({ children, actions }: { children: React.ReactNode; action
   if (!actions?.length) return <div className="card px-6 py-10 text-center text-muted">{children}</div>;
   return (
     <div className="card px-6 py-10 text-center text-muted">
-      <span className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-sold-soft text-sold" aria-hidden="true">
+      <span className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-raised text-muted ring-1 ring-inset ring-line" aria-hidden="true">
         <Icon name="info" size={20} />
       </span>
       {children}

@@ -91,47 +91,47 @@ export async function StorePage({ r, s, page }: { r: RegionInfo; s: StoreConfig;
           ...(page > 1 ? [{ label: `Page ${page}` }] : []),
         ]}
       />
-      <div className="card flex flex-col justify-between gap-4 p-6 sm:flex-row sm:items-center">
+      <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
         <div>
           <div className="eyebrow">
             <Flag code={r.short} /> {r.name} · prices in {r.currency}
           </div>
-          <h1 className="mt-1 font-display text-3xl font-extrabold tracking-tight">{s.name}</h1>
-          <p className="mt-1 text-sm text-muted">
+          <h1 className="ph-h1 mt-2">{s.name}</h1>
+          <p className="mt-3 text-sm text-muted">
             {st?.inStock ?? 0} Pokémon sealed products in stock · {listed} listed · last read{" "}
             {st?.lastOkAt ? <Ago iso={st.lastOkAt.toISOString()} initial={timeAgo(st.lastOkAt)} /> : "not yet"}
             {pages > 1 && ` · page ${page} of ${pages}`}
           </p>
           {st?.dormant && (
-            <p className="mt-2 max-w-xl text-sm text-muted">
+            <p className="mt-3 max-w-xl text-sm leading-6 text-muted">
               None of these listings is shown as in stock: the store had none in stock when we last read it, or its &ldquo;in stock&rdquo;
               prices sat far below every other store&rsquo;s and were not trusted. It is treated as dormant: its listings stay on product
               pages, marked sold out, but it no longer counts towards how many stores list a product.
             </p>
           )}
         </div>
-        <OutboundLink href={s.base} rel={REL_STORE} retailer={storeRetailer(s.name, s.market)} placement="store-page" className="btn-ghost shrink-0">
+        <OutboundLink href={s.base} rel={REL_STORE} retailer={storeRetailer(s.name, s.market)} placement="store-page" className="btn-ghost min-h-11 shrink-0 self-start sm:self-auto">
           Visit {storeHost(s)} <span aria-hidden="true">↗</span>
         </OutboundLink>
       </div>
       {page === 1 && (
-        <div className="mt-6 max-w-3xl space-y-3 leading-7 text-muted">
+        <div className="prose-dex mt-6">
           {storeIntro({ name: s.name, host: storeHost(s), platform: s.platform, r, rows: typeRows, storesInRegion: storesInMarket(s.market).length, dormant: !!st?.dormant }).map((t) => (
             <p key={t}>{t}</p>
           ))}
         </div>
       )}
       {offers.length ? (
-        <div className="card mt-6 overflow-hidden">
+        <div className="mt-8 overflow-hidden rounded-2xl border border-line bg-surface/60">
           <ul className="divide-y divide-line">
             {offers.map((o) => {
               const state = offerStock(o, now);
               const pre = isPreorderSet(o.product.setCode);
               return (
-                <li key={o.product.slug} className="relative flex items-center gap-4 px-4 py-3 hover:bg-raised sm:px-5">
-                  <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-raised">
+                <li key={o.product.slug} className="relative flex items-center gap-4 px-4 py-3 transition-colors hover:bg-raised sm:px-5">
+                  <div className="plate h-14 w-14 shrink-0">
                     {o.product.imageUrl && (
-                      <img src={thumb(o.product.imageUrl, 120)!} alt={o.product.name} width={56} height={56} loading="lazy" decoding="async" className="h-full w-full object-contain p-1" />
+                      <img src={thumb(o.product.imageUrl, 120)!} alt={o.product.name} width={56} height={56} loading="lazy" decoding="async" className="h-full w-full object-contain p-1 mix-blend-multiply" />
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
@@ -153,7 +153,7 @@ export async function StorePage({ r, s, page }: { r: RegionInfo; s: StoreConfig;
           </ul>
         </div>
       ) : (
-        <div className="card mt-6 px-6 py-10 text-center text-muted">
+        <div className="note mt-8 px-6 py-12 text-center text-muted">
           {st?.lastError ? "We couldn't read this store's listings on the last check." : "No Pokémon sealed listings found at this store yet."}
         </div>
       )}

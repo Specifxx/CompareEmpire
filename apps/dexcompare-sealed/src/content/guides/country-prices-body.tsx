@@ -381,7 +381,7 @@ export function CountryBody({ data }: { data: CountryData }) {
       {sections.map((s) => (
         <Fragment key={s.id}>
           <section aria-labelledby={s.id} className="mt-12">
-            <h2 id={s.id} className="mb-4 font-display text-xl font-bold tracking-tight text-ink sm:text-2xl">
+            <h2 id={s.id} className="mb-4 sub-h2 text-ink">
               {s.title}
             </h2>
             {s.body}

@@ -61,8 +61,8 @@ export default async function CrossMarketGuide({ params }: Params) {
         <article className="min-w-0 max-w-[68ch]">
           <header>
             <div className="eyebrow">{COUNTRY_GUIDE.kicker}</div>
-            <h1 className="mt-2 font-display text-3xl font-bold tracking-tight sm:text-4xl">{COUNTRY_GUIDE.h1}</h1>
-            <p className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted">
+            <h1 className="mt-2 ph-h1">{COUNTRY_GUIDE.h1}</h1>
+            <p className="ph-meta sm:mt-4">
               <span className="font-medium text-ink">By DexCompare</span>
               <span aria-hidden="true">·</span>
               <span>

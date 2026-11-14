@@ -61,8 +61,8 @@ export default function ToolPage({ params }: { params: { region: string; tool: s
       <Breadcrumbs items={[{ href: `/${r.region}`, label: r.name }, { href: `/${r.region}/tools`, label: "Tools" }, { label: t.title }]} />
       <header className="max-w-3xl">
         <div className="eyebrow">{t.kicker}</div>
-        <h1 className="mt-2 font-display text-3xl font-bold tracking-tight sm:text-4xl">{t.title}</h1>
-        <p className="mt-3 text-lg leading-8 text-muted">{t.lede}</p>
+        <h1 className="mt-2 ph-h1">{t.title}</h1>
+        <p className="ph-lede">{t.lede}</p>
       </header>
 
       {t.slug === "is-this-a-good-price" && <LinkChecker region={r.region} />}
@@ -77,13 +77,13 @@ export default function ToolPage({ params }: { params: { region: string; tool: s
       <div className="mt-12 grid gap-10 lg:grid-cols-[minmax(0,68ch)_minmax(0,1fr)] lg:gap-16">
         <article className="min-w-0">
           <section aria-labelledby="how">
-            <h2 id="how" className="font-display text-2xl font-bold tracking-tight">
+            <h2 id="how" className="sec-h2">
               How to use it
             </h2>
             <ol className="mt-4 grid gap-2">
               {t.steps.map((s, i) => (
                 <li key={s} className="flex gap-3 rounded-xl border border-line bg-surface p-3.5 text-[15px] leading-6">
-                  <span aria-hidden="true" className="tabular flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-soft text-xs font-bold text-brand-strong">
+                  <span aria-hidden="true" className="tabular flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-raised text-xs font-bold text-muted ring-1 ring-inset ring-line">
                     {i + 1}
                   </span>
                   <span className="min-w-0">{s}</span>
@@ -93,7 +93,7 @@ export default function ToolPage({ params }: { params: { region: string; tool: s
           </section>
 
           <section aria-labelledby="about" className="mt-12">
-            <h2 id="about" className="font-display text-2xl font-bold tracking-tight">
+            <h2 id="about" className="sec-h2">
               About the {t.kicker.toLowerCase()}
             </h2>
             <div className="prose-dex mt-4">
@@ -122,7 +122,7 @@ export default function ToolPage({ params }: { params: { region: string; tool: s
           </section>
 
           <section aria-labelledby="faq" className="mt-12">
-            <h2 id="faq" className="font-display text-2xl font-bold tracking-tight">
+            <h2 id="faq" className="sec-h2">
               Questions
             </h2>
             <dl className="mt-4 divide-y divide-line overflow-hidden rounded-xl border border-line bg-surface">
@@ -143,7 +143,7 @@ export default function ToolPage({ params }: { params: { region: string; tool: s
               <ul className="mt-3 grid gap-2">
                 {guides.map((g) => (
                   <li key={g.slug}>
-                    <Link href={guideHref(r, g.slug)} prefetch={false} className="card group flex items-start gap-3 p-3.5 transition-shadow hover:shadow-lift">
+                    <Link href={guideHref(r, g.slug)} prefetch={false} className="tile group flex items-start gap-3 p-3.5">
                       <Icon name="arrow-right" size={16} className="mt-1 shrink-0 text-muted group-hover:text-brand" />
                       <span className="font-semibold leading-6 group-hover:text-brand">{g.title}</span>
                     </Link>

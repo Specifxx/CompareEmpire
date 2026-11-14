@@ -77,15 +77,15 @@ export default async function PokemonPage({ params }: { params: { region: string
   return (
     <div className="page py-8">
       <Breadcrumbs items={[{ href: `/${r.region}`, label: r.name }, { href: `/${r.region}/pokemon`, label: "By Pokémon" }, { label: hub.name }]} />
-      <h1 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">
+      <h1 className="ph-h1">
         {hub.name} Pokémon TCG products in {r.inName}
       </h1>
-      <p className="mt-3 max-w-3xl leading-7 text-muted">
+      <p className="ph-lede">
         Every sealed product whose name features {hub.name}: collections, tins, premium boxes and blisters, compared across {r.adjective} stores
         {r.market === "US" ? " and TCGplayer" : ""}. <b className="text-ink">{openCount}</b> in stock{open[0]?.lowestPriceCents != null && <> from {money(open[0].lowestPriceCents, r.market)}</>}, cheapest first.
       </p>
       {others.length > 0 && (
-        <nav aria-label="Other Pokémon" className="mt-3">
+        <nav aria-label="Other Pokémon" className="mt-5">
           <ul className="scroller -mx-4 gap-2 px-4 scroll-px-4 sm:mx-0 sm:px-0">
             {others.map((x) => (
               <li key={x.slug}>

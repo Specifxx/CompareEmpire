@@ -936,3 +936,29 @@ time, and the prices do change with each import); guides share a title across th
 intro counts store rows (108) where the FAQ counts the import's deduplicated stores (104). URLs, titles' wording, canonicals,
 hreflang and the sitemap are unchanged. The 19 November recheck of clicks per placement will read product pages with these two
 additions; the A/B tests (from 20 November) see the same rows in both arms. No deploy marker: it rides the next release.
+
+## 2026-11-14: Inner pages speak the home page's language
+
+The owner asked for every page, not only the home page, to look as calm and finished. One shared set of classes in `globals.css`
+("Inner pages") now draws every non-home page, and the pages use it instead of their own one-off sizes and colours.
+
+- **Page header, everywhere.** One headline size (`.ph-h1`, the hero's voice a step down; `.ph-h1-sm` for a product's long name),
+  one line under it (`.ph-lede`), one line of facts (`.ph-meta`). Used by about, the legal pages, guides and their index, sets,
+  releases, stores, tools, deals and the sale pages, the Pokémon hubs, the weekly chart, the 404 and the error page.
+- **Sections** use the home shelf's heading (`.sec-h2`, `.sub-h2`) in place of six hand-written heading sizes.
+- **Calm palette on inner pages.** The purple pre-order fills, the green stock-count bars and numbers on the store list, the
+  red pack badges in guides and the green tint behind the product's value line are neutral now; green stays for money, the brand
+  colour for the thing to press. Links drawn as tiles (`.tile`) lift slightly on hover (transform only, 200 ms, off under reduced
+  motion); asides are a neutral hairline box (`.note`); small labels are the neutral `.tag`.
+- **Reading pages.** `.prose-dex` has a 68-character measure, 16/17px text, a clear h2/h3 step, quiet list markers, and tables that
+  scroll inside their own box. The product page's "About" uses it, and its questions fold into the same `details` rows as the hubs'
+  (the answers stay in the server HTML).
+- **Guide cards** take the product card's shape (picture on its plate, words on the page's ground); the 404 offers its ways on as
+  chips and a wider search.
+
+**Not changed, on purpose.** No paid link, ad block, pinned eBay / TCGplayer / Amazon row, affiliate tag or placement name was
+added, removed, moved, reordered or reworded, and the quick view (A/B test from 20 November) was not touched. No URL, title,
+description, canonical, robots, Open Graph, JSON-LD, h1 or h2 changed: 17 pages' server HTML were compared against `main` (title,
+meta, canonical and hreflang, JSON-LD, h1/h2, the set of internal links, every `rel="sponsored"` link with its words, every
+word of text) and are identical. So the 19 November recheck of clicks per placement is unaffected. No new colour, font, library
+or client script; no revalidate or data read changed. No deploy marker: it rides the next release.
