@@ -1021,3 +1021,7 @@ What this entry changes, the pages #216 left in their old look:
 No paid link, ad block, placement name, affiliate tag, row order, URL, redirect, title, meta description, canonical,
 robots, Open Graph or JSON-LD changed, and the quick view is untouched, so the 19 November clicks-per-placement recheck is
 unaffected. Premium and sign-in keep their look (Premium is a sales page; changing it is the owner's call).
+
+## 2026-11-14: the one ad block moves up under the shelf
+
+Owner: eBay clicks dropped right after the minimal redesign and he asked for eBay ads back on the home page. The home pages' one native ad block (eBay and TCGplayer, labelled Ad) had been pushed to the very bottom, under the sets, and the landing page had none; the landing page now draws it (in the visitor's region) under its products. It now sits directly under the product shelf. Still one block a page, still browser-only with its height reserved, no pop-up, no rail, quick view untouched, same placements and customid tags. Click numbers by placement were not readable from the build container; the 19 November recheck stands.
