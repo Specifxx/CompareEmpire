@@ -69,14 +69,14 @@ export default async function ThisWeekPage({ params }: { params: { region: strin
       <Breadcrumbs items={[{ href: `/${r.region}`, label: r.name }, { label: "This week" }]} />
       <header className="max-w-3xl">
         <div className="eyebrow">Weekly digest · {r.name}</div>
-        <h1 className="mt-2 font-display text-3xl font-bold tracking-tight sm:text-4xl">{digestCopy.h1(r)}</h1>
+        <h1 className="mt-2 ph-h1">{digestCopy.h1(r)}</h1>
         <p className="mt-2 flex items-center gap-1.5 text-sm font-medium text-muted">
           <Icon name="clock" size={16} />
           <span>
             Updated {checked ? <Ago iso={checked.toISOString()} initial={timeAgo(checked)} /> : "twice a day"}
           </span>
         </p>
-        <p className="mt-3 leading-7 text-muted">{digestCopy.intro(r)}</p>
+        <p className="ph-lede">{digestCopy.intro(r)}</p>
       </header>
       <nav aria-label="On this page" className="scroller -mx-4 mt-6 gap-2 px-4 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:[-webkit-mask-image:none] sm:[mask-image:none]">
         <a href="#releasing-soon" className="chip min-h-10">
@@ -180,7 +180,7 @@ function SetBlock({ r, s, today, count, picks }: { r: RegionInfo; s: PokemonSet;
           </span>
         )}
         <div>
-          <div className={`text-sm font-semibold ${future ? "text-pre" : "text-open"}`}>{when}</div>
+          <div className="eyebrow">{when}</div>
           <time dateTime={s.releaseDate} className="block font-display text-lg font-bold leading-tight">
             {formatRelease(s.releaseDate)}
           </time>
@@ -197,7 +197,7 @@ function SetBlock({ r, s, today, count, picks }: { r: RegionInfo; s: PokemonSet;
           {count && count.products > 0 ? (
             <>
               {plural(count.products, "product")} listed in {r.inName} ·{" "}
-              <span className={`font-semibold ${future ? "text-pre" : "text-open"}`}>
+              <span className="font-semibold text-ink">
                 {count.open} {future ? "open for pre-order today" : "in stock today"}
               </span>
             </>

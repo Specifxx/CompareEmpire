@@ -193,7 +193,7 @@ export function outline(r: RegionInfo, data: GuideData): GuideOutline {
                         <Link href={setHref(r, s)} prefetch={false} className="hover:text-brand hover:underline">
                           {s.name}
                         </Link>
-                        {pre && <span className="rounded-full bg-pre-soft px-1.5 text-[11px] font-semibold text-pre">Pre-order</span>}
+                        {pre && <span className="tag">Pre-order</span>}
                       </span>
                       <Link href={productHref(r, p)} prefetch={false} className="truncate text-xs font-medium text-brand underline-offset-2 hover:underline">
                         {p.name}

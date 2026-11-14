@@ -107,8 +107,8 @@ export default async function UpcHub({ params }: { params: { region: string } })
   return (
     <div className="page py-8">
       <Breadcrumbs items={[{ href: `/${r.region}`, label: r.name }, { label: "Ultra-Premium Collections" }]} />
-      <h1 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl">Pokémon Ultra-Premium Collection (UPC) prices in {r.inName}</h1>
-      <p className="mt-2 max-w-2xl text-muted">
+      <h1 className="ph-h1">Pokémon Ultra-Premium Collection (UPC) prices in {r.inName}</h1>
+      <p className="ph-lede">
         The top-end Pokémon collector boxes, every one compared across {r.adjective} stores{us ? " and TCGplayer" : ""}, cheapest first, in {r.currency} before shipping.
         {checked && (
           <>
@@ -173,7 +173,7 @@ export default async function UpcHub({ params }: { params: { region: string } })
       )}
 
       <section className="mt-14 max-w-3xl" aria-labelledby="buy-checks">
-        <h2 id="buy-checks" className="font-display text-2xl font-bold tracking-tight">
+        <h2 id="buy-checks" className="sec-h2">
           Before you buy a UPC
         </h2>
         <ul className="mt-3 list-disc space-y-2 pl-5 text-[15px] leading-7 text-muted">

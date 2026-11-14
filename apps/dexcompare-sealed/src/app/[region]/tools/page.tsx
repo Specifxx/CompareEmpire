@@ -33,20 +33,20 @@ export default function ToolsIndex({ params }: { params: { region: string } }) {
       <Breadcrumbs items={[{ href: `/${r.region}`, label: r.name }, { label: "Tools" }]} />
       <header className="max-w-3xl">
         <div className="eyebrow">Tools</div>
-        <h1 className="mt-2 font-display text-3xl font-bold tracking-tight sm:text-4xl">Pokémon TCG tools</h1>
-        <p className="mt-3 text-lg leading-8 text-muted">
+        <h1 className="mt-2 ph-h1">Pokémon TCG tools</h1>
+        <p className="ph-lede">
           Free calculators for buying, selling and trading Pokémon cards in {r.inName}. The value checker reads today’s prices at the stores we compare; the others work
           from the numbers you enter, in {r.currency}, and keep them in your own browser.
         </p>
       </header>
-      <ul role="list" className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <ul role="list" className="mt-8 grid gap-3 sm:mt-10 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
         {TOOLS.map((t) => (
           <li key={t.slug}>
-            <Link href={toolHref(r.region, t.slug)} prefetch={false} className="card group flex h-full flex-col p-5 transition-shadow hover:shadow-lift sm:p-6">
+            <Link href={toolHref(r.region, t.slug)} prefetch={false} className="tile group flex h-full flex-col p-5 sm:p-6">
               <span className="eyebrow">{t.kicker}</span>
               <h2 className="mt-2 font-display text-xl font-bold leading-snug tracking-tight group-hover:text-brand">{t.title}</h2>
               <p className="mt-2 flex-1 text-[15px] leading-6 text-muted">{t.description}</p>
-              <span className="mt-4 flex items-center gap-1 text-sm font-semibold text-brand">
+              <span className="gc-read mt-4 text-sm">
                 Open <Icon name="arrow-right" size={14} />
               </span>
             </Link>

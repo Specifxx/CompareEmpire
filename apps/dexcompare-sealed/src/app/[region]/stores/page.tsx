@@ -46,21 +46,21 @@ export default async function StoresPage({ params }: { params: { region: string 
   return (
     <div className="page py-8">
       <Breadcrumbs items={[{ href: `/${r.region}`, label: r.name }, { label: "Stores" }]} />
-      <h1 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">Where to buy Pokémon TCG sealed online in {r.inName}</h1>
-      <p className="mt-3 max-w-2xl leading-7 text-muted">
+      <h1 className="ph-h1">Where to buy Pokémon TCG sealed online in {r.inName}</h1>
+      <p className="ph-lede">
         {/* One text node: a sentence split around {values} moves its later pieces when the web font arrives (a layout shift). */}
         {`${plural(stores.length, "independent game and card store")} that sell Pokémon sealed product online in ${r.currency}, compared in one place. We read their public product listings about twice a day; every product page ranks them by price and stock, and no store pays to be listed or to rank higher.`}
       </p>
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,24rem)] lg:gap-10">
+      <div className="mt-10 grid gap-10 sm:mt-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,24rem)] lg:gap-14">
         <section aria-labelledby="most-in-stock">
-          <h2 id="most-in-stock" className="font-display text-2xl font-bold tracking-tight sm:text-[28px]">
+          <h2 id="most-in-stock" className="sec-h2">
             Most in stock today
           </h2>
           {lead ? (
             <>
               {/* Two lines reserved from lg, so the list under it stays put when the web font arrives. */}
-              <p className="mt-2 max-w-2xl leading-7 text-muted lg:min-h-14">
+              <p className="mt-3 max-w-2xl leading-7 text-muted lg:min-h-14">
                 <Link href={`/${r.region}/stores/${lead.key}`} prefetch={false} className="font-semibold text-ink hover:text-brand">
                   {lead.name}
                 </Link>{" "}
@@ -71,18 +71,18 @@ export default async function StoresPage({ params }: { params: { region: string 
                   The {top.length} {r.adjective} stores with the most in stock
                 </h3>
               )}
-              <ol className="card mt-3 divide-y divide-line overflow-hidden">
+              <ol className="mt-3 divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface/60">
                 {top.map((t, i) => (
                   <li key={t.key}>
-                    <Link href={`/${r.region}/stores/${t.key}`} prefetch={false} className="group grid grid-cols-[1.75rem_minmax(0,1fr)_auto] items-center gap-x-3 px-4 py-3 hover:bg-raised sm:px-5">
-                      <span className="tabular text-sm font-semibold text-muted">{i + 1}</span>
+                    <Link href={`/${r.region}/stores/${t.key}`} prefetch={false} className="group grid grid-cols-[1.75rem_minmax(0,1fr)_auto] items-center gap-x-3 px-4 py-3 transition-colors hover:bg-raised sm:px-5">
+                      <span className="tabular text-sm font-semibold text-faint">{i + 1}</span>
                       <span className="min-w-0">
                         <span className="block truncate font-semibold group-hover:text-brand">{t.name}</span>
-                        <span className="mt-1.5 block h-1.5 overflow-hidden rounded-full bg-raised ring-1 ring-line" aria-hidden="true">
-                          <span className="block h-full rounded-full bg-open" style={{ width: `${Math.max(4, Math.round((t.inStock / max) * 100))}%` }} />
+                        <span className="mt-2 block h-1 overflow-hidden rounded-full bg-line/70" aria-hidden="true">
+                          <span className="block h-full rounded-full bg-ink/70" style={{ width: `${Math.max(4, Math.round((t.inStock / max) * 100))}%` }} />
                         </span>
                       </span>
-                      <span className="tabular text-right text-sm font-semibold text-open">
+                      <span className="tabular text-right text-sm font-semibold text-ink">
                         {t.inStock.toLocaleString("en")}
                         <span className="block text-xs font-normal text-muted">in stock</span>
                       </span>
@@ -96,11 +96,11 @@ export default async function StoresPage({ params }: { params: { region: string 
           )}
         </section>
 
-        <section aria-labelledby="before-you-buy" className="lg:pt-1">
-          <h2 id="before-you-buy" className="font-display text-xl font-bold tracking-tight">
+        <section aria-labelledby="before-you-buy">
+          <h2 id="before-you-buy" className="sec-h2">
             Before you buy
           </h2>
-          <ul className="mt-4 space-y-3">
+          <ul className="mt-5 divide-y divide-line border-y border-line">
             <Note icon="truck" title="Prices exclude shipping">
               Every price is the store&rsquo;s own listed price in {r.currency}, before delivery. Shipping is added at the store&rsquo;s checkout and differs by
               store and order.
@@ -130,9 +130,9 @@ export default async function StoresPage({ params }: { params: { region: string 
         </section>
       </div>
 
-      <section aria-labelledby="all-stores" className="mt-14">
-        <div className="mb-4 flex flex-wrap items-end justify-between gap-x-4 gap-y-1">
-          <h2 id="all-stores" className="font-display text-2xl font-bold tracking-tight sm:text-[28px]">
+      <section aria-labelledby="all-stores" className="mt-16 sm:mt-20">
+        <div className="mb-6 flex flex-wrap items-end justify-between gap-x-4 gap-y-1">
+          <h2 id="all-stores" className="sec-h2">
             All {stores.length} stores, A–Z
           </h2>
           <p className="text-sm text-muted">
@@ -154,8 +154,8 @@ export default async function StoresPage({ params }: { params: { region: string 
 
 function Note({ icon, title, children }: { icon: IconName; title: string; children: React.ReactNode }) {
   return (
-    <li className="flex gap-3 rounded-xl border border-line bg-surface p-4">
-      <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-raised text-muted ring-1 ring-line">
+    <li className="flex gap-3.5 py-4">
+      <span className="tile-icon mt-0.5">
         <Icon name={icon} size={18} />
       </span>
       <span className="min-w-0">
@@ -170,8 +170,8 @@ type Row = { s: StoreConfig; inStock: number; listed: number; lastOkAt: Date | n
 
 function StoreTable({ r, rows }: { r: RegionInfo; rows: Row[] }) {
   return (
-    <div className="card overflow-hidden">
-      <div className="hidden grid-cols-[1fr_7rem_7rem_9rem] gap-4 border-b border-line bg-raised px-5 py-2.5 text-xs font-semibold uppercase tracking-wide text-muted sm:grid">
+    <div className="overflow-hidden rounded-2xl border border-line bg-surface/60">
+      <div className="hidden grid-cols-[1fr_7rem_7rem_9rem] gap-4 border-b border-line px-5 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-faint sm:grid">
         <span>Store</span>
         <span className="text-right">In stock</span>
         <span className="text-right">Listed</span>
@@ -180,15 +180,15 @@ function StoreTable({ r, rows }: { r: RegionInfo; rows: Row[] }) {
       <ul className="divide-y divide-line">
         {rows.map(({ s, inStock, listed, lastOkAt }) => (
           <li key={s.key}>
-            <Link href={`/${r.region}/stores/${s.key}`} prefetch={false} className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 gap-y-1 px-4 py-3.5 hover:bg-raised sm:grid-cols-[1fr_7rem_7rem_9rem] sm:items-center sm:px-5">
+            <Link href={`/${r.region}/stores/${s.key}`} prefetch={false} className="group grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 gap-y-1 px-4 py-3.5 transition-colors hover:bg-raised sm:grid-cols-[1fr_7rem_7rem_9rem] sm:items-center sm:px-5">
               <span className="min-w-0">
-                <span className="block truncate font-semibold">{s.name}</span>
+                <span className="block truncate font-semibold group-hover:text-brand">{s.name}</span>
                 <span className="block truncate text-xs text-muted">
                   {storeHost(s)}
                   <span className="sm:hidden"> · read {lastOkAt ? <Ago iso={lastOkAt.toISOString()} initial={timeAgo(lastOkAt)} /> : "not yet"}</span>
                 </span>
               </span>
-              <span className={`tabular text-right font-semibold ${inStock ? "text-open" : "text-muted"}`}>
+              <span className={`tabular text-right font-semibold ${inStock ? "text-ink" : "text-faint"}`}>
                 {inStock}
                 <span className="font-normal text-muted sm:hidden"> in stock</span>
               </span>

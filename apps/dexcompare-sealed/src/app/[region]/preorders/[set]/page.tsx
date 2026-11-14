@@ -167,14 +167,14 @@ export default async function PreorderPage({ params }: Params) {
     <div className="page py-8">
       <Breadcrumbs items={[{ href: `/${r.region}`, label: r.name }, { href: `/${r.region}/releases`, label: "Releases" }, { label: `${set.name} pre-orders` }]} />
 
-      <span className="inline-flex rounded-full bg-pre-soft px-3 py-1 text-xs font-bold uppercase tracking-wide text-pre">
+      <span className="eyebrow inline-flex items-center gap-1.5">
         {pre ? `Pre-order · releases ${formatRelease(set.releaseDate)}` : `Released ${formatRelease(set.releaseDate)}`}
       </span>
-      <h1 className="mt-3 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
+      <h1 className="mt-3 ph-h1">
         Pokémon {set.name} pre-order prices in {r.name}
       </h1>
       {pre ? (
-        <p className="mt-2 max-w-2xl text-muted">
+        <p className="ph-lede">
           {guide.fullName} is out {relativeDay(set.releaseDate, today)}, so every store is picking its own opening price — and they pick very different
           ones. Below is every {set.name} product {r.adjective} stores we track are taking pre-orders on, each with its stores cheapest first, in{" "}
           {r.currency}.
@@ -186,7 +186,7 @@ export default async function PreorderPage({ params }: Params) {
           )}
         </p>
       ) : (
-        <p className="mt-2 max-w-2xl text-muted">
+        <p className="ph-lede">
           {set.name} has released, so its products are priced alongside every other set:{" "}
           <Link href={`/${r.region}/sets/${set.slug}`} prefetch={false} className="font-semibold text-brand hover:underline">
             see live {set.name} prices in {r.name}
@@ -242,7 +242,7 @@ export default async function PreorderPage({ params }: Params) {
               <div key={p.type} className="card p-4">
                 <dt className="font-semibold">{t?.label ?? p.type}</dt>
                 {msrp != null && (
-                  <dd className="mt-0.5 text-xs font-semibold text-pre">
+                  <dd className="mt-0.5 text-xs font-semibold text-muted">
                     US MSRP {money(msrp, "US")}
                     {perPack != null && <span className="font-normal text-muted"> · {money(perPack, "US")} a pack</span>}
                   </dd>
@@ -354,7 +354,7 @@ export default async function PreorderPage({ params }: Params) {
       </div>
 
       <section className="mt-14 max-w-3xl" aria-labelledby="faq">
-        <h2 id="faq" className="font-display text-2xl font-bold tracking-tight sm:text-[28px]">
+        <h2 id="faq" className="sec-h2 sm:text-[28px]">
           Frequently asked questions
         </h2>
         <div className="mt-5 grid gap-3">

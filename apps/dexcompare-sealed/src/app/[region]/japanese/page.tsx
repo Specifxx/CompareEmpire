@@ -75,8 +75,8 @@ export default async function JapanesePage({ params }: { params: { region: strin
   return (
     <div className="page py-8">
       <Breadcrumbs items={[{ href: `/${r.region}`, label: r.name }, { label: "Japanese" }]} />
-      <h1 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">Japanese Pokémon booster boxes in {r.inName}</h1>
-      <p className="mt-3 max-w-3xl leading-7 text-muted">
+      <h1 className="ph-h1">Japanese Pokémon booster boxes in {r.inName}</h1>
+      <p className="ph-lede">
         Japanese booster boxes and packs, compared across the {r.adjective} stores that sell them{us ? " and on TCGplayer" : ""}, in {r.currency}. Every
         price is the store&rsquo;s own, for the Japanese edition only: an English box never shares a price with a Japanese one. Japanese boxes hold
         fewer, smaller packs than English ones, and the count differs by set, so this page shows no price per pack.
@@ -152,7 +152,7 @@ export default async function JapanesePage({ params }: { params: { region: strin
                     {set.era} · {displayCode(set)}
                     {set.releaseDate && <> · released in Japan {shortDate(set.releaseDate)}</>}
                   </div>
-                  <h2 id={`h-${set.code}`} className="font-display text-2xl font-bold tracking-tight">
+                  <h2 id={`h-${set.code}`} className="sec-h2">
                     {set.name}
                   </h2>
                 </div>

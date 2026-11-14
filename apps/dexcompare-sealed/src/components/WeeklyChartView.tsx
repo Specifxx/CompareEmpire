@@ -47,10 +47,10 @@ export function WeeklyChartView({ r, chart, cards, weeks }: { r: RegionInfo; cha
       <Breadcrumbs items={[{ href: `/${r.region}`, label: r.name }, { href: `/${r.region}/charts`, label: "Weekly chart" }, { label: formatRelease(chart.week) }]} />
       <header className="max-w-3xl">
         <div className="eyebrow">Weekly chart · {r.name}</div>
-        <h1 className="mt-2 font-display text-3xl font-bold tracking-tight sm:text-4xl">
+        <h1 className="mt-2 ph-h1">
           Magic sealed price chart: week to {formatRelease(chart.week)}
         </h1>
-        <p className="mt-3 leading-7 text-muted">
+        <p className="ph-lede">
           The sealed products whose cheapest in-stock price at {r.adjective} stores rose most from {formatRelease(chart.from)} to {formatRelease(chart.week)}, ranked, with
           each one&rsquo;s place on last week&rsquo;s chart, then the biggest falls. A product counts when two or more stores had it in stock on both days and its price moved{" "}
           {CHART_MIN_PCT}% or more; {chart.compared} products qualified. This is what the shelves did that week, not a forecast.

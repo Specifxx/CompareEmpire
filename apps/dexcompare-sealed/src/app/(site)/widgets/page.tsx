@@ -29,14 +29,14 @@ export default async function EmbedPage() {
     <div className="mx-auto flex max-w-3xl flex-col gap-8 px-4 py-8">
       <Breadcrumbs items={[{ href: "/", label: SITE_NAME }, { label: "Free widgets" }]} />
       <header className="flex flex-col gap-2">
-        <h1 className="text-3xl font-extrabold">Free Pokémon sealed price widgets</h1>
-        <p className="text-muted">
+        <h1 className="ph-h1">Free Pokémon sealed price widgets</h1>
+        <p className="ph-lede !mt-1">
           Put a live booster box or Elite Trainer Box price on any page with one line of HTML. It shows the cheapest in-stock store price in your readers&apos; region and
           updates itself every day. Free, no signup, no tracking. The widget is noindex, so it never competes with your own pages in search.
         </p>
       </header>
-      <section className="card flex flex-col gap-3 p-4">
-        <h2 className="text-lg font-bold">Sealed price badge</h2>
+      <section className="note flex flex-col gap-3 p-5">
+        <h2 className="font-display text-lg font-bold">Sealed price badge</h2>
         <p className="text-sm text-muted">
           For set reviews, &ldquo;should I buy&rdquo; posts and newsletters. <Link className="underline" href={`/widgets/p/${slug}?region=us`}>See it running →</Link>
         </p>
@@ -47,14 +47,14 @@ export default async function EmbedPage() {
           <li>The plain link under the widget is optional; it is the part that tells search engines where the price comes from.</li>
         </ul>
       </section>
-      <section className="card flex flex-col gap-3 p-4">
-        <h2 className="text-lg font-bold">For stores we compare</h2>
+      <section className="note flex flex-col gap-3 p-5">
+        <h2 className="font-display text-lg font-bold">For stores we compare</h2>
         <p className="text-sm text-muted">A plain-HTML badge telling customers your prices are compared openly. No script, no image, nothing to host.</p>
         <div dangerouslySetInnerHTML={{ __html: badge }} />
         <pre className="overflow-x-auto rounded bg-black/5 p-3 text-xs"><code>{badge}</code></pre>
       </section>
       <section className="card flex flex-col gap-3 p-4" id="price-data">
-        <h2 className="text-lg font-bold">Free price data</h2>
+        <h2 className="font-display text-lg font-bold">Free price data</h2>
         <p className="text-sm text-muted">
           Building a Discord bot, a collection tool, a spreadsheet or a blog? Every product&apos;s cheapest in-stock store price in each region is in one
           JSON file: <a className="underline" href={PRICE_API_PATH}>{SITE_URL}{PRICE_API_PATH}</a>. Free, no key, no signup, open to every origin, and

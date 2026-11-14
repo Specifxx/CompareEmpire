@@ -34,7 +34,7 @@ export default async function ChartsPage({ params }: { params: { region: string 
     return (
       <div className="page py-8">
         <Breadcrumbs items={[{ href: `/${r.region}`, label: r.name }, { label: "Weekly chart" }]} />
-        <h1 className="mt-2 font-display text-3xl font-bold tracking-tight">Magic sealed weekly price chart</h1>
+        <h1 className="ph-h1 mt-2">Magic sealed weekly price chart</h1>
         <div className="mt-8">
           <Empty actions={[{ href: `/${r.region}/price-moves`, label: "Price moves today" }]}>No week has enough real price moves in {r.inName} to chart yet.</Empty>
         </div>

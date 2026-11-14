@@ -17,11 +17,11 @@ export default function OurSites() {
   return (
     <div className="page max-w-3xl py-12">
       <Breadcrumbs items={[{ href: "/", label: SITE_NAME }, { label: "Our other sites" }]} />
-      <h1 className="mt-6 text-3xl font-bold text-ink">Our other sites</h1>
-      <p className="mt-3 text-muted">
+      <h1 className="ph-h1">Our other sites</h1>
+      <p className="ph-lede">
         {SITE_NAME} is one of the Compare Empire sites: independent price comparison, the same rules on every site, no paid ranking.
       </p>
-      <ul className="mt-8 divide-y divide-line rounded-xl border border-line">
+      <ul className="mt-8 divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface/60">
         {sites.map((s) => (
           <li key={s.id} className="flex flex-wrap items-baseline justify-between gap-2 px-4 py-3">
             <a href={s.url} rel="noopener" className="font-semibold text-ink hover:underline">

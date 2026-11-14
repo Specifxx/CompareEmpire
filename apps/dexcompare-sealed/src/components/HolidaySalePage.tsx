@@ -104,15 +104,15 @@ export async function HolidaySalePage({ event, params }: { event: SaleEvent } & 
         <div className="eyebrow flex items-center gap-1.5 text-brand-strong">
           <Icon name="tag" size={14} /> {name} {year} · {r.name}
         </div>
-        <h1 className="mt-2 font-display text-3xl font-bold tracking-tight sm:text-4xl">{copy.h1(r)}</h1>
-        <p className="mt-3 leading-7 text-muted">
+        <h1 className="mt-2 ph-h1">{copy.h1(r)}</h1>
+        <p className="ph-lede">
           {when} Stores set their own prices, so this page doesn’t guess at sales: it ranks the Pokémon sealed products whose cheapest in-stock price sits furthest under the median of the{" "}
           {r.adjective} stores that have them, from the prices we checked{" "}
           {checked ? <Ago iso={checked.toISOString()} initial={timeAgo(checked)} /> : "twice a day"}. Every listing is read about twice a day through the season. Under the deals, the{" "}
           <a href="#price-watch" className="font-semibold text-brand hover:underline">price watch</a>: the dearest sealed in stock, the week&rsquo;s moves, older sets still in stock and graded chase cards, each with eBay listings.
         </p>
         {deals.length > 0 && (
-          <p className="mt-3 inline-flex items-center gap-2 rounded-full bg-open-soft px-3 py-1 text-sm font-semibold text-open">
+          <p className="ph-meta font-semibold text-open">
             <span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
             {plural(deals.length, "product")} under the median today{best != null ? `, up to ${best}% under` : ""}
           </p>
@@ -179,7 +179,7 @@ export async function HolidaySalePage({ event, params }: { event: SaleEvent } & 
       {/* THE PRICE WATCH (lib/price-watch.ts, DECISIONS.md 2026-11-06): the high-value end of the market, an eBay search beside every row. */}
       <div id="price-watch" className="mt-14 max-w-3xl">
         <div className="eyebrow">Price watch · {r.name}</div>
-        <h2 className="mt-1 font-display text-2xl font-bold tracking-tight sm:text-[28px]">Sealed, older sets and graded cards to watch</h2>
+        <h2 className="mt-1 sec-h2 sm:text-[28px]">Sealed, older sets and graded cards to watch</h2>
         <p className="mt-2 text-sm leading-6 text-muted">
           The high-value end of the {r.adjective} market from today&rsquo;s prices, each row with a tagged eBay search beside the store price. eBay sellers set their own
           prices and are never counted as a store or ranked into a comparison; the strips show live listings.
@@ -273,7 +273,7 @@ export async function HolidaySalePage({ event, params }: { event: SaleEvent } & 
       <FamilyCluster kind="deal" region={r.region} />
 
       <section aria-labelledby="season-more" className="mt-14 max-w-3xl">
-        <h2 id="season-more" className="font-display text-2xl font-bold tracking-tight">
+        <h2 id="season-more" className="sec-h2">
           More ways to save this season
         </h2>
         <ul className="mt-4 grid gap-2 text-[15px] leading-6 text-muted">

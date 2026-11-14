@@ -367,7 +367,7 @@ export default async function ProductPage({ params }: { params: { region: string
   });
   const riftHref = riftHistoryHref({ imageUrl: p.imageUrl, setReleaseDate: set?.releaseDate, productType: p.productType, name: p.name });
   const typeLink = type ? { href: `/${r.region}/type/${type.slug}`, label: `See ${type.plural} in stock in ${r.inName}` } : { href: `/${r.region}/sealed`, label: `See sealed products in stock in ${r.inName}` };
-  const chip = "rounded-full bg-raised px-2.5 py-1 text-xs font-semibold leading-4 text-muted";
+  const chip = "rounded-full bg-raised px-2.5 py-1 text-xs font-semibold leading-4 text-muted ring-1 ring-inset ring-line";
   const img = p.imageUrl ? { big: thumb(p.imageUrl, 900)!, small: thumb(p.imageUrl, 240)! } : null;
   // "About" (SEO release, 2026-10-21): the page's own words under the facts, and where to go next: the set, its neighbours, the type,
   // the guides about this type, and the tools. All internal links, all pure (no read).
@@ -432,13 +432,13 @@ export default async function ProductPage({ params }: { params: { region: string
   // "Quick facts": the value check, then short facts side by side, then the cheapest offer, the stock, and the other regions as links.
   // In stock it comes before the strip (between the panel and it); sold out, after it (the order the brief sets: strip, other regions).
   const factsCard = (
-    <section id="facts" aria-labelledby="facts-h" className="mt-14">
-      <div className="card overflow-hidden">
-        <h2 id="facts-h" className="eyebrow border-b border-line bg-raised px-5 py-2.5 sm:px-6">
+    <section id="facts" aria-labelledby="facts-h" className="mt-14 sm:mt-16">
+      <div className="note overflow-hidden">
+        <h2 id="facts-h" className="eyebrow border-b border-line px-5 py-3 sm:px-6">
           Quick facts
         </h2>
         {value && (
-          <p className="flex gap-2.5 border-b border-line bg-open-soft/50 px-5 py-3.5 text-sm leading-6 sm:px-6">
+          <p className="flex gap-2.5 border-b border-line px-5 py-3.5 text-sm leading-6 sm:px-6">
             <Icon name="tag" size={16} className="mt-1 shrink-0 text-open" />
             <span>
               <b className="font-semibold text-open">Value check: </b>
@@ -506,21 +506,21 @@ export default async function ProductPage({ params }: { params: { region: string
 
       <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-8">
         {/* The big photo: desktops only (a phone gets the thumbnail beside the name, so the price is in the first screen). */}
-        <div className="card relative hidden aspect-square items-center justify-center overflow-hidden bg-raised lg:sticky lg:top-[calc(var(--hdr)+1.5rem)] lg:flex">
+        <div className="plate relative hidden aspect-square items-center justify-center !rounded-2xl lg:sticky lg:top-[calc(var(--hdr)+1.5rem)] lg:flex">
           {img ? (
             <picture>
               <source media="(max-width: 1023.98px)" srcSet={NOTHING} />
-              <img src={img.big} alt={p.name} width={900} height={900} fetchPriority="high" decoding="async" className="absolute inset-0 h-full w-full object-contain p-8" />
+              <img src={img.big} alt={p.name} width={900} height={900} fetchPriority="high" decoding="async" className="absolute inset-0 h-full w-full object-contain p-8 mix-blend-multiply" />
             </picture>
           ) : (
-            <span className="font-display text-2xl font-bold text-faint">{p.productType}</span>
+            <span className="font-display text-2xl font-bold text-[#5c606c]">{p.productType}</span>
           )}
         </div>
 
         <div className="min-w-0">
           <div className="flex items-start gap-4">
             {img && (
-              <div className="plate flex h-24 w-24 shrink-0 items-center justify-center p-1.5 lg:hidden">
+              <div className="plate flex h-24 w-24 shrink-0 items-center justify-center !rounded-2xl p-1.5 lg:hidden">
                 <picture>
                   <source media="(min-width: 1024px)" srcSet={NOTHING} />
                   <img src={img.small} alt={p.name} width={96} height={96} fetchPriority="high" decoding="async" className="h-[84px] w-[84px] object-contain" />
@@ -540,7 +540,7 @@ export default async function ProductPage({ params }: { params: { region: string
                     {set.name}
                   </Link>
                 )}
-                {set && <span className={pre ? "rounded-full bg-pre-soft px-2.5 py-1 text-xs font-semibold leading-4 text-pre" : chip}>{releaseChip(set.releaseDate, pre)}</span>}
+                {set && <span className={chip}>{releaseChip(set.releaseDate, pre)}</span>}
                 {jaSet && jaHref && (
                   <Link href={jaHref} prefetch={false} className={`${chip} relative hover:text-ink after:absolute after:-inset-x-0.5 after:-inset-y-2 after:content-['']`}>
                     <span className="hidden sm:inline">Japanese · </span>
@@ -551,7 +551,7 @@ export default async function ProductPage({ params }: { params: { region: string
               </div>
               <div className="mt-2">
                 <ShareButton title={heading} path={`/${r.region}/p/${p.slug}`} kind="product" text={shareText(heading, priceGap(open.filter((o) => !o.marketplace).map((o) => ({ priceCents: o.priceCents, storeName: o.storeName }))), (c) => money(c, r.market))} className="float-right -mt-1 ml-2" />
-                <h1 className="font-display text-2xl font-bold leading-tight sm:text-3xl">{heading}</h1>
+                <h1 className="ph-h1-sm">{heading}</h1>
               </div>
               {/* My collection (lib/vault.ts): valued in this region from /prices.json, kept in the browser only. */}
               <VaultAddButton id={p.id} name={heading} href={`/${r.region}/p/${p.slug}`} image={img?.small ?? null} market={r.market} currency={r.currency} addedCents={here?.lowestPriceCents ?? 0} className="mt-3" />
@@ -668,7 +668,7 @@ export default async function ProductPage({ params }: { params: { region: string
             notes={notes}
           />
         ) : (
-          <div className="card px-6 py-8 text-muted">
+          <div className="note px-6 py-10 text-muted">
             None of the {r.adjective} stores we track list {p.name} right now.
           </div>
         )}
@@ -733,11 +733,11 @@ export default async function ProductPage({ params }: { params: { region: string
         </Section>
       )}
 
-      <section aria-labelledby="about-h" className="mt-14 max-w-3xl">
-        <h2 id="about-h" className="font-display text-2xl font-bold tracking-tight">
+      <section aria-labelledby="about-h" className="mt-16 max-w-3xl sm:mt-20">
+        <h2 id="about-h" className="sec-h2">
           About {heading}
         </h2>
-        <div className="mt-4 space-y-3 leading-7 text-muted">
+        <div className="prose-dex mt-4">
           {intro.map((t) => (
             <p key={t}>{t}</p>
           ))}
@@ -757,18 +757,18 @@ export default async function ProductPage({ params }: { params: { region: string
       </section>
 
       {faq.length > 0 && (
-        <section aria-labelledby="faq-h" className="mt-14 max-w-3xl">
-          <h2 id="faq-h" className="font-display text-2xl font-bold tracking-tight">
+        <section aria-labelledby="faq-h" className="mt-16 max-w-3xl sm:mt-20">
+          <h2 id="faq-h" className="sec-h2">
             Questions about {heading}
           </h2>
-          <dl className="mt-4 space-y-5">
+          <div className="mt-4 border-t border-line">
             {faq.map((f) => (
-              <div key={f.q}>
-                <dt className="font-semibold">{f.q}</dt>
-                <dd className="mt-1 leading-7 text-muted">{f.a}</dd>
-              </div>
+              <details key={f.q} className="faq">
+                <summary>{f.q}</summary>
+                <p>{f.a}</p>
+              </details>
             ))}
-          </dl>
+          </div>
         </section>
       )}
 

@@ -38,19 +38,19 @@ export default async function SetsPage({ params }: { params: { region: string } 
   return (
     <div className="page py-8">
       <Breadcrumbs items={[{ href: `/${r.region}`, label: r.name }, { label: "Sets" }]} />
-      <h1 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">Pokémon TCG sets in order</h1>
-      <p className="mt-3 max-w-2xl leading-7 text-muted">
+      <h1 className="ph-h1">Pokémon TCG sets in order</h1>
+      <p className="ph-lede">
         Every English-language set from XY ({firstSetYear()}) on, newest first, with its English release date and how much of its sealed product{" "}
         {r.adjective} stores have in stock today. A set links to its price comparison once a store we track lists it.
       </p>
       {next && (
         <p className="mt-4">
-          <Link href={`/${r.region}/releases`} prefetch={false} className="inline-flex min-h-10 items-center gap-2 rounded-2xl bg-pre-soft px-4 py-2 text-sm font-semibold text-pre hover:underline">
-            <Icon name="calendar" size={16} />
+          <Link href={`/${r.region}/releases`} prefetch={false} className="chip min-h-10">
+            <Icon name="calendar" size={16} className="text-muted" />
             <span>
               Next set: {next.name} · {shortDate(next.releaseDate)}
             </span>
-            <Icon name="arrow-right" size={16} />
+            <Icon name="arrow-right" size={16} className="text-muted" />
           </Link>
         </p>
       )}
@@ -73,16 +73,16 @@ export default async function SetsPage({ params }: { params: { region: string } 
         const from = g.sets[g.sets.length - 1].releaseDate.slice(0, 4);
         const to = g.sets[0].releaseDate.slice(0, 4);
         return (
-          <section key={g.series} id={slugify(g.series)} aria-labelledby={`h-${slugify(g.series)}`} className="mt-12">
+          <section key={g.series} id={slugify(g.series)} aria-labelledby={`h-${slugify(g.series)}`} className="mt-12 sm:mt-14">
             <div className="mb-4 flex flex-wrap items-end justify-between gap-x-4 gap-y-1">
-              <h2 id={`h-${slugify(g.series)}`} className="font-display text-2xl font-bold tracking-tight">
+              <h2 id={`h-${slugify(g.series)}`} className="sub-h2">
                 {g.series}
               </h2>
               <p className="text-sm text-muted">
                 {plural(g.sets.length, "set")}, {from === to ? from : `${from}–${to}`} · {listed} listed in {r.inName}
               </p>
             </div>
-            <ol className="card divide-y divide-line overflow-hidden">
+            <ol className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface/60">
               {g.sets.map((s) => (
                 <SetRow key={s.code} r={r} s={s} c={counts.get(s.code)} />
               ))}
@@ -121,14 +121,14 @@ function SetRow({ r, s, c }: { r: RegionInfo; s: PokemonSet; c: SetCount | undef
         <span className={`block font-semibold ${c ? "group-hover:text-brand" : ""}`}>{s.name}</span>
         <span className="block text-xs text-muted">
           <time dateTime={s.releaseDate}>{pre ? `Out ${shortDate(s.releaseDate)}` : `Released ${shortDate(s.releaseDate)}`}</time>
-          {pre && <span className="ml-1.5 inline-block whitespace-nowrap rounded-full bg-pre-soft px-1.5 py-px font-semibold text-pre">Pre-order</span>}
+          {pre && <span className="tag ml-1.5">Pre-order</span>}
         </span>
       </span>
       <span className="shrink-0 text-right text-xs sm:text-sm">
         {c ? (
           <>
             <span className="block text-muted">{plural(c.products, "product")}</span>
-            <span className={`block font-semibold ${c.inStock ? (pre ? "text-pre" : "text-open") : "text-muted"}`}>
+            <span className={`block font-semibold ${c.inStock ? "text-ink" : "text-muted"}`}>
               {c.inStock} {pre ? "on pre-order" : "in stock"}
             </span>
           </>
@@ -141,7 +141,7 @@ function SetRow({ r, s, c }: { r: RegionInfo; s: PokemonSet; c: SetCount | undef
   return (
     <li>
       {c ? (
-        <Link href={`/${r.region}/sets/${s.slug}`} prefetch={false} className="group flex min-h-16 items-center gap-3 px-4 py-2.5 hover:bg-raised sm:gap-4 sm:px-5">
+        <Link href={`/${r.region}/sets/${s.slug}`} prefetch={false} className="group flex min-h-16 items-center gap-3 px-4 py-2.5 transition-colors hover:bg-raised sm:gap-4 sm:px-5">
           {body}
         </Link>
       ) : (

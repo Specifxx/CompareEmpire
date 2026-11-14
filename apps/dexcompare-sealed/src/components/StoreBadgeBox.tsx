@@ -1,7 +1,7 @@
 // "Add this badge to <store>'s site" (competitor scan, 2026-11-08): on a store's own page, the plain-HTML badge
 // (lib/embed.ts storeBadge) pointing at that page. Plain HTML, not an iframe, so the link sits on the store's site.
 // Shown, never sent: nobody is emailed about it.
-export function StoreBadgeBox({ html, storeName, className = "card mt-8 p-5" }: { html: string; storeName: string; className?: string }) {
+export function StoreBadgeBox({ html, storeName, className = "note mt-10 p-5" }: { html: string; storeName: string; className?: string }) {
   return (
     <section aria-labelledby="store-badge-h" className={className}>
       <h2 id="store-badge-h" className="text-base font-bold">Add this badge to {storeName}&apos;s site</h2>

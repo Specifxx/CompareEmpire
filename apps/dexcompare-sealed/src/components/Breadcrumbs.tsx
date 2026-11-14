@@ -22,7 +22,7 @@ export function parentCrumb(items: Crumb[]): (Crumb & { href: string }) | null {
 export function Breadcrumbs({ items }: { items: Crumb[] }) {
   const parent = parentCrumb(items);
   return (
-    <nav aria-label="Breadcrumb" className="mb-2 text-sm text-muted sm:mb-5">
+    <nav aria-label="Breadcrumb" className="mb-2 text-sm text-muted sm:mb-6 sm:text-[13px]">
       {parent && (
         <Link href={parent.href} prefetch={false} className="-ml-1 inline-flex min-h-10 max-w-full items-center gap-1.5 rounded-lg px-1 font-medium hover:text-ink sm:hidden">
           <span aria-hidden="true">←</span>

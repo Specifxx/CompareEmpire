@@ -68,8 +68,8 @@ export default async function GuidePage({ params }: { params: { region: string; 
         <article className="min-w-0 max-w-[68ch]">
           <header>
             <div className="eyebrow">{g.kicker}</div>
-            <h1 className="mt-2 font-display text-3xl font-bold tracking-tight sm:text-4xl">{g.title}</h1>
-            <p className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted">
+            <h1 className="mt-2 ph-h1">{g.title}</h1>
+            <p className="ph-meta sm:mt-4">
               <span className="font-medium text-ink">By DexCompare</span>
               <span aria-hidden="true">·</span>
               <span>
@@ -95,15 +95,15 @@ export default async function GuidePage({ params }: { params: { region: string; 
         </aside>
       </div>
 
-      <section aria-labelledby="related" className="mt-16 border-t border-line pt-10">
-        <h2 id="related" className="font-display text-2xl font-bold tracking-tight">
+      <section aria-labelledby="related" className="mt-16 border-t border-line pt-10 sm:mt-24 sm:pt-14">
+        <h2 id="related" className="sec-h2">
           Related
         </h2>
         <ul role="list" className="mt-5 grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4">
           {related.map((l) => (
             <li key={l.href}>
-              <Link href={l.href} prefetch={false} className="card group flex h-full flex-col items-start gap-2 p-3.5 transition-shadow hover:shadow-lift sm:flex-row sm:gap-3 sm:p-4">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-soft text-brand-strong">
+              <Link href={l.href} prefetch={false} className="tile group flex h-full flex-col items-start gap-2 p-3.5 sm:flex-row sm:gap-3 sm:p-4">
+                <span className="tile-icon">
                   <Icon name={l.icon} size={18} />
                 </span>
                 <span className="min-w-0">
@@ -141,8 +141,8 @@ export default async function GuidePage({ params }: { params: { region: string; 
         )}
         {more.length > 0 && (
           <>
-            <h2 className="mt-12 font-display text-xl font-bold tracking-tight">More guides</h2>
-            <ul role="list" className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <h2 className="mt-12 sub-h2">More guides</h2>
+            <ul role="list" className="mt-6 grid gap-x-5 gap-y-9 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-12 lg:grid-cols-3">
               {more.map((x) => (
                 <li key={x.slug}>
                   <GuideCard r={r} guide={x} headingLevel={3} />

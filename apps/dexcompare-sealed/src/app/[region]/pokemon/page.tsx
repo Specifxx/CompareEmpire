@@ -35,11 +35,11 @@ export default async function PokemonIndex({ params }: { params: { region: strin
   return (
     <div className="page py-8">
       <Breadcrumbs items={[{ href: `/${r.region}`, label: r.name }, { label: "By Pokémon" }]} />
-      <h1 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">Shop by Pokémon in {r.inName}</h1>
-      <p className="mt-3 max-w-3xl leading-7 text-muted">Collections, tins and premium boxes named for one Pokémon, each with every {r.adjective} store&apos;s price.</p>
+      <h1 className="ph-h1">Shop by Pokémon in {r.inName}</h1>
+      <p className="ph-lede">Collections, tins and premium boxes named for one Pokémon, each with every {r.adjective} store&apos;s price.</p>
       {/* Today's counts in words (2026-11-14: the page had one sentence). Only what the list below already shows. */}
       {list.length >= 3 && (
-        <p className="mt-3 max-w-3xl leading-7 text-muted">
+        <p className="mt-3 max-w-2xl leading-7 text-muted">
           {list.length} Pokémon have a sealed product named after them at the stores we compare in {r.inName} today. The most:{" "}
           {list
             .slice(0, 3)
@@ -48,12 +48,12 @@ export default async function PokemonIndex({ params }: { params: { region: strin
           . The number beside each name is how many of its products a store has in stock, or two or more stores list.
         </p>
       )}
-      <ul className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+      <ul className="mt-8 grid grid-cols-2 gap-2.5 sm:mt-10 sm:grid-cols-3 sm:gap-3 lg:grid-cols-4">
         {list.map((p) => (
           <li key={p.slug}>
-            <Link href={pokemonPath(r.region, p.slug)} prefetch={false} className="card flex min-h-12 items-center justify-between gap-2 px-4 py-3 font-semibold hover:text-brand">
+            <Link href={pokemonPath(r.region, p.slug)} prefetch={false} className="tile flex min-h-12 items-center justify-between gap-2 px-4 py-3 font-semibold">
               {p.name}
-              <span className="text-sm font-normal text-muted">{counts.get(p.slug)}</span>
+              <span className="tabular text-sm font-normal text-faint">{counts.get(p.slug)}</span>
             </Link>
           </li>
         ))}

@@ -63,7 +63,7 @@ function TypeCard({ r, t, row, listed }: { r: RegionInfo; t: ProductTypeInfo; ro
   return (
     <div className="card overflow-hidden" data-type={t.key}>
       <div className="flex gap-4 p-4 sm:gap-5 sm:p-5">
-        <div className="flex w-16 shrink-0 flex-col items-center justify-center self-start rounded-lg bg-brand-soft px-1 py-2 text-brand-strong sm:w-20">
+        <div className="flex w-16 shrink-0 flex-col items-center justify-center self-start rounded-xl bg-raised px-1 py-2 text-ink ring-1 ring-inset ring-line sm:w-20">
           <span className={`tabular font-display font-extrabold leading-none ${varies ? "text-sm" : "text-2xl sm:text-3xl"}`}>{figure}</span>
           <span className="mt-1 text-[11px] font-semibold uppercase tracking-wide">{varies ? "packs" : figure === "1" ? "pack" : "packs"}</span>
         </div>

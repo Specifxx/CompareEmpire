@@ -18,7 +18,7 @@ export function HubFaqSection({ faq, id = "hub-faq" }: { faq: readonly HubFaq[];
   if (faq.length < 2) return null;
   return (
     <section className="mt-16 max-w-3xl sm:mt-20" aria-labelledby={id}>
-      <h2 id={id} className="font-display text-2xl font-bold tracking-tight">
+      <h2 id={id} className="sec-h2">
         Questions about these prices
       </h2>
       {/* Lines, not boxes (the minimal look, 2026-11-13): each question a row that opens (globals.css .faq). */}

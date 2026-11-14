@@ -23,7 +23,7 @@ export function StockRow({ p, r, extra }: { p: ProductCardData; r: RegionInfo; e
     <Link
       href={`/${r.region}/p/${p.slug}`}
       prefetch={false}
-      className="group flex items-center gap-3 rounded-xl border border-line bg-surface p-2.5 pr-3 shadow-card transition-shadow hover:shadow-lift"
+      className="group flex items-center gap-3 tile p-2.5 pr-3"
     >
       <span className="plate flex h-16 w-16 shrink-0 items-center justify-center">
         {img ? <img src={img} alt={p.name} width={64} height={64} loading="lazy" decoding="async" className="h-full w-full object-contain p-1 mix-blend-multiply" /> : <span className="text-[10px] font-semibold text-faint">{p.productType}</span>}

@@ -53,14 +53,14 @@ export default async function GuidesIndex({ params }: { params: { region: string
       <Breadcrumbs items={[{ href: `/${r.region}`, label: r.name }, { label: "Guides" }]} />
       <header className="max-w-3xl">
         <div className="eyebrow">Guides</div>
-        <h1 className="mt-2 font-display text-3xl font-bold tracking-tight sm:text-4xl">Pokémon sealed buying guides</h1>
-        <p className="mt-3 text-lg leading-8 text-muted">
+        <h1 className="mt-2 ph-h1">Pokémon sealed buying guides</h1>
+        <p className="ph-lede">
           Plain-English answers to what people ask before they buy Pokémon TCG sealed product in {r.inName}. Pack counts come from the publisher’s product listings, as
           recorded in our data, and prices from today’s listings at the stores we compare.
         </p>
       </header>
 
-      <section aria-labelledby="quick" className="mt-8 rounded-2xl border border-line bg-surface p-4 sm:p-5">
+      <section aria-labelledby="quick" className="note mt-8 p-4 sm:mt-10 sm:p-6">
         <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
           <h2 id="quick" className="font-display text-lg font-bold">
             Packs at a glance
@@ -71,7 +71,7 @@ export default async function GuidesIndex({ params }: { params: { region: string
         </div>
         <dl className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
           {quick.map((q) => (
-            <div key={q.k} className="rounded-xl border border-line bg-raised px-4 py-3">
+            <div key={q.k} className="rounded-xl bg-raised px-4 py-3 ring-1 ring-inset ring-line">
               <dt className="text-xs font-medium text-muted">
                 <Link href={q.href} prefetch={false} className="hover:text-brand hover:underline">
                   {q.k}
@@ -88,7 +88,7 @@ export default async function GuidesIndex({ params }: { params: { region: string
         </p>
       </section>
 
-      <ul role="list" className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <ul role="list" className="mt-10 grid gap-x-5 gap-y-9 sm:mt-12 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-12 lg:grid-cols-3">
         {list.map((g) => (
           <li key={g.slug}>
             <GuideCard r={r} guide={g} product={thumbs.get(g.slug)} />
@@ -96,23 +96,23 @@ export default async function GuidesIndex({ params }: { params: { region: string
         ))}
         {/* The one guide that compares every market: the same page from every region's index. */}
         <li>
-          <Link href={COUNTRY_GUIDE.path} prefetch={false} className="card group flex h-full flex-col overflow-hidden transition-shadow hover:shadow-lift">
-            <div className="p-2 pb-0">
+          <Link href={COUNTRY_GUIDE.path} prefetch={false} className="gc group">
+            <div className="gc-thumb">
               <GuideThumb r={r} guide={COUNTRY_GUIDE} />
             </div>
-            <div className="flex flex-1 flex-col p-4 pt-3 sm:p-5 sm:pt-4">
+            <div className="gc-body">
               <span className="eyebrow">{COUNTRY_GUIDE.kicker}</span>
-              <h2 className="mt-2 font-display text-lg font-bold leading-snug tracking-tight group-hover:text-brand sm:text-xl">{COUNTRY_GUIDE.h1}</h2>
-              <p className="mt-2 line-clamp-3 flex-1 text-[15px] leading-6 text-muted">{COUNTRY_GUIDE.description}</p>
-              <span className="mt-4 flex items-center justify-end gap-1 text-xs font-semibold text-brand">Compare all seven markets →</span>
+              <h2 className="gc-title">{COUNTRY_GUIDE.h1}</h2>
+              <p className="gc-desc">{COUNTRY_GUIDE.description}</p>
+              <span className="gc-foot justify-end gc-read">Compare all seven markets →</span>
             </div>
           </Link>
         </li>
       </ul>
 
-      <div className="mt-14 grid gap-10 lg:grid-cols-2">
+      <div className="mt-16 grid gap-10 border-t border-line pt-10 sm:mt-20 lg:grid-cols-2">
         <section aria-labelledby="by-product">
-          <h2 id="by-product" className="font-display text-xl font-bold tracking-tight">
+          <h2 id="by-product" className="sub-h2">
             Compare by product
           </h2>
           <ul role="list" className="mt-4 flex flex-wrap gap-2">
@@ -126,7 +126,7 @@ export default async function GuidesIndex({ params }: { params: { region: string
           </ul>
         </section>
         <section aria-labelledby="by-set">
-          <h2 id="by-set" className="font-display text-xl font-bold tracking-tight">
+          <h2 id="by-set" className="sub-h2">
             Newest sets
           </h2>
           <ul role="list" className="mt-4 flex flex-wrap gap-2">
@@ -134,7 +134,7 @@ export default async function GuidesIndex({ params }: { params: { region: string
               <li key={s.code}>
                 <Link href={setHref(r, s)} prefetch={false} className="chip min-h-10">
                   {s.name}
-                  {s.releaseDate > today && <span className="rounded-full bg-pre-soft px-1.5 text-[11px] font-semibold text-pre">Coming soon</span>}
+                  {s.releaseDate > today && <span className="tag">Coming soon</span>}
                 </Link>
               </li>
             ))}

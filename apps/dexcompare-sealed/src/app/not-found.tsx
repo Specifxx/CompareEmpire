@@ -8,10 +8,10 @@ export default function NotFound() {
   return (
     <>
       <Header region={null} />
-      <main id="main" className="page flex-1 py-16 text-center sm:py-20">
-        <div className="font-display text-7xl font-bold tracking-tight text-brand">404</div>
-        <h1 className="mt-4 font-display text-3xl font-bold tracking-tight sm:text-4xl">This page sold out.</h1>
-        <p className="mx-auto mt-3 max-w-md text-muted">
+      <main id="main" className="page flex-1 py-16 text-center sm:py-24">
+        <div className="eyebrow">404</div>
+        <h1 className="ph-h1 mt-3">This page sold out.</h1>
+        <p className="ph-lede mx-auto max-w-md">
           We couldn&rsquo;t find it. DexCompare covers Pokémon <b>sealed</b> product only — single-card pages from the old site are gone.
         </p>
         <NotFoundSearch />

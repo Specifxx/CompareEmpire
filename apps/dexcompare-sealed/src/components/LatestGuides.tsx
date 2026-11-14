@@ -10,7 +10,7 @@ export function LatestGuides({ region, n = 6 }: { region: Region; n?: number }) 
     <ul role="list" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" data-latest-guides="">
       {list.map((g) => (
         <li key={g.slug}>
-          <Link href={`/${region}/guides/${g.slug}`} prefetch={false} className="card group flex h-full flex-col overflow-hidden transition-shadow hover:shadow-lift">
+          <Link href={`/${region}/guides/${g.slug}`} prefetch={false} className="tile group flex h-full flex-col overflow-hidden">
             <img
               src={`/og/guides/${g.slug}`}
               alt={`${g.title}: guide cover`}

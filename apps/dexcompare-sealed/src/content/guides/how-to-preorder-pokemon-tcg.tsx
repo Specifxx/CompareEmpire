@@ -72,7 +72,7 @@ export function outline(r: RegionInfo, data: GuideData): GuideOutline {
                     <p className="mb-2 text-sm text-muted">
                       {open ? (
                         <>
-                          <strong className="font-semibold text-pre">{plural(open, "product")}</strong> open for pre-order in {r.inName} ·{" "}
+                          <strong className="font-semibold text-ink">{plural(open, "product")}</strong> open for pre-order in {r.inName} ·{" "}
                           <Link href={setHref(r, s)} prefetch={false} className="font-semibold text-brand hover:underline">
                             See them all →
                           </Link>
