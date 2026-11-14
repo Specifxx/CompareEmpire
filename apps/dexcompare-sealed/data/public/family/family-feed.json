@@ -1,7 +1,7 @@
 {
  "v": 1,
  "site": "dex",
- "generatedAt": "2026-11-14T01:46:51.251Z",
+ "generatedAt": "2026-11-14T16:14:31.235Z",
  "links": {
   "AU": {
    "deals": "https://dexcompare.app/au/deals"
@@ -30,6 +30,20 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "AU",
+   "title": "Pokemon Day 2026 Collection",
+   "url": "https://dexcompare.app/au/p/pokemon-day-2026-collection",
+   "cents": 7500,
+   "currency": "AUD",
+   "store": "PokeSource",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/668590_in_1000x1000.jpg",
+   "refCents": 13995,
+   "refLabel": "median store price",
+   "savingPct": 46
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "AU",
    "title": "First Partner Illustration Collection (Series 2)",
    "url": "https://dexcompare.app/au/p/first-partner-illustration-collection-series-2-2",
    "cents": 3995,
@@ -50,7 +64,7 @@
    "currency": "AUD",
    "store": "Turtle TCG",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/684444_in_1000x1000.jpg",
-   "refCents": 33000,
+   "refCents": 32750,
    "refLabel": "median store price",
    "savingPct": 45
   },
@@ -92,20 +106,6 @@
    "currency": "AUD",
    "store": "One Stop Poke Shop",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/695111_in_1000x1000.jpg",
-   "refCents": 600,
-   "refLabel": "median store price",
-   "savingPct": 33
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "AU",
-   "title": "Mega Brave Japanese Booster Pack (M1L)",
-   "url": "https://dexcompare.app/au/p/mega-brave-m1l-japanese-booster-pack",
-   "cents": 400,
-   "currency": "AUD",
-   "store": "One Stop Poke Shop",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/647498_in_1000x1000.jpg",
    "refCents": 600,
    "refLabel": "median store price",
    "savingPct": 33
@@ -240,6 +240,20 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "US",
+   "title": "Grafaiai ex Box",
+   "url": "https://dexcompare.app/us/p/grafaiai-ex-box",
+   "cents": 2200,
+   "currency": "USD",
+   "store": "Devastation Store Miami",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/546458_in_1000x1000.jpg",
+   "refCents": 3999,
+   "refLabel": "median store price",
+   "savingPct": 45
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "US",
    "title": "Ascended Heroes - Tech Sticker Collection - Charmander",
    "url": "https://dexcompare.app/us/p/ascended-heroes-tech-sticker-collection-charmander",
    "cents": 3199,
@@ -249,20 +263,6 @@
    "refCents": 4899,
    "refLabel": "median store price",
    "savingPct": 35
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "US",
-   "title": "Fusion Strike Booster Pack",
-   "url": "https://dexcompare.app/us/p/fusion-strike-booster-pack",
-   "cents": 1949,
-   "currency": "USD",
-   "store": "Derium's CCGs",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/247646_in_1000x1000.jpg",
-   "refCents": 2699,
-   "refLabel": "median store price",
-   "savingPct": 28
   },
   {
    "kind": "deal",
@@ -324,6 +324,20 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "UK",
+   "title": "Perfect Order Booster Pack",
+   "url": "https://dexcompare.app/uk/p/perfect-order-booster-pack",
+   "cents": 365,
+   "currency": "GBP",
+   "store": "Rare Pokémon Cards UK",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/672398_in_1000x1000.jpg",
+   "refCents": 663,
+   "refLabel": "median store price",
+   "savingPct": 45
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "UK",
    "title": "Black Bolt Japanese Booster Box (SV11B)",
    "url": "https://dexcompare.app/uk/p/black-bolt-sv11b-japanese-booster-box",
    "cents": 8995,
@@ -333,20 +347,6 @@
    "refCents": 16449,
    "refLabel": "median store price",
    "savingPct": 45
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "UK",
-   "title": "Nihil Zero Japanese Booster Pack (M3)",
-   "url": "https://dexcompare.app/uk/p/nihil-zero-m3-japanese-booster-pack",
-   "cents": 195,
-   "currency": "GBP",
-   "store": "Collectors Kingdom",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/674454_in_1000x1000.jpg",
-   "refCents": 350,
-   "refLabel": "median store price",
-   "savingPct": 44
   },
   {
    "kind": "deal",
@@ -592,13 +592,13 @@
    "region": "SG",
    "title": "First Partner Illustration Collection (Series 2)",
    "url": "https://dexcompare.app/sg/p/first-partner-illustration-collection-series-2-2",
-   "cents": 3200,
+   "cents": 3350,
    "currency": "SGD",
    "store": "TEFUDA",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/688712_in_1000x1000.jpg",
    "refCents": 4500,
    "refLabel": "median store price",
-   "savingPct": 29
+   "savingPct": 26
   }
  ]
 }
