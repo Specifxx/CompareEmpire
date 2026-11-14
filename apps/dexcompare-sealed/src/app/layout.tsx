@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { SiteAnalytics } from "@/components/SiteAnalytics";
 import { ShareArrival } from "@/components/ShareArrival";
+import { PaidVisitTagger } from "@/components/PaidVisitTagger";
 import { QuickView } from "@/components/QuickView";
 import { RateCard } from "@/components/site-reviews/RateCard";
 import { PremiumCorner } from "@/components/premium/PremiumCorner";
@@ -95,6 +96,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Rate us (owner, 2026-11-03): the corner card, asking only after real use; RiftCompare keeps the ratings. */}
         <RateCard />
         <SiteAnalytics />
+        <PaidVisitTagger />
         <ShareArrival />
         {/* Vercel Speed Insights: real visitors' Core Web Vitals, per page (Speed Insights must be enabled on the project). */}
         <SpeedInsights />
