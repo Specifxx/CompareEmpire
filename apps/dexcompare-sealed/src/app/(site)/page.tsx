@@ -85,17 +85,16 @@ export default async function Landing() {
         <SoftWaysIn formId="landing-search" links={HERO_LINKS} />
       </Hero>
 
+      {/* The two big ad banners (owner, 2026-11-14), eBay and TCGplayer apart, directly under the hero. Browser only, height reserved; labelled Ad. */}
+      <div className="page mt-6 sm:mt-8">
+        <SoftInlineAds tiles={railTiles} />
+      </div>
+
       {/* The owner's trim (2026-11-13): no Premium promo, no explainer paragraph and no guides list here; the space goes to
           products, ten of the region's most stocked. The explanation is on /about, Premium on /premium, the guides on
           each region's guides index. Everything here is server-rendered. */}
       <div className="reveal mb-16 mt-6 sm:mt-10">
         <HomeRegionGrid initial={picks} />
-      </div>
-
-      {/* The page's one ad block, straight under the products (owner, 2026-11-14: eBay clicks fell after the minimal home dropped its
-          eBay strips). Browser only, height reserved; labelled Ad. */}
-      <div className="page reveal mb-16 max-w-5xl">
-        <SoftInlineAds tiles={railTiles} />
       </div>
 
       <PopularPages />
