@@ -813,3 +813,44 @@ better on the page's ground in both themes.
 alone: its add button is an icon, where the lost padding and size show nothing, and its class's weight would out-rank the
 `text-muted` the price rows put on it. MTG Compare and YGO Compare took the same fix the same day; the file is also on Gundam, Bandai, Lorcana,
 Cyberpunk and SportsCardCompare, which this change did not touch (reported). No deploy marker: it rides the next release.
+
+## 2026-11-14: A/B tests in the quick view: three 50/50 splits, 20 November to 3 December
+
+The owner (2026-11-14): "we need to do some A/B testing to determine what is the best way for us to earn more revenue". Measured
+first, 7-13 November: 4,790 visitors, 4,595 buy clicks, 2,437 of them (53%) inside the quick view; TCGplayer 485 clicks, eBay 640,
+Amazon 293, and about two in three clicks to stores with no programme. TCGplayer earned A$0.73 a click here and eBay A$0.13 (30
+days to 11 November).
+
+**Where: the quick view only** (`src/lib/ab.ts`, `src/lib/ab-client.tsx`). The panel is drawn in the browser after a tap and is
+in no page's server HTML, so a split there needs no cookie on the server, no second URL and no cache key, and changes nothing a
+crawler reads: every page, title, link and price in the HTML is the same for everyone. The product page's own table always draws
+the control (`tests/ab.test.ts` fails if a page starts a test). The visitor's three coin tosses live in their own `localStorage`
+(`ab1`); a browser that keeps nothing is left out.
+
+**The three tests**, independent, each 50/50:
+
+- `order` (US only, where TCGplayer's row is a real US$ offer): eBay's row then TCGplayer's (the control, the owner's order of
+  2026-11-06), against TCGplayer's priced row first, eBay's under it. Both stay pinned above the stores; "Best price" and the
+  stores' order do not move.
+- `mini` (phones only): the small eBay + TCGplayer pair under the price rows (the control, since the calm palette of
+  2026-11-12), against above them, as on a desktop.
+- `cta` (everyone): TCGplayer's priced row's button says "View deal" (the control), against "Buy now". "View on TCGplayer" was
+  tried and dropped before it shipped: the wider button cut the store's name to "TC…" on a 390px phone.
+
+**What is counted.** `ab_seen` once a visit when a quick view shows its prices, then, once a visit each, `ab_paid` (a click on
+any link that pays) and the kind of link: `ab_tcg`, `ab_ebay`, `ab_amazon`, `ab_store`, `ab_mini_tcg`, `ab_mini_ebay`. One
+property, `k` = `<region>:<order><mini><cta>` (`us:ab-`; `-` where a test does not apply to the visit), because Vercel keeps two
+properties and its API cannot cross them. Counts are visits, so each result is a share of the visits that saw. `buy_click` is
+unchanged and still counts every click.
+
+**Fixed dates, decided before any number is seen.** Nothing is split or sent before 20 November 00:00 UTC, so the 19 November
+rechecks of the 12-13 November redesigns read an untouched site, and nothing from 4 December 00:00 UTC: fourteen whole days, two
+of each weekday, Black Friday inside both arms alike. No stopping early on a good-looking day. The read: `order` and `cta` on the
+share of visits with a TCGplayer click, `mini` on the share with any paid click, two-sided two-proportion test, p under 0.05; for
+`order` the eBay clicks lost are set against the TCGplayer clicks won at each network's own earnings per click for the fortnight.
+A test that does not reach p under 0.05 keeps the control. RiftCompare's earnings refresh reads the events for DexCompare and MTG
+Compare (its `lib/earnings/ab-test.ts`) and the Monday report and Empire HQ show them. A winner ships as an ordinary change to
+every visitor, then to the other card sites. No deploy marker: it rides the next release, well before the 20th.
+
+Not tested, on purpose: the price alert button (its own recheck is 19 November), anything that hides, delays or re-ranks a store's
+price, a pop-up, and Amazon without a price. YGO Compare (362 visitors, 74 buy clicks that week) is too small to split.
