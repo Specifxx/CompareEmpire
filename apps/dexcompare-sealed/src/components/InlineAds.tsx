@@ -9,6 +9,7 @@ import { money } from "@/lib/format";
 import { thumb } from "@/lib/images";
 import type { Region } from "@/lib/regions";
 import { useListings } from "./EbayStrip";
+import { useSoftRegion } from "./RegionSuggest";
 import { EbayMark } from "./EbayMark";
 import { OutboundLink } from "./OutboundLink";
 import { interleave } from "./AdDock";
@@ -50,6 +51,12 @@ export function LayoutInlineAds({ region, tiles }: { region: Region; tiles: Tcgp
   const path = usePathname() || "";
   if (!layoutInlineAdsAllowed(path)) return null;
   return <InlineAds key={`${region}|${path}`} region={region} tiles={tiles} className="mt-6" />;
+}
+
+/** The same block on the landing page, in the visitor's suggested or picked region (the US until known). */
+export function SoftInlineAds({ tiles, className = "" }: { tiles: TcgplayerTile[]; className?: string }) {
+  const region = useSoftRegion();
+  return <InlineAds key={region} region={region} tiles={tiles} className={className} />;
 }
 
 type Tile = { kind: "ebay"; key: string; href: string; img: string; title: string; price: string } | { kind: "tcg"; key: string; href: string; img: string; title: string; price: string };

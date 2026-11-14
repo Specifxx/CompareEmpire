@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Icon } from "@/components/Icon";
 import { SoftSideAds } from "@/components/SideAds";
+import { SoftInlineAds } from "@/components/InlineAds";
 import { FEATURE_MIN_USD_CENTS } from "@/lib/feature-floor";
 import { tcgplayerTiles, type TcgplayerTile } from "@/lib/data";
 import { HomeRegionGrid } from "@/components/HomeRegionGrid";
@@ -89,6 +90,12 @@ export default async function Landing() {
           each region's guides index. Everything here is server-rendered. */}
       <div className="reveal mb-16 mt-6 sm:mt-10">
         <HomeRegionGrid initial={picks} />
+      </div>
+
+      {/* The page's one ad block, straight under the products (owner, 2026-11-14: eBay clicks fell after the minimal home dropped its
+          eBay strips). Browser only, height reserved; labelled Ad. */}
+      <div className="page reveal mb-16 max-w-5xl">
+        <SoftInlineAds tiles={railTiles} />
       </div>
 
       <PopularPages />
