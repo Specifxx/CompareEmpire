@@ -973,3 +973,17 @@ affiliate link that visitor opens; only the value is edited, the rest of the URL
 are untouched. RiftCompare's earnings dashboard ("Ad tests") sums the `dex-…-fbad` sales against the ad's spend.
 `SiteAnalytics` now keeps `utm_source`, `utm_medium` and `utm_campaign` (nothing else) so Vercel can count the ad's
 visitors; search text is still dropped.
+
+## 2026-11-14: The price rows' cart button says "Add to cart"
+
+The owner, opening the price rows: "there needs to be an add to cart button ... right now, it just sends it to the site". The
+cart button was already on every store row, but as a bare grey cart icon on a computer (lost on the tinted best-price row) and
+as small coloured text on a phone, so it read as decoration. `CartAddButton` now carries its words by default ("Add to cart",
+"In cart" once added; "Add" beside the icon below 640px where a row has no room), with a firmer neutral border, and the phone's
+text button (`inline`) is drawn as a bordered button (`cart.css`). Neutral, never a new colour: the buy button stays the one
+filled action and the calm three-colour rule holds. Nothing else moved: which rows can be added (open store rows, eBay and
+Amazon with a live price; never a marketplace or a search row), the line's buy link and its affiliate tag, the row order, the
+buy button and every placement are unchanged. A caller can still ask for the bare icon (`label={false}`).
+
+The quick view keeps its icon-only cart button while its A/B tests run (20 November to 3 December): its rows sit in
+`.qv-cart-icon`, which hides the words and restores the old border, so the tests read the same panel.
