@@ -186,8 +186,10 @@ export function MenuSheet({
     <div className="page pb-5">
       <div className="flex h-[var(--hdr)] items-center gap-3 border-b border-line">
         <LogoMark className="h-8 w-8 shrink-0" />
-        <span className="min-w-0 flex-1 truncate font-display text-lg font-bold tracking-tight">
-          <Flag code={current.short} /> DexCompare {current.name}
+        {/* The region's own name leads and is never cut: "DexCompare Unite…" told a visitor nothing (2026-11-14). The mark beside it says whose menu it is. */}
+        <span className="flex min-w-0 flex-1 items-center gap-2 font-display text-lg font-bold tracking-tight">
+          <Flag code={current.short} />
+          <span className="min-w-0 truncate">{current.name}</span>
         </span>
         <ThemeToggle className="border border-line" />
         <button
