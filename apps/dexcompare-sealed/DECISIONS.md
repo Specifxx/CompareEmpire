@@ -962,3 +962,14 @@ description, canonical, robots, Open Graph, JSON-LD, h1 or h2 changed: 17 pages'
 meta, canonical and hreflang, JSON-LD, h1/h2, the set of internal links, every `rel="sponsored"` link with its words, every
 word of text) and are identical. So the 19 November recheck of clicks per placement is unaffected. No new colour, font, library
 or client script; no revalidate or data read changed. No deploy marker: it rides the next release.
+
+## 2026-11-14: Paid ad visits tag their affiliate clicks (`fbad`)
+
+Owner: "with the ads, we got to make sure that we keep track to see if they actually are giving us ROI." The A$35 Meta
+test (14-21 Nov, US) sends visitors with `utm_source=facebook&utm_medium=paid&utm_campaign=dex-test-2026-11`. A sale
+carries back only its click's sub-id, so `lib/paid-visit.ts` (the same file as RiftCompare's and the card engine's)
+remembers a paid landing for the tab and adds `-fbad` to the `customid` / `sharedid` / `subId1` / `ascsubtag` of every
+affiliate link that visitor opens; only the value is edited, the rest of the URL stays byte for byte. Organic visits
+are untouched. RiftCompare's earnings dashboard ("Ad tests") sums the `dex-…-fbad` sales against the ad's spend.
+`SiteAnalytics` now keeps `utm_source`, `utm_medium` and `utm_campaign` (nothing else) so Vercel can count the ad's
+visitors; search text is still dropped.

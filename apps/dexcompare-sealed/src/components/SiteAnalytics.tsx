@@ -9,7 +9,12 @@ import { Analytics, type BeforeSendEvent } from "@vercel/analytics/react";
 function stripQuery(event: BeforeSendEvent): BeforeSendEvent | null {
   try {
     const u = new URL(event.url);
-    if (u.search) return { ...event, url: `${u.origin}${u.pathname}` };
+    if (!u.search) return event;
+    // Keep only the utm_* tags (an ad's campaign is how Vercel counts its visitors; 2026-11-14).
+    const keep = new URLSearchParams();
+    for (const [k, v] of u.searchParams) if (/^utm_(source|medium|campaign)$/.test(k)) keep.set(k, v);
+    const q = keep.toString();
+    return { ...event, url: `${u.origin}${u.pathname}${q ? `?${q}` : ""}` };
   } catch {
     /* not a URL we can parse: send as-is */
   }
