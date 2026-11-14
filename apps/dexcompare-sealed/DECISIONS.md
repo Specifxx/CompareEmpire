@@ -900,3 +900,39 @@ view's tests run in, so it waits for 4 December. The store thumbs are 20×16px (
 
 `tests/polish.test.ts` pins the focus rule, the chip, the empty search, the chart's line and the menu's title. No deploy marker:
 it rides the next release.
+
+## 2026-11-14: Indexing round: the product page reads every store, Pokémon hubs get words, products link their neighbours
+
+Search Console still calls the hubs "Crawled, currently not indexed", and on 14 November 2 of 20 sampled sitemap URLs were indexed.
+Measured before choosing, on a local production build of today's data and a crawl of all 1,842 sitemap URLs: every URL answers 200,
+none is noindex, every canonical is its own, hreflang is reciprocal, and there is one h1 a page. The 10 November work holds: a type
+hub is 367 KB with 2,600 characters of prose, a set hub 315 KB with 3,000, a product page 424 KB with 4,800 and a Product +
+AggregateOffer block. Three things were still wrong.
+
+- **The product page lost stores, and sometimes the cheapest one.** `productPage` (`lib/data.ts`) read `take: 80` offers with no
+  order. 89 product pages (US and Canada's most-stocked boxes, ETBs and bundles, the top of the sitemap) have more than 80 listings,
+  up to 136, so each kept 80 arbitrary stores: 1,126 in-stock rows were missing, and on 23 pages the cheapest in-stock store was
+  one of them. Delta Reign Booster Box said "from $169.97 at 58 US stores" in its title, best price, quick view and JSON-LD while
+  its hub card and its own FAQ said $168.99 and 73 stores; Chaos Rising ETB said $66.99 against $49.99. The read is now ordered (in
+  stock first, cheapest first) before a cap of 200 (`PRODUCT_OFFERS_TAKE`), so every store is a row and the page agrees with the
+  import's counts. `setOfferGroups` (the pre-order pages, 40 a product) is ordered the same way. The cost: those 89 pages grow by
+  about 1.4 KB a store (lean rows); the heaviest went from 435 KB to 509 KB, the median product page from 349 KB to 355 KB. The
+  quick view, the share image and the widget read the same loader and are right now too; nothing in the quick view's own code,
+  its paid rows or `lib/ab.ts` changed. `tests/product-offers-cap.test.ts`.
+- **The Pokémon hubs were the thinnest pages in the sitemap**: 146 listed, a median of 171 characters of prose. They carry the type
+  hubs' data-built summary and questions now (`hubSummary`, with its FAQPage markup), in a fold under the products: 1,900
+  characters at the median, different in each region. The index page says how many Pokémon it lists and which have the most
+  products. The 3-product rule and the titles are unchanged. `tests/pokemon-hubs.test.ts`.
+- **Product pages were weakly linked.** 339 of the 850 listed product pages had five or fewer sitemap pages linking them, 133 had
+  three or fewer: a type hub shows its 48 cheapest, and "More from <set>" is the same set again. "Other <type> in <region>"
+  (`lib/type-neighbours.ts`) puts a type's in-stock, indexable products in one fixed order (release date, then slug) and links
+  the three on either side (at either end the window slides inward, so the newest box never links a 2014 one), so each is linked
+  from six other product pages, three at the two ends, instead of every page linking the newest sets. Plain links with the import's lowest price and store count, no photos, about 2.5 KB; on an in-stock product with no set
+  the links sit under the existing "More <type>" rail. After: 107 pages with five or fewer, 32 with three or fewer, the median
+  7 to 11 (counting sitemap pages only). `tests/type-neighbours.test.ts`.
+
+Looked at and left: the sitemap's `lastmod` is the import time on every data page (the data files carry no per-product change
+time, and the prices do change with each import); guides share a title across the four indexed regions (hreflang covers it); the
+intro counts store rows (108) where the FAQ counts the import's deduplicated stores (104). URLs, titles' wording, canonicals,
+hreflang and the sitemap are unchanged. The 19 November recheck of clicks per placement will read product pages with these two
+additions; the A/B tests (from 20 November) see the same rows in both arms. No deploy marker: it rides the next release.

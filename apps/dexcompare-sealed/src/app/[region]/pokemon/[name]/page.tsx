@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { cache } from "react";
 import type { Metadata } from "next";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { Fold, Folds } from "@/components/Fold";
+import { HubFaqSection, HubSummaryText } from "@/components/HubSummary";
 import { Icon } from "@/components/Icon";
 import { ProductGrid } from "@/components/ProductGrid";
 import { Empty, Section } from "@/components/Section";
@@ -10,10 +12,12 @@ import { StockFilter } from "@/components/StockFilter";
 import { money, plural } from "@/lib/format";
 import { hubTitle, titleText } from "@/lib/hub-copy";
 import { pokemonCounts, pokemonPageData } from "@/lib/hub-data";
+import { hubSummary } from "@/lib/hub-summary";
 import { detailIndexed } from "@/lib/index-tiers";
 import { POKEMON, POKEMON_BY_SLUG, POKEMON_INDEX_MIN, pokemonPath } from "@/lib/pokemon-hubs";
 import { REGION_LIST, regionOrNotFound, type Market } from "@/lib/regions";
 import { itemListJsonLd, jsonLd, pageMeta, regionAlternates } from "@/lib/seo";
+import { storesInMarket } from "@/lib/stores";
 
 // Pokémon hubs (lib/pokemon-hubs.ts, DECISIONS.md 2026-11-08): the sealed products whose own name names one Pokémon.
 // Rendered per request and kept by Vercel's CDN for a day (next.config.js, CDN_PAGES), never ISR, like every hub page.
@@ -49,9 +53,22 @@ export default async function PokemonPage({ params }: { params: { region: string
   const r = regionOrNotFound(params.region);
   const hub = POKEMON_BY_SLUG.get(params.name);
   if (!hub) notFound();
-  const [{ open, sold, openCount }, counts] = await Promise.all([getData(r.market, hub.slug), getCounts(r.market)]);
+  const [{ open, sold, openCount, soldCount }, counts] = await Promise.all([getData(r.market, hub.slug), getCounts(r.market)]);
   if (!open.length && !sold.length) notFound();
   const more = openCount > open.length;
+  // Today's numbers in words, and the questions they answer (lib/hub-summary.ts, as the type and set hubs since 2026-11-10): these
+  // hubs were the thinnest pages in the sitemap (2026-11-14: a median of 171 characters of prose on 146 listed pages). Built only
+  // from the rows this page loaded; a hub with little data says less.
+  const summary = hubSummary({
+    r,
+    subject: `${hub.name} sealed products`,
+    products: [...open, ...sold],
+    complete: !more && soldCount <= sold.length,
+    openTotal: openCount,
+    soldTotal: soldCount,
+    storeCount: storesInMarket(r.market).length,
+    tcgplayer: r.market === "US",
+  });
   const others = POKEMON.filter((p) => p.slug !== hub.slug && (counts.get(p.slug) ?? 0) >= POKEMON_INDEX_MIN)
     .sort((a, b) => (counts.get(b.slug) ?? 0) - (counts.get(a.slug) ?? 0))
     .slice(0, 24);
@@ -100,6 +117,15 @@ export default async function PokemonPage({ params }: { params: { region: string
           {more && <p className="mt-4 text-sm text-muted">The {open.length} cheapest of {plural(openCount, "product")} in stock.</p>}
         </Section>
       </StockFilter>
+      {/* Under the products, as on a type page (the minimal look, 2026-11-13): in the HTML either way, one line until opened. */}
+      {summary.paragraphs.length > 0 && (
+        <Folds label={`About ${hub.name} products`}>
+          <Fold id="today-h" title={`${hub.name} sealed products in ${r.inName} today`}>
+            <HubSummaryText title={`${hub.name} sealed products in ${r.inName} today`} paragraphs={summary.paragraphs} />
+          </Fold>
+        </Folds>
+      )}
+      <HubFaqSection faq={summary.faq} />
       <p className="mt-8">
         <Link href={`/${r.region}/pokemon`} prefetch={false} className="inline-flex min-h-10 items-center gap-1 text-sm font-semibold text-brand-strong hover:underline">
           Every Pokémon <Icon name="arrow-right" size={16} />

@@ -8,9 +8,10 @@
 import { prisma } from "./db";
 import { ascNullsLast, cardRow, isOpen, positionIn, statsInMarket } from "./public-data/joins";
 import { routeRaw } from "./public-data/route";
-import { cheapestInStock, HEADLINE_TYPES, relatedProducts, toCard, type ProductCardData } from "./data";
+import { cardSelect, cheapestInStock, HEADLINE_TYPES, relatedProducts, toCard, type ProductCardData } from "./data";
 import type { Market } from "./regions";
 import { SETS } from "./sets";
+import { typeNeighbours } from "./type-neighbours";
 
 /** A row of the alternatives query: the card columns (data.ts cardSelect), flat. */
 export interface AltRow {
@@ -96,4 +97,16 @@ export async function inStockAlternatives(
  */
 export async function relatedWithFormats(market: Market, setCode: string, excludeSlug: string): Promise<ProductCardData[]> {
   return relatedProducts(market, setCode, excludeSlug, 40);
+}
+
+/** A bound on the type read below: the largest type in a market has about 300 products. */
+const TYPE_ROWS_TAKE = 800;
+
+/**
+ * "Other <type> in <region>" (lib/type-neighbours.ts): the indexable products of the product's type on either side of it in the
+ * type's fixed order. One scoped read (a type × a market, the card columns), from the public data files like every page read.
+ */
+export async function sameTypeNeighbours(market: Market, self: Pick<ProductCardData, "slug" | "productType" | "releaseDate">): Promise<ProductCardData[]> {
+  const rows = await prisma.productStat.findMany({ where: { market, product: { productType: self.productType } }, take: TYPE_ROWS_TAKE, select: cardSelect });
+  return typeNeighbours(self, rows.map(toCard));
 }
