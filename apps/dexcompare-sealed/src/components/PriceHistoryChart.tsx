@@ -13,7 +13,16 @@ const PAD = { l: 8, r: 8, t: 12, b: 12 };
 export function PriceHistoryChart({ values, market }: { values: DayValue[]; market: string }) {
   if (values.length < MIN_DAYS) return null;
   const priced = values.filter((v): v is DayValue & { cents: number } => v.cents != null);
-  if (priced.length < 2) return null;
+  // Snapshots, but under two days with anything in stock: no line can be drawn. Said so, in the chart's own card: the page's
+  // "Price history" heading used to stand over nothing on a product that has been sold out all along (2026-11-14).
+  if (priced.length < 2) {
+    return (
+      <p className="card px-5 py-6 text-sm leading-6 text-muted">
+        No line to draw yet: in our {plural(values.length, "daily snapshot")} of this product, a store had it in stock on {priced.length === 1 ? "one day" : "none of the days"}. Its price
+        history starts here once it is back in stock.
+      </p>
+    );
+  }
   const lo = Math.min(...priced.map((v) => v.cents));
   const hi = Math.max(...priced.map((v) => v.cents));
   const span = Math.max(1, hi - lo);

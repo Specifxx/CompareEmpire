@@ -318,7 +318,7 @@ function Card({ top, ...p }: BestPriceCardProps & { top: ReactNode }) {
       <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-line pt-4 text-sm text-muted empty:hidden">
         {p.openCount > 1 && (
           <span>
-            up to {money(p.highestOpenCents, market)} — you save {money(p.highestOpenCents - store.cents, market)} by buying at the cheapest
+            Stores ask up to {money(p.highestOpenCents, market)} — you save {money(p.highestOpenCents - store.cents, market)} by buying at the cheapest
           </span>
         )}
       </div>

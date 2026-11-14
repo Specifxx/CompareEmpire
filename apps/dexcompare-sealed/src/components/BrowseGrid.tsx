@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import { flushSync } from "react-dom";
+import Link from "next/link";
 import type { ProductCardData } from "@/lib/data";
 import { cardOpen, expandCard, type CompactCard } from "@/lib/compact";
 import { pctOf } from "@/lib/format";
@@ -11,6 +12,7 @@ import type { Region } from "@/lib/regions";
 import { BROWSE_QUERY_EVENT, queryWords, relevanceCompare, searchCards } from "@/lib/search-index";
 import { PRODUCT_TYPES, TYPE_BY_SLUG, typeRank } from "@/lib/sealed-title";
 import { SET_BY_SLUG, SETS } from "@/lib/sets";
+import { sectionHref, type SectionKey } from "@/lib/site";
 import { NoPreFooter } from "./Ebay";
 import { Icon } from "./Icon";
 import { MarketplaceSearch } from "./Marketplaces";
@@ -18,6 +20,13 @@ import { pageHref, Pagination } from "./Pagination";
 import { ProductGrid } from "./ProductGrid";
 import { QueryEbayBox } from "./QueryEbayBox";
 import { FamilySearch } from "./FamilySearch";
+
+/** Where a search that found nothing can go next: three pages every region has (the header links them too). */
+const EMPTY_WAYS: { key: SectionKey; label: string }[] = [
+  { key: "sets", label: "Browse by set" },
+  { key: "deals", label: "Today’s deals" },
+  { key: "releases", label: "New releases" },
+];
 
 type Sort = "relevance" | "price-asc" | "price-desc" | "per-pack" | "saving" | "newest" | "stores";
 const SORTS: { value: Sort; label: string }[] = [
@@ -305,7 +314,7 @@ export function BrowseGrid({ rows, total, region, base, page = 1, strip }: { row
       ))}
     </select>
   );
-  const selectClass = "h-11 min-w-0 rounded-full border border-line bg-raised px-3 text-sm";
+  const selectClass = "select-pill h-11 min-w-0 rounded-full border border-line bg-raised pl-4 text-sm transition-colors hover:border-ink/30";
 
   return (
     <div>
@@ -450,7 +459,8 @@ export function BrowseGrid({ rows, total, region, base, page = 1, strip }: { row
             </>
           )}
         </p>
-        {any && (
+        {/* With nothing found the empty state below carries the one way out: two "Clear filters" a thumb apart read as a fault. */}
+        {any && shown.length > 0 && (
           <button type="button" onClick={clearAll} className="chip min-h-10 shrink-0">
             Clear filters <Icon name="close" size={14} />
           </button>
@@ -468,12 +478,31 @@ export function BrowseGrid({ rows, total, region, base, page = 1, strip }: { row
         ) : (
           <div className="card px-6 py-12 text-center text-muted">
             <NoPreFooter />
-            <p className="font-display text-lg font-bold text-ink">Nothing matches those filters.</p>
-            <p className="mt-1 text-sm">Try fewer words, another set, or every type.</p>
+            {/* Says what was looked for and what to try next (2026-11-14): "Nothing matches those filters" answered a typed search
+                with a word the visitor never used. The ways on under the eBay unit are the header's own links, nothing new. */}
+            <p className="text-balance break-words font-display text-lg font-bold text-ink">
+              {qOn ? <>We couldn&rsquo;t find &ldquo;{q.trim()}&rdquo;{inStock ? " in stock" : ""}.</> : "Nothing matches those filters."}
+            </p>
+            <p className="mt-1 text-sm">
+              {qOn
+                ? activeFilters > 0
+                  ? "Check the spelling, or clear the filters."
+                  : "Check the spelling, or try fewer words."
+                : "Try another set or type, or show sold out."}
+            </p>
             <button type="button" onClick={clearAll} className="chip mt-4 min-h-10">
-              Clear filters <Icon name="close" size={14} />
+              {qOn && activeFilters === 0 ? "Clear the search" : "Clear filters"} <Icon name="close" size={14} />
             </button>
             {elsewhere && <MarketplaceSearch region={region} query={elsewhere} placement="browse-empty" />}
+            <ul className="mt-6 flex flex-wrap items-center justify-center gap-2 text-sm" aria-label="Popular pages">
+              {EMPTY_WAYS.map((w) => (
+                <li key={w.key}>
+                  <Link href={sectionHref(region, w.key)} prefetch={false} className="chip min-h-10">
+                    {w.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
         )}
 

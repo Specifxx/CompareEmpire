@@ -854,3 +854,49 @@ every visitor, then to the other card sites. No deploy marker: it rides the next
 
 Not tested, on purpose: the price alert button (its own recheck is 19 November), anything that hides, delays or re-ranks a store's
 price, a pop-up, and Amazon without a price. YGO Compare (362 visitors, 74 buy clicks that week) is too small to split.
+
+## 2026-11-14: A polish pass: focus rings, chips, the empty search, the phone menu's title, an empty price history
+
+The owner asked for the sites to look better and feel friendlier, without review. The pages were walked as a first-time visitor on a
+390px phone and at 1440px, in both themes (home, a region home, the full list, a set, an in-stock and a sold-out product, a search
+with and without results, the 404, the phone menu), with the page width, tap targets and text contrast measured by script. No page
+was wider than the phone and no text was under 4.5:1 in either theme (only the eBay and TCGplayer marks' own letters are, and they
+are logos). What was found and changed:
+
+- **The focus ring squared every pill.** `:focus-visible` set `border-radius: 6px` after the utilities, so a keyboard turned each
+  round button, chip and search box into a 6px rectangle for as long as it was focused (measured: 9999px to 6px). The ring now
+  follows the element's own corners; a bare text link keeps the soft 6px through a `:where()` rule that weighs nothing.
+- **Chips.** `.chip` is a 20px radius instead of 9999px: a one-line chip is the same pill, and a chip whose words wrap on a phone
+  (a guide's whole title under "Keep exploring") is a soft rectangle, not a stretched lozenge. On a touch screen a chip is 40px
+  tall (the set and type chips were 32px); a mouse keeps the compact row. Chips, the hero's ways in and the set tiles give a
+  little under a press (a transform, off for reduced motion).
+- **A search that finds nothing** said "Nothing matches those filters. Try fewer words, another set, or every type." to someone
+  who typed a word and used no filter, with "Clear filters" twice, a thumb apart. It now names the search ("We couldn't find
+  "zzqqxx"."), says what to try in one line, has one clear button ("Clear the search" when nothing else is set) and, under the
+  eBay unit, three pages every region has (sets, deals, releases: the header's own links). The eBay unit is the same markup in
+  the same place (the count row keeps its 44px; the two lines above it are one line each, as before).
+- **The phone menu's title** read "DexCompare Unite…". It is the flag and the region's name now, never cut; the mark beside it
+  says whose menu it is.
+- **"Price history" over nothing.** A product with a month of snapshots but under two days in stock drew the heading and no
+  chart. The chart's place now says so in one line (how many snapshots, that no store had it in stock, that the history starts
+  when it is back). Under `MIN_DAYS` there is still no section at all. The h2 is where it was.
+- **The best-price card's last line** began mid-sentence ("up to $160.99 — you save …"). It reads "Stores ask up to $160.99 —
+  you save …"; the figures are the same.
+- **Small things.** The region hero's line of facts breaks where we choose on a phone (the second dot ended the first line on
+  its own); the hero's pill and Christmas line are 40px targets (29px); a section's "See all →" is a 40px target without moving;
+  the list's Set and Sort selects have their own chevron, set in from the pill's curve; a disabled button shows it.
+
+**Not changed, on purpose.** No paid link, ad block, pinned eBay / TCGplayer / Amazon row, affiliate tag or placement name was
+added, removed, moved, reordered, restyled or reworded, and the quick view and its A/B tests (`lib/ab.ts`) were not touched: the
+price rows' classes (`.or-*`), which the quick view shares, are as they were. No URL, redirect, title, description, canonical,
+robots, Open Graph, JSON-LD, h1 or h2 changed: fifteen pages' server HTML were compared field by field against the build before,
+with every `rel="sponsored"` link and every price row byte for byte the same. So the 19 November recheck of clicks per placement
+reads the same placements as last week. No new colour, block, font, library or client script.
+
+**Seen and left** (reported to the owner): on a 390px phone a price row cuts the store's name ("Larry'…") and its per-pack and
+shipping notes ("≈ $… + $14…") because the button's column sets the width of the name's; fixing it re-lays the rows the quick
+view's tests run in, so it waits for 4 December. The store thumbs are 20×16px (the owner's call, 2026-11-13). A product URL that
+404s is drawn by Next's error shell without the theme script, so a visitor who chose the light theme sees that one page dark.
+
+`tests/polish.test.ts` pins the focus rule, the chip, the empty search, the chart's line and the menu's title. No deploy marker:
+it rides the next release.
