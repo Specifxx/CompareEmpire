@@ -1231,7 +1231,7 @@ a.hero-pill:hover {
     @apply flex h-full flex-col rounded-2xl outline-offset-4;
   }
   .gc-thumb {
-    @apply rounded-2xl transition-[transform,box-shadow] duration-300 ease-out group-hover:-translate-y-1 group-hover:shadow-lift;
+    @apply rounded-2xl transition-[transform,box-shadow] duration-200 ease-out group-hover:-translate-y-1 group-hover:shadow-lift;
   }
   .gc-body {
     @apply flex flex-1 flex-col px-1 pt-4;

@@ -92,42 +92,29 @@ export default function CreatorsPage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(faq) }} />
       <Breadcrumbs items={[{ href: "/", label: SITE_NAME }, { label: "Creators" }]} />
 
-      {/* Hero */}
-      <header className="relative overflow-hidden rounded-3xl border border-line bg-surface p-6 shadow-card sm:p-10">
-        <div aria-hidden className="pointer-events-none absolute -left-10 -top-10 h-48 w-48 rounded-full bg-brand/15 blur-3xl" />
-        <div aria-hidden className="pointer-events-none absolute -bottom-16 right-10 h-56 w-56 rounded-full bg-spark/20 blur-3xl" />
-        <div className="relative z-10 max-w-xl">
-          <span className="eyebrow inline-flex items-center gap-1 text-brand-strong">✦ Creators</span>
-          <h1 className="mt-3 font-display text-3xl font-extrabold leading-tight tracking-tight sm:text-5xl">
-            Pokémon creators we <span className="text-brand">love</span>
-          </h1>
-          <p className="mt-3 text-base leading-7 text-muted">
-            The people who make collecting Pokémon fun to follow: box openings, set reviews, pull rates and pre-order news. Watch them,
-            follow them, and buy your favourite a pack.
-          </p>
-          <div className="mt-5 flex flex-wrap gap-2">
-            <a href="#featured" className="btn-primary min-h-11 px-5">
-              Meet the creators
-            </a>
-            <a href="#apply" className="btn-ghost min-h-11 px-5">
-              I make Pokémon content →
-            </a>
-          </div>
-        </div>
-        <div aria-hidden className="pointer-events-none absolute right-8 top-6 hidden h-56 w-72 md:block">
-          {["left-0 top-8 -rotate-[10deg] from-brand/40 to-spark/40", "left-[88px] top-0 z-10 rotate-[2deg] from-pre/40 to-brand/30", "left-[176px] top-10 rotate-[11deg] from-spark/50 to-open/30"].map((cls) => (
-            <div key={cls} className={`absolute h-48 w-36 rounded-xl border border-line bg-gradient-to-br shadow-card ${cls}`}>
-              <div className="m-3 h-20 rounded-lg bg-surface/70" />
-              <div className="mx-3 mt-3 h-2 w-20 rounded bg-surface/70" />
-              <div className="mx-3 mt-2 h-2 w-12 rounded bg-surface/70" />
-            </div>
-          ))}
+      {/* Hero: the inner pages' header (2026-11-14), words and two ways in, no decoration. */}
+      <header className="mt-6 max-w-2xl">
+        <span className="eyebrow inline-flex items-center gap-1">✦ Creators</span>
+        <h1 className="ph-h1 mt-3">
+          Pokémon creators we <span>love</span>
+        </h1>
+        <p className="ph-lede">
+          The people who make collecting Pokémon fun to follow: box openings, set reviews, pull rates and pre-order news. Watch them,
+          follow them, and buy your favourite a pack.
+        </p>
+        <div className="mt-6 flex flex-wrap gap-2">
+          <a href="#featured" className="btn-primary min-h-11 px-5">
+            Meet the creators
+          </a>
+          <a href="#apply" className="btn-ghost min-h-11 px-5">
+            I make Pokémon content →
+          </a>
         </div>
       </header>
 
       {/* Featured creators */}
-      <section id="featured" className="mt-10 scroll-mt-24">
-        <h2 className="font-display text-2xl font-bold">Featured creators</h2>
+      <section id="featured" className="mt-14 scroll-mt-24">
+        <h2 className="sec-h2">Featured creators</h2>
         <p className="mt-1 text-sm text-muted">
           {creators.length ? "Newest first. Tap a channel to follow, or buy them a pack to say thanks." : "Our first creators are joining now. Want to be one of them?"}
         </p>
@@ -138,8 +125,8 @@ export default function CreatorsPage() {
           {/* Open spots fill the last row (a full row of three while the list is empty), so the grid reads as "join us" rather than a
               finished list. Never an invented creator. */}
           {Array.from({ length: openSpots }).map((_, i) => (
-            <a key={`open-${i}`} href="#apply" className="group flex min-h-72 flex-col items-center justify-center rounded-xl border-2 border-dashed border-line bg-surface/50 p-6 text-center transition hover:border-brand hover:bg-brand-soft/40">
-              <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-brand/20 to-spark/30 text-3xl transition-transform group-hover:scale-110" aria-hidden>
+            <a key={`open-${i}`} href="#apply" className="group flex min-h-72 flex-col items-center justify-center rounded-xl border-2 border-dashed border-line bg-surface/50 p-6 text-center transition-colors duration-200 hover:border-ink/30">
+              <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-raised text-3xl ring-1 ring-inset ring-line transition-transform duration-200 motion-safe:group-hover:scale-105" aria-hidden>
                 ✨
               </span>
               <span className="mt-4 font-display text-base font-bold">Your channel here</span>
@@ -151,12 +138,12 @@ export default function CreatorsPage() {
       </section>
 
       {/* How tipping works */}
-      <section className="card mt-10 grid items-center gap-6 border-spark/40 bg-gradient-to-br from-spark/15 via-surface to-surface p-6 sm:grid-cols-[auto,1fr] sm:p-8">
-        <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-spark to-brand text-brand-ink shadow-card">
-          <PackIcon className="h-10 w-10" />
+      <section className="note mt-12 grid items-center gap-6 p-6 sm:grid-cols-[auto,1fr] sm:p-8">
+        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-raised text-muted ring-1 ring-inset ring-line">
+          <PackIcon className="h-8 w-8" />
         </div>
         <div>
-          <h2 className="font-display text-xl font-bold">Buy your favourite creator a pack</h2>
+          <h2 className="sub-h2">Buy your favourite creator a pack</h2>
           <p className="mt-2 text-sm leading-6 text-muted">
             Every featured creator with a tip page gets a “Buy them a pack” button. It goes straight to their own Ko-fi, Patreon or tip page,
             so <strong className="text-ink">100% of what you send goes to them</strong>. {SITE_NAME} never handles the money and takes no cut.
@@ -166,8 +153,8 @@ export default function CreatorsPage() {
       </section>
 
       {/* For creators */}
-      <section id="apply" className="mt-10 scroll-mt-24">
-        <h2 className="font-display text-2xl font-bold">Make Pokémon content? Let&rsquo;s grow together</h2>
+      <section id="apply" className="mt-14 scroll-mt-24">
+        <h2 className="sec-h2">Make Pokémon content? Let&rsquo;s grow together</h2>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">
           Mention {SITE_NAME} in your content (a link in your description, a price check on screen, a shout-out in a video) and we feature you
           here, free. Here&rsquo;s what you get.
@@ -197,8 +184,8 @@ export default function CreatorsPage() {
       </section>
 
       {/* Weekly price-movers video (owner, 2026-11-08): made every Monday by compareempiretake2's weekly-movers.yml. */}
-      <section id="weekly-video" className="mt-10 scroll-mt-24">
-        <h2 className="font-display text-2xl font-bold">Free weekly price-movers video</h2>
+      <section id="weekly-video" className="mt-14 scroll-mt-24">
+        <h2 className="sec-h2">Free weekly price-movers video</h2>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">
           Every Monday we make a 20-second vertical video of the week&rsquo;s biggest Pokémon sealed price moves: three up, three
           cheaper, with real prices and original music. Post it on TikTok, Reels or Shorts as it is, or talk over it. It comes
@@ -217,8 +204,8 @@ export default function CreatorsPage() {
       </section>
 
       {/* How to work with us */}
-      <section id="work-with-us" className="mt-10 scroll-mt-24">
-        <h2 className="font-display text-2xl font-bold">How to work with us</h2>
+      <section id="work-with-us" className="mt-14 scroll-mt-24">
+        <h2 className="sec-h2">How to work with us</h2>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">
           Creators often ask how we&rsquo;d like {SITE_NAME} promoted. Honestly, however suits you: no contract, no script, no quota and nothing to
           send us first. We help you, you help us, and we keep featuring you either way.
@@ -226,7 +213,7 @@ export default function CreatorsPage() {
         <ol className="mt-5 grid gap-3 sm:grid-cols-3">
           {WORK_WITH_US.map((w, i) => (
             <li key={w.title} className="card p-5">
-              <span className="eyebrow text-brand-strong">Option {i + 1}</span>
+              <span className="eyebrow">Option {i + 1}</span>
               <h3 className="mt-1 font-bold">{w.title}</h3>
               <p className="mt-1.5 text-sm leading-6 text-muted">{w.body}</p>
             </li>
@@ -245,8 +232,8 @@ export default function CreatorsPage() {
         </div>
       </section>
 
-      <section className="mt-10 max-w-3xl" aria-labelledby="creators-faq">
-        <h2 id="creators-faq" className="font-display text-2xl font-bold">
+      <section className="mt-14 max-w-3xl" aria-labelledby="creators-faq">
+        <h2 id="creators-faq" className="sec-h2">
           Creators FAQ
         </h2>
         <dl className="mt-4 space-y-5">

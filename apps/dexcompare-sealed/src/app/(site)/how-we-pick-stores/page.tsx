@@ -16,7 +16,10 @@ export default function HowWePick() {
     <div className="page max-w-3xl py-12">
       <Breadcrumbs items={[{ href: "/", label: SITE_NAME }, { label: "How we pick stores" }]} />
       <div className="prose-dex mt-6">
+        {/* The page draws the h1 in the inner pages' header style; the shared component skips its own (2026-11-14). */}
+        <h1>How we pick stores</h1>
         <HowWePickStores
+          showTitle={false}
           site={SITE_NAME}
           what="sealed product"
           stores={stores}
