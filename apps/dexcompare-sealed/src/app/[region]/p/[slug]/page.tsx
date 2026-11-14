@@ -47,7 +47,7 @@ import { toolHref } from "@/content/tools";
 import { prevNextSet } from "@/lib/hub-copy";
 import { setCountsGrouped } from "@/lib/hub-data";
 import { TYPE_ABOUT } from "@/lib/type-about";
-import { inStockAlternatives, relatedWithFormats } from "@/lib/product-data";
+import { inStockAlternatives, relatedWithFormats, sameTypeNeighbours } from "@/lib/product-data";
 import { detailIndexed, productNoindex } from "@/lib/index-tiers";
 import { productFaq } from "@/lib/product-faq";
 import { isPreorderSet } from "@/lib/release";
@@ -239,6 +239,8 @@ export default async function ProductPage({ params }: { params: { region: string
   // In-stock products of the type: "In stock instead" on a sold-out page, "More <type> in <region>" on an in-stock one with no set.
   // The page's one new read (LIMIT 4; the headline types' cheapest when the type has none open).
   const alternatives = !best || !p.setCode ? await inStockAlternatives(r.market, p.productType, p.setCode, p.slug) : [];
+  // "Other <type> in <region>" (lib/type-neighbours.ts, 2026-11-14): the type's indexable products either side of this one, as links.
+  const neighbours = type ? await sameTypeNeighbours(r.market, { slug: p.slug, productType: p.productType, releaseDate: set?.releaseDate ?? jaSet?.releaseDate ?? null }) : [];
   const elsewhere = REGION_LIST.filter((x) => x.region !== r.region)
     .map((x) => ({ x, s: p.stats.find((s) => s.market === x.market) }))
     .filter((e) => !!e.s); // a stat row exists only where a store or TCGplayer lists it
@@ -408,6 +410,24 @@ export default async function ProductPage({ params }: { params: { region: string
     { href: toolHref(r.region, "trade-calculator"), label: "Trade calculator" },
     { href: toolHref(r.region, "selling-fee-calculator"), label: "Selling-fee calculator" },
   ];
+
+  // "Other <type> in <region>": plain links, no photos (page weight), each with today's lowest open price and its store count from
+  // the import's own row.
+  const railHere = !!best && !p.setCode && alternatives.length > 0;
+  const neighbourList = (
+    <ul data-neighbours="" className="grid max-w-4xl gap-x-10 border-t border-line sm:grid-cols-2">
+      {neighbours.map((n) => (
+        <li key={n.slug} className="flex min-h-12 items-baseline justify-between gap-4 border-b border-line py-3">
+          <Link href={`/${r.region}/p/${n.slug}`} prefetch={false} className="min-w-0 font-semibold hover:text-brand">
+            {n.name}
+          </Link>
+          <span className="shrink-0 text-sm text-muted">
+            from {money(n.lowestPriceCents, r.market)} · {n.inStockStores > 0 ? plural(n.inStockStores, "store") : "TCGplayer"}
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
 
   // "Quick facts": the value check, then short facts side by side, then the cheapest offer, the stock, and the other regions as links.
   // In stock it comes before the strip (between the panel and it); sold out, after it (the order the brief sets: strip, other regions).
@@ -765,12 +785,20 @@ export default async function ProductPage({ params }: { params: { region: string
         </Section>
       )}
 
+      {/* "Other <type>": on a page with the "More <type>" rail below (in stock, no set) the links sit under that rail instead. */}
+      {type && neighbours.length > 0 && !railHere && (
+        <Section title={`Other ${type.plural} in ${r.inName}`} href={`/${r.region}/type/${type.slug}`} linkLabel={`All ${type.plural}`}>
+          {neighbourList}
+        </Section>
+      )}
+
       {/* Real sealed products on TCGplayer: after the price table, the chart and "More from <set>", never between a buyer and a price. */}
       <InlineAds region={r.region} tiles={tcgTiles} className="mt-14" />
 
-      {best && !p.setCode && alternatives.length > 0 && (
+      {railHere && (
         <Section title={`More ${type ? type.plural : "sealed products"} in ${r.inName}`} href={typeLink.href} linkLabel="See all">
           <ProductRail products={alternatives} region={r.region} label={`More ${type ? type.plural : "sealed products"}`} />
+          {neighbours.length > 0 && <div className="mt-8">{neighbourList}</div>}
         </Section>
       )}
 

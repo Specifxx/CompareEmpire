@@ -187,6 +187,8 @@ export interface PokemonPageData {
   /** Sold out everywhere, most-listed first (at most TYPE_SOLD_TAKE). */
   sold: ProductCardData[];
   openCount: number;
+  /** Every sold-out product that names the Pokémon (the page shows at most TYPE_SOLD_TAKE of them). */
+  soldCount: number;
   /** Comparable products (open, or listed by 2+ stores): what decides indexing. */
   comparable: number;
 }
@@ -217,6 +219,7 @@ export async function pokemonPageData(market: Market, hub: PokemonHub): Promise<
     open: open.sort((a, b) => ascNullsLast(a.lowestPriceCents, b.lowestPriceCents) || a.name.localeCompare(b.name)).slice(0, TYPE_OPEN_TAKE).map(rawToCard),
     sold: sold.sort((a, b) => b.listedStores - a.listedStores || a.name.localeCompare(b.name)).slice(0, TYPE_SOLD_TAKE).map(rawToCard),
     openCount: open.length,
+    soldCount: sold.length,
     comparable: rows.filter((r) => r.inStockStores > 0 || r.marketplaceOpen || r.listedStores >= 2).length,
   };
 }

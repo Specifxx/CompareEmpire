@@ -273,6 +273,13 @@ function toOfferView(o: { store: string; title: string; url: string; priceCents:
   };
 }
 
+/**
+ * The most store rows a product page reads in one market. Above every product today (the most listed has 136, US), so the page
+ * shows every store that lists it and its counts agree with the import's; the order above decides what a larger product would lose
+ * (its dearest sold-out rows). tests/product-offers-cap.test.ts checks both on the committed data.
+ */
+export const PRODUCT_OFFERS_TAKE = 200;
+
 export async function productPage(slug: string, market: Market): Promise<ProductPageData | null> {
   const p = await prisma.product.findUnique({
     where: { slug },
@@ -285,7 +292,11 @@ export async function productPage(slug: string, market: Market): Promise<Product
       imageUrl: true,
       offers: {
         where: { market },
-        take: 80,
+        // In stock first, cheapest first, BEFORE the cap (2026-11-14): the read had no order, so on the 89 product pages with more
+        // than 80 listings (US and Canada's most-stocked boxes, ETBs and bundles) it kept 80 arbitrary stores. 23 of them lost their
+        // cheapest in-stock store, and the title, the best price, the quick view and the Product JSON-LD said a dearer one.
+        orderBy: [{ inStock: "desc" }, { priceCents: "asc" }, { store: "asc" }],
+        take: PRODUCT_OFFERS_TAKE,
         select: offerSelect,
       },
       stats: { select: { market: true, lowestPriceCents: true, inStockStores: true, listedStores: true, marketplaceOpen: true, medianOpenCents: true } },
@@ -391,7 +402,8 @@ export interface SetOfferGroup {
 }
 
 // Bounds for setOfferGroups: a set has about a dozen sealed products in a
-// market and a new set's product is listed by a few dozen stores at most.
+// market and a new set's product is listed by a few dozen stores at most. The offers are ordered before the cap (in stock
+// first, cheapest first), so a product more than 40 stores list keeps its cheapest (2026-11-14, as productPage).
 const SET_GROUPS_TAKE = 30;
 const SET_GROUP_OFFERS_TAKE = 40;
 
@@ -407,7 +419,7 @@ export async function setOfferGroups(market: Market, setCode: string): Promise<S
     take: SET_GROUPS_TAKE,
     select: {
       ...cardSelect,
-      product: { select: { ...cardSelect.product.select, offers: { where: { market }, take: SET_GROUP_OFFERS_TAKE, select: offerSelect } } },
+      product: { select: { ...cardSelect.product.select, offers: { where: { market }, orderBy: [{ inStock: "desc" }, { priceCents: "asc" }, { store: "asc" }], take: SET_GROUP_OFFERS_TAKE, select: offerSelect } } },
     },
   });
   return rows
