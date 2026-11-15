@@ -1,0 +1,15 @@
+{
+ "v": 1,
+ "at": "2026-11-15T02:23:28Z",
+ "site": "dexcompare",
+ "kind": "suggest-store",
+ "page": "/list-your-store",
+ "product": null,
+ "store": "Jaytolmes TCG",
+ "storeUrl": "jaytolmes-tcg.com",
+ "region": "US",
+ "shown": null,
+ "actual": null,
+ "issue": "owner",
+ "note": "Store owner request. Platform: other. Independent collector-owned Pokémon sealed-product store. Built with ChatGPT Sites, with individual product pages, product structured data and a sitemap at https://jaytolmes-tcg.com/sitemap.xml. Prices are in USD; availability and shipping details appear on each product page."
+}
