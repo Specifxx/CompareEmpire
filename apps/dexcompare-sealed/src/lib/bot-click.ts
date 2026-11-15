@@ -13,6 +13,13 @@ export function looksLikeBot(headers: Headers): boolean {
   if (!ua || BOT_UA.test(ua)) return true;
   if (!headers.get("accept-language")) return true;
   if (!headers.get("sec-fetch-mode")) return true;
+  // 2026-11-15: the crawler came back with a whole browser's headers (2,835 go_clicks on 14 Nov from 1,381 devices, on a day the
+  // site had 632 visitors; 2,383 of them Chrome on a Mac, spread over a dozen countries, one click per store). What it cannot fake
+  // by opening /go URLs it collected: Sec-Fetch-Site. A /go link exists only on our own pages (never in an email, a feed or a
+  // widget), so a person's click, in the same tab or a new one, is always "same-origin"; a URL opened directly is "none" and one
+  // followed from elsewhere "cross-site".
+  const site = headers.get("sec-fetch-site");
+  if (site && site !== "same-origin" && site !== "same-site") return true;
   return false;
 }
 

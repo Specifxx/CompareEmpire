@@ -103,6 +103,10 @@ test("/go: a bot is sent on unrecorded, and to TCGplayer untagged; a browser's n
   assert.equal(looksLikeBot(new Headers({ ...person, "user-agent": "Mozilla/5.0 (compatible; AhrefsBot/7.0)" })), true);
   assert.equal(looksLikeBot(new Headers({ "user-agent": person["user-agent"] })), true, "a browser's name alone, with no language or fetch mode, is a script");
   assert.equal(looksLikeBot(new Headers({ ...person, "user-agent": "" })), true);
+  // 2026-11-15: a /go URL opened directly or followed from another site is not a click on our page.
+  assert.equal(looksLikeBot(new Headers({ ...person, "sec-fetch-site": "same-origin" })), false);
+  assert.equal(looksLikeBot(new Headers({ ...person, "sec-fetch-site": "none" })), true);
+  assert.equal(looksLikeBot(new Headers({ ...person, "sec-fetch-site": "cross-site" })), true);
   const page = "https://www.tcgplayer.com/product/453470/crown-zenith-elite-trainer-box";
   assert.equal(untaggedDest(`https://partner.tcgplayer.com/c/7385758/1780961/21018?u=${encodeURIComponent(page)}&sharedid=dex-us-product-best`), page);
   assert.equal(untaggedDest("https://partner.tcgplayer.com/c/7385758/1780961/21018?u=https%3A%2F%2Fevil.example%2F"), "https://partner.tcgplayer.com/c/7385758/1780961/21018?u=https%3A%2F%2Fevil.example%2F", "never an open redirect");
