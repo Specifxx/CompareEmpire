@@ -1,7 +1,7 @@
 {
  "v": 1,
  "site": "dex",
- "generatedAt": "2026-11-15T01:06:36.878Z",
+ "generatedAt": "2026-11-15T16:37:00.198Z",
  "links": {
   "AU": {
    "deals": "https://dexcompare.app/au/deals"
@@ -36,23 +36,9 @@
    "currency": "AUD",
    "store": "Grand J Games",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/688712_in_1000x1000.jpg",
-   "refCents": 7500,
+   "refCents": 7250,
    "refLabel": "median store price",
-   "savingPct": 47
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "AU",
-   "title": "Pokemon Day 2026 Collection",
-   "url": "https://dexcompare.app/au/p/pokemon-day-2026-collection",
-   "cents": 7500,
-   "currency": "AUD",
-   "store": "PokeSource",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/668590_in_1000x1000.jpg",
-   "refCents": 13995,
-   "refLabel": "median store price",
-   "savingPct": 46
+   "savingPct": 45
   },
   {
    "kind": "deal",
@@ -113,6 +99,20 @@
   {
    "kind": "deal",
    "cluster": "cards",
+   "region": "AU",
+   "title": "Mega Brave Japanese Booster Pack (M1L)",
+   "url": "https://dexcompare.app/au/p/mega-brave-m1l-japanese-booster-pack",
+   "cents": 400,
+   "currency": "AUD",
+   "store": "One Stop Poke Shop",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/647498_in_1000x1000.jpg",
+   "refCents": 600,
+   "refLabel": "median store price",
+   "savingPct": 33
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
    "region": "NZ",
    "title": "League Battle Deck - Mega Lucario ex",
    "url": "https://dexcompare.app/nz/p/league-battle-deck-mega-lucario-ex",
@@ -135,6 +135,20 @@
    "store": "Card Collective NZ",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/692944_in_1000x1000.jpg",
    "refCents": 1090,
+   "refLabel": "median store price",
+   "savingPct": 13
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "NZ",
+   "title": "Delta Reign 3 Pack Blister",
+   "url": "https://dexcompare.app/nz/p/delta-reign-3-pack-blister",
+   "cents": 3299,
+   "currency": "NZD",
+   "store": "WP Games",
+   "image": "https://cdn.shopify.com/s/files/1/0936/4737/2569/files/219_88212d3e-4d7d-4252-a1bc-0e69a94ae10d.png?v=1787724069",
+   "refCents": 3800,
    "refLabel": "median store price",
    "savingPct": 13
   },
@@ -254,15 +268,15 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "US",
-   "title": "Pokémon Card 151 Japanese Booster Pack (SV2a)",
-   "url": "https://dexcompare.app/us/p/pokemon-card-151-sv2a-japanese-booster-pack",
-   "cents": 1495,
+   "title": "Sword & Shield Booster Pack",
+   "url": "https://dexcompare.app/us/p/sword-shield-booster-pack",
+   "cents": 1000,
    "currency": "USD",
-   "store": "Galactic Toys & Collectibles",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/565242_in_1000x1000.jpg",
-   "refCents": 2300,
+   "store": "Dragon Egg Games",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/206028_in_1000x1000.jpg",
+   "refCents": 1350,
    "refLabel": "median store price",
-   "savingPct": 35
+   "savingPct": 26
   },
   {
    "kind": "deal",
@@ -289,20 +303,6 @@
    "store": "Rare Pokémon Cards UK",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/478335_in_1000x1000.jpg",
    "refCents": 5000,
-   "refLabel": "median store price",
-   "savingPct": 48
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "UK",
-   "title": "Destined Rivals Elite Trainer Box",
-   "url": "https://dexcompare.app/uk/p/destined-rivals-elite-trainer-box",
-   "cents": 5199,
-   "currency": "GBP",
-   "store": "Rare Pokémon Cards UK",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/624676_in_1000x1000.jpg",
-   "refCents": 9999,
    "refLabel": "median store price",
    "savingPct": 48
   },
@@ -347,6 +347,20 @@
    "refCents": 16449,
    "refLabel": "median store price",
    "savingPct": 45
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "UK",
+   "title": "Nihil Zero Japanese Booster Pack (M3)",
+   "url": "https://dexcompare.app/uk/p/nihil-zero-m3-japanese-booster-pack",
+   "cents": 195,
+   "currency": "GBP",
+   "store": "Collectors Kingdom",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/674454_in_1000x1000.jpg",
+   "refCents": 350,
+   "refLabel": "median store price",
+   "savingPct": 44
   },
   {
    "kind": "deal",
@@ -564,13 +578,13 @@
    "region": "SG",
    "title": "Pitch Black Elite Trainer Box",
    "url": "https://dexcompare.app/sg/p/pitch-black-elite-trainer-box",
-   "cents": 9200,
+   "cents": 9000,
    "currency": "SGD",
    "store": "TEFUDA",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/692947_in_1000x1000.jpg",
    "refCents": 13500,
    "refLabel": "median store price",
-   "savingPct": 32
+   "savingPct": 33
   },
   {
    "kind": "deal",
