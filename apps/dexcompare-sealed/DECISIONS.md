@@ -1046,3 +1046,11 @@ Test (`lib/rows-test.ts`, `rows-test-client.tsx`, `tests/rows-test.test.ts`): on
 
 Events, one property `k` = `<region>:<arm>`, each once a visit: `rt_seen`, `rt_paid`, `rt_store`, `rt_more`. Primary: rt_paid / rt_seen. Guardrail: (rt_paid + rt_store) / rt_seen must not fall, because affiliate stores pay too. Decide at p < 0.05 two-sided after the full four weeks, never early; no verdict = A stays. Revert B if guardrail visits fall more than 5% with p < 0.1. No spend, no deploy marker: it rides the next release.
 
+
+## 2026-11-16: A small unpriced "Also on Amazon" link under the product table
+
+The 2026-11-12 rule (Amazon row only with a real price) took Amazon buy clicks from about 40 a day on Dex (about 100 across the sites) to
+zero on 13 Nov, and Amazon earnings with them (US$7-12 a day at the 7-12 Nov rate). Not a row: one line under the product page's price table,
+"Also on Amazon", only where Amazon sells the item (a known ASIN, else a type Amazon carries), unpriced and labelled paid, hidden when the
+priced row shows. Never the quick view (A/B window 20 Nov-3 Dec), never pinned, best, a deal or an alert; the shared region tag, placement
+`amazon-below-table`. Read clicks per day against 7-12 Nov. `tests/paid-rows.test.ts` pins it.

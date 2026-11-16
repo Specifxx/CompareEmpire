@@ -64,6 +64,7 @@ export const amazonLabel = (region: Region | null | undefined): string => (regio
 /** Where on the site an Amazon link sits: the amazon_click and buy_click events' placement. */
 export const AMAZON_PLACEMENTS = [
   "amazon-table", // product page: the Amazon row pinned in the price table, under eBay and TCGplayer
+  "amazon-below-table", // product page: the small unpriced "Also on Amazon" link under the price table (2026-11-16)
   "amazon-product", // product page: the Marketplaces panel's Amazon row
   "amazon-soldout", // product page, sold out: the button in the sold-out callout's marketplace box
   "amazon-preorder", // pre-order page: the Amazon row under eBay and TCGplayer
