@@ -8,13 +8,13 @@ import { AB_START } from "../src/lib/ab";
 
 const src = (p: string) => readFileSync(new URL(`../src/${p}`, import.meta.url), "utf8");
 
-test("four whole weeks from 17 Nov", () => {
-  assert.equal(new Date(RT_START).toISOString(), "2026-11-17T00:00:00.000Z");
+test("four whole weeks from 20 Nov", () => {
+  assert.equal(new Date(RT_START).toISOString(), "2026-11-20T00:00:00.000Z");
   assert.equal(RT_END - RT_START, 28 * 86_400_000);
   assert.equal(rtActive(RT_START - 1), false);
   assert.equal(rtActive(RT_START), true);
   assert.equal(rtActive(RT_END), false);
-  assert.ok(RT_START < AB_START, "a separate storage key and surface, so overlapping the quick-view window is safe");
+  assert.equal(RT_START, AB_START, "starts with the quick-view tests, after the 19 Nov rechecks read an untouched site");
 });
 
 test("a fair coin, a one-letter store, one key per region and arm", () => {
