@@ -224,8 +224,8 @@ export const GUIDES: readonly Guide[] = [
     // The growth pack's Build & Battle piece (2026-10-16). Its eBay strip is generic sealed: Build & Battle Boxes have no feed of
     // their own (ebay-import.ts TYPE_FEEDS), and a type context without one would show only the compact CTA.
     slug: "pokemon-build-and-battle-box",
-    title: "Pokémon Build & Battle Box: what’s inside, and is it worth it?",
-    description: "What’s in a Pokémon Build & Battle Box, how it’s used at a Prerelease, and what a pack in one costs today against a bundle or ETB of the same set.",
+    title: "Pokémon Delta Reign Build & Battle Box: price and contents",
+    description: "How much a Pokémon Delta Reign Build & Battle Box costs today, what’s inside, how it’s used at a Prerelease, and what a pack costs against a bundle or ETB.",
     kicker: "Build & Battle",
     published: "2026-10-16",
     updated: "2026-10-16",
@@ -296,8 +296,8 @@ export const GUIDES: readonly Guide[] = [
   },
   {
     slug: "how-to-check-pokemon-card-value",
-    title: "How to check a Pokémon card’s value",
-    description: "How to check what a Pokémon card or sealed product is worth: sold listings, condition, store prices and the median, step by step with today's data.",
+    title: "Pokémon card value checker: how to check what it’s worth",
+    description: "Check what a Pokémon card or sealed product is worth: sold listings, condition and store prices, step by step, with our free value checker and today's data.",
     kicker: "Valuing cards",
     published: "2026-10-21",
     updated: "2026-10-21",
