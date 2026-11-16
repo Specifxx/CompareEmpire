@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { readStored, PREMIUM_PRICE_LINE } from "@/lib/premium-member";
+import { readStored, trackPremium, PREMIUM_PRICE_LINE } from "@/lib/premium-member";
 
 // The Premium corner card (owner, 2026-11-10: "the slider that RiftCompare used to use, pointing to Premium"). One small card in the foot of
 // the page, never a modal, with the rules that keep it from being a pop-up for a new visitor:
@@ -87,7 +87,7 @@ export function PremiumCorner() {
       <p className="mt-1 text-xs text-muted">{PREMIUM_PRICE_LINE}.</p>
       <a
         href="/premium"
-        onClick={() => silence(30)}
+        onClick={() => { trackPremium("premium_corner_click"); silence(30); }}
         className="btn-tcg mt-3 min-h-10 px-5 font-bold"
       >
         Try Premium free

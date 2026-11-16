@@ -210,3 +210,12 @@ export async function openBilling(token: string): Promise<{ url: string } | { me
 export const ADFREE_BOOT_SCRIPT = `try{var v=JSON.parse(localStorage.getItem(${JSON.stringify(PREMIUM_STORE_KEY)})||"null");if(v&&v.premium===true)document.documentElement.setAttribute("data-adfree","")}catch(e){}`;
 /** Longest history a member's collection keeps, in days; everyone else keeps 60 (lib/vault.ts). */
 export const MEMBER_HISTORY_DAYS = 365;
+
+/** Funnel events (GA4, best-effort, consent-respecting): premium_corner_click, premium_view, premium_trial_click, premium_signin_redirect, premium_checkout_open. Added 2026-11-16 because Dex Premium had no numbers at all. */
+export function trackPremium(event: string, params: Record<string, unknown> = {}): void {
+  try {
+    (window as unknown as { gtag?: (...a: unknown[]) => void }).gtag?.("event", event, params);
+  } catch {
+    /* analytics is best-effort */
+  }
+}

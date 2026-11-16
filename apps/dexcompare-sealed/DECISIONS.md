@@ -1054,3 +1054,7 @@ zero on 13 Nov, and Amazon earnings with them (US$7-12 a day at the 7-12 Nov rat
 "Also on Amazon", only where Amazon sells the item (a known ASIN, else a type Amazon carries), unpriced and labelled paid, hidden when the
 priced row shows. Never the quick view (A/B window 20 Nov-3 Dec), never pinned, best, a deal or an alert; the shared region tag, placement
 `amazon-below-table`. Read clicks per day against 7-12 Nov. `tests/paid-rows.test.ts` pins it.
+
+## 2026-11-16: Dex Premium funnel events, and what the first six days showed
+
+Read from RiftCompare admin (Accounts, DexCompare tab) on 16 Nov, six days after launch: 0 members signed in via Dex, 0 trials, 0 paid, 2 alert emails (price alerts, not Premium). Dex Premium had no event tracking, so page views and button clicks were unknowable. Added GA4 events (`premium_corner_click`, `premium_view`, `premium_trial_click`, `premium_checkout_open`; `trackPremium`) so the next read has a funnel. Verdict for now: keep (no running cost, shared Rift account and Stripe plans), do not build more until `premium_view` shows how many people reach the page.
