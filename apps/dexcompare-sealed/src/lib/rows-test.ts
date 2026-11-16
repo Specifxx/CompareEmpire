@@ -1,4 +1,4 @@
-// The product page's "how many store rows" test (2026-11-16, DECISIONS.md "Rows test"). Pure: dates, eligibility, keys, the arms.
+// The product page's "how many store rows" test (2026-11-16, starts 20 Nov, DECISIONS.md "Rows test"). Pure: dates, eligibility, keys, the arms.
 //
 // THE QUESTION (owner, 2026-11-16): does listing every store dilute the clicks that pay? Since 2026-10-24 the table shows ALL rows
 // (VISIBLE_ROWS 1000). Dex sends ~70% of buy clicks to stores with no programme, so a long list may bury eBay, TCGplayer and Amazon.
@@ -16,8 +16,8 @@
 // (a click on eBay, TCGplayer, Amazon or an affiliate store), rt_store (a click on a store row), rt_more (the "Show more" row opened).
 // Primary: rt_paid over rt_seen. Guardrail: rt_paid + rt_store over rt_seen must not fall (a store click can pay too).
 
-export const RT_START = Date.parse("2026-11-17T00:00:00Z");
-export const RT_END = Date.parse("2026-12-15T00:00:00Z");
+export const RT_START = Date.parse("2026-11-20T00:00:00Z");
+export const RT_END = Date.parse("2026-12-18T00:00:00Z");
 export const RT_STORE = "rt1";
 export const RT_SEEN = "rt1_seen";
 export const RT_STORES_SHOWN = 5;
