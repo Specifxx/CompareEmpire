@@ -95,7 +95,7 @@ function Banner({
   );
 }
 
-function TileLink({ t, kind, region }: { t: Tile; kind: "ebay" | "tcg"; region: Region }) {
+function TileLink({ t, kind, region, eager = false }: { t: Tile; kind: "ebay" | "tcg"; region: Region; eager?: boolean }) {
   return (
     <li className="w-[104px] sm:w-[120px]">
       <OutboundLink
@@ -107,7 +107,7 @@ function TileLink({ t, kind, region }: { t: Tile; kind: "ebay" | "tcg"; region: 
         className="group flex h-[184px] flex-col rounded-xl border border-line bg-surface p-1.5 transition-colors hover:border-ink/40 sm:h-[200px]"
       >
         <span className="plate relative block aspect-square w-full shrink-0 overflow-hidden rounded-lg">
-          <img src={t.img} alt={t.title} width={108} height={108} loading="lazy" decoding="async" referrerPolicy="no-referrer" className="absolute inset-0 h-full w-full object-contain p-1" />
+          <img src={t.img} alt={t.title} width={108} height={108} loading={eager ? "eager" : "lazy"} decoding="async" referrerPolicy="no-referrer" className="absolute inset-0 h-full w-full object-contain p-1" />
         </span>
         <span className="mt-1 line-clamp-2 h-8 text-[11px] font-semibold leading-4">{t.title}</span>
         <span className="tabular mt-auto truncate text-sm font-bold">{t.price}</span>
@@ -181,8 +181,8 @@ export function InlineAds({ region, tiles, className = "" }: { region: Region; t
         >
           {tcg.length >= 3 ? (
             <ul role="list" className={ROW}>
-              {tcg.map((t) => (
-                <TileLink key={t.key} t={t} kind="tcg" region={region} />
+              {tcg.map((t, i) => (
+                <TileLink key={t.key} t={t} kind="tcg" region={region} eager={i < 3} />
               ))}
             </ul>
           ) : (
@@ -202,8 +202,8 @@ export function InlineAds({ region, tiles, className = "" }: { region: Region; t
         >
           {ebay.length >= 1 ? (
             <ul role="list" className={ROW}>
-              {ebay.map((t) => (
-                <TileLink key={t.key} t={t} kind="ebay" region={region} />
+              {ebay.map((t, i) => (
+                <TileLink key={t.key} t={t} kind="ebay" region={region} eager={i < 3} />
               ))}
             </ul>
           ) : (
