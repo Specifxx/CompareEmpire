@@ -4,6 +4,7 @@ import { track } from "@vercel/analytics";
 import type { ReactNode } from "react";
 import type { Placement } from "@/lib/affiliate";
 import { abClick, useAb } from "@/lib/ab-client";
+import { rtClick, useRowsTest } from "@/lib/rows-test-client";
 import { buyEvents, goHref, type BuyItem } from "@/lib/click-events";
 import type { Region } from "@/lib/regions";
 
@@ -54,8 +55,11 @@ export function OutboundLink({
 }) {
   // Inside the quick view during an A/B test (lib/ab.ts): the click also counts for the visitor's arms. Null everywhere else.
   const ab = useAb();
+  // The product page's rows test (lib/rows-test.ts): null outside it.
+  const rt = useRowsTest();
   function record() {
     abClick(ab, retailer, placement, rel);
+    rtClick(rt, retailer, placement, rel);
     try {
       for (const [name, props] of buyEvents({ retailer, placement, rel, pathname: window.location.pathname, item })) track(name, props);
     } catch {
