@@ -152,7 +152,7 @@ export function InlineAds({ region, tiles, className = "" }: { region: Region; t
   // sees an ad unit and nothing moves when they draw.
   if (!mounted) {
     return (
-      <div ref={ref} aria-hidden="true" className={className}>
+      <div ref={ref} data-inline-ad aria-hidden="true" className={className}>
         <div className="grid grid-cols-[minmax(0,1fr)] gap-3 md:grid-cols-2 md:gap-4">
           <div className="h-[286px] sm:h-[300px]" />
           <div className="h-[286px] sm:h-[300px]" />
@@ -162,7 +162,7 @@ export function InlineAds({ region, tiles, className = "" }: { region: Region; t
     );
   }
   return (
-    <div ref={ref} data-ad={EBAY} className={className}>
+    <div ref={ref} data-inline-ad data-ad={EBAY} className={className}>
       <div className="grid grid-cols-[minmax(0,1fr)] gap-3 md:grid-cols-2 md:gap-4">
         <Banner
           label="Sponsored: sealed on TCGplayer"

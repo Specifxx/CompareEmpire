@@ -202,3 +202,11 @@ export async function openBilling(token: string): Promise<{ url: string } | { me
   const { j } = await premiumApi("portal", { token });
   return j.url ? { url: j.url } : { message: j.error || "Couldn't open billing. Try again." };
 }
+
+// AD-FREE FOR MEMBERS (owner, 2026-11-16: Premium needed real value). A member's browser sets data-adfree on <html> before first paint, from the
+// membership it cached (the hourly re-check in AdFreeSync corrects it), and globals.css hides the banner ads and the phone dock under it.
+// Price tables, stores, their order and the paid rows inside them are untouched: this removes banners, nothing else, and the one CDN copy
+// of every page stays the same for everyone.
+export const ADFREE_BOOT_SCRIPT = `try{var v=JSON.parse(localStorage.getItem(${JSON.stringify(PREMIUM_STORE_KEY)})||"null");if(v&&v.premium===true)document.documentElement.setAttribute("data-adfree","")}catch(e){}`;
+/** Longest history a member's collection keeps, in days; everyone else keeps 60 (lib/vault.ts). */
+export const MEMBER_HISTORY_DAYS = 365;
