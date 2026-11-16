@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { demoteSuspectStores, distrustRead, dormantStores, dropHighOutliers, dropLowOutliers, offerRef, pickName, planMoves, priceOf, rankImages, rowsFromReads, sourcesFor, type StoreRead } from "../src/lib/importer";
+import { demotePlaceholderPrices, demoteSuspectStores, distrustRead, dormantStores, dropHighOutliers, dropLowOutliers, offerRef, pickName, planMoves, priceOf, rankImages, rowsFromReads, sourcesFor, type StoreRead } from "../src/lib/importer";
 import { readShopifyCollection } from "../src/lib/feeds";
 import { headlineOffer, offerStock, openStoreCount, rankOffers, OFFER_STALE_MS } from "../src/lib/sealed-offers";
 import type { FeedProduct } from "../src/lib/feeds";
@@ -444,4 +444,21 @@ test("a new store's live feed: Beaches TCG lists its English and Japanese sealed
     // Mega Charizard X or Y: one of two products.
     "Mega Charizard Tin - Assorted": "vague",
   });
+});
+
+test("an in-stock all-nines placeholder price is written as sold out; a real ask near the market is kept", () => {
+  const reads = [
+    readOf("a", [{ title: "Pitch Black Booster Box", cents: 27000 }, { title: "Evolving Skies Build & Battle Box", cents: 4500 }]),
+    readOf("b", [{ title: "Pitch Black Booster Box", cents: 28000 }, { title: "Evolving Skies Build & Battle Box", cents: 4800 }]),
+    readOf("c", [{ title: "Pitch Black Booster Box", cents: 29000 }, { title: "Evolving Skies Build & Battle Box", cents: 5000 }]),
+    readOf("d", [{ title: "Pitch Black Booster Box", cents: 99999 }, { title: "Evolving Skies Build & Battle Box", cents: 99999 }]), // 3.4x and 20x the market: placeholders
+    readOf("e", [{ title: "Pitch Black Booster Box", cents: 99999, inStock: false }]), // already sold out: untouched
+    readOf("alone", [{ title: "Surging Sparks Booster Box", cents: 99999 }]), // no market to judge $999.99 by: kept
+    readOf("big", [{ title: "Surging Sparks Booster Box", cents: 999999 }]), // US$9,999.99 no sealed product asks: demoted
+  ];
+  assert.equal(demotePlaceholderPrices(reads), 3);
+  assert.ok(reads[3].rows.every((r) => !r.inStock), "its rows stay, as sold out");
+  assert.ok(reads[5].rows[0].inStock);
+  assert.ok(!reads[6].rows[0].inStock);
+  assert.ok(reads[0].rows.every((r) => r.inStock));
 });
