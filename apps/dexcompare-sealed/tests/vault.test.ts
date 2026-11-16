@@ -105,3 +105,21 @@ test("the collection's button and link carry their class's weight: a :where() ru
   assert.deepEqual(button && [button.decls.get("padding"), button.decls.get("font-size"), button.decls.get("font-weight"), button.decls.get("min-height")], ["0 0.9rem", "0.875rem", "700", "2.5rem"]);
   assert.equal(sheet.find((r) => r.selector === ".ce-vault-link")?.decls.get("color"), "var(--cart-accent)");
 });
+
+test("collectionCsv: one row per item, formula cells defused, money in major units", async () => {
+  const { collectionCsv } = await import("../src/lib/vault");
+  const csv = collectionCsv([
+    { id: "1", name: '=HYPERLINK("x") Box, 36 packs', href: "/us/p/a", market: "US", currency: "USD", addedCents: 10000, qty: 2, addedAt: "2026-11-01T00:00:00Z", nowCents: 12000 },
+    { id: "2", name: "Tin", href: "/us/p/b", market: "US", currency: "USD", addedCents: 0, qty: 1, addedAt: "2026-11-02T00:00:00Z", nowCents: null },
+  ]);
+  const lines = csv.trim().split("\n");
+  assert.equal(lines.length, 3);
+  assert.ok(lines[1].startsWith(`"'=HYPERLINK(""x"") Box, 36 packs",US,USD,2,100.00,120.00,240.00,40.00,2026-11-01`));
+  assert.ok(lines[2].startsWith("Tin,US,USD,1,,,,,2026-11-02"));
+});
+
+test("recordDay keeps longer history for a member", () => {
+  let d: ReturnType<typeof recordDay> = [];
+  for (let n = 0; n < 100; n++) d = recordDay(d, "US", 100 + n, new Date(Date.UTC(2026, 0, 1 + n)), 10);
+  assert.equal(d.length, 70);
+});

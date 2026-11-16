@@ -58,5 +58,13 @@ test("the restock prompt shows only on a product with no in-stock price in the r
 test("the premium page keeps free alerts free and says what Premium does not do", () => {
   const s = read("src/app/(site)/premium/page.tsx");
   assert.match(s, /price alerts and the weekly biggest-drops email/);
-  assert.match(s, /does not remove ads/);
+  assert.match(s, /does not change which stores are shown or in what order/);
+  assert.match(s, /No banner ads/);
+});
+
+test("ad-free members: boot script and CSS hide banners only, never the price tables", () => {
+  assert.match(read("src/lib/premium-member.ts"), /ADFREE_BOOT_SCRIPT/);
+  const css = read("src/app/globals.css");
+  assert.match(css, /html\[data-adfree\] \[data-inline-ad\]/);
+  assert.doesNotMatch(css, /html\[data-adfree\][^{]*(\.ad-box|offer|price)/);
 });

@@ -7,6 +7,8 @@ import { PaidVisitTagger } from "@/components/PaidVisitTagger";
 import { QuickView } from "@/components/QuickView";
 import { RateCard } from "@/components/site-reviews/RateCard";
 import { PremiumCorner } from "@/components/premium/PremiumCorner";
+import { AdFreeSync } from "@/components/premium/AdFreeSync";
+import { ADFREE_BOOT_SCRIPT } from "@/lib/premium-member";
 import { IMPACT_SITE_VERIFICATIONS } from "@/lib/affiliate";
 import { ADSENSE_CLIENT, adsenseScriptSrc } from "@/lib/adsense";
 import { GA4_ID, ga4BootScript, ga4ScriptSrc } from "@/lib/ga4";
@@ -57,6 +59,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }} />
         {/* The visitor's own region (owner, 2026-11-01): a person, never a crawler, on another region's page goes to theirs. lib/region-boot.ts. */}
         <script dangerouslySetInnerHTML={{ __html: REGION_BOOT_SCRIPT }} />
+        {/* Premium members: data-adfree on <html> before first paint hides the banner ads (lib/premium-member.ts). */}
+        <script dangerouslySetInnerHTML={{ __html: ADFREE_BOOT_SCRIPT }} />
         {/* Product photos: 96% are on Shopify's CDN, most of the rest on TCGplayer's.
             Warming those two connections is the cheapest LCP win there is. */}
         <link rel="preconnect" href="https://cdn.shopify.com" />
@@ -93,6 +97,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(siteJsonLd()) }} />
         <QuickView />
         <PremiumCorner />
+        <AdFreeSync />
         {/* Rate us (owner, 2026-11-03): the corner card, asking only after real use; RiftCompare keeps the ratings. */}
         <RateCard />
         <SiteAnalytics />
