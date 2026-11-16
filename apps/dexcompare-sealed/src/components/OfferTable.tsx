@@ -222,7 +222,8 @@ export function offerRowsData({
       ago: timeAgo(o.lastSeen, now),
       // The sentence (`title`) is said once under the table, not on every row (OfferRows.tsx ShipLine).
       ship: ship && { ...ship, title: "" },
-      ...(o.marketplace ? {} : { cart: { productUrl: o.url, currency: r.currency } }),
+      // Every row is a store row for the cart (owner, 2026-11-16: eBay and TCGplayer included), on its tagged link.
+      cart: { productUrl: o.url, currency: r.currency },
     };
   });
   const tcg = pin ? tcgRow(tcgOffer, pin, region, placement, now, product) : null;
@@ -272,6 +273,7 @@ function tcgRow(offer: OfferView | null, pin: { productName: string; tcgplayer: 
     rel: link.rel,
     sponsored: link.sponsored,
     price: us ? money(m.priceCents, "US") : usd(m.priceCents),
+    cart: { productUrl: m.url, currency: us ? r.currency : "USD" },
     lastSeen: m.lastSeen,
     ago: timeAgo(m.lastSeen, now),
     // the US offer goes through /go like every store offer; the US$ offer elsewhere links straight to TCGplayer, as the panel did
