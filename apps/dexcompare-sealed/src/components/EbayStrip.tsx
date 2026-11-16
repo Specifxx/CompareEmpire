@@ -27,6 +27,8 @@ import { EbayMark } from "./EbayMark";
 import { Icon } from "./Icon";
 import { OutboundLink } from "./OutboundLink";
 import { useAb } from "@/lib/ab-client";
+import { RowsTestContext, rtMore, useRowsTestVisit } from "@/lib/rows-test-client";
+import { rtEligible, rtVisible } from "@/lib/rows-test";
 
 // The eBay listing strips: real listings from eBay's Browse API as image banners (the look of Rift Compare's
 // "Chase cards on eBay" strip), read from OUR database: a daily GitHub Actions import stores them, the route
@@ -740,8 +742,11 @@ export function OfferRowsWithEbay({
   packs = null,
   allowBest: allowGiven = true,
   preorder = false,
+  rowsTest = false,
 }: {
   rows: StoreRowData[];
+  /** The product page's rows test (lib/rows-test.ts); never the quick view. */
+  rowsTest?: boolean;
   /** The TCGplayer row, pinned third, under eBay and Amazon (owner, 2026-11-06; OfferTable builds it); null = none. */
   tcg?: StoreRowData | null;
   /** The Amazon row, pinned second, right under eBay (owner, 2026-11-06; OfferTable builds it where the region has an Amazon tag); null = none. Never the best price. */
@@ -781,10 +786,12 @@ export function OfferRowsWithEbay({
     ...(tcgFirst ? [] : tcgSlot),
     ...rows.map((d) => ({ key: d.key, open: d.open, node: <StoreRow key={d.key} d={d} preorder={preorder} top={top === "store" && d === store} /> })),
   ];
-  const { shown, moreOpen, moreClosed } = splitRows(slots);
+  // The rows test (lib/rows-test.ts): arm b draws the pinned rows and the cheapest few stores, the rest behind "Show N more stores".
+  const rt = useRowsTestVisit(rowsTest && !preorder && rtEligible(rows.length), region);
+  const { shown, moreOpen, moreClosed } = splitRows(slots, rtVisible(rt?.arm ?? null, slots.length - rows.length, slots.length));
   const list = (part: Slot[]) => part.map((r) => r.node);
   const more = (label: string, part: Slot[]) => (
-    <details className="group/more px-4 py-1 sm:px-5">
+    <details className="group/more px-4 py-1 sm:px-5" onToggle={(e) => e.currentTarget.open && rtMore(rt)}>
       <summary className="btn-ghost min-h-11 w-full cursor-pointer list-none justify-center [&::-webkit-details-marker]:hidden">
         <span className="group-open/more:hidden">{label}</span>
         <span className="hidden group-open/more:inline">Show fewer</span>
@@ -796,6 +803,7 @@ export function OfferRowsWithEbay({
     </details>
   );
   return (
+    <RowsTestContext.Provider value={rt}>
     <div ref={ref}>
       {/* Keyed lists: when the store rows re-rank, React moves their nodes instead of rebuilding them (focus kept) */}
       <div className="group/offers divide-y divide-line" data-best={top ?? undefined}>
@@ -804,6 +812,7 @@ export function OfferRowsWithEbay({
         {moreClosed.length > 0 && more(moreClosedLabel(moreClosed.length, shown.some((r) => !r.open)), moreClosed)}
       </div>
     </div>
+    </RowsTestContext.Provider>
   );
 }
 
