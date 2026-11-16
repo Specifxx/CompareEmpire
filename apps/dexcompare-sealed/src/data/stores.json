@@ -6704,18 +6704,6 @@
     ]
   },
   {
-    "key": "tcgshopuk",
-    "name": "TCGShopUK",
-    "base": "https://tcgshopuk.co.uk",
-    "market": "UK",
-    "platform": "woocommerce",
-    "country": "GB",
-    "collections": [
-      "pokemon-sets",
-      "pokemon-cards-uk"
-    ]
-  },
-  {
     "key": "terrorstcg",
     "name": "Terrors TCG",
     "base": "https://www.terrorstcg.com",
