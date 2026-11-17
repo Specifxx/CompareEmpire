@@ -7,7 +7,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import type { PriceFloor } from "@/lib/ebay-offer-row";
-import type { Region } from "@/lib/regions";
+import dynamic from "next/dynamic";
+import { REGIONS, type Region } from "@/lib/regions";
+import { expandPoints } from "@/lib/price-history-days";
 import { MiniSealedAds, OfferRowsWithEbay, type MiniTcgTile } from "./EbayStrip";
 import type { StoreRowData } from "./OfferRows";
 import { PriceAlertForm } from "./PriceAlertForm";
@@ -36,12 +38,17 @@ interface Data {
   /** The small eBay + TCGplayer pair above the rows (owner, 2026-11-03): the set's TCGplayer tiles, already affiliate-tagged. */
   ads: { tcg: MiniTcgTile[]; tcgSearch: string };
   preorder: boolean;
+  /** The price history (change-points) when the product has MIN_DAYS of it here; absent in a response the CDN kept from before. */
+  history?: { through: number; pts: [number, number | null, number][] } | null;
   /** The product page's price alert (2026-11-13); absent in a response the CDN kept from before. */
   alert?: { site: string; id: string; cents: number | null; market: string };
   name: string;
   sub: string;
   img: string | null;
 }
+
+// Loaded only when a panel has a series to draw: the chart's code is not in the page's first load.
+const PriceHistoryChart = dynamic(() => import("./PriceHistoryChart").then((m) => m.PriceHistoryChart), { ssr: false });
 
 const cache = new Map<string, Promise<Data | null>>();
 function load(api: string): Promise<Data | null> {
@@ -212,6 +219,11 @@ export function QuickView() {
             </div>
           ) : (
             <p className="rounded-xl border border-line p-4 text-sm text-muted">Prices did not load. The full page has every store&rsquo;s price.</p>
+          )}
+          {got?.history && (
+            <div className="mt-4 shrink-0 [min-height:15.5rem]">
+              <PriceHistoryChart values={expandPoints(got.history.pts, got.history.through, 400)} market={REGIONS[head.region].market} compact />
+            </div>
           )}
         </div>
         <div className="border-t border-line p-4 sm:px-5">
