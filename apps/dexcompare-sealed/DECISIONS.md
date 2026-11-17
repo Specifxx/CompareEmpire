@@ -1100,3 +1100,18 @@ wrong: 200, self canonical, indexable, the same HTML for Googlebot.
   split across hosts mid-test.
 - Rollback: set `CANONICAL_HOST` back to dexcompare.app, swap the two hosts in `OLD_HOSTS`, and point the redirect at dexcompare.app.
   `tests/host-move.test.ts` pins the redirect.
+
+## 2026-11-17: Sitemap lastmod is the day a page changed (audit fix, ported from MTG Compare #143)
+
+Bill's SEO audit (17 Nov) asked for a lastmod that reflects a real change, "not every build". Every product, set and type URL
+carried the market's last import time, so all of them said "changed today" twice a day: a date crawlers learn to ignore, and a
+wasted signal on a site Google crawls about seven pages a day. Now a product's lastmod is the last change-point in
+`data/public/price-history.json` (the day its cheapest in-stock price or its in-stock store count last changed), and a set or
+type page takes the latest day among its products (`sitemapChanges`, `src/lib/sitemap.ts`). A page the history has no date for
+keeps the import time; in `db` mode nothing changes. Shipped urgently with the dexcompare.io move (owner, 2026-11-17: "anything
+that was fixed for dexcompare do it urgently").
+
+The audit's other points, checked: the host split (.app, www and http in the Pages report) is closed by the move to
+dexcompare.io with one-hop 301s; the 1,067 5xx are September's database outage, not current; the 5,594 crawled-not-indexed are
+mostly the retired /card URLs (16 Nov diagnosis). The region boot script (lib/region-boot.ts) moves people, never crawlers; it
+is the owner's every-site rule (2026-11-06) and MTG Compare, with the same script, is indexed, so it stays.
