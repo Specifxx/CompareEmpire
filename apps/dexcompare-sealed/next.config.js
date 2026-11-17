@@ -17,7 +17,7 @@ const CSP_REPORT_ONLY = [
   "style-src 'self' 'unsafe-inline'",
   "font-src 'self'",
   "connect-src 'self' https://riftcompare.com https://api.github.com https://raw.githubusercontent.com https://vitals.vercel-insights.com https://*.googlesyndication.com https://*.google.com https://*.doubleclick.net https://*.adtrafficquality.google https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com",
-  "frame-src https://*.googlesyndication.com https://*.doubleclick.net https://*.google.com",
+  "frame-src https://*.googlesyndication.com https://*.doubleclick.net https://*.google.com https://*.adtrafficquality.google https://*.googleadservices.com https://www.googletagmanager.com",
   "frame-ancestors 'self'",
   "base-uri 'self'",
   "object-src 'none'",
