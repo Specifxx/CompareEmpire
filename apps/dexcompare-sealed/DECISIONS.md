@@ -1121,3 +1121,7 @@ is the owner's every-site rule (2026-11-06) and MTG Compare, with the same scrip
 The weekly PageSpeed check (`psi-dexcompare.yml`) and the manual probes (`verify-ads`, `probe-pages-dexcompare`, `diagnose-*-live`) still
 fetched dexcompare.app, which now 301s: PageSpeed would have scored the redirect, not the page. They read dexcompare.io. The eBay
 account-deletion endpoint and the `/api/browse` ops check deliberately stay on dexcompare.app (registered there; `/api` is not redirected).
+
+## 2026-11-17: Quick view: price history at the very bottom, at most 10 rows (owner)
+
+Owner, 2026-11-17: the price-history chart at the top of the quick view is "not even that valuable". It now sits at the very bottom of the panel, below the rows and the ad pair, and the quick view lists at most 10 rows (`maxRows`): the pinned eBay and TCGplayer rows first, then the cheapest others, with "N more listings on the full page" (the page and "See price history and details" still show everything). The Cheapest price box and the Add to cart buttons are unchanged. Paid rows, their order and wording are untouched in every A/B arm (Dex and MTG tests, 20 Nov to 3 Dec).
