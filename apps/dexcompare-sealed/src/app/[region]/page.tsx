@@ -73,7 +73,7 @@ export async function generateMetadata({ params }: { params: { region: string } 
  */
 export default async function RegionHome({ params }: { params: { region: string } }) {
   const r = regionOrNotFound(params.region);
-  const [{ boxes, etbs, preorders, latestSets: bySet }, overview, allDeals, report, setCounts, listedTypes, tcgTiles] = await Promise.all([
+  const [{ boxes, etbs, packs, preorders, latestSets: bySet }, overview, allDeals, report, setCounts, listedTypes, tcgTiles] = await Promise.all([
     homeRails(r.market),
     getOverview(r.market),
     dealsInMarket(r.market, { take: 24 }),
@@ -115,7 +115,7 @@ export default async function RegionHome({ params }: { params: { region: string 
     { href: `/${r.region}/type/booster-boxes`, label: "Booster boxes", icon: "box" },
     { href: `/${r.region}/type/elite-trainer-boxes`, label: "Elite Trainer Boxes", icon: "etb" },
     { href: `/${r.region}/type/booster-bundles`, label: "Booster bundles", icon: "bundle" },
-    { href: `/${r.region}/releases`, label: "Pre-orders", icon: "calendar" },
+    { href: `/${r.region}/type/booster-packs`, label: "Booster packs", icon: "box" },
     { href: `/${r.region}/deals`, label: "Deals", icon: "tag" },
     { href: `/${r.region}/sets`, label: "All sets", icon: "sets" },
   ];
@@ -149,6 +149,24 @@ export default async function RegionHome({ params }: { params: { region: string 
         />
       ),
     },
+    // Single booster packs (owner, 2026-11-17: the front page sold only boxes): loose and sleeved packs taking turns, each at its own price.
+    ...(packs.length
+      ? [
+          {
+            label: "Booster packs",
+            panel: (
+              <Shelf
+                r={r}
+                heading={`Booster packs in stock in ${r.inName}, newest sets first`}
+                note="Single booster packs, priced per pack."
+                products={packs}
+                href={`/${r.region}/type/booster-packs`}
+                all="All booster packs"
+              />
+            ),
+          },
+        ]
+      : []),
     ...(deals.length
       ? [
           {
