@@ -135,6 +135,23 @@ export function QuickView() {
     };
   }, []);
 
+  // The tab's title and description follow the product while its quick view is open (Fiverr review F8, 2026-11-17: the tab still said
+  // "All Pokémon sealed products"); both go back on close. Only the browser's document is touched, never the server's HTML.
+  const titleName = (data && data !== "loading" ? data.name : "") || head?.name || "";
+  useEffect(() => {
+    if (!head || !titleName) return;
+    const prevTitle = document.title;
+    const suffix = prevTitle.includes(" | ") ? prevTitle.slice(prevTitle.lastIndexOf(" | ")) : "";
+    const meta = document.querySelector<HTMLMetaElement>('meta[name="description"]');
+    const prevDesc = meta?.content;
+    document.title = `${titleName} prices${suffix}`;
+    if (meta) meta.content = `Compare every store's price for ${titleName}, cheapest first.`;
+    return () => {
+      document.title = prevTitle;
+      if (meta && prevDesc != null) meta.content = prevDesc;
+    };
+  }, [head, titleName]);
+
   useEffect(() => {
     if (!head) return;
     const prev = document.body.style.overflow;
@@ -203,6 +220,13 @@ export function QuickView() {
               <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">Cheapest price</p>
               <p className="tabular text-2xl font-extrabold">{cheapest.price}</p>
               <p className="truncate text-xs text-muted">{cheapest.name}</p>
+              {/* Postage and the total it makes, when the store's checkout was measured (Fiverr review F2, 2026-11-17). */}
+              {cheapest.ship && cheapest.ship.max > 0 && (
+                <p className="mt-0.5 text-xs text-muted">
+                  {cheapest.ship.text}
+                  {cheapest.ship.total && <> · <b className="font-semibold text-ink">{cheapest.ship.total}</b></>}
+                </p>
+              )}
             </div>
           )}
           {/* The product page's small eBay + TCGplayer pair (owner, 2026-11-03: "a tiny visual … one TCGplayer side scrollable ad, and then
@@ -216,6 +240,7 @@ export function QuickView() {
               ebayPlacement="listings-quickview-mini"
               tcgPlacement="tcgplayer-strip-quickview"
               ebayQuery={got.ebay.query}
+              floor={got.ebay.floor}
               tcgSearchHref={got.ads?.tcgSearch ?? ""}
               // the `mini` test (lib/ab.ts; phones): arm b puts the pair above the rows, as from sm
               className={ab?.mini === "b" ? "mb-4 shrink-0" : "order-last mt-4 shrink-0 sm:order-none sm:mb-4 sm:mt-0"}

@@ -1125,3 +1125,32 @@ account-deletion endpoint and the `/api/browse` ops check deliberately stay on d
 ## 2026-11-17: Quick view: price history at the very bottom, at most 10 rows (owner)
 
 Owner, 2026-11-17: the price-history chart at the top of the quick view is "not even that valuable". It now sits at the very bottom of the panel, below the rows and the ad pair, and the quick view lists at most 10 rows (`maxRows`): the pinned eBay and TCGplayer rows first, then the cheapest others, with "N more listings on the full page" (the page and "See price history and details" still show everything). The Cheapest price box and the Add to cart buttons are unchanged. Paid rows, their order and wording are untouched in every A/B arm (Dex and MTG tests, 20 Nov to 3 Dec).
+
+## 2026-11-17: Fiverr first-time-shopper review: no "Best price" on an ad, totals, a clearer cart hand-off (owner)
+
+The owner bought a professional first-time-shopper QA review of DexCompare (10 findings). What shipped, and what did not:
+
+- **An eBay ad is never "Best price" (F1, fix 1).** The table's eBay row carried the green "Best price" badge at $320 while the quick view's
+  "Cheapest price" read $359.99 (a store): the page contradicted itself. `EBAY_CAN_BE_BEST = false` (`lib/ebay-offer-row.ts`) turns off the
+  table badge, the best-price card's eBay headline and the sticky bar's eBay swap; the headline and badge always name the cheapest store (or
+  TCGplayer when it is cheaper). eBay still leads the list as a labelled ad with its real price. This reverses the owner's 2026-10-11 call
+  ("eBay's price counts as the cheapest if it is the cheapest"); flip the constant to roll back.
+- **A total on every row that charges postage (F2, fix 2).** `ShipCell.total`: "≈ $366.94 total" (one measured rate) or "from $366.94 total"
+  (postage varies), price plus the cheapest measured postage, from the same snapshot as the shipping line. Free postage says "Free shipping" only.
+  The quick view's headline box carries the same line. The "Price + shipping" ranking switch is unchanged.
+- **Cart hand-off (F3, F4; fix 3, 4).** The note "You pay each store on its own site. We never take payment." is the first thing in the cart drawer
+  in normal-size text; "Total before postage" became "Estimated total (before postage)"; the add button's tooltip says you pay at the store.
+  **Not done: renaming "Add to cart".** The owner asked for a literal "Add to cart" on every price row (2026-11-14); the hand-off is said at the
+  drawer's top and on the button's tooltip instead.
+- **Fewer ads above results (F4, fix 5).** The sealed list (search and filter results) no longer gets the layout's two big banners at its top
+  (`OWN` in `InlineAds.tsx`): results lead; its listing strip and the query's own marketplace box follow them. The banners stay on every other
+  page they were on.
+- **Odd ad prices (F5, F6; fix 6).** The mini eBay strip (product page and quick view) leaves out a listing priced under 75% of the stores'
+  median (the bar that already keeps a listing from being "Best price") instead of showing a US$130 tile beside a US$360 box.
+- **The ad's own button (F6, F7; fix 7).** The eBay row's button is the ink `btn-ad`, as the "Shop eBay" banners'; the orange filled button is a
+  store's. The row keeps its place at the top (owner's ordering rule) and its "Ad" label.
+- **Tab title and description follow the quick view (F8, fix 9);** both go back on close.
+- **One promo line (F10, fix 10).** The Christmas gift-guide pill waits until the Black Friday strip's window (to the day after Cyber Monday) is
+  over. The CSP (report-only) frame-src gained the Google ad-quality, ad-services and tag-manager hosts the console reported; it stays report-only.
+- **Menu and search focus (F7 in the report, fix 8): already supported** (`NavMenu`: hover with intent, the chevron and Enter/Space toggle it,
+  arrows, Escape, outside press); the reviewer's pointer was parked over the open panel, which sat above the search box. No change.
