@@ -1115,3 +1115,9 @@ The audit's other points, checked: the host split (.app, www and http in the Pag
 dexcompare.io with one-hop 301s; the 1,067 5xx are September's database outage, not current; the 5,594 crawled-not-indexed are
 mostly the retired /card URLs (16 Nov diagnosis). The region boot script (lib/region-boot.ts) moves people, never crawlers; it
 is the owner's every-site rule (2026-11-06) and MTG Compare, with the same script, is indexed, so it stays.
+
+## 2026-11-17: live-check workflows follow the host move
+
+The weekly PageSpeed check (`psi-dexcompare.yml`) and the manual probes (`verify-ads`, `probe-pages-dexcompare`, `diagnose-*-live`) still
+fetched dexcompare.app, which now 301s: PageSpeed would have scored the redirect, not the page. They read dexcompare.io. The eBay
+account-deletion endpoint and the `/api/browse` ops check deliberately stay on dexcompare.app (registered there; `/api` is not redirected).

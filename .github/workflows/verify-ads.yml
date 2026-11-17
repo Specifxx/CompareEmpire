@@ -25,21 +25,21 @@ jobs:
             if [ "$clicks" -lt 1 ]; then echo "  ^ MISSING TCGplayer click link"; fail=1; fi
             if [ "$ebay" -lt 1 ]; then echo "  ^ MISSING eBay click link"; fail=1; fi
           }
-          check "https://dexcompare.app/"
+          check "https://dexcompare.io/"
           check "https://riftcompare.com/"
-          check "https://dexcompare.app/deals"
-          check "https://dexcompare.app/browse"
-          check "https://dexcompare.app/sealed"
-          check "https://dexcompare.app/market"
+          check "https://dexcompare.io/deals"
+          check "https://dexcompare.io/browse"
+          check "https://dexcompare.io/sealed"
+          check "https://dexcompare.io/market"
           check "https://riftcompare.com/browse"
           check "https://riftcompare.com/sealed"
           check "https://riftcompare.com/market"
-          check "https://dexcompare.app/dexdle"
-          check "https://dexcompare.app/games"
-          check "https://dexcompare.app/games/duel"
-          check "https://dexcompare.app/games/rip"
-          check "https://dexcompare.app/games/catcher"
-          check "https://dexcompare.app/games/breaker"
+          check "https://dexcompare.io/dexdle"
+          check "https://dexcompare.io/games"
+          check "https://dexcompare.io/games/duel"
+          check "https://dexcompare.io/games/rip"
+          check "https://dexcompare.io/games/catcher"
+          check "https://dexcompare.io/games/breaker"
           check "https://riftcompare.com/riftle"
           check "https://riftcompare.com/games"
           check "https://riftcompare.com/games/higher-lower"
@@ -62,9 +62,9 @@ jobs:
           # rift /sealed renders store buy links server-side.
           sovrn "riftcompare.com/sealed" "$(curl -sL --max-time 30 https://riftcompare.com/sealed)"
           # dex: store links live on card pages — grab one off the homepage.
-          card=$(curl -sL --max-time 30 https://dexcompare.app/ | grep -o 'href="/card/[^"]*"' | head -1 | sed 's/href="//;s/"//')
+          card=$(curl -sL --max-time 30 https://dexcompare.io/ | grep -o 'href="/card/[^"]*"' | head -1 | sed 's/href="//;s/"//')
           echo "dex sample card: $card"
-          sovrn "dexcompare.app$card" "$(curl -sL --max-time 30 "https://dexcompare.app$card")"
+          sovrn "dexcompare.io$card" "$(curl -sL --max-time 30 "https://dexcompare.io$card")"
           # Install snippet must appear in the RAW HTML exactly ONCE and inside
           # <body> — Sovrn's verifier rejects "not found", "multiple instances"
           # AND head placement ("place code directly before </body>").
@@ -97,7 +97,7 @@ jobs:
           import urllib.request
           import sys
           bad = 0
-          for site in ["https://dexcompare.app/", "https://riftcompare.com/"]:
+          for site in ["https://dexcompare.io/", "https://riftcompare.com/"]:
               html = urllib.request.urlopen(site, timeout=30).read().decode("utf-8", "replace")
               n = html.count("viglink.com/api/vglnk.js")
               body = html.find("<body")

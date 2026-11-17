@@ -23,7 +23,7 @@ jobs:
             local path="$1"
             echo "=== $path ==="
             local out
-            out=$(curl -s -D - -o /tmp/body.html --max-time 20 "https://dexcompare.app${path}")
+            out=$(curl -s -D - -o /tmp/body.html --max-time 20 "https://dexcompare.io${path}")
             local code
             code=$(echo "$out" | head -1)
             echo "status line: $code"
@@ -44,4 +44,4 @@ jobs:
           check "/browse?rarity=Rare"
           check "/browse?min=1&max=50&sort=price_asc"
           echo "=== response headers only, HEAD-style info for / (compare deploy id) ==="
-          curl -s -D - -o /dev/null --max-time 20 "https://dexcompare.app/" | grep -i "^x-vercel-id\|^x-vercel-cache\|^date:"
+          curl -s -D - -o /dev/null --max-time 20 "https://dexcompare.io/" | grep -i "^x-vercel-id\|^x-vercel-cache\|^date:"
