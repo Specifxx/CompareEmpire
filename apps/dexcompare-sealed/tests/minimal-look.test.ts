@@ -130,7 +130,7 @@ test("the region home as a crawler reads it: one h1, every shelf list and every 
     const hero = html.slice(0, html.indexOf("</section>"));
     assert.doesNotMatch(hero, new RegExp(`href="/${region}/p/|pc-link|data-ad`), `${region}: no product and no ad in the hero`);
     assert.match(hero, /role="search"/);
-    for (const k of ["/type/booster-boxes", "/type/elite-trainer-boxes", "/type/booster-bundles", "/releases", "/deals", "/sets"]) assert.match(hero, new RegExp(`class="way flex-1" href="/${region}${k}"`), `${region}: ${k} is a way in`);
+    for (const k of ["/type/booster-boxes", "/type/elite-trainer-boxes", "/type/booster-bundles", "/type/booster-packs", "/deals", "/sets"]) assert.match(hero, new RegExp(`class="way flex-1" href="/${region}${k}"`), `${region}: ${k} is a way in`);
     // The shelf: at least the two product lines, all of their products in the HTML whichever tab is chosen.
     const tabs = [...html.matchAll(/role="tab"[^>]*>([^<]+)/g)].map((m) => m[1]);
     assert.deepEqual(tabs.slice(0, 2), ["Booster boxes", "Elite Trainer Boxes"], region);
@@ -183,4 +183,12 @@ test("motion is CSS only: transforms and opacity, off for prefers-reduced-motion
   const pkg = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")) as { dependencies?: Record<string, string> };
   for (const d of ["framer-motion", "motion", "gsap", "aos", "lottie-web", "animejs"]) assert.ok(!(d in (pkg.dependencies ?? {})), `${d} is not a dependency`);
   for (const f of ["components/home/Hero.tsx", "components/Fold.tsx", "components/Tabs.tsx", "components/home/SoftWaysIn.tsx"]) assert.doesNotMatch(src(f), /IntersectionObserver|addEventListener\("scroll"|requestAnimationFrame/, f);
+});
+
+test("the shelf has a Booster packs tab, per pack, loose and sleeved packs taking turns (owner, 2026-11-17)", () => {
+  const page = src("app/[region]/page.tsx");
+  assert.match(page, /label: "Booster packs"/);
+  assert.match(page, /href=\{`\/\$\{r\.region\}\/type\/booster-packs`\}/);
+  const data = src("lib/data.ts");
+  for (const t of ["Booster Pack", "Sleeved Booster"]) assert.ok(data.includes(`inStockOfType("${t}")`), t);
 });

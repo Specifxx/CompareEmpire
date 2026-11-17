@@ -1068,3 +1068,11 @@ day against the 7-12 Nov baseline of about 100 a day.
 ## 2026-11-16: Dex Premium funnel events, and what the first six days showed
 
 Read from RiftCompare admin (Accounts, DexCompare tab) on 16 Nov, six days after launch: 0 members signed in via Dex, 0 trials, 0 paid, 2 alert emails (price alerts, not Premium). Dex Premium had no event tracking, so page views and button clicks were unknowable. Added GA4 events (`premium_corner_click`, `premium_view`, `premium_trial_click`, `premium_checkout_open`; `trackPremium`) so the next read has a funnel. Verdict for now: keep (no running cost, shared Rift account and Stripe plans), do not build more until `premium_view` shows how many people reach the page.
+
+## 2026-11-17: booster packs on the region home
+
+Owner: the front page "feels like it's just the booster boxes". The shelf gains a "Booster packs" tab (loose and sleeved packs taking
+turns, newest set first, up to eight, each at its own per-pack price; `homeRails().packs`), and the hero's fourth way in is "Booster
+packs" (`/type/booster-packs`) in place of Pre-orders, which stays a shelf tab, the hero pill and a header menu entry. No pack count is
+claimed and no box price is divided. The pack type page, `/cheapest-packs` and their sitemap entries already existed. Homepage only: the
+quick view, its paid rows and wording (A/B freeze 20 Nov to 3 Dec) are untouched.
