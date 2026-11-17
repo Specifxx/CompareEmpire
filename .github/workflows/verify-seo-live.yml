@@ -3,8 +3,8 @@ name: Verify SEO surfaces on the live sites (manual, read-only)
 # End-to-end check that the SEO/ISR work is actually serving in production on
 # BOTH sites (runs on GitHub's runners; the dev container has no egress to the
 # production domains). Verifies:
-#  - DexCompare (sealed): canonical/hreflang on https://dexcompare.app
-#    (the apex, since 2026-10-27), /AU redirects, unknown paths 404, /sitemap.xml is an index whose
+#  - DexCompare (sealed): canonical/hreflang on https://dexcompare.io
+#    (the apex; dexcompare.app 301s here since 2026-11-17), /AU redirects, unknown paths 404, /sitemap.xml is an index whose
 #    regional files total ≥ 1000 product URLs, robots points at it, the trust
 #    pages answer, the security headers are on, ISR returns cache hits
 #  - RiftCompare: neutral hero live, /card-value linked from the chrome
@@ -14,7 +14,7 @@ on:
 
 jobs:
   dexcompare:
-    # The sealed site (apps/dexcompare-sealed) at https://dexcompare.app.
+    # The sealed site (apps/dexcompare-sealed) at https://dexcompare.io.
     # Read-only: a handful of GETs.
     runs-on: ubuntu-latest
     timeout-minutes: 10

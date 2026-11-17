@@ -224,7 +224,7 @@ have changed; check eBay."
 * **Testing without keys**: `tests/ebay-*.test.ts` use fake fetch/database (fixtures in `tests/fixtures/`). For a browser run, import
   against a mock: preload a fetch stub that answers `https://api.ebay.com/*` with `NODE_OPTIONS="--import mock.mjs" npx tsx
   scripts/ebay-import.ts` (the code has no host override: it can only talk to api.ebay.com), then start the site on the same database;
-  or serve saved live answers of `https://www.dexcompare.app/api/ebay/<region>?c=<context>` with Playwright's `page.route`
+  or serve saved live answers of `https://dexcompare.io/api/ebay/<region>?c=<context>` with Playwright's `page.route`
   (set `fetchedAt` to a few hours ago: the browser enforces the age bound).
 
 ## What this site does not store
@@ -338,7 +338,7 @@ npm run dev                        # http://localhost:3003
 ```
 
 Checks: `npm run typecheck`, `npm run lint`, `npm test`. `SITE_URL` defaults
-to `https://www.dexcompare.app`; set `NEXT_PUBLIC_SITE_URL` to override it.
+to `https://dexcompare.io`; set `NEXT_PUBLIC_SITE_URL` to override it.
 
 ## Adding a store
 
@@ -470,5 +470,5 @@ placement, its marketplace rows under `preorders-ebay` and
 Vercel overrides the built-in one). `.github/workflows/indexnow-submit.yml` (repository
 root) runs daily at 22:37 UTC, after the evening import, and by hand: it follows the
 live sitemap index and submits every page URL for the host the sitemap's URLs are on
-(www.dexcompare.app), with the key the live key file serves. The run fails, with
+(dexcompare.io), with the key the live key file serves. The run fails, with
 IndexNow's answer in the log, when anything is refused. Google does not take IndexNow.

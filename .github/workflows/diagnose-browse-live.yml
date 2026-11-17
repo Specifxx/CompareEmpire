@@ -3,7 +3,7 @@ name: Diagnose /browse on the live site (manual, read-only)
 # One-off diagnostic: the user reported /browse crashing to the "Something went
 # wrong" error boundary in production, after a fix was pushed (commit a4918fd)
 # that should have made it degrade gracefully on a DB error instead of crashing.
-# The dev sandbox can't reach dexcompare.app at all (network policy), so this
+# The dev sandbox can't reach dexcompare.io at all (network policy), so this
 # checks the actual live response from GitHub's runners: status code, whether
 # the crash boundary text is present, the x-vercel-id header (to see which
 # deployment served the request), and a few filter-combo variants.
