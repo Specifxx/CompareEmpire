@@ -7,7 +7,8 @@ import { routeRaw } from "@/lib/public-data/route";
 import { activeStoreKeys, pokemonCounts } from "@/lib/hub-data";
 import { POKEMON_INDEX_MIN } from "@/lib/pokemon-hubs";
 import { detailIndexed, MIN_HUB_PRODUCTS, sitemapProductSlugs } from "@/lib/index-tiers";
-import { regionOfSitemapId, SITEMAP_IDS, STATIC_SITEMAP_ID, regionSitemap, staticSitemap } from "@/lib/sitemap";
+import { readPriceHistory } from "@/lib/price-history";
+import { regionOfSitemapId, SITEMAP_IDS, STATIC_SITEMAP_ID, regionSitemap, sitemapChanges, staticSitemap, type SitemapChanges } from "@/lib/sitemap";
 import { REGION_LIST, type Market } from "@/lib/regions";
 import { thinSections } from "@/lib/section-thin";
 
@@ -43,15 +44,16 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
     }
     const r = regionOfSitemapId(n);
     if (!r) return [];
-    const [typeLabels, setCodes, productSlugs, lastmod, pokemon] = await Promise.all([
+    const [typeLabels, setCodes, productSlugs, lastmod, pokemon, changed] = await Promise.all([
       typesInMarket(r.market),
       setsInMarket(r.market),
       strongSlugs(r.market),
       lastImport(r.market),
       detailIndexed(r.region) ? pokemonCounts(r.market) : Promise.resolve(new Map<string, number>()),
+      lastChanges(r.market),
     ]);
     const pokemonSlugs = [...pokemon].filter(([, n]) => n >= POKEMON_INDEX_MIN).map(([slug]) => slug);
-    return regionSitemap(r, { typeLabels, setCodes, productSlugs, pokemonSlugs, lastmod });
+    return regionSitemap(r, { typeLabels, setCodes, productSlugs, pokemonSlugs, lastmod, changed });
   } catch (e) {
     if (process.env.NEXT_PHASE === "phase-production-build") {
       console.error(`sitemap/${n}: database unavailable at build (${(e as Error).message}); written without products until the first refresh.`);
@@ -99,6 +101,24 @@ async function strongSlugs(market: Market): Promise<string[]> {
     select: { inStockStores: true, listedStores: true, marketplaceOpen: true, product: { select: { slug: true, productType: true } } },
   });
   return sitemapProductSlugs(market, rows.map((r) => ({ slug: r.product.slug, productType: r.product.productType, s: r })));
+}
+
+/**
+ * When each product, set and type page of the market last really changed (lib/sitemap.ts sitemapChanges), from the public files.
+ * Undefined when the files are not what the site reads or the history is missing: every URL then carries the import time.
+ */
+async function lastChanges(market: Market): Promise<SitemapChanges | undefined> {
+  return routeRaw<SitemapChanges | undefined>(
+    () => {
+      const h = readPriceHistory();
+      if (!h) return undefined;
+      const rows = statsInMarket(market)
+        .filter(({ s }) => isComparable(s))
+        .map(({ p }) => ({ slug: String(p.slug), setCode: (p.setCode as string | null) ?? null, productType: String(p.productType) }));
+      return sitemapChanges(rows, h.series[market]);
+    },
+    async () => undefined,
+  );
 }
 
 /** When the market's stores were last written by an import (StoreStat.updatedAt, current state). */

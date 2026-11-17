@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { REGION_LIST, REGIONS } from "../src/lib/regions";
-import { regionOfSitemapId, regionSitemap, SITEMAP_IDS, SITEMAP_STORE_PAGES, sitemapIdOf, STATIC_SITEMAP_ID, staticSitemap } from "../src/lib/sitemap";
+import { regionOfSitemapId, regionSitemap, SITEMAP_IDS, SITEMAP_STORE_PAGES, sitemapChanges, sitemapIdOf, STATIC_SITEMAP_ID, staticSitemap } from "../src/lib/sitemap";
 import { SITEMAP_PRODUCTS, sitemapProductSlugs } from "../src/lib/index-tiers";
 import { SITE_URL } from "../src/lib/site";
 import { STORES } from "../src/lib/stores";
@@ -118,4 +118,30 @@ test("static sitemap: every guide in each indexed region it is offered in, and n
   const at = entries.find((e) => e.url === `${SITE_URL}/uk/guides/how-many-packs-in-pokemon-products`)!;
   assert.deepEqual([at.changeFrequency, at.priority, at.lastModified], ["weekly", 0.6, undefined], "editorial: no import-time lastmod");
   assert.equal(urls.size, entries.length, "no duplicate URLs");
+});
+
+test("region sitemap: lastmod is the day a page last changed, the import time only where history has no date", () => {
+  const imported = new Date("2026-11-17T06:00:00Z");
+  const changed = sitemapChanges(
+    [
+      { slug: "a-box", setCode: "me4", productType: "Booster Box" },
+      { slug: "b-etb", setCode: "me4", productType: "Elite Trainer Box" },
+      { slug: "no-history", setCode: "me4", productType: "Booster Box" },
+    ],
+    { "a-box": [[20400, 15000, 3], [20405, 14000, 4]], "b-etb": [[20402, 6000, 2]] },
+  );
+  const entries = regionSitemap(REGIONS.uk, {
+    typeLabels: ["Booster Box", "Elite Trainer Box"],
+    setCodes: ["me4"],
+    productSlugs: ["a-box", "b-etb", "no-history"],
+    lastmod: imported,
+    changed,
+  });
+  const at = (path: string) => entries.find((e) => e.url === `${SITE_URL}${path}`)?.lastModified;
+  assert.deepEqual(at("/uk/p/a-box"), new Date(20405 * 86_400_000));
+  assert.deepEqual(at("/uk/p/b-etb"), new Date(20402 * 86_400_000));
+  assert.deepEqual(at("/uk/p/no-history"), imported);
+  assert.deepEqual(at("/uk/sets/chaos-rising"), new Date(20405 * 86_400_000));
+  assert.deepEqual(at("/uk/type/booster-boxes"), new Date(20405 * 86_400_000));
+  assert.deepEqual(at("/uk/type/elite-trainer-boxes"), new Date(20402 * 86_400_000));
 });
