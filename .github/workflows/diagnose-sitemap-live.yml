@@ -18,7 +18,7 @@ jobs:
         run: |
           set -e
           echo "== GET /sitemap.xml =="
-          curl -fsSL -D /tmp/h.txt https://dexcompare.app/sitemap.xml -o /tmp/index.xml
+          curl -fsSL -D /tmp/h.txt https://dexcompare.io/sitemap.xml -o /tmp/index.xml
           grep -iE "^(HTTP|content-type|x-vercel-cache|cache-control|age)" /tmp/h.txt || true
           echo "-- body --"; cat /tmp/index.xml
           grep -o "<loc>[^<]*</loc>" /tmp/index.xml | sed "s/<[^>]*>//g" > /tmp/children.txt
@@ -49,7 +49,7 @@ jobs:
 
       - name: robots.txt
         run: |
-          curl -fsSL https://dexcompare.app/robots.txt
+          curl -fsSL https://dexcompare.io/robots.txt
 
       - name: Sample card page — raw HTML indexability
         run: |
@@ -57,7 +57,7 @@ jobs:
           CARD=$(head -1 /tmp/cardurls.txt 2>/dev/null || true)
           if [ -z "$CARD" ]; then
             # Card sitemap empty — find a card via the browse page instead
-            CARD="https://dexcompare.app$(curl -fsSL https://dexcompare.app/browse | grep -o 'href="/card/[a-z0-9-]*"' | head -1 | sed 's/^href="//;s/"$//')"
+            CARD="https://dexcompare.io$(curl -fsSL https://dexcompare.io/browse | grep -o 'href="/card/[a-z0-9-]*"' | head -1 | sed 's/^href="//;s/"$//')"
             echo "(card sitemap empty — using card from /browse instead)"
           fi
           echo "== GET $CARD =="
