@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { openBilling, readStored, refreshPremium, startCheckout, untilLine, writeStored } from "@/lib/premium-member";
+import { openBilling, trackPremium, readStored, refreshPremium, startCheckout, untilLine, writeStored } from "@/lib/premium-member";
 import { usePremium } from "./usePremium";
 
 type Plan = "monthly" | "annual";
@@ -49,8 +49,15 @@ export function PremiumPanel() {
     }
   }, []);
 
+  useEffect(() => {
+    if (v.status !== "loading") trackPremium("premium_view", { state: v.status });
+    // once per page view, when the membership state is known
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [v.status === "loading"]);
+
   async function trial() {
     const cur = readStored();
+    trackPremium("premium_trial_click", { plan, signed_in: !!cur });
     if (!cur) {
       location.href = `/account?next=${encodeURIComponent(`/premium?plan=${plan}`)}`;
       return;
@@ -59,6 +66,7 @@ export function PremiumPanel() {
     setNote("");
     const r = await startCheckout(cur.t, plan);
     if ("url" in r) {
+      trackPremium("premium_checkout_open", { plan });
       location.href = r.url;
       return;
     }

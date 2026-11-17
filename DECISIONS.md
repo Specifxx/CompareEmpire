@@ -682,3 +682,11 @@ Owner asked for every site to be released now: the unpriced-Amazon fix, Fetch as
 ## 2026-11-13: the side rails are off; the ads are the strips inside the page
 
 Owner: visitors looked down, the side banners "don't look as good" and spoil the site's look, so the eBay and TCGplayer (or Amazon) rails come off every site and the page column gets the side space back. The ads that stay are the horizontal strips inside the page and, on small screens, the phone dock (after a scroll, never on a product page). The rail code stays behind one constant (`SIDE_RAILS = false` in the rail component, or `SITE.sideRails` on MotorCompare): nothing is rendered or fetched while it is false, and the CSS that narrowed the column for them is gone. Measured before the change (Vercel Web Analytics, unique visitors, Oct 30 to Nov 5 against Nov 6 to Nov 12, the rails having shipped Nov 6): DexCompare 4,200 to 4,972 with bounce 57% to 43%; RiftCompare 3,399 to 3,179 (its fall was Oct 29, a week before the rails); OP Compare 1,123 to 1,016. The measure to watch next is clicks per placement for the strips, not visitors. Never re-add rails, a floating banner or a gutter ad without the owner.
+
+## 2026-11-16: urgent release of the "Also on Amazon" line
+
+Amazon clicks were about 0 a day since 13 Nov. The owner approved one urgent production build (subject carries the urgent marker) so the unpriced matched line goes live now instead of waiting for the next daily release. One build, no previews.
+
+## 2026-11-17: Quick view always shows the store's name; "Add to cart" is smaller (owner: "you can't even see the store name"; "add to cart seems too big")
+
+From sm up the price row's badges wrap under the name instead of squeezing it (`.or-top` wraps, `.or-name` keeps 4.5rem), and the eBay row uses the same classes (it had its own copy, which let "eBay" and "TCGplayer" shrink to nothing beside the Ad / Best price / Marketplace badges). The cart button is 36px tall at 12px text with a thinner border (`.ce-cart-add.has-label`). Layout and sizing only: no wording, paid-row order or A/B arm changed.

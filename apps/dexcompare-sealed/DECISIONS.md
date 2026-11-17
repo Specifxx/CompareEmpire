@@ -1065,3 +1065,6 @@ at the END of the list, on the product page AND the quick view (before the A/B f
 "Check on Amazon", affiliate-tagged with the shared region tag, never pinned above the stores, never ranked, never the best price. A
 priced Amazon row still pins as before. The separate below-table line is removed (it would duplicate the row). Read Amazon clicks per
 day against the 7-12 Nov baseline of about 100 a day.
+## 2026-11-16: Dex Premium funnel events, and what the first six days showed
+
+Read from RiftCompare admin (Accounts, DexCompare tab) on 16 Nov, six days after launch: 0 members signed in via Dex, 0 trials, 0 paid, 2 alert emails (price alerts, not Premium). Dex Premium had no event tracking, so page views and button clicks were unknowable. Added GA4 events (`premium_corner_click`, `premium_view`, `premium_trial_click`, `premium_checkout_open`; `trackPremium`) so the next read has a funnel. Verdict for now: keep (no running cost, shared Rift account and Stripe plans), do not build more until `premium_view` shows how many people reach the page.
