@@ -1054,3 +1054,14 @@ zero on 13 Nov, and Amazon earnings with them (US$7-12 a day at the 7-12 Nov rat
 "Also on Amazon", only where Amazon sells the item (a known ASIN, else a type Amazon carries), unpriced and labelled paid, hidden when the
 priced row shows. Never the quick view (A/B window 20 Nov-3 Dec), never pinned, best, a deal or an alert; the shared region tag, placement
 `amazon-below-table`. Read clicks per day against 7-12 Nov. `tests/paid-rows.test.ts` pins it.
+
+## 2026-11-17: "Check on Amazon" is a row again, an ordinary last one
+
+Owner: "I don't really see any Amazon prices on DexCompare or any of our other sites... even if there are no Amazon prices available,
+we should have an option to check on Amazon in our price rows." The priced-only rule (2026-11-12) had left the product page with no
+Amazon at all, and the 2026-11-16 line under the table was too quiet. Now `amazonRow` returns the unpriced search row (the item's own
+page where an ASIN is known, else a search) whenever the region has an Amazon tag and the type is one Amazon carries: an ordinary row
+at the END of the list, on the product page AND the quick view (before the A/B freeze of 20 Nov, so the baseline includes it), labelled
+"Check on Amazon", affiliate-tagged with the shared region tag, never pinned above the stores, never ranked, never the best price. A
+priced Amazon row still pins as before. The separate below-table line is removed (it would duplicate the row). Read Amazon clicks per
+day against the 7-12 Nov baseline of about 100 a day.

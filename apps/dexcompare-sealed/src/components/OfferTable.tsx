@@ -113,7 +113,7 @@ export function OfferTable({
           &ldquo;Not checked recently&rdquo; means we couldn&rsquo;t read that store for over three days, so its stock is unknown. No store pays
           to be listed or to rank higher: <Link href="/about" prefetch={false} className="underline underline-offset-2 hover:text-ink">how DexCompare works</Link>.
           {tcg && " TCGplayer is a US marketplace of many sellers, pinned under eBay and Amazon; its link is an affiliate link, and outside the US its price is in US$ and never compared with the stores'."}
-          {amazon && !amazon.live && ` ${amazon.name} is pinned under eBay: with no price from Amazon it is a search, never ranked or the best price, and its link is an affiliate link. As an Amazon Associate I earn from qualifying purchases.`}
+          {amazon && !amazon.live && ` ${amazon.name} is the last row: with no price from Amazon it is a search, never ranked or the best price, and its link is an affiliate link. As an Amazon Associate I earn from qualifying purchases.`}
           {amazon?.live && ` ${amazon.name} is pinned under eBay with Amazon's own price for this listing, shown with its time and never ranked or the best price; its link is an affiliate link. As an Amazon Associate I earn from qualifying purchases. * ${AMAZON_PRICE_DISCLAIMER}`}
           {storeOffers.some((o) => o.marketplace) && " TCGplayer is a marketplace of many sellers; it ranks by price and stock like any store, and its link is an affiliate link."}
         </p>
@@ -290,8 +290,8 @@ function amazonRow(productName: string, region: Region, now: number, product?: s
   const href = a && (live?.url ?? amazonHref(region, product ?? "", productName, "amazon-table"));
   if (!a || !href) return null;
   const clock = AMAZON_CLOCK[region];
-  // Amazon only with a real price (owner, 2026-11-12): no price, no row.
-  if (!live?.cents || !live.at || !clock) return null;
+  // With no price the row is the unpriced "Check on Amazon" search row (owner, 2026-11-17, after the priced-only rule of 2026-11-12 took
+  // Amazon clicks to about nothing): an ordinary row at the end of the list, never pinned, ranked or the best price.
   // The item's own listing when the daily import matched one, and its price when this build fetched it under 24 hours ago (2026-11-05).
   const priced = live?.cents && live.at && clock ? { price: money(live.cents, REGIONS[region].market), at: live.at, timeZone: clock.timeZone, zoneLabel: clock.label } : null;
   return {
@@ -320,7 +320,7 @@ function amazonRow(productName: string, region: Region, now: number, product?: s
     lastSeen: new Date(now).toISOString(),
     ago: "",
     search: true,
-    searchText: "Also check on Amazon",
+    searchText: "Check on Amazon",
     ...(priced ? { live: priced } : {}),
     ...(region === "nz" ? { note: "delivers to NZ for many items" } : {}),
   };

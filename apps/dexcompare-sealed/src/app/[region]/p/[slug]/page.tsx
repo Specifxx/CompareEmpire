@@ -1,4 +1,3 @@
-import { AmazonBelowTable } from "@/components/AmazonBelowTable";
 import { Flag } from "@/components/Flag";
 import Link from "next/link";
 import { PriceHistoryChart } from "@/components/PriceHistoryChart";
@@ -674,7 +673,6 @@ export default async function ProductPage({ params }: { params: { region: string
             None of the {r.adjective} stores we track list {p.name} right now.
           </div>
         )}
-        {p.offers.length > 0 && <AmazonBelowTable region={r.region} slug={p.slug} name={p.name} typeKey={type?.key} />}
         <ReportPrice
           product={p.name}
           region={r.short}
