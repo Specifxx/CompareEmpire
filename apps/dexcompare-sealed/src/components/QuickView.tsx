@@ -194,6 +194,13 @@ export function QuickView() {
         {/* Prices first on a phone (calm palette, 2026-11-12): the ad pair sat above the rows and pushed every store's price off the
             first screen of the sheet. Below sm it follows the price table; from sm, where the rows are in view either way, it leads. */}
         <div className="flex flex-1 flex-col overflow-y-auto p-4 sm:p-5">
+          {/* The price history leads the panel (owner, 2026-11-17): with dozens of stores listed it was below a long scroll. Before the paid
+              pair and the rows in every arm, so their order and wording are untouched. */}
+          {got?.history && (
+            <div className="mb-4 shrink-0 [min-height:13.5rem]">
+              <PriceHistoryChart values={expandPoints(got.history.pts, got.history.through, 400)} market={REGIONS[head.region].market} compact />
+            </div>
+          )}
           {/* The product page's small eBay + TCGplayer pair (owner, 2026-11-03: "a tiny visual … one TCGplayer side scrollable ad, and then
               one eBay side scrollable ad" with every quick view): the product's own eBay listings and the set's TCGplayer products.
               The same component as the page (EbayStrip.tsx MiniSealedAds); no Amazon link in a pop-up. */}
@@ -219,11 +226,6 @@ export function QuickView() {
             </div>
           ) : (
             <p className="rounded-xl border border-line p-4 text-sm text-muted">Prices did not load. The full page has every store&rsquo;s price.</p>
-          )}
-          {got?.history && (
-            <div className="mt-4 shrink-0 [min-height:15.5rem]">
-              <PriceHistoryChart values={expandPoints(got.history.pts, got.history.through, 400)} market={REGIONS[head.region].market} compact />
-            </div>
           )}
         </div>
         <div className="border-t border-line p-4 sm:px-5">
