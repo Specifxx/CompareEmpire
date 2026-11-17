@@ -26,7 +26,6 @@ import type { EbayHighlight } from "./Ebay";
 import { EbayMark } from "./EbayMark";
 import { Icon } from "./Icon";
 import { OutboundLink } from "./OutboundLink";
-import { useAb } from "@/lib/ab-client";
 import { RowsTestContext, rtMore, useRowsTestVisit } from "@/lib/rows-test-client";
 import { rtEligible, rtVisible } from "@/lib/rows-test";
 
@@ -778,15 +777,15 @@ export function OfferRowsWithEbay({
   if (EBAY_CAN_BE_BEST && byPrice && allowGiven && bestable && cents != null && cents < low) top = "ebay";
   const ebayRow = <EbayOfferRow key={EBAY_ROW_KEY} region={region} placement={placement} query={query} item={item} cents={cents} age={age} best={top === "ebay"} />;
   type Slot = { key: string; open: boolean; node: ReactNode };
-  // The quick view's `order` test (lib/ab.ts; US only): arm b pins TCGplayer's row above eBay's when it is a real offer you can buy
-  // now in the region's currency. Still two pinned paid rows above the stores; the best price and every store row are untouched.
-  const tcgFirst = useAb()?.order === "b" && !!tcg && tcg.open && !tcg.search && tcg.comparable !== false;
-  const tcgSlot: Slot[] = tcg ? [{ key: tcg.key, open: tcg.open, node: <StoreRow key={tcg.key} d={tcg} preorder={preorder} top={top === "tcg"} /> }] : [];
-  const slots: Slot[] = [
-    ...(tcgFirst ? tcgSlot : []),
+  // Owner, 2026-11-17 (final): eBay first, then TCGplayer, then Amazon (priced, or the unpriced "Check on Amazon" row), all above the
+  // stores, in the quick view too (they are slots, so a row cap never pushes them below "more listings on the full page").
+  const pinSlots: Slot[] = [
     { key: EBAY_ROW_KEY, open: true, node: ebayRow },
-    ...(amazon?.live ? [{ key: amazon.key, open: true, node: <StoreRow key={amazon.key} d={amazon} preorder={preorder} top={false} /> }] : []),
-    ...(tcgFirst ? [] : tcgSlot),
+    ...(tcg ? [{ key: tcg.key, open: tcg.open, node: <StoreRow key={tcg.key} d={tcg} preorder={preorder} top={top === "tcg"} /> }] : []),
+    ...(amazon ? [{ key: amazon.key, open: true, node: <StoreRow key={amazon.key} d={amazon} preorder={preorder} top={false} /> }] : []),
+  ];
+  const slots: Slot[] = [
+    ...pinSlots,
     ...rows.map((d) => ({ key: d.key, open: d.open, node: <StoreRow key={d.key} d={d} preorder={preorder} top={top === "store" && d === store} /> })),
   ];
   // The rows test (lib/rows-test.ts): arm b draws the pinned rows and the cheapest few stores, the rest behind "Show N more stores".
@@ -820,8 +819,6 @@ export function OfferRowsWithEbay({
         {moreOpen.length > 0 && more(moreOpenLabel(moreOpen, preorder), moreOpen)}
         {moreClosed.length > 0 && more(moreClosedLabel(moreClosed.length, shown.some((r) => !r.open)), moreClosed)}
         {hiddenRows > 0 && <p className="px-4 py-2.5 text-xs text-muted sm:px-5">{hiddenRows} more listing{hiddenRows === 1 ? "" : "s"} on the full page</p>}
-        {/* No Amazon price: the unpriced "Check on Amazon" row, an ordinary last row (owner, 2026-11-17), never pinned and always shown */}
-        {amazon && !amazon.live && <ul className="divide-y divide-line border-t border-line"><StoreRow key={amazon.key} d={amazon} preorder={preorder} top={false} /></ul>}
       </div>
     </div>
     </RowsTestContext.Provider>
