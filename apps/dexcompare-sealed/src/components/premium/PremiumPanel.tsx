@@ -23,7 +23,7 @@ const FEATURES = [
 /**
  * The /premium plan card: pick monthly or yearly, start the 14-day trial (Stripe Checkout, opened from here for the signed-in account),
  * or, for a member, their status and "Manage billing" (Stripe's portal). Signed out, "Start free trial" signs in on /account first and
- * comes back. Everything happens on dexcompare.app and Stripe; the visitor never visits RiftCompare (owner, 2026-11-10).
+ * comes back. Everything happens on dexcompare.io and Stripe; the visitor never visits RiftCompare (owner, 2026-11-10).
  */
 export function PremiumPanel() {
   const v = usePremium();

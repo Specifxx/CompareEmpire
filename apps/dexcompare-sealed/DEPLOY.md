@@ -66,7 +66,7 @@ Repo **Specifxx/CompareEmpire** → Settings → Secrets and variables → Actio
 | `EBAY_CLIENT_ID`, `EBAY_CLIENT_SECRET` | the Production keyset (App ID / Cert ID) of DexCompare's own eBay application. Used **only** by the daily eBay import (below), never by Vercel. |
 | `PSI_API_KEY` | optional: a Google Cloud API key with the PageSpeed Insights API enabled, for the weekly PageSpeed check (see "PageSpeed check"). Without it that job skips cleanly. |
 
-**Variables** tab: `DEXCOMPARE_SITE_URL` = `https://www.dexcompare.app` — the
+**Variables** tab: `DEXCOMPARE_SITE_URL` = `https://dexcompare.io` (since 2026-11-17; was www.dexcompare.app) — the
 canonical origin with `www`, exactly as in Vercel below. The import job POSTs
 `/api/revalidate` there and then reads `/sitemap.xml`; through the apex→www
 redirect the POST would lose its `Authorization` header and the job would
@@ -100,14 +100,14 @@ In the existing **dexcompare** project (or a new one importing
    | Name | Value |
    | --- | --- |
    | `DATABASE_URL` | the Neon **pooled** string |
-   | `NEXT_PUBLIC_SITE_URL` | `https://www.dexcompare.app` — with `www`, no trailing slash |
+   | `NEXT_PUBLIC_SITE_URL` | `https://dexcompare.io` — the apex, no trailing slash (since 2026-11-17; old hosts are normalised to it) |
    | `REVALIDATE_SECRET` | the same value as `DEXCOMPARE_REVALIDATE_SECRET` |
    | `NEXT_PUBLIC_OPERATOR` | who runs the site, as it should read in the Terms and the footer ("Operated by …", shown only when it differs from the site name): a trading name or a person. Optional; until it is set the site name stands in. The code never invents an entity or an address. **Owner action**: set it. |
    | `NEXT_PUBLIC_CONTACT_EMAIL` | optional; default `compareempire@gmail.com` (the family inbox, owner 2026-11-01). Keep it a mailbox someone reads: the contact page promises a reply. The footer shows it beside a link to `/contact`. |
 
    `NEXT_PUBLIC_SITE_URL` is the origin every canonical, hreflang, JSON-LD,
    robots and sitemap URL is built on. The code defaults to
-   `https://www.dexcompare.app` and normalises what it is given (trailing slash
+   `https://dexcompare.io` and normalises what it is given (trailing slash
    stripped, anything unparseable ignored), and a production build whose value
    does not match the domain Vercel is deploying to prints a loud `[site]`
    warning in the build log — but never fails the build. (2026-09-28: the live
