@@ -136,9 +136,10 @@ test("pinned TCGplayer: third, under eBay and Amazon (owner, 2026-11-06), its ow
   const offers = [tcgOffer, offer("alpha", 5000), offer("beta", 6000)];
   const us = render(React.createElement(OfferTable, { offers, region: "us", preorder: false, ebay: { slug: "x", query: "X", floor: null, packs: null }, pinned: { productName: "X", tcgplayer: null } }));
   const rows = [...us.matchAll(/<li data-offer-row=""([^>]*)>/g)].map((m) => m[1]);
-  assert.equal(rows.length, 4, "no Amazon row without an Amazon price (owner, 2026-11-12)");
+  assert.equal(rows.length, 5, "the unpriced Check on Amazon row is the ordinary last row (owner, 2026-11-17)");
+  assert.match(rows[4], /data-row="amazon"/);
+  assert.match(us, /Check Amazon/);
   assert.match(rows[0], /data-ad="listings-offer-row"/);
-  assert.doesNotMatch(us, /data-row="amazon-/);
   assert.match(rows[1], /data-row="tcgplayer"/, "TCGplayer right under eBay");
   assert.match(rows[1], /or-hl/, "cheapest of the whole table: highlighted");
   assert.match(us, /data-best="tcg"/);
@@ -159,7 +160,7 @@ test("pinned TCGplayer: third, under eBay and Amazon (owner, 2026-11-06), its ow
   assert.match(uk, /US\$1\.00/);
   assert.match(uk, /US\$, ships from the US/);
   assert.match(uk, /data-best="store"/, "a US$ price is never compared with the stores' £");
-  assert.doesNotMatch(uk, /data-row="amazon/, "no Amazon row without a price (owner, 2026-11-12)");
+  assert.match(uk, /data-row="amazon"/, "the unpriced Check on Amazon row is the last row (owner, 2026-11-17)");
   // no match: a TCGplayer search
   const none = render(React.createElement(OfferTable, { offers: [offer("alpha", 5000)], region: "uk", preorder: false, ebay: { slug: "x", query: "X", floor: null, packs: null }, pinned: { productName: "X", tcgplayer: null } }));
   assert.match(none, />Search <span aria-hidden="true">↗<\/span><span class="sr-only"> on TCGplayer/);
