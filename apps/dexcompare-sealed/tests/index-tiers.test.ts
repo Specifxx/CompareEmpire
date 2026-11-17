@@ -57,8 +57,8 @@ test("NZ, SG and EU: product, guide and tool pages noindex and out of the sitema
   }
   const urls = new Set(staticSitemap({}).map((e) => e.url));
   for (const r of ["nz", "sg", "eu"]) {
-    assert.ok(urls.has(`https://dexcompare.app/${r}`), `${r} home stays`);
-    assert.ok(![...urls].some((u) => u.startsWith(`https://dexcompare.app/${r}/guides/`) || u.startsWith(`https://dexcompare.app/${r}/tools/`)), r);
+    assert.ok(urls.has(`https://dexcompare.io/${r}`), `${r} home stays`);
+    assert.ok(![...urls].some((u) => u.startsWith(`https://dexcompare.io/${r}/guides/`) || u.startsWith(`https://dexcompare.io/${r}/tools/`)), r);
   }
 });
 
@@ -69,7 +69,7 @@ test("the sitemap: strong products only (capped per region); sets and types from
   assert.match(route, /c >= MIN_HUB_PRODUCTS/);
   // regionSitemap itself lists what it is given
   const urls = regionSitemap(REGIONS.uk, { typeLabels: [], setCodes: [], productSlugs: ["a"], lastmod: null }).map((e) => e.url);
-  assert.deepEqual(urls, ["https://dexcompare.app/uk/p/a"]);
+  assert.deepEqual(urls, ["https://dexcompare.io/uk/p/a"]);
 });
 
 test("thin section pages: noindex by the same rule the sitemap leaves them out by", () => {
@@ -86,7 +86,7 @@ test("thin section pages: noindex by the same rule the sitemap leaves them out b
   const all = staticSitemap({}, undefined, "2026-10-25").map((e) => e.url);
   const some = staticSitemap({}, undefined, "2026-10-25", { uk: ["/price-moves", "/deals"], eu: ["/cheapest-packs"] }).map((e) => e.url);
   const gone = all.filter((u) => !some.includes(u));
-  assert.deepEqual(gone.sort(), ["https://dexcompare.app/eu/cheapest-packs", "https://dexcompare.app/uk/deals", "https://dexcompare.app/uk/price-moves"]);
+  assert.deepEqual(gone.sort(), ["https://dexcompare.io/eu/cheapest-packs", "https://dexcompare.io/uk/deals", "https://dexcompare.io/uk/price-moves"]);
 });
 
 test("empty set and type pages are real 404s, never an empty 200", () => {
@@ -120,10 +120,12 @@ test("the region switcher follows links to pages every region has, nofollow to t
   assert.match(src("components/MobileMenu.tsx"), /const from = soft \? null : region;[\s\S]*rel=\{!on && !regionSwitchFollow\(pathname, from\) \? "nofollow" : undefined\}/);
 });
 
-test("one canonical host: www in NEXT_PUBLIC_SITE_URL still means the apex", () => {
-  assert.equal(normaliseOrigin("https://dexcompare.app"), "https://dexcompare.app");
-  assert.equal(normaliseOrigin("http://dexcompare.app/"), "https://dexcompare.app");
-  assert.equal(normaliseOrigin("https://www.dexcompare.app/au"), "https://dexcompare.app");
+test("one canonical host: any old host (dexcompare.app, either www) in NEXT_PUBLIC_SITE_URL still means dexcompare.io", () => {
+  assert.equal(normaliseOrigin("https://dexcompare.app"), "https://dexcompare.io");
+  assert.equal(normaliseOrigin("https://www.dexcompare.io/"), "https://dexcompare.io");
+  assert.equal(normaliseOrigin("https://dexcompare.io"), "https://dexcompare.io");
+  assert.equal(normaliseOrigin("http://dexcompare.app/"), "https://dexcompare.io");
+  assert.equal(normaliseOrigin("https://www.dexcompare.app/au"), "https://dexcompare.io");
   assert.equal(normaliseOrigin("https://preview.example.com/"), "https://preview.example.com", "another host is left alone");
   assert.equal(normaliseOrigin("not a url"), null);
 });

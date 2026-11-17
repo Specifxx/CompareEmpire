@@ -9,7 +9,7 @@ import { HAND_SETS } from "../src/lib/sets";
 
 const FILE = path.join(process.cwd(), "data/sets/discovered.json");
 const API = "https://tcgcsv.com/tcgplayer/3"; // 3 = Pokémon (English)
-const HEADERS = { "User-Agent": "DexCompare/1.0 (+https://dexcompare.app)", Accept: "application/json" };
+const HEADERS = { "User-Agent": "DexCompare/1.0 (+https://dexcompare.io)", Accept: "application/json" };
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 

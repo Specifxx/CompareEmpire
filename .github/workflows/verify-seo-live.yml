@@ -19,16 +19,16 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
-      SITE: https://dexcompare.app
+      SITE: https://dexcompare.io
     steps:
       - name: Canonical host — every canonical/hreflang URL is on the www host
         run: |
           set -e
           BODY=$(curl -fsSL --retry 3 "$SITE/au")
           echo "$BODY" | grep -o '<link rel="canonical" href="[^"]*"' | head -1
-          echo "$BODY" | grep -q '<link rel="canonical" href="https://dexcompare.app/au"' \
-            && echo "OK: canonical on dexcompare.app" \
-            || { echo "FAIL: canonical is not https://dexcompare.app/au — NEXT_PUBLIC_SITE_URL wrong in Vercel? (DEPLOY.md, Domains)"; exit 1; }
+          echo "$BODY" | grep -q '<link rel="canonical" href="https://dexcompare.io/au"' \
+            && echo "OK: canonical on dexcompare.io" \
+            || { echo "FAIL: canonical is not https://dexcompare.io/au — NEXT_PUBLIC_SITE_URL wrong in Vercel? (DEPLOY.md, Domains)"; exit 1; }
           echo "$BODY" | grep -qi 'hreflang="x-default"' && echo "OK: x-default present" || { echo "FAIL: no x-default hreflang"; exit 1; }
           if echo "$BODY" | grep -q 'dexcompare\.com'; then echo "FAIL: dexcompare.com still referenced"; exit 1; fi
 
@@ -60,7 +60,7 @@ jobs:
           done
           echo "product URLs across regions: $TOTAL"
           [ "$TOTAL" -ge 1000 ] || { echo "FAIL: under 1000 product URLs — a regional sitemap query failed or the database is empty"; exit 1; }
-          curl -fsSL --retry 3 "$SITE/robots.txt" | grep -q "Sitemap: https://dexcompare.app/sitemap.xml" \
+          curl -fsSL --retry 3 "$SITE/robots.txt" | grep -q "Sitemap: https://dexcompare.io/sitemap.xml" \
             && echo "OK: robots.txt points at the index" || { echo "FAIL: robots.txt sitemap line wrong"; exit 1; }
 
       - name: Trust pages and security headers

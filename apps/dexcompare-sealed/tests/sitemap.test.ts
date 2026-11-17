@@ -16,9 +16,9 @@ const onSite = (entries: { url: string }[]) => {
   }
 };
 
-test("SITE_URL has no trailing slash and defaults to the apex, dexcompare.app", () => {
+test("SITE_URL has no trailing slash and defaults to dexcompare.io (since 2026-11-17)", () => {
   assert.ok(!SITE_URL.endsWith("/"));
-  if (!process.env.NEXT_PUBLIC_SITE_URL) assert.equal(SITE_URL, "https://dexcompare.app");
+  if (!process.env.NEXT_PUBLIC_SITE_URL) assert.equal(SITE_URL, "https://dexcompare.io");
 });
 
 test("sitemap ids: 0 = static, 1..7 = REGION_LIST order", () => {

@@ -28,7 +28,7 @@ jobs:
       run:
         working-directory: apps/dexcompare-sealed
     env:
-      SITE_URL: https://dexcompare.app
+      SITE_URL: https://dexcompare.io
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

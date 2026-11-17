@@ -1,7 +1,7 @@
 import { initials, PLATFORM_STYLE, type Creator } from "@/lib/creators";
 
 // One featured creator: avatar, what they make, their channels, and the "Buy them a pack" button that goes to THEIR tip page.
-// Server HTML, no script. rel="noopener" without "noreferrer": the creator's analytics should see dexcompare.app as the referrer,
+// Server HTML, no script. rel="noopener" without "noreferrer": the creator's analytics should see dexcompare.io as the referrer,
 // that is the point of the listing.
 const TINTS = ["from-brand/25 via-spark/20 to-brand/5", "from-pre/25 via-brand/10 to-spark/15", "from-open/25 via-spark/15 to-brand/10", "from-spark/30 via-brand/10 to-pre/15"];
 

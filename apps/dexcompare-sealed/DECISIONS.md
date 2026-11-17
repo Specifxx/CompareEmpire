@@ -1076,3 +1076,27 @@ turns, newest set first, up to eight, each at its own per-pack price; `homeRails
 packs" (`/type/booster-packs`) in place of Pre-orders, which stays a shelf tab, the hero pill and a header menu entry. No pack count is
 claimed and no box price is divided. The pack type page, `/cheapest-packs` and their sitemap entries already existed. Homepage only: the
 quick view, its paid rows and wording (A/B freeze 20 Nov to 3 Dec) are untouched.
+
+## 2026-11-17: Moving to dexcompare.io
+
+Owner (17 Nov): Google has one Dex page indexed; buy dexcompare.io, make it the main address, and redirect dexcompare.app to it. This is
+the owner's one explicit exception to "hosts never change again". Why a new host can help: Search Console's picture of dexcompare.app is
+~6.7K dead or rejected URLs from the singles site (836 of the newest 1,000 "crawled, not indexed" are old /card pages), a popunder period
+(16 Jun to 29 Jul), 1,067 server errors (Sept) and a dead www (26 Oct to 7 Nov), re-read at about 7 smartphone fetches a day. Fresh hosts
+on the same engine were indexed within days (ScentCompare 1.05K in five days; Dex itself in June). Nothing on today's pages was found
+wrong: 200, self canonical, indexable, the same HTML for Googlebot.
+
+- `CANONICAL_HOST` is `dexcompare.io` (`src/lib/site.ts`); every canonical, hreflang, sitemap, JSON-LD and OG URL follows SITE_URL. Any
+  old host in `NEXT_PUBLIC_SITE_URL` still means dexcompare.io (`OLD_HOSTS`).
+- `next.config.js` 301s every page of dexcompare.app, www.dexcompare.app and www.dexcompare.io to the same path and query on
+  dexcompare.io, in one hop, before every other rule. `/api/*` is NOT redirected on the old hosts: eBay's account-deletion endpoint is
+  registered at dexcompare.app and a POST is not followed through a redirect; Rift's ops check reads `/api/browse` there.
+- Vercel (dexcompare project): dexcompare.io serves Production, www.dexcompare.io 308s to it; the .app domains stay attached (the code
+  redirects them). Registered at Vercel 17 Nov 2026 for US$14.99, auto-renew OFF (owner), expires 17 Nov 2027: decide by Oct 2027.
+- Outside the code: Search Console Domain property for dexcompare.io + sitemap + Change of Address from dexcompare.app; Bing site move;
+  IndexNow from the new host; Rift's sister-alerts and sister-premium accept both origins; Google sign-in client gets the new origin;
+  GitHub variable `DEXCOMPARE_SITE_URL` = https://dexcompare.io.
+- A/B quick-view tests start 20 Nov and keep arms in localStorage, which is per host: the move lands before they start, so no visitor is
+  split across hosts mid-test.
+- Rollback: set `CANONICAL_HOST` back to dexcompare.app, swap the two hosts in `OLD_HOSTS`, and point the redirect at dexcompare.app.
+  `tests/host-move.test.ts` pins the redirect.
