@@ -394,6 +394,7 @@ export const TCGPLAYER_IMPACT_LINK = process.env.NEXT_PUBLIC_TCGPLAYER_IMPACT_LI
 export const IMPACT_SITE_VERIFICATIONS: readonly string[] = [
   "ebb0400c-dec0-45ae-a56e-e7bb1596e965",
   "f20df7de-d054-4571-b9bc-8777b2eafcdf",
+  "c48e69fe-cb1f-497a-b040-4bdc5c7cf6c4", // dexcompare.io, added to Impact 2026-11-17
 ];
 
 // TCGPLAYER.key in stores.ts. Not imported from there: stores.ts pulls in the
