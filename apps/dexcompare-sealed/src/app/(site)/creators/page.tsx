@@ -42,7 +42,7 @@ const FAQS = [
 // "How to work with us" (owner, 2026-11-01): flexible on purpose, any one of these is plenty. Creators call us their "partner" in
 // their own content, not "sponsor": we don't pay them for a mention.
 const WORK_WITH_US = [
-  { title: "Link us", body: "Put dexcompare.app in your bio, video description or a story link. That's the one thing that helps most." },
+  { title: "Link us", body: "Put dexcompare.io in your bio, video description or a story link. That's the one thing that helps most." },
   { title: "Shout us out", body: `In the content you already make, a quick line: “check out our partner ${SITE_NAME}” while you open a box, price a pull or plan a pre-order.` },
   { title: "Show how it works", body: "A short walkthrough or honest review: look up a booster box or ETB, compare the stores, find who has it in stock cheapest. Say what you really think." },
 ];
@@ -222,7 +222,7 @@ export default function CreatorsPage() {
         <div className="card mt-3 p-5">
           <h3 className="font-bold">Lines you can borrow</h3>
           <ul className="mt-2 space-y-1.5 text-sm leading-6 text-muted">
-            <li>“Prices checked on our partner dexcompare.app. Link in my bio.”</li>
+            <li>“Prices checked on our partner dexcompare.io. Link in my bio.”</li>
             <li>“Be sure to check out our partner {SITE_NAME}: it compares Pokémon sealed prices across stores, so you find who has it cheapest.”</li>
           </ul>
           <p className="mt-3 text-sm leading-6 text-muted">

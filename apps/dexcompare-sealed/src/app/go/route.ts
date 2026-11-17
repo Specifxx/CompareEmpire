@@ -24,7 +24,7 @@ export function GET(req: Request): Response {
   const url = new URL(req.url);
   const p = parseGo(url.searchParams);
   if (!p) {
-    return new Response("This link isn't valid. Go to https://dexcompare.app/ to find the product again.", {
+    return new Response("This link isn't valid. Go to https://dexcompare.io/ to find the product again.", {
       status: 400,
       headers: { ...HEADERS, "Content-Type": "text/plain; charset=utf-8" },
     });

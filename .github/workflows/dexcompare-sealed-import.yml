@@ -14,7 +14,7 @@ name: DexCompare sealed import
 #   DEXCOMPARE_REVALIDATE_SECRET     optional. Same value as REVALIDATE_SECRET in
 #                                    Vercel; without it pages refresh within 24h.
 # Variable (same page, "Variables" tab):
-#   DEXCOMPARE_SITE_URL              e.g. https://dexcompare.app
+#   DEXCOMPARE_SITE_URL              e.g. https://dexcompare.io
 #
 # A NEW secret name on purpose: the paused workflows from the old singles app
 # (refresh-dexcompare-prices.yml, seed-dexcompare-fresh.yml, …) read
@@ -109,7 +109,7 @@ jobs:
         if: steps.db.outputs.found == 'true'
         env:
           REVALIDATE_SECRET: ${{ secrets.DEXCOMPARE_REVALIDATE_SECRET }}
-          NEXT_PUBLIC_SITE_URL: ${{ vars.DEXCOMPARE_SITE_URL || 'https://dexcompare.app' }}
+          NEXT_PUBLIC_SITE_URL: ${{ vars.DEXCOMPARE_SITE_URL || 'https://dexcompare.io' }}
           ONLY: ${{ github.event_name == 'push' && 'tcgplayer' || inputs.only }}
           # The expired-eBay-listing purge at the end of the import uses the same age bound as the eBay import
           # (a repository variable; blank = 26 hours).

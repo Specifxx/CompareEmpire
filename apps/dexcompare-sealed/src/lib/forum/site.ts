@@ -5,7 +5,7 @@ export const FORUM_SITE: ForumSite = {
   site: "dexcompare",
   siteName: "DexCompare",
   repo: "Specifxx/CompareEmpire",
-  hosts: ["dexcompare.app", "www.dexcompare.app"],
+  hosts: ["dexcompare.io", "www.dexcompare.io", "dexcompare.app", "www.dexcompare.app"],
   base: "/forum",
   topic: "Pokémon TCG",
   intro: "Talk Pokémon TCG sealed prices, deals, new sets and collections with other collectors, English and Japanese.",

@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 
+// Hosts that 301 to the canonical https://dexcompare.io (keep in step with OLD_HOSTS in src/lib/site.ts; tests/host-move.test.ts).
+const OLD_HOSTS = ["dexcompare.app", "www.dexcompare.app", "www.dexcompare.io"];
+
 // Safe defaults on every response. The Content-Security-Policy is REPORT-ONLY:
 // product photos are hotlinked from ~250 store CDNs, and an enforcing policy
 // that is wrong silently blanks them. Report-only never blocks anything; a
@@ -63,8 +66,14 @@ const nextConfig = {
   // would match /au too and loop.
   async redirects() {
     return [
-      // No apex → www redirect here (2026-10-26 outage): www.dexcompare.app lost its DNS record, and this rule sent every
-      // visitor to a host that did not resolve. The apex is the canonical host since 2026-10-27 (lib/site.ts).
+      // dexcompare.io is the canonical host since 2026-11-17 (lib/site.ts, DECISIONS.md "Moving to dexcompare.io"). Every page
+      // of the old hosts 301s to the same path there in ONE hop, before any rule below (an old /sealed then takes its own hop).
+      // /api/* is left alone on the old hosts: eBay's account-deletion endpoint is registered at dexcompare.app and a POST
+      // through a redirect is not followed. No apex → www rule ever (2026-10-26 outage).
+      ...OLD_HOSTS.flatMap((value) => [
+        { source: "/", has: [{ type: "host", value }], destination: "https://dexcompare.io/", permanent: true },
+        { source: "/:path((?!api/).+)", has: [{ type: "host", value }], destination: "https://dexcompare.io/:path", permanent: true },
+      ]),
       // The UPC page was a guide for a few hours (2026-11-13) before it became a hub.
       { source: "/:region(au|us|uk|ca|nz|eu|sg)/guides/pokemon-ultra-premium-collection-price", destination: "/:region/ultra-premium-collections", permanent: true },
       { source: "/sealed", destination: "/au/sealed", permanent: true },

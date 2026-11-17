@@ -30,7 +30,7 @@ jobs:
           import os, random, re, sys, urllib.request
           from concurrent.futures import ThreadPoolExecutor
 
-          SITES = ["https://riftcompare.com", "https://dexcompare.app"]
+          SITES = ["https://riftcompare.com", "https://dexcompare.io"]
           SAMPLE = int(os.environ.get("CARD_SAMPLE", "120"))
           UA = {"User-Agent": "Mozilla/5.0 (compatible; IndexabilityAudit/1.0)"}
 

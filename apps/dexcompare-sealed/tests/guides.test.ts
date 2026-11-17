@@ -705,8 +705,9 @@ function firstMatch(rules: Redirect[], path: string): Redirect | null {
 
 test("legacy redirects: every specific source was a real old guide or blog post, and every destination is a page we serve", async () => {
   const all = await config.redirects();
-  // No host-conditioned rule: Vercel's domain settings decide the host (2026-10-26 outage, next.config.js).
-  assert.deepEqual(all.filter((r) => r.has), []);
+  // The only host-conditioned rules are the old hosts' 301s to dexcompare.io (tests/host-move.test.ts), first of all.
+  const hostRules = all.filter((r) => r.has);
+  assert.ok(hostRules.length > 0 && all.slice(0, hostRules.length).every((r) => r.has), "the host rules come first");
   const rules = all.filter((r) => !r.has);
   const articles = readFileSync(new URL("../../../archived/dexcompare/src/lib/articles.ts", import.meta.url), "utf8");
   const old = new Map([...articles.matchAll(/slug: "([^"]+)",\s*category: "(guide|blog)"/g)].map((m) => [m[1], m[2]]));

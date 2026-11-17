@@ -3,10 +3,13 @@
 // a wrong value here is a wrong value in every one of them. NEXT_PUBLIC_SITE_URL
 // in Vercel overrides the default; DEPLOY.md, "Domains" says what to set.
 export const SITE_NAME = "DexCompare";
-/** The canonical host: the apex, the host the site serves from. www was canonical from 2026-10-25 until it lost its DNS record in the
- * 2026-10-26 outage; every canonical then pointed Google at a host that did not resolve (DECISIONS.md, 2026-10-27). */
-export const CANONICAL_HOST = "dexcompare.app";
-export const SITE_URL = normaliseOrigin(process.env.NEXT_PUBLIC_SITE_URL) ?? "https://dexcompare.app";
+/** The canonical host: dexcompare.io since 2026-11-17 (owner: the one exception to "hosts never change", DECISIONS.md "Moving to
+ * dexcompare.io"). dexcompare.app (apex since 2026-10-27, www before) only 301s here (next.config.js), path and query kept. */
+export const CANONICAL_HOST = "dexcompare.io";
+/** Every other host the site has answered on. Any of them in NEXT_PUBLIC_SITE_URL still means CANONICAL_HOST, and next.config.js
+ * 301s each one to it. */
+export const OLD_HOSTS = ["dexcompare.app", "www.dexcompare.app", "www.dexcompare.io"] as const;
+export const SITE_URL = normaliseOrigin(process.env.NEXT_PUBLIC_SITE_URL) ?? `https://${CANONICAL_HOST}`;
 // The mailbox the footer, contact, terms and privacy pages (and the scrapers' From header) give: the Compare Empire
 // family inbox, compareempire@gmail.com, for every site without its own (owner, 2026-11-01: "the sites that they don't,
 // just use compareempire@gmail.com"). NEXT_PUBLIC_CONTACT_EMAIL overrides it.
@@ -62,15 +65,17 @@ export function sectionHref(region: string, key: SectionKey): string {
 }
 
 /**
- * The origin of NEXT_PUBLIC_SITE_URL, or null when it is not a URL. The site's own hosts (dexcompare.app or www, http or https)
- * are always the canonical https://dexcompare.app, so a NEXT_PUBLIC_SITE_URL still set to www in Vercel can't send crawlers there.
+ * The origin of NEXT_PUBLIC_SITE_URL, or null when it is not a URL. The site's own hosts (dexcompare.io, dexcompare.app, either www,
+ * http or https) are always the canonical https://dexcompare.io, so a NEXT_PUBLIC_SITE_URL still set to an old host in Vercel can't
+ * send crawlers there.
  */
 export function normaliseOrigin(v: string | undefined): string | null {
   if (!v) return null;
   try {
     const u = new URL(v.trim());
     if (u.protocol !== "https:" && u.protocol !== "http:") return null;
-    if (u.hostname.toLowerCase() === "www.dexcompare.app" || u.hostname.toLowerCase() === CANONICAL_HOST) return `https://${CANONICAL_HOST}`;
+    const host = u.hostname.toLowerCase();
+    if (host === CANONICAL_HOST || (OLD_HOSTS as readonly string[]).includes(host)) return `https://${CANONICAL_HOST}`;
     return u.origin;
   } catch {
     return null;
