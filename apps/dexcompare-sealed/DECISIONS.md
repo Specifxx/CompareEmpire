@@ -1192,3 +1192,22 @@ The owner wants every site's home page to lead with the items most likely to ear
   a demand file under 30 views for a list means that list ran on the fallback and is read apart.
 
 Here: the region home shelf (booster boxes, ETBs, packs: the 150 in stock of each type ranked, eight shown), its deals and pre-orders, and the landing page's ten picks (feature floor first). DexCompare sends `buy_product` with every buy click, so clicks count here from day one. `apps/dexcompare-sealed/data/demand.json`, pulled by `dexcompare-sealed-import.yml`. The quick view is untouched (A/B tests 20 Nov to 3 Dec).
+
+## 2026-11-18: The phone bottom nav, on for every phone visitor (owner)
+
+The owner tried the bar on TCG Prices with `?bn=1` ("looks good … a bit of lag"), it was made smoother there, and he asked for it on
+every site. This is TCG Prices' component (`components/BottomNav.tsx`) ported unchanged in what it does: `fixed` at the foot of the
+screen with `env(safe-area-inset-bottom)`, moved by `transform` only, no address-bar arithmetic (what got Rift's 2026-09 bar deleted),
+browser only, below 768px. It hides on scroll down and shows on the first upward flick; it hides while zoomed, while a text field has
+focus, while the quick view, the menu, the cart drawer or any dialog is open, on a page with the buy bar (the product page), and when an
+Add to cart button is in its strip. The ad dock yields to it (`html[data-bottomnav]`); the rating card, the return nudge, the Premium
+corner and the cart toast sit above it while it shows.
+
+- Dex's links are under a region: a region page uses its own, a page with none (landing, About, cart) the region the visitor picked
+  (`dex-region`), else their time zone's, else the US. It never asks `/api/geo` (a function call per view). Tabs: Home (`/<r>`), Search
+  (`/<r>/sealed`, whose box searches), Deals (`/<r>/deals`; also current on price moves, back in stock and Black Friday), Cart, Menu.
+- `BOTTOM_NAV` in `lib/site.ts`: "on" (shipped; `?bn=0` hides it for that visitor, kept), "optin" (only `?bn=1`), "off" (rollback).
+- Checked on five phone sizes (iPhone SE, 15 Pro Max, Pixel 7, Z Fold cover, landscape) and desktop with Playwright: 82 of 82 checks,
+  including the quick view and never covering an Add to cart. Scroll at 4x CPU throttle: p95 frame 16.8 ms with and without it.
+- A/B tests (20 Nov to 3 Dec): the bar is outside the quick view and the price rows, hidden while the quick view is open, and the same
+  in every arm. `tests/bottom-nav.test.ts`.
