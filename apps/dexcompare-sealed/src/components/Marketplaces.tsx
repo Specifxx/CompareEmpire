@@ -175,7 +175,7 @@ export function MarketplacePanel({
                 <b>{amazon.label}</b> <span className="text-muted">— {amazon.host.replace(/^www\./, "")}, in {amazon.currency}</span>
               </span>
               <span className="ml-auto flex shrink-0 items-center gap-3">
-                <span className="font-semibold text-brand-strong">
+                <span className="btn-amazon min-h-9 px-3 py-1.5">
                   Check price on {amazon.label} <span aria-hidden="true">↗</span>
                 </span>
               </span>
@@ -265,7 +265,7 @@ export function SoldOutCallout({
         </div>
         {tcgBtn}
         {amazon && (
-          <AmazonLink region={region} href={amazonHref(region, productSlug ?? "", productName, "amazon-soldout")!} product={productSlug ?? "unknown"} placement="amazon-soldout" className="btn-ghost mt-2 min-h-11 w-full px-4 py-2.5 text-center">
+          <AmazonLink region={region} href={amazonHref(region, productSlug ?? "", productName, "amazon-soldout")!} product={productSlug ?? "unknown"} placement="amazon-soldout" className="btn-amazon mt-2 min-h-11 w-full px-4 py-2.5 text-center">
             Check price on {amazon.label} <span aria-hidden="true">↗</span>
           </AmazonLink>
         )}
@@ -350,7 +350,7 @@ export function PreorderMarketplaces({ region, productName, productSlug, tcgplay
               <b className="font-semibold">{amazon.label}</b>
               <span className="text-muted">pre-order availability varies, not a price we checked</span>
             </span>
-            <AmazonLink region={region} href={amazonHref(region, productSlug ?? "", productName, "amazon-preorder")!} product={productSlug ?? "unknown"} placement="amazon-preorder" className="btn-ghost ml-auto min-h-11 shrink-0 whitespace-nowrap px-4 sm:min-h-10">
+            <AmazonLink region={region} href={amazonHref(region, productSlug ?? "", productName, "amazon-preorder")!} product={productSlug ?? "unknown"} placement="amazon-preorder" className="btn-amazon ml-auto min-h-11 shrink-0 whitespace-nowrap px-4 sm:min-h-10">
               Check price on {amazon.label} <span aria-hidden="true">↗</span>
             </AmazonLink>
           </li>
