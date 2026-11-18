@@ -142,7 +142,7 @@ jobs:
         run: npx tsx scripts/export-public-data.ts
 
       # The deal and restock feed (apps/dexcompare-sealed/src/lib/feed.ts): OFF unless the repository variable FEED_ENABLED is 1 and a
-      # destination is set (secret DISCORD_WEBHOOK_URL; secret TELEGRAM_BOT_TOKEN with variable TELEGRAM_CHAT_ID). It reads the files
+      # destination is set (secret DISCORD_WEBHOOK_URL or DISCORD_DEALS_WEBHOOK, the Compare Empire server #pokemon-deals, 18 Nov; secret TELEGRAM_BOT_TOKEN with variable TELEGRAM_CHAT_ID). It reads the files
       # just exported, posts at most FEED_MAX_POSTS (default 6) new events, and writes data/public/feed-state.json, which the publish
       # step commits with the data. Never fails the import.
       # Amazon ASINs (Creators API searchItems, AMAZON_SEARCH_BUDGET a region a day) for the product pages' Amazon row,
@@ -178,7 +178,7 @@ jobs:
           FEED_ENABLED: ${{ vars.FEED_ENABLED }}
           FEED_REGIONS: ${{ vars.FEED_REGIONS }}
           FEED_MAX_POSTS: ${{ vars.FEED_MAX_POSTS }}
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL || secrets.DISCORD_DEALS_WEBHOOK }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ vars.TELEGRAM_CHAT_ID }}
         run: npx tsx scripts/feed-notify.ts

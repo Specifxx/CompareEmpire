@@ -150,7 +150,8 @@ export function recordPosts(state: FeedState, events: readonly FeedEvent[], post
 /** One message, as plain text (Discord and Telegram both take it): what happened, the price, how many stores, the link. */
 export function messageFor(e: FeedEvent): string {
   const r = regionOfMarket(e.market)!;
-  const url = `${SITE_URL}/${r.region}/p/${e.product.slug}`;
+  // tagged so the growth report can count visits from the chat channels (utm convention, 18 Nov 2026)
+  const url = `${SITE_URL}/${r.region}/p/${e.product.slug}?utm_source=chat&utm_medium=social&utm_campaign=dex-feed`;
   if (e.kind === "restock") {
     return `${r.flag} In stock: ${e.product.name}\nNow at ${plural(e.stores, `${r.adjective} store`)}${e.cents != null ? `, from ${money(e.cents, e.market)}` : ""}. None had it at our previous daily check.\n${url}`;
   }
