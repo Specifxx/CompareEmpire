@@ -95,3 +95,10 @@ if (process.env.VERCEL_ENV === "production" && process.env.VERCEL_PROJECT_PRODUC
     );
   }
 }
+
+/**
+ * The phone bottom nav (components/BottomNav.tsx, DECISIONS.md 2026-11-18): "optin" = only a visitor who opens any page with ?bn=1
+ * sees it (kept in localStorage; ?bn=0 clears it); "on" = every phone visitor (?bn=0 still hides it for them); "off" = the rollback,
+ * which ignores ?bn=1 too.
+ */
+export const BOTTOM_NAV: "off" | "optin" | "on" = "on";

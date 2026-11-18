@@ -131,8 +131,9 @@ export function AdDock({ label, sides, placement, minWidth, yieldTo = "[data-ad]
           screen: window.innerHeight,
           blockers: blockers.size,
           buybar: !!document.querySelector(buybar),
-          // An ad-free visitor (Plus/Premium where a site has them) and a native app with its own banner: never.
-          modal: modal() || document.documentElement.matches("[data-adfree], .capacitor-native"),
+          // An ad-free visitor (Plus/Premium where a site has them) and a native app with its own banner: never. While the phone bottom
+          // nav shows (html[data-bottomnav], BottomNav.tsx) the dock yields: one bar at the foot of the screen at a time.
+          modal: modal() || document.documentElement.matches("[data-adfree], .capacitor-native, [data-bottomnav]"),
           typing,
           dismissed: false,
         }),
