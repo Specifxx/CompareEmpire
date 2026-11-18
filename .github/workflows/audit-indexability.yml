@@ -89,11 +89,12 @@ jobs:
               # the route can 404, and instead injects <meta name="robots"
               # noindex> into the streamed not-found — which Google treats as
               # non-indexable (filed as benign Soft 404 / noindex exclusion).
-              # So the contract is: 404, OR 200 carrying noindex. A 200
-              # WITHOUT noindex is an indexable junk page and fails the audit.
+              # So the contract is: 404, OR 410 (DexCompare's retired /card
+              # pages answer 410 Gone since 2026-11-18), OR 200 carrying noindex.
+              # A 200 WITHOUT noindex is an indexable junk page and fails the audit.
               probe = check(f"{site}/card/this-page-should-not-exist-xyz123")
               print(f"dead-URL probe: status={probe['code']} noindex={probe['noindex']}")
-              if probe["code"] != 404 and not (probe["code"] == 200 and probe["noindex"]):
+              if probe["code"] not in (404, 410) and not (probe["code"] == 200 and probe["noindex"]):
                   bad.append(("INDEXABLE DEAD URL (" + str(probe["code"]) + ", no noindex)", probe["url"], probe["final"]))
 
               if bad:
