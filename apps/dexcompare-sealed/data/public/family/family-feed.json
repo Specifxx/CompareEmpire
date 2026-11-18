@@ -1,7 +1,7 @@
 {
  "v": 1,
  "site": "dex",
- "generatedAt": "2026-11-18T03:23:04.976Z",
+ "generatedAt": "2026-11-18T18:28:30.376Z",
  "links": {
   "AU": {
    "deals": "https://dexcompare.io/au/deals"
@@ -26,6 +26,20 @@
   }
  },
  "items": [
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "AU",
+   "title": "30th Celebration Ditto Premium Collection",
+   "url": "https://dexcompare.io/au/p/30th-celebration-ditto-premium-collection",
+   "cents": 12500,
+   "currency": "AUD",
+   "store": "ProHobbies",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/704189_in_1000x1000.jpg",
+   "refCents": 23900,
+   "refLabel": "median store price",
+   "savingPct": 48
+  },
   {
    "kind": "deal",
    "cluster": "cards",
@@ -99,16 +113,16 @@
   {
    "kind": "deal",
    "cluster": "cards",
-   "region": "AU",
-   "title": "Black Bolt Japanese Booster Pack (SV11B)",
-   "url": "https://dexcompare.io/au/p/black-bolt-sv11b-japanese-booster-pack",
-   "cents": 1000,
-   "currency": "AUD",
-   "store": "Hightide Tabletop Gaming",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/636736_in_1000x1000.jpg",
-   "refCents": 1500,
+   "region": "NZ",
+   "title": "League Battle Deck - Mega Lucario ex",
+   "url": "https://dexcompare.io/nz/p/league-battle-deck-mega-lucario-ex",
+   "cents": 4888,
+   "currency": "NZD",
+   "store": "The Game Tree NZ",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/684106_in_1000x1000.jpg",
+   "refCents": 6750,
    "refLabel": "median store price",
-   "savingPct": 33
+   "savingPct": 28
   },
   {
    "kind": "deal",
@@ -123,20 +137,6 @@
    "refCents": 32250,
    "refLabel": "median store price",
    "savingPct": 16
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "NZ",
-   "title": "League Battle Deck - Mega Lucario ex",
-   "url": "https://dexcompare.io/nz/p/league-battle-deck-mega-lucario-ex",
-   "cents": 5990,
-   "currency": "NZD",
-   "store": "Animal Kingdoms",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/684106_in_1000x1000.jpg",
-   "refCents": 6999,
-   "refLabel": "median store price",
-   "savingPct": 14
   },
   {
    "kind": "deal",
@@ -268,15 +268,15 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "US",
-   "title": "Destined Rivals - 3 Pack Blister - Kangaskhan",
-   "url": "https://dexcompare.io/us/p/destined-rivals-3-pack-blister-kangaskhan",
-   "cents": 3000,
+   "title": "Fusion Strike Booster Pack",
+   "url": "https://dexcompare.io/us/p/fusion-strike-booster-pack",
+   "cents": 1949,
    "currency": "USD",
-   "store": "Vegas Singles",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/625683_in_1000x1000.jpg",
-   "refCents": 4399,
+   "store": "Derium's CCGs",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/247646_in_1000x1000.jpg",
+   "refCents": 2799,
    "refLabel": "median store price",
-   "savingPct": 32
+   "savingPct": 30
   },
   {
    "kind": "deal",
@@ -422,13 +422,13 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "CA",
-   "title": "Terastal Festival ex Japanese Booster Pack (SV8a)",
-   "url": "https://dexcompare.io/ca/p/terastal-festival-ex-sv8a-japanese-booster-pack",
-   "cents": 1599,
+   "title": "Temporal Forces - Checklane Blister Bundle",
+   "url": "https://dexcompare.io/ca/p/temporal-forces-checklane-blister-bundle",
+   "cents": 1499,
    "currency": "CAD",
-   "store": "Adventurebox",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/603429_in_1000x1000.jpg",
-   "refCents": 2672,
+   "store": "Manta Trading",
+   "image": "https://cdn.shopify.com/s/files/1/1704/1809/files/bundle2.png?v=1705342113",
+   "refCents": 2497,
    "refLabel": "median store price",
    "savingPct": 40
   },
@@ -436,13 +436,13 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "CA",
-   "title": "First Partner Illustration Collection (Series 2)",
-   "url": "https://dexcompare.io/ca/p/first-partner-illustration-collection-series-2-2",
-   "cents": 2999,
+   "title": "Terastal Festival ex Japanese Booster Pack (SV8a)",
+   "url": "https://dexcompare.io/ca/p/terastal-festival-ex-sv8a-japanese-booster-pack",
+   "cents": 1599,
    "currency": "CAD",
-   "store": "Breakaway Sports Cards",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/688712_in_1000x1000.jpg",
-   "refCents": 4999,
+   "store": "Adventurebox",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/603429_in_1000x1000.jpg",
+   "refCents": 2672,
    "refLabel": "median store price",
    "savingPct": 40
   },
@@ -578,13 +578,13 @@
    "region": "SG",
    "title": "Pitch Black Elite Trainer Box",
    "url": "https://dexcompare.io/sg/p/pitch-black-elite-trainer-box",
-   "cents": 9000,
+   "cents": 8850,
    "currency": "SGD",
    "store": "TEFUDA",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/692947_in_1000x1000.jpg",
    "refCents": 13500,
    "refLabel": "median store price",
-   "savingPct": 33
+   "savingPct": 34
   },
   {
    "kind": "deal",
@@ -606,13 +606,13 @@
    "region": "SG",
    "title": "First Partner Illustration Collection (Series 2)",
    "url": "https://dexcompare.io/sg/p/first-partner-illustration-collection-series-2-2",
-   "cents": 3200,
+   "cents": 3250,
    "currency": "SGD",
    "store": "TEFUDA",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/688712_in_1000x1000.jpg",
    "refCents": 4500,
    "refLabel": "median store price",
-   "savingPct": 29
+   "savingPct": 28
   }
  ]
 }
