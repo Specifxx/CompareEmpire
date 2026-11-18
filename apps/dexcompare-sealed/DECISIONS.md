@@ -1347,3 +1347,34 @@ sitting on top of it.
   `var(--bn-space)` + a small gap up, and the body's bottom padding follows it. Hidden, it slides fully off-screen (transform only, CLS 0).
 - **Measured** (local build, dock stacked): Pixel 7 412×915 nav + dock take 129px (14.1%); iPhone 15 393×852 with a 34px safe area
   143px (16.8%); iPhone SE 375×667 129px (19.3%); the old flush bar took about the same plus the full safe area.
+
+## 2026-11-19: The ad-intensity test — DexCompare is a heavy site (owner)
+
+The owner, 2026-11-19, after a week of turning ad ideas on and off: test it instead. "Dex Compare and Yu-Gi-Oh! Compare go super
+heavy on ads, much heavier than ever done before. But people can still use the site once they close all the ads." Rift Compare and
+MTG Compare "go lighter on ads" (both still rank on Google) and keep the core-update quality pass's placement (#286): ads below the
+content, no exit pop-up. Every other site keeps that pass too.
+
+What the heavy set adds here (`lib/ad-heavy.ts`, `components/heavy/HeavyAds.tsx`, mounted by the region layout; `AD_HEAVY` is the one
+switch):
+
+- **The banner pair again at the TOP** of every region page, above the page's own content, under its own placements
+  (`heavy-top-ebay`, `heavy-top-tcg`). The pair below the content stays. Browser only, with its height held in the server HTML.
+- **A "Recommended for you" pop-up** of six TCGplayer products that covers the page until it is closed (✕, "No thanks, continue to
+  the site", Esc or the backdrop; scroll is locked while it is open). It never opens on the page a visitor lands on: Google judges
+  intrusive interstitials on the landing page from search, so the pop-up opens on the 2nd, 5th and 8th page of a visit, at most three
+  a visit (`POPUP_AT`). Placement `heavy-popup`.
+- **A slide-in "Recommended on TCGplayer" card** at the bottom corner after 12 s on any page without a pop-up, closable, at most four a
+  visit. Placement `heavy-slidein`.
+- **TCGplayer only in the pop-up and the slide-in.** Our eBay Partner Network agreement needs EPN's written approval for pop-up
+  formats. The owner chose (19 Nov) to keep eBay out of pop-ups until EPN approves; eBay is in the banners, the dock and the rows.
+- Everything is labelled "Ad", rel sponsored, and never shown to ad-free members or in the app. `heavy_ad` { kind, view } counts
+  each pop-up and slide-in shown.
+
+The read is on 10 Dec, three weeks in and after Google's core update has settled. It compares the heavy pair (Dex, YGO) with the light
+pair (Rift, MTG) on paid buy clicks per 100 visitors, Partner Network and Impact earnings per 100 visitors, returning visitors and pages
+per visit, each against the same pair's own 4-17 Nov.
+
+Stop rule: switch `AD_HEAVY` off at once if Dex's Google clicks in Search Console fall more than 30% week on week while the light pair's
+fall less than 10%, or if Dex's daily visitors fall 30% below the week before. The Dex/MTG quick-view A/B (to 3 Dec) runs on top:
+both of its arms get the same heavy set, so its own comparison holds.
