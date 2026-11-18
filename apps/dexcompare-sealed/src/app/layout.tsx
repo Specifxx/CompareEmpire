@@ -5,6 +5,7 @@ import { SiteAnalytics } from "@/components/SiteAnalytics";
 import { ShareArrival } from "@/components/ShareArrival";
 import { PaidVisitTagger } from "@/components/PaidVisitTagger";
 import { QuickView } from "@/components/QuickView";
+import { ReturnNudge } from "@/components/ReturnNudge";
 import { RateCard } from "@/components/site-reviews/RateCard";
 import { PremiumCorner } from "@/components/premium/PremiumCorner";
 import { AdFreeSync } from "@/components/premium/AdFreeSync";
@@ -101,6 +102,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AdFreeSync />
         {/* Rate us (owner, 2026-11-03): the corner card, asking only after real use; RiftCompare keeps the ratings. */}
         <RateCard />
+        <ReturnNudge />
         <SiteAnalytics />
         <PaidVisitTagger />
         <ShareArrival />
