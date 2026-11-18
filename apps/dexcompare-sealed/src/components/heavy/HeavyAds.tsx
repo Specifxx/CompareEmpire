@@ -68,7 +68,9 @@ export function HeavyPopups({ region, tiles }: { region: Region; tiles: Tcgplaye
     if (popupDue(view, popupsShown())) {
       // A beat after the page draws, so the visitor sees where they are first.
       t1 = window.setTimeout(() => {
-        if (document.querySelector('[role="dialog"][aria-modal="true"]')) return;
+        // Another open dialog (the quick view, an open cart) goes first. The cart drawer stays in the page while closed, hidden and inert.
+        const open = [...document.querySelectorAll('[role="dialog"][aria-modal="true"]')].some((d) => !d.closest('[aria-hidden="true"], [inert]'));
+        if (open) return;
         notePopup();
         setPopup(true);
         track("heavy_ad", { kind: "popup", view });
