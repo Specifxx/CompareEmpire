@@ -1154,3 +1154,13 @@ The owner bought a professional first-time-shopper QA review of DexCompare (10 f
   over. The CSP (report-only) frame-src gained the Google ad-quality, ad-services and tag-manager hosts the console reported; it stays report-only.
 - **Menu and search focus (F7 in the report, fix 8): already supported** (`NavMenu`: hover with intent, the chevron and Enter/Space toggle it,
   arrows, Escape, outside press); the reviewer's pointer was parked over the open panel, which sat above the search box. No change.
+
+## 2026-11-18: The return nudge, a targeted prompt for a visitor who has clicked a store (owner)
+
+Earnings fell; the owner asked for targeted, subtle ads. About 70% of buy clicks go to stores that pay nothing. After a click on a STORE row, when the
+visitor comes back to the tab (away 4 s or more, within 30 minutes), a small dismissible card ("Still comparing?", Ad) offers the page's own sponsored
+eBay and TCGplayer links (read through /go by destination, copied unchanged). Once a session, 20 s or ✕ or Esc, never Amazon, no price or "best" claim,
+yields to the rating card. It touches nothing in the quick view (the 20 Nov to 3 Dec A/B test is unaffected). **Measured:** half the visitors are the
+control arm (localStorage `rn-arm`); `nudge_eligible` {arm} fires for both (Vercel and GA4), `nudge_shown` and `nudge_click` {which} for "on", and GA4
+`nudge_paid_click` {arm, via_nudge} on every sponsored click after a store click, so this host's buy event keeps its fixed property set. Lift = paid
+clicks per eligible return, on against off. Rollback: remove `<ReturnNudge />` from the root layout.
