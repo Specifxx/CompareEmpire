@@ -1,7 +1,7 @@
 {
  "v": 1,
  "site": "dex",
- "generatedAt": "2026-11-17T18:40:02.435Z",
+ "generatedAt": "2026-11-18T03:23:04.976Z",
  "links": {
   "AU": {
    "deals": "https://dexcompare.io/au/deals"
@@ -26,20 +26,6 @@
   }
  },
  "items": [
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "AU",
-   "title": "30th Celebration Ditto Premium Collection",
-   "url": "https://dexcompare.io/au/p/30th-celebration-ditto-premium-collection",
-   "cents": 12500,
-   "currency": "AUD",
-   "store": "ProHobbies",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/704189_in_1000x1000.jpg",
-   "refCents": 23900,
-   "refLabel": "median store price",
-   "savingPct": 48
-  },
   {
    "kind": "deal",
    "cluster": "cards",
@@ -107,6 +93,20 @@
    "store": "One Stop Poke Shop",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/647498_in_1000x1000.jpg",
    "refCents": 600,
+   "refLabel": "median store price",
+   "savingPct": 33
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "AU",
+   "title": "Black Bolt Japanese Booster Pack (SV11B)",
+   "url": "https://dexcompare.io/au/p/black-bolt-sv11b-japanese-booster-pack",
+   "cents": 1000,
+   "currency": "AUD",
+   "store": "Hightide Tabletop Gaming",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/636736_in_1000x1000.jpg",
+   "refCents": 1500,
    "refLabel": "median store price",
    "savingPct": 33
   },
@@ -240,34 +240,6 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "US",
-   "title": "Delta Reign Checklane Blister",
-   "url": "https://dexcompare.io/us/p/delta-reign-checklane-blister",
-   "cents": 549,
-   "currency": "USD",
-   "store": "Keystone Games LLC",
-   "image": "https://cdn.shopify.com/s/files/1/0936/4737/2569/files/220_d6961cd6-9b24-4cc2-9f55-ac87d8825e6e.png?v=1787724140",
-   "refCents": 999,
-   "refLabel": "median store price",
-   "savingPct": 45
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "US",
-   "title": "Pokémon Card 151 Japanese Booster Box (SV2a)",
-   "url": "https://dexcompare.io/us/p/pokemon-card-151-sv2a-japanese-booster-box",
-   "cents": 24499,
-   "currency": "USD",
-   "store": "CardsHQ",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/565243_in_1000x1000.jpg",
-   "refCents": 43150,
-   "refLabel": "median store price",
-   "savingPct": 43
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "US",
    "title": "Mega Symphonia Japanese Booster Pack (M1S)",
    "url": "https://dexcompare.io/us/p/mega-symphonia-m1s-japanese-booster-pack",
    "cents": 295,
@@ -277,6 +249,34 @@
    "refCents": 500,
    "refLabel": "median store price",
    "savingPct": 41
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "US",
+   "title": "Shiny Treasure ex Japanese Booster Pack (SV4a)",
+   "url": "https://dexcompare.io/us/p/shiny-treasure-ex-sv4a-japanese-booster-pack",
+   "cents": 1300,
+   "currency": "USD",
+   "store": "Lucky Hits Inc",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/565233_in_1000x1000.jpg",
+   "refCents": 1950,
+   "refLabel": "median store price",
+   "savingPct": 33
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "US",
+   "title": "Destined Rivals - 3 Pack Blister - Kangaskhan",
+   "url": "https://dexcompare.io/us/p/destined-rivals-3-pack-blister-kangaskhan",
+   "cents": 3000,
+   "currency": "USD",
+   "store": "Vegas Singles",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/625683_in_1000x1000.jpg",
+   "refCents": 4399,
+   "refLabel": "median store price",
+   "savingPct": 32
   },
   {
    "kind": "deal",
@@ -394,34 +394,6 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "CA",
-   "title": "30th Celebration - Tech Sticker Collection",
-   "url": "https://dexcompare.io/ca/p/30th-celebration-tech-sticker-collection",
-   "cents": 3000,
-   "currency": "CAD",
-   "store": "Jeux AZ Games",
-   "image": "https://cdn.shopify.com/s/files/1/0620/7658/4128/files/Pokemon_TCG_30th_Celebration_Tech_Sticker_Collection_Alolan_Exeggutor_EN-copy-2048x1880_jpg.webp?v=1782838755",
-   "refCents": 5495,
-   "refLabel": "median store price",
-   "savingPct": 45
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "CA",
-   "title": "30th Celebration Mini Tin",
-   "url": "https://dexcompare.io/ca/p/30th-anniversary-mini-tin",
-   "cents": 2294,
-   "currency": "CAD",
-   "store": "L'Atelier TCG",
-   "image": "https://cdn.shopify.com/s/files/1/0947/8681/4296/files/16033141162328-f12470d12dfd64df7b4fabeffd3ab8396ec46452.webp?v=1790176162",
-   "refCents": 3995,
-   "refLabel": "median store price",
-   "savingPct": 43
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "CA",
    "title": "Heat Wave Arena Japanese Booster Box (SV9a)",
    "url": "https://dexcompare.io/ca/p/heat-wave-arena-sv9a-japanese-booster-box",
    "cents": 12999,
@@ -445,6 +417,34 @@
    "refCents": 2201,
    "refLabel": "median store price",
    "savingPct": 41
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "CA",
+   "title": "Terastal Festival ex Japanese Booster Pack (SV8a)",
+   "url": "https://dexcompare.io/ca/p/terastal-festival-ex-sv8a-japanese-booster-pack",
+   "cents": 1599,
+   "currency": "CAD",
+   "store": "Adventurebox",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/603429_in_1000x1000.jpg",
+   "refCents": 2672,
+   "refLabel": "median store price",
+   "savingPct": 40
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "CA",
+   "title": "First Partner Illustration Collection (Series 2)",
+   "url": "https://dexcompare.io/ca/p/first-partner-illustration-collection-series-2-2",
+   "cents": 2999,
+   "currency": "CAD",
+   "store": "Breakaway Sports Cards",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/688712_in_1000x1000.jpg",
+   "refCents": 4999,
+   "refLabel": "median store price",
+   "savingPct": 40
   },
   {
    "kind": "deal",
