@@ -1222,3 +1222,19 @@ after the landing page. `lib/campaign.ts` keeps the tab's first-touch `utm_campa
 and an untagged visit sends nothing, so event volume barely moves. Convention for every link we hand out:
 `?utm_source=<platform>&utm_medium=creator|social&utm_campaign=<handle or post>`. Earnings are not split per creator (affiliate ids
 carry the placement, not the campaign). `tests/campaign.test.ts`.
+
+## 2026-11-18: an eBay row may be "Best price" again (owner)
+
+The owner withdrew the 2026-11-17 rule that an eBay ad is never "Best price": the cheapest row is the cheapest row, and it carries the
+badge, whichever it is. `EBAY_CAN_BE_BEST = true` (`lib/ebay-offer-row.ts`): a NEW eBay listing in the stores' currency, strictly cheaper than
+every in-stock store and not more than 25% under their median (`ebayMayBeBest`), takes the table badge, the best-price card and the sticky
+bar; otherwise a store (or TCGplayer when cheaper) keeps it. The row order does not change: eBay, TCGplayer, Amazon, then the stores.
+
+## 2026-11-18: Share for a deal, and guides get the share button (owner)
+
+Owner: sharing should be easy and rewarded ("if you share … you can open Deal Finder … gives incentive"). Pages that pass `deal`
+to `ShareButton` (product, set and guide pages) put half of browsers (`share_arm` in localStorage, `pickShareArm`) on
+"Share · get a deal": after a share completes, a small card under the button (the visitor's own tap, ✕ to close) points to the
+region's `/deals`. The other half is the control. The quick view never passes `deal`, so it is unchanged during its A/B test
+(20 Nov to 3 Dec; `tests/share-link.test.ts`). Nothing is gated. Events `share { kind, arm }` (two properties, Vercel's limit)
+and `share_unlock { kind }`. Read the share rate per arm after two weeks; keep the offer only if it raises sharing.

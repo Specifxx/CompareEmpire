@@ -710,3 +710,14 @@ ten written notes. Rift's own record also holds "too many popups asking for my o
   vote is `votes/<site>/<day>/<time>-up|down-<rand>.json`, counted from its file name by RiftCompare's daily *Reports
   triage*, which now prints a 7-day feedback table per site and flags every note for a look. No email address is asked
   for or kept: the thanks shows the site's inbox for anyone who wants a reply.
+
+## 2026-11-18: TCGplayer's barcode on the sealed product page (DexCompare)
+
+Owner: "any unique identifiers … we should capture … as these are easy SEO results". Search Console (RiftCompare maintenance task
+`gsc-identifiers`, 90 days to 15 Nov): KaeYoung's every Google click came from a typed barcode; ScentCompare and Gundam kits show the same.
+TCGplayer's catalogue (TCGCSV `extendedData` "UPC") carries a barcode for about half of sealed Pokémon product (485 of 1,024 in
+RiftCompare's Pokémon section). `scripts/tcg-barcodes.ts` (a never-failing step before the sealed import) writes
+`data/barcodes/tcgplayer.json` (TCGplayer id -> barcode; check digit verified, a code on two or more products dropped, `src/lib/gtin.ts`);
+the product page joins it through its TCGplayer offer's URL (`src/lib/barcodes.ts`) and shows "Barcode (UPC/EAN)" and "TCGplayer ID" in
+Quick facts, and the Product markup carries `gtin12`/`gtin13` and `productID`. Never from a store title. The quick view and the browse
+index (RiftCompare reads its tuple, INDEX_VERSION 1) are unchanged.
