@@ -7,6 +7,7 @@ import { rtClick, useRowsTest } from "@/lib/rows-test-client";
 import { AMAZON_REL, amazonLabel, type AmazonPlacement } from "@/lib/amazon";
 import type { Region } from "@/lib/regions";
 import { amazonClickEvent, amazonGa4Params, buyEvents } from "@/lib/click-events";
+import { campaignEvent, readCampaign } from "@/lib/campaign";
 
 declare global {
   interface Window {
@@ -32,6 +33,8 @@ export function AmazonLink({ region, href, product, placement, className, childr
     try {
       const pathname = window.location.pathname;
       for (const [name, props] of buyEvents({ retailer: amazonLabel(region), placement, rel: AMAZON_REL, pathname, item: { product, store: region === "nz" ? "amazon-au" : `amazon-${region}` } })) track(name, props);
+      const extra = campaignEvent(readCampaign(), amazonLabel(region));
+      if (extra) track(extra[0], extra[1]);
       const [name, props] = amazonClickEvent({ product, pathname });
       track(name, props);
       window.gtag?.("event", "amazon_click", amazonGa4Params({ product, pathname }));

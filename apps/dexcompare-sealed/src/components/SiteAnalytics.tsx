@@ -1,6 +1,8 @@
 "use client";
 
+import { useEffect } from "react";
 import { Analytics, type BeforeSendEvent } from "@vercel/analytics/react";
+import { readCampaign } from "@/lib/campaign";
 
 // Vercel Web Analytics, with the query string dropped from every page view:
 // /au/sealed?q=… would otherwise send whatever a visitor typed into search.
@@ -22,5 +24,9 @@ function stripQuery(event: BeforeSendEvent): BeforeSendEvent | null {
 }
 
 export function SiteAnalytics() {
+  // First touch of the tab: the landing URL's utm_campaign, kept for the buy click (lib/campaign.ts).
+  useEffect(() => {
+    readCampaign();
+  }, []);
   return <Analytics beforeSend={stripQuery} />;
 }
