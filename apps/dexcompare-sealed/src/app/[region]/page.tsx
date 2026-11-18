@@ -239,9 +239,6 @@ export default async function RegionHome({ params }: { params: { region: string 
       {/* The page places its own ad block (below): none above the footer. */}
       <NoPreFooter />
       <div className="page">
-        <InlineAds region={r.region} tiles={tcgTiles} className="mt-6 sm:mt-8" />
-        {/* Paid featured listings (lib/featured-ads.ts): drawn in the browser from RiftCompare's feed, nothing when there are none. */}
-        <FeaturedAds region={r.market} className="mt-2" />
 
         {overview.products === 0 ? (
           <div className="mt-10">
@@ -253,6 +250,10 @@ export default async function RegionHome({ params }: { params: { region: string 
           </Section>
         )}
 
+        {/* The ads sit under the in-stock shelf, never above the page's own content (2026-11-19, core-update quality pass). */}
+        <InlineAds region={r.region} tiles={tcgTiles} className="mt-10" />
+        {/* Paid featured listings (lib/featured-ads.ts): drawn in the browser from RiftCompare's feed, nothing when there are none. */}
+        <FeaturedAds region={r.market} className="mt-2" />
 
         {latestSets.length > 0 && (
           <Section title="Latest sets" href={`/${r.region}/sets`} linkLabel="All sets" className="reveal mt-16 sm:mt-24">

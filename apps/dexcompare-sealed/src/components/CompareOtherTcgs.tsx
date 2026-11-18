@@ -7,7 +7,12 @@ export const OTHER_TCGS: readonly { url: string; anchor: string; site: string; b
 ];
 
 /** One quiet line (2026-11-13: it was a heading and three cards): a label, then each sister site by what it compares. */
+// Off (2026-11-19, core-update quality pass): links to our other sites on every product page read as a link network. The one
+// family link is the footer's /our-sites.
+export const CROSS_SITE_BLOCKS = false;
+
 export function CompareOtherTcgs({ className = "mt-16 sm:mt-20" }: { className?: string }) {
+  if (!CROSS_SITE_BLOCKS) return null;
   return (
     <nav className={`flex flex-wrap items-baseline gap-x-5 gap-y-2 border-t border-line pt-6 text-sm ${className}`} aria-labelledby="other-tcgs-h" data-other-tcgs="">
       <p id="other-tcgs-h" className="eyebrow">

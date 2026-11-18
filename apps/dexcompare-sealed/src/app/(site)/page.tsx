@@ -85,11 +85,6 @@ export default async function Landing() {
         <SoftWaysIn formId="landing-search" links={HERO_LINKS} />
       </Hero>
 
-      {/* The two big ad banners (owner, 2026-11-14), eBay and TCGplayer apart, directly under the hero. Browser only, height reserved; labelled Ad. */}
-      <div className="page mt-6 sm:mt-8">
-        <SoftInlineAds tiles={railTiles} />
-      </div>
-
       {/* The owner's trim (2026-11-13): no Premium promo, no explainer paragraph and no guides list here; the space goes to
           products, ten of the region's most stocked. The explanation is on /about, Premium on /premium, the guides on
           each region's guides index. Everything here is server-rendered. */}
@@ -98,6 +93,12 @@ export default async function Landing() {
       </div>
 
       <PopularPages />
+
+      {/* The two ad banners, eBay and TCGplayer apart, below the page's own content (2026-11-19, core-update quality pass). Browser
+          only, height reserved; labelled Ad. */}
+      <div className="page mt-8">
+        <SoftInlineAds tiles={railTiles} />
+      </div>
 
       {/* The phone dock (below 1280px, after a scroll), browser-only, in the visitor's region (components/SideAds.tsx; the side rails
           that shared the file were removed 2026-11-13; owner 2026-11-06: "the home page must have this as well"). */}
