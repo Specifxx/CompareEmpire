@@ -1248,3 +1248,77 @@ row and the unpriced "Check Amazon" row (`OfferRows`), and of the Amazon button 
 so are the TCGplayer button and the phone eBay + TCGplayer pair's position (the quick view's A/B test starts 20 Nov). The quick view's
 pinned footer link, already visible without scrolling, becomes a 44px bold bordered button reading "See full page: price history
 and details" (`data-see-full-page`); it was a 42px ghost button. `tests/amazon-button.test.ts` pins both.
+
+## 2026-11-18: a return-visit beacon, so retention has a number on every site
+
+Owner, 2026-11-18: "we want new visitors and we want to retain those visitors". Vercel Web Analytics cannot tell a returning
+visitor from a new one, and Google Analytics runs on only four of the sites (consent-gated on two). `lib/return-visit.ts` keeps one
+small localStorage record (`rv`: first day, last day, visit days) and `components/ReturnBeacon.tsx` (root layout, renders nothing)
+sends ONE `return_visit` event the first time a returning visitor opens the site on a new day. New visitors send nothing (Vercel's
+visitor count is the denominator), so it costs at most one event per returning visitor per day. Properties are buckets only:
+`k` = "<days since last visit>:<page type>", `age` = days since first visit, `n` = visit days, `via` (direct, search, email, share,
+social, ai, other), plus the arm of each live 50/50 test (`rn`, `ln`, `share`, `cart`, `watch`) so every retention lever reads its
+return rate on against off. No id, date or URL leaves the browser. The identical file is in every Compare repo; read weekly by the
+retention thread. Rollback: remove `<ReturnBeacon />` from the layout.
+
+## 2026-11-18: the return-visit beacon also carries the `since` arm
+
+Retention lever 2 ("Since your last visit", on the sister sites) is a 50/50 test under `since-arm`; `ARM_KEYS` in
+`lib/return-visit.ts` gains `since` so the file stays the same in every repo. Nothing changes on DexCompare until it runs the lever.
+
+## 2026-11-18: Retired card pages answer 410 Gone
+
+The old singles site's `/card/<slug>` pages (June to September) answered 404 since the sealed rebuild on 2026-09-25. They are most
+of what Google still re-reads of DexCompare (836 of the newest 1,000 "crawled, not indexed", 16 Nov) at a few pages a day, the
+crawl the live pages need on the new host. `/card` and everything under it now answer **410 Gone**, the status for "removed on
+purpose", which Google drops a little sooner than a 404 and stops re-checking: `src/app/card/[[...slug]]/route.ts` (edge, no data,
+the CDN keeps each answer a day), body and headers in `lib/retired-cards.ts` (noindex, a short page with a link home), pinned by
+`tests/retired-cards.test.ts`. No card has a sealed page to stand in for it, so a redirect would be a soft 404; and no cross-host
+redirect to a singles site (owner, 2026-11-17). `/card-value` keeps its 301 to the value checker. `audit-indexability.yml`'s dead-URL
+probe accepts 410. Rollback: delete the route; the URLs return to the ordinary 404.
+
+## Collection value card (owner, 2026-11-18: "we need more shareable artefacts")
+
+My collection's "Share my collection" now draws a 1200×630 picture of the visitor's own totals (value, change since
+added, item count, three most valuable items, "Track yours free at <host>") in the browser with a canvas
+(`components/vault/collection-card.ts`, ported from TCG Prices) and hands it to the share sheet as a file; where files
+can't be shared it saves the PNG and copies the link. No server, no function, no Vercel image cost, nothing sent to us.
+Link: `/?utm_source=share&utm_medium=collection&utm_campaign=collection-card`. Counted in Vercel as `share {kind:
+collection, how: image|text|saved|copy}`, only once it really went out.
+
+## Deals page: a share button and its own share image per region (owner, 2026-11-18: "we need more shareable artefacts")
+
+`/[region]/deals` gets a share button (kind and medium `deals`, `utm_source=share&utm_medium=deals`) and
+`[region]/deals/opengraph-image.tsx`: "Today's deals in <region>, up to N% under" with the page's own count
+(`dealsBySection`, `dealPct`, `dealsCopy.summary`), drawn by `lib/og-card.tsx` (text and the logo, no product photo).
+It lists no params, so nothing reads data at build: each region's image is drawn on its first request after a release
+and kept until the next. `pageMeta` names it as the page's image. The quick view is untouched.
+
+## The weekly Hot 100 at /<region>/hot-100 — 2026-11-18
+
+**What.** A new page per region, `/<region>/hot-100`, and its share card `/og/hot-100/<region>`: every product whose cheapest
+in-stock price rose over the last seven days (up to the newest import), biggest rise first, up to 100, each with its place on
+the chart seven days earlier (▲ / ▼ / New). Pure, from `data/public/price-history.json` alone (`lib/hot100.ts`). The weekly
+chart's rules with a lower floor: two or more stores in stock on both days, a rise of 1% or more and under 50% (a bigger jump is a
+misfiled listing). A short week is the Hot 37, never padded (RiftCompare's Hot 40 rule). Noindex under five rows.
+
+**Why.** Owner, 2026-11-18: RiftCompare's Hot chart works on Reddit as a plain link and title; every site gets one stable URL to post
+once a week (tagged `utm_source=reddit&utm_medium=social&utm_campaign=hot100-<site>-<date>`). The dated Sunday chart stays where it
+exists. Shipped with `[deploy] [urgent]` on the owner's ask for today's links. `tests/hot100.test.ts`.
+## 2026-11-18: The weekly price-drops box on guides, pre-order and release pages (retention)
+
+GA4, last 28 days: people who land on a guide, a pre-order page or the release calendar are among our largest groups of new
+visitors and the least likely to come back (MTG: pre-orders 7% returning, guides 4–10%; Dex: guides 5%, releases 6%, against
+15–34% for home and sealed). Those pages offered no way to hear from us again. They now carry the same one-field weekly
+price-drops box as home, deals and set pages (`WeeklyDropsBox`, placements `guide`, `preorder`, `releases`): inline, below the
+content, server-rendered at a fixed height, never a pop-up. Read: `weekly_signup` by placement, and the census's sister
+weekly-digest counts, at the retention read of 2 Dec.
+
+## 2026-11-18: Back-in-stock emails are free for everyone (owner)
+
+The owner chose "Free for everyone" for back-in-stock alerts (retention thread, 18 Nov): accounts with an alert came back after
+week one at 56% against 25% without one, and accounts given Premium came back at only 23%. `RestockAlert` on a sold-out product
+now shows visitors one email field (kind `restock` on RiftCompare's alert service, the same double opt-in as a price alert);
+members keep the one-tap button and their watch list. The Premium pages no longer sell it as a perk: Premium is no banner ads,
+200 alerts, the watch list and a year of collection history. Event `restock_signup` {member, region}; read on 2 Dec. Needs the
+service side (TCGEmpire, same day) live first, or a visitor's form answers "for Premium members".

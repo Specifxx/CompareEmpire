@@ -32,7 +32,7 @@ test("off by default: nothing is enabled without FEED_ENABLED=1 and a destinatio
   const src = readFileSync("src/lib/feed.ts", "utf8") + readFileSync("scripts/feed-notify.ts", "utf8");
   assert.doesNotMatch(src, /discord\.com\/api\/webhooks\/\d|bot\d{6,}:/, "no hard-coded webhook or bot token");
   const wf = readFileSync("../../.github/workflows/dexcompare-sealed-import.yml", "utf8");
-  assert.match(wf, /DISCORD_WEBHOOK_URL: \$\{\{ secrets\.DISCORD_WEBHOOK_URL \}\}/);
+  assert.match(wf, /DISCORD_WEBHOOK_URL: \$\{\{ secrets\.DISCORD_WEBHOOK_URL \|\| secrets\.DISCORD_DEALS_WEBHOOK \}\}/);
   assert.match(wf, /TELEGRAM_BOT_TOKEN: \$\{\{ secrets\.TELEGRAM_BOT_TOKEN \}\}/);
   assert.match(wf, /name: Deal and restock feed[\s\S]*?continue-on-error: true/, "never fails the import");
 });

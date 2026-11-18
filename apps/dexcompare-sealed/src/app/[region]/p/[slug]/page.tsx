@@ -694,7 +694,7 @@ export default async function ProductPage({ params }: { params: { region: string
           buttonClassName="btn-ghost"
           stores={p.offers.filter((o) => !o.marketplace).map((o) => ({ name: o.storeName, price: money(o.priceCents, r.market) }))}
         />
-        {here?.lowestPriceCents == null && <RestockAlert productId={p.id} region={r.market} />}
+        {here?.lowestPriceCents == null && <RestockAlert site={ALERT_SITE_KEY} productId={p.id} region={r.market} />}
         {riftHref && (
           // The owner's other Pokémon site keeps what this one does not: TCGplayer's market price over time (lib/riftcompare.ts).
           <p className="mt-4 text-sm text-muted">

@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
-import { PREMIUM_PRICE_LINE } from "@/lib/premium-member";
 import { CONTACT_EMAIL, SITE_NAME, SITE_URL } from "@/lib/site";
 
 // The Premium announcement post (owner, 2026-11-10). Static. Every figure is premium-member.ts's or the Premium page's own; no claim that a
 // product will restock or that an alert beats other buyers.
 const TITLE = "How to get an email when sold-out Pokémon product restocks";
-const DESCRIPTION = `What ${SITE_NAME} Premium adds, what it costs (US$4.99 a month, 14 days free) and what a back-in-stock alert can and can't do.`;
+const DESCRIPTION = `Back-in-stock emails are free on ${SITE_NAME}: how to set one, what Premium adds, and what an alert can and can't do.`;
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -23,23 +22,22 @@ export default function RestockAlertsPost() {
         <h1>{TITLE}</h1>
         <p className="text-sm text-muted">Published 10 November 2026</p>
         <p>
-          Sold-out Pokémon product is the most common reason people miss a good price. <strong>{SITE_NAME} Premium</strong> emails you when a store we compare has a sold-out product in stock again.
-          It costs {PREMIUM_PRICE_LINE}.
+          Sold-out Pokémon product is the most common reason people miss a good price. Since 18 November 2026 {SITE_NAME} emails anyone who asks when a store we compare has a sold-out product in stock again. It is free and needs no account.
         </p>
         <h2>What Premium adds</h2>
         <ul>
-          <li><strong>Back-in-stock alerts.</strong> On a product no store has in stock, tap “Email me when it’s back” once.</li>
+          <li><strong>One tap instead of an email form.</strong> Signed in, a back-in-stock alert is a single tap, and it shows in your watch list.</li>
           <li><strong>Up to 200 price alerts</strong> instead of 25.</li>
           <li><strong>A watch list</strong> at <Link href="/watches">My watches</Link>: every alert you’ve set, with the lowest in-stock price now and a button to stop each.</li>
         </ul>
         <h2>What stays free</h2>
         <p>
-          Comparing prices across stores is free, and so are normal price alerts and the weekly biggest-drops email. Premium doesn’t change which stores are shown, in what order, or the ads on the page.
+          Comparing prices across stores is free, and so are price alerts, back-in-stock alerts and the weekly biggest-drops email. Premium doesn’t change which stores are shown, in what order, or the ads on the page.
         </p>
         <h2>How an alert works</h2>
         <ol>
           <li>Open a sold-out product page.</li>
-          <li>Under the price alert you’ll see the restock option. Sign in with your Premium account and tap it.</li>
+          <li>Under the price alert, enter your email under “Sold out here” (or, signed in to Premium, tap the button). Confirm from the one email we send.</li>
           <li>After each daily price update we check the stores. The first time one lists it in stock, you get one email with the store’s price and a link.</li>
           <li>If it sells out again before you buy, the alert stays set for the next restock.</li>
         </ol>
