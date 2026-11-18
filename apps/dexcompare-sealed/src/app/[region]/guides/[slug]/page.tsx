@@ -1,3 +1,4 @@
+import { ShareButton } from "@/components/ShareButton";
 import Link from "next/link";
 import { detailIndexed } from "@/lib/index-tiers";
 import { notFound } from "next/navigation";
@@ -68,6 +69,7 @@ export default async function GuidePage({ params }: { params: { region: string; 
         <article className="min-w-0 max-w-[68ch]">
           <header>
             <div className="eyebrow">{g.kicker}</div>
+            <ShareButton title={g.title} path={`/${r.region}/guides/${g.slug}`} kind="guide" deal={`/${r.region}/deals`} className="float-right ml-2" />
             <h1 className="mt-2 ph-h1">{g.title}</h1>
             <p className="ph-meta sm:mt-4">
               <span className="font-medium text-ink">By DexCompare</span>
