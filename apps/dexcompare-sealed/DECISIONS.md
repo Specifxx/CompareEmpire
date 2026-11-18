@@ -1276,3 +1276,12 @@ the CDN keeps each answer a day), body and headers in `lib/retired-cards.ts` (no
 `tests/retired-cards.test.ts`. No card has a sealed page to stand in for it, so a redirect would be a soft 404; and no cross-host
 redirect to a singles site (owner, 2026-11-17). `/card-value` keeps its 301 to the value checker. `audit-indexability.yml`'s dead-URL
 probe accepts 410. Rollback: delete the route; the URLs return to the ordinary 404.
+
+## Collection value card (owner, 2026-11-18: "we need more shareable artefacts")
+
+My collection's "Share my collection" now draws a 1200×630 picture of the visitor's own totals (value, change since
+added, item count, three most valuable items, "Track yours free at <host>") in the browser with a canvas
+(`components/vault/collection-card.ts`, ported from TCG Prices) and hands it to the share sheet as a file; where files
+can't be shared it saves the PNG and copies the link. No server, no function, no Vercel image cost, nothing sent to us.
+Link: `/?utm_source=share&utm_medium=collection&utm_campaign=collection-card`. Counted in Vercel as `share {kind:
+collection, how: image|text|saved|copy}`, only once it really went out.
