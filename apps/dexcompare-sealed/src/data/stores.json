@@ -9723,18 +9723,6 @@
     ]
   },
   {
-    "key": "tcgora",
-    "name": "TCGORA",
-    "base": "https://tcgora.com",
-    "market": "US",
-    "platform": "shopify",
-    "country": "US",
-    "collections": [
-      "elite-trainer-box",
-      "pre-orders"
-    ]
-  },
-  {
     "key": "theapollosvault",
     "name": "Apollo's Vault",
     "base": "https://theapollosvault.com",
