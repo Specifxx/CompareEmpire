@@ -12,7 +12,7 @@ import { PremiumCorner } from "@/components/premium/PremiumCorner";
 import { AdFreeSync } from "@/components/premium/AdFreeSync";
 import { ADFREE_BOOT_SCRIPT } from "@/lib/premium-member";
 import { IMPACT_SITE_VERIFICATIONS } from "@/lib/affiliate";
-import { ADSENSE_CLIENT, adsenseScriptSrc } from "@/lib/adsense";
+import { ADSENSE_CLIENT } from "@/lib/adsense";
 import { GA4_ID, ga4BootScript, ga4ScriptSrc } from "@/lib/ga4";
 import { BOTTOM_NAV, SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/lib/site";
 import { jsonLd, siteJsonLd } from "@/lib/seo";
@@ -74,15 +74,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {IMPACT_SITE_VERIFICATIONS.map((value) => (
           <meta key={value} {...({ name: "impact-site-verification", value } as React.MetaHTMLAttributes<HTMLMetaElement>)} />
         ))}
-        {/* Google AdSense (lib/adsense.ts): the owner's publisher ID unless NEXT_PUBLIC_ADSENSE_CLIENT says otherwise ("off": none).
-            The meta and the script are what AdSense's site review looks for; ads only show in the units the site places, or wherever
-            Auto ads put them if enabled in AdSense. */}
-        {ADSENSE_CLIENT && (
-          <>
-            <meta name="google-adsense-account" content={ADSENSE_CLIENT} />
-            <script async src={adsenseScriptSrc(ADSENSE_CLIENT)} crossOrigin="anonymous" />
-          </>
-        )}
+        {/* Google AdSense (lib/adsense.ts): only the account meta stays. The AdSense script is gone (owner, 2026-11-18: AdSense is
+            off): it was about 250 kB of third-party JavaScript on every page, the largest weight before the first paint on a phone. */}
+        {ADSENSE_CLIENT && <meta name="google-adsense-account" content={ADSENSE_CLIENT} />}
         {/* Google Analytics 4 (lib/ga4.ts): only once NEXT_PUBLIC_GA4_ID is set; consent defaults first, for the amazon_click event. */}
         {GA4_ID && (
           <>
