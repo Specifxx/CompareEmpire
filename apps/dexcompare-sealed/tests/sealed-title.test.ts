@@ -792,3 +792,16 @@ test("cases: a store's other quantity is not the case", () => {
   assert.equal(classify("Pokemon TCG ME2.5 Ascended Heroes Elite Trainer Boxes Case (EN)"), "etb-case");
   assert.equal(classify("ME2.5 Ascended Heroes - Booster Bundle Case (Sealed Case of 25)"), "booster-bundle-case");
 });
+
+// Hobbiesville titles its Mega Evolution blisters "Mega Set 7 Flowing Fists" (store titles read 2026-11-18): the set number is
+// not a word of the product, so the blister lands on the same page as every other store's.
+test('"Mega Set <n>" is the set number, not a word of the product', () => {
+  const plain = identify("Flowing Fists 3 Pack Blister");
+  const mega = identify("Pokemon TCG Mega Set 7 Flowing Fists 3 Pack Blister (Pre Order)");
+  assert.ok(isIdentity(plain) && isIdentity(mega));
+  assert.equal(mega.groupKey, plain.groupKey);
+  const dr = identify("Pokemon TCG Mega Set 6 Delta Reign 3 Pack Blister");
+  const drPlain = identify("Pokémon TCG: Mega Evolution—Delta Reign 3 Pack Blister");
+  assert.ok(isIdentity(dr) && isIdentity(drPlain));
+  assert.equal(dr.groupKey, drPlain.groupKey);
+});

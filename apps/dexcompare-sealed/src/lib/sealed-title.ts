@@ -628,6 +628,9 @@ function signatureTokens(title: string, set: PokemonSet | null, type: TypeKey): 
   }
   // Series prefixes and bracketed store notes ("(Release 12/9)", "[Limit 1]").
   t = t
+    // Hobbiesville's "Mega Set 7 Flowing Fists" (2026-11-18): the series' set number, not a "Mega" Pokémon. Before the series
+    // strip, so only "mega set <n>" goes and "Mega Charizard" keeps its word.
+    .replace(/\bmega\s*set\s*-?\s*\d{1,2}\b/g, " ")
     .replace(/scarlet\s*(?:&|and)\s*violet|sword\s*(?:&|and)\s*shield|sun\s*(?:&|and)\s*moon|mega\s*evolution/g, " ")
     .replace(/check\s*-?\s*lane/g, "checklane")
     // A numbered series is its own product: "First Partner Illustration Collection (Series 2)".
