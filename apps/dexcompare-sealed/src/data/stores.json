@@ -10430,5 +10430,30 @@
     "collections": [
       "pokemon"
     ]
+  },
+  {
+    "key": "elite4tcg",
+    "name": "Elite4TCG",
+    "base": "https://elite4tcg.com",
+    "market": "US",
+    "platform": "shopify",
+    "country": "US",
+    "collections": [
+      "booster-boxes",
+      "etbs",
+      "collection-boxes-tins",
+      "booster-bundle"
+    ]
+  },
+  {
+    "key": "primepulltcg",
+    "name": "Primepull TCG",
+    "base": "https://primepulltcg.com",
+    "market": "US",
+    "platform": "woocommerce",
+    "country": "US",
+    "collections": [
+      "pokemon"
+    ]
   }
 ]
