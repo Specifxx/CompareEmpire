@@ -694,3 +694,14 @@ From sm up the price row's badges wrap under the name instead of squeezing it (`
 ## 2026-11-18: llms.txt points AI agents at the free price file
 
 `/prices.json` already existed, but nothing an agent reads said so. `llms.txt` now has a "Free price data and citing" block: the file, that it is free and open to every origin, the date to quote and a suggested credit line. No new route, no spend.
+
+## 2026-11-18: TCGplayer's barcode on the sealed product page (DexCompare)
+
+Owner: "any unique identifiers … we should capture … as these are easy SEO results". Search Console (RiftCompare maintenance task
+`gsc-identifiers`, 90 days to 15 Nov): KaeYoung's every Google click came from a typed barcode; ScentCompare and Gundam kits show the same.
+TCGplayer's catalogue (TCGCSV `extendedData` "UPC") carries a barcode for about half of sealed Pokémon product (485 of 1,024 in
+RiftCompare's Pokémon section). `scripts/tcg-barcodes.ts` (a never-failing step before the sealed import) writes
+`data/barcodes/tcgplayer.json` (TCGplayer id -> barcode; check digit verified, a code on two or more products dropped, `src/lib/gtin.ts`);
+the product page joins it through its TCGplayer offer's URL (`src/lib/barcodes.ts`) and shows "Barcode (UPC/EAN)" and "TCGplayer ID" in
+Quick facts, and the Product markup carries `gtin12`/`gtin13` and `productID`. Never from a store title. The quick view and the browse
+index (RiftCompare reads its tuple, INDEX_VERSION 1) are unchanged.
