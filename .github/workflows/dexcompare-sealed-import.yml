@@ -179,6 +179,13 @@ jobs:
       - name: Family feed
         if: steps.db.outputs.found == 'true'
         run: PUBLIC_DATA_MODE=files npx tsx scripts/family-sync.ts
+      # The home pages' ranking input (src/lib/home-rank.ts, DECISIONS.md 2026-11-18): product page views and buy clicks per
+      # product, last 28 and 7 days, from RiftCompare's /api/demand/dex, committed with no deploy marker before the release below
+      # so the release bundles it. Never fatal: a failed fetch keeps yesterday's file.
+      - name: Home page demand
+        continue-on-error: true
+        working-directory: .
+        run: bash apps/dexcompare-sealed/scripts/pull-demand.sh dex apps/dexcompare-sealed/data/demand.json
       - name: Publish it to main
         if: steps.db.outputs.found == 'true'
         working-directory: .
