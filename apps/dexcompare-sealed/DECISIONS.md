@@ -1260,3 +1260,14 @@ visitor count is the denominator), so it costs at most one event per returning v
 social, ai, other), plus the arm of each live 50/50 test (`rn`, `ln`, `share`, `cart`, `watch`) so every retention lever reads its
 return rate on against off. No id, date or URL leaves the browser. The identical file is in every Compare repo; read weekly by the
 retention thread. Rollback: remove `<ReturnBeacon />` from the layout.
+
+## 2026-11-18: Retired card pages answer 410 Gone
+
+The old singles site's `/card/<slug>` pages (June to September) answered 404 since the sealed rebuild on 2026-09-25. They are most
+of what Google still re-reads of DexCompare (836 of the newest 1,000 "crawled, not indexed", 16 Nov) at a few pages a day, the
+crawl the live pages need on the new host. `/card` and everything under it now answer **410 Gone**, the status for "removed on
+purpose", which Google drops a little sooner than a 404 and stops re-checking: `src/app/card/[[...slug]]/route.ts` (edge, no data,
+the CDN keeps each answer a day), body and headers in `lib/retired-cards.ts` (noindex, a short page with a link home), pinned by
+`tests/retired-cards.test.ts`. No card has a sealed page to stand in for it, so a redirect would be a soft 404; and no cross-host
+redirect to a singles site (owner, 2026-11-17). `/card-value` keeps its 301 to the value checker. `audit-indexability.yml`'s dead-URL
+probe accepts 410. Rollback: delete the route; the URLs return to the ordinary 404.
