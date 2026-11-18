@@ -721,3 +721,7 @@ RiftCompare's Pokémon section). `scripts/tcg-barcodes.ts` (a never-failing step
 the product page joins it through its TCGplayer offer's URL (`src/lib/barcodes.ts`) and shows "Barcode (UPC/EAN)" and "TCGplayer ID" in
 Quick facts, and the Product markup carries `gtin12`/`gtin13` and `productID`. Never from a store title. The quick view and the browse
 index (RiftCompare reads its tuple, INDEX_VERSION 1) are unchanged.
+
+## 2026-11-18: the amber of the Amazon button is not Amazon's own orange
+
+The first cut used #FFA41C, which is Amazon's brand orange. Amazon's Associates agreement bars styling that could pass for Amazon, so the button is now a distinct, calmer amber (#F5A524, hover #DC8A0B, border #B7791F, dark text #111): still clearly different from the site's normal buy button, not Amazon's colour.
