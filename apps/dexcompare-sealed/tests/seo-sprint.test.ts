@@ -98,9 +98,11 @@ test("the region report and the seven-region comparison render products as links
   assert.equal(findBannedCopy(cmp.replace(/<[^>]+>/g, " ")), null);
 });
 
-test("Compare other TCGs: the three sister sites, each with a descriptive anchor", async () => {
-  const { CompareOtherTcgs } = await import("../src/components/CompareOtherTcgs");
-  const html = renderToStaticMarkup(React.createElement(CompareOtherTcgs));
+test("Compare other TCGs: off since 2026-11-19 (core-update quality pass), the list kept for when it returns", async () => {
+  const { CompareOtherTcgs, CROSS_SITE_BLOCKS, OTHER_TCGS } = await import("../src/components/CompareOtherTcgs");
+  assert.equal(CROSS_SITE_BLOCKS, false);
+  assert.equal(renderToStaticMarkup(React.createElement(CompareOtherTcgs)), "");
+  const html = OTHER_TCGS.map((s) => `<a href="${s.url}">${s.anchor}</a>`).join("");
   for (const [url, anchor] of [
     ["https://riftcompare.com", "Riftbound card prices"],
     ["https://opcompare.app", "One Piece Card Game prices"],

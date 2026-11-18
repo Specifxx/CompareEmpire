@@ -14,19 +14,14 @@ type FooterLink = { href: string; label: string };
 
 /** The footer's link columns. Region pages get Shop, Latest sets, Explore and DexCompare; pages with no region, Regions and DexCompare. Pure (no database). */
 export function footerColumns(region: Region | null, listed?: ReadonlySet<string> | null): { title: string; links: FooterLink[] }[] {
+  // Eight links, not fifteen (2026-11-19, core-update quality pass: fewer links on every page). The rest stay one click
+  // away from /about, /contact and the header.
   const site: FooterLink[] = [
     { href: "/about", label: "About & how it works" },
-    { href: "/collection", label: "My collection" },
-    { href: "/about#stores", label: "For stores" },
-    { href: "/widgets", label: "Free price widgets" },
-    { href: "/forum", label: "Community forum (beta)" },
-    { href: "/creators", label: "Creators" },
-    { href: "/feedback", label: "Send feedback" },
-    { href: "/contact", label: "Contact" },
-    { href: "/list-your-store", label: "List your store" },
-    { href: "/premium", label: "Premium" },
-    { href: "/advertise", label: "Feature your listing" },
     { href: "/how-we-pick-stores", label: "How we pick stores" },
+    { href: "/collection", label: "My collection" },
+    { href: "/premium", label: "Premium" },
+    { href: "/contact", label: "Contact" },
     { href: "/terms", label: "Terms" },
     { href: "/privacy", label: "Privacy" },
     { href: "/affiliate-disclosure", label: "Affiliate disclosure" },
@@ -47,7 +42,7 @@ export function footerColumns(region: Region | null, listed?: ReadonlySet<string
     { title: "Latest sets", links: menuSets(6, undefined, listed).map((c) => SET_BY_CODE.get(c)!).map((set) => ({ href: `/${region}/sets/${set.slug}`, label: set.name })) },
     {
       title: "Explore",
-      links: [s("deals", "Deals"), s("blackFriday", "Black Friday deals"), s("cyberMonday", "Cyber Monday deals"), s("boxingDay", "Boxing Day deals"), s("januarySales", "January sales"), s("lunarNewYear", "Lunar New Year deals"), s("thisWeek", "This week"), s("backInStock", "Back in stock"), s("priceMoves", "Price moves"), s("outOfPrint", "Older sets in stock"), s("releases", "Releases"), s("guides", "Guides"), s("tools", "Tools"), s("daily", "Price Duel game"), s("stores", "Where to buy"), s("sealed", "All sealed"), { href: COUNTRY_GUIDE.path, label: "Prices by country" }],
+      links: [s("deals", "Deals"), s("backInStock", "Back in stock"), s("priceMoves", "Price moves"), s("releases", "Releases"), s("sealed", "All sealed"), s("stores", "Where to buy"), s("guides", "Guides"), s("tools", "Tools")],
     },
     { title: "DexCompare", links: site },
   ];

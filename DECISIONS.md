@@ -725,3 +725,14 @@ index (RiftCompare reads its tuple, INDEX_VERSION 1) are unchanged.
 ## 2026-11-18: the amber of the Amazon button is not Amazon's own orange
 
 The first cut used #FFA41C, which is Amazon's brand orange. Amazon's Associates agreement bars styling that could pass for Amazon, so the button is now a distinct, calmer amber (#F5A524, hover #DC8A0B, border #B7791F, dark text #111): still clearly different from the site's normal buy button, not Amazon's colour.
+
+## DexCompare: ads below content, cross-site blocks off, shorter footer, who runs it (2026-11-19)
+
+Owner, 2026-11-19 (core-update quality pass): "all the ads that can negatively impact our indexing let's remove and have
+more strategically placed ads". The two banners no longer open any page: the `[region]` layout draws `LayoutInlineAds`
+after the page, the region home places them under the in-stock shelf, product and set pages place them last, and the
+landing page after Popular pages. `CompareOtherTcgs` and `FamilyCluster` are off (`CROSS_SITE_BLOCKS`): the one family
+link is the footer's `/our-sites`. The footer's DexCompare column is 8 links (was 15) and Explore 8 (was 17, seasonal
+pages included). The about page says who runs it (Bill and George), how AI tools are used, and what the group costs
+(about A$790 a month, our books, 30 days to 15 Nov 2026). Kept: the phone dock (after a scroll, dismissible) and the
+return nudge 50/50 test, which reads 25 Nov and shows only after a visitor comes back from a store.

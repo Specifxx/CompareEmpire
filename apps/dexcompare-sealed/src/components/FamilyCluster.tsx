@@ -7,7 +7,10 @@ import { blockHeading, familyMoney, tileNote } from "@/lib/family-network";
 import type { Region } from "@/lib/regions";
 import { Section } from "./Section";
 
+import { CROSS_SITE_BLOCKS } from "./CompareOtherTcgs";
+
 export function FamilyCluster({ kind, region }: { kind: "deal" | "preorder"; region: Region }) {
+  if (!CROSS_SITE_BLOCKS) return null;
   const tiles = familyTiles(kind, region);
   if (!tiles.length) return null;
   return (

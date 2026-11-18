@@ -71,6 +71,17 @@ export default function About() {
           how fresh a price is before you click through.
         </p>
 
+        <h2 id="who">Who runs DexCompare</h2>
+        <p>
+          Two people: Bill and George, who started it together and own it. Nobody else has a stake, and no store, distributor or
+          publisher pays for where it appears. We are Pokémon collectors too, which is why the site leaves out what we would not want
+          to be sold: resealed boxes, store-made bundles and listings we cannot match to one exact product.
+        </p>
+        <p>
+          We use AI tools to help write the code and draft the guides; we check what they write before it goes up. The prices are not
+          written by anyone: a program reads each store&rsquo;s own listings twice a day.
+        </p>
+
         <h2>Where the prices come from</h2>
         <p>
           About twice a day we read each store&rsquo;s public product listings (the same catalogue feed their own website uses), in the
@@ -211,6 +222,10 @@ export default function About() {
           We keep them out of your way: at most one ad on a phone screen at a time and two on a wide screen, no pop-ups or countdowns, space
           kept for every ad before it loads so nothing you are reading gets pushed aside, and no ads on this page or the Terms, Privacy or
           Contact pages.
+        </p>
+        <p>
+          What it costs: hosting, the price imports and the tools we build with come to about A$790 a month for DexCompare and our
+          other price sites together (our own books, the 30 days to 15 November 2026). The commission above is what pays for it.
         </p>
 
         <h3 id="amazon" className="mb-2 mt-6 font-display text-base font-bold text-ink">Amazon AU</h3>
