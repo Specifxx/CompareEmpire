@@ -1211,3 +1211,14 @@ corner and the cart toast sit above it while it shows.
   including the quick view and never covering an Add to cart. Scroll at 4x CPU throttle: p95 frame 16.8 ms with and without it.
 - A/B tests (20 Nov to 3 Dec): the bar is outside the quick view and the price rows, hidden while the quick view is open, and the same
   in every arm. `tests/bottom-nav.test.ts`.
+
+## 2026-11-18: Creator and social campaigns can be counted, by an extra event only for tagged visits (owner)
+
+The owner asked how to measure what creator outreach and social posts bring. Visitors per campaign were already counted
+(`SiteAnalytics` keeps `utm_source/medium/campaign` on the page view); buy clicks per campaign were not, because the tag is gone
+after the landing page. `lib/campaign.ts` keeps the tab's first-touch `utm_campaign` (sessionStorage) and `OutboundLink` and
+`AmazonLink` send one extra `campaign_buy { campaign, retailer }` event, ONLY when the visit arrived tagged. `buy_click` and
+`buy_product` are unchanged (Pro keeps two properties per event and both are used), the quick view and the A/B tests are untouched,
+and an untagged visit sends nothing, so event volume barely moves. Convention for every link we hand out:
+`?utm_source=<platform>&utm_medium=creator|social&utm_campaign=<handle or post>`. Earnings are not split per creator (affiliate ids
+carry the placement, not the campaign). `tests/campaign.test.ts`.

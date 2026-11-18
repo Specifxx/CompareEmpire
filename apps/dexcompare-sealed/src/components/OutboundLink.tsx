@@ -6,6 +6,7 @@ import type { Placement } from "@/lib/affiliate";
 import { abClick, useAb } from "@/lib/ab-client";
 import { rtClick, useRowsTest } from "@/lib/rows-test-client";
 import { buyEvents, goHref, type BuyItem } from "@/lib/click-events";
+import { campaignEvent, readCampaign } from "@/lib/campaign";
 import type { Region } from "@/lib/regions";
 
 // Every outbound buy link — to a store, TCGplayer or eBay — is one of these. A
@@ -62,6 +63,8 @@ export function OutboundLink({
     rtClick(rt, retailer, placement, rel);
     try {
       for (const [name, props] of buyEvents({ retailer, placement, rel, pathname: window.location.pathname, item })) track(name, props);
+      const extra = campaignEvent(readCampaign(), retailer);
+      if (extra) track(extra[0], extra[1]);
     } catch {
       /* analytics must never get in the way of the link */
     }
