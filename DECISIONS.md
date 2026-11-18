@@ -690,3 +690,7 @@ Amazon clicks were about 0 a day since 13 Nov. The owner approved one urgent pro
 ## 2026-11-17: Quick view always shows the store's name; "Add to cart" is smaller (owner: "you can't even see the store name"; "add to cart seems too big")
 
 From sm up the price row's badges wrap under the name instead of squeezing it (`.or-top` wraps, `.or-name` keeps 4.5rem), and the eBay row uses the same classes (it had its own copy, which let "eBay" and "TCGplayer" shrink to nothing beside the Ad / Best price / Marketplace badges). The cart button is 36px tall at 12px text with a thinner border (`.ce-cart-add.has-label`). Layout and sizing only: no wording, paid-row order or A/B arm changed.
+
+## 2026-11-18: llms.txt points AI agents at the free price file
+
+`/prices.json` already existed, but nothing an agent reads said so. `llms.txt` now has a "Free price data and citing" block: the file, that it is free and open to every origin, the date to quote and a suggested credit line. No new route, no spend.
