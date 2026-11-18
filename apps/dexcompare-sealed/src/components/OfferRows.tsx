@@ -267,7 +267,7 @@ export function StoreRow({ d, preorder, top }: { d: StoreRowData; preorder: bool
           {d.cart && d.live && (
             <CartAddButton href={d.href} productUrl={d.cart.productUrl} storeName={d.name} title={d.title} priceCents={d.cents} currency={d.cart.currency} className="text-muted" />
           )}
-          <AmazonLink region={d.amazonRegion} href={d.href} product={d.product ?? "unknown"} placement="amazon-table" className={`btn-soft ${ROW_BUTTON_LINK}`}>
+          <AmazonLink region={d.amazonRegion} href={d.href} product={d.product ?? "unknown"} placement="amazon-table" className={`btn-amazon ${ROW_BUTTON_LINK}`}>
             {d.live ? "View deal" : "Check Amazon"} <span aria-hidden="true">↗</span>
             <span className="sr-only"> on {d.name}</span>
           </AmazonLink>
