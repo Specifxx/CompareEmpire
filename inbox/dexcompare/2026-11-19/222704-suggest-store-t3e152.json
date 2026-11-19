@@ -1,0 +1,15 @@
+{
+ "v": 1,
+ "at": "2026-11-19T22:27:04Z",
+ "site": "dexcompare",
+ "kind": "suggest-store",
+ "page": "/list-your-store",
+ "product": null,
+ "store": "ZentraPull TCG",
+ "storeUrl": "zentrapulltcg.com",
+ "region": "US",
+ "shown": null,
+ "actual": null,
+ "issue": "owner",
+ "note": "Store owner request. Platform: woocommerce. We sell sealed Pokémon TCG products in USD and ship within the U.S. and internationally. Pokémon catalog: https://zentrapulltcg.com/product-category/all-pokemon-tcg/"
+}
