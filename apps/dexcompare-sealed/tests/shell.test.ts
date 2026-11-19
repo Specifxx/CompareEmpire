@@ -301,9 +301,14 @@ test("landing page: per request behind the CDN, short: a hero of words and a sea
   assert.match(page, /<HomeRegionGrid initial=\{picks\} \/>/);
   assert.ok(page.indexOf("</Hero>") < page.indexOf("<HomeRegionGrid"), "the products come after the hero, not in it");
   // What moved to /about, the guides index and the region homes stays off the landing page.
-  assert.doesNotMatch(page, /FAQPage|faqLdOf|GuideCard|RegionsCompared|SuggestedTypeLinks|EbayStrip|AdSlot/);
+  assert.doesNotMatch(page, /FAQPage|faqLdOf|GuideCard|SuggestedTypeLinks|EbayStrip|AdSlot/);
   // The owner's trim (2026-11-13): no Premium promo, no "how it works" paragraph, no guides list; on the region home no "How DexCompare works" either.
+  // Since 2026-11-19 (review: "/" thin beside /au/) the US summary, the regions table and the US FAQ follow the popular links, below
+  // everything the trim kept, folded like a region home's reading matter.
   assert.equal((page.match(/<section/g) ?? []).length, 0, "the hero, the grid and the popular links are their own components' sections");
+  assert.ok(page.indexOf("<PopularPages />") < page.indexOf("<Folds"), "the reading comes after the products and popular links");
+  assert.match(page, /<RegionsCompared reports=\{reports\} \/>/);
+  assert.match(page, /<HubFaqSection faq=\{summary\.faq\} \/>/);
   assert.match(src("components/home/Hero.tsx"), /<section className="hero">/);
   assert.doesNotMatch(page, /PremiumSlides|LatestGuides|fair-h|How it works/);
   assert.doesNotMatch(src("app/[region]/page.tsx"), /PremiumSlides|LatestGuides|HowItWorks|How DexCompare works/);

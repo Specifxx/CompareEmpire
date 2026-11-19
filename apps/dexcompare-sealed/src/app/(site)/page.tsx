@@ -15,6 +15,14 @@ import { ChristmasGifts } from "@/components/season/ChristmasGifts";
 import { Hero, riseAt, type Way } from "@/components/home/Hero";
 import { SoftWaysIn } from "@/components/home/SoftWaysIn";
 import { PopularPages } from "@/components/home/PopularPages";
+import { HubFaqSection, HubSummaryText } from "@/components/HubSummary";
+import { RegionsCompared } from "@/components/MarketReport";
+import { Fold, Folds } from "@/components/Fold";
+import { homeRails, regionOverview } from "@/lib/data";
+import { hubSummary } from "@/lib/hub-summary";
+import { loadMarketReport } from "@/lib/market-report";
+import { REGIONS } from "@/lib/regions";
+import { storesInMarket } from "@/lib/stores";
 
 // Rendered per request and kept by Vercel's CDN for a day (next.config.js CDN_PAGES), never at build: the page carries
 // the default region's ten most-stocked products (lib/picks.ts), read from the public data files, so a crawler's first fetch has them. It reads no cookie, header or session: one copy for all.
@@ -57,6 +65,28 @@ export default async function Landing() {
     console.error("[landing] data read failed", e);
     return [];
   });
+  // The front page is what US searchers land on (x-default), so it carries the same server-rendered reading as a region home
+  // (review of 19 Nov 2026: "/" was thin beside /au/): the US summary and FAQ (with its structured data) and the seven regions side
+  // by side. Each read failing on its own leaves its block out, never the page.
+  const us = REGIONS[X_DEFAULT_REGION];
+  const [rails, overview, reports] = await Promise.all([
+    homeRails(us.market).catch(() => null),
+    regionOverview(us.market).catch(() => null),
+    Promise.all(REGION_LIST.map((x) => loadMarketReport(x.market))).catch(() => []),
+  ]);
+  const summary =
+    rails && overview
+      ? hubSummary({
+          r: us,
+          subject: "newest booster boxes and Elite Trainer Boxes",
+          countSubject: "Pokémon sealed products",
+          products: [...rails.boxes, ...rails.etbs],
+          complete: false,
+          openTotal: overview.inStock,
+          storeCount: storesInMarket(us.market).length,
+          tcgplayer: true,
+        })
+      : null;
   return (
     <div>
       {/* The hero (owner, 2026-11-13: "get rid of the products on the hero"; it reverses the 2026-11-08 featured cards): the words,
@@ -93,6 +123,18 @@ export default async function Landing() {
       </div>
 
       <PopularPages />
+
+      <div className="page">
+        <Folds label={`Pokémon sealed prices in ${us.inName} and around the world`}>
+          {summary && summary.paragraphs.length > 0 && (
+            <Fold id="today-h" title={`Pokémon sealed prices in ${us.inName} today`} open>
+              <HubSummaryText title={`Pokémon sealed prices in ${us.inName} today`} paragraphs={summary.paragraphs} />
+            </Fold>
+          )}
+          {reports.length > 1 && <RegionsCompared reports={reports} />}
+        </Folds>
+        {summary && <HubFaqSection faq={summary.faq} />}
+      </div>
 
       {/* The two ad banners, eBay and TCGplayer apart, below the page's own content (2026-11-19, core-update quality pass). Browser
           only, height reserved; labelled Ad. */}
