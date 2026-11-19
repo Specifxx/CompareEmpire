@@ -97,14 +97,14 @@ function Banner({
   );
 }
 
-function TileLink({ t, kind, region, eager = false }: { t: Tile; kind: "ebay" | "tcg"; region: Region; eager?: boolean }) {
+function TileLink({ t, kind, region, eager = false, placement }: { t: Tile; kind: "ebay" | "tcg"; region: Region; eager?: boolean; placement?: Placement }) {
   return (
     <li className="w-[104px] sm:w-[120px]">
       <OutboundLink
         href={t.href}
         rel={REL_SPONSORED}
         retailer={kind === "ebay" ? ebayRetailerForHref(t.href, region) : TCGPLAYER_RETAILER}
-        placement={kind === "ebay" ? EBAY : TCG}
+        placement={placement ?? (kind === "ebay" ? EBAY : TCG)}
         title={`${t.title} · ${t.price}`}
         className="group flex h-[184px] flex-col rounded-xl border border-line bg-surface p-1.5 transition-colors hover:border-ink/40 sm:h-[200px]"
       >
@@ -139,17 +139,19 @@ function Empty({ loading, href, retailer, placement, label, btn }: { loading: bo
   );
 }
 
-export function InlineAds({ region, tiles, className = "" }: { region: Region; tiles: TcgplayerTile[]; className?: string }) {
+export function InlineAds({ region, tiles, className = "", ebayPlacement = EBAY, tcgPlacement = TCG }: { region: Region; tiles: TcgplayerTile[]; className?: string; ebayPlacement?: Placement; tcgPlacement?: Placement }) {
+  const EBAY_P = ebayPlacement;
+  const TCG_P = tcgPlacement;
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
-  const { ref, state } = useListings({ region, context: "sealed", placement: EBAY, min: 1 });
+  const { ref, state } = useListings({ region, context: "sealed", placement: EBAY_P, min: 1 });
   const us = region === "us";
   const usd = (cents: number) => (us ? money(cents, "US") : `US${money(cents, "US")}`);
   const ebay: Tile[] =
     state.status === "ready" ? state.a.items.slice(0, INLINE_MAX).map((i) => ({ key: `e${i.id}`, href: i.href, img: i.imageUrl, title: i.title, price: formatPrice(i.price) })) : [];
-  const tcg: Tile[] = tiles.slice(0, INLINE_MAX).map((t) => ({ key: `t${t.slug}`, href: tcgplayerAffiliateUrl(t.url, region, TCG), img: thumb(t.imageUrl, 400) ?? t.imageUrl, title: t.name, price: usd(t.priceCents) }));
-  const ebaySearch = ebaySearchUrl("Pokemon sealed", region, EBAY);
-  const tcgSearch = tcgplayerSearchUrl("", region, TCG);
+  const tcg: Tile[] = tiles.slice(0, INLINE_MAX).map((t) => ({ key: `t${t.slug}`, href: tcgplayerAffiliateUrl(t.url, region, TCG_P), img: thumb(t.imageUrl, 400) ?? t.imageUrl, title: t.name, price: usd(t.priceCents) }));
+  const ebaySearch = ebaySearchUrl("Pokemon sealed", region, EBAY_P);
+  const tcgSearch = tcgplayerSearchUrl("", region, TCG_P);
   // Browser only (as the one block always was): the server HTML holds two empty boxes of the banners' exact height, so no crawler
   // sees an ad unit and nothing moves when they draw.
   if (!mounted) {
@@ -164,7 +166,7 @@ export function InlineAds({ region, tiles, className = "" }: { region: Region; t
     );
   }
   return (
-    <div ref={ref} data-inline-ad data-ad={EBAY} className={className}>
+    <div ref={ref} data-inline-ad data-ad={EBAY_P} className={className}>
       <div className="grid grid-cols-[minmax(0,1fr)] gap-3 md:grid-cols-2 md:gap-4">
         <Banner
           label="Sponsored: sealed on TCGplayer"
@@ -176,7 +178,7 @@ export function InlineAds({ region, tiles, className = "" }: { region: Region; t
           headline="Sealed Pokémon on TCGplayer"
           sub={us ? "In stock on TCGplayer today" : "The US marketplace · prices in US$"}
           cta={
-            <OutboundLink href={tcgSearch} rel={REL_SPONSORED} retailer={TCGPLAYER_RETAILER} placement={TCG} className="btn-tcg shrink-0 px-3 py-1.5 text-xs sm:px-4 sm:text-sm">
+            <OutboundLink href={tcgSearch} rel={REL_SPONSORED} retailer={TCGPLAYER_RETAILER} placement={TCG_P} className="btn-tcg shrink-0 px-3 py-1.5 text-xs sm:px-4 sm:text-sm">
               Shop TCGplayer →
             </OutboundLink>
           }
@@ -184,11 +186,11 @@ export function InlineAds({ region, tiles, className = "" }: { region: Region; t
           {tcg.length >= 3 ? (
             <ul role="list" className={ROW}>
               {tcg.map((t, i) => (
-                <TileLink key={t.key} t={t} kind="tcg" region={region} eager={i < 3} />
+                <TileLink key={t.key} t={t} kind="tcg" region={region} eager={i < 3} placement={TCG_P} />
               ))}
             </ul>
           ) : (
-            <Empty loading={false} href={tcgSearch} retailer={TCGPLAYER_RETAILER} placement={TCG} label="Search sealed Pokémon on TCGplayer" btn="btn-tcg" />
+            <Empty loading={false} href={tcgSearch} retailer={TCGPLAYER_RETAILER} placement={TCG_P} label="Search sealed Pokémon on TCGplayer" btn="btn-tcg" />
           )}
         </Banner>
         <Banner
@@ -197,7 +199,7 @@ export function InlineAds({ region, tiles, className = "" }: { region: Region; t
           headline="Sealed Pokémon on eBay"
           sub={`Live listings on eBay ${ebayLabel(region)}`}
           cta={
-            <OutboundLink href={ebaySearch} rel={REL_SPONSORED} retailer={ebayRetailer(region)} placement={EBAY} className="btn-ad shrink-0 px-3 py-1.5 text-xs sm:px-4 sm:text-sm">
+            <OutboundLink href={ebaySearch} rel={REL_SPONSORED} retailer={ebayRetailer(region)} placement={EBAY_P} className="btn-ad shrink-0 px-3 py-1.5 text-xs sm:px-4 sm:text-sm">
               Shop eBay →
             </OutboundLink>
           }
@@ -205,11 +207,11 @@ export function InlineAds({ region, tiles, className = "" }: { region: Region; t
           {ebay.length >= 1 ? (
             <ul role="list" className={ROW}>
               {ebay.map((t, i) => (
-                <TileLink key={t.key} t={t} kind="ebay" region={region} eager={i < 3} />
+                <TileLink key={t.key} t={t} kind="ebay" region={region} eager={i < 3} placement={EBAY_P} />
               ))}
             </ul>
           ) : (
-            <Empty loading={state.status === "idle"} href={ebaySearch} retailer={ebayRetailer(region)} placement={EBAY} label="Search sealed Pokémon on eBay" btn="btn-ad" />
+            <Empty loading={state.status === "idle"} href={ebaySearch} retailer={ebayRetailer(region)} placement={EBAY_P} label="Search sealed Pokémon on eBay" btn="btn-ad" />
           )}
         </Banner>
       </div>

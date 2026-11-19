@@ -92,6 +92,12 @@ export const PLACEMENTS = [
   // labelled search of TCGplayer's Japanese product line.
   "listings-japanese",
   "japanese-tcgplayer",
+  // The ad-intensity test (lib/ad-heavy.ts, owner 2026-11-19): the banner pair again at the top of a page, the TCGplayer pop-up
+  // and the TCGplayer slide-in card.
+  "heavy-top-ebay",
+  "heavy-top-tcg",
+  "heavy-popup",
+  "heavy-slidein",
 ] as const;
 export type Placement = (typeof PLACEMENTS)[number];
 
