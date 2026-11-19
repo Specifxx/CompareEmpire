@@ -249,7 +249,7 @@ export function itemListJsonLd(opts: { name: string; path: string; items: { path
  * `updated` are ISO editorial dates ("2026-10-14"), never the data refresh time. The image is the site's share card unless the
  * guide has its own.
  */
-export function articleJsonLd(a: { title: string; description: string; path: string; published: string; updated: string; image?: string | null }) {
+export function articleJsonLd(a: { title: string; description: string; path: string; published: string; updated: string; image?: string | null; authors?: readonly string[] }) {
   const org = { "@type": "Organization", "@id": ORG_ID, name: SITE_NAME, url: SITE_URL };
   return {
     "@context": "https://schema.org",
@@ -262,7 +262,8 @@ export function articleJsonLd(a: { title: string; description: string; path: str
     dateModified: a.updated,
     image: a.image || DEFAULT_OG_IMAGE.url,
     inLanguage: "en",
-    author: org,
+    // Named people when the piece names them (the about page says who they are), else the organisation.
+    author: a.authors?.length ? a.authors.map((name) => ({ "@type": "Person", name, url: `${SITE_URL}/about` })) : org,
     publisher: { ...org, logo: { "@type": "ImageObject", url: `${SITE_URL}/logo.png` } },
   };
 }

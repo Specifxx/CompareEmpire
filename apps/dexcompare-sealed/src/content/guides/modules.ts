@@ -23,6 +23,7 @@ import * as grading from "./is-pokemon-card-grading-worth-it";
 import * as checkValue from "./how-to-check-pokemon-card-value";
 import * as ebayVsAuStores from "./ebay-vs-australian-stores-pokemon-fees";
 import * as marketWrap from "./pokemon-tcg-market-wrap";
+import * as jensenHuang from "./jensen-huang-nvidia-pokemon-card-prices";
 import * as yearInSets from "./pokemon-tcg-2026-in-sets";
 import * as cheapestBox from "./cheapest-pokemon-booster-box";
 import * as boxPriceAu from "./pokemon-booster-box-price-australia";
@@ -94,4 +95,5 @@ export const GUIDE_MODULES: Record<GuideSlug, GuideModule> = {
   "mega-evolution-chase-cards": g_mega_evolution_chase_cards,
   "pokemon-legendary-stadium-cards": g_pokemon_legendary_stadium_cards,
   "every-mega-evolution-pokemon-ex": g_every_mega_evolution_pokemon_ex,
+  "jensen-huang-nvidia-pokemon-card-prices": jensenHuang,
 };

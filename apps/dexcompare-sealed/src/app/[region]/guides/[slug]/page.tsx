@@ -75,7 +75,18 @@ export default async function GuidePage({ params }: { params: { region: string; 
             <ShareButton title={g.title} path={`/${r.region}/guides/${g.slug}`} kind="guide" deal={`/${r.region}/deals`} className="float-right ml-2" />
             <h1 className="mt-2 ph-h1">{g.title}</h1>
             <p className="ph-meta sm:mt-4">
-              <span className="font-medium text-ink">By DexCompare</span>
+              <span className="font-medium text-ink">
+                {g.authors?.length ? (
+                  <>
+                    By{" "}
+                    <Link href="/about" prefetch={false} className="hover:text-brand hover:underline">
+                      {g.authors.join(" and ")}
+                    </Link>
+                  </>
+                ) : (
+                  "By DexCompare"
+                )}
+              </span>
               <span aria-hidden="true">·</span>
               <span>
                 Updated <time dateTime={g.updated}>{formatRelease(g.updated)}</time>
@@ -161,7 +172,7 @@ export default async function GuidePage({ params }: { params: { region: string; 
       </section>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: jsonLd(articleJsonLd({ title: g.title, description: g.description, path, published: g.published, updated: g.updated })) }}
+        dangerouslySetInnerHTML={{ __html: jsonLd(articleJsonLd({ title: g.title, description: g.description, path, published: g.published, updated: g.updated, authors: g.authors })) }}
       />
     </div>
   );

@@ -55,11 +55,18 @@ test("articleJsonLd: headline, dates, mainEntityOfPage, and DexCompare (an Organ
   assert.equal(a.datePublished, "2026-10-14");
   assert.equal(a.dateModified, "2026-10-20");
   assert.equal(a.image, `${SITE_URL}/opengraph-image`);
-  for (const who of [a.author, a.publisher]) {
+  for (const who of [a.author as { "@type": string; name: string; url: string }, a.publisher]) {
     assert.equal(who["@type"], "Organization", "never an invented person");
     assert.equal(who.name, SITE_NAME);
     assert.equal(who.url, SITE_URL);
   }
   assert.equal(a.publisher.logo.url, `${SITE_URL}/logo.png`);
+  // A piece that names its writers (the guide registry's `authors`): real people, each linked to the about page that names them.
+  const named = articleJsonLd({ title: "t", description: "d", path: "/us/guides/x", published: "2026-01-01", updated: "2026-01-01", authors: ["Bill", "George"] });
+  assert.deepEqual(named.author, [
+    { "@type": "Person", name: "Bill", url: `${SITE_URL}/about` },
+    { "@type": "Person", name: "George", url: `${SITE_URL}/about` },
+  ]);
+  assert.equal(named.publisher["@type"], "Organization");
   assert.equal(articleJsonLd({ title: "t", description: "d", path: "/us/guides/x", published: "2026-01-01", updated: "2026-01-01", image: "https://dexcompare.app/x.png" }).image, "https://dexcompare.app/x.png");
 });

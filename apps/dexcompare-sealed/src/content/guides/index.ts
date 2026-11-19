@@ -64,7 +64,8 @@ export type GuideSlug =
   | "phantasmal-flames-chase-cards"
   | "mega-evolution-chase-cards"
   | "pokemon-legendary-stadium-cards"
-  | "every-mega-evolution-pokemon-ex";
+  | "every-mega-evolution-pokemon-ex"
+  | "jensen-huang-nvidia-pokemon-card-prices";
 
 export interface Guide {
   slug: GuideSlug;
@@ -85,6 +86,8 @@ export interface Guide {
   ebay: { context: "sealed" | `type:${string}`; heading: string };
   /** The tools it pairs with (src/content/tools slugs): the Related block links them. */
   tools?: readonly string[];
+  /** The people who wrote it, for the byline and the Article's author (a news-led article; owner, 2026-11-19). Unset: "By DexCompare". */
+  authors?: readonly string[];
 }
 
 export const GUIDES: readonly Guide[] = [
@@ -622,6 +625,19 @@ export const GUIDES: readonly Guide[] = [
     topic: { types: ["booster-box", "etb", "booster-bundle"], sets: ["mega-evolution", "phantasmal-flames", "ascended-heroes", "perfect-order", "chaos-rising", "pitch-black", "delta-reign", "flowing-fists"] },
     ebay: { context: "type:booster-boxes", heading: "Pokémon booster boxes on eBay" },
     tools: ["value-checker", "trade-calculator"],
+  },
+  {
+    slug: "jensen-huang-nvidia-pokemon-card-prices",
+    title: "Jensen Huang left NVIDIA. What happens to Pokémon card prices?",
+    description: "Jensen Huang quit as NVIDIA's CEO on 12 Nov 2026. We checked our Pokémon sealed prices the week before and after, then ran three what-if scenarios.",
+    kicker: "Market news",
+    published: "2026-11-19",
+    updated: "2026-11-19",
+    regions: "all",
+    topic: { types: ["booster-box", "etb", "booster-pack"] },
+    ebay: { context: "type:booster-boxes", heading: "Pokémon booster boxes on eBay" },
+    tools: ["value-checker", "trade-calculator"],
+    authors: ["Bill", "George"],
   },
 ];
 
