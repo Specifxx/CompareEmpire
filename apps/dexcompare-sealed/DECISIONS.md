@@ -1583,3 +1583,14 @@ server "TCG Deals & Restocks" (the sealed restock and price-drop feeds on top, a
 own never-expiring invite code, so the server's Invites list counts the members each site brings with no tracking of
 ours. `DiscordCta` ("Restock and deal alerts, free on Discord") sits under the price table on the product page and
 in the footer: never above a price, never a pop-up. `tests/discord-cta.test.ts`.
+
+
+## 2026-11-20: The Hot 100 share card shows rises AND drops (owner)
+
+A Reddit reply to a Hot 100 link post asked for "the biggest drops. I just want to rip and play"; the owner: every snapshot
+thumbnail is half biggest rises, half biggest drops. `/og/hot-100/<region>` (`lib/og/hot100-card.tsx`) now draws the week's
+three biggest rises beside its three biggest drops, each with its photo, change and two prices; the page lists up to 20 drops under
+the chart ("Biggest drops this week"). `hotDrops` in `lib/hot100.ts` is the Hot 100's own rules mirrored (2+ stores in stock both
+days, a fall of 1% or more and under the 50% misfiled-listing cap, the same seven days), from the same history; nothing new is read.
+The og:image query gained `&v=2` so a cached rises-only picture is never served for the new one. No ▲/▼ glyphs on the card: the
+bundled font lacks them. `tests/hot100.test.ts`.
