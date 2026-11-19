@@ -19,7 +19,7 @@ const TILES: { icon: string; title: string; body: string; free?: boolean }[] = [
   { icon: "🔔", title: "200 price alerts", body: "An email when a box drops to your price or a sold-out product is back. Free accounts get 25; Premium gets 200 and sets each with one tap." },
   { icon: "👁", title: "A watch list", body: "Every alert you've set in one place, with today's lowest in-stock price beside it and a button to stop each." },
   { icon: "✦", title: "No banner ads", body: "No sponsored banners or phone ad dock while you're signed in. Price tables, the stores in them and their order never change." },
-  { icon: "⇄", title: "One account, three sites", body: "The same sign-in and membership work on DexCompare, MTG Compare and RiftCompare." },
+  { icon: "⇄", title: "One account, all our sites", body: "The same sign-in and membership work across all our price comparison sites." },
   { icon: "↗", title: "Price moves and deals", body: "Today's deals and this week's biggest price moves across stores. Free for everyone, members included.", free: true },
 ];
 

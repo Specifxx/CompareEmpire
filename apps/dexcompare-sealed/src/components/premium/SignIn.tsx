@@ -174,7 +174,7 @@ function SignInForm() {
         </p>
       )}
       <p className="mt-6 text-xs text-muted">
-        Already have a RiftCompare account? Use the same Google account or email: it&rsquo;s one membership across both sites. By signing in you agree to our{" "}
+        Already have an account on one of our other sites? Use the same email: it&rsquo;s one account across all our sites. By signing in you agree to our{" "}
         <a className="underline" href="/terms">terms</a> and <a className="underline" href="/privacy">privacy policy</a>.
       </p>
     </div>
