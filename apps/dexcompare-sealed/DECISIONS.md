@@ -1427,3 +1427,15 @@ provider's sign-in through RiftCompare's existing apps and comes back to `/accou
 door. One account across our card sites, linked by the verified address. A site with its own Google client keeps Google's in-page
 button instead. `/account/verify` now lands on the page the visitor was headed to (or the account hub), and a failed round trip
 shows its reason on `/account`.
+
+## 2026-11-19 — A news article: Jensen Huang left NVIDIA, what it means for Pokémon prices
+
+Owner, 19 Nov: "a very creative article on dexcompare on how Jensen Huang leaving NVIDIA can affect the TCG market and Pokémon
+cards. And get it indexed." Checked first: real news (he resigned as NVIDIA's chief executive and left the board on 12 Nov 2026;
+CFO Colette Kress is interim CEO; Al Jazeera, linked from the page). The guide `jensen-huang-nvidia-pokemon-card-prices` states only
+that, never the allegations around it ("NVIDIA did not give a reason"). Its one table is a FIXED, dated record computed once from
+`data/public/price-history.json` (4 → 11 Nov against 11 → 19 Nov, US/CA/AU/UK, every product priced at both ends; within 1%, up or
+down more than 5%): the week after looked like the week before. The rest is four clearly labelled "roads" and three what-if
+scenarios with no numbers, plus the usual live price-per-pack block. No forecast, no advice. A guide may now name its writers
+(`authors` in the registry): the byline links "Bill and George" to /about and the Article JSON-LD lists them as Persons; every
+other guide stays "By DexCompare". Rides the next daily release; indexing requested by hand.

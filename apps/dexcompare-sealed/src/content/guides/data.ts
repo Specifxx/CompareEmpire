@@ -347,6 +347,7 @@ export async function loadGuideData(slug: GuideSlug, r: RegionInfo, now: Date = 
       const codes = newestReleased(today, 8, (s) => !s.noBoosterBox).map((s) => s.code);
       return done({ sets: codes, bySet: group(await packTypesOfSets(r.market, codes, ["Booster Box", "Elite Trainer Box"], 80)) });
     }
+    case "jensen-huang-nvidia-pokemon-card-prices":
     case "is-pokemon-card-grading-worth-it": {
       const upcoming = upcomingSets(today).map((s) => s.code);
       return done({ cards: await cheapestPerPackByType(r.market, upcoming) });
