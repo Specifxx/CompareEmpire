@@ -495,7 +495,7 @@ const NOISE = new Set(
     // "Wave 2", "Date TBD", "Nov 6", "MAX 1 PER CUSTOMER", "Local Pickup Only",
     // "(LIVE)", "MSRP DEAL", "0% VAT", "Flygon Line", "Box Set", "Base Set".
     "upc ver version random assorted willekeurig willekeurige zufallig aleatorio aleatoire ovp neu collectors item sams sam club costco target walmart " +
-    "wave tbd jan feb mar apr jun jul aug sep sept oct nov dec max per customer household person account limit local pickup pick up store livestream " +
+    "delay delayed backorder backordered wave tbd jan feb mar apr jun jul aug sep sept oct nov dec max per customer household person account limit local pickup pick up store livestream " +
     "live stream msrp vat deal webstore presale gvms select see description line set base artwork artworks collectible collectable variant both unit units"
   ).split(" "),
 );
@@ -837,10 +837,11 @@ export function cleanName(title: string): string {
   t = t
     .replace(SKU_BRACKET, " ")
     .replace(NAME_BRACKET_NOISE, " ")
-    // Bracketed store notes: "(Pre-Order)", "(Ships 12/9)", "[Limit 2]", "(One Per Customer)".
+    // Bracketed store notes: "(Pre-Order)", "(Ships 12/9)", "[Limit 2]", "(One Per Customer)",
+    // "[PRE-ORDER DELAYED]", "(Delayed)", "(Backorder)".
     // Whole words only: "[Unlimited Edition]", "(Metal Coin)" and
     // "(World Championships 2023)" are part of the name.
-    .replace(/\s*[([][^)\]]*(?:\bpre[-\s]?orders?|\breleas|\bships?\b|\beta\b|\blimit|\barriv|\bper\s*(?:customer|household|order|person)\b|\bstream\s*only|\bpick[\s-]*up|\bmsrp|\bmax\s*\d)[^)\]]*[)\]]\s*/gi, " ")
+    .replace(/\s*[([][^)\]]*(?:\bpre[-\s]?orders?|\breleas|\bships?\b|\beta\b|\blimit|\barriv|\bper\s*(?:customer|household|order|person)\b|\bstream\s*only|\bpick[\s-]*up|\bmsrp|\bmax\s*\d|\bdelay|\bback[-\s]?order)[^)\]]*[)\]]\s*/gi, " ")
     .replace(/\*+[^*]*\*+/g, " ")
     .replace(NAME_NOTE, " ")
     .replace(/\(\s*\)|\[\s*\]/g, " ")

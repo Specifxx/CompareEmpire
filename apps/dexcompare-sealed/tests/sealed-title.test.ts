@@ -805,3 +805,20 @@ test('"Mega Set <n>" is the set number, not a word of the product', () => {
   assert.ok(isIdentity(dr) && isIdentity(drPlain));
   assert.equal(dr.groupKey, drPlain.groupKey);
 });
+
+// King Card Canada titles a late pre-order "Pokemon Mega Forces Tin (Mega Darkrai) [PRE-ORDER DELAYED]" (store titles read
+// 2026-11-19): a delay note is a store note, so the tin lands on the same page as every other store's.
+test("a delayed or back-ordered pre-order note is not a word of the product", () => {
+  const plain = identify("Pokemon Mega Forces Tin (Mega Darkrai)");
+  assert.ok(isIdentity(plain));
+  for (const t of [
+    "Pokemon Mega Forces Tin (Mega Darkrai) [PRE-ORDER DELAYED]",
+    "Pokemon Mega Forces Tin (Mega Darkrai) (Delayed)",
+    "Pokemon Mega Forces Tin (Mega Darkrai) - Delayed",
+    "Pokemon Mega Forces Tin (Mega Darkrai) (Backorder)",
+  ]) {
+    const id = identify(t);
+    assert.ok(isIdentity(id), t);
+    assert.equal(id.groupKey, plain.groupKey, t);
+  }
+});
