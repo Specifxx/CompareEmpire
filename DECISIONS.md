@@ -736,3 +736,12 @@ link is the footer's `/our-sites`. The footer's DexCompare column is 8 links (wa
 pages included). The about page says who runs it (Bill and George), how AI tools are used, and what the group costs
 (about A$790 a month, our books, 30 days to 15 Nov 2026). Kept: the phone dock (after a scroll, dismissible) and the
 return nudge 50/50 test, which reads 25 Nov and shows only after a visitor comes back from a store.
+
+## 2026-11-19 — DexCompare: a collector-first Premium page, Collection in the phone bar
+
+Owner, 2026-11-19: Premium "very easy to get", with a trial and a page as attractive as RiftCompare's, freemium, never paywalling the
+cheapest price; and "replace the menu with My Collection" on the bottom nav. The same page as MTG Compare's (mtgcompare DECISIONS,
+2026-11-19) with Dex's facts: a hero with the 14-day trial, six tiles of what ships (collection history and export, 200 alerts, watch
+list, no banner ads, one account; deals and price moves marked free), a Free and Premium table and an FAQ. The bottom nav's Menu tab is
+now Collection (/collection); the header keeps its menu button on phones. Pokémon single cards (and so cards in the collection) still
+wait for the 25 Nov indexing check. No eBay calls.
