@@ -1387,6 +1387,15 @@ ad on their phone right there." Since the bottom nav arrived (18 Nov) the dock h
 just above the nav (`data-dock-stack`, the same geometry as the other sites: `translate` by `--bn-space`). Its own rules are unchanged:
 after a scroll, never beside the product page's buy bar, labelled "Ad", ✕ for the visit, never Amazon, never for ad-free members.
 
+## 2026-11-19 — The front page carries the US summary, the regions table and the US FAQ
+
+An outside review (owner pasted it, 19 Nov) found `/` thin beside `/au/`: no summary, FAQ or region table. `/` is the
+x-default and what US searchers land on, so it now carries, below everything the 2026-11-13 trim kept (hero, the ten, the
+popular links), the same server-rendered reading a region home has, for the US: "Pokémon sealed prices in the US today",
+the seven regions side by side (`RegionsCompared`) and the US FAQ with its structured data. Each read failing leaves its block
+out, never the page. The review's "no hreflang" claim is wrong: every region page carries `regionAlternates` and `/` names the
+seven homes with itself as x-default.
+
 ## 2026-11-19: Search-engine-first audit after the November 2026 core update
 
 Google's core-update guidance asks whether a page exists mainly to help people or mainly to catch a search, and names
