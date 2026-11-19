@@ -10,6 +10,7 @@ import { SearchBox } from "./SearchBox";
 import { HeaderNavItems, SoftHeaderNavItems, SoftRegionSwitcher, SoftSearchBox, type HeaderNavItem } from "./HeaderNav";
 import { dealsMenuColumns, guidesMenuColumns, pokemonMenuColumns, setsMenuColumns, shopMenuColumns } from "./ShopMenu";
 import { ThemeToggle } from "./ThemeToggle";
+import { AccountHeaderLink } from "./premium/AccountHeaderLink";
 import { CartHeaderLink } from "./cart/CartHeaderLink";
 
 /**
@@ -81,17 +82,19 @@ export function Header({ region, listed }: { region: Region | null; listed?: Rea
         </nav>
         {/* The search has the row's spare room (it was a 192px box beside nine nav entries): finding a product is the header's main job. */}
         <div className="hdr-search min-w-0 flex-1 lg:ml-auto lg:min-w-[7rem] lg:max-w-sm">{region ? <SearchBox region={region} size="sm" /> : <SoftSearchBox />}</div>
-        {/* Premium (owner, 2026-11-10: "a nice Premium button on the homepage people can see"): every width, a star alone below xl. */}
+        {/* Premium (owner, 2026-11-10: "a nice Premium button on the homepage people can see"): a star alone below xl; below 400px it moves to the top of the menu (2026-11-19), so search keeps its room beside Sign in. */}
         <Link
           href="/premium"
           prefetch={false}
           aria-label="DexCompare Premium"
-          className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-line bg-surface px-2.5 text-sm font-semibold text-ink transition-colors hover:border-ink/30 sm:px-3.5"
+          className="hidden h-9 min-[400px]:inline-flex shrink-0 items-center gap-1.5 rounded-full border border-line bg-surface px-2.5 text-sm font-semibold text-ink transition-colors hover:border-ink/30 sm:px-3.5"
         >
           <svg aria-hidden viewBox="0 0 20 20" className="h-4 w-4 fill-current text-amber-500"><path d="M10 1.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L10 14.9l-5.2 2.7 1-5.8L1.5 7.7l5.9-.9z" /></svg>
           <span className="hidden sm:inline lg:hidden xl:inline">Premium</span>
         </Link>
         <ThemeToggle className="hidden sm:flex" />
+        {/* Sign in / account (owner, 2026-11-19: "the login/signup button should be visible for all sites"): every width. */}
+        <AccountHeaderLink />
         {region ? <RegionSwitcher region={region} compact /> : <SoftRegionSwitcher />}
         {/* The cart list (components/cart, owner 2026-11-06): every width, with its count. */}
         <CartHeaderLink />
