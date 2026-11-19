@@ -10454,16 +10454,5 @@
     "collections": [
       "pokemon"
     ]
-  },
-  {
-    "key": "zentrapulltcg",
-    "name": "ZentraPull TCG",
-    "base": "https://zentrapulltcg.com",
-    "market": "US",
-    "platform": "woocommerce",
-    "country": "US",
-    "collections": [
-      "all-pokemon-tcg"
-    ]
   }
 ]
