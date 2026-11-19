@@ -4,6 +4,7 @@ import { track } from "@vercel/analytics";
 import type { ReactNode } from "react";
 import type { Placement } from "@/lib/affiliate";
 import { abClick, useAb } from "@/lib/ab-client";
+import { ebayPopClick } from "@/lib/ebay-pop";
 import { rtClick, useRowsTest } from "@/lib/rows-test-client";
 import { buyEvents, goHref, type BuyItem } from "@/lib/click-events";
 import { campaignEvent, readCampaign } from "@/lib/campaign";
@@ -58,8 +59,9 @@ export function OutboundLink({
   const ab = useAb();
   // The product page's rows test (lib/rows-test.ts): null outside it.
   const rt = useRowsTest();
-  function record() {
+  function record(el: Element | null) {
     abClick(ab, retailer, placement, rel);
+    if (/^ebay/i.test(retailer)) ebayPopClick(el);
     rtClick(rt, retailer, placement, rel);
     try {
       for (const [name, props] of buyEvents({ retailer, placement, rel, pathname: window.location.pathname, item })) track(name, props);
@@ -80,10 +82,10 @@ export function OutboundLink({
       aria-label={ariaLabel}
       onFocus={onFocus}
       onClick={(e) => {
-        if (e.button === 0) record();
+        if (e.button === 0) record(e.currentTarget);
       }}
       onAuxClick={(e) => {
-        if (e.button === 1) record();
+        if (e.button === 1) record(e.currentTarget);
       }}
     >
       {children}
