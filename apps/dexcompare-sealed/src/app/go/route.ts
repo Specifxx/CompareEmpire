@@ -1,6 +1,6 @@
 import { track } from "@vercel/analytics/server";
 import { looksLikeBot, untaggedDest } from "@/lib/bot-click";
-import { goEvent, parseGo } from "@/lib/go";
+import { goEvent, parseGo, withVisitMark } from "@/lib/go";
 
 // The first-party click redirect (lib/click-events.ts goHref, lib/go.ts): a store or TCGplayer offer's button is /go?u=…&s=…, which
 // records the click server-side (a go_click Web Analytics event, and one structured log line) and answers 302 to the store's own URL
@@ -35,5 +35,6 @@ export function GET(req: Request): Response {
   if (looksLikeBot(req.headers)) return new Response(null, { status: 302, headers: { ...HEADERS, Location: untaggedDest(p.dest) } });
   console.log(JSON.stringify({ event: name, ...props }));
   waitUntil(track(name, props, { request: req }).catch(() => {}));
-  return new Response(null, { status: 302, headers: { ...HEADERS, Location: p.dest } });
+  // A paid-ad or creator visit's marker (ad=) goes into the affiliate sub-id so the sale can be traced (lib/go.ts).
+  return new Response(null, { status: 302, headers: { ...HEADERS, Location: withVisitMark(p.dest, url.searchParams.get("ad")) } });
 }

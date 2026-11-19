@@ -2,6 +2,7 @@
 // lib/click-events.ts builds the URL (goHref) and says why /go exists.
 import { PLACEMENTS, TCGPLAYER_KEY, type Placement } from "./affiliate";
 import { ANALYTICS_PROPS, pageTypeOfPlacement, type AnalyticsEvent, type GoParams } from "./click-events";
+import { tagHref } from "./paid-visit";
 import { isRegion } from "./regions";
 import { STORE_BY_KEY } from "./stores";
 
@@ -69,3 +70,13 @@ export function goEvent(p: GoParams, props = ANALYTICS_PROPS): AnalyticsEvent {
   return ["go_click", { store: p.store, placement: p.placement }];
 }
 
+
+/**
+ * The destination with a paid-ad or creator visit's marker added to its affiliate sub-ids (2026-11-20). A tagged visit's
+ * TCGplayer button is `/go?u=<Impact URL>…&ad=<mark>` (lib/paid-visit.ts tagHref), so the marker has to reach the Impact URL
+ * here or the sale cannot be traced to the ad or creator. Only the sub-id values change: the host, and so goAllowed, stays.
+ */
+export function withVisitMark(dest: string, ad: string | null): string {
+  if (!ad || !/^[a-z0-9]{2,8}$/.test(ad)) return dest;
+  return tagHref(dest, ad) ?? dest;
+}
