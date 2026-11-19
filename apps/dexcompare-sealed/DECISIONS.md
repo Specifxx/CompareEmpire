@@ -1378,3 +1378,11 @@ per visit, each against the same pair's own 4-17 Nov.
 Stop rule: switch `AD_HEAVY` off at once if Dex's Google clicks in Search Console fall more than 30% week on week while the light pair's
 fall less than 10%, or if Dex's daily visitors fall 30% below the week before. The Dex/MTG quick-view A/B (to 3 Dec) runs on top:
 both of its arms get the same heavy set, so its own comparison holds.
+
+
+## 2026-11-19: The phone ad dock sits above the bottom nav instead of yielding to it (owner)
+
+The owner, 2026-11-19: the eBay/TCGplayer strip right above the phone bottom nav, "I want it for all the sites, so people have like an
+ad on their phone right there." Since the bottom nav arrived (18 Nov) the dock hid whenever the nav showed. It now stays up, stacked
+just above the nav (`data-dock-stack`, the same geometry as the other sites: `translate` by `--bn-space`). Its own rules are unchanged:
+after a scroll, never beside the product page's buy bar, labelled "Ad", ✕ for the visit, never Amazon, never for ad-free members.

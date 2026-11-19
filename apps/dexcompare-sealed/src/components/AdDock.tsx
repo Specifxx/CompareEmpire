@@ -133,8 +133,8 @@ export function AdDock({ label, sides, placement, minWidth, yieldTo = "[data-ad]
           blockers: blockers.size,
           buybar: !!document.querySelector(buybar),
           // An ad-free visitor (Plus/Premium where a site has them) and a native app with its own banner: never. While the phone bottom
-          // nav shows (html[data-bottomnav], BottomNav.tsx) the dock yields: one bar at the foot of the screen at a time.
-          modal: modal() || document.documentElement.matches("[data-adfree], .capacitor-native, [data-bottomnav]"),
+          // nav shows (html[data-bottomnav]) the dock sits just above it (owner, 2026-11-19: an ad on every phone, right above the nav).
+          modal: modal() || document.documentElement.matches("[data-adfree], .capacitor-native"),
           typing,
           dismissed: false,
         }),
@@ -232,6 +232,7 @@ export function AdDock({ label, sides, placement, minWidth, yieldTo = "[data-ad]
       aria-hidden={visible ? undefined : true}
       data-ad={visible ? placement : undefined}
       data-dock={visible ? "shown" : "hidden"}
+      data-dock-stack=""
       className={`fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface/95 px-3 pb-[max(8px,env(safe-area-inset-bottom))] pt-2 shadow-lift backdrop-blur ${
         visible ? "translate-y-0 transition-transform duration-200 ease-out motion-reduce:transition-none" : "invisible translate-y-full"
       }`}
