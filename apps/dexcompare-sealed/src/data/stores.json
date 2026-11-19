@@ -10443,5 +10443,27 @@
     "collections": [
       "pokemon"
     ]
+  },
+  {
+    "key": "kingcardcanada",
+    "name": "King Card Canada",
+    "base": "https://kingcard.ca",
+    "market": "CA",
+    "platform": "shopify",
+    "country": "CA",
+    "collections": [
+      "pokemon"
+    ]
+  },
+  {
+    "key": "zentrapulltcg",
+    "name": "ZentraPull TCG",
+    "base": "https://zentrapulltcg.com",
+    "market": "US",
+    "platform": "woocommerce",
+    "country": "US",
+    "collections": [
+      "all-pokemon-tcg"
+    ]
   }
 ]
