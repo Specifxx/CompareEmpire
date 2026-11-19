@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { DEX_GOOGLE_CLIENT_ID, emailSignInLink, readStored, signInWithGoogle, untilLine, writeStored } from "@/lib/premium-member";
+import { OAuthButtons } from "./OAuthButtons";
 import { usePremium } from "./usePremium";
 
 // /account: sign in ON DexCompare (owner, 2026-11-10). "Continue with Google" is Google Identity Services: Google's own button and
@@ -111,6 +112,16 @@ function SignInForm() {
     }
   }, []);
 
+  // A Google or Discord round trip that failed comes back here with ?error= (RiftCompare's sister sign-in).
+  useEffect(() => {
+    try {
+      const e = new URLSearchParams(location.search).get("error");
+      if (e) setMsg({ ok: false, text: e === "oauth_unverified" || e === "oauth_noemail" ? "That account has no verified email address. Verify it there, or use the email link." : "That sign-in didn't finish. Try again, or use the email link." });
+    } catch {
+      /* nothing to show */
+    }
+  }, []);
+
   async function sendLink(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
@@ -133,17 +144,14 @@ function SignInForm() {
           You&rsquo;re already signed in on this device. <a className="font-semibold underline" href="/premium">Go to Premium</a>
         </p>
       )}
-      {DEX_GOOGLE_CLIENT_ID && (
-        <>
-          <div ref={btn} className="mt-6 flex min-h-[44px] justify-center" />
-          <div className="my-5 flex items-center gap-3 text-xs text-muted">
-            <span className="h-px flex-1 bg-line" />
-            or
-            <span className="h-px flex-1 bg-line" />
-          </div>
-        </>
-      )}
-      <form onSubmit={sendLink} className={DEX_GOOGLE_CLIENT_ID ? "" : "mt-6"}>
+      {DEX_GOOGLE_CLIENT_ID && <div ref={btn} className="mt-6 flex min-h-[44px] justify-center" />}
+      <OAuthButtons site="dex" google={!DEX_GOOGLE_CLIENT_ID} className={DEX_GOOGLE_CLIENT_ID ? "mt-3" : "mt-6"} />
+      <div className="my-5 flex items-center gap-3 text-xs text-muted">
+        <span className="h-px flex-1 bg-line" />
+        or
+        <span className="h-px flex-1 bg-line" />
+      </div>
+      <form onSubmit={sendLink}>
         <label htmlFor="signin-email" className="text-sm font-semibold">Email me a sign-in link</label>
         <input
           id="signin-email"
