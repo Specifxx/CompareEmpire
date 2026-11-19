@@ -45,6 +45,7 @@ import { headlineOffer, offerStock } from "./sealed-offers";
 import { hostOf, loadDenylist } from "./denylist";
 import { SOURCES, STORE_BY_KEY, isMarketplace, storeCurrency, type StoreConfig } from "./stores";
 import { isTcgImage, JAPANESE_LINE, readTcgplayerCatalogue, tcgFeedProducts, tcgImageExists } from "./tcgplayer";
+import { writeTcgMarket } from "./tcg-market";
 
 export interface ImportRow {
   identity: SealedIdentity;
@@ -268,15 +269,21 @@ async function readHtmlStore(store: StoreConfig, platform: HtmlPlatform): Promis
 async function readTcgplayer(): Promise<{ reads: CollectionRead[]; rediscovered: boolean; error: string | null }> {
   // The catalogue is TCGplayer's Pokémon product line, so its titles are read
   // like a store's Pokémon collection: they needn't say "Pokémon".
-  const products = tcgFeedProducts(await readTcgplayerCatalogue());
+  const catalogue = await readTcgplayerCatalogue();
+  const products = tcgFeedProducts(catalogue);
   const reads: CollectionRead[] = [{ handle: "pokemon", ok: true, products }];
+  // TCGplayer's market prices from the same reads, for the price history chart's TCGplayer line (lib/tcg-market.ts): no extra request.
+  const market = [...catalogue];
   // The Japanese line, for the Japanese section, after it, on a shorter clock. A failed read costs nothing but its own rows
   // (TcgLine in tcgplayer.ts): the English catalogue above is written either way.
   try {
-    reads.push({ handle: "pokemon-japan", ok: true, products: tcgFeedProducts(await readTcgplayerCatalogue({ line: JAPANESE_LINE, deadlineMs: 5 * 60_000 }), JAPANESE_LINE) });
+    const japan = await readTcgplayerCatalogue({ line: JAPANESE_LINE, deadlineMs: 5 * 60_000 });
+    market.push(...japan);
+    reads.push({ handle: "pokemon-japan", ok: true, products: tcgFeedProducts(japan, JAPANESE_LINE) });
   } catch (e) {
     console.warn(`  tcgplayer: the Japanese line was not read (${(e as Error).message}); the English catalogue is kept`);
   }
+  await writeTcgMarket(market);
   return { reads, rediscovered: false, error: null };
 }
 
