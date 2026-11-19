@@ -9,10 +9,10 @@ import { BALL_DATA_URI } from "@/lib/logo-mark";
 
 export const OG_SIZE = { width: 1200, height: 630 };
 
-const INK = "#15171c";
-const MUTED = "#5c606c";
-const BRAND = "#d2300a";
-const LINE = "#e4e3de";
+export const INK = "#15171c";
+export const MUTED = "#5c606c";
+export const BRAND = "#d2300a";
+export const LINE = "#e4e3de";
 const OPEN = "#147638";
 const OPEN_SOFT = "#e2f5e8";
 
@@ -45,6 +45,29 @@ function Row({ best = false, store, price }: { best?: boolean; store: number; pr
   );
 }
 
+/** The logo, the name and an optional label beside them: the top line of every share card. */
+export function BrandHeader({ tag }: { tag?: string }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+      <img src={BALL_DATA_URI} width={64} height={64} alt="" />
+      <div style={{ display: "flex", fontSize: 42, fontWeight: 800, letterSpacing: -1 }}>
+        Dex<span style={{ color: BRAND }}>Compare</span>
+      </div>
+      {tag && (
+        <div style={{ display: "flex", marginLeft: 8, padding: "4px 14px", borderRadius: 999, background: INK, color: "#ffffff", fontSize: 22, fontWeight: 600 }}>{tag}</div>
+      )}
+    </div>
+  );
+}
+
+/** The bundled display faces every card draws with. */
+export function ogFonts() {
+  return [
+    { name: "Bricolage", data: font("BricolageGrotesque-ExtraBold.ttf"), weight: 800 as const, style: "normal" as const },
+    { name: "Bricolage", data: font("BricolageGrotesque-SemiBold.ttf"), weight: 600 as const, style: "normal" as const },
+  ];
+}
+
 export interface OgCard {
   /** The headline, one entry per line; `true` draws that line in the brand's red. */
   lines: [string, boolean][];
@@ -75,15 +98,7 @@ export function ogCard({ lines, sub, chips, tag, size = 64 }: OgCard): ImageResp
         }}
       >
         <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", width: 650 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <img src={BALL_DATA_URI} width={64} height={64} alt="" />
-            <div style={{ display: "flex", fontSize: 42, fontWeight: 800, letterSpacing: -1 }}>
-              Dex<span style={{ color: BRAND }}>Compare</span>
-            </div>
-            {tag && (
-              <div style={{ display: "flex", marginLeft: 8, padding: "4px 14px", borderRadius: 999, background: INK, color: "#ffffff", fontSize: 22, fontWeight: 600 }}>{tag}</div>
-            )}
-          </div>
+          <BrandHeader tag={tag} />
           <div style={{ display: "flex", flexDirection: "column", fontSize: size, fontWeight: 800, lineHeight: 1.04, letterSpacing: -2 }}>
             {lines.map(([text, accent]) => (
               <div key={text} style={{ display: "flex", color: accent ? BRAND : INK }}>
@@ -128,10 +143,7 @@ export function ogCard({ lines, sub, chips, tag, size = 64 }: OgCard): ImageResp
     ),
     {
       ...OG_SIZE,
-      fonts: [
-        { name: "Bricolage", data: font("BricolageGrotesque-ExtraBold.ttf"), weight: 800, style: "normal" },
-        { name: "Bricolage", data: font("BricolageGrotesque-SemiBold.ttf"), weight: 600, style: "normal" },
-      ],
+      fonts: [...ogFonts()],
     },
   );
 }
