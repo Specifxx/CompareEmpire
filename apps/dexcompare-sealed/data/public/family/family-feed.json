@@ -1,7 +1,7 @@
 {
  "v": 1,
  "site": "dex",
- "generatedAt": "2026-11-18T18:28:30.376Z",
+ "generatedAt": "2026-11-19T02:49:38.661Z",
  "links": {
   "AU": {
    "deals": "https://dexcompare.io/au/deals"
@@ -30,29 +30,15 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "AU",
-   "title": "30th Celebration Ditto Premium Collection",
-   "url": "https://dexcompare.io/au/p/30th-celebration-ditto-premium-collection",
-   "cents": 12500,
-   "currency": "AUD",
-   "store": "ProHobbies",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/704189_in_1000x1000.jpg",
-   "refCents": 23900,
-   "refLabel": "median store price",
-   "savingPct": 48
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "AU",
    "title": "First Partner Illustration Collection (Series 2)",
    "url": "https://dexcompare.io/au/p/first-partner-illustration-collection-series-2-2",
    "cents": 3995,
    "currency": "AUD",
    "store": "Grand J Games",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/688712_in_1000x1000.jpg",
-   "refCents": 7250,
+   "refCents": 7500,
    "refLabel": "median store price",
-   "savingPct": 45
+   "savingPct": 47
   },
   {
    "kind": "deal",
@@ -65,6 +51,20 @@
    "store": "Tabernacle Games",
    "image": "https://cdn.shopify.com/s/files/1/0633/7940/6911/files/Pokemon-TCG-Koraidon-ex-Deluxe-Battle-Deck_EN-737x1024.jpg?v=1762960644",
    "refCents": 3999,
+   "refLabel": "median store price",
+   "savingPct": 37
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "AU",
+   "title": "30th Celebration Ditto Premium Collection",
+   "url": "https://dexcompare.io/au/p/30th-celebration-ditto-premium-collection",
+   "cents": 15000,
+   "currency": "AUD",
+   "store": "ProHobbies",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/704189_in_1000x1000.jpg",
+   "refCents": 23900,
    "refLabel": "median store price",
    "savingPct": 37
   },
@@ -142,15 +142,15 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "NZ",
-   "title": "Pitch Black Booster Pack",
-   "url": "https://dexcompare.io/nz/p/pitch-black-booster-pack",
-   "cents": 950,
+   "title": "30th Celebration Japanese Booster Box (M6a)",
+   "url": "https://dexcompare.io/nz/p/30th-celebration-m6a-japanese-booster-box",
+   "cents": 35000,
    "currency": "NZD",
-   "store": "Card Collective NZ",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/692944_in_1000x1000.jpg",
-   "refCents": 1090,
+   "store": "TCG Mana Vault",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/718620_in_1000x1000.jpg",
+   "refCents": 41588,
    "refLabel": "median store price",
-   "savingPct": 13
+   "savingPct": 16
   },
   {
    "kind": "deal",
@@ -170,6 +170,20 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "NZ",
+   "title": "Pitch Black Booster Pack",
+   "url": "https://dexcompare.io/nz/p/pitch-black-booster-pack",
+   "cents": 950,
+   "currency": "NZD",
+   "store": "Card Collective NZ",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/692944_in_1000x1000.jpg",
+   "refCents": 1074,
+   "refLabel": "median store price",
+   "savingPct": 12
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "NZ",
    "title": "English TCG: Lumiose City Mini Tin",
    "url": "https://dexcompare.io/nz/p/english-tcg-lumiose-city-mini-tin",
    "cents": 2299,
@@ -179,20 +193,6 @@
    "refCents": 2598,
    "refLabel": "median store price",
    "savingPct": 12
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "NZ",
-   "title": "Delta Reign Booster Pack",
-   "url": "https://dexcompare.io/nz/p/delta-reign-booster-pack",
-   "cents": 990,
-   "currency": "NZD",
-   "store": "Animal Kingdoms",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/712099_in_1000x1000.jpg",
-   "refCents": 1118,
-   "refLabel": "median store price",
-   "savingPct": 11
   },
   {
    "kind": "deal",
@@ -240,6 +240,20 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "US",
+   "title": "Delta Reign Checklane Blister",
+   "url": "https://dexcompare.io/us/p/delta-reign-checklane-blister",
+   "cents": 549,
+   "currency": "USD",
+   "store": "Keystone Games LLC",
+   "image": "https://cdn.shopify.com/s/files/1/0936/4737/2569/files/220_d6961cd6-9b24-4cc2-9f55-ac87d8825e6e.png?v=1787724140",
+   "refCents": 999,
+   "refLabel": "median store price",
+   "savingPct": 45
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "US",
    "title": "Mega Symphonia Japanese Booster Pack (M1S)",
    "url": "https://dexcompare.io/us/p/mega-symphonia-m1s-japanese-booster-pack",
    "cents": 295,
@@ -263,20 +277,6 @@
    "refCents": 1950,
    "refLabel": "median store price",
    "savingPct": 33
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "US",
-   "title": "Fusion Strike Booster Pack",
-   "url": "https://dexcompare.io/us/p/fusion-strike-booster-pack",
-   "cents": 1949,
-   "currency": "USD",
-   "store": "Derium's CCGs",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/247646_in_1000x1000.jpg",
-   "refCents": 2799,
-   "refLabel": "median store price",
-   "savingPct": 30
   },
   {
    "kind": "deal",
@@ -354,13 +354,13 @@
    "region": "UK",
    "title": "Nihil Zero Japanese Booster Pack (M3)",
    "url": "https://dexcompare.io/uk/p/nihil-zero-m3-japanese-booster-pack",
-   "cents": 195,
+   "cents": 215,
    "currency": "GBP",
-   "store": "Collectors Kingdom",
+   "store": "Titan Cards",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/674454_in_1000x1000.jpg",
-   "refCents": 325,
+   "refCents": 350,
    "refLabel": "median store price",
-   "savingPct": 40
+   "savingPct": 39
   },
   {
    "kind": "deal",
@@ -400,7 +400,7 @@
    "currency": "CAD",
    "store": "Pop Collectibles Canada",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/623310_in_1000x1000.jpg",
-   "refCents": 22995,
+   "refCents": 22994,
    "refLabel": "median store price",
    "savingPct": 43
   },
@@ -548,6 +548,20 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "SG",
+   "title": "Pitch Black Booster Box",
+   "url": "https://dexcompare.io/sg/p/pitch-black-booster-box",
+   "cents": 12500,
+   "currency": "SGD",
+   "store": "Game Academia Singapore",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/692939_in_1000x1000.jpg",
+   "refCents": 25000,
+   "refLabel": "median store price",
+   "savingPct": 50
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "SG",
    "title": "Nihil Zero Japanese Booster Pack (M3)",
    "url": "https://dexcompare.io/sg/p/nihil-zero-m3-japanese-booster-pack",
    "cents": 247,
@@ -578,13 +592,13 @@
    "region": "SG",
    "title": "Pitch Black Elite Trainer Box",
    "url": "https://dexcompare.io/sg/p/pitch-black-elite-trainer-box",
-   "cents": 8850,
+   "cents": 8000,
    "currency": "SGD",
-   "store": "TEFUDA",
+   "store": "Flagship Games",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/692947_in_1000x1000.jpg",
-   "refCents": 13500,
+   "refCents": 12000,
    "refLabel": "median store price",
-   "savingPct": 34
+   "savingPct": 33
   },
   {
    "kind": "deal",
@@ -599,20 +613,6 @@
    "refCents": 1400,
    "refLabel": "median store price",
    "savingPct": 31
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "SG",
-   "title": "First Partner Illustration Collection (Series 2)",
-   "url": "https://dexcompare.io/sg/p/first-partner-illustration-collection-series-2-2",
-   "cents": 3250,
-   "currency": "SGD",
-   "store": "TEFUDA",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/688712_in_1000x1000.jpg",
-   "refCents": 4500,
-   "refLabel": "median store price",
-   "savingPct": 28
   }
  ]
 }
