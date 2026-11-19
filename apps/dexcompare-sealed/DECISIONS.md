@@ -1532,3 +1532,17 @@ Trainer Box, else its booster bundle; within the type a product a store has open
 `tests/set-alert.test.ts`). A set with none of the three gets no button. The id comes from one `productIdBySlug` read (one row,
 one column). Nothing about the alert service, the feed or the quick view changes. KPI: `alert_open` / `alert_created` events
 on set pages, read 3 Dec.
+
+## 2026-11-20: Creator links tag their visitors' sales, and /go passes the marker into TCGplayer's link
+
+The owner approved paid creators (2026-11-20): up to A$300 a month, paid only per tracked buy click or code, cut on day 21 unless
+their visitors earned 1.5x what they were paid. The ledger lives on RiftCompare's earnings dashboard ("Paid creators",
+`Specifxx/TCGEmpire` `lib/earnings/creator-deals.ts`); this app only has to make a creator's sales traceable.
+
+- `lib/paid-visit.ts` (the same file as RiftCompare's): a landing with `utm_medium=creator&utm_campaign=<handle>` stores the
+  marker `cr` + the first six letters or digits of the handle and adds it to every affiliate sub-id the visitor opens, like the
+  ad tests' `fbad`. A paid ad landing still wins.
+- `/go` now honours `ad=<marker>` (`withVisitMark` in `lib/go.ts`): the tagger rewrites a `/go?u=…` link to carry `&ad=`, but
+  the route ignored it, so a tagged visit's TCGplayer clicks reached Impact untagged (the November Meta tests lost those). Only
+  the Impact URL's sub-id values change, so the host check (`goAllowed`) is unaffected.
+- Buy clicks per creator were already counted (`campaign_buy`, `lib/campaign.ts`, 2026-11-18).
