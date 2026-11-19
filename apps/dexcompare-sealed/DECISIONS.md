@@ -1408,3 +1408,13 @@ content "spread across a large network of sites" and re-dating pages to look fre
   noindex, follow and out of the sitemap (`withoutOffSeasonSales`). The URLs stay live all year (URL freeze).
 
 Black Friday and Cyber Monday pages are unchanged (in season). Judge the effect on 1 to 8 Dec against 3 to 9 Nov.
+
+## 2026-11-19 — My collection needs an account; Sign in visible at every width
+
+Owner, 19 Nov: "you can only use my collection if you are signed in and the login/signup button should be visible for all
+sites", "premium should also be visible". `/collection` shows a sign-in card (benefits, then `/account?next=/collection`) until
+this browser holds an account token; "I own this" sends a signed-out visitor to sign in first. The header has the account link
+at every width (`AccountHeaderLink`: "Sign in" in words from 400px, the icon below); the Premium star stays from 400px (below that
+the search would shrink to nothing, measured on a 375px and 390px phone), and the phone menu opens with "Sign in / Sign up" and
+"Premium · 14 days free". `/account` signed in is an account hub. Browser-only, so pages keep one CDN copy; the collection still
+lives in the browser (`ce_vault_v1`). Same change as MTG Compare.
