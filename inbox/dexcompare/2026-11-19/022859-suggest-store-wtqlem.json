@@ -1,0 +1,15 @@
+{
+ "v": 1,
+ "at": "2026-11-19T02:28:59Z",
+ "site": "dexcompare",
+ "kind": "suggest-store",
+ "page": "/list-your-store",
+ "product": null,
+ "store": "ZentraPull TCG",
+ "storeUrl": "zentrapulltcg.com",
+ "region": "US",
+ "shown": null,
+ "actual": null,
+ "issue": "owner",
+ "note": "Store owner request. Platform: woocommerce."
+}
