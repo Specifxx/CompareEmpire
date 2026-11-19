@@ -1521,3 +1521,14 @@ US total at most about 3,600 calls a day (ScentCompare about 61%, ScentCompare a
 8,640 until about 8 Dec 2026 and a revenue-based limit after it (1 a day per US$0.05 of API-referred shipped revenue).
 
 Here the defaults are lowered to this table's numbers. Amazon clicks here were real before 13 Nov, so a small share stays.
+
+## 2026-11-19: Set pages get their own price alert
+
+The set pages are among DexCompare's most-read pages (28 days to 19 Nov: /ca/sets/delta-reign 995 views, /uk/sets/30th-celebration
+752, /uk/sets/delta-reign 747), and the only alert on them was the weekly-drops box at the foot: a visitor had to open a product
+first to set a price alert. Each set page now draws one prominent "Email me when the <set> booster box drops" button under the
+hero (the same shared `PriceAlertForm` as the product page, opening in place on a tap), for the set's booster box, else its Elite
+Trainer Box, else its booster bundle; within the type a product a store has open first, then the cheapest (`lib/set-alert.ts`,
+`tests/set-alert.test.ts`). A set with none of the three gets no button. The id comes from one `productIdBySlug` read (one row,
+one column). Nothing about the alert service, the feed or the quick view changes. KPI: `alert_open` / `alert_created` events
+on set pages, read 3 Dec.

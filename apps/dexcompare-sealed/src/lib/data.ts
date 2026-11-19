@@ -208,6 +208,12 @@ export async function regionOverview(market: Market): Promise<RegionOverview> {
   return { products, inStock, stores: stores._count._all, storesRead: read, lastChecked: stores._max.lastOkAt ?? null };
 }
 
+/** A product's id by its slug (the set page's price alert posts the id: the alert feed is keyed by it). One row, one column. */
+export async function productIdBySlug(slug: string): Promise<string | null> {
+  const p = await prisma.product.findUnique({ where: { slug }, select: { id: true } });
+  return p?.id ?? null;
+}
+
 /** When the market's stores were last read successfully: the "Prices checked" line on listing pages. One aggregate. */
 export async function lastCheckedAt(market: Market): Promise<Date | null> {
   const r = await prisma.storeStat.aggregate({ where: { market, ...STORES_ONLY }, _max: { lastOkAt: true } });

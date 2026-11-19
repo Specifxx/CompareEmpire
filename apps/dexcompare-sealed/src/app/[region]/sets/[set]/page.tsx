@@ -1,6 +1,8 @@
 import { WeeklyDropsBox } from "@/components/WeeklyDropsBox";
 import { weeklyBoxLive } from "@/lib/weekly-box";
 import { ALERT_SITE_KEY } from "@/lib/alert-feed";
+import { PriceAlertForm } from "@/components/PriceAlertForm";
+import { setAlertLabel, setAlertPick } from "@/lib/set-alert";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cache } from "react";
@@ -17,7 +19,7 @@ import { StockFilter } from "@/components/StockFilter";
 import { ProductGrid } from "@/components/ProductGrid";
 import { Empty, Section } from "@/components/Section";
 import { AFFILIATE_NOTE_SHORT, REL_SPONSORED, TCGPLAYER_RETAILER, tcgplayerSearchUrl } from "@/lib/affiliate";
-import { lastCheckedAt, marketsWithSet, productsBySet, setTcgplayerTiles, type ProductCardData } from "@/lib/data";
+import { lastCheckedAt, marketsWithSet, productIdBySlug, productsBySet, setTcgplayerTiles, type ProductCardData } from "@/lib/data";
 import { cardOpen } from "@/lib/compact";
 import { gridPageHasRoomForFooter } from "@/lib/ebay-ads";
 import { money, timeAgo } from "@/lib/format";
@@ -84,6 +86,9 @@ export default async function SetPage({ params }: { params: { region: string; se
   const open = products.filter(cardOpen);
   const perPack = cheapestPerPackByType(products);
   const way = cheapestWayIn(products);
+  // The set's price alert (lib/set-alert.ts): its booster box, else ETB, else bundle, by id for RiftCompare's alert service.
+  const watch = setAlertPick(products);
+  const watchId = watch ? await productIdBySlug(watch.slug).catch(() => null) : null;
   const name = withPokemon(s.name);
   const path = `/${r.region}/sets/${s.slug}`;
   const us = r.market === "US";
@@ -188,6 +193,24 @@ export default async function SetPage({ params }: { params: { region: string; se
                 {/* No Amazon category search here (2026-11-02): Amazon's Operating Agreement wants every link to lead to a specific product. */}
               </div>
             )}
+          </div>
+        )}
+        {watch && watchId && (
+          // A button in the server HTML; the form opens in place on a tap, never by itself (as on the product page).
+          <div className="mt-4 max-w-md">
+            <PriceAlertForm
+              site={ALERT_SITE_KEY}
+              productId={watchId}
+              region={r.market}
+              priceCents={cardOpen(watch) ? watch.lowestPriceCents : null}
+              buttonClassName="btn-ghost min-h-11"
+              prominent
+              summary={setAlertLabel(s.name, watch)}
+            />
+            <p className="mt-1.5 text-xs text-muted">
+              For the {watch.name}
+              {cardOpen(watch) && watch.lowestPriceCents != null ? `, ${money(watch.lowestPriceCents, r.market)} at the cheapest ${r.adjective} listing today` : ""}. Free, no account.
+            </p>
           </div>
         )}
         {checked && products.length > 0 && (
