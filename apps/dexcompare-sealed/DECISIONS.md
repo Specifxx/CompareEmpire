@@ -1494,3 +1494,55 @@ redirect. I don't want the [RiftCompare] logo to appear on any of the site signu
 - `next.config.js` rewrites `/account-service/alerts/(confirm|manage|unsubscribe)` and `/account-service/oauth/(google|discord)[/callback]`
   to the shared service, so alert emails and (once the owner registers the redirect addresses) Google and Discord sign-in keep the
   visitor on this site's own address. A rewrite is not a redirect: the address bar never changes.
+## 2026-11-19 — A tag lint that stops the build
+
+From the 19 Nov boardroom review, on the four money sites: paid rows always there, and never untagged. The product page's
+Marketplaces panel already draws eBay and TCGplayer in every region (a listing or price when there is one, else each one's tagged
+search; TCGplayer steps aside only in the US when it is already the best-price button above). New: `scripts/tag-lint.ts` runs first in
+`npm run build` (`src/lib/tag-lint.ts`, `tests/tag-lint.test.ts`). Every eBay builder in every region and placement must carry campaign
+5339155912 and a customid, every TCGplayer link must go through Impact (/out/tcgplayer), an eBay listing without our campaign must be
+refused by `listingHref`, and no component may hard-code a bare eBay or TCGplayer href. A failure stops the release: a paid link going
+out untagged costs more than a late one.
+
+## 2026-11-19: [urgent] needs eight hours too: a network ceiling of 57 builds a day
+
+[urgent] in a commit subject used to skip the 12-hour gap altogether. On 17 and 18 Nov the network built production 94
+and 137 times a day, almost all of them [urgent] (about eight builds per site per day), and Vercel reached $10.27 a day
+against the $6 cap: every build rewrites the ISR cache and burns build CPU. `scripts/vercel-ignore-build.sh` now builds an
+[urgent] commit only when production last built at least `URGENT_MIN_GAP_HOURS` (8) ago; a plain [deploy] still waits 12.
+So one site builds at most three times a day, and the 19 production projects at most 57 a day (normally about 25).
+Batch urgent changes into one release instead of one per merge. Pinned by `tests/deploy-gap.test.ts`. The same change
+went to every Compare site's gate.
+
+## Amazon API allowance: mostly ScentCompare, card sites at zero (owner, 2026-11-19)
+
+Amazon's Creators API limit is per Associates account (one a country), shared by every site on it: 1 call a second and
+8,640 a day for the first 30 days (the US until about 8 Dec 2026), then 1 a day per US$0.05 of shipped revenue the API
+referred in 30 days. The owner: "be very frugal", no Amazon calls for card sites ("people aren't buying on Amazon"), and
+half or more for ScentCompare, the best performer. Each site's daily calls (environment variables can only lower them):
+
+| Site | searchItems a day (US / other) | getItems at build (US / other) |
+|---|---|---|
+| ScentCompare | 2,000 / 600 | 200 / 100 |
+| KaeYoung | 600 / 300 | 100 / 60 |
+| DexCompare | 300 | 30 |
+| MTG Compare, WargameCompare | 100 | 20 |
+| Compare Empire | 100 | 30 |
+| CamCompare | 150 (AU only) | about 30 (AU only) |
+| Rift, OP, YGO, Lorcana, Cyberpunk, Gundam (and kits), Bandai, SportsCardCompare, TCG Prices, Figure, Motor | 0 | 0 |
+
+US total at most about 3,600 calls a day (ScentCompare about 61%, ScentCompare and KaeYoung together about 81%), against
+8,640 until about 8 Dec 2026 and a revenue-based limit after it (1 a day per US$0.05 of API-referred shipped revenue).
+
+Here the defaults are lowered to this table's numbers. Amazon clicks here were real before 13 Nov, so a small share stays.
+
+## 2026-11-19: Set pages get their own price alert
+
+The set pages are among DexCompare's most-read pages (28 days to 19 Nov: /ca/sets/delta-reign 995 views, /uk/sets/30th-celebration
+752, /uk/sets/delta-reign 747), and the only alert on them was the weekly-drops box at the foot: a visitor had to open a product
+first to set a price alert. Each set page now draws one prominent "Email me when the <set> booster box drops" button under the
+hero (the same shared `PriceAlertForm` as the product page, opening in place on a tap), for the set's booster box, else its Elite
+Trainer Box, else its booster bundle; within the type a product a store has open first, then the cheapest (`lib/set-alert.ts`,
+`tests/set-alert.test.ts`). A set with none of the three gets no button. The id comes from one `productIdBySlug` read (one row,
+one column). Nothing about the alert service, the feed or the quick view changes. KPI: `alert_open` / `alert_created` events
+on set pages, read 3 Dec.
