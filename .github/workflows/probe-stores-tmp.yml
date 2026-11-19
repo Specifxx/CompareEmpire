@@ -10,12 +10,8 @@ jobs:
       - name: Probe
         run: |
           UA="DexCompare store probe (contact: compareempire@gmail.com)"
-          echo "== kingcard robots"; curl -s -m 30 -A "$UA" https://kingcard.ca/robots.txt | head -40
-          echo "== kingcard meta"; curl -s -m 30 -A "$UA" https://kingcard.ca/meta.json | jq -c '{currency,country,name}'
-          echo "== kingcard collections"
-          for p in 1 2 3; do curl -s -m 30 -A "$UA" "https://kingcard.ca/collections.json?limit=250&page=$p" | jq -r '.collections[]?|"\(.handle)\t\(.products_count)\t\(.title)"'; sleep 1; done | grep -i -E 'pok|sealed|booster|etb|elite|tin|bundle' | head -40
-          echo "== zentra robots"; curl -s -m 30 -A "$UA" https://zentrapulltcg.com/robots.txt | head -40
-          echo "== zentra cats"
-          curl -s -m 30 -A "$UA" "https://zentrapulltcg.com/wp-json/wc/store/v1/products/categories?per_page=100" | jq -r '.[]?|"\(.slug)\t\(.count)\t\(.name)"' | head -50
-          echo "== zentra sample"
-          curl -s -m 30 -A "$UA" "https://zentrapulltcg.com/wp-json/wc/store/v1/products?per_page=20" | jq -r '.[]?|"\(.name)\t\(.prices.price)\t\(.prices.currency_code)\t\(.is_in_stock)\t\([.categories[]?.slug]|join(","))"' | head -25
+          echo "== kingcard pokemon handles"
+          for p in 1 2 3; do curl -s -m 30 -A "$UA" "https://kingcard.ca/collections.json?limit=250&page=$p" | jq -r '.collections[]?|"\(.handle)\t\(.products_count)\t\(.title)"'; sleep 1; done | grep -i -E 'pok|^all|sealed|tcg' | head -80
+          for c in elite-trainer-boxes booster-boxes pokemon-tins; do echo "== kingcard $c"; curl -s -m 30 -A "$UA" "https://kingcard.ca/collections/$c/products.json?limit=12" | jq -r '.products[]?|"\(.title)\t\(.variants[0].price)\t\(.variants[0].available)"'; sleep 1; done
+          echo "== zentra all-pokemon-tcg"
+          curl -s -m 30 -A "$UA" "https://zentrapulltcg.com/wp-json/wc/store/v1/products?category=all-pokemon-tcg&per_page=50" | jq -r '.[]?|"\(.name)\t\(.prices.price)\t\(.is_in_stock)"' | head -50
