@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { cache } from "react";
 import type { Metadata } from "next";
 import { Ago } from "@/components/Ago";
@@ -16,6 +16,7 @@ import { money, timeAgo } from "@/lib/format";
 import { hubTitle, storeIndexable, storeIntro, titleText } from "@/lib/hub-copy";
 import { thumb } from "@/lib/images";
 import { regionOfMarket, type RegionInfo } from "@/lib/regions";
+import { retiredStoreRedirect } from "@/lib/retired-stores";
 import { offerStock, offerStockLabel } from "@/lib/sealed-offers";
 import { isPreorderSet } from "@/lib/release";
 import { pageMeta } from "@/lib/seo";
@@ -45,6 +46,9 @@ export function pageNumber(n: string): number {
 /** The store, if this region's: a store belongs to one region, and any other region's URL for it is a duplicate. */
 export function storeInRegion(key: string, r: RegionInfo): StoreConfig {
   const s = storeFor(key);
+  // A store we stopped reading (lib/retired-stores.ts): its old URL goes to its region's store directory, never a 404.
+  const retired = s ? null : retiredStoreRedirect(key);
+  if (retired) permanentRedirect(retired);
   if (!s || regionOfMarket(s.market)?.region !== r.region) notFound();
   return s;
 }
