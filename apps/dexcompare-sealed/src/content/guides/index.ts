@@ -65,7 +65,8 @@ export type GuideSlug =
   | "mega-evolution-chase-cards"
   | "pokemon-legendary-stadium-cards"
   | "every-mega-evolution-pokemon-ex"
-  | "jensen-huang-nvidia-pokemon-card-prices";
+  | "jensen-huang-nvidia-pokemon-card-prices"
+  | "30th-celebration-price-per-pack";
 
 export interface Guide {
   slug: GuideSlug;
@@ -540,6 +541,18 @@ export const GUIDES: readonly Guide[] = [
     regions: "all",
     topic: { types: ["booster-box", "etb", "booster-bundle"], sets: ["30th-celebration", "pitch-black"] },
     ebay: { context: "type:booster-boxes", heading: "Pokémon booster boxes on eBay" },
+    tools: ["value-checker", "trade-calculator"],
+  },
+  {
+    slug: "30th-celebration-price-per-pack",
+    title: "Pokémon 30th Celebration: the best value product per pack",
+    description: "30th Celebration has no booster box. Every product it comes in, priced at stores today and ranked by price per pack: ETB, bundle, ex Box, tins and collections.",
+    kicker: "30th Celebration",
+    published: "2026-11-20",
+    updated: "2026-11-20",
+    regions: "all",
+    topic: { types: ["etb", "booster-bundle"], sets: ["30th-celebration"] },
+    ebay: { context: "sealed", heading: "Pokémon 30th Celebration on eBay" },
     tools: ["value-checker", "trade-calculator"],
   },
   {

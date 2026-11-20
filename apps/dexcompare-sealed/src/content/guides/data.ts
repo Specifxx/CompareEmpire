@@ -243,6 +243,11 @@ export async function loadGuideData(slug: GuideSlug, r: RegionInfo, now: Date = 
   };
 
   switch (slug) {
+    case "30th-celebration-price-per-pack": {
+      // The set has no booster box: every open product of it is a candidate (30th-celebration-price-per-pack.tsx picks each line's cheapest).
+      const open = sortCards((await productsBySet(r.market, "cel30")).filter(cardOpen));
+      return done({ sets: ["cel30"], bySet: { cel30: open }, openCount: { cel30: open.length } });
+    }
     case "how-many-packs-in-pokemon-products": {
       // The newest set with headline product in stock here: the three newest released sets are read (≤ 27 rows) and the block
       // shows the newest one that has any, so a region whose stores have not stocked the newest set yet still gets a table.
