@@ -1,6 +1,6 @@
 "use client";
 
-// The landing page's product block: "Most stocked in <region> today" (ten in-stock products, lib/picks.ts: the newest booster
+// The landing page's product block: "Most popular in <region> today" (was "Most stocked" until 2026-11-20, owner: most popular first) (ten in-stock products, lib/picks.ts: the newest booster
 // boxes and Elite Trainer Boxes ordered by how many of the region's stores have them in stock). Nothing else since 2026-11-13
 // (owner: "cull the features that we show"): the region row and the shortcuts are the hero's (RegionChips, SoftWaysIn), so this
 // block no longer repeats a second switcher and a "Jump to" list. The server HTML is the same for everyone, crawlers included,
@@ -61,7 +61,7 @@ export function HomeRegionGrid({ initial }: { initial: Pick[] }) {
   return (
     <section id="regions" aria-labelledby="home-grid-h" className="page scroll-mt-20" data-home-grid="">
       <h2 id="home-grid-h" className="sec-h2">
-        Most stocked in {r.inName} today
+        Most popular in {r.inName} today
       </h2>
       {/* Ten slots (owner, 2026-11-13: more products here), each the same size whatever it holds (globals.css .hg-*): a row on a
           phone, two columns of rows on a tablet, the product card's shape (a square plate, the name, stock and price) from md. */}
