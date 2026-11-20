@@ -267,6 +267,27 @@ function fixture(slug: GuideSlug): GuideData {
           { ...card(released[0], "Tin", 2499, 4), setCode: null, slug: "tin-test", name: "Tin Test" },
         ]),
       };
+    case "30th-celebration-price-per-pack": {
+      const named = (type: string, name: string, cents: number, stores = 6): ProductCardData => ({ ...card("cel30", type, cents, stores), slug: name.toLowerCase().replace(/[^a-z0-9]+/g, "-"), name, medianOpenCents: cents + 400 });
+      return {
+        ...d,
+        sets: ["cel30"],
+        bySet: {
+          cel30: sorted([
+            named("Booster Pack", "30th Celebration Booster Pack", 950, 28),
+            named("Booster Bundle", "30th Celebration Booster Bundle", 4999, 54),
+            named("Elite Trainer Box", "30th Celebration Elite Trainer Box", 9399, 79),
+            named("Pokémon Center Elite Trainer Box", "30th Celebration Pokémon Center Elite Trainer Box", 25334, 8),
+            named("Collection", "30th Celebration - Poster Collection", 2616, 63),
+            named("Collection", "30th Celebration - EX Box", 2799, 13),
+            named("Tin", "30th Celebration - Greninja ex Tin", 3999, 6),
+            named("Tin", "30th Celebration Mini Tin", 1799, 27),
+            named("Tin", "30th Celebration ex Tin [Sylveon ex] (International Version)", 1000, 1),
+            named("Collection", "30th Celebration Ditto Premium Collection", 6998, 40),
+          ]),
+        },
+      };
+    }
     case "flowing-fists-mega-lucario-z":
     case "30th-celebration-chase-cards":
     case "chaos-rising-chase-cards":
@@ -325,6 +346,7 @@ const SEO_GUIDES: GuideSlug[] = [
   "pokemon-tcg-gift-guide-australia",
   "pokemon-tcg-christmas-gift-guide",
   "jensen-huang-nvidia-pokemon-card-prices",
+  "30th-celebration-price-per-pack",
 ];
 
 const render = (slug: GuideSlug, region: Region, data: GuideData = fixture(slug)) => renderToStaticMarkup(React.createElement(GUIDE_MODULES[slug].Body, { r: REGIONS[region], data }));
@@ -351,7 +373,7 @@ const PAIRS = GUIDES.filter((g) => !ONLY || ONLY.has(g.slug)).flatMap((g) => gui
 
 test("registry: unique slugs, ISO editorial dates (updated ≥ published), descriptions ≤ 160, titles that fit a <title>", () => {
   assert.equal(new Set(GUIDES.map((g) => g.slug)).size, GUIDES.length);
-  assert.equal(GUIDES.length, 46);
+  assert.equal(GUIDES.length, 47);
   for (const g of GUIDES) {
     assert.match(g.slug, /^[a-z0-9]+(?:-[a-z0-9]+)*$/);
     for (const d of [g.published, g.updated]) {
@@ -394,9 +416,9 @@ test("the MSRP guide is US-only, the five Australian guides AU-only; every other
   for (const r of REGION_LIST.filter((x) => x.region !== "us")) {
     assert.equal(guideFor("pokemon-tcg-msrp", r.region), null, r.region);
     assert.ok(!guidesFor(r.region).some((g) => g.slug === "pokemon-tcg-msrp"), r.region);
-    assert.equal(guidesFor(r.region).length, r.region === "au" ? 44 : r.region === "uk" || r.region === "ca" ? 40 : 39, r.region);
+    assert.equal(guidesFor(r.region).length, r.region === "au" ? 45 : r.region === "uk" || r.region === "ca" ? 41 : 40, r.region);
   }
-  assert.equal(guidesFor("us").length, 41);
+  assert.equal(guidesFor("us").length, 42);
   assert.deepEqual(guideRegions(GUIDE_BY_SLUG.get("pokemon-tcg-christmas-gift-guide")!), ["us", "uk", "ca"]);
   for (const g of GUIDES.filter((x) => x.slug !== "pokemon-tcg-msrp" && !AU_ONLY.includes(x.slug) && x.slug !== "pokemon-tcg-christmas-gift-guide")) assert.equal(guideRegions(g).length, 7, g.slug);
   assert.equal(guideFor("no-such-guide", "au"), null);
