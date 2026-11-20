@@ -1627,3 +1627,14 @@ account (free or Premium), the product page's and quick view's alert button is "
 price>": one tap saves it through the account's token (no email field), with "Pick my price" beside it
 (`components/premium/PriceAlert.tsx`, `setPriceWatch`). Back in stock is one tap for free accounts too. Signed out, both are the
 ordinary forms, unchanged. Nothing saves or opens by itself. The set page's alert stays the ordinary form.
+
+## 2026-11-20: Type pages get their own price alert
+
+The type pages are among DexCompare's most-read hubs (28 days to 20 Nov: /uk/type/elite-trainer-boxes 573 views,
+/us/type/booster-boxes 534, /ca/type/elite-trainer-boxes 533, /us/type/elite-trainer-boxes 527, /us/type/booster-bundles 469),
+and had no alert at all. As the set pages (2026-11-19), each now draws one prominent "Email me when the <product> drops" button
+above its products (the shared `PriceAlertForm`, opening in place on a tap), for the type's product most likely to earn by the
+home ranking (`rankCards`: demand from `data/demand.json` times stock and price), an open one first, else a sold-out one
+("is in stock at my price") (`lib/type-alert.ts`, `tests/type-alert.test.ts`). The id comes from one `productIdBySlug` read.
+Nothing about the alert service, the feed, the grid or the quick view changes. KPI: `alert_open` / `alert_created` and buy clicks
+on `/<region>/type/*`, read 23 Nov (click guard) and 3 Dec.
