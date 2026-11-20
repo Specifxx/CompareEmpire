@@ -1,7 +1,7 @@
 {
  "v": 1,
  "site": "dex",
- "generatedAt": "2026-11-19T18:38:18.063Z",
+ "generatedAt": "2026-11-20T02:45:31.331Z",
  "links": {
   "AU": {
    "deals": "https://dexcompare.io/au/deals"
@@ -36,9 +36,9 @@
    "currency": "AUD",
    "store": "Grand J Games",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/688712_in_1000x1000.jpg",
-   "refCents": 7250,
+   "refCents": 7500,
    "refLabel": "median store price",
-   "savingPct": 45
+   "savingPct": 47
   },
   {
    "kind": "deal",
@@ -156,6 +156,20 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "NZ",
+   "title": "30th Celebration Ditto Premium Collection",
+   "url": "https://dexcompare.io/nz/p/30th-celebration-ditto-premium-collection",
+   "cents": 16999,
+   "currency": "NZD",
+   "store": "PlayX",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/704189_in_1000x1000.jpg",
+   "refCents": 19999,
+   "refLabel": "median store price",
+   "savingPct": 15
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "NZ",
    "title": "Delta Reign 3 Pack Blister",
    "url": "https://dexcompare.io/nz/p/delta-reign-3-pack-blister",
    "cents": 3299,
@@ -183,16 +197,30 @@
   {
    "kind": "deal",
    "cluster": "cards",
-   "region": "NZ",
-   "title": "English TCG: Lumiose City Mini Tin",
-   "url": "https://dexcompare.io/nz/p/english-tcg-lumiose-city-mini-tin",
-   "cents": 2299,
-   "currency": "NZD",
-   "store": "WP Games",
-   "image": "https://cdn.shopify.com/s/files/1/0282/2687/9628/files/PokemonEnglishTCGLumioseCityMiniTin.png?v=1781185775",
-   "refCents": 2598,
+   "region": "US",
+   "title": "Delta Reign Build & Battle Box",
+   "url": "https://dexcompare.io/us/p/delta-reign-build-and-battle-box",
+   "cents": 2199,
+   "currency": "USD",
+   "store": "Keystone Games LLC",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/712101_in_1000x1000.jpg",
+   "refCents": 4289,
    "refLabel": "median store price",
-   "savingPct": 12
+   "savingPct": 49
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "US",
+   "title": "Chaos Rising - 3 Pack Blister",
+   "url": "https://dexcompare.io/us/p/chaos-rising-3-pack-blister",
+   "cents": 1299,
+   "currency": "USD",
+   "store": "Apollo's Vault",
+   "image": "https://cdn.shopify.com/s/files/1/1704/1809/files/Pokemon-MegaEvolution-ChaosRising-3PackBlister.png?v=1773419641",
+   "refCents": 2499,
+   "refLabel": "median store price",
+   "savingPct": 48
   },
   {
    "kind": "deal",
@@ -207,20 +235,6 @@
    "refCents": 11588,
    "refLabel": "median store price",
    "savingPct": 48
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "US",
-   "title": "Chaos Rising - 3 Pack Blister",
-   "url": "https://dexcompare.io/us/p/chaos-rising-3-pack-blister",
-   "cents": 1299,
-   "currency": "USD",
-   "store": "Apollo's Vault",
-   "image": "https://cdn.shopify.com/s/files/1/1704/1809/files/Pokemon-MegaEvolution-ChaosRising-3PackBlister.png?v=1773419641",
-   "refCents": 2450,
-   "refLabel": "median store price",
-   "savingPct": 47
   },
   {
    "kind": "deal",
@@ -263,20 +277,6 @@
    "refCents": 4700,
    "refLabel": "median store price",
    "savingPct": 34
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "US",
-   "title": "Pokémon Card 151 Japanese Booster Box (SV2a)",
-   "url": "https://dexcompare.io/us/p/pokemon-card-151-sv2a-japanese-booster-box",
-   "cents": 29980,
-   "currency": "USD",
-   "store": "Common Lands",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/565243_in_1000x1000.jpg",
-   "refCents": 43150,
-   "refLabel": "median store price",
-   "savingPct": 31
   },
   {
    "kind": "deal",
