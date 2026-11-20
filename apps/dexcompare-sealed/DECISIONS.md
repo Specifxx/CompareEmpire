@@ -1661,3 +1661,12 @@ cheapest store's buy button (its own link, `offerLink`) and a tagged eBay search
 "Under their own 30-day typical price" list on the same pages (same idea, no buy button, fewer guards). Copy says "under its
 30-day typical" and "lowest since <date>", never "was", "dropped" or "ever" (BANNED_COPY). Read 3 Dec: `bf-drops` buy clicks
 28 Nov to 1 Dec against the 4 days before. The same file ships on Dex, Rift and OP.
+
+## 2026-11-20: The deal feed sends one drop a day
+
+The Discord hub "TCG Deals & Restocks" takes at most three drops a day (the Discord agent's cap, so a nine-member server is not
+buried in bot posts). The Sealed Sniper (tcgprices.app) takes two, one per run; this feed takes one. So `scripts/feed-notify.ts`
+now sends ONE message a run (`dropFor`: a header and each event, kept under Discord's 2,000 characters, biggest first) and only
+the first run of a UTC day sends (`FeedState.lastDrop`); the evening run records and posts nothing. An event left out stays
+eligible for the next drop. Every link carries `utm_content=dex-feed-YYYYMMDDHH` so each drop's clicks can be counted. Telegram
+gets the same single message, with link previews off.

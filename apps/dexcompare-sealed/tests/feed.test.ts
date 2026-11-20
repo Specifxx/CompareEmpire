@@ -4,7 +4,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { findBannedCopy } from "../src/lib/copy-rules";
-import { detectEvents, emptyFeedState, feedConfig, messageFor, recordPosts, selectPosts, type FeedProduct, type FeedStat } from "../src/lib/feed";
+import { detectEvents, DROP_MAX_CHARS, dropFor, emptyFeedState, feedConfig, feedDropId, messageFor, recordPosts, selectPosts, type FeedEvent, type FeedProduct, type FeedStat } from "../src/lib/feed";
 import { dayOf, updatePriceHistory, type PriceHistory } from "../src/lib/price-history";
 
 const T = dayOf("2026-10-22");
@@ -68,7 +68,8 @@ test("posting: the first run only records; an event is posted once when it becom
   assert.equal(posts.length, 4);
   assert.deepEqual(posts.map((p) => (p as { pct: number }).pct), [19, 18, 17, 16], "the deepest first");
   const next = recordPosts(state, many, posts, T + 2);
-  assert.equal(selectPosts(many, next, T + 2, 20).length, 6, "left out by the limit: still eligible next run");
+  assert.equal(selectPosts(many, next, T + 2, 20).length, 0, "one drop a day: the day's next run posts nothing");
+  assert.equal(selectPosts(many, next, T + 3, 20).length, 6, "left out by the limit: still eligible at the next drop");
 });
 
 test("messages: the facts and the product link; no urgency, no banned copy", () => {
@@ -82,4 +83,29 @@ test("messages: the facts and the product link; no urgency, no banned copy", () 
   }
   assert.match(messageFor(d), /A\$80\.00, 20% under the median of 5 Australian stores/);
   assert.match(messageFor(r), /Now at 3 Australian stores, from A\$299/);
+});
+
+test("one drop a day: one message per run, at most one run a UTC day posts, every link tagged with the drop", () => {
+  const ev = (slug: string, pct: number): FeedEvent => ({ kind: "deal", market: "AU", product: { slug, name: `Product ${slug}`, productType: "Booster Box", setCode: "me5" }, stores: 4, cents: 9000, median: 10000, pct });
+  const events = [ev("a", 20), ev("b", 15), ev("c", 12)];
+  let state = recordPosts(emptyFeedState(), [], [], T - 1); // a first run that recorded nothing
+  const posts = selectPosts(events, state, T, 6);
+  assert.equal(posts.length, 3);
+  const drop = feedDropId(Date.UTC(2026, 10, 20, 20, 47));
+  assert.equal(drop, "dex-feed-2026112020");
+  const d = dropFor(posts, drop);
+  assert.equal(d.events.length, 3);
+  assert.match(d.text, /^Dex deal drop: 3 changes/);
+  assert.equal((d.text.match(/&utm_content=dex-feed-2026112020/g) ?? []).length, 3);
+  assert.equal(findBannedCopy(d.text), null);
+  state = recordPosts(state, events, d.events, T);
+  assert.equal(state.lastDrop, T);
+  assert.deepEqual(selectPosts([...events, ev("new", 30)], state, T, 6), [], "the day's second run posts nothing");
+  assert.deepEqual(selectPosts([ev("new", 30)], state, T + 1, 6).map((e) => e.product.slug), ["new"], "next day's drop goes out");
+  const many = Array.from({ length: 20 }, (_, i) => ev(`long-product-slug-number-${i}-${"x".repeat(60)}`, 20));
+  const big = dropFor(many, drop);
+  assert.ok(big.text.length <= DROP_MAX_CHARS && big.events.length < 20, "kept under Discord's limit; the rest wait");
+  const src = readFileSync("scripts/feed-notify.ts", "utf8");
+  assert.equal((src.match(/await send\(cfg\.discordWebhook/g) ?? []).length, 1, "one Discord send a run, outside any loop");
+  assert.doesNotMatch(src, /for \(const e of posts\)/);
 });

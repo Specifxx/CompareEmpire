@@ -1,5 +1,5 @@
 // The deal and restock feed's sender (lib/feed.ts decides what to say): reads the files the export just wrote (product stats, products,
-// the price history) and data/public/feed-state.json, posts at most FEED_MAX_POSTS messages to Discord and/or Telegram, and writes the
+// the price history) and data/public/feed-state.json, posts ONE message (a drop of at most FEED_MAX_POSTS events, at most one drop a UTC day) to Discord and/or Telegram, and writes the
 // state back for the publish step to commit. OFF unless FEED_ENABLED=1 with a destination set; a failed send is logged and the run
 // goes on (the import's publish must never wait on a chat service).
 //
@@ -7,12 +7,11 @@
 //     npx tsx scripts/feed-notify.ts [--dry-run]
 import fs from "node:fs";
 import path from "node:path";
-import { detectEvents, emptyFeedState, feedConfig, FEED_STATE_FILE, messageFor, recordPosts, selectPosts, type FeedProduct, type FeedStat, type FeedState } from "../src/lib/feed";
+import { detectEvents, dropFor, emptyFeedState, feedConfig, FEED_STATE_FILE, feedDropId, recordPosts, selectPosts, type FeedProduct, type FeedStat, type FeedState } from "../src/lib/feed";
 import { dayOf, HISTORY_FILE, isPriceHistory } from "../src/lib/price-history";
 
 const DIR = path.join(process.cwd(), "data", "public");
 const read = <T>(f: string): T => JSON.parse(fs.readFileSync(path.join(DIR, f), "utf8")) as T;
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 async function send(url: string, body: unknown): Promise<boolean> {
   try {
@@ -57,22 +56,19 @@ async function main() {
   const events = detectEvents({ stats, products: bySlug, history, markets: cfg.markets });
   const posts = selectPosts(events, state, today, cfg.maxPosts);
   console.log(`[feed] ${events.length} events true now (${events.filter((e) => e.kind === "restock").length} restocks); ${posts.length} to post${state.run === 0 ? " (first run: recording only)" : ""}.`);
-  const sent: typeof posts = [];
-  for (const e of posts) {
-    const text = messageFor(e);
-    if (dry) {
-      console.log(`--- ${e.kind} ${e.market}\n${text}`);
-      sent.push(e);
-      continue;
-    }
+  const { text, events: held } = dropFor(posts, feedDropId(Date.now()));
+  let sent: typeof posts = [];
+  if (held.length && dry) {
+    console.log(`--- drop\n${text}`);
+    sent = held;
+  } else if (held.length) {
     let ok = false;
     if (cfg.discordWebhook) ok = (await send(cfg.discordWebhook, { content: text, allowed_mentions: { parse: [] } })) || ok;
-    if (cfg.telegram) ok = (await send(`https://api.telegram.org/bot${cfg.telegram.token}/sendMessage`, { chat_id: cfg.telegram.chatId, text, disable_web_page_preview: false })) || ok;
-    if (ok) sent.push(e);
-    await sleep(1500); // well under Discord's and Telegram's per-channel limits
+    if (cfg.telegram) ok = (await send(`https://api.telegram.org/bot${cfg.telegram.token}/sendMessage`, { chat_id: cfg.telegram.chatId, text, disable_web_page_preview: true })) || ok;
+    if (ok) sent = held;
   }
   if (!dry) fs.writeFileSync(path.join(DIR, FEED_STATE_FILE), JSON.stringify(recordPosts(state, events, sent, today)));
-  console.log(`[feed] sent ${sent.length}.`);
+  console.log(`[feed] sent ${sent.length ? `one drop of ${sent.length}` : "nothing"}${state.lastDrop === today ? " (today's drop already went out)" : ""}.`);
 }
 
 main().catch((e) => {
