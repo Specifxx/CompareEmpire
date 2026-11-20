@@ -1,4 +1,4 @@
-// The landing page's "Most stocked in <region> today" (components/HomeRegionGrid.tsx): ten in-stock (owner, 2026-11-13: more products on the landing page) products of one region, taken
+// The landing page's "Most popular in <region> today" (was "Most stocked" until 2026-11-20, owner: most popular first) (components/HomeRegionGrid.tsx): ten in-stock (owner, 2026-11-13: more products on the landing page) products of one region, taken
 // from the region home's newest booster boxes and Elite Trainer Boxes (data.ts homeRails, up to eight of each) and ordered by how
 // price, dearest first (owner, 2026-11-12: lib/feature-floor.ts), then how many stores have them in stock, newest set first. Read by /api/picks/<region> and, for the default
 // region, by the landing page itself, so the first paint is already filled.

@@ -12,7 +12,7 @@ import { REGIONS, type Region } from "@/lib/regions";
 import { expandPoints } from "@/lib/price-history-days";
 import { MiniSealedAds, OfferRowsWithEbay, type MiniTcgTile } from "./EbayStrip";
 import type { StoreRowData } from "./OfferRows";
-import { PriceAlertForm } from "./PriceAlertForm";
+import { PriceAlert } from "./premium/PriceAlert";
 import { ShareButton } from "./ShareButton";
 import { closeQuickViewUrl, onQuickViewHistory, openQuickViewUrl } from "@/lib/quick-view-url";
 import { AbContext, abSeen, abVisit } from "@/lib/ab-client";
@@ -268,7 +268,7 @@ export function QuickView() {
           {/* The product page's price alert (2026-11-13): over half of all buy clicks start in this panel and most visitors never open
               the product page, where the only alert button was. A button; the form opens in place on a tap, never by itself. */}
           {got?.alert && (
-            <PriceAlertForm
+            <PriceAlert
               key={got.slug}
               site={got.alert.site}
               productId={got.alert.id}

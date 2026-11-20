@@ -1583,3 +1583,81 @@ server "TCG Deals & Restocks" (the sealed restock and price-drop feeds on top, a
 own never-expiring invite code, so the server's Invites list counts the members each site brings with no tracking of
 ours. `DiscordCta` ("Restock and deal alerts, free on Discord") sits under the price table on the product page and
 in the footer: never above a price, never a pop-up. `tests/discord-cta.test.ts`.
+
+
+## 2026-11-20: The Hot 100 share card shows rises AND drops (owner)
+
+A Reddit reply to a Hot 100 link post asked for "the biggest drops. I just want to rip and play"; the owner: every snapshot
+thumbnail is half biggest rises, half biggest drops. `/og/hot-100/<region>` (`lib/og/hot100-card.tsx`) now draws the week's
+three biggest rises beside its three biggest drops, each with its photo, change and two prices; the page lists up to 20 drops under
+the chart ("Biggest drops this week"). `hotDrops` in `lib/hot100.ts` is the Hot 100's own rules mirrored (2+ stores in stock both
+days, a fall of 1% or more and under the 50% misfiled-listing cap, the same seven days), from the same history; nothing new is read.
+The og:image query gained `&v=2` so a cached rises-only picture is never served for the new one. No ▲/▼ glyphs on the card: the
+bundled font lacks them. `tests/hot100.test.ts`.
+
+## 2026-11-20: A Santa hat on the logo and lights under the header
+
+**Owner, 2026-11-20:** "change the logo for all of our websites so that it's Christmas themed now. Put a Santa hat on top
+of the logos … and add some decorations here and there, like some Christmas lights … and yeah, Santa Claus." The owner
+asked for hats and lights by name, so they come back after the 2026-11-08 tone-down, kept to the header.
+
+- The logo mark wears a Santa hat (class `xmas-cap` on its wrapper), a string of lights hangs under the sticky header
+  (`xmas-garland`), and the home page's gift-guide line, where there is one, gets a small Santa. All of it is the
+  `xmas-logo` block in `globals.css`, the same block on every Compare site (RiftCompare's DECISIONS has the history).
+- CSS only: three inline SVG data URIs (~2.5 KB of stylesheet), no request, no script, no animation. Every piece is
+  `position: absolute` and `pointer-events: none`: no layout shift, no tap caught, nothing in the server HTML changes
+  but two class names, so titles, metadata and structured data are untouched. Favicons and share images are unchanged.
+- Off switch: `CHRISTMAS_FESTIVE_LAYER` (`lib/season.ts`, the `data-festive` attribute on `<html>`); the Christmas window
+  also ends it on 27 December by itself. Remove after New Year: delete the block and the two classes.
+
+## The Hot 100 sells, not just ranks (2026-11-20)
+
+Reddit link posts land on `/<region>/hot-100`, and those visitors almost never clicked buy (13–19 Nov: MTG's Hot 100 had 0
+buy clickers in 732 visitors; Reddit visitors 2.9% on MTG and 0.7% on Rift, against 23% and 12% from Google; the
+buy-clicks boardroom, move 2). The page now opens with "Shop the top risers", the week's top three as `ProductCard`s,
+and every chart row (`StockRow` with `buy`) opens the quick view on a plain click and shows a Buy button beside its
+cheapest price. The quick view itself is unchanged (the A/B runs to 3 Dec); the rows only link into it. Same data as
+before (`cardsFor`), no new read, caching unchanged. Read on 27 Nov and 4 Dec as buy clickers among visitors with a
+reddit.com referrer; the target is 8% or more.
+
+## One-tap price and restock alerts for anyone signed in (2026-11-20)
+
+As MTG Compare (its DECISIONS.md, 2026-11-19; boardroom: one-tap restock and price-drop alerts, free for all). Signed in with any
+account (free or Premium), the product page's and quick view's alert button is "Alert me under <10% below today's lowest in-stock
+price>": one tap saves it through the account's token (no email field), with "Pick my price" beside it
+(`components/premium/PriceAlert.tsx`, `setPriceWatch`). Back in stock is one tap for free accounts too. Signed out, both are the
+ordinary forms, unchanged. Nothing saves or opens by itself. The set page's alert stays the ordinary form.
+
+## 2026-11-20: Type pages get their own price alert
+
+The type pages are among DexCompare's most-read hubs (28 days to 20 Nov: /uk/type/elite-trainer-boxes 573 views,
+/us/type/booster-boxes 534, /ca/type/elite-trainer-boxes 533, /us/type/elite-trainer-boxes 527, /us/type/booster-bundles 469),
+and had no alert at all. As the set pages (2026-11-19), each now draws one prominent "Email me when the <product> drops" button
+above its products (the shared `PriceAlertForm`, opening in place on a tap), for the type's product most likely to earn by the
+home ranking (`rankCards`: demand from `data/demand.json` times stock and price), an open one first, else a sold-out one
+("is in stock at my price") (`lib/type-alert.ts`, `tests/type-alert.test.ts`). The id comes from one `productIdBySlug` read.
+Nothing about the alert service, the feed, the grid or the quick view changes. KPI: `alert_open` / `alert_created` and buy clicks
+on `/<region>/type/*`, read 23 Nov (click guard) and 3 Dec.
+
+## 2026-11-20: A "keep up" strip on the Hot 100 (owned audience)
+
+The Hot 100 is where Reddit posts land, and Reddit visitors rarely buy (about 2.3% click a buy button, against about 19% from
+Google), and a Reddit visitor who does not buy is gone. Under the first buy cards, before the chart, the page now offers two ways
+to come back: the week's biggest price drops by email (the existing weekly email on RiftCompare's shared alert service, kind
+"weekly", double opt-in; this site keeps no address) and the Discord hub through this site's own invite code
+(`components/KeepUpStrip.tsx`). Inline, never a pop-up, no heading, a fixed minimum height so nothing moves. It is not an A/B
+test: it is on for everyone. Measured as `weekly_signup` with placement `hot-100` (an existing event, no new event name) and
+the invite's uses in Discord. The email promises the week's drops, which is what the weekly email sends, not the Hot 100 chart
+itself.
+emblem is a token: rarity T, or a letter number such as E1. Only those are left out now; a card with a plain number stays.
+
+## 2026-11-20 — Black Friday pages: products furthest under their own 30-day price, with a buy button on every line
+
+Code red plan (20 Nov), Cyber Week buy sprint: the season's pages lead with a list a shopper can act on. `lib/real-drops.ts`: a product
+is listed only when its cheapest in-stock price today is 10% or more under the median of its OWN recorded daily prices over the
+last 30 days (today left out), with 14+ recorded days, wrong-listing days (under half the median) left out, no claim when the
+records swing more than 2x, no placeholder prices (9999.99), and a typical price of 20.00 or more. Each line carries the
+cheapest store's buy button (its own link, `offerLink`) and a tagged eBay search, placement `bf-drops`. It replaces the
+"Under their own 30-day typical price" list on the same pages (same idea, no buy button, fewer guards). Copy says "under its
+30-day typical" and "lowest since <date>", never "was", "dropped" or "ever" (BANNED_COPY). Read 3 Dec: `bf-drops` buy clicks
+28 Nov to 1 Dec against the 4 days before. The same file ships on Dex, Rift and OP.
