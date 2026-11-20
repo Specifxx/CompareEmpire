@@ -1673,6 +1673,7 @@ leaves the registry. Their store pages were noindex with no listings, but the UR
 lists the keys and `/<region>/stores/<key>` answers a permanent redirect to that region's store directory, never a 404
 (`tests/retired-stores.test.ts`). Unlike a banned store, a retired one may come back: when it reads live again, add it
 back and take its key off the list. `shipping-rates.json` is the weekly probe's and drops them on its next run.
+
 ## 2026-11-20: The deal feed sends one drop a day
 
 The Discord hub "TCG Deals & Restocks" takes at most three drops a day (the Discord agent's cap, so a nine-member server is not
