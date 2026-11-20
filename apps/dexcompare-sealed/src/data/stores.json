@@ -604,18 +604,6 @@
     ]
   },
   {
-    "key": "millenniumcomics",
-    "name": "Millennium Comics",
-    "base": "https://millenniumcomics.com.au",
-    "market": "AU",
-    "platform": "shopify",
-    "country": "AU",
-    "collections": [
-      "tcg-sealed",
-      "pokemon-model-kit"
-    ]
-  },
-  {
     "key": "mintcollectables",
     "name": "Mint Collectables",
     "base": "https://mintcollectables.com.au",
@@ -624,18 +612,6 @@
     "country": "AU",
     "collections": [
       "pokemon"
-    ]
-  },
-  {
-    "key": "obsessiongaming",
-    "name": "Obsession Gaming",
-    "base": "https://obsessiongaming.com.au",
-    "market": "AU",
-    "platform": "shopify",
-    "country": "AU",
-    "collections": [
-      "pokemon-boosters",
-      "pokemon-starter-decks"
     ]
   },
   {
@@ -3906,17 +3882,6 @@
     ]
   },
   {
-    "key": "eldartcg",
-    "name": "Eldar",
-    "base": "https://eldartcg.com",
-    "market": "EU",
-    "platform": "woocommerce",
-    "country": "DE",
-    "collections": [
-      "pokemon"
-    ]
-  },
-  {
     "key": "elduelista",
     "name": "El Duelista",
     "base": "https://www.elduelista.com",
@@ -4273,17 +4238,6 @@
     "country": "ES",
     "collections": [
       "pokemon-tcg"
-    ]
-  },
-  {
-    "key": "industria61",
-    "name": "INDUSTRIA 61",
-    "base": "https://industria61.com",
-    "market": "EU",
-    "platform": "woocommerce",
-    "country": "DE",
-    "collections": [
-      "pokemon-2"
     ]
   },
   {
@@ -5263,17 +5217,6 @@
     "collections": [
       "pokemon",
       "pokemon-booster"
-    ]
-  },
-  {
-    "key": "tradingcardgamestore",
-    "name": "TCGStore",
-    "base": "https://tradingcardgamestore.com",
-    "market": "EU",
-    "platform": "woocommerce",
-    "country": "DE",
-    "collections": [
-      "pokemon-tcg"
     ]
   },
   {
@@ -6406,17 +6349,6 @@
     "country": "GB",
     "collections": [
       "pokemon-1"
-    ]
-  },
-  {
-    "key": "kumacards",
-    "name": "Kuma Cards",
-    "base": "https://kumacards.com",
-    "market": "UK",
-    "platform": "shopify",
-    "country": "GB",
-    "collections": [
-      "pokemon"
     ]
   },
   {
@@ -9550,17 +9482,6 @@
     ]
   },
   {
-    "key": "southtexastcg",
-    "name": "South Texas TCG",
-    "base": "https://southtexastcg.com",
-    "market": "US",
-    "platform": "shopify",
-    "country": "US",
-    "collections": [
-      "pokemon-booster-packs"
-    ]
-  },
-  {
     "key": "spankyscardshop",
     "name": "Spanky's Card Shop",
     "base": "https://spankyscardshop.com",
@@ -10030,17 +9951,6 @@
       "pokemon-1",
       "perfect-order-pokemon",
       "chaos-rising-pokemon"
-    ]
-  },
-  {
-    "key": "twinfusecollectibles",
-    "name": "TwinFuse Collectibles",
-    "base": "https://twinfusecollectibles.com",
-    "market": "US",
-    "platform": "shopify",
-    "country": "US",
-    "collections": [
-      "sealed"
     ]
   },
   {

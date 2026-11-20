@@ -1661,3 +1661,15 @@ cheapest store's buy button (its own link, `offerLink`) and a tagged eBay search
 "Under their own 30-day typical price" list on the same pages (same idea, no buy button, fewer guards). Copy says "under its
 30-day typical" and "lowest since <date>", never "was", "dropped" or "ever" (BANNED_COPY). Read 3 Dec: `bf-drops` buy clicks
 28 Nov to 1 Dec against the 4 days before. The same file ships on Dex, Rift and OP.
+
+## 2026-11-20: Eight dead store reads retired, their old pages 301
+
+Eight stores had read nothing for two to four weeks (`StoreStat.lastError` "no products read" or a 429). A probe that day
+(robots, home page, `collections.json` / the Woo Store API) found none recoverable within our rules: Kuma Cards and South
+Texas TCG are behind a password page, Industria 61 and Obsession Gaming answer 403, TCGStore a Cloudflare challenge,
+Millennium Comics 429, Eldar's Store API 400, and TwinFuse's Pokémon collection is empty. Each import still spent a read
+on every one. They leave `src/data/stores.json`; the importer already prunes the rows and the StoreStat of a store that
+leaves the registry. Their store pages were noindex with no listings, but the URLs existed, so `lib/retired-stores.ts`
+lists the keys and `/<region>/stores/<key>` answers a permanent redirect to that region's store directory, never a 404
+(`tests/retired-stores.test.ts`). Unlike a banned store, a retired one may come back: when it reads live again, add it
+back and take its key off the list. `shipping-rates.json` is the weekly probe's and drops them on its next run.
