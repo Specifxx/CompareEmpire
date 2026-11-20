@@ -12,7 +12,12 @@ import { Icon } from "@/components/Icon";
 import { StockFilter } from "@/components/StockFilter";
 import { ProductGrid } from "@/components/ProductGrid";
 import { Empty, Section } from "@/components/Section";
-import { lastCheckedAt, marketsWithType } from "@/lib/data";
+import { PriceAlertForm } from "@/components/PriceAlertForm";
+import { ALERT_SITE_KEY } from "@/lib/alert-feed";
+import { cardOpen } from "@/lib/compact";
+import { lastCheckedAt, marketsWithType, productIdBySlug } from "@/lib/data";
+import { rankCards } from "@/lib/home-demand";
+import { typeAlertLabel, typeAlertPick } from "@/lib/type-alert";
 import { gridPageHasRoomForFooter } from "@/lib/ebay-ads";
 import { money, plural, timeAgo } from "@/lib/format";
 import { dealsAnchor, shortDate, titleText, typeDescription, typeMsrpFact, typeName, typePacksFact, typePerPackRows, typeTitle } from "@/lib/hub-copy";
@@ -73,6 +78,9 @@ export default async function TypePage({ params }: { params: { region: string; t
   const tcgOnly = r.market === "US" ? noStore : 0;
   const byStores = total - tcgOnly;
   const name = typeName(t);
+  // One price alert, for the type's product most likely to earn (lib/type-alert.ts, 2026-11-20).
+  const watch = typeAlertPick(open, sold, (xs) => rankCards(xs));
+  const watchId = watch ? await productIdBySlug(watch.slug).catch(() => null) : null;
   const from = open[0]?.lowestPriceCents ?? null;
   const path = `/${r.region}/type/${t.slug}`;
   const seeAll = `/${r.region}/sealed?type=${t.slug}&stock=in`;
@@ -131,6 +139,25 @@ export default async function TypePage({ params }: { params: { region: string; t
           </>
         )}
       </p>
+
+      {watch && watchId && (
+        // A button in the server HTML; the form opens in place on a tap, never by itself (as on the set and product pages).
+        <div className="mt-4 max-w-md">
+          <PriceAlertForm
+            site={ALERT_SITE_KEY}
+            productId={watchId}
+            region={r.market}
+            priceCents={cardOpen(watch) ? watch.lowestPriceCents : null}
+            buttonClassName="btn-ghost min-h-11"
+            prominent
+            summary={typeAlertLabel(watch)}
+          />
+          <p className="mt-1.5 text-xs text-muted">
+            For the {watch.name}
+            {cardOpen(watch) && watch.lowestPriceCents != null ? `, ${money(watch.lowestPriceCents, r.market)} at the cheapest ${r.adjective} listing today` : ""}. Free, no account.
+          </p>
+        </div>
+      )}
 
       <nav aria-label="Other product types" className="mt-5">
         {/* One row that scrolls sideways at every width: a wrapping row changes its line count when the web font arrives. */}
