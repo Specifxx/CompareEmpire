@@ -1619,3 +1619,11 @@ and every chart row (`StockRow` with `buy`) opens the quick view on a plain clic
 cheapest price. The quick view itself is unchanged (the A/B runs to 3 Dec); the rows only link into it. Same data as
 before (`cardsFor`), no new read, caching unchanged. Read on 27 Nov and 4 Dec as buy clickers among visitors with a
 reddit.com referrer; the target is 8% or more.
+
+## One-tap price and restock alerts for anyone signed in (2026-11-20)
+
+As MTG Compare (its DECISIONS.md, 2026-11-19; boardroom: one-tap restock and price-drop alerts, free for all). Signed in with any
+account (free or Premium), the product page's and quick view's alert button is "Alert me under <10% below today's lowest in-stock
+price>": one tap saves it through the account's token (no email field), with "Pick my price" beside it
+(`components/premium/PriceAlert.tsx`, `setPriceWatch`). Back in stock is one tap for free accounts too. Signed out, both are the
+ordinary forms, unchanged. Nothing saves or opens by itself. The set page's alert stays the ordinary form.
