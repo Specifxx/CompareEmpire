@@ -109,3 +109,10 @@ test("one drop a day: one message per run, at most one run a UTC day posts, ever
   assert.equal((src.match(/await send\(cfg\.discordWebhook/g) ?? []).length, 1, "one Discord send a run, outside any loop");
   assert.doesNotMatch(src, /for \(const e of posts\)/);
 });
+
+test("Telegram: the bot token alone posts to the family channel t.me/tcgdealsrestocks", () => {
+  const c = feedConfig({ FEED_ENABLED: "1", TELEGRAM_BOT_TOKEN: "t" });
+  assert.equal(c.enabled, true);
+  assert.deepEqual(c.telegram, { token: "t", chatId: "@tcgdealsrestocks" });
+  assert.equal(feedConfig({ FEED_ENABLED: "1" }).telegram, null, "no token, no Telegram");
+});

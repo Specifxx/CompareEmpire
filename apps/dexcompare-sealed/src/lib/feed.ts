@@ -23,6 +23,8 @@ import { SITE_URL } from "./site";
 export const FEED_STATE_FILE = "feed-state.json";
 export const COOLDOWN_DAYS = 7;
 export const MAX_POSTS = 6;
+/** The Telegram channel the drop also goes to when TELEGRAM_BOT_TOKEN is set. */
+export const TELEGRAM_CHANNEL = "@tcgdealsrestocks";
 /** The product types a restock is worth a post for (the headline ones). */
 export const RESTOCK_TYPES = ["Booster Box", "Elite Trainer Box", "Booster Bundle", "Pokémon Center Elite Trainer Box", "Ultra-Premium Collection"];
 
@@ -77,7 +79,8 @@ export function feedConfig(env: Record<string, string | undefined>): FeedConfig 
     .filter((m): m is NonNullable<typeof m> => !!m);
   const discord = env.DISCORD_WEBHOOK_URL?.trim() || null;
   const tgToken = env.TELEGRAM_BOT_TOKEN?.trim();
-  const tgChat = env.TELEGRAM_CHAT_ID?.trim();
+  // the family's one Telegram channel (t.me/tcgdealsrestocks, 2026-11-21) unless a variable names another
+  const tgChat = env.TELEGRAM_CHAT_ID?.trim() || TELEGRAM_CHANNEL;
   const telegram = tgToken && tgChat ? { token: tgToken, chatId: tgChat } : null;
   const max = Number(env.FEED_MAX_POSTS);
   return {
