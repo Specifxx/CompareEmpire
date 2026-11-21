@@ -44,6 +44,7 @@ export const PLACEMENTS = [
   "tcgplayer-strip-dock", // every page with the rails, narrow screens only: the phone dock's TCGplayer half (components/AdDock.tsx, owner, 2026-11-06)
   "tcgplayer-strip-inline", // the in-page ad block (components/InlineAds.tsx, owner 2026-11-13): its TCGplayer tiles and links
   "tcgplayer-bf-strip", // product page: the Black Friday strip's labelled TCGplayer link (components/BlackFridayStrip.tsx, 2026-11-21, to 1 Dec)
+  "tcgplayer-cyber-banner", // product page under the table, and /black-friday and /cyber-monday: TCGplayer's Cyber Weekend banner (components/TcgplayerCyberBanner.tsx, 24 Nov to 1 Dec 2026)
   "tcgplayer-bf-page", // /black-friday and /cyber-monday: the "Ad" card of TCGplayer sealed searches (components/TcgplayerSaleBlock.tsx, 2026-11-21, to 1 Dec)
   "tcgplayer-strip-quickview", // a product card's quick view: the small eBay + TCGplayer pair's TCGplayer row (owner, 2026-11-03)
   "header", // the "eBay" item in the site header (desktop nav, xl and up only)
