@@ -1674,6 +1674,26 @@ lists the keys and `/<region>/stores/<key>` answers a permanent redirect to that
 (`tests/retired-stores.test.ts`). Unlike a banned store, a retired one may come back: when it reads live again, add it
 back and take its key off the list. `shipping-rates.json` is the weekly probe's and drops them on its next run.
 
+## 2026-11-19 — Black Friday strip on sealed pages
+
+The owner's board (19 Nov): ride Black Friday on the pages we already have, no new URLs. Every product page with an in-stock
+price shows one short card under the best price, through 1 Dec (`lib/bf-strip.ts`, `BlackFridayStrip.tsx`, labelled by
+`saleStrip`: Black Friday, then Cyber Monday): the cheapest price today and where, that store's measured shipping (`shippingCell`,
+only when measured), when that price was read, the pre-order date, and where today's price sits against the product's own
+recorded history. The history cue needs 14 priced days in the last 90; it says "Lowest price in 90 days" only when the
+recorded prices reach back 90 days, otherwise "Lowest price since <first day>"; a price that never moved says "Same price since <first day>" (no low claimed), and
+above the low it gives the window's real low and its day. A day under half the window's median is a wrong listing and never the low; a window
+whose prices (or today's against them) differ by more than 2x gets no cue at all. Never a
+"was" price, "lowest ever", a countdown or a link; no new read, no eBay call; the quick view (its A/B runs to 3 Dec) and the
+phone strip ad are untouched. Same strip on MTG Compare, RiftCompare and OP Compare. Judge on buy clicks per product-page view,
+24 Nov to 1 Dec against 10 to 17 Nov.
+
+Amended 2026-11-21 (partner terms): TCGplayer's commission rises with a calendar month's sales, so Cyber Weekend sales through us
+also lift the month's rate. The strip gains ONE link, on its own line under the facts: an "Ad"-labelled, tagged TCGplayer search
+for the product ("See Black Friday prices on TCGplayer", placement `tcgplayer-bf-strip`). It claims no price and no deal, ranks
+nothing, and never takes the cheapest badge; the rows below stay sorted by price. Counted in the 3 Dec Cyber Week read. When
+TCGplayer's own Cyber Weekend landing page is available it replaces the search.
+
 ## 2026-11-20: The deal feed sends one drop a day
 
 The Discord hub "TCG Deals & Restocks" takes at most three drops a day (the Discord agent's cap, so a nine-member server is not
