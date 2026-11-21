@@ -33,3 +33,12 @@ test("the type page draws one alert, a button in the server HTML, above the prod
   assert.match(page.slice(page.indexOf("<PriceAlertForm")), /^<PriceAlertForm[^>]*\bprominent\b/s);
   assert.ok(page.indexOf("<PriceAlertForm") < page.indexOf('id="in-stock"'));
 });
+
+test("the Ultra-Premium Collection hub draws one alert per 30th Celebration box, in the featured cards, above the grid", () => {
+  const page = fs.readFileSync("src/app/[region]/ultra-premium-collections/page.tsx", "utf8");
+  assert.equal(page.match(/<PriceAlertForm/g)?.length, 1, "one form, drawn inside the Day / Night map");
+  assert.match(page.slice(page.indexOf("<PriceAlertForm")), /^<PriceAlertForm[^>]*\bprominent\b/s);
+  assert.ok(page.indexOf('id="30th-celebration"') < page.indexOf("<PriceAlertForm"));
+  assert.ok(page.indexOf("<PriceAlertForm") < page.indexOf('id="in-stock"'));
+  assert.equal(typeAlertLabel({ ...p("x", 17999), name: "Day UPC" }), "Email me when the Day UPC drops");
+});
