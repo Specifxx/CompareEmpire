@@ -8268,7 +8268,18 @@
     "platform": "shopify",
     "country": "US",
     "collections": [
-      "elite-trainer-box"
+      "elite-trainer-box",
+      "special-premium-collection-box",
+      "tins",
+      "booster-bundle",
+      "booster-pack"
+    ],
+    "pokemonCollections": [
+      "elite-trainer-box",
+      "special-premium-collection-box",
+      "tins",
+      "booster-bundle",
+      "booster-pack"
     ]
   },
   {
@@ -10337,6 +10348,14 @@
     "platform": "shopify",
     "country": "US",
     "collections": [
+      "sealed-product",
+      "booster-boxes",
+      "etbs",
+      "collection-boxes-tins",
+      "booster-bundle"
+    ],
+    "pokemonCollections": [
+      "sealed-product",
       "booster-boxes",
       "etbs",
       "collection-boxes-tins",
