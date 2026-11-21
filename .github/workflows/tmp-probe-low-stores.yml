@@ -7,28 +7,10 @@ jobs:
   probe:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    defaults: { run: { working-directory: apps/dexcompare-sealed } }
     steps:
-      - run: |
-          UA="DexCompareBot/1.0 (+https://dexcompare.io)"
-          probe() { base=$1; shift
-            echo "=================== $base"
-            curl -s -A "$UA" -m 20 "$base/robots.txt" | grep -i -E "disallow: /(collections|products)" | head -5
-            curl -s -A "$UA" -m 20 "$base/collections.json?limit=250" | jq -r '.collections[]? | "\(.handle)\t\(.products_count)\t\(.title)"' | grep -i -E "pok|sealed|booster|etb|elite|tin|bundle|pre|new|all" | head -40
-            for h in "$@"; do
-              echo "--- collection $h"
-              curl -s -A "$UA" -m 20 "$base/collections/$h/products.json?limit=250" | jq -r '"count \(.products|length)", (.products[]? | "\(.title) | \(.variants[0].price) | \(.variants|map(.available)|any)")' | head -40
-              sleep 1
-            done
-          }
-          probe https://elite4tcg.com booster-boxes etbs
-          probe https://safari-zone.com pokemon
-          probe https://yuudachitcgarena.com pokemon
-          probe https://bluejayscauldron.com pokemon-sealed
-          probe https://immaculatetcg.com elite-trainer-box
-          probe https://tothetable.game sealed
-          probe https://sparkstradingcards.com pokemon
-          probe https://fusiongamingonline.com pokemon-all-sealed
-          probe https://generalgames.com.au pokemon-1
-          probe https://ohanagiochi.com pokemon
-          probe https://thecgrealm.com pokemon-sealed
-          probe https://prospernz.com pokemon-new
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npx tsx scripts/tmp-why.ts
