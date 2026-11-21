@@ -41,6 +41,7 @@ import * as giftXmas from "./pokemon-tcg-christmas-gift-guide";
 import * as beginners from "./best-pokemon-tcg-product-for-beginners";
 import * as g_flowing_fists_mega_lucario_z from "./flowing-fists-mega-lucario-z";
 import * as g_30th_celebration_chase_cards from "./30th-celebration-chase-cards";
+import * as g_30th_celebration_price_per_pack from "./30th-celebration-price-per-pack";
 import * as g_chaos_rising_chase_cards from "./chaos-rising-chase-cards";
 import * as g_perfect_order_chase_cards from "./perfect-order-chase-cards";
 import * as g_ascended_heroes_chase_cards from "./ascended-heroes-chase-cards";
@@ -88,6 +89,7 @@ export const GUIDE_MODULES: Record<GuideSlug, GuideModule> = {
   "best-pokemon-tcg-product-for-beginners": beginners,
   "flowing-fists-mega-lucario-z": g_flowing_fists_mega_lucario_z,
   "30th-celebration-chase-cards": g_30th_celebration_chase_cards,
+  "30th-celebration-price-per-pack": g_30th_celebration_price_per_pack,
   "chaos-rising-chase-cards": g_chaos_rising_chase_cards,
   "perfect-order-chase-cards": g_perfect_order_chase_cards,
   "ascended-heroes-chase-cards": g_ascended_heroes_chase_cards,

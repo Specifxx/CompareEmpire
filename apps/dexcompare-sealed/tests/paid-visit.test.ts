@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { hasMark, paidMarkFor, tagHref } from "../src/lib/paid-visit";
+import { creatorMarkFor, hasMark, paidMarkFor, tagHref, visitMarkFor } from "../src/lib/paid-visit";
+import { withVisitMark } from "../src/lib/go";
 
 // The 2026-11-14 Meta tests: a paid visit's affiliate clicks carry `fbad` in their sub-id,
 // so the earnings dashboard can sum what each ad earned (lib/paid-visit.ts).
@@ -41,4 +42,21 @@ test("hasMark matches whole segments only", () => {
   assert.ok(hasMark("rc-us-ebay-fbad", "fbad"));
   assert.ok(hasMark("cyberpunk-us-fbad-card-12", "fbad"));
   assert.ok(!hasMark("rc-us-fbadge", "fbad"));
+});
+
+// Pay-per-click creators (owner, 2026-11-20): a creator's link tags its visitors' sales too, and /go carries the marker into
+// the TCGplayer (Impact) URL it redirects to.
+
+test("a creator landing gets cr + six letters of its campaign; a paid ad still wins", () => {
+  assert.equal(creatorMarkFor("?utm_source=instagram&utm_medium=creator&utm_campaign=pokechamp__"), "crpokech");
+  assert.equal(creatorMarkFor("?utm_source=instagram&utm_medium=social&utm_campaign=pokechamp"), null);
+  assert.equal(visitMarkFor("?utm_source=facebook&utm_medium=paid"), "fbad");
+});
+
+test("/go adds the visit's marker to the Impact sub-ids and nothing else", () => {
+  const tcg = "https://partner.tcgplayer.com/c/7385758/1780961/21018?subId1=dex-us-product&sharedid=dex-us-product&u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F1";
+  assert.equal(withVisitMark(tcg, "crpokech"), tcg.replace(/dex-us-product/g, "dex-us-product-crpokech"));
+  assert.equal(withVisitMark(tcg, null), tcg);
+  assert.equal(withVisitMark(tcg, "<script>"), tcg, "only a marker-shaped value");
+  assert.equal(withVisitMark("https://shop.example.com/p/1", "fbad"), "https://shop.example.com/p/1");
 });

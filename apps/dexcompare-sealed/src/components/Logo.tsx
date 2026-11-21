@@ -26,7 +26,7 @@ export function BallParts() {
 
 export function LogoMark({ className = "h-8 w-8" }: { className?: string }) {
   return (
-    <span className="relative inline-flex shrink-0">
+    <span className="relative inline-flex shrink-0 xmas-cap">
       <svg viewBox="0 0 64 64" className={className} aria-hidden="true">
         <BallParts />
       </svg>

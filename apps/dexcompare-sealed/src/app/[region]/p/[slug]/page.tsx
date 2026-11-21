@@ -1,4 +1,6 @@
 import { Flag } from "@/components/Flag";
+import { DiscordCta } from "@/components/DiscordCta";
+import { DISCORD_INVITE } from "@/lib/site";
 import { barcodeOf, tcgplayerIdOf } from "@/lib/barcodes";
 import { gtinLabel } from "@/lib/gtin";
 import Link from "next/link";
@@ -21,7 +23,7 @@ import { OfferTable } from "@/components/OfferTable";
 import { amazonLiveFor } from "@/lib/amazon-live";
 import { amazonCarries } from "@/lib/amazon";
 import { ReportPrice } from "@/components/ReportForms";
-import { PriceAlertForm } from "@/components/PriceAlertForm";
+import { PriceAlert } from "@/components/premium/PriceAlert";
 import { RestockAlert } from "@/components/premium/RestockAlert";
 import { ALERT_SITE_KEY } from "@/lib/alert-feed";
 import { ProductGrid } from "@/components/ProductGrid";
@@ -470,6 +472,7 @@ export default async function ProductPage({ params }: { params: { region: string
             checkedInitial: best.lastSeen ? timeAgo(best.lastSeen, now) : "",
             preorder: pre && set ? releaseChip(set.releaseDate, true) : null,
             cue: cue ? { text: lowCueText(cue, (c) => money(c, r.market), today), lowest: cue.kind === "lowest" } : null,
+            tcgplayerHref: tcgplayerSearchUrl(p.name, r.region, "tcgplayer-bf-strip"),
           };
         })()
       : null;
@@ -674,7 +677,7 @@ export default async function ProductPage({ params }: { params: { region: string
           {/* The price alert, under the best price where people look (2026-11-12: it was a text link under the whole table and the
               service held no alerts). RiftCompare's shared alert service emails when it drops (lib/alert-feed.ts, DECISIONS.md 2026-11-02).
               A button in the server HTML; the form opens in place on a tap, never by itself. */}
-          <PriceAlertForm
+          <PriceAlert
             site={ALERT_SITE_KEY}
             productId={p.id}
             region={r.market}
@@ -755,6 +758,9 @@ export default async function ProductPage({ params }: { params: { region: string
             />
         </div>
       )}
+
+      {/* The Discord hub, under the price table (owner, 2026-11-20): this site's own invite, with the reason to join. */}
+      <DiscordCta href={DISCORD_INVITE} className="mt-6" />
 
       {!best && alternatives.length > 0 && (
         <Section id="instead" title="In stock instead" href={typeLink.href} linkLabel="See all">

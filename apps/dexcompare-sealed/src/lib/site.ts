@@ -27,6 +27,9 @@ export const OPERATOR = process.env.NEXT_PUBLIC_OPERATOR?.trim() || SITE_NAME;
 // Public profiles for Organization.sameAs (an X account, a Bluesky handle…).
 // Empty until there are any: an empty list is left out of the JSON-LD.
 export const SOCIAL_LINKS: string[] = [];
+// This site's own never-expiring invite to the family's Discord hub "TCG Deals & Restocks" (lands in #pokemon-deals, the
+// DexCompare deal feed), so the server's Invites list counts the members DexCompare brings (owner, 2026-11-20).
+export const DISCORD_INVITE = "https://discord.gg/n6nc7EQH2D";
 
 // The site's sections under /<region>, as the header's nav, the phone menu and the footer link to them: one list of paths,
 // so the three never disagree. Labels differ by place ("Stores" in the nav, "Where to buy" in the menu) and live there.

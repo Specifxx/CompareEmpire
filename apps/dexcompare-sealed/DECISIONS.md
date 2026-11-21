@@ -1480,6 +1480,200 @@ row that holds an eBay button eBay blue with a blue edge. Shape and colour only:
 only when it is), no position change, no extra eBay API call, white on #0064d2 passes contrast. Run on Rift, Dex, MTG and OP. Read
 3 Dec: eBay buy clicks per arm, total buy clicks per arm as the check; keep the winner and roll it out to the other card sites.
 
+## 2026-11-19: Sign in is a filled button at every width, and the sign-in flow never names another site
+
+Owner, 2026-11-19: "there should be a login or sign up button, very visible for new … or non-logged in users … I don't want them to
+redirect. I don't want the [RiftCompare] logo to appear on any of the site signups."
+
+- Signed out, the header's account link is a filled button in the site's own colour reading "Sign in" from 340px wide (the icon alone
+  below that). Every header was measured at 360, 390, 430, 768, 1024, 1280, 1440 and 1536px: the button is on screen with no
+  sideways scroll at each. Where the row was full, other items stepped aside (the Premium pill, a sections row or a sponsored link
+  move to a wider breakpoint; the menu carries them), never Sign in.
+- Copy on the sign-in, account, Premium, watches, alert and privacy pages says "our shared alert service" and "all our price
+  comparison sites", never the name of the site that runs the shared account service.
+- `next.config.js` rewrites `/account-service/alerts/(confirm|manage|unsubscribe)` and `/account-service/oauth/(google|discord)[/callback]`
+  to the shared service, so alert emails and (once the owner registers the redirect addresses) Google and Discord sign-in keep the
+  visitor on this site's own address. A rewrite is not a redirect: the address bar never changes.
+## 2026-11-19 — A tag lint that stops the build
+
+From the 19 Nov boardroom review, on the four money sites: paid rows always there, and never untagged. The product page's
+Marketplaces panel already draws eBay and TCGplayer in every region (a listing or price when there is one, else each one's tagged
+search; TCGplayer steps aside only in the US when it is already the best-price button above). New: `scripts/tag-lint.ts` runs first in
+`npm run build` (`src/lib/tag-lint.ts`, `tests/tag-lint.test.ts`). Every eBay builder in every region and placement must carry campaign
+5339155912 and a customid, every TCGplayer link must go through Impact (/out/tcgplayer), an eBay listing without our campaign must be
+refused by `listingHref`, and no component may hard-code a bare eBay or TCGplayer href. A failure stops the release: a paid link going
+out untagged costs more than a late one.
+
+## 2026-11-19: [urgent] needs eight hours too: a network ceiling of 57 builds a day
+
+[urgent] in a commit subject used to skip the 12-hour gap altogether. On 17 and 18 Nov the network built production 94
+and 137 times a day, almost all of them [urgent] (about eight builds per site per day), and Vercel reached $10.27 a day
+against the $6 cap: every build rewrites the ISR cache and burns build CPU. `scripts/vercel-ignore-build.sh` now builds an
+[urgent] commit only when production last built at least `URGENT_MIN_GAP_HOURS` (8) ago; a plain [deploy] still waits 12.
+So one site builds at most three times a day, and the 19 production projects at most 57 a day (normally about 25).
+Batch urgent changes into one release instead of one per merge. Pinned by `tests/deploy-gap.test.ts`. The same change
+went to every Compare site's gate.
+
+## Amazon API allowance: mostly ScentCompare, card sites at zero (owner, 2026-11-19)
+
+Amazon's Creators API limit is per Associates account (one a country), shared by every site on it: 1 call a second and
+8,640 a day for the first 30 days (the US until about 8 Dec 2026), then 1 a day per US$0.05 of shipped revenue the API
+referred in 30 days. The owner: "be very frugal", no Amazon calls for card sites ("people aren't buying on Amazon"), and
+half or more for ScentCompare, the best performer. Each site's daily calls (environment variables can only lower them):
+
+| Site | searchItems a day (US / other) | getItems at build (US / other) |
+|---|---|---|
+| ScentCompare | 2,000 / 600 | 200 / 100 |
+| KaeYoung | 600 / 300 | 100 / 60 |
+| DexCompare | 300 | 30 |
+| MTG Compare, WargameCompare | 100 | 20 |
+| Compare Empire | 100 | 30 |
+| CamCompare | 150 (AU only) | about 30 (AU only) |
+| Rift, OP, YGO, Lorcana, Cyberpunk, Gundam (and kits), Bandai, SportsCardCompare, TCG Prices, Figure, Motor | 0 | 0 |
+
+US total at most about 3,600 calls a day (ScentCompare about 61%, ScentCompare and KaeYoung together about 81%), against
+8,640 until about 8 Dec 2026 and a revenue-based limit after it (1 a day per US$0.05 of API-referred shipped revenue).
+
+Here the defaults are lowered to this table's numbers. Amazon clicks here were real before 13 Nov, so a small share stays.
+
+## 2026-11-19: Set pages get their own price alert
+
+The set pages are among DexCompare's most-read pages (28 days to 19 Nov: /ca/sets/delta-reign 995 views, /uk/sets/30th-celebration
+752, /uk/sets/delta-reign 747), and the only alert on them was the weekly-drops box at the foot: a visitor had to open a product
+first to set a price alert. Each set page now draws one prominent "Email me when the <set> booster box drops" button under the
+hero (the same shared `PriceAlertForm` as the product page, opening in place on a tap), for the set's booster box, else its Elite
+Trainer Box, else its booster bundle; within the type a product a store has open first, then the cheapest (`lib/set-alert.ts`,
+`tests/set-alert.test.ts`). A set with none of the three gets no button. The id comes from one `productIdBySlug` read (one row,
+one column). Nothing about the alert service, the feed or the quick view changes. KPI: `alert_open` / `alert_created` events
+on set pages, read 3 Dec.
+
+## 2026-11-20: Creator links tag their visitors' sales, and /go passes the marker into TCGplayer's link
+
+The owner approved paid creators (2026-11-20): up to A$300 a month, paid only per tracked buy click or code, cut on day 21 unless
+their visitors earned 1.5x what they were paid. The ledger lives on RiftCompare's earnings dashboard ("Paid creators",
+`Specifxx/TCGEmpire` `lib/earnings/creator-deals.ts`); this app only has to make a creator's sales traceable.
+
+- `lib/paid-visit.ts` (the same file as RiftCompare's): a landing with `utm_medium=creator&utm_campaign=<handle>` stores the
+  marker `cr` + the first six letters or digits of the handle and adds it to every affiliate sub-id the visitor opens, like the
+  ad tests' `fbad`. A paid ad landing still wins.
+- `/go` now honours `ad=<marker>` (`withVisitMark` in `lib/go.ts`): the tagger rewrites a `/go?u=…` link to carry `&ad=`, but
+  the route ignored it, so a tagged visit's TCGplayer clicks reached Impact untagged (the November Meta tests lost those). Only
+  the Impact URL's sub-id values change, so the host check (`goAllowed`) is unaffected.
+- Buy clicks per creator were already counted (`campaign_buy`, `lib/campaign.ts`, 2026-11-18).
+
+## The Hot 100's share card is the chart itself, with photos (2026-11-20)
+
+The owner's Rift Compare "rising cards" snapshot posts get about 2,000 Reddit views a day each, and he posts only a link and a
+title: the link's thumbnail carries the post. DexCompare's Hot 100 card was text only (the week, the count, the #1 rise), so a Reddit
+link post showed nothing a reader would stop for. `/og/hot-100/<region>` now draws the chart: the #1 riser large with its
+photo, #2 to #6 beside it with their photos, each with its real 7-day rise, last week's and today's cheapest in-stock price
+and its store count, all from `lib/hot100.ts` and the product files, the same rows the page lists.
+
+The photos are TCGplayer's (asked at 200 px) and the stores' own Shopify files (asked at 300 px), fetched when the card is
+drawn with a six-second timeout each, and kept only as PNG or JPEG (satori draws nothing else); a photo that fails is a plain
+tile. Because it reads the product files the route is no longer prerendered: it is `force-dynamic` and kept by Vercel's CDN
+for a day, like `/og/p` (one render per region a day). The page's og:image carries the week (`?w=<through>`), so a link
+posted after a release is never shown last week's picture from a cache.
+
+## 2026-11-20: A "Join the Discord" box with a reason, linking the family's one hub
+
+The owner asked why the Discord had 9 members after five months: the only link anywhere went (from RiftCompare's menu) to
+a server the owner does not run, with two empty channels and no reason to join. The family now has ONE hub, the owner's
+server "TCG Deals & Restocks" (the sealed restock and price-drop feeds on top, a channel per game). This site links its
+own never-expiring invite code, so the server's Invites list counts the members each site brings with no tracking of
+ours. `DiscordCta` ("Restock and deal alerts, free on Discord") sits under the price table on the product page and
+in the footer: never above a price, never a pop-up. `tests/discord-cta.test.ts`.
+
+
+## 2026-11-20: The Hot 100 share card shows rises AND drops (owner)
+
+A Reddit reply to a Hot 100 link post asked for "the biggest drops. I just want to rip and play"; the owner: every snapshot
+thumbnail is half biggest rises, half biggest drops. `/og/hot-100/<region>` (`lib/og/hot100-card.tsx`) now draws the week's
+three biggest rises beside its three biggest drops, each with its photo, change and two prices; the page lists up to 20 drops under
+the chart ("Biggest drops this week"). `hotDrops` in `lib/hot100.ts` is the Hot 100's own rules mirrored (2+ stores in stock both
+days, a fall of 1% or more and under the 50% misfiled-listing cap, the same seven days), from the same history; nothing new is read.
+The og:image query gained `&v=2` so a cached rises-only picture is never served for the new one. No ▲/▼ glyphs on the card: the
+bundled font lacks them. `tests/hot100.test.ts`.
+
+## 2026-11-20: A Santa hat on the logo and lights under the header
+
+**Owner, 2026-11-20:** "change the logo for all of our websites so that it's Christmas themed now. Put a Santa hat on top
+of the logos … and add some decorations here and there, like some Christmas lights … and yeah, Santa Claus." The owner
+asked for hats and lights by name, so they come back after the 2026-11-08 tone-down, kept to the header.
+
+- The logo mark wears a Santa hat (class `xmas-cap` on its wrapper), a string of lights hangs under the sticky header
+  (`xmas-garland`), and the home page's gift-guide line, where there is one, gets a small Santa. All of it is the
+  `xmas-logo` block in `globals.css`, the same block on every Compare site (RiftCompare's DECISIONS has the history).
+- CSS only: three inline SVG data URIs (~2.5 KB of stylesheet), no request, no script, no animation. Every piece is
+  `position: absolute` and `pointer-events: none`: no layout shift, no tap caught, nothing in the server HTML changes
+  but two class names, so titles, metadata and structured data are untouched. Favicons and share images are unchanged.
+- Off switch: `CHRISTMAS_FESTIVE_LAYER` (`lib/season.ts`, the `data-festive` attribute on `<html>`); the Christmas window
+  also ends it on 27 December by itself. Remove after New Year: delete the block and the two classes.
+
+## The Hot 100 sells, not just ranks (2026-11-20)
+
+Reddit link posts land on `/<region>/hot-100`, and those visitors almost never clicked buy (13–19 Nov: MTG's Hot 100 had 0
+buy clickers in 732 visitors; Reddit visitors 2.9% on MTG and 0.7% on Rift, against 23% and 12% from Google; the
+buy-clicks boardroom, move 2). The page now opens with "Shop the top risers", the week's top three as `ProductCard`s,
+and every chart row (`StockRow` with `buy`) opens the quick view on a plain click and shows a Buy button beside its
+cheapest price. The quick view itself is unchanged (the A/B runs to 3 Dec); the rows only link into it. Same data as
+before (`cardsFor`), no new read, caching unchanged. Read on 27 Nov and 4 Dec as buy clickers among visitors with a
+reddit.com referrer; the target is 8% or more.
+
+## One-tap price and restock alerts for anyone signed in (2026-11-20)
+
+As MTG Compare (its DECISIONS.md, 2026-11-19; boardroom: one-tap restock and price-drop alerts, free for all). Signed in with any
+account (free or Premium), the product page's and quick view's alert button is "Alert me under <10% below today's lowest in-stock
+price>": one tap saves it through the account's token (no email field), with "Pick my price" beside it
+(`components/premium/PriceAlert.tsx`, `setPriceWatch`). Back in stock is one tap for free accounts too. Signed out, both are the
+ordinary forms, unchanged. Nothing saves or opens by itself. The set page's alert stays the ordinary form.
+
+## 2026-11-20: Type pages get their own price alert
+
+The type pages are among DexCompare's most-read hubs (28 days to 20 Nov: /uk/type/elite-trainer-boxes 573 views,
+/us/type/booster-boxes 534, /ca/type/elite-trainer-boxes 533, /us/type/elite-trainer-boxes 527, /us/type/booster-bundles 469),
+and had no alert at all. As the set pages (2026-11-19), each now draws one prominent "Email me when the <product> drops" button
+above its products (the shared `PriceAlertForm`, opening in place on a tap), for the type's product most likely to earn by the
+home ranking (`rankCards`: demand from `data/demand.json` times stock and price), an open one first, else a sold-out one
+("is in stock at my price") (`lib/type-alert.ts`, `tests/type-alert.test.ts`). The id comes from one `productIdBySlug` read.
+Nothing about the alert service, the feed, the grid or the quick view changes. KPI: `alert_open` / `alert_created` and buy clicks
+on `/<region>/type/*`, read 23 Nov (click guard) and 3 Dec.
+
+## 2026-11-20: A "keep up" strip on the Hot 100 (owned audience)
+
+The Hot 100 is where Reddit posts land, and Reddit visitors rarely buy (about 2.3% click a buy button, against about 19% from
+Google), and a Reddit visitor who does not buy is gone. Under the first buy cards, before the chart, the page now offers two ways
+to come back: the week's biggest price drops by email (the existing weekly email on RiftCompare's shared alert service, kind
+"weekly", double opt-in; this site keeps no address) and the Discord hub through this site's own invite code
+(`components/KeepUpStrip.tsx`). Inline, never a pop-up, no heading, a fixed minimum height so nothing moves. It is not an A/B
+test: it is on for everyone. Measured as `weekly_signup` with placement `hot-100` (an existing event, no new event name) and
+the invite's uses in Discord. The email promises the week's drops, which is what the weekly email sends, not the Hot 100 chart
+itself.
+emblem is a token: rarity T, or a letter number such as E1. Only those are left out now; a card with a plain number stays.
+
+## 2026-11-20 — Black Friday pages: products furthest under their own 30-day price, with a buy button on every line
+
+Code red plan (20 Nov), Cyber Week buy sprint: the season's pages lead with a list a shopper can act on. `lib/real-drops.ts`: a product
+is listed only when its cheapest in-stock price today is 10% or more under the median of its OWN recorded daily prices over the
+last 30 days (today left out), with 14+ recorded days, wrong-listing days (under half the median) left out, no claim when the
+records swing more than 2x, no placeholder prices (9999.99), and a typical price of 20.00 or more. Each line carries the
+cheapest store's buy button (its own link, `offerLink`) and a tagged eBay search, placement `bf-drops`. It replaces the
+"Under their own 30-day typical price" list on the same pages (same idea, no buy button, fewer guards). Copy says "under its
+30-day typical" and "lowest since <date>", never "was", "dropped" or "ever" (BANNED_COPY). Read 3 Dec: `bf-drops` buy clicks
+28 Nov to 1 Dec against the 4 days before. The same file ships on Dex, Rift and OP.
+
+## 2026-11-20: Eight dead store reads retired, their old pages 301
+
+Eight stores had read nothing for two to four weeks (`StoreStat.lastError` "no products read" or a 429). A probe that day
+(robots, home page, `collections.json` / the Woo Store API) found none recoverable within our rules: Kuma Cards and South
+Texas TCG are behind a password page, Industria 61 and Obsession Gaming answer 403, TCGStore a Cloudflare challenge,
+Millennium Comics 429, Eldar's Store API 400, and TwinFuse's Pokémon collection is empty. Each import still spent a read
+on every one. They leave `src/data/stores.json`; the importer already prunes the rows and the StoreStat of a store that
+leaves the registry. Their store pages were noindex with no listings, but the URLs existed, so `lib/retired-stores.ts`
+lists the keys and `/<region>/stores/<key>` answers a permanent redirect to that region's store directory, never a 404
+(`tests/retired-stores.test.ts`). Unlike a banned store, a retired one may come back: when it reads live again, add it
+back and take its key off the list. `shipping-rates.json` is the weekly probe's and drops them on its next run.
+
 ## 2026-11-19 — Black Friday strip on sealed pages
 
 The owner's board (19 Nov): ride Black Friday on the pages we already have, no new URLs. Every product page with an in-stock
@@ -1493,3 +1687,9 @@ whose prices (or today's against them) differ by more than 2x gets no cue at all
 "was" price, "lowest ever", a countdown or a link; no new read, no eBay call; the quick view (its A/B runs to 3 Dec) and the
 phone strip ad are untouched. Same strip on MTG Compare, RiftCompare and OP Compare. Judge on buy clicks per product-page view,
 24 Nov to 1 Dec against 10 to 17 Nov.
+
+Amended 2026-11-21 (partner terms): TCGplayer's commission rises with a calendar month's sales, so Cyber Weekend sales through us
+also lift the month's rate. The strip gains ONE link, on its own line under the facts: an "Ad"-labelled, tagged TCGplayer search
+for the product ("See Black Friday prices on TCGplayer", placement `tcgplayer-bf-strip`). It claims no price and no deal, ranks
+nothing, and never takes the cheapest badge; the rows below stay sorted by price. Counted in the 3 Dec Cyber Week read. When
+TCGplayer's own Cyber Weekend landing page is available it replaces the search.
