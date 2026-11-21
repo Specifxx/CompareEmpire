@@ -70,6 +70,25 @@ test("titles in a non-Pokémon collection must say Pokémon", () => {
   assert.deepEqual(rows.map((r) => r.title), ["Pokemon Surging Sparks Booster Box"]);
 });
 
+test("a hand-checked Pokémon-only collection is read like a Pokémon one; another game named outright is still refused", () => {
+  // Real titles from Elite4TCG's "booster-boxes" collection (probed 2026-11-21): the shop drops "Pokémon" from its own names.
+  const products = [
+    prod("a", "Delta Reign Booster Box", [[19000, true]]),
+    prod("b", "Chaos Rising Booster Box", [[17025, true]]),
+    prod("c", "Yu-Gi-Oh! Magnificent Monsters Box", [[2900, true]]),
+    prod("d", "Shard Bugs TCG: Infestation Booster Box", [[6000, true]]),
+    prod("e", "Palworld Legends Awaken Booster Box", [[3800, true]]),
+  ];
+  const read = { handle: "booster-boxes", ok: true, products };
+  assert.deepEqual(rowsFromReads({ ...store, market: "US", country: "US" }, [read]), []);
+  const checked = rowsFromReads({ ...store, market: "US", country: "US", collections: ["booster-boxes"], pokemonCollections: ["booster-boxes"] }, [read]);
+  assert.deepEqual(checked.map((r) => r.identity.groupKey).sort(), ["me4|booster-box", "me6|booster-box"]);
+});
+
+test("pokemonCollections only names collections the store reads", () => {
+  for (const s of STORES) for (const h of s.pokemonCollections ?? []) assert.ok(s.collections.includes(h), `${s.key}: ${h}`);
+});
+
 test("in-stock listings far below the market median are dropped", () => {
   const mk = (key: string, price: number): StoreRead => ({
     store: { ...store, key },

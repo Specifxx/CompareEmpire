@@ -25,6 +25,11 @@ export interface StoreConfig {
   // Non-Pokémon collections (e.g. "pre-orders") are read strictly: a title
   // there must say "Pokémon" outright.
   collections: string[];
+  // Handles from `collections` that hold Pokémon only although the handle doesn't say so ("etbs", "tins" at a store whose
+  // own collection title is "Pokémon Booster Boxes", or that sells nothing else there). Read like a "pokemon" collection:
+  // a title need not say "Pokémon", every other rule still applies (another game named outright is still refused). Set
+  // only after a probe of the collection's own titles found no other game in it (DECISIONS.md, 2026-11-21).
+  pokemonCollections?: string[];
 }
 
 // The independent stores: what every "N stores" claim, the store directory and

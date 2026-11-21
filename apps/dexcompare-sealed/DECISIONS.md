@@ -1702,3 +1702,18 @@ now sends ONE message a run (`dropFor`: a header and each event, kept under Disc
 the first run of a UTC day sends (`FeedState.lastDrop`); the evening run records and posts nothing. An event left out stays
 eligible for the next drop. Every link carries `utm_content=dex-feed-YYYYMMDDHH` so each drop's clicks can be counted. Telegram
 gets the same single message, with link previews off.
+
+## 2026-11-21: Pokémon-only collections a shop doesn't name as such
+
+Some shops sell nothing but Pokémon in a collection whose handle doesn't say so ("etbs", "tins", "booster-boxes") and drop
+"Pokémon" from their own titles ("Delta Reign Booster Box"). Read strictly, as every non-Pokémon handle is, those titles are
+refused, so Elite4TCG (US) listed 1 product of the ~40 it has in stock and Immaculate Trading Cards (US) 2 of ~20.
+`StoreConfig.pokemonCollections` names such handles; the importer reads them like a "pokemon" collection. Every other rule
+still applies: another game named outright is still `not-pokemon` (Yu-Gi-Oh!, Upper Deck), a set the catalogue doesn't know
+is still `no-set` (Shard Bugs, Palworld), Gem Packs read as Japanese. A handle goes in only after a probe of that collection's
+own titles (identify, strict vs not) showed every title the looser read gains is a Pokémon product: done 2026-11-21 for both
+shops (all gains genuine; the other games in Elite4TCG's mixed collections were all refused). `registry-from-probe.ts` keeps
+the list on a refresh while the probe still lists the handle. The probe of the other stores reading 0-2 listings found no
+other case: their listings are pickup-only (Yuudachi TCG Arena, The CG Realm, Sparks Trading Cards: "In-Store Only"),
+Italian-language (Ohana Giochi), toys and plush (General Games), another game filed under "pokemon-tcg" (Just Card Stuff), or
+an empty collection feed (Safari Zone, Prosper NZ, Fusion Gaming), all correctly left out.

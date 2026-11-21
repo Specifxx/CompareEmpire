@@ -46,7 +46,12 @@ for (const r of latest.values()) {
     keys.add(key);
     added++;
   } else updated++;
-  byBase.set(r.base, { key, name: prev?.name ?? r.name, base: r.base, market: r.market, platform: r.platform, country: r.country, collections: r.collections });
+  // A hand-checked Pokémon-only collection (StoreConfig.pokemonCollections) survives a refresh while the probe still lists it.
+  const pokemonCollections = prev?.pokemonCollections?.filter((h) => r.collections.includes(h));
+  byBase.set(r.base, {
+    key, name: prev?.name ?? r.name, base: r.base, market: r.market, platform: r.platform, country: r.country, collections: r.collections,
+    ...(pokemonCollections?.length ? { pokemonCollections } : {}),
+  });
 }
 const out = [...byBase.values()].sort((a, b) => a.market.localeCompare(b.market) || a.key.localeCompare(b.key));
 writeFileSync(path, JSON.stringify(out, null, 2) + "\n");

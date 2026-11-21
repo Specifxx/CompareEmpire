@@ -189,7 +189,7 @@ export function rowsFromReads(store: StoreConfig, reads: CollectionRead[]): Impo
   const best = new Map<string, ImportRow>();
   const seen = new Set<string>();
   for (const r of reads) {
-    const strict = !isPokemonCollection(r.handle) && !r.handle.startsWith("search:");
+    const strict = !isPokemonCollection(r.handle) && !r.handle.startsWith("search:") && !store.pokemonCollections?.includes(r.handle);
     for (const p of r.products) {
       if (seen.has(p.id)) continue;
       seen.add(p.id);
