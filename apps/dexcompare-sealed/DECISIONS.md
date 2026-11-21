@@ -1693,3 +1693,12 @@ also lift the month's rate. The strip gains ONE link, on its own line under the 
 for the product ("See Black Friday prices on TCGplayer", placement `tcgplayer-bf-strip`). It claims no price and no deal, ranks
 nothing, and never takes the cheapest badge; the rows below stay sorted by price. Counted in the 3 Dec Cyber Week read. When
 TCGplayer's own Cyber Weekend landing page is available it replaces the search.
+
+## 2026-11-20: The deal feed sends one drop a day
+
+The Discord hub "TCG Deals & Restocks" takes at most three drops a day (the Discord agent's cap, so a nine-member server is not
+buried in bot posts). The Sealed Sniper (tcgprices.app) takes two, one per run; this feed takes one. So `scripts/feed-notify.ts`
+now sends ONE message a run (`dropFor`: a header and each event, kept under Discord's 2,000 characters, biggest first) and only
+the first run of a UTC day sends (`FeedState.lastDrop`); the evening run records and posts nothing. An event left out stays
+eligible for the next drop. Every link carries `utm_content=dex-feed-YYYYMMDDHH` so each drop's clicks can be counted. Telegram
+gets the same single message, with link previews off.

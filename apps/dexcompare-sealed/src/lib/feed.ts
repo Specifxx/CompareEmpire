@@ -10,7 +10,9 @@
 //   • deal: a product whose cheapest in-stock price is at least 10% under the median of the 3+ stores that have it (lib/deals.ts's rule,
 //     the one every card's badge and the /deals page use), never under half of it.
 // DEDUPE: each (event, market, product) is posted at most once per COOLDOWN_DAYS (data/public/feed-state.json keeps when it was).
-// RATE LIMIT: at most MAX_POSTS messages a run, the biggest first. Messages state facts and link the product page; no urgency words.
+// RATE LIMIT: at most MAX_POSTS events a run, the biggest first, sent as ONE message (a "drop"), and at most one drop a UTC day
+// (DECISIONS.md 2026-11-20: the shared Discord hub takes at most 3 drops a day, two of them the Sealed Sniper's). An event the day's
+// drop already went out without stays eligible for the next one. Messages state facts and link the product page; no urgency words.
 import { DEAL_MAX_RATIO, DEAL_MIN_RATIO, DEAL_MIN_STORES } from "./deals";
 import { money, plural } from "./format";
 import { isHotSet } from "./popular";
@@ -49,6 +51,8 @@ export interface FeedState {
   run: number;
   /** "<kind>|<market>|<slug>" → when it was last posted (UTC day) and the last run it was true in. */
   seen: Record<string, { posted: number; run: number }>;
+  /** The UTC day of the last drop sent (one a day). */
+  lastDrop?: number;
 }
 
 export const emptyFeedState = (): FeedState => ({ v: 2, run: 0, seen: {} });
@@ -122,7 +126,7 @@ export function detectEvents(o: { stats: readonly FeedStat[]; products: Readonly
  * first run (no state yet) posts nothing: it only records what is true now, so the feed starts with changes, not a backlog.
  */
 export function selectPosts(events: readonly FeedEvent[], state: FeedState, today: number, max: number): FeedEvent[] {
-  if (state.run === 0) return [];
+  if (state.run === 0 || state.lastDrop === today) return [];
   const fresh = events.filter((e) => {
     const s = state.seen[eventKey(e)];
     // never posted (an earlier run's limit left it out), or not true last run and out of its cooldown
@@ -144,14 +148,38 @@ export function recordPosts(state: FeedState, events: readonly FeedEvent[], post
   for (const e of posted) seen[eventKey(e)] = { posted: today, run };
   // -Infinity (true now, never posted because the run's limit was reached) is kept as "not posted": it stays eligible next time it becomes true
   for (const v of Object.values(seen)) if (!Number.isFinite(v.posted)) v.posted = -100000;
-  return { v: 2, run, seen };
+  const lastDrop = posted.length ? today : state.lastDrop;
+  return lastDrop == null ? { v: 2, run, seen } : { v: 2, run, seen, lastDrop };
+}
+
+/** A drop's id, "dex-feed-YYYYMMDDHH" (UTC), carried in every link as utm_content so each drop's clicks can be counted. */
+export const feedDropId = (ms: number): string => `dex-feed-${new Date(ms).toISOString().slice(0, 13).replace(/[-T]/g, "")}`;
+
+/** Discord's message limit (Telegram's is larger). */
+export const DROP_MAX_CHARS = 2000;
+
+/**
+ * The run's ONE message: a header line, then each event's message, as many as fit in DROP_MAX_CHARS, biggest first. Returns the
+ * text and the events it holds (the rest are not marked posted, so they stay eligible).
+ */
+export function dropFor(events: readonly FeedEvent[], drop: string): { text: string; events: FeedEvent[] } {
+  const parts: string[] = [];
+  const held: FeedEvent[] = [];
+  const header = (n: number) => `Dex deal drop: ${plural(n, "change")} in today's store prices.`;
+  for (const e of events) {
+    const next = [header(held.length + 1), ...parts, messageFor(e, drop)].join("\n\n");
+    if (next.length > DROP_MAX_CHARS) break;
+    parts.push(messageFor(e, drop));
+    held.push(e);
+  }
+  return { text: held.length ? [header(held.length), ...parts].join("\n\n") : "", events: held };
 }
 
 /** One message, as plain text (Discord and Telegram both take it): what happened, the price, how many stores, the link. */
-export function messageFor(e: FeedEvent): string {
+export function messageFor(e: FeedEvent, drop?: string): string {
   const r = regionOfMarket(e.market)!;
   // tagged so the growth report can count visits from the chat channels (utm convention, 18 Nov 2026)
-  const url = `${SITE_URL}/${r.region}/p/${e.product.slug}?utm_source=chat&utm_medium=social&utm_campaign=dex-feed`;
+  const url = `${SITE_URL}/${r.region}/p/${e.product.slug}?utm_source=chat&utm_medium=social&utm_campaign=dex-feed${drop ? `&utm_content=${drop}` : ""}`;
   if (e.kind === "restock") {
     return `${r.flag} In stock: ${e.product.name}\nNow at ${plural(e.stores, `${r.adjective} store`)}${e.cents != null ? `, from ${money(e.cents, e.market)}` : ""}. None had it at our previous daily check.\n${url}`;
   }
