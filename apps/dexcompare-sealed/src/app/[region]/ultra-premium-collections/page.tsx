@@ -6,13 +6,17 @@ import { Ago } from "@/components/Ago";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { EbayStrip } from "@/components/EbayStrip";
 import { HubFaqSection } from "@/components/HubSummary";
+import { PriceAlertForm } from "@/components/PriceAlertForm";
 import { ProductGrid } from "@/components/ProductGrid";
 import { Section } from "@/components/Section";
 import { whereToBuy } from "@/content/guides/kit";
-import { lastCheckedAt, type ProductCardData } from "@/lib/data";
+import { ALERT_SITE_KEY } from "@/lib/alert-feed";
+import { cardOpen } from "@/lib/compact";
+import { lastCheckedAt, productIdBySlug, type ProductCardData } from "@/lib/data";
 import { money, plural, timeAgo } from "@/lib/format";
 import { titleText } from "@/lib/hub-copy";
 import { typePageData } from "@/lib/hub-data";
+import { typeAlertLabel } from "@/lib/type-alert";
 import { regionOrNotFound } from "@/lib/regions";
 import { UPC_NAMES } from "@/lib/sealed-title";
 import { itemListJsonLd, jsonLd, pageMeta, regionAlternates } from "@/lib/seo";
@@ -99,9 +103,13 @@ export default async function UpcHub({ params }: { params: { region: string } })
     itemListJsonLd({ name: `Pokémon Ultra-Premium Collections in ${r.inName}`, path, items: [...open, ...sold].map((p) => ({ path: `/${r.region}/p/${p.slug}`, name: p.name })) }),
   ];
 
+  // A price alert on each 30th Celebration box (2026-11-21, site loop Job C: the hub is one of Dex's fastest-growing pages,
+  // ~430 views a week across US, EU and UK, and had no alert). Same button as the type and set pages: in the server HTML,
+  // the form opens in place on a tap, never by itself.
+  const [dayId, nightId] = await Promise.all([day, night].map((p) => (p ? productIdBySlug(p.slug).catch(() => null) : Promise.resolve(null))));
   const featured = [
-    { label: "Day", art: "Espeon", p: day, img: "/upc/day.jpg" },
-    { label: "Night", art: "Umbreon", p: night, img: "/upc/night.jpg" },
+    { label: "Day", art: "Espeon", p: day, id: dayId, img: "/upc/day.jpg" },
+    { label: "Night", art: "Umbreon", p: night, id: nightId, img: "/upc/night.jpg" },
   ];
 
   return (
@@ -124,7 +132,7 @@ export default async function UpcHub({ params }: { params: { region: string } })
 
       <Section id="30th-celebration" title="30th Celebration: Day vs Night" kicker="The newest UPCs">
         <div className="grid gap-4 sm:grid-cols-2">
-          {featured.map(({ label, art, p, img }) => (
+          {featured.map(({ label, art, p, id, img }) => (
             <div key={label} className="card overflow-hidden">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={img} alt={`30th Celebration Ultra-Premium Collection, ${label} box with ${art}`} width={814} height={476} loading="lazy" className="aspect-[814/476] w-full object-cover" />
@@ -138,6 +146,18 @@ export default async function UpcHub({ params }: { params: { region: string } })
                   <Link href={`/${r.region}/p/${p.slug}`} prefetch={false} className="btn-primary mt-3 min-h-11 w-full justify-center">
                     Compare {plural(p.listedStores, "store")} →
                   </Link>
+                )}
+                {p && id && (
+                  <PriceAlertForm
+                    site={ALERT_SITE_KEY}
+                    productId={id}
+                    region={r.market}
+                    priceCents={cardOpen(p) ? p.lowestPriceCents : null}
+                    className="mt-2"
+                    buttonClassName="btn-ghost min-h-11 w-full justify-center"
+                    prominent
+                    summary={typeAlertLabel({ ...p, name: `${label} UPC` })}
+                  />
                 )}
               </div>
             </div>
