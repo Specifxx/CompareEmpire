@@ -745,3 +745,11 @@ cheapest price; and "replace the menu with My Collection" on the bottom nav. The
 list, no banner ads, one account; deals and price moves marked free), a Free and Premium table and an FAQ. The bottom nav's Menu tab is
 now Collection (/collection); the header keeps its menu button on phones. Pokémon single cards (and so cards in the collection) still
 wait for the 25 Nov indexing check. No eBay calls.
+
+
+## 2026-11-21: A Cyber Weekend sign-up under the real drops (owned audience)
+
+The Black Friday and Cyber Monday pages carry one sign-up directly under the real-drops block: the weekly drops email (KeepUpStrip,
+placement `black-friday`, email only because the Discord box sits lower on the page) on the sister-alert sites, a free-account
+prompt on the account sites. The weekly email has its own Black Friday (27 Nov) and Cyber Monday (30 Nov) editions on RiftCompare's
+service (TCGEmpire DECISIONS, same day), so a sign-up before 26 Nov gets the Black Friday one. Inline, never a pop-up; real drops only.
