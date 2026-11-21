@@ -1,31 +1,26 @@
-// TEMPORARY (deleted before merge): why does a store's collection give no rows?
-import { readShopifyCollection, isPokemonCollection } from "../src/lib/feeds";
-import { identifyAny } from "../src/lib/sealed-title";
-const jobs: [string, string, string][] = [
-  ["https://yuudachitcgarena.com", "US", "pokemon"],
-  ["https://generalgames.com.au", "AU", "pokemon-tcg"],
-  ["https://generalgames.com.au", "AU", "pokemon-1"],
-  ["https://immaculatetcg.com", "US", "booster-box"],
-  ["https://immaculatetcg.com", "US", "tins"],
-  ["https://immaculatetcg.com", "US", "special-premium-collection-box"],
-  ["https://safari-zone.com", "US", "preorders"],
-  ["https://safari-zone.com", "US", "pokemon-loose-packs"],
-  ["https://justcardstuff.com.au", "AU", "pokemon-tcg"],
-  ["https://ultrarare.com.au", "AU", "pokemon-tcg"],
+// TEMPORARY (deleted before merge): what would a Pokémon-only read of these collections take?
+import { readShopifyCollection } from "../src/lib/feeds";
+import { identifyAny, isIdentity } from "../src/lib/sealed-title";
+import { priceOf } from "../src/lib/importer";
+const jobs: [string, string, string[]][] = [
+  ["https://elite4tcg.com", "US", ["booster-boxes", "etbs", "collection-boxes-tins", "booster-bundle", "new-english-set", "sealed-product"]],
+  ["https://immaculatetcg.com", "US", ["elite-trainer-box", "tins", "special-premium-collection-box", "booster-bundle", "booster-pack", "pre-order", "booster-box"]],
 ];
 (async () => {
-  for (const [base, c, h] of jobs) {
+  for (const [base, c, hs] of jobs) for (const h of hs) {
     const r = await readShopifyCollection(base, h, { country: c, maxPages: 4 });
-    const strict = !isPokemonCollection(h);
     const tally: Record<string, number> = {};
-    const samples: string[] = [];
+    const lines: string[] = [];
     for (const p of r.products) {
-      const id = identifyAny(p.title, { strict });
-      const k = typeof id === "string" ? id : p.pickupOnly ? "pickupOnly" : p.inviteOnly ? "inviteOnly" : !p.variants.some((v) => v.available) ? "ok-soldout" : "OK";
+      const s = identifyAny(p.title, { strict: true });
+      const l = identifyAny(p.title, { strict: false });
+      const priced = isIdentity(l) ? priceOf(p as never, 0) : null;
+      const k = isIdentity(s) ? "strict-ok" : isIdentity(l) ? (priced ? "GAINED" : "gained-unpriced") : `no:${l}`;
       tally[k] = (tally[k] ?? 0) + 1;
-      if (samples.length < 25 && k !== "not-sealed" && k !== "accessory") samples.push(`  [${k}] ${p.title} ${p.variants[0]?.priceCents}`);
+      if (k === "GAINED" || k === "gained-unpriced") lines.push(`  [${k}] ${p.title} => ${(l as { groupKey: string }).groupKey} ${priced?.priceCents} ${priced?.inStock}`);
+      else if (k.startsWith("no:")) lines.push(`  [${k}] ${p.title}`);
     }
-    console.log(`=== ${base} ${h} ok=${r.ok} n=${r.products.length} strict=${strict}`, JSON.stringify(tally));
-    console.log(samples.join("\n"));
+    console.log(`=== ${base} ${h} n=${r.products.length}`, JSON.stringify(tally));
+    console.log(lines.join("\n"));
   }
 })();
