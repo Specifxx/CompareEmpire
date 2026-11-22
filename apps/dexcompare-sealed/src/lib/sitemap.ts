@@ -10,7 +10,7 @@ import { guidesFor } from "../content/guides";
 import { COUNTRY_GUIDE } from "../content/guides/country-prices";
 import { TOOLS, toolRegions } from "../content/tools";
 import { openPreorderGuides } from "./preorder-guides";
-import { REGION_LIST, regionOfMarket, type Region, type RegionInfo } from "./regions";
+import { REGION_LIST, REGIONS, regionOfMarket, type Region, type RegionInfo } from "./regions";
 import { JAPANESE_TYPES, PRODUCT_TYPES } from "./sealed-title";
 import { SETS } from "./sets";
 import { SITE_URL } from "./site";
@@ -25,16 +25,21 @@ export const STATIC_SITEMAP_ID = 0;
 /** Whether each store's own page is listed (off since 2026-11-07; see staticSitemap). */
 export const SITEMAP_STORE_PAGES = false;
 
-/** /sitemap/<id>.xml per region, in REGION_LIST order: au=1, us=2, uk=3, ca=4, nz=5, eu=6, sg=7. */
+/**
+ * /sitemap/<id>.xml per region: au=1, us=2, uk=3, ca=4, nz=5, eu=6, sg=7. Frozen (submitted to Search Console), so it no longer
+ * follows REGION_LIST, which leads with the US since the US-first switch (owner, 2026-11-22).
+ */
+const SITEMAP_REGION_ORDER: readonly Region[] = ["au", "us", "uk", "ca", "nz", "eu", "sg"];
 export function sitemapIdOf(region: Region): number {
-  return REGION_LIST.findIndex((r) => r.region === region) + 1;
+  return SITEMAP_REGION_ORDER.indexOf(region) + 1;
 }
 
 export function regionOfSitemapId(id: number): RegionInfo | null {
-  return REGION_LIST[id - 1] ?? null;
+  const r = SITEMAP_REGION_ORDER[id - 1];
+  return r ? REGIONS[r] : null;
 }
 
-export const SITEMAP_IDS: { id: number }[] = [{ id: STATIC_SITEMAP_ID }, ...REGION_LIST.map((r) => ({ id: sitemapIdOf(r.region) }))];
+export const SITEMAP_IDS: { id: number }[] = [{ id: STATIC_SITEMAP_ID }, ...SITEMAP_REGION_ORDER.map((r) => ({ id: sitemapIdOf(r) }))];
 
 const url = (path: string, lastModified: Date | null | undefined, changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"], priority: number): MetadataRoute.Sitemap[number] => ({
   url: `${SITE_URL}${path}`,
