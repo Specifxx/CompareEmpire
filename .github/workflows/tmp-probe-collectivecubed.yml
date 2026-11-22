@@ -1,0 +1,19 @@
+name: tmp probe collectivecubed
+on:
+  push:
+    branches: [claude/project-thread-gjx9ca]
+    paths: [.github/workflows/tmp-probe-collectivecubed.yml]
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          UA="DexCompareBot/1.0 (+https://dexcompare.io)"
+          for c in pokemon-sealed pokemon-chaos-rising; do
+            echo "=== $c"
+            curl -s -m 30 -A "$UA" -w "\nHTTP %{http_code}\n" "https://collectivecubed.com/collections/$c/products.json?limit=250" -o p.json | tail -1
+            jq -r '.products[] | "\(.title) | type=\(.product_type) | vendor=\(.vendor) | avail=\([.variants[].available]|any) | price=\(.variants[0].price) | tags=\(.tags|tostring|.[0:120])"' p.json | head -160
+          done
+          echo "=== collections"
+          curl -s -m 30 -A "$UA" "https://collectivecubed.com/collections.json?limit=250" | jq -r '.collections[] | "\(.handle) \(.products_count)"' | grep -i -E "pok|seal" 
+          curl -s -m 30 -A "$UA" "https://collectivecubed.com/robots.txt" | head -40
