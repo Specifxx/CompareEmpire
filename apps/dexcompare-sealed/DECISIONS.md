@@ -1757,6 +1757,20 @@ Canadian price, through our referral link, while the site had no page for the ET
 Flowing Fists, the pill's pre-order set, is out in February, so the pill was spending the home page's one link on a set nobody
 is buying yet.
 
+## 2026-11-23: "Share this deal with your group chat" under the best price
+
+A text button under the product page's best price (`components/DropShare.tsx`, `dropText` in `lib/share-link.ts`) copies, or hands
+the phone's share sheet, one line with the cheapest store's real price and name ("Pre-order: " when the set is not out yet) and our
+page's canonical link tagged `utm_source=share&utm_medium=drop`. Shown only when the best price is a store row (never eBay). It is
+a separate component so the share-for-a-deal A/B test on `ShareButton` is untouched; it sends `share { kind: "drop" }` and its
+visits arrive as `share_visit` with medium `drop`.
+
+**Why.** On 22 Nov Cardboard Hero took ten referral orders in 41 minutes for its Delta Reign wave-2 ETB pre-order (CA$89.99, the
+cheapest in Canada here), but only about three came through a click we tracked: the store link had been pasted into a restock
+chat. People share drops anyway; this makes the link they paste ours, so every store is compared and the clicks are counted.
+Owner, 2026-11-23: "how can we capture these restock chats or posts so we can get even more clicks". Read `share` kind `drop`
+and `share_visit` on 25 Nov and 30 Nov; remove it if fewer than 5 shares in a week and buy clicks on product pages fall.
+
 ## 2026-11-23: A real profile page, and sign-in slides inside the one-prompt-a-visit budget
 
 **Decision.** `/account` signed in is now a profile (`components/account/ProfileHub.tsx`): who, Free or Premium, four tiles (the
