@@ -1,0 +1,28 @@
+name: tmp lighthouse probe
+on:
+  push:
+    branches: [claude/project-thread-9mzazm]
+    paths: [.github/workflows/tmp-lighthouse-probe.yml]
+permissions:
+  contents: read
+jobs:
+  lh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: npm i -g lighthouse@12 >/dev/null 2>&1; lighthouse --version
+      - name: run
+        run: |
+          for p in /us /us/p/delta-reign-booster-box /us/sealed /us/hot-100; do
+            for i in 1 2; do
+              lighthouse "https://dexcompare.io$p" --only-categories=performance --chrome-flags="--headless=new --no-sandbox" --output=json --output-path=/tmp/r.json --quiet || true
+              node -e '
+              const r=require("/tmp/r.json");const a=r.audits;
+              console.log("=== '"$p"' run '"$i"' score",Math.round(r.categories.performance.score*100),"LCP",a["largest-contentful-paint"].displayValue,"FCP",a["first-contentful-paint"].displayValue,"TBT",a["total-blocking-time"].displayValue,"CLS",a["cumulative-layout-shift"].displayValue,"SI",a["speed-index"].displayValue);
+              const el=a["largest-contentful-paint-element"];try{console.log("LCP el:",JSON.stringify(el.details.items[0].items[0].node.snippet), JSON.stringify(el.details.items[1]?.items))}catch(e){}
+              for (const k of ["lcp-phases","render-blocking-resources","render-blocking-insight","unused-javascript","bootup-time","mainthread-work-breakdown","total-byte-weight","server-response-time","document-latency-insight","lcp-discovery-insight","third-party-summary","uses-responsive-images","font-display"]) { if(a[k]) console.log(k, a[k].displayValue||"", a[k].score, JSON.stringify((a[k].details?.items||[]).slice(0,6).map(x=>({u:x.url||x.entity||x.groupLabel||x.phase||x.label,w:x.wastedMs||x.duration||x.total||x.timing||x.transferSize||x.wastedBytes}))).slice(0,700)); }
+              '
+            done
+          done
