@@ -165,10 +165,19 @@ export const DROP_MAX_CHARS = 2000;
  * The run's ONE message: a header line, then each event's message, as many as fit in DROP_MAX_CHARS, biggest first. Returns the
  * text and the events it holds (the rest are not marked posted, so they stay eligible).
  */
-export function dropFor(events: readonly FeedEvent[], drop: string): { text: string; events: FeedEvent[] } {
+/** The Chrome extension's launch line (owner's ask via the extension thread, 2026-11-22): under the drop's header for 7 days,
+ * then gone by itself. One text serves Discord and Telegram, so it carries the feed's own utm_source=chat. */
+export const EXTENSION_PROMO_UNTIL = Date.UTC(2026, 10, 29, 12, 0);
+export function extensionPromo(now: number): string | null {
+  if (now >= EXTENSION_PROMO_UNTIL) return null;
+  return "New: our free Chrome extension shows the cheapest store price right on every TCGplayer sealed page, with one click to buy. No account, nothing tracked. https://chromewebstore.google.com/detail/fdhpgledimoadpaokiipficepklogmha?utm_source=chat&utm_medium=social&utm_campaign=extension";
+}
+
+export function dropFor(events: readonly FeedEvent[], drop: string, now = Date.now()): { text: string; events: FeedEvent[] } {
   const parts: string[] = [];
   const held: FeedEvent[] = [];
-  const header = (n: number) => `Dex deal drop: ${plural(n, "change")} in today's store prices.`;
+  const promo = extensionPromo(now);
+  const header = (n: number) => `Dex deal drop: ${plural(n, "change")} in today's store prices.${promo ? `\n${promo}` : ""}`;
   for (const e of events) {
     const next = [header(held.length + 1), ...parts, messageFor(e, drop)].join("\n\n");
     if (next.length > DROP_MAX_CHARS) break;

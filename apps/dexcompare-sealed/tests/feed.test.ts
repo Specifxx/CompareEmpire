@@ -4,7 +4,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { findBannedCopy } from "../src/lib/copy-rules";
-import { detectEvents, DROP_MAX_CHARS, dropFor, emptyFeedState, feedConfig, feedDropId, messageFor, recordPosts, selectPosts, type FeedEvent, type FeedProduct, type FeedStat } from "../src/lib/feed";
+import { detectEvents, DROP_MAX_CHARS, dropFor, EXTENSION_PROMO_UNTIL, emptyFeedState, feedConfig, feedDropId, messageFor, recordPosts, selectPosts, type FeedEvent, type FeedProduct, type FeedStat } from "../src/lib/feed";
 import { dayOf, updatePriceHistory, type PriceHistory } from "../src/lib/price-history";
 
 const T = dayOf("2026-10-22");
@@ -115,4 +115,12 @@ test("Telegram: the bot token alone posts to the family channel t.me/tcgdealsres
   assert.equal(c.enabled, true);
   assert.deepEqual(c.telegram, { token: "t", chatId: "@tcgdealsrestocks" });
   assert.equal(feedConfig({ FEED_ENABLED: "1" }).telegram, null, "no token, no Telegram");
+});
+
+test("the Chrome extension line rides the drop for 7 days, then disappears by itself", () => {
+  const e: FeedEvent = { kind: "deal", market: "AU", product: { slug: "a", name: "Product a", productType: "Booster Box", setCode: "me5" }, stores: 4, cents: 9000, median: 10000, pct: 20 };
+  const during = dropFor([e], "dex-feed-2026112320", Date.UTC(2026, 10, 23, 20, 47)).text;
+  assert.match(during, /^Dex deal drop: 1 change.*\nNew: our free Chrome extension.*utm_campaign=extension/);
+  assert.equal(findBannedCopy(during), null);
+  assert.doesNotMatch(dropFor([e], "dex-feed-2026112920", EXTENSION_PROMO_UNTIL).text, /Chrome/);
 });
