@@ -15,6 +15,11 @@
 // - twinfusecollectibles (US): its Pokémon collection is empty, 3 products in the whole shop, last good read 5 Nov.
 // - obsessiongaming (AU): 403 on every path, last good read 27 Oct.
 // - millenniumcomics (AU): 429 on every path, last good read 1 Nov.
+//
+// Retired 2026-11-22 (Dex site loop), probe of that day:
+// - collectivecubed (US): the shop took down every sealed product (its pokemon-sealed collection 404s, each product URL
+//   we had listed 404s, and its only Pokémon collections left are singles: 0 of 144 products sealed). It listed 176
+//   (165 in stock) until 21 Nov. Add it back if it lists sealed again.
 export const RETIRED_STORES: Readonly<Record<string, "US" | "UK" | "CA" | "AU" | "EU">> = {
   eldartcg: "EU",
   industria61: "EU",
@@ -24,6 +29,7 @@ export const RETIRED_STORES: Readonly<Record<string, "US" | "UK" | "CA" | "AU" |
   twinfusecollectibles: "US",
   obsessiongaming: "AU",
   millenniumcomics: "AU",
+  collectivecubed: "US",
 };
 
 /** Where a retired store's old page goes: its own region's store directory, or null for a key that was never retired. */
