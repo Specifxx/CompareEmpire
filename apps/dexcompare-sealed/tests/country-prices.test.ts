@@ -97,8 +97,9 @@ test("market lines: every market in REGION_LIST order, its cheapest OPEN listing
     lines.map((l) => l.r.region),
     REGION_LIST.map((r) => r.region),
   );
-  assert.equal(lines[0].p?.lowestPriceCents, 33500, "a closed listing (no store, no marketplace) is never the cheapest");
-  assert.equal(lines[0].perPack, perPackCents(33500, packsFor("booster-box", "me6")));
+  const au = lines.find((l) => l.r.region === "au")!;
+  assert.equal(au.p?.lowestPriceCents, 33500, "a closed listing (no store, no marketplace) is never the cheapest");
+  assert.equal(au.perPack, perPackCents(33500, packsFor("booster-box", "me6")));
   assert.equal(lines.find((l) => l.r.region === "uk")!.p, null);
   assert.equal(lines.find((l) => l.r.region === "us")!.p?.lowestPriceCents, 19990);
   // a set with no box anywhere is skipped; the order of the candidates is kept
@@ -110,7 +111,7 @@ test("market lines: every market in REGION_LIST order, its cheapest OPEN listing
 test("the lead sentence is currency-free but for each market's own per-pack price, and never names a cheapest country", () => {
   const lines = marketLines(CARDS, "me6", BOX);
   const s = leadSummary(SET_BY_CODE.get("me6")!, lines, TODAY)!;
-  assert.match(s, /open for pre-order in 5 of the 7 markets we compare \(Australia, the US, Canada, Europe and Singapore\)/);
+  assert.match(s, /open for pre-order in 5 of the 7 markets we compare \(the US, Australia, Canada, Europe and Singapore\)/);
   assert.match(s, /Australia has the most stores with it open \(9\)/);
   for (const l of lines.filter((x) => x.p)) assert.ok(s.includes(`${money(l.perPack, l.r.market)} in ${l.r.inName}`), l.r.region);
   assert.doesNotMatch(s, /cheapest (country|market)|cheaper in/i);
