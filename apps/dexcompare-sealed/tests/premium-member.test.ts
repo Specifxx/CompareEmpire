@@ -26,7 +26,7 @@ test("an emailed link's code is taken from a fragment, and only a three-part cod
 test("sign-in happens on DexCompare (owner, 2026-11-10): no link sends the visitor to RiftCompare to sign in or pay", () => {
   assert.equal(PREMIUM_SERVICE, "https://riftcompare.com");
   assert.equal(PREMIUM_SIGN_IN, "/account");
-  for (const f of ["src/components/premium/PremiumPanel.tsx", "src/components/premium/SignIn.tsx", "src/components/premium/WatchesView.tsx", "src/components/premium/RestockAlert.tsx", "src/components/premium/PremiumCorner.tsx", "src/components/premium/PremiumSlides.tsx"]) {
+  for (const f of ["src/components/premium/PremiumPanel.tsx", "src/components/premium/SignIn.tsx", "src/components/premium/WatchesView.tsx", "src/components/premium/RestockAlert.tsx", "src/components/account/SignInCorner.tsx", "src/components/account/SignInSlides.tsx", "src/components/account/ProfileHub.tsx", "src/components/premium/PremiumSlides.tsx"]) {
     assert.doesNotMatch(read(f), /href=["{`][^"}`]*riftcompare\.com/, f);
   }
   assert.match(read("src/app/(site)/account/page.tsx"), /index: false/);

@@ -8,7 +8,7 @@ import { QuickView } from "@/components/QuickView";
 import { ReturnNudge } from "@/components/ReturnNudge";
 import { BottomNav } from "@/components/BottomNav";
 import { RateCard } from "@/components/site-reviews/RateCard";
-import { PremiumCorner } from "@/components/premium/PremiumCorner";
+import { SignInCorner } from "@/components/account/SignInCorner";
 import { AdFreeSync } from "@/components/premium/AdFreeSync";
 import { ADFREE_BOOT_SCRIPT } from "@/lib/premium-member";
 import { IMPACT_SITE_VERIFICATIONS } from "@/lib/affiliate";
@@ -97,7 +97,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {children}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(siteJsonLd()) }} />
         <QuickView />
-        <PremiumCorner />
+        <SignInCorner />
         <AdFreeSync />
         {/* Rate us (owner, 2026-11-03): the corner card, asking only after real use; RiftCompare keeps the ratings. */}
         <RateCard />
