@@ -120,11 +120,11 @@ export function ProfileHub({ info }: { info: StoredPremium }) {
     <div className="mx-auto max-w-3xl">
       <section className="card overflow-hidden">
         <div className="signin-panel h-16 sm:h-20" />
-        <div className="-mt-9 flex flex-wrap items-end gap-4 px-5 pb-5 sm:-mt-10 sm:px-6">
+        <div className="-mt-9 flex flex-col items-start gap-3 px-5 pb-5 sm:-mt-10 sm:flex-row sm:items-end sm:gap-4 sm:px-6">
           <span aria-hidden className="grid h-[72px] w-[72px] shrink-0 place-items-center rounded-2xl border-4 border-surface bg-ink font-display text-3xl font-bold text-surface shadow-lift sm:h-20 sm:w-20">
             {initialOf(info.who)}
           </span>
-          <div className="min-w-0 flex-1 pb-1">
+          <div className="w-full min-w-0 flex-1 pb-1">
             <h1 className="font-display text-2xl font-bold leading-tight sm:text-3xl">My account</h1>
             <p className="truncate text-sm text-muted">{info.who ? `Signed in as ${info.who}` : "Signed in"}</p>
           </div>
@@ -177,7 +177,7 @@ export function ProfileHub({ info }: { info: StoredPremium }) {
           <div className="flex flex-wrap items-center gap-4">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={S.giveaway!.image} alt={S.giveaway!.title} width={56} height={56} className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-white object-contain p-1 ring-1 ring-line" />
-            <div className="min-w-0 flex-1">
+            <div className="min-w-0 flex-1 basis-[calc(100%-5rem)] sm:basis-auto">
               <p className="text-xs font-semibold uppercase tracking-wide text-brand-strong">Giveaway · {S.giveaway!.closesShort}</p>
               <h2 id="gw-h" className="font-display text-lg font-bold leading-snug">{S.giveaway!.title}</h2>
               {me.entered && (
@@ -188,9 +188,9 @@ export function ProfileHub({ info }: { info: StoredPremium }) {
               )}
             </div>
             {!me.entered ? (
-              <a href="/giveaway" className="btn-primary min-h-11 px-5">Enter free · 50 points</a>
+              <a href="/giveaway" className="btn-primary min-h-11 w-full px-5 sm:w-auto">Enter free · 50 points</a>
             ) : !me.checkedInToday ? (
-              <button type="button" disabled={busy} onClick={checkIn} className="btn-primary min-h-11 px-5">
+              <button type="button" disabled={busy} onClick={checkIn} className="btn-primary min-h-11 w-full px-5 sm:w-auto">
                 {busy ? "Checking in…" : "Check in · +5"}
               </button>
             ) : (

@@ -33,6 +33,8 @@ function safe<T>(fn: () => T, fallback: T): T {
 
 function quiet(path: string): boolean {
   if (S.quietPaths.some((re) => re.test(path))) return true;
+  // The page already carries the slides (the home page's banner): one pitch a page.
+  if (document.querySelector(".signin-banner")) return true;
   return S.productPath.test(path) && !window.matchMedia("(min-width: 1024px)").matches;
 }
 
@@ -94,7 +96,7 @@ export function SignInCorner() {
       data-ad
       data-signin-corner
       aria-label={`Sign in to ${S.name}`}
-      className="premium-slide-in fixed bottom-3 left-1/2 z-40 w-[calc(100%-1.5rem)] max-w-sm -translate-x-1/2 rounded-2xl border border-line bg-surface p-4 text-ink shadow-2xl sm:left-auto sm:right-4 sm:translate-x-0 sm:[animation-name:none]"
+      className="premium-slide-in fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] left-1/2 z-40 w-[calc(100%-1.5rem)] max-w-sm -translate-x-1/2 rounded-2xl border border-line bg-surface p-4 text-ink shadow-2xl md:bottom-4 sm:left-auto sm:right-4 sm:translate-x-0 sm:[animation-name:none]"
     >
       <button type="button" onClick={() => close(PROMPT_SILENCE_DAYS, true)} aria-label="Close" className="absolute right-1.5 top-1.5 grid h-9 w-9 place-items-center rounded-full text-muted hover:bg-raised hover:text-ink">
         ✕
