@@ -26,6 +26,9 @@ import { thumb } from "@/lib/images";
 import { FEATURE_MIN_USD_CENTS, featured as featuredByPrice, featureWorthy, priciestFirst } from "@/lib/feature-floor";
 import { COUNTRY_GUIDE } from "@/content/guides/country-prices";
 import { openPreorderGuides } from "@/lib/preorder-guides";
+
+/** The last day the home hero links Delta Reign's ETB guide instead of the next pre-order hub. */
+const DELTA_REIGN_PILL_UNTIL = "2026-12-20";
 import { featureOrder, isPreorderSet, formatRelease } from "@/lib/release";
 import { REGION_LIST, REGIONS, regionOrNotFound, type Market, type RegionInfo } from "@/lib/regions";
 import { ogCardImage, pageMeta, regionAlternates } from "@/lib/seo";
@@ -88,6 +91,8 @@ export default async function RegionHome({ params }: { params: { region: string 
   const reports = await Promise.all(REGION_LIST.map((x) => (x.region === r.region ? report : loadMarketReport(x.market)))).catch(() => [report]);
   // The soonest upcoming set with a pre-order page: the hero's pill and the pre-order tab's "see all" go there.
   const preorderGuide = openPreorderGuides()[0] ?? null;
+  // The hero pill's one link (2026-11-23): Delta Reign's ETB guide until DELTA_REIGN_PILL_UNTIL, then the pre-order hub as before.
+  const heroPill = new Date().toISOString().slice(0, 10) <= DELTA_REIGN_PILL_UNTIL ? "delta-reign-etb" : "preorder";
   const storeCount = storesInMarket(r.market).length;
   // The newest released set leads, the set on pre-order second (release.ts featureOrder): a pre-order is never the first tile.
   const latestSets = featureOrder(SETS.filter((s) => bySet.has(s.code)).slice(0, 4).map((s) => s.code)).map((c) => SET_BY_CODE.get(c)!);
@@ -225,12 +230,22 @@ export default async function RegionHome({ params }: { params: { region: string 
           <Breadcrumbs items={[{ href: "/", label: "DexCompare" }, { label: r.name }]} />
         </div>
         {/* The one small line above the headline: the next set's pre-order hub while one is open (it was a card under the hero). */}
-        {preorderGuide && (
-          <HeroPill href={`/${r.region}/preorders/${preorderGuide.set.slug}`}>
+        {/* Until 20 Dec 2026 the pill is Delta Reign's ETB guide (2026-11-23: the ETB's wave-2 pre-orders are the set's live demand,
+            Flowing Fists is out in February); after it, the next set's pre-order hub again. */}
+        {heroPill === "delta-reign-etb" ? (
+          <HeroPill href={`/${r.region}/guides/delta-reign-elite-trainer-box`}>
             <span>
-              <b>{preorderGuide.set.name}</b> pre-orders · out {formatRelease(preorderGuide.set.releaseDate)}
+              <b>Delta Reign ETB</b> · in stock and wave pre-orders
             </span>
           </HeroPill>
+        ) : (
+          preorderGuide && (
+            <HeroPill href={`/${r.region}/preorders/${preorderGuide.set.slug}`}>
+              <span>
+                <b>{preorderGuide.set.name}</b> pre-orders · out {formatRelease(preorderGuide.set.releaseDate)}
+              </span>
+            </HeroPill>
+          )
         )}
         <h1 className="hero-h1 hero-h1-long rise-solid">
           Compare Pokémon booster box &amp; ETB prices in <span className="text-brand">{r.inName}</span>

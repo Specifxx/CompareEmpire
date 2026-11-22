@@ -51,6 +51,7 @@ export type GuideSlug =
   | "delta-reign-chase-cards"
   | "delta-reign-card-list"
   | "delta-reign-booster-box-vs-etb"
+  | "delta-reign-elite-trainer-box"
   | "pitch-black-chase-cards"
   | "best-pokemon-elite-trainer-boxes-australia"
   | "pokemon-tcg-gift-guide-australia"
@@ -443,6 +444,18 @@ export const GUIDES: readonly Guide[] = [
     regions: "all",
     topic: { types: ["booster-box", "etb", "booster-bundle"], sets: ["delta-reign", "pitch-black"] },
     ebay: { context: "type:booster-boxes", heading: "Pokémon booster boxes on eBay" },
+    tools: ["value-checker", "trade-calculator"],
+  },
+  {
+    slug: "delta-reign-elite-trainer-box",
+    title: "Pokémon Delta Reign ETB: price, stock and restocks",
+    description: "Where the Pokémon Delta Reign Elite Trainer Box is in stock today, store by store, which stores take wave 2 and 3 pre-orders, and the price per pack.",
+    kicker: "Delta Reign",
+    published: "2026-11-23",
+    updated: "2026-11-23",
+    regions: "all",
+    topic: { types: ["etb", "booster-box", "booster-bundle"], sets: ["delta-reign"] },
+    ebay: { context: "type:elite-trainer-boxes", heading: "Elite Trainer Boxes on eBay" },
     tools: ["value-checker", "trade-calculator"],
   },
   {

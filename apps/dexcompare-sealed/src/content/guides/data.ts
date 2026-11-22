@@ -5,7 +5,7 @@
 // Sources, and nothing else: the existing loaders (calendarProducts, productsBySet, lastCheckedAt), typeSummary below (one GROUP BY,
 // at most 16 rows) and, for the booster-box guide only, one query for the pack types of three sets.
 import { setCountsGrouped, typeLabelsInMarket } from "@/lib/hub-data";
-import { calendarProducts, CALENDAR_TYPES, cardSelect, lastCheckedAt, OPEN, productsBySet, sortCards, toCard, type ProductCardData } from "@/lib/data";
+import { calendarProducts, CALENDAR_TYPES, cardSelect, lastCheckedAt, OPEN, productPage, productsBySet, sortCards, toCard, type OfferView, type ProductCardData } from "@/lib/data";
 import { cardOpen } from "@/lib/compact";
 import { prisma } from "@/lib/db";
 import { isOpen, statsInMarket } from "@/lib/public-data/joins";
@@ -55,6 +55,17 @@ export interface GuideData {
    * names those without linking them. Absent (a test fixture): every set and type is linked. */
   listedSets?: string[];
   listedTypes?: string[];
+  /** One product's store rows in this market and its stats in every market (productPage): the single-product guides
+   * (delta-reign-elite-trainer-box). Absent everywhere else. */
+  product?: GuideProduct | null;
+}
+
+/** One product as a single-product guide reads it: the store rows here (marketplace rows dropped) and each market's headline. */
+export interface GuideProduct {
+  slug: string;
+  name: string;
+  offers: OfferView[];
+  stats: { market: string; lowestPriceCents: number | null; inStockStores: number; listedStores: number }[];
 }
 
 /** One store's current counts (StoreStat), for the where-to-buy guide. */
@@ -404,6 +415,21 @@ export async function loadGuideData(slug: GuideSlug, r: RegionInfo, now: Date = 
       const [list, cal] = await Promise.all([productsBySet(r.market, "me6"), calendarProducts(r.market, ["me5"])]);
       const open = sortCards(list.filter(cardOpen));
       return done({ sets: ["me6", "me5"], bySet: { me6: open, me5: cal.get("me5") ?? [] }, openCount: { me6: open.length } });
+    }
+    case "delta-reign-elite-trainer-box": {
+      // Delta Reign read whole (open only, cheapest first) and the ETB's own product page read (one product, one market, at most
+      // PRODUCT_OFFERS_TAKE rows, the same read /p/<slug> makes): the store-by-store table and the other regions' headline prices.
+      const [list, page] = await Promise.all([productsBySet(r.market, "me6"), productPage("delta-reign-elite-trainer-box", r.market)]);
+      const open = sortCards(list.filter(cardOpen));
+      const product: GuideProduct | null = page
+        ? {
+            slug: page.slug,
+            name: page.name,
+            offers: page.offers.filter((o) => !o.marketplace),
+            stats: page.stats.map(({ market, lowestPriceCents, inStockStores, listedStores }) => ({ market, lowestPriceCents, inStockStores, listedStores })),
+          }
+        : null;
+      return done({ sets: ["me6"], bySet: { me6: open }, openCount: { me6: open.length }, product });
     }
     case "phantasmal-flames-booster-box-price":
       return setBox("me2", "me1");
