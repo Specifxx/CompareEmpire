@@ -4,7 +4,7 @@
 // growth report counts both for every site. DECISIONS.md, "Share buttons".
 import { SITE_NAME } from "./site";
 
-export type ShareMedium = "product" | "set" | "list" | "page" | "daily" | "guide" | "deals";
+export type ShareMedium = "product" | "set" | "list" | "page" | "daily" | "guide" | "deals" | "drop";
 
 /** `path` (its own query string kept) on `origin`, with the share tags. */
 export function shareUrl(origin: string, path: string, medium: ShareMedium): string {
@@ -40,6 +40,14 @@ export function priceGap(rows: readonly GapRow[]): PriceGap | null {
 export function shareText(name: string, gap: PriceGap | null, fmt: (cents: number) => string): string {
   if (!gap) return `${name}: every store's price on ${SITE_NAME}`;
   return `${name}: ${fmt(gap.low.priceCents)} at ${gap.low.storeName}, up to ${fmt(gap.high.priceCents)} elsewhere (${gap.pct}% less). Compared on ${SITE_NAME}`;
+}
+
+// Share this deal (owner, 2026-11-23, after Cardboard Hero's 22 Nov pre-order rush: ten orders in 41 minutes, almost none through a
+// click we saw, so the store's link had been pasted into a restock chat). People already paste drops into group chats; this hands them
+// a ready line that links to OUR page (every store compared, the clicks counted) instead of one store's link. Real numbers only: the
+// cheapest store row's own price and name, in its own currency, never eBay, never converted. components/DropShare.tsx.
+export function dropText(name: string, d: { cents: number; store: string; inName: string; preorder: boolean }, fmt: (cents: number) => string): string {
+  return `${d.preorder ? "Pre-order: " : ""}${name} for ${fmt(d.cents)} at ${d.store}, the cheapest store price we found in ${d.inName}. Every store compared on ${SITE_NAME}:`;
 }
 
 // Share-for-a-deal test (owner, 2026-11-18: "if you share … you can open Deal Finder"). Half of browsers (kept in

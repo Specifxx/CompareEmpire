@@ -1,7 +1,15 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { priceGap, shareText, shareUrl } from "../src/lib/share-link";
+import { dropText, priceGap, shareText, shareUrl } from "../src/lib/share-link";
+
+test("dropText: the cheapest store's real price and name, pre-orders labelled", () => {
+  const fmt = (c: number) => `CA$${(c / 100).toFixed(2)}`;
+  const t = dropText("Delta Reign Elite Trainer Box", { cents: 8999, store: "Cardboard Hero", inName: "Canada", preorder: true }, fmt);
+  assert.match(t, /^Pre-order: Delta Reign Elite Trainer Box for CA\$89\.99 at Cardboard Hero, the cheapest store price we found in Canada\./);
+  assert.doesNotMatch(dropText("X", { cents: 100, store: "S", inName: "Canada", preorder: false }, fmt), /Pre-order/);
+  assert.equal(shareUrl("https://dexcompare.app", "/ca/p/x", "drop"), "https://dexcompare.app/ca/p/x?utm_source=share&utm_medium=drop");
+});
 
 // Word of mouth (DECISIONS.md, "Share buttons", 2026-11-02).
 const read = (p: string) => readFileSync(new URL(`../${p}`, import.meta.url), "utf8");
