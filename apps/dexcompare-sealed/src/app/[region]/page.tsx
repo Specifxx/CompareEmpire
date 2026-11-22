@@ -1,3 +1,4 @@
+import { SignInSlides } from "@/components/account/SignInSlides";
 import { GiveawayHomeBanner } from "@/components/giveaway/GiveawayHomeBanner";
 import { WeeklyDropsBox } from "@/components/WeeklyDropsBox";
 import { weeklyBoxLive } from "@/lib/weekly-box";
@@ -274,7 +275,7 @@ export default async function RegionHome({ params }: { params: { region: string 
       </Hero>
       {/* The giveaway, while it is open (owner, 2026-11-22: "feature it on our homepage"). */}
       <div className="page">
-        <GiveawayHomeBanner />
+        <SignInSlides surface="home" variant="banner" fallback={<GiveawayHomeBanner />} />
       </div>
 
       {/* The page places its own ad block (below): none above the footer. */}

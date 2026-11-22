@@ -1756,3 +1756,26 @@ headline sits beside it in its own currency, US first. The home hero's one pill 
 Canadian price, through our referral link, while the site had no page for the ETB's restock and wave pre-order searches.
 Flowing Fists, the pill's pre-order set, is out in February, so the pill was spending the home page's one link on a set nobody
 is buying yet.
+
+## 2026-11-23: A real profile page, and sign-in slides inside the one-prompt-a-visit budget
+
+**Decision.** `/account` signed in is now a profile (`components/account/ProfileHub.tsx`): who, Free or Premium, four tiles (the
+collection's value today from this browser's list and `/prices.json`, the price alerts, the giveaway points, Premium), the
+giveaway's check-in and invite link in place, a "get the most from your account" checklist, and the Premium card for a free
+account. Signed out, `/account` puts the sign-in slides (`SignInSlides`, "panel") beside the form. The slides sell only the FREE
+account, one true benefit each (the giveaway while open, alerts, the collection, one account for every card site): no price, no
+Premium, nothing `copy-rules.ts` bans. The home page's one promo banner is the slides for a signed-out visitor (the giveaway is its
+first slide) and the plain giveaway banner for everyone else, so the page still carries one. `SignInCorner` replaces the Premium
+corner card: a signed-out visitor is asked for a free account, never money; never on a visit's first page, after a scroll, closed
+for 7 days, never on the account pages, on product pages only from 1024px. It is the visit's ONE self-opening prompt
+(`lib/prompt-slot.ts`): it stands down when the rating card, the return nudge or the heavy ad test's pop-up or slide-in had the
+visit, and the rating card stands down after it. While the heavy test runs (to 10 Dec) its pop-up on the visit's second page
+usually takes the slot on region pages, so the corner shows mostly on the site's other pages; that is the budget working.
+Every sign-in prompt links `/account?src=<surface>`; the sign-in sends it on, and RiftCompare stamps a new account
+`sister:dex:<surface>` (TCGEmpire `sisterSignupSource`). Events: `signin_prompt` {surface, step}, `signin_prompt_click`,
+`signin_complete` {src, method}, `profile_view`.
+
+**Why.** Owner, 2026-11-22: "Can we significantly uplift the profile pages and the sign in and login incentive ... especially
+dexcompare and mtgcompare". In the week to 22 Nov, 118 of 125 new reachable people were RiftCompare accounts and Dex and MTG,
+with most of the Google traffic, added 6. Owner, 2026-11-23: "keep user experience high and not flooding them with ads and
+information" (ops/product-ux/page-budget.md): hence one prompt a visit and nothing on the first page.
