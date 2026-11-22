@@ -1,3 +1,4 @@
+import { GiveawayHomeBanner } from "@/components/giveaway/GiveawayHomeBanner";
 import { WeeklyDropsBox } from "@/components/WeeklyDropsBox";
 import { weeklyBoxLive } from "@/lib/weekly-box";
 import { ALERT_SITE_KEY } from "@/lib/alert-feed";
@@ -256,6 +257,10 @@ export default async function RegionHome({ params }: { params: { region: string 
           <span>checked {overview.lastChecked ? <Ago iso={overview.lastChecked.toISOString()} initial={timeAgo(overview.lastChecked)} /> : "twice a day"}</span>
         </p>
       </Hero>
+      {/* The giveaway, while it is open (owner, 2026-11-22: "feature it on our homepage"). */}
+      <div className="page">
+        <GiveawayHomeBanner />
+      </div>
 
       {/* The page places its own ad block (below): none above the footer. */}
       <NoPreFooter />

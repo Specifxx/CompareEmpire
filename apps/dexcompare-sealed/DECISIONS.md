@@ -1728,3 +1728,16 @@ pasted URL or a translate proxy is "none" or "cross-site". "yandex" and "baidu" 
 builds, baiduboxapp). Now `looksLikeBot` (the one thing that untags) is only an empty User-Agent or a self-named crawler or
 script; the header checks moved to `suspectClick`, which at most leaves a click out of the server-side click log, never the tag.
 The 10-14 Nov crawler with full browser headers will reach the networks tagged again: accepted by the owner's rule.
+
+## 2026-11-22: A giveaway, run by RiftCompare's points engine
+
+**Decision.** `/giveaway` (static, prerendered) shows this site's prize (two Mega Evolution: Delta Reign booster packs, under A$20
+at Australian stores), its points, the leaderboard and the official rules; the home pages carry `GiveawayHomeBanner` under the
+hero while it is open, and the menus list it. The entry panel (`components/giveaway/`) sends the visitor's stored RiftCompare
+session (`lib/premium-member.ts`) to `https://riftcompare.com/api/sister-giveaway`, and the board reads RiftCompare's CDN-held
+`/api/giveaway/leaderboard?site=dex`; the draw (a public drand number), the winner's email and claim form, and the address are all
+RiftCompare's (TCGEmpire DECISIONS.md, 2026-11-22). This site stores no address and holds no key. `lib/giveaway.ts` repeats the
+prize and dates of RiftCompare's `dex-delta-reign-2026-12` entry and must change with it; a new round every two months.
+
+**Why.** Owner, 2026-11-22: "Can we also do a Pokemon giveaway? ... a booster pack that is, $20 or less ... make all of that ... for
+Dex Compare as well ... a point system ... every 2 months".
