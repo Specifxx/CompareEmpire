@@ -1,7 +1,7 @@
 {
  "v": 1,
  "site": "dex",
- "generatedAt": "2026-11-22T01:23:48.293Z",
+ "generatedAt": "2026-11-22T17:21:58.543Z",
  "links": {
   "AU": {
    "deals": "https://dexcompare.io/au/deals"
@@ -36,9 +36,9 @@
    "currency": "AUD",
    "store": "Grand J Games",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/688712_in_1000x1000.jpg",
-   "refCents": 7500,
+   "refCents": 7750,
    "refLabel": "median store price",
-   "savingPct": 47
+   "savingPct": 48
   },
   {
    "kind": "deal",
