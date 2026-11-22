@@ -120,7 +120,7 @@ export function dealsMenuColumns(region: Region, today: string = new Date().toIS
 export function guidesMenuColumns(region: Region): MenuColumn[] {
   const s = (key: SectionKey, label: string): MenuLink => ({ href: sectionHref(region, key), label });
   return [
-    { title: "Learn & play", links: [s("guides", "Buying guides"), s("tools", "Tools"), s("daily", "Price Duel game"), { href: "/creators", label: "Creators" }, { href: "/forum", label: "Community forum" }] },
+    { title: "Learn & play", links: [s("guides", "Buying guides"), s("tools", "Tools"), s("daily", "Price Duel game"), { href: "/creators", label: "Creators" }, { href: "/forum", label: "Community forum" }, { href: "/giveaway", label: "Giveaway" }] },
     // Stores had an entry of its own in the header's row until 2026-11-13 (five sections now); the weekly chart was a chip of the home's hero.
     { title: "The data", links: [s("stores", "Stores we compare"), { href: `/${region}/charts`, label: "Weekly chart" }, s("releases", "Release calendar")] },
   ];

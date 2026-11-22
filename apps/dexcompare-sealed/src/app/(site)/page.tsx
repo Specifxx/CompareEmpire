@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { GiveawayHomeBanner } from "@/components/giveaway/GiveawayHomeBanner";
 import { Icon } from "@/components/Icon";
 import { SoftSideAds } from "@/components/SideAds";
 import { SoftInlineAds } from "@/components/InlineAds";
@@ -114,6 +115,10 @@ export default async function Landing() {
         <RegionChips className="rise mt-6 justify-center" style={riseAt(3)} />
         <SoftWaysIn formId="landing-search" links={HERO_LINKS} />
       </Hero>
+      {/* The giveaway, while it is open (owner, 2026-11-22: "feature it on our homepage"). */}
+      <div className="page">
+        <GiveawayHomeBanner />
+      </div>
 
       {/* The owner's trim (2026-11-13): no Premium promo, no explainer paragraph and no guides list here; the space goes to
           products, ten of the region's most stocked. The explanation is on /about, Premium on /premium, the guides on
