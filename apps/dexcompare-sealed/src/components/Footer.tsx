@@ -20,6 +20,7 @@ export function footerColumns(region: Region | null, listed?: ReadonlySet<string
   const site: FooterLink[] = [
     { href: "/about", label: "About & how it works" },
     { href: "/how-we-pick-stores", label: "How we pick stores" },
+    { href: "/methodology", label: "Methodology" },
     { href: "/collection", label: "My collection" },
     { href: "/premium", label: "Premium" },
     { href: "/contact", label: "Contact" },
