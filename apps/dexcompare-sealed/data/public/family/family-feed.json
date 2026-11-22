@@ -1,7 +1,7 @@
 {
  "v": 1,
  "site": "dex",
- "generatedAt": "2026-11-21T17:06:44.889Z",
+ "generatedAt": "2026-11-22T01:23:48.293Z",
  "links": {
   "AU": {
    "deals": "https://dexcompare.io/au/deals"
@@ -72,6 +72,20 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "AU",
+   "title": "Super Electric Breaker Japanese Booster Box (SV8)",
+   "url": "https://dexcompare.io/au/p/super-electric-breaker-sv8-japanese-booster-box",
+   "cents": 30000,
+   "currency": "AUD",
+   "store": "Low Pop Trading Co",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/587728_in_1000x1000.jpg",
+   "refCents": 45700,
+   "refLabel": "median store price",
+   "savingPct": 34
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "AU",
    "title": "Abyss Eye Japanese Booster Pack (M5)",
    "url": "https://dexcompare.io/au/p/abyss-eye-m5-japanese-booster-pack",
    "cents": 400,
@@ -93,20 +107,6 @@
    "store": "One Stop Poke Shop",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/647498_in_1000x1000.jpg",
    "refCents": 600,
-   "refLabel": "median store price",
-   "savingPct": 33
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "AU",
-   "title": "Black Bolt Japanese Booster Pack (SV11B)",
-   "url": "https://dexcompare.io/au/p/black-bolt-sv11b-japanese-booster-pack",
-   "cents": 1000,
-   "currency": "AUD",
-   "store": "Hightide Tabletop Gaming",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/636736_in_1000x1000.jpg",
-   "refCents": 1500,
    "refLabel": "median store price",
    "savingPct": 33
   },
@@ -156,6 +156,20 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "NZ",
+   "title": "Delta Reign Elite Trainer Box",
+   "url": "https://dexcompare.io/nz/p/delta-reign-elite-trainer-box",
+   "cents": 13999,
+   "currency": "NZD",
+   "store": "OCARE",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/712102_in_1000x1000.jpg",
+   "refCents": 17250,
+   "refLabel": "median store price",
+   "savingPct": 19
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "NZ",
    "title": "30th Celebration Japanese Booster Box (M6a)",
    "url": "https://dexcompare.io/nz/p/30th-celebration-m6a-japanese-booster-box",
    "cents": 35000,
@@ -165,20 +179,6 @@
    "refCents": 41588,
    "refLabel": "median store price",
    "savingPct": 16
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "NZ",
-   "title": "30th Celebration Ditto Premium Collection",
-   "url": "https://dexcompare.io/nz/p/30th-celebration-ditto-premium-collection",
-   "cents": 16999,
-   "currency": "NZD",
-   "store": "PlayX",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/704189_in_1000x1000.jpg",
-   "refCents": 19999,
-   "refLabel": "median store price",
-   "savingPct": 15
   },
   {
    "kind": "deal",
@@ -226,20 +226,6 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "US",
-   "title": "Terastal Festival ex Japanese Booster Pack (SV8a)",
-   "url": "https://dexcompare.io/us/p/terastal-festival-ex-sv8a-japanese-booster-pack",
-   "cents": 995,
-   "currency": "USD",
-   "store": "Black Wolf Collectibles",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/603429_in_1000x1000.jpg",
-   "refCents": 1797,
-   "refLabel": "median store price",
-   "savingPct": 45
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "US",
    "title": "Mega Symphonia Japanese Booster Pack (M1S)",
    "url": "https://dexcompare.io/us/p/mega-symphonia-m1s-japanese-booster-pack",
    "cents": 295,
@@ -247,6 +233,20 @@
    "store": "Black Wolf Collectibles",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/647499_in_1000x1000.jpg",
    "refCents": 500,
+   "refLabel": "median store price",
+   "savingPct": 41
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "US",
+   "title": "Terastal Festival ex Japanese Booster Pack (SV8a)",
+   "url": "https://dexcompare.io/us/p/terastal-festival-ex-sv8a-japanese-booster-pack",
+   "cents": 995,
+   "currency": "USD",
+   "store": "Black Wolf Collectibles",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/603429_in_1000x1000.jpg",
+   "refCents": 1695,
    "refLabel": "median store price",
    "savingPct": 41
   },
@@ -268,15 +268,15 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "US",
-   "title": "Ascended Heroes Booster Bundle",
-   "url": "https://dexcompare.io/us/p/ascended-heroes-booster-bundle",
-   "cents": 6000,
+   "title": "30th Celebration - Mini Tin - Mewtwo",
+   "url": "https://dexcompare.io/us/p/30th-celebration-mini-tin-mewtwo",
+   "cents": 2000,
    "currency": "USD",
-   "store": "The Warp Gate",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/668541_in_1000x1000.jpg",
-   "refCents": 8500,
+   "store": "Skybox Collectibles",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/704183_in_1000x1000.jpg",
+   "refCents": 2999,
    "refLabel": "median store price",
-   "savingPct": 29
+   "savingPct": 33
   },
   {
    "kind": "deal",
@@ -316,9 +316,9 @@
    "currency": "GBP",
    "store": "Rare Pokémon Cards UK",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/672398_in_1000x1000.jpg",
-   "refCents": 675,
+   "refCents": 663,
    "refLabel": "median store price",
-   "savingPct": 46
+   "savingPct": 45
   },
   {
    "kind": "deal",
