@@ -34,3 +34,23 @@ export function thumbSet(url: string | null | undefined, widths: number[]): stri
 
 /** Grid cards: a phone shows two across, a desktop four of ~280px. */
 export const CARD_SIZES = "(min-width: 1024px) 280px, (min-width: 768px) 33vw, 50vw";
+
+// eBay photo URLs carry their size in the last path segment (/images/g/<id>/s-l500.jpg); the same photo exists at other sizes.
+const EBAY_SIZE_RE = /^(\/images\/g\/[A-Za-z0-9~_-]+\/)s-l(\d{2,4})(\.[a-z]{3,4})$/;
+
+/**
+ * The same eBay photo at a SMALLER stored size, for tiles much narrower than the strip: the ad banners' tiles are 104-120 CSS px,
+ * so 300 px covers a 2.5x phone screen, and the stored s-l500 sent about 300-540 KiB more per phone page view than it shows
+ * (Lighthouse on dexcompare.io, 2026-11-22). Never upsizes, never touches another URL shape, keeps https + *.ebayimg.com.
+ */
+export function shrinkImage(url: string, width = 300): string {
+  try {
+    const u = new URL(url);
+    const m = EBAY_SIZE_RE.exec(u.pathname);
+    if (!m || !/(^|\.)ebayimg\.com$/i.test(u.hostname) || Number(m[2]) <= width) return url;
+    u.pathname = `${m[1]}s-l${width}${m[3]}`;
+    return u.toString();
+  } catch {
+    return url;
+  }
+}

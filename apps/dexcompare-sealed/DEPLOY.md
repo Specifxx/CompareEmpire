@@ -64,7 +64,7 @@ Repo **Specifxx/CompareEmpire** → Settings → Secrets and variables → Actio
 | `DEXCOMPARE_SEALED_DATABASE_URL` | the Neon **direct** string |
 | `DEXCOMPARE_REVALIDATE_SECRET` | a long random string — generate with `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`. Keep it for step 4. |
 | `EBAY_CLIENT_ID`, `EBAY_CLIENT_SECRET` | the Production keyset (App ID / Cert ID) of DexCompare's own eBay application. Used **only** by the daily eBay import (below), never by Vercel. |
-| `PSI_API_KEY` | optional: a Google Cloud API key with the PageSpeed Insights API enabled, for the weekly PageSpeed check (see "PageSpeed check"). Without it that job skips cleanly. |
+| `PSI_API_KEY` | optional: a Google Cloud API key with the PageSpeed Insights API enabled, for the weekly PageSpeed check (see "PageSpeed check"). Without it that job runs Lighthouse on the runner (lab numbers, no field data). |
 
 **Variables** tab: `DEXCOMPARE_SITE_URL` = `https://dexcompare.io` (since 2026-11-17; was www.dexcompare.app) — the
 canonical origin with `www`, exactly as in Vercel below. The import job POSTs
@@ -1029,11 +1029,13 @@ the week before, should be flat or lower; the Vercel logs should have no `[egres
 
 ## PageSpeed check
 
-`.github/workflows/psi-dexcompare.yml` runs Google PageSpeed Insights on `https://www.dexcompare.app` (`/us`, one in-stock product,
+`.github/workflows/psi-dexcompare.yml` runs Google PageSpeed Insights on `https://dexcompare.io` (`/us`, one in-stock product,
 `/us/sealed`, `/us/type/booster-boxes`; phone and desktop) **every Monday at 06:23 UTC** and on demand (Actions → **PageSpeed
 check DexCompare** → Run workflow; the `paths` input takes other paths). It needs the repository secret **`PSI_API_KEY`**
 (Google Cloud console → APIs & Services → enable "PageSpeed Insights API" → Credentials → API key; restrict it to that API).
-Without the secret the job writes "skipped" to its summary and succeeds. A run makes 8 API calls and takes about two minutes;
+Without the secret (it has never been set) the job runs Lighthouse on the GitHub runner instead (since 2026-11-22): the same lab
+engine, phone and desktop, no real-user data, plus each page's LCP element and its load delay; it fails only when no page could
+be read. A run makes 8 API calls and takes about two minutes;
 it fails only when every call fails (a wrong key). Read the job summary: the lab score, LCP, CLS and TBT, and the real-user (field)
 LCP, INP and CLS when Chrome has enough data. Lab numbers move from run to run: compare weeks, not single runs.
 
