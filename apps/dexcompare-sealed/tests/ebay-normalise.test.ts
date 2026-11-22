@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { EBAY_CAMPAIGN_ID } from "../src/lib/affiliate";
+import { shrinkImage } from "../src/lib/images";
 import {
   baseItem,
   CHASE_FLOOR,
@@ -478,4 +479,14 @@ test("a booster pack's own search refuses multi-pack lots and other non-units, a
   ])
     assert.equal(ok(t), null, t);
   assert.ok(ok("Pokemon 30th Celebration Booster Pack Sealed"));
+});
+
+test("shrinkImage: s-l500 → s-l300 on the same path for the ad tiles; never an upsize, never another shape", () => {
+  assert.equal(shrinkImage("https://i.ebayimg.com/images/g/AbC~dEfAAOSw/s-l500.jpg"), "https://i.ebayimg.com/images/g/AbC~dEfAAOSw/s-l300.jpg");
+  assert.equal(shrinkImage("https://i.ebayimg.com/images/g/AbC/s-l1600.webp"), "https://i.ebayimg.com/images/g/AbC/s-l300.webp");
+  assert.equal(shrinkImage("https://i.ebayimg.com/images/g/AbC/s-l225.jpg"), "https://i.ebayimg.com/images/g/AbC/s-l225.jpg");
+  assert.equal(shrinkImage("https://i.ebayimg.com/images/g/AbC/s-l300.jpg"), "https://i.ebayimg.com/images/g/AbC/s-l300.jpg");
+  assert.equal(shrinkImage("https://i.ebayimg.com/thumbs/images/g/AbC/s-l500.jpg"), "https://i.ebayimg.com/thumbs/images/g/AbC/s-l500.jpg");
+  assert.equal(shrinkImage("https://example.com/images/g/AbC/s-l500.jpg"), "https://example.com/images/g/AbC/s-l500.jpg");
+  assert.equal(shrinkImage("not a url"), "not a url");
 });

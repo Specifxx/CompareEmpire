@@ -67,9 +67,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Premium members: data-adfree on <html> before first paint hides the banner ads (lib/premium-member.ts). */}
         <script dangerouslySetInnerHTML={{ __html: ADFREE_BOOT_SCRIPT }} />
         {/* Product photos: 96% are on Shopify's CDN, most of the rest on TCGplayer's.
-            Warming those two connections is the cheapest LCP win there is. */}
+            Warming those two connections is the cheapest LCP win there is. TCGplayer's is a full preconnect since 2026-11-22: a
+            TCGplayer photo was the measured LCP element on every page Lighthouse read (/us, a product page, /us/sealed, /us/hot-100,
+            a type page), and a dns-prefetch left the TCP and TLS handshakes for after the page had drawn. */}
         <link rel="preconnect" href="https://cdn.shopify.com" />
-        <link rel="dns-prefetch" href="https://tcgplayer-cdn.tcgplayer.com" />
+        <link rel="preconnect" href="https://tcgplayer-cdn.tcgplayer.com" />
         {/* Impact / TCGplayer affiliate site-ownership verification. Impact looks for
             the non-standard `value` attribute, so spread it past the meta typing. */}
         {IMPACT_SITE_VERIFICATIONS.map((value) => (

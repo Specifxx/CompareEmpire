@@ -6,7 +6,7 @@ import { AFFILIATE_NOTE_SHORT, ebayLabel, ebayRetailerForHref, ebaySearchUrl, eb
 import type { TcgplayerTile } from "@/lib/data";
 import { formatPrice } from "@/lib/ebay-context";
 import { money } from "@/lib/format";
-import { thumb } from "@/lib/images";
+import { shrinkImage, thumb } from "@/lib/images";
 import type { Region } from "@/lib/regions";
 import { useListings } from "./EbayStrip";
 import { EbayMark } from "./EbayMark";
@@ -148,7 +148,7 @@ export function InlineAds({ region, tiles, className = "", ebayPlacement = EBAY,
   const us = region === "us";
   const usd = (cents: number) => (us ? money(cents, "US") : `US${money(cents, "US")}`);
   const ebay: Tile[] =
-    state.status === "ready" ? state.a.items.slice(0, INLINE_MAX).map((i) => ({ key: `e${i.id}`, href: i.href, img: i.imageUrl, title: i.title, price: formatPrice(i.price) })) : [];
+    state.status === "ready" ? state.a.items.slice(0, INLINE_MAX).map((i) => ({ key: `e${i.id}`, href: i.href, img: shrinkImage(i.imageUrl), title: i.title, price: formatPrice(i.price) })) : [];
   const tcg: Tile[] = tiles.slice(0, INLINE_MAX).map((t) => ({ key: `t${t.slug}`, href: tcgplayerAffiliateUrl(t.url, region, TCG_P), img: thumb(t.imageUrl, 400) ?? t.imageUrl, title: t.name, price: usd(t.priceCents) }));
   const ebaySearch = ebaySearchUrl("Pokemon sealed", region, EBAY_P);
   const tcgSearch = tcgplayerSearchUrl("", region, TCG_P);

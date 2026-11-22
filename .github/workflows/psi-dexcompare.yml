@@ -4,9 +4,9 @@ name: PageSpeed check DexCompare
 # real-user (CrUX) field data when Chrome has enough of it. Once a week and on demand. Read-only: it asks Google's API about the
 # live site (https://dexcompare.io, the canonical host: the apex only redirects there) and writes one table to the job summary.
 #
-# Needs the repository secret PSI_API_KEY: a Google Cloud API key with the "PageSpeed Insights API" enabled (free; 25,000 queries a
-# day). Without it the job writes "skipped" to its summary and SUCCEEDS: the keyless quota is shared by everyone and is usually
-# exhausted, so a keyless run would only fail. A run makes 8 API calls (4 pages x 2 strategies), takes about two minutes on one
+# With the repository secret PSI_API_KEY (a Google Cloud API key with the "PageSpeed Insights API" enabled; free, 25,000 queries a
+# day) it asks PageSpeed, field data included. Without it (the keyless API quota is shared by everyone and usually exhausted) it
+# runs Lighthouse on the runner instead: lab numbers only, and the LCP element. A run makes 8 API calls (4 pages x 2 strategies), takes about two minutes on one
 # runner, and never fails on a score: only when every call fails (a wrong key, the API down). apps/dexcompare-sealed/DEPLOY.md,
 # "PageSpeed check", says how to read it.
 
@@ -37,15 +37,54 @@ jobs:
       # The region home, one in-stock product, the browse page and a type page. A manual run may name others (checked below).
       PATHS: ${{ inputs.paths || '/us /us/p/pitch-black-elite-trainer-box /us/sealed /us/type/booster-boxes' }}
     steps:
-      - name: Skip without the PSI_API_KEY secret
+      # Without the key (it was never set: every weekly run until 22 Nov 2026 measured nothing), the same pages are measured by
+      # Lighthouse on this runner instead: the same lab engine PageSpeed uses, no field data, no key, no API quota. One run per
+      # page and strategy, so read trends, not single numbers. It also names the LCP element and its phases, the part that says
+      # what to fix (2026-11-22: a TCGplayer photo in the browser-only top ad banner, waiting ~4 s for hydration, on every page).
+      - uses: actions/setup-node@v4
+        if: env.PSI_API_KEY == ''
+        with:
+          node-version: 20
+      - name: Lighthouse on the runner (no PSI_API_KEY)
         if: env.PSI_API_KEY == ''
         run: |
-          echo "::notice::PSI_API_KEY is not set, so the PageSpeed check was skipped. Add the secret to run it (DEPLOY.md, 'PageSpeed check')."
+          npm i -g lighthouse@12.8.2 >/dev/null 2>&1
           {
-            echo "### PageSpeed check: skipped"
+            echo "### Lighthouse (runner): $SITE"
             echo ""
-            echo "The \`PSI_API_KEY\` repository secret is not set (Settings → Secrets and variables → Actions). Nothing was measured."
+            echo "No \`PSI_API_KEY\`, so Lighthouse ran on the GitHub runner (lab only, no real-user data). Phone = Lighthouse's default Moto G emulation."
+            echo ""
+            echo "| Page | Strategy | Score | LCP | CLS | TBT | LCP element | LCP load delay |"
+            echo "| --- | --- | ---: | ---: | ---: | ---: | --- | ---: |"
           } >> "$GITHUB_STEP_SUMMARY"
+          ok=0
+          for p in $PATHS; do
+            case "$p" in /*) ;; *) echo "::error::Paths must start with /"; exit 1 ;; esac
+            echo "$p" | grep -Eq '^/[A-Za-z0-9/_.-]{0,200}$' || { echo "::error::Bad path $p"; exit 1; }
+            for strategy in mobile desktop; do
+              rm -f /tmp/lh.json
+              extra=""; [ "$strategy" = desktop ] && extra="--preset=desktop"
+              lighthouse "$SITE$p" $extra --only-categories=performance --chrome-flags="--headless=new --no-sandbox" \
+                --output=json --output-path=/tmp/lh.json --quiet || true
+              if [ ! -s /tmp/lh.json ]; then
+                echo "| \`$p\` | $strategy | failed | | | | | |" >> "$GITHUB_STEP_SUMMARY"; continue
+              fi
+              ok=$((ok+1))
+              P="$p" S="$strategy" node -e '
+                const r = require("/tmp/lh.json"), a = r.audits;
+                const el = a["largest-contentful-paint-element"]?.details?.items || [];
+                const snip = (el[0]?.items?.[0]?.node?.snippet || "").replace(/\|/g, "/").slice(0, 120);
+                const delay = (el[1]?.items || []).find((x) => x.phase === "Load Delay");
+                const row = ["`" + process.env.P + "`", process.env.S, "**" + Math.round((r.categories.performance.score || 0) * 100) + "**",
+                  a["largest-contentful-paint"]?.displayValue || "–", a["cumulative-layout-shift"]?.displayValue || "–",
+                  a["total-blocking-time"]?.displayValue || "–", snip ? "`" + snip.replace(/`/g, "") + "`" : "–",
+                  delay ? (delay.timing / 1000).toFixed(1) + " s" : "–"];
+                console.log("| " + row.join(" | ") + " |");
+              ' >> "$GITHUB_STEP_SUMMARY" || true
+            done
+          done
+          cat "$GITHUB_STEP_SUMMARY"
+          [ "$ok" -gt 0 ] || { echo "::error::Lighthouse could not read any page"; exit 1; }
 
       - name: Run PageSpeed Insights
         if: env.PSI_API_KEY != ''
