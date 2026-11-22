@@ -4,13 +4,14 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { thumb } from "../src/lib/images";
-import { coverageDropped, dropPlaceholderAsks, productStat, readStore, rowsFromReads, type StoreRead } from "../src/lib/importer";
+import { coverageDropped, dropPlaceholderAsks, photosFromCatalogue, productStat, readStore, rowsFromReads, type StoreRead } from "../src/lib/importer";
 import { TCGPLAYER, type StoreConfig } from "../src/lib/stores";
 import {
   readTcgplayerCatalogue,
   shippingLoaded,
   tcgFeedProducts,
   tcgImageUrl,
+  tcgPhotoProducts,
   tcgProductUrl,
   tcgTitle,
   type TcgListing,
@@ -361,4 +362,30 @@ test("tcgplayer: a name with no set of its own borrows the catalogue's set only 
   assert.equal(tcgTitle({ productName: "Booster Box [Set of 6]", setName: "SV04: Paradox Rift" }), "Booster Box [Set of 6]"); // refused as a lot either way
   assert.equal(tcgTitle({ productName: "Booster Bundle", setName: "SV4.5: Paldean Fates" }), "Paldean Fates Booster Bundle");
   assert.equal(tcgTitle({ productName: "Charizard ex Premium Collection", setName: "SV03: Obsidian Flames" }), "Charizard ex Premium Collection");
+});
+
+test("tcgplayer: a catalogue product with no seller yet gives its photo, never a row", () => {
+  const preorder = [
+    ...FIXTURE,
+    // A pre-order no seller lists yet (Flowing Fists ETB, 2026-11-22).
+    product(735050, "Flowing Fists Elite Trainer Box", "ME07: Flowing Fists", []),
+    // Two box arts of one ETB, neither listed: one key, two photos, so neither.
+    product(900001, "Pitch Black Elite Trainer Box [Art A]", "ME05: Pitch Black", []),
+    product(900002, "Pitch Black Elite Trainer Box [Art B]", "ME05: Pitch Black", []),
+    // Unlisted, but its identity already has a listed TCGplayer row (the other box art): the row's photo stands.
+    product(512816, "Paradox Rift Elite Trainer Box [Other Art]", "SV04: Paradox Rift", []),
+  ];
+  const photos = tcgPhotoProducts(preorder);
+  // Only products without a buyable listing; the listed ETB and repeats are not photos.
+  assert.ok(!photos.some((p) => p.id === "684450"));
+  assert.ok(photos.some((p) => p.id === "735050"));
+  const listedRows = rowsFromReads(TCGPLAYER, [{ handle: "pokemon", ok: true, products: tcgFeedProducts(preorder) }]);
+  const kept = photosFromCatalogue(listedRows, photos);
+  const etb = kept.find((p) => p.imageUrl === tcgImageUrl(735050));
+  assert.ok(etb, "the unlisted pre-order keeps its photo");
+  assert.equal(etb.identity.groupKey, "me7|etb");
+  assert.ok(!kept.some((p) => p.imageUrl === tcgImageUrl(900001) || p.imageUrl === tcgImageUrl(900002)), "two products on one key: no photo");
+  assert.ok(!kept.some((p) => p.imageUrl === tcgImageUrl(512816)), "a listed row already has the key");
+  // No price ever comes from a photo-only product.
+  assert.ok(!listedRows.some((r) => r.imageUrl === tcgImageUrl(735050)));
 });

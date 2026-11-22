@@ -344,3 +344,23 @@ export function tcgFeedProducts(products: TcgProduct[], line: TcgLine = ENGLISH_
   }
   return out;
 }
+
+/**
+ * The catalogue's products with NO buyable listing: a pre-order TCGplayer catalogues weeks before any seller lists it (Flowing
+ * Fists' Elite Trainer Box, 2026-11-22: 30 store rows here, no TCGplayer seller yet). Title and photo only, never a price or an
+ * offer row. The importer gives an existing product this photo in place of a store's (photosFromCatalogue): a product whose photo
+ * is TCGplayer's carries TCGplayer's product id, which is how TCG Prices takes this site's store rows for it (by id, never by
+ * title). Pure, tested with the fixture.
+ */
+export function tcgPhotoProducts(products: TcgProduct[], line: TcgLine = ENGLISH_LINE): { id: string; title: string; imageUrl: string }[] {
+  const listed = new Set(tcgFeedProducts(products, line).map((p) => p.id));
+  const out: { id: string; title: string; imageUrl: string }[] = [];
+  const seen = new Set<string>();
+  for (const p of products) {
+    const id = Number(p?.productId);
+    if (!id || !p.productName || listed.has(String(id)) || seen.has(String(id))) continue;
+    seen.add(String(id));
+    out.push({ id: String(id), title: line === ENGLISH_LINE ? tcgTitle(p) : tcgJapaneseTitle(p), imageUrl: tcgImageUrl(id) });
+  }
+  return out;
+}

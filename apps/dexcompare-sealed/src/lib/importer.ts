@@ -44,7 +44,7 @@ import { canonicalName, cleanName, floorCents, identifyAny, isIdentity, roughUsd
 import { headlineOffer, offerStock } from "./sealed-offers";
 import { hostOf, loadDenylist } from "./denylist";
 import { SOURCES, STORE_BY_KEY, isMarketplace, storeCurrency, type StoreConfig } from "./stores";
-import { isTcgImage, JAPANESE_LINE, readTcgplayerCatalogue, tcgFeedProducts, tcgImageExists } from "./tcgplayer";
+import { isTcgImage, JAPANESE_LINE, readTcgplayerCatalogue, tcgFeedProducts, tcgImageExists, tcgPhotoProducts } from "./tcgplayer";
 import { writeTcgMarket } from "./tcg-market";
 
 export interface ImportRow {
@@ -68,6 +68,14 @@ export interface StoreRead {
   // Why an ok read may be incomplete (a feed cut off part-way); guardReads
   // decides whether its rows may replace the store's current ones.
   partial?: string;
+  // TCGplayer only: catalogue photos of products no seller lists yet (photosFromCatalogue). A photo, never a row.
+  photos?: ImportPhoto[];
+}
+
+/** A TCGplayer catalogue photo of one product identity, from a product with no buyable listing. */
+export interface ImportPhoto {
+  identity: SealedIdentity;
+  imageUrl: string;
 }
 
 // The photo HEAD sweep (sweepImages) runs 4 at a time for at most this long.
@@ -266,12 +274,13 @@ async function readHtmlStore(store: StoreConfig, platform: HtmlPlatform): Promis
   return { reads, rediscovered: false, error: null };
 }
 
-async function readTcgplayer(): Promise<{ reads: CollectionRead[]; rediscovered: boolean; error: string | null }> {
+async function readTcgplayer(): Promise<{ reads: CollectionRead[]; rediscovered: boolean; error: string | null; photos: { id: string; title: string; imageUrl: string }[] }> {
   // The catalogue is TCGplayer's Pokémon product line, so its titles are read
   // like a store's Pokémon collection: they needn't say "Pokémon".
   const catalogue = await readTcgplayerCatalogue();
   const products = tcgFeedProducts(catalogue);
   const reads: CollectionRead[] = [{ handle: "pokemon", ok: true, products }];
+  const photos = tcgPhotoProducts(catalogue);
   // TCGplayer's market prices from the same reads, for the price history chart's TCGplayer line (lib/tcg-market.ts): no extra request.
   const market = [...catalogue];
   // The Japanese line, for the Japanese section, after it, on a shorter clock. A failed read costs nothing but its own rows
@@ -280,17 +289,35 @@ async function readTcgplayer(): Promise<{ reads: CollectionRead[]; rediscovered:
     const japan = await readTcgplayerCatalogue({ line: JAPANESE_LINE, deadlineMs: 5 * 60_000 });
     market.push(...japan);
     reads.push({ handle: "pokemon-japan", ok: true, products: tcgFeedProducts(japan, JAPANESE_LINE) });
+    photos.push(...tcgPhotoProducts(japan, JAPANESE_LINE));
   } catch (e) {
     console.warn(`  tcgplayer: the Japanese line was not read (${(e as Error).message}); the English catalogue is kept`);
   }
   await writeTcgMarket(market);
-  return { reads, rediscovered: false, error: null };
+  return { reads, rediscovered: false, error: null, photos };
+}
+
+/**
+ * Catalogue photos → one photo per product identity, for products no seller lists on TCGplayer yet. The title is identified by
+ * the same rules as every listing (identifyAny, a Pokémon collection), and a photo is kept only when exactly ONE catalogue
+ * product lands on that identity and no listed TCGplayer row already has it: two products on one key (artwork variants,
+ * "assorted") give neither a photo. Pure (tests/tcgplayer.test.ts).
+ */
+export function photosFromCatalogue(rows: ImportRow[], photos: { id: string; title: string; imageUrl: string }[]): ImportPhoto[] {
+  const listed = new Set(rows.map((r) => r.identity.groupKey));
+  const byKey = new Map<string, ImportPhoto[]>();
+  for (const p of photos) {
+    const identity = identifyAny(p.title, { strict: false });
+    if (!isIdentity(identity) || listed.has(identity.groupKey)) continue;
+    (byKey.get(identity.groupKey) ?? byKey.set(identity.groupKey, []).get(identity.groupKey)!).push({ identity, imageUrl: p.imageUrl });
+  }
+  return [...byKey.values()].filter((l) => l.length === 1).map(([p]) => p);
 }
 
 export async function readStore(store: StoreConfig): Promise<StoreRead> {
   const t0 = Date.now();
   try {
-    const { reads, rediscovered, error } =
+    const { reads, rediscovered, error, photos }: Awaited<ReturnType<typeof readShopifyStore>> & { photos?: { id: string; title: string; imageUrl: string }[] } =
       store.platform === "tcgplayer"
         ? await readTcgplayer()
         : store.platform === "woocommerce"
@@ -309,7 +336,10 @@ export async function readStore(store: StoreConfig): Promise<StoreRead> {
     // small, healthy catalogue. guardReads decides whether to trust it.
     const cut = reads.find((r) => r.truncatedAtPage);
     const partial = cut ? `${CUT_OFF_ERROR} at page ${cut.truncatedAtPage} of ${cut.handle}` : undefined;
-    return { store, ok: true, error: null, partial, rows: rowsFromReads(store, reads), products, rediscovered, ms: Date.now() - t0 };
+    const rows = rowsFromReads(store, reads);
+    const read: StoreRead = { store, ok: true, error: null, partial, rows, products, rediscovered, ms: Date.now() - t0 };
+    if (photos?.length) read.photos = photosFromCatalogue(rows, photos);
+    return read;
   } catch (e) {
     const error = e instanceof RateLimitedError ? `rate limited: ${e.message}` : (e as Error).message || String(e);
     return { store, ok: false, error, rows: [], products: 0, rediscovered: false, ms: Date.now() - t0 };
@@ -909,6 +939,14 @@ async function upsertProducts(reads: StoreRead[], full: boolean): Promise<{ ids:
       }
       const f = fresh.get(k) ?? fresh.set(k, { identity: row.identity, images: [] }).get(k)!;
       if (cand) f.images.push(cand);
+    }
+  // TCGplayer's catalogue photo of a product no seller lists there yet: a candidate for an EXISTING product only (no product is
+  // created without a listing), ranked like any TCGplayer photo, so on a full run it replaces a store's photo.
+  for (const r of reads)
+    for (const ph of r.photos ?? []) {
+      const have = byKey.get(ph.identity.groupKey);
+      if (!have) continue;
+      (images.get(have.id) ?? images.set(have.id, []).get(have.id)!).push({ url: ph.imageUrl, marketplace: true, area: 0, words: imageWords(ph.identity) });
     }
   // Moves first, in planMoves' order: an old key a moved product frees may be
   // taken by another move, or be about to be created.
