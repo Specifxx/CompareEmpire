@@ -1742,6 +1742,21 @@ prize and dates of RiftCompare's `dex-delta-reign-2026-12` entry and must change
 **Why.** Owner, 2026-11-22: "Can we also do a Pokemon giveaway? ... a booster pack that is, $20 or less ... make all of that ... for
 Dex Compare as well ... a point system ... every 2 months".
 
+## 2026-11-23: The Delta Reign ETB guide, and the hero pill points at it until 20 December
+
+**Decision.** `/<region>/guides/delta-reign-elite-trainer-box` (`src/content/guides/delta-reign-elite-trainer-box.tsx`) reads
+the ETB's own store rows (the same `productPage` read as `/p/delta-reign-elite-trainer-box`) and splits the open ones in two:
+stock that ships now, and listings the store ITSELF sells as a later shipment (`laterShipment`: its title names a wave, a
+"ships in" window or a restock, or still says pre-order without naming the 6 November launch). The store's words decide;
+nothing is inferred from price or history, and no copy claims a restock happened (`copy-rules.ts`). Each other region's
+headline sits beside it in its own currency, US first. The home hero's one pill links the guide until 2026-12-20
+(`DELTA_REIGN_PILL_UNTIL` in `[region]/page.tsx`), then the next set's pre-order hub again.
+
+**Why.** Owner, 2026-11-22: Cardboard Hero sold dozens of Delta Reign ETBs as a "Wave 2 Pre-Order" at C$89.99, the cheapest
+Canadian price, through our referral link, while the site had no page for the ETB's restock and wave pre-order searches.
+Flowing Fists, the pill's pre-order set, is out in February, so the pill was spending the home page's one link on a set nobody
+is buying yet.
+
 ## 2026-11-23: "Share this deal with your group chat" under the best price
 
 A text button under the product page's best price (`components/DropShare.tsx`, `dropText` in `lib/share-link.ts`) copies, or hands

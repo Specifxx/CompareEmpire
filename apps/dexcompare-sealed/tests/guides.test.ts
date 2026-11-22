@@ -213,6 +213,32 @@ function fixture(slug: GuideSlug): GuideData {
         },
         openCount: { me6: 4 },
       };
+    case "delta-reign-elite-trainer-box": {
+      const o = (store: string, storeName: string, priceCents: number, title: string, inStock = true) => ({
+        store, storeName, storeHost: `${store}.example`, title, url: `https://${store}.example/p`, priceCents, inStock, lastSeen: CHECKED, marketplace: false,
+      });
+      return {
+        ...fixture("delta-reign-booster-box-price"),
+        product: {
+          slug: "delta-reign-elite-trainer-box",
+          name: "Delta Reign Elite Trainer Box",
+          offers: [
+            o("alpha", "Alpha Games", 7499, "Pokemon TCG Delta Reign Elite Trainer Box"),
+            o("beta", "Beta Cards", 8999, "(Wave 2 Pre-Order Ships in 2-4 weeks) Delta Reign ETB"),
+            o("gamma", "Gamma Hobbies", 7999, "Delta Reign Elite Trainer Box (PREORDER - Release Date November 06, 2026)"),
+            o("delta", "Delta TCG", 10500, "Delta Reign - ETB Preorder (limit 1)"),
+            o("eps", "Epsilon", 6999, "Delta Reign Elite Trainer Box", false),
+          ],
+          stats: [
+            { market: "US", lowestPriceCents: 6997, inStockStores: 89, listedStores: 120 },
+            { market: "CA", lowestPriceCents: 8999, inStockStores: 70, listedStores: 107 },
+            { market: "UK", lowestPriceCents: 5456, inStockStores: 7, listedStores: 20 },
+            { market: "AU", lowestPriceCents: 12000, inStockStores: 18, listedStores: 39 },
+            { market: "SG", lowestPriceCents: null, inStockStores: 0, listedStores: 10 },
+          ],
+        },
+      };
+    }
     case "delta-reign-chase-cards":
     case "delta-reign-card-list":
     case "delta-reign-booster-box-vs-etb":
@@ -342,6 +368,7 @@ const SEO_GUIDES: GuideSlug[] = [
   "cheapest-pokemon-booster-box",
   "pokemon-booster-box-price-australia",
   "delta-reign-booster-box-price",
+  "delta-reign-elite-trainer-box",
   "best-pokemon-elite-trainer-boxes-australia",
   "pokemon-tcg-gift-guide-australia",
   "pokemon-tcg-christmas-gift-guide",
@@ -373,7 +400,7 @@ const PAIRS = GUIDES.filter((g) => !ONLY || ONLY.has(g.slug)).flatMap((g) => gui
 
 test("registry: unique slugs, ISO editorial dates (updated ≥ published), descriptions ≤ 160, titles that fit a <title>", () => {
   assert.equal(new Set(GUIDES.map((g) => g.slug)).size, GUIDES.length);
-  assert.equal(GUIDES.length, 47);
+  assert.equal(GUIDES.length, 48);
   for (const g of GUIDES) {
     assert.match(g.slug, /^[a-z0-9]+(?:-[a-z0-9]+)*$/);
     for (const d of [g.published, g.updated]) {
@@ -416,9 +443,9 @@ test("the MSRP guide is US-only, the five Australian guides AU-only; every other
   for (const r of REGION_LIST.filter((x) => x.region !== "us")) {
     assert.equal(guideFor("pokemon-tcg-msrp", r.region), null, r.region);
     assert.ok(!guidesFor(r.region).some((g) => g.slug === "pokemon-tcg-msrp"), r.region);
-    assert.equal(guidesFor(r.region).length, r.region === "au" ? 45 : r.region === "uk" || r.region === "ca" ? 41 : 40, r.region);
+    assert.equal(guidesFor(r.region).length, r.region === "au" ? 46 : r.region === "uk" || r.region === "ca" ? 42 : 41, r.region);
   }
-  assert.equal(guidesFor("us").length, 42);
+  assert.equal(guidesFor("us").length, 43);
   assert.deepEqual(guideRegions(GUIDE_BY_SLUG.get("pokemon-tcg-christmas-gift-guide")!), ["us", "uk", "ca"]);
   for (const g of GUIDES.filter((x) => x.slug !== "pokemon-tcg-msrp" && !AU_ONLY.includes(x.slug) && x.slug !== "pokemon-tcg-christmas-gift-guide")) assert.equal(guideRegions(g).length, 7, g.slug);
   assert.equal(guideFor("no-such-guide", "au"), null);
@@ -766,4 +793,23 @@ test("legacy redirects: every specific source was a real old guide or blog post,
   assert.equal(to("/guides/pokemon-booster-box-prices-by-country-old"), "/about");
   assert.equal(to("/guides/pokemon-booster-box-prices-by-country/x"), "/about");
   assert.equal(to("/guides/how-to-grade-pokemon-cards/deep/path"), "/about");
+});
+
+test("Delta Reign ETB: a later shipment is read only from the store's own title", async () => {
+  const { laterShipment, splitOffers } = await import("../src/content/guides/delta-reign-elite-trainer-box");
+  assert.deepEqual(laterShipment("(Wave 2 Pre-Order Ships in 2-4 weeks) Pokemon TCG - Delta Reign Elite Trainer Box"), { later: true, wave: 2 });
+  assert.deepEqual(laterShipment("[PREORDER] (Preorder) Pokémon TCG - Delta Reign - Elite Trainer Box - Wave 3 - 2026-12-03"), { later: true, wave: 3 });
+  assert.deepEqual(laterShipment("Delta Reign - ETB Preorder (limit 1)"), { later: true, wave: null });
+  // A launch pre-order the store never retitled is stock that ships now.
+  assert.equal(laterShipment("Delta Reign Elite Trainer Box ETB Sealed (PREORDER - Release Date November 06, 2026)").later, false);
+  assert.equal(laterShipment("[LIMIT ONE PER PERSON | PREORDER 6 NOV] Delta Reign Elite Trainer Box").later, false);
+  assert.equal(laterShipment("Pokemon TCG: Mega Evolution Delta Reign Elite Trainer Box").later, false);
+  const html = render("delta-reign-elite-trainer-box", "us");
+  const t = text(html);
+  assert.match(t, /Alpha Games/);
+  assert.match(t, /Wave 2 pre-order/);
+  assert.doesNotMatch(t, /Epsilon/, "a sold-out row is not in the in-stock tables");
+  const { now, later } = splitOffers(fixture("delta-reign-elite-trainer-box").product!.offers);
+  assert.deepEqual(now.map((o) => o.store), ["alpha", "gamma"]);
+  assert.deepEqual(later.map((o) => o.store), ["beta", "delta"]);
 });
