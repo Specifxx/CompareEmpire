@@ -9,6 +9,12 @@ jobs:
     steps:
       - run: |
           UA="DexCompareBot/1.0 (+https://dexcompare.io)"
-          for h in delta-reign-booster-box pitch-black-booster-bundle perfect-order-booster-bundle ascended-heroes-booster-bundle 30th-celebration-elite-trainer-box obsidian-flames-elite-trainer-box silver-tempest-elite-trainer-box 30th-celebration-knock-out-collection ; do echo "== $h"; curl -s -m 30 -A "$UA" -w " HTTP %{http_code}\n" "https://collectivecubed.com/products/$h.json" -o p.json; jq -r '.product | "\(.title) | type=\(.product_type) | status=\(.published_at) | avail=\([.variants[].inventory_quantity // "?"])"' p.json 2>/dev/null; sleep 1; done
-          for c in mega-evolution-new mega-evolution-ascended-heroes frontpage; do echo "=== $c"; curl -s -m 30 -A "$UA" "https://collectivecubed.com/collections/$c/products.json?limit=250" | jq -r '.products[] | select(.product_type|test("Single")|not) | "\(.title) | type=\(.product_type) | avail=\([.variants[].available]|any)"' | head -40; sleep 1; done
-          echo "=== search"; curl -s -m 30 -A "$UA" "https://collectivecubed.com/search/suggest.json?q=booster%20box&resources[type]=product&resources[limit]=10" | jq -r '.resources.results.products[]? | "\(.title) | \(.available)"'
+          shop() { b=$1; shift; echo "##### $b"; for c in "$@"; do printf "  %s: " "$c"; curl -s -m 30 -A "$UA" -o p.json -w "HTTP %{http_code} " "$b/collections/$c/products.json?limit=250"; jq -r '"\(.products|length) products"' p.json 2>/dev/null || head -c 150 p.json; echo; sleep 1; done
+            echo "  collections:"; curl -s -m 30 -A "$UA" "$b/collections.json?limit=250" -o c.json -w "  HTTP %{http_code}\n"; jq -r '.collections[] | select(.handle|test("pok|seal|booster|etb|tin";"i")) | "    \(.handle) \(.products_count)"' c.json 2>/dev/null | head -25 || head -c 200 c.json; sleep 1; }
+          woo() { b=$1; shift; echo "##### $b"; curl -s -m 30 -A "$UA" -o w.json -w "  cats HTTP %{http_code}\n" "$b/wp-json/wc/store/v1/products/categories?per_page=100"; jq -r '.[] | select(.slug|test("pok|seal";"i")) | "    \(.slug) id=\(.id) \(.count)"' w.json 2>/dev/null | head -20 || head -c 300 w.json; echo; curl -s -m 30 -A "$UA" -o w2.json -w "  products HTTP %{http_code}\n" "$b/wp-json/wc/store/v1/products?per_page=5&search=pokemon"; head -c 300 w2.json; echo; sleep 1; }
+          shop https://tierzerogames.com pokemon-sealed-products pokemon-theme-decks
+          shop https://cardworld.be pokemon-booster-packs-engels pokemon-booster-boxen-engels
+          shop https://collectorclash.com pokemon
+          shop https://treasurevaultau.com pokemon
+          woo https://rarepokemoncards.co.uk
+          woo https://koffie-spel.be
