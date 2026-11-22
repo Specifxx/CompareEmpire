@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { track } from "@vercel/analytics";
 import { REL_SPONSORED, TCGPLAYER_RETAILER, tcgplayerAffiliateUrl, tcgplayerSearchUrl, type Placement } from "@/lib/affiliate";
-import { AD_HEAVY, MAX_SLIDES, SLIDE_AFTER_S, countView, heavyBlocked, notePopup, noteSlide, popupDue, popupsShown, slidesShown } from "@/lib/ad-heavy";
+import { AD_HEAVY, MAX_SLIDES, SLIDE_AFTER_S, countView, heavyBlocked, heavyPhone, notePopup, noteSlide, popupDue, popupsShown, slidesShown } from "@/lib/ad-heavy";
 import type { TcgplayerTile } from "@/lib/data";
 import { money } from "@/lib/format";
 import { thumb } from "@/lib/images";
@@ -26,7 +26,7 @@ export function HeavyTopAds({ region, tiles }: { region: Region; tiles: Tcgplaye
   const path = usePathname() || "";
   if (!AD_HEAVY) return null;
   return (
-    <div className="page" data-heavy-top>
+    <div className="page hidden md:block" data-heavy-top>
       <InlineAds key={`top|${region}|${path}`} region={region} tiles={tiles.slice(6).concat(tiles.slice(0, 6))} className="mb-6 mt-4" ebayPlacement="heavy-top-ebay" tcgPlacement="heavy-top-tcg" />
     </div>
   );
@@ -60,7 +60,7 @@ export function HeavyPopups({ region, tiles }: { region: Region; tiles: Tcgplaye
   const picks = tiles.filter((t) => t.imageUrl).slice(0, 6);
 
   useEffect(() => {
-    if (!AD_HEAVY || picks.length < 3 || heavyBlocked()) return;
+    if (!AD_HEAVY || picks.length < 3 || heavyBlocked() || heavyPhone()) return;
     const view = countView();
     setSlide(false);
     let t1: number | undefined;

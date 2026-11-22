@@ -50,6 +50,15 @@ export const notePopup = () => writeN(POPUPS_KEY, readN(POPUPS_KEY) + 1);
 export const slidesShown = () => readN(SLIDES_KEY);
 export const noteSlide = () => writeN(SLIDES_KEY, readN(SLIDES_KEY) + 1);
 
+/** Phones are out of the heavy set since 2026-11-22 (owner's tap on the decision card, page budget rules 2, 3 and 6): below 768px a
+ *  visitor gets the light set only (no top banner pair, no pop-up, no slide-in). Desktop keeps the heavy set until the 10 Dec read;
+ *  phone data is read only up to the cut (ops/product-ux/log.md has the deploy time). The top pair hides with CSS (`hidden md:block`). */
+export const HEAVY_MIN_WIDTH = 768;
+export function heavyPhone(): boolean {
+  if (typeof window === "undefined") return true;
+  return !window.matchMedia(`(min-width: ${HEAVY_MIN_WIDTH}px)`).matches;
+}
+
 /** Ad-free members and the app never see the heavy set. */
 export function heavyBlocked(): boolean {
   if (typeof document === "undefined") return true;
