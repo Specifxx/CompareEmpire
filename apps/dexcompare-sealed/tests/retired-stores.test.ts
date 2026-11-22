@@ -14,6 +14,7 @@ test("a retired store is out of the registry", () => {
 test("a retired store's old page redirects to its own region's store directory", () => {
   assert.equal(retiredStoreRedirect("kumacards"), "/uk/stores");
   assert.equal(retiredStoreRedirect("southtexastcg"), "/us/stores");
+  assert.equal(retiredStoreRedirect("collectivecubed"), "/us/stores");
   assert.equal(retiredStoreRedirect("obsessiongaming"), "/au/stores");
   assert.equal(retiredStoreRedirect("eldartcg"), "/eu/stores");
   assert.equal(retiredStoreRedirect("thesidedeck"), null);

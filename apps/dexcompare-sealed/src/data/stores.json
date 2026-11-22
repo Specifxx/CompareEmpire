@@ -7425,18 +7425,6 @@
     ]
   },
   {
-    "key": "collectivecubed",
-    "name": "Collective Cubed",
-    "base": "https://collectivecubed.com",
-    "market": "US",
-    "platform": "shopify",
-    "country": "US",
-    "collections": [
-      "pokemon-sealed",
-      "pokemon-chaos-rising"
-    ]
-  },
-  {
     "key": "collectorsemporium",
     "name": "Collectors Emporium NY",
     "base": "https://collectorsemporium.com",
