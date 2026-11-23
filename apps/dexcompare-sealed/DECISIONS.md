@@ -1817,3 +1817,28 @@ has run without one since 2026-11-07. So DexCompare drops it:
   the counts against DC2's, then saves the first snapshot. DC2 is never read by a job again. Vercel keeps its `DC2` variable as the
   fallback for a read the files cannot answer (none today); Neon may suspend it at the limit without any page noticing.
 
+
+## 2026-11-23: The owner's UX review, P0 (no interrupting ads, fresh prices, sort and filter, one order, typo search, a shorter top)
+
+The owner reviewed DexCompare on desktop (AU) and asked for these first, site-wide, urgently:
+
+1. **No interrupting ads.** A full-screen TCGplayer pop-up opened while he typed in search and swallowed the query; a floating
+   TCGplayer card covered product tiles. Now: the heavy pop-up opens at most ONCE a visit (from the 2nd page), never while a text
+   field has focus or a key was pressed in the last 5 s (`lib/visitor-busy.ts`), and only when the visit's one prompt slot is free.
+   The slide-in card is gone. The sign-in corner and the rating card ask `visitorBusy()` too.
+2. **Fresh prices.** Pages said "checked 30 hours ago". Cause: only the 20:47 UTC import released, GitHub started it hours late,
+   and the 12-hour build gate then skipped it, so live prices aged a day and more. Every sealed import now releases (the gate still
+   allows one production build per 12 hours), and `dexcompare-freshness.yml` (every 2 hours) starts the import and fails red
+   (GitHub emails the owner) when the snapshot is over 12 hours old, or the last release over 26.
+3. **Sort and filter on every listing** of 8+ products (`GridControls`, `lib/grid-sort.ts`): price both ways, price per pack,
+   % under median, newest set; set, era, language and price band. In the browser only; the server HTML keeps one order.
+4. **One visible order.** The eBay strip sat after the 4th product and read as the list restarting. On a listing it now sits under
+   the whole grid, and no sponsored tile sits among the products.
+5. **Typo-tolerant search.** A word that matches nothing is replaced by the nearest catalogue word (1 edit for 4-6 letters, 2 for 7+,
+   swaps count once; `suggestQuery`), and the box and the browse page say "Showing results for …". No match: the most widely stocked
+   products instead of a dead end.
+6. **Less above the title.** The heavy test's banner pair at the top of every desktop page is gone (the pair below the content
+   stays), and the sale line under the header closes with ✕ for 7 days.
+
+The heavy ad test (2026-11-19, read 10 Dec) loses its top pair and slide-in, and its pop-up drops from three a visit to one, from
+this release on: the 10 Dec read compares desktop before and after this deploy time separately (ops/product-ux/log.md), never pooled.

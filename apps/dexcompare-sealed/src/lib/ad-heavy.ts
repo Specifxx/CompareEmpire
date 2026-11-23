@@ -4,7 +4,7 @@
 //   • the banner pair again at the TOP of every region page (`heavy-top-*`);
 //   • a "Recommended for you" pop-up of TCGplayer products that covers the page until it is closed (`heavy-popup`): never on the
 //     page a visitor lands on (Google judges the landing page), on the 2nd, 5th and 8th page of a visit, at most three a visit;
-//   • a "Recommended" card that slides in at the bottom corner after a while on a page (`heavy-slidein`), closable, at most four a visit.
+//   • (until 2026-11-23) a "Recommended" card that slid in at the bottom corner (`heavy-slidein`): removed, it covered content.
 // Pop-ups and slide-ins are TCGplayer ONLY (owner, 2026-11-19: no eBay in pop-ups until eBay Partner Network approves the format).
 // Everything is labelled "Ad", closes with ✕, Esc or the backdrop, and never shows to ad-free members or in the app.
 // Roll back by setting AD_HEAVY to false. Read 10 Dec against Rift and MTG Compare (DECISIONS.md, 2026-11-19).
@@ -12,16 +12,16 @@ export const AD_HEAVY = true;
 
 const VIEWS_KEY = "heavy-views";
 const POPUPS_KEY = "heavy-popups";
-const SLIDES_KEY = "heavy-slides";
 
-/** The page views of a visit on which the pop-up opens: never the landing page. Pure, for the tests. */
-export const POPUP_AT = [2, 5, 8] as const;
-export const MAX_SLIDES = 4;
-/** Seconds on a page before the slide-in card appears. */
-export const SLIDE_AFTER_S = 12;
+/** AMENDED 2026-11-23 (owner's UX review, P0 1: ads never fire during typing or cover content, at most once a session).
+ *  The pop-up opens at most ONCE a visit, from the 2nd page on, never while the visitor types (lib/visitor-busy.ts), and only when the
+ *  visit's one prompt slot is free (lib/prompt-slot.ts). The slide-in card is gone: a floating card covered product tiles. The
+ *  10 Dec read uses desktop data up to this change's deploy time for the old cadence (ops/product-ux/log.md). Pure, for the tests. */
+export const POPUP_FROM_VIEW = 2;
+export const MAX_POPUPS = 1;
 
 export function popupDue(view: number, shown: number): boolean {
-  return (POPUP_AT as readonly number[]).includes(view) && shown < POPUP_AT.length;
+  return view >= POPUP_FROM_VIEW && shown < MAX_POPUPS;
 }
 
 function readN(key: string): number {
@@ -47,8 +47,6 @@ export function countView(): number {
 }
 export const popupsShown = () => readN(POPUPS_KEY);
 export const notePopup = () => writeN(POPUPS_KEY, readN(POPUPS_KEY) + 1);
-export const slidesShown = () => readN(SLIDES_KEY);
-export const noteSlide = () => writeN(SLIDES_KEY, readN(SLIDES_KEY) + 1);
 
 /** Phones are out of the heavy set since 2026-11-22 (owner's tap on the decision card, page budget rules 2, 3 and 6): below 768px a
  *  visitor gets the light set only (no top banner pair, no pop-up, no slide-in). Desktop keeps the heavy set until the 10 Dec read;

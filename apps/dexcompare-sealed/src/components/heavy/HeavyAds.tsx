@@ -1,12 +1,14 @@
 "use client";
 // The heavy set of the ad-intensity test (lib/ad-heavy.ts has the rules): the banner pair again at the top of a region page, the
-// TCGplayer "Recommended for you" pop-up and the TCGplayer slide-in card. Browser only: nothing here is in the server HTML (the top
+// TCGplayer "Recommended for you" pop-up (the slide-in card was removed 2026-11-23). Browser only: nothing here is in the server HTML (the top
 // banners hold their height there, as the bottom pair does). Labelled "Ad", rel sponsored, each under its own placement.
 import { useCallback, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { track } from "@vercel/analytics";
 import { REL_SPONSORED, TCGPLAYER_RETAILER, tcgplayerAffiliateUrl, tcgplayerSearchUrl, type Placement } from "@/lib/affiliate";
-import { AD_HEAVY, MAX_SLIDES, SLIDE_AFTER_S, countView, heavyBlocked, heavyPhone, notePopup, noteSlide, popupDue, popupsShown, slidesShown } from "@/lib/ad-heavy";
+import { AD_HEAVY, countView, heavyBlocked, heavyPhone, notePopup, popupDue, popupsShown } from "@/lib/ad-heavy";
+import { claimPromptSlot, promptSlotHolder } from "@/lib/prompt-slot";
+import { visitorBusy, watchTyping } from "@/lib/visitor-busy";
 import type { TcgplayerTile } from "@/lib/data";
 import { money } from "@/lib/format";
 import { thumb } from "@/lib/images";
@@ -15,7 +17,6 @@ import { InlineAds } from "../InlineAds";
 import { OutboundLink } from "../OutboundLink";
 
 const POPUP: Placement = "heavy-popup";
-const SLIDE: Placement = "heavy-slidein";
 
 function usd(region: Region, cents: number): string {
   return region === "us" ? money(cents, "US") : `US${money(cents, "US")}`;
@@ -52,40 +53,28 @@ function Pick({ t, region, placement, big = false }: { t: TcgplayerTile; region:
   );
 }
 
-/** The pop-up and the slide-in, mounted once in the region layout. */
+/** The pop-up, mounted once in the region layout (the slide-in card was removed 2026-11-23). */
 export function HeavyPopups({ region, tiles }: { region: Region; tiles: TcgplayerTile[] }) {
   const path = usePathname() || "";
   const [popup, setPopup] = useState(false);
-  const [slide, setSlide] = useState(false);
   const picks = tiles.filter((t) => t.imageUrl).slice(0, 6);
 
   useEffect(() => {
+    watchTyping();
     if (!AD_HEAVY || picks.length < 3 || heavyBlocked() || heavyPhone()) return;
     const view = countView();
-    setSlide(false);
-    let t1: number | undefined;
-    let t2: number | undefined;
-    if (popupDue(view, popupsShown())) {
-      // A beat after the page draws, so the visitor sees where they are first.
-      t1 = window.setTimeout(() => {
-        // Another open dialog (the quick view, an open cart) goes first. The cart drawer stays in the page while closed, hidden and inert.
-        const open = [...document.querySelectorAll('[role="dialog"][aria-modal="true"]')].some((d) => !d.closest('[aria-hidden="true"], [inert]'));
-        if (open) return;
-        notePopup();
-        setPopup(true);
-        track("heavy_ad", { kind: "popup", view });
-      }, 1500);
-    } else if (slidesShown() < MAX_SLIDES) {
-      t2 = window.setTimeout(() => {
-        noteSlide();
-        setSlide(true);
-        track("heavy_ad", { kind: "slidein", view });
-      }, SLIDE_AFTER_S * 1000);
-    }
-    return () => {
-      window.clearTimeout(t1);
-      window.clearTimeout(t2);
-    };
+    if (!popupDue(view, popupsShown()) || promptSlotHolder()) return;
+    // A beat after the page draws, so the visitor sees where they are first. Never over a visitor who is typing or has a field
+    // focused (owner, 2026-11-23): this page is skipped and a later one may try again.
+    const t1 = window.setTimeout(() => {
+      // Another open dialog (the quick view, an open cart) goes first. The cart drawer stays in the page while closed, hidden and inert.
+      const open = [...document.querySelectorAll('[role="dialog"][aria-modal="true"]')].some((d) => !d.closest('[aria-hidden="true"], [inert]'));
+      if (open || visitorBusy() || !claimPromptSlot("heavy-popup")) return;
+      notePopup();
+      setPopup(true);
+      track("heavy_ad", { kind: "popup", view });
+    }, 2500);
+    return () => window.clearTimeout(t1);
     // One count per page: the path is the page.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [path]);
@@ -143,24 +132,6 @@ export function HeavyPopups({ region, tiles }: { region: Region; tiles: Tcgplaye
             <p className="mt-3 text-[11px] leading-tight text-muted">Paid link: DexCompare may earn a commission from TCGplayer purchases, at no cost to you.</p>
           </div>
         </div>
-      )}
-      {slide && !popup && (
-        <aside aria-label="Sponsored: recommended on TCGplayer" data-heavy-slide className="fixed bottom-20 right-3 z-40 w-[min(380px,calc(100vw-24px))] rounded-2xl border border-line bg-surface p-3 shadow-lift sm:bottom-4">
-          <div className="flex items-center gap-2">
-            <span className="ad-pill">Ad</span>
-            <span className="min-w-0 flex-1 truncate text-sm font-bold text-ink">Recommended on TCGplayer</span>
-            <button type="button" onClick={() => setSlide(false)} aria-label="Close" className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-muted hover:bg-raised hover:text-ink">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
-                <path d="M6 6l12 12M18 6 6 18" />
-              </svg>
-            </button>
-          </div>
-          <div className="scroller mt-2 gap-2">
-            {picks.slice(0, 4).map((t) => (
-              <Pick key={t.slug} t={t} region={region} placement={SLIDE} />
-            ))}
-          </div>
-        </aside>
       )}
     </>
   );

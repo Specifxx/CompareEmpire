@@ -4,7 +4,7 @@ import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { HolidayStrip } from "@/components/HolidayStrip";
 import { SideAds } from "@/components/SideAds";
-import { HeavyPopups, HeavyTopAds } from "@/components/heavy/HeavyAds";
+import { HeavyPopups } from "@/components/heavy/HeavyAds";
 import { regionOrNotFound } from "@/lib/regions";
 
 // Nothing here is prerendered at build: every region page is force-dynamic and kept by Vercel's CDN
@@ -27,9 +27,8 @@ export default async function RegionLayout({ children, params }: { children: Rea
       {/* ONE navigation since 2026-11-13 (owner: "we're making things too complicated"): the header. The sidebar that repeated its
           menus down the left of every desktop page is gone; the page is one centred column. */}
       <main id="main" className="min-w-0 flex-1">
-        {/* The ad-intensity test (lib/ad-heavy.ts, owner 2026-11-19): DexCompare is a HEAVY site, so the banner pair also sits at the
-            top of every region page; the light sites keep it below the content only. */}
-        <HeavyTopAds region={r.region} tiles={tcg} />
+        {/* The heavy test's banner pair at the TOP of every page is gone (owner, 2026-11-23 UX review, P0 6: about 200px of header
+            before the title; ads below content). The pair stays below the content, as on every site. */}
         {children}
         {/* The two ad banners sit BELOW the content of every region page without a spot of its own (owner, 2026-11-19: "all the ads
             that can negatively impact our indexing let's remove and have more strategically placed ads"). The server HTML holds empty

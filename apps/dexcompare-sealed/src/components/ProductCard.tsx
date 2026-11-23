@@ -8,6 +8,8 @@ import { isPreorderSet } from "@/lib/release";
 import { REGIONS, type Region } from "@/lib/regions";
 import { usMsrpForCard } from "@/lib/rrp";
 import { StockPill } from "./StockPill";
+import { SET_BY_CODE } from "@/lib/sets";
+import { jaSetOf } from "@/lib/sets-ja";
 
 // The grid lives in ProductGrid.tsx (its in-feed tiles are the ads code's, the card is the shell's); re-exported here so
 // existing `import { ProductGrid } from "./ProductCard"` lines keep working.
@@ -60,8 +62,20 @@ export function ProductCard({ p, region, priority = false }: { p: ProductCardDat
   const [full, fullUnit] = cardStockLabel(p, pre);
   const [stock, unit] = cardStockShort(p, pre);
   // Short classes from globals.css (.pc-*): grids repeat the card dozens of times, in the HTML and the payload.
+  // The card's facts for the listing's sort and filter bar (GridControls, lib/grid-sort.ts; owner, 2026-11-23).
+  const ja = jaSetOf(p.setCode);
+  const en = p.setCode ? SET_BY_CODE.get(p.setCode) : undefined;
   return (
-    <div className="flex flex-col">
+    <div
+      className="flex flex-col"
+      data-gp={open && p.lowestPriceCents != null ? p.lowestPriceCents : ""}
+      data-gk={perPack ?? ""}
+      data-gu={savingPct != null && savingPct < 0 ? -savingPct : ""}
+      data-gn={p.releaseDate ?? ""}
+      data-gs={ja?.name ?? en?.name ?? ""}
+      data-ge={ja ? ja.era : en?.series ?? ""}
+      data-gl={ja ? "Japanese" : "English"}
+    >
       <Link
         href={`/${region}/p/${p.slug}`}
         prefetch={false}

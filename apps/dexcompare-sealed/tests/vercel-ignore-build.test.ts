@@ -111,9 +111,10 @@ test("the sealed import's data commit carries the marker; the eBay import's does
   assert.match(pub, /\[ "\$\{2:-\}" = "release" \] && MARK=" \[deploy\]"/);
   assert.match(pub, /git commit -q -m "DexCompare data: [^"]*\$MARK"/);
   const wf = (f: string) => readFileSync(join(ROOT, "../../.github/workflows", f), "utf8");
-  // One release a day (2026-10-17): the 20:47 UTC run, a manual run and the schema sync; the 08:47 run rides it.
+  // Every run releases since 2026-11-23 (owner's UX review: prices said "checked 30 hours ago"); the build gate still holds it to one
+  // production build per 12 hours.
   const sealed = wf("dexcompare-sealed-import.yml");
-  assert.match(sealed, /RELEASE: \$\{\{ \(github\.event_name != 'schedule' \|\| github\.event\.schedule == '47 20 \* \* \*'\) && 'release' \|\| '' \}\}/);
+  assert.match(sealed, /RELEASE: release\n/);
   assert.match(sealed, /publish-public-data\.sh "[^"]*" \$RELEASE/);
   assert.doesNotMatch(wf("dexcompare-ebay-import.yml"), /publish-public-data\.sh "[^"]*" release/);
 });

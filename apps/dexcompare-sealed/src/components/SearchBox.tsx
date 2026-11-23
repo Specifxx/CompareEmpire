@@ -139,7 +139,17 @@ export function SearchBox({ region, size = "sm", autoFocus = false }: { region: 
 
   const term = q.trim();
   const ranked = useMemo(() => (engine && ix && term ? engine.rankSearch(ix.cards, term, LIMIT) : { products: [], total: 0 }), [engine, ix, term]);
-  const options = useMemo(() => searchOptions(region, term, { products: ranked.products.slice(0, fit), total: ranked.total }), [region, term, ranked, fit]);
+  // No match: the most widely stocked products instead of a dead end (owner, 2026-11-23 UX review, P0 5 and P2 18).
+  const popular = useMemo(
+    () => (ix && term && ranked.total === 0 ? [...ix.cards].filter((c) => c.inStockStores > 0).sort((a, b) => b.inStockStores - a.inStockStores).slice(0, 4) : []),
+    [ix, term, ranked.total],
+  );
+  const options = useMemo(
+    () => searchOptions(region, term, { products: (ranked.total ? ranked.products : popular).slice(0, fit), total: ranked.total }),
+    [region, term, ranked, popular, fit],
+  );
+  // "Did you mean" (owner, 2026-11-23 UX review, P0 5): the typo-tolerant search already ranked the corrected words; say so.
+  const fixed = useMemo(() => (engine && ix && term ? engine.suggestQuery(ix.cards, term) : null), [engine, ix, term]);
   const visible = mounted && open && !!term;
   const act = active < options.length ? active : -1;
 
@@ -319,9 +329,14 @@ export function SearchBox({ region, size = "sm", autoFocus = false }: { region: 
           </p>
         )}
         {load === "error" && <p className="px-4 pt-3 text-xs text-muted">Suggestions aren&rsquo;t available right now. Press Enter to search.</p>}
+        {load === "ready" && ranked.total > 0 && fixed && (
+          <p className="px-4 pt-3 text-sm text-muted">
+            Showing results for &ldquo;<b className="text-ink">{fixed}</b>&rdquo;
+          </p>
+        )}
         {load === "ready" && ranked.total === 0 && (
           <p className="px-4 pt-3 text-sm text-muted">
-            No product names match &ldquo;{term}&rdquo; in {REGIONS[region].inName}. Try a set name, or a type like &ldquo;ETB&rdquo;.
+            No product names match &ldquo;{term}&rdquo; in {REGIONS[region].inName}. Try a set name, or a type like &ldquo;ETB&rdquo;, or one of the popular products below.
           </p>
         )}
         <div role="listbox" id={listId} aria-label="Search suggestions" className="py-1.5">
