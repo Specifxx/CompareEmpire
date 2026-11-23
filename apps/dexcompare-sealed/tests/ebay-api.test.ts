@@ -231,7 +231,7 @@ test("the importer's secrets reach only the import step of the workflow", () => 
     // the check step only learns WHETHER a secret is set (a boolean), never its value
     if (isCheck) for (const m of s.matchAll(/\$\{\{([^}]*)\}\}/g)) if (/EBAY_CLIENT/.test(m[1])) assert.ok(/!= ''/.test(m[1]) && !/\bENV\b/.test(m[1]), `the check step must only test presence: ${m[1]}`);
   }
-  assert.ok(/concurrency:\s*\n\s*group: dexcompare-ebay-import\s*\n\s*cancel-in-progress: false/.test(wf));
+  assert.ok(/concurrency:\s*\n\s*group: dexcompare-data\s*\n\s*cancel-in-progress: false/.test(wf));
   assert.ok(/timeout-minutes: 90/.test(wf), "a bounded job (90 minutes: the sweep pages up to 1,800 calls on top of the fixed feeds)");
   // write, for one thing only: the public data snapshot it commits to main after the import (scripts/publish-public-data.sh).
   assert.ok(/\npermissions:\s*\n\s*contents: write/.test(wf), "the token can publish the data snapshot");

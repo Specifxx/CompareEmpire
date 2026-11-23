@@ -1793,3 +1793,27 @@ Every sign-in prompt links `/account?src=<surface>`; the sign-in sends it on, an
 dexcompare and mtgcompare". In the week to 22 Nov, 118 of 125 new reachable people were RiftCompare accounts and Dex and MTG,
 with most of the Google traffic, added 6. Owner, 2026-11-23: "keep user experience high and not flooding them with ads and
 information" (ops/product-ux/page-budget.md): hence one prompt a visit and nothing on the first page.
+
+## 2026-11-23: No hosted database: the data jobs run on their own Postgres, saved to a GitHub branch
+
+The owner, 2026-11-23: "Dc2 is at limit, migrate to another database." DC2 (Neon, free plan: 5 GB of transfer and 100 compute
+hours a month) was the importers' working store only, and each export reads every table whole (~25 MB), twice a day, plus the
+imports' own reads: 3.55 GB by 18 November. Another Neon project would fill the same way; SportsCardCompare (a port of this engine)
+has run without one since 2026-11-07. So DexCompare drops it:
+
+- **Each data job starts a Postgres 18 service on the runner**, loads it from the branch `dexcompare-db` (`dex.dump`, a compressed
+  data-only `pg_dump` of the six tables in `prisma/schema.prisma`, and `counts.txt`), checks every table's row count against the
+  snapshot's, runs the import, and saves the database back (`scripts/db-snapshot.sh`). The schema comes from `prisma db push`, the rows
+  from the dump (each COPY names its columns), so a new column restores cleanly. `tests/db-snapshot.test.ts` keeps TABLES equal to the
+  schema's models.
+- **The snapshot holds every row**, culled products and the eBay call counter (`EbayCallDay`) included, unlike `data/public/` (culled
+  by `lib/focus.ts`). That is why it is a separate branch and not seeded from the public files as SportsCardCompare does: a culled
+  product that qualifies again keeps its slug and rows, and the 2,500-a-day eBay cap still counts today's calls.
+- **Saved even when an import fails part way** (Neon kept every write; the eBay calls spent must count), never when the load failed,
+  never empty (no products: refused), never after an eBay dry run or probe. The previous snapshot goes to `dexcompare-db-prev` first;
+  force-pushed, one commit each, so the repository does not grow. Nothing in it is private.
+- **One concurrency group, `dexcompare-data`,** for the sealed and eBay imports: two jobs at once would each save over the other's writes.
+- **The move itself**: the first run with no `dexcompare-db` branch copies the six tables from DC2 (`SEED_URL`, its direct host) and checks
+  the counts against DC2's, then saves the first snapshot. DC2 is never read by a job again. Vercel keeps its `DC2` variable as the
+  fallback for a read the files cannot answer (none today); Neon may suspend it at the limit without any page noticing.
+

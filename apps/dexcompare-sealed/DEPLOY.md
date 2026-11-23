@@ -24,7 +24,15 @@ and every page, the browse index and the eBay strips read them through
 through to the database and logs `[public-data:unsupported]`; `scripts/check-public-data.ts` compares every loader both ways and
 must report no difference but the order of ties.
 
-**The database is DC2**, a separate Neon project, used by the importers only (so its compute wakes for imports and nothing else):
+**Since 2026-11-23 there is no hosted database** (owner: "Dc2 is at limit, migrate to another database"; DECISIONS.md
+2026-11-23). Each data job (`dexcompare-sealed-import.yml`, `dexcompare-ebay-import.yml`, one concurrency group `dexcompare-data`)
+starts a Postgres inside the GitHub runner, loads it from the branch `dexcompare-db` (`dex.dump`, every row of the six tables, and
+`counts.txt`), checks every table's row count, runs the import and saves the database back (`scripts/db-snapshot.sh`; the snapshot
+before it stays on `dexcompare-db-prev`). Never edit or merge those branches. To roll back to a snapshot, push `dexcompare-db-prev`
+over `dexcompare-db`. The first run after the change found no snapshot and copied DC2 once (the counts checked against DC2's);
+DC2 is not read again, and Neon can let it sleep. What follows is how DC2 was set up, kept for the record.
+
+**Until 2026-11-23 the database was DC2**, a separate Neon project, used by the importers only (so its compute wakes for imports and nothing else):
 
 | Where | Name | Value |
 |---|---|---|
