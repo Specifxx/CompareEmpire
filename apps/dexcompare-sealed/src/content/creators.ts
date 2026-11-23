@@ -18,4 +18,20 @@ import type { Creator } from "@/lib/creators";
 //     avatar: "/img/creators/some-creator.webp",
 //     since: "2026-11-10",
 //   },
-export const CREATORS: Creator[] = [];
+export const CREATORS: Creator[] = [
+  {
+    // Asked to be featured by email to compareempire@gmail.com (2026-11-23); owner approved: one video or post a week
+    // mentioning DexCompare, creator code KAMITARU (his tracked link's utm_campaign=kamitaru).
+    slug: "kamitaru",
+    name: "Kamitaru",
+    blurb: "Minecraft and Cobblemon streams, plus Pokémon TCG collecting",
+    links: [
+      { platform: "YouTube", url: "https://youtube.com/@kamitaru", handle: "@kamitaru" },
+      { platform: "Twitch", url: "https://www.twitch.tv/kamitarutv", handle: "kamitarutv" },
+      { platform: "TikTok", url: "https://www.tiktok.com/@kamitaruuu", handle: "@kamitaruuu" },
+    ],
+    tags: ["Streams", "Collecting"],
+    region: "UK",
+    since: "2026-11-24",
+  },
+];
