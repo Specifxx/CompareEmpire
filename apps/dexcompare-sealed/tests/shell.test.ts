@@ -383,7 +383,7 @@ const card = (o: Partial<ProductCardData> = {}): ProductCardData => ({
 test("ProductCard: a photo on its plate, the name, one stock line and the price; one badge at most; no pill, cue or second line", () => {
   // The minimal card (owner, 2026-11-13: "cull … all the display aesthetics"). Short classes (globals.css .pc-*); the CSS is pinned below.
   const html = render(React.createElement(ProductCard, { p: card(), region: "us" }));
-  assert.match(html, /^<div class="flex flex-col"><a [^>]*class="group pc-link"[^>]*href="\/us\/p\/pitch-black-elite-trainer-box"|^<div class="flex flex-col"><a [^>]*href="\/us\/p\/pitch-black-elite-trainer-box"[^>]*class="group pc-link"/, "the whole card is one link to the product page");
+  assert.match(html, /^<div class="flex flex-col"[^>]*><a [^>]*class="group pc-link"[^>]*href="\/us\/p\/pitch-black-elite-trainer-box"|^<div class="flex flex-col"[^>]*><a [^>]*href="\/us\/p\/pitch-black-elite-trainer-box"[^>]*class="group pc-link"/, "the whole card is one link to the product page");
   assert.match(html, /data-qv="pitch-black-elite-trainer-box"/, "a plain click opens the quick view");
   assert.match(html, /class="plate pc-plate"/);
   assert.match(html, /class="pc-img"/);

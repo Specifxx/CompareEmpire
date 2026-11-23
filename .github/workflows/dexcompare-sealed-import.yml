@@ -216,11 +216,12 @@ jobs:
       - name: Publish it to main
         if: steps.db.outputs.found == 'true'
         working-directory: .
-        # ONE RELEASE A DAY (owner, 2026-10-17: "reduce the cost"). The 20:47 UTC run (early morning in Australia,
-        # afternoon in the Americas), a manual run and the schema sync release ("release": the commit subject carries
-        # [deploy]); the 08:47 run commits its snapshot without the marker and it rides the next release, which carries a
-        # newer whole-database snapshot anyway. Every release empties Vercel's CDN; the 08:47 read still feeds the alerts.
+        # EVERY RUN RELEASES (owner, 2026-11-23 UX review, P0 2: pages said "checked 30 hours ago" against our "twice a day").
+        # Until then only the 20:47 UTC run carried [deploy]; GitHub starts scheduled runs hours late, so that release often
+        # landed within 12 hours of another build, the gate skipped it and the live prices aged a day and more. Both runs now
+        # carry the marker; scripts/vercel-ignore-build.sh still allows at most one production build per 12 hours (owner,
+        # 2026-11-02), so this is at most two a day. dexcompare-freshness.yml raises the alarm when the data is over 12 hours old.
         env:
           PUBLISH_FEED_STATE: "1"
-          RELEASE: ${{ (github.event_name != 'schedule' || github.event.schedule == '47 20 * * *') && 'release' || '' }}
+          RELEASE: release
         run: bash apps/dexcompare-sealed/scripts/publish-public-data.sh "dexcompare-sealed-import.yml run ${{ github.run_id }}" $RELEASE

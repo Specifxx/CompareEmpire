@@ -1,0 +1,59 @@
+name: DexCompare price freshness
+
+# Owner, 2026-11-23 UX review, P0 2: "Add a pipeline alert when data is over 12 hours old". Every two hours this reads the
+# newest data snapshot on main (apps/dexcompare-sealed/data/public/meta.json, written by every sealed import) and the time of
+# the last commit that released it ([deploy] in the subject). Snapshot over 12 hours old: it starts the sealed import (GitHub
+# starts scheduled runs hours late) and fails red, so GitHub emails the owner. Released prices over 26 hours old: red too
+# (the import ran but no build took it). Reads only git; no database, no Vercel call, no secret.
+
+on:
+  schedule:
+    - cron: "23 */2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: dexcompare-freshness
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 200
+      - name: Data and release age
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          now=$(date -u +%s)
+          gen=$(node -e 'console.log(JSON.parse(require("fs").readFileSync("apps/dexcompare-sealed/data/public/meta.json","utf8")).generatedAt)')
+          data_h=$(( (now - $(date -u -d "$gen" +%s)) / 3600 ))
+          rel=$(git log -200 --format='%ct %s' main | grep -iF '[deploy]' | head -1 | cut -d' ' -f1 || true)
+          rel_h=$([ -n "$rel" ] && echo $(( (now - rel) / 3600 )) || echo 999)
+          echo "Snapshot ${gen} (${data_h}h old); last release commit ${rel_h}h ago."
+          echo "### DexCompare freshness: snapshot ${data_h}h old, last release ${rel_h}h ago" >> "$GITHUB_STEP_SUMMARY"
+          bad=0
+          if [ "$data_h" -ge 12 ]; then
+            running=$(gh run list -w dexcompare-sealed-import.yml -s in_progress --json databaseId -q 'length')
+            queued=$(gh run list -w dexcompare-sealed-import.yml -s queued --json databaseId -q 'length')
+            if [ "$running" = "0" ] && [ "$queued" = "0" ]; then
+              gh workflow run dexcompare-sealed-import.yml
+              echo "Started the sealed import."
+            else
+              echo "A sealed import is already running or queued."
+            fi
+            echo "::error::DexCompare's price snapshot is ${data_h} hours old (over 12)."
+            bad=1
+          fi
+          if [ "$rel_h" -ge 26 ]; then
+            echo "::error::DexCompare's prices were last released ${rel_h} hours ago (over 26): check the build gate and the release job."
+            bad=1
+          fi
+          exit $bad
