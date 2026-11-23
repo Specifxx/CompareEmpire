@@ -4,6 +4,8 @@ import { Ago } from "@/components/Ago";
 import { BrowseGrid } from "@/components/BrowseGrid";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { EbayStrip } from "@/components/EbayStrip";
+import { WeeklyDropsBox } from "@/components/WeeklyDropsBox";
+import { ALERT_SITE_KEY } from "@/lib/alert-feed";
 import { pageHref } from "@/components/Pagination";
 import { marketPage } from "@/lib/browse-data";
 import { compactCard } from "@/lib/compact";
@@ -12,6 +14,7 @@ import { timeAgo } from "@/lib/format";
 import type { RegionInfo } from "@/lib/regions";
 import { pageMeta, regionAlternates } from "@/lib/seo";
 import { storesInMarket } from "@/lib/stores";
+import { weeklyBoxLive } from "@/lib/weekly-box";
 
 // Shared by /[region]/sealed (page 1) and /[region]/sealed/page/[n]. Both are CDN-cached renders of the same list: a page segment, not
 // ?page=, because reading searchParams would make the route dynamic and re-query the database on every request (src/lib/db.ts,
@@ -84,6 +87,10 @@ export async function BrowsePage({ r, page }: { r: RegionInfo; page: number }) {
           strip={page === 1 ? <EbayStrip region={r.region} context="sealed" placement="listings-browse" search={{ kind: "sealed", query: "" }} /> : undefined}
         />
       </div>
+      {/* The weekly price-drops email under the list, page 1 only (site loop Job C, 2026-11-23): All sealed is the second most-read
+          US hub (/us/sealed 278 views in 7 days, /ca/sealed 384) and the one hub without any alert or sign-up. Same box as the
+          home, deals and set pages (components/WeeklyDropsBox.tsx): inline, below the products, never a pop-up. */}
+      {page === 1 && weeklyBoxLive() && <WeeklyDropsBox site={ALERT_SITE_KEY} region={r.market} siteName="DexCompare" placement="sealed" className="mt-12 max-w-2xl" buttonClassName="btn-primary" />}
     </div>
   );
 }

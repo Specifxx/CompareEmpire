@@ -34,6 +34,11 @@ test("the weekly-drops box asks for an address only, on the hub pages, never on 
     assert.equal(src.match(/<WeeklyDropsBox/g)?.length, 1, p);
     assert.match(src, /\{weeklyBoxLive\(\) && <WeeklyDropsBox site=\{ALERT_SITE_KEY\} region=\{r\.market\}/, `${p}: drawn by the server, behind the date`);
   }
+  // All sealed (2026-11-23): page 1 only, under the list.
+  const browse = read("src/app/[region]/sealed/Browse.tsx");
+  assert.equal(browse.match(/<WeeklyDropsBox/g)?.length, 1);
+  assert.match(browse, /\{page === 1 && weeklyBoxLive\(\) && <WeeklyDropsBox site=\{ALERT_SITE_KEY\} region=\{r\.market\}[^>]*placement="sealed"/);
+  assert.ok(browse.indexOf("<WeeklyDropsBox") > browse.indexOf("<BrowseGrid"), "below the products");
   assert.ok(!read("src/app/[region]/p/[slug]/page.tsx").includes("WeeklyDropsBox"));
 });
 
