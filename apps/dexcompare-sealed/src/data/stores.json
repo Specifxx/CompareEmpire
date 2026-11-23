@@ -6534,17 +6534,6 @@
     ]
   },
   {
-    "key": "rarepokemoncards",
-    "name": "Rare Pokémon Cards UK",
-    "base": "https://rarepokemoncards.co.uk",
-    "market": "UK",
-    "platform": "woocommerce",
-    "country": "GB",
-    "collections": [
-      "sealed-pokemon-products-uk"
-    ]
-  },
-  {
     "key": "rollthedicecornwall",
     "name": "Roll The Dice Cornwall C.I.C.",
     "base": "https://rollthedicecornwall.com",
