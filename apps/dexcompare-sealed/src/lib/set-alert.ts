@@ -30,7 +30,9 @@ export function setAlertPick<T extends AlertCandidate>(products: readonly T[]): 
 }
 
 /** The button's words: "Email me when the Delta Reign booster box drops" (or "…is in stock at my price" with no price today). */
-export function setAlertLabel(setName: string, p: AlertCandidate): string {
+export function setAlertLabel(setName: string, p: AlertCandidate, preorder = false): string {
   const what = `${setName} ${SHORT[p.productType as (typeof SET_ALERT_TYPES)[number]] ?? p.productType}`;
+  // The pre-order page (2026-11-23): its prices are pre-orders, so the button says so.
+  if (preorder) return p.lowestPriceCents == null || !cardOpen(p) ? `Email me when a ${what} pre-order opens at my price` : `Email me when the ${what} pre-order drops`;
   return p.lowestPriceCents == null || !cardOpen(p) ? `Email me when the ${what} is in stock at my price` : `Email me when the ${what} drops`;
 }
