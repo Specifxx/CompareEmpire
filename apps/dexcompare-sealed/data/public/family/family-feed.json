@@ -1,7 +1,7 @@
 {
  "v": 1,
  "site": "dex",
- "generatedAt": "2026-11-22T17:21:58.543Z",
+ "generatedAt": "2026-11-23T01:53:16.257Z",
  "links": {
   "AU": {
    "deals": "https://dexcompare.io/au/deals"
@@ -30,15 +30,29 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "AU",
+   "title": "Pokemon Day 2026 Collection",
+   "url": "https://dexcompare.io/au/p/pokemon-day-2026-collection",
+   "cents": 6700,
+   "currency": "AUD",
+   "store": "Crystal Collectables TCG",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/668590_in_1000x1000.jpg",
+   "refCents": 11998,
+   "refLabel": "median store price",
+   "savingPct": 44
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "AU",
    "title": "First Partner Illustration Collection (Series 2)",
    "url": "https://dexcompare.io/au/p/first-partner-illustration-collection-series-2-2",
    "cents": 3995,
    "currency": "AUD",
    "store": "Grand J Games",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/688712_in_1000x1000.jpg",
-   "refCents": 7750,
+   "refCents": 7000,
    "refLabel": "median store price",
-   "savingPct": 48
+   "savingPct": 43
   },
   {
    "kind": "deal",
@@ -53,6 +67,20 @@
    "refCents": 3999,
    "refLabel": "median store price",
    "savingPct": 37
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "AU",
+   "title": "League Battle Deck - Mega Lucario ex",
+   "url": "https://dexcompare.io/au/p/league-battle-deck-mega-lucario-ex",
+   "cents": 3500,
+   "currency": "AUD",
+   "store": "One Stop Poke Shop",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/684106_in_1000x1000.jpg",
+   "refCents": 5498,
+   "refLabel": "median store price",
+   "savingPct": 36
   },
   {
    "kind": "deal",
@@ -81,34 +109,6 @@
    "refCents": 45700,
    "refLabel": "median store price",
    "savingPct": 34
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "AU",
-   "title": "Abyss Eye Japanese Booster Pack (M5)",
-   "url": "https://dexcompare.io/au/p/abyss-eye-m5-japanese-booster-pack",
-   "cents": 400,
-   "currency": "AUD",
-   "store": "One Stop Poke Shop",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/695111_in_1000x1000.jpg",
-   "refCents": 600,
-   "refLabel": "median store price",
-   "savingPct": 33
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "AU",
-   "title": "Mega Brave Japanese Booster Pack (M1L)",
-   "url": "https://dexcompare.io/au/p/mega-brave-m1l-japanese-booster-pack",
-   "cents": 400,
-   "currency": "AUD",
-   "store": "One Stop Poke Shop",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/647498_in_1000x1000.jpg",
-   "refCents": 600,
-   "refLabel": "median store price",
-   "savingPct": 33
   },
   {
    "kind": "deal",
@@ -268,15 +268,15 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "US",
-   "title": "30th Celebration - Mini Tin - Mewtwo",
-   "url": "https://dexcompare.io/us/p/30th-celebration-mini-tin-mewtwo",
+   "title": "30th Celebration - Mini Tin - Greninja",
+   "url": "https://dexcompare.io/us/p/30th-celebration-mini-tin-greninja",
    "cents": 2000,
    "currency": "USD",
    "store": "Skybox Collectibles",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/704183_in_1000x1000.jpg",
-   "refCents": 2999,
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/704185_in_1000x1000.jpg",
+   "refCents": 2949,
    "refLabel": "median store price",
-   "savingPct": 33
+   "savingPct": 32
   },
   {
    "kind": "deal",
@@ -366,6 +366,20 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "CA",
+   "title": "First Partner Illustration Collection (Series 2)",
+   "url": "https://dexcompare.io/ca/p/first-partner-illustration-collection-series-2-2",
+   "cents": 2499,
+   "currency": "CAD",
+   "store": "Hairy Tarantula",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/688712_in_1000x1000.jpg",
+   "refCents": 4995,
+   "refLabel": "median store price",
+   "savingPct": 50
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "CA",
    "title": "V Battle Deck Bundle [Lycanroc V / Corviknight V]",
    "url": "https://dexcompare.io/ca/p/v-battle-deck-bundle-lycanroc-v-corviknight-v",
    "cents": 1300,
@@ -429,20 +443,6 @@
    "store": "Manta Trading",
    "image": "https://cdn.shopify.com/s/files/1/1704/1809/files/bundle2.png?v=1705342113",
    "refCents": 2497,
-   "refLabel": "median store price",
-   "savingPct": 40
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "CA",
-   "title": "Terastal Festival ex Japanese Booster Pack (SV8a)",
-   "url": "https://dexcompare.io/ca/p/terastal-festival-ex-sv8a-japanese-booster-pack",
-   "cents": 1599,
-   "currency": "CAD",
-   "store": "Adventurebox",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/603429_in_1000x1000.jpg",
-   "refCents": 2672,
    "refLabel": "median store price",
    "savingPct": 40
   },
