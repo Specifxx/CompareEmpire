@@ -117,10 +117,10 @@ test("Telegram: the bot token alone posts to the family channel t.me/tcgdealsres
   assert.equal(feedConfig({ FEED_ENABLED: "1" }).telegram, null, "no token, no Telegram");
 });
 
-test("the Chrome extension line rides the drop for 7 days, then disappears by itself", () => {
+test("the Chrome extension line rides the drop until 21 Dec, then disappears by itself", () => {
   const e: FeedEvent = { kind: "deal", market: "AU", product: { slug: "a", name: "Product a", productType: "Booster Box", setCode: "me5" }, stores: 4, cents: 9000, median: 10000, pct: 20 };
   const during = dropFor([e], "dex-feed-2026112320", Date.UTC(2026, 10, 23, 20, 47)).text;
-  assert.match(during, /^Dex deal drop: 1 change.*\nNew: our free Chrome extension.*utm_campaign=extension/);
+  assert.match(during, /^Dex deal drop: 1 change.*\n🧩 See what you.d save on TCGplayer and other shops: free Chrome extension.*utm_campaign=extension/);
   assert.equal(findBannedCopy(during), null);
   assert.doesNotMatch(dropFor([e], "dex-feed-2026112920", EXTENSION_PROMO_UNTIL).text, /Chrome/);
 });
