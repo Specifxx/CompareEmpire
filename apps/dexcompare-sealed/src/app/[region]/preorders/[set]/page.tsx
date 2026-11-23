@@ -1,6 +1,8 @@
 import { WeeklyDropsBox } from "@/components/WeeklyDropsBox";
 import { weeklyBoxLive } from "@/lib/weekly-box";
 import { ALERT_SITE_KEY } from "@/lib/alert-feed";
+import { PriceAlertForm } from "@/components/PriceAlertForm";
+import { setAlertLabel, setAlertPick } from "@/lib/set-alert";
 import Link from "next/link";
 import { amazonFor } from "@/lib/amazon";
 import { notFound, permanentRedirect } from "next/navigation";
@@ -11,7 +13,7 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { PreorderMarketplaces } from "@/components/Marketplaces";
 import { OfferTable } from "@/components/OfferTable";
 import { Empty, Section } from "@/components/Section";
-import { lastCheckedAt, setMarketplaceOffers, setOfferGroups, setStoreReach, type SetOfferGroup, type UsMarketplaceOffer } from "@/lib/data";
+import { lastCheckedAt, productIdBySlug, setMarketplaceOffers, setOfferGroups, setStoreReach, type SetOfferGroup, type UsMarketplaceOffer } from "@/lib/data";
 import { cardOpen } from "@/lib/compact";
 import { money, plural, relativeDay, timeAgo } from "@/lib/format";
 import { packsForLabel, perPackCents } from "@/lib/packs";
@@ -116,6 +118,10 @@ export default async function PreorderPage({ params }: Params) {
   const today = new Date(now).toISOString().slice(0, 10);
   const listed = groups.filter((g) => g.offers.length > 0);
   const open = listed.filter((g) => cardOpen(g.product));
+  // The page's one price alert (2026-11-23, site loop Job C: /us/preorders/flowing-fists drew 50 US views in its first week with no
+  // alert): the set's booster box, else ETB, else bundle among the products stores list here (lib/set-alert.ts, as the set page).
+  const watch = pre ? setAlertPick(listed.map((g) => g.product)) : null;
+  const watchId = watch ? await productIdBySlug(watch.slug).catch(() => null) : null;
   // The FAQ's live answers and the summary strip: the cheapest open STORE pre-order of each type and who has it, from the price lists
   // this page renders (no extra read). TCGplayer is a marketplace row, never the "cheapest store".
   const FAQS = preorderFaqs(set, guide, r, cheapestStoreByType(listed, now), pre);
@@ -199,6 +205,25 @@ export default async function PreorderPage({ params }: Params) {
       )}
 
       {pre && <SummaryStrip r={r} s={summary} reach={reachText} />}
+
+      {watch && watchId && (
+        // A button in the server HTML; the form opens in place on a tap, never by itself (as on the set and product pages).
+        <div className="mt-5 max-w-md">
+          <PriceAlertForm
+            site={ALERT_SITE_KEY}
+            productId={watchId}
+            region={r.market}
+            priceCents={cardOpen(watch) ? watch.lowestPriceCents : null}
+            buttonClassName="btn-ghost min-h-11"
+            prominent
+            summary={setAlertLabel(set.name, watch, true)}
+          />
+          <p className="mt-1.5 text-xs text-muted">
+            For the {watch.name}
+            {cardOpen(watch) && watch.lowestPriceCents != null ? `, ${money(watch.lowestPriceCents, r.market)} the cheapest ${r.adjective} pre-order today` : ""}. Free, no account.
+          </p>
+        </div>
+      )}
 
       <ReleaseGlance set={set} facts={glanceFacts(set, guide)} today={today} />
 

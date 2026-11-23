@@ -32,3 +32,12 @@ test("the set page draws one alert, a button in the server HTML, above the produ
   assert.match(page.slice(page.indexOf("<PriceAlertForm")), /^<PriceAlertForm[^>]*\bprominent\b/s);
   assert.ok(page.indexOf("<PriceAlertForm") < page.indexOf('id="products"'));
 });
+
+test("the pre-order page says pre-order and draws one alert, above the price lists", () => {
+  assert.equal(setAlertLabel("Flowing Fists", p("x", "Booster Box", 15000), true), "Email me when the Flowing Fists booster box pre-order drops");
+  assert.equal(setAlertLabel("Flowing Fists", p("x", "Elite Trainer Box", null, 0), true), "Email me when a Flowing Fists Elite Trainer Box pre-order opens at my price");
+  const page = fs.readFileSync("src/app/[region]/preorders/[set]/page.tsx", "utf8");
+  assert.equal(page.match(/<PriceAlertForm/g)?.length, 1);
+  assert.match(page.slice(page.indexOf("<PriceAlertForm")), /^<PriceAlertForm[^>]*\bprominent\b/s);
+  assert.ok(page.indexOf("<PriceAlertForm") < page.indexOf("pre-orders by product"));
+});
