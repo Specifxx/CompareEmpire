@@ -8,9 +8,9 @@ import { routeQuery } from "./public-data/route";
 // the imports and nothing else. A read the file engine cannot answer exactly falls through to Neon and logs
 // [public-data:unsupported] once, which tests/public-data.test.ts keeps at zero for the site's loaders.
 //
-// The database is DC2 (Vercel and GitHub, from 2026-10-16; dexcompare-migrate-dc2.yml copied the old project into it, every table's
-// row count checked), with DATABASE_URL (the old project) only while DC2 is unset. The importers' workflows pass DC2's direct host as
-// DATABASE_URL, so scripts reach DC2 either way.
+// Since 2026-11-23 (owner: "Dc2 is at limit") the importers run on their own throwaway Postgres in GitHub Actions, loaded from and
+// saved to the branch dexcompare-db (scripts/db-snapshot.sh) and passed as DATABASE_URL; no job reads Neon. On Vercel, DC2 (from
+// 2026-10-16) is only the fallback for a read the files cannot answer, which tests/public-data.test.ts keeps at zero.
 export function databaseUrl(env: Record<string, string | undefined> = process.env): string | undefined {
   return env.DC2?.trim() || env.DATABASE_URL?.trim() || undefined;
 }

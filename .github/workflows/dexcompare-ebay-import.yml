@@ -41,8 +41,9 @@ name: DexCompare eBay import
 # run late; the 26 h bound leaves two hours for that, and a run that never comes only blanks the strips (to a search link).
 #
 # Secrets (Settings → Secrets and variables → Actions):
-#   DC2                              required (a secret or a variable): the Neon database (2026-10-16); the job uses
-#                                    its direct host. DEXCOMPARE_SEALED_DATABASE_URL, the old project, only while DC2 is unset.
+#   DC2                              read ONCE (a secret or a variable): the old Neon database. Since 2026-11-23 (owner:
+#                                    "Dc2 is at limit") the job runs on its own throwaway Postgres, loaded from and saved
+#                                    back to the branch dexcompare-db (apps/dexcompare-sealed/scripts/db-snapshot.sh).
 #   EBAY_CLIENT_ID, EBAY_CLIENT_SECRET   the Production keyset (App ID / Cert ID) of DexCompare's own eBay
 #                                    application. Without them the job writes a skip message and exits 0.
 #   DEXCOMPARE_EBAY_CLIENT_ID / _SECRET   optional overrides, used instead when set.
@@ -88,14 +89,26 @@ on:
 permissions:
   contents: write
 
+# ONE group for both data jobs (this and dexcompare-sealed-import.yml): each loads the database snapshot and saves it back.
 concurrency:
-  group: dexcompare-ebay-import
+  group: dexcompare-data
   cancel-in-progress: false
 
 jobs:
   import:
     runs-on: ubuntu-latest
     timeout-minutes: 90
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: dex
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      LOCAL_URL: postgresql://postgres:postgres@localhost:5432/dex
     defaults:
       run:
         working-directory: apps/dexcompare-sealed
@@ -105,7 +118,7 @@ jobs:
         working-directory: .
         env:
           # Only whether each secret is set (a boolean) reaches this step; the eBay keys themselves exist only in the Import step.
-          HAS_DB: ${{ secrets.DC2 != '' || vars.DC2 != '' || secrets.DEXCOMPARE_SEALED_DATABASE_URL != '' }}
+          HAS_DB: "true"
           HAS_EBAY: ${{ (secrets.DEXCOMPARE_EBAY_CLIENT_ID != '' || secrets.EBAY_CLIENT_ID != '') && (secrets.DEXCOMPARE_EBAY_CLIENT_SECRET != '' || secrets.EBAY_CLIENT_SECRET != '') }}
           DRY: ${{ inputs.dry_run }}
           ONLY: ${{ inputs.only }}
@@ -123,27 +136,20 @@ jobs:
             echo "run=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Resolve the database (DC2)
+      # The job's own database (owner, 2026-11-23): a Postgres service loaded from the snapshot branch dexcompare-db and saved
+      # back after the import (scripts/db-snapshot.sh), so the call counter (EbayCallDay) carries across runs. DC2 is read
+      # only when no snapshot exists yet.
+      - name: Resolve the database
         if: steps.secrets.outputs.run == 'true'
         working-directory: .
-        # The database is DC2 (owner, 2026-10-16), a secret or a repository variable; DEXCOMPARE_SEALED_DATABASE_URL (the old
-        # project) only while DC2 is not set. Its DIRECT host (no "-pooler") goes to every later step as DATABASE_URL, masked.
         env:
           DC2: ${{ secrets.DC2 || vars.DC2 }}
           LEGACY: ${{ secrets.DEXCOMPARE_SEALED_DATABASE_URL }}
         run: |
-          URL="${DC2:-$LEGACY}"
-          NAME=DC2; [ -z "$DC2" ] && NAME=DEXCOMPARE_SEALED_DATABASE_URL
-          if [ -z "$URL" ]; then
-            echo "found=false" >> "$GITHUB_OUTPUT"
-          else
-            DIRECT="$(printf '%s' "$URL" | sed -E 's/-pooler\././')"
-            echo "::add-mask::$DIRECT"
-            echo "DATABASE_URL=$DIRECT" >> "$GITHUB_ENV"
-            echo "DB_SOURCE_NAME=$NAME" >> "$GITHUB_ENV"
-            echo "Database: $NAME" >> "$GITHUB_STEP_SUMMARY"
-            echo "found=true" >> "$GITHUB_OUTPUT"
-          fi
+          SEED="$(printf '%s' "${DC2:-$LEGACY}" | sed -E 's/-pooler\././')"
+          if [ -n "$SEED" ]; then echo "::add-mask::$SEED"; echo "SEED_URL=$SEED" >> "$GITHUB_ENV"; fi
+          echo "DATABASE_URL=$LOCAL_URL" >> "$GITHUB_ENV"
+          echo "DB_SOURCE_NAME=actions-postgres" >> "$GITHUB_ENV"
 
       - uses: actions/checkout@v4
         if: steps.secrets.outputs.run == 'true'
@@ -164,6 +170,11 @@ jobs:
         # No --accept-data-loss: a schema change that would drop data fails here, loudly. (The importer also creates
         # its two tables itself if they are missing.)
         run: npx prisma db push --skip-generate && npx prisma generate
+
+      - name: Load the database
+        id: load
+        if: steps.secrets.outputs.run == 'true'
+        run: bash scripts/db-snapshot.sh restore
 
       - name: Import
         if: steps.secrets.outputs.run == 'true'
@@ -186,6 +197,13 @@ jobs:
           if [ "$DRY" = "true" ]; then args+=(--dry-run); fi
           if [ "$FORCE" = "true" ]; then args+=(--force); fi
           npx tsx scripts/ebay-import.ts "${args[@]}"
+
+      # Saved even when the import fails part way (the calls it spent must count tomorrow), never after a dry run or probe.
+      - name: Save the database
+        if: always() && steps.load.outcome == 'success' && inputs.dry_run != true && inputs.probe != true
+        env:
+          WHY: dexcompare-ebay-import.yml run ${{ github.run_id }}
+        run: bash scripts/db-snapshot.sh save
 
       # The site reads these files, not the database (apps/dexcompare-sealed/src/lib/public-data/): export every public table and
       # commit it to main, which is the release that puts this import's prices live.
