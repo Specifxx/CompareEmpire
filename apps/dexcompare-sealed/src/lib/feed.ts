@@ -167,10 +167,10 @@ export const DROP_MAX_CHARS = 2000;
  */
 /** The Chrome extension's launch line (owner's ask via the extension thread, 2026-11-22): under the drop's header for 7 days,
  * then gone by itself. One text serves Discord and Telegram, so it carries the feed's own utm_source=chat. */
-export const EXTENSION_PROMO_UNTIL = Date.UTC(2026, 10, 29, 12, 0);
+export const EXTENSION_PROMO_UNTIL = Date.UTC(2026, 11, 21, 12, 0);
 export function extensionPromo(now: number): string | null {
   if (now >= EXTENSION_PROMO_UNTIL) return null;
-  return "New: our free Chrome extension shows the cheapest store price right on every TCGplayer sealed page, with one click to buy. No account, nothing tracked. https://chromewebstore.google.com/detail/fdhpgledimoadpaokiipficepklogmha?utm_source=chat&utm_medium=social&utm_campaign=extension";
+  return "🧩 See what you'd save on TCGplayer and other shops: free Chrome extension https://chromewebstore.google.com/detail/fdhpgledimoadpaokiipficepklogmha?utm_source=chat&utm_medium=social&utm_campaign=extension";
 }
 
 export function dropFor(events: readonly FeedEvent[], drop: string, now = Date.now()): { text: string; events: FeedEvent[] } {
