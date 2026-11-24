@@ -753,3 +753,16 @@ The Black Friday and Cyber Monday pages carry one sign-up directly under the rea
 placement `black-friday`, email only because the Discord box sits lower on the page) on the sister-alert sites, a free-account
 prompt on the account sites. The weekly email has its own Black Friday (27 Nov) and Cyber Monday (30 Nov) editions on RiftCompare's
 service (TCGEmpire DECISIONS, same day), so a sign-up before 26 Nov gets the Black Friday one. Inline, never a pop-up; real drops only.
+
+
+## 2026-11-24: Display ads: a guides-only test (DexCompare)
+
+The owner asked to reconsider display ads (24 Nov; report: /mnt/project-files/strategy/display-ads-2026-11-24.html). In 30 days Dex
+earned about A$21 per 1,000 page views from affiliate links, against an estimated A$2 to 4 from AdSense, so an ad on a product page
+loses money once it costs more than about 14% of buy clicks. Guides are where people read rather than buy, so the test is there only.
+One AdSense unit in a guide (the slot the guides already had), for half of visitors (`GuideAd.tsx`, coin in localStorage `dx_gad`),
+nothing for the other half, never for a member, never before 2 Dec 2026 (the A/B freeze), and Google's script is added by the unit
+itself, so no other page loads it. Off until `NEXT_PUBLIC_ADSENSE_SLOT_GUIDE` holds the unit's id, which also waits for AdSense to
+approve dexcompare.app; unsetting it is the kill switch. Events `gad_seen` and `gad_buy` (with `arm`), once a visit. Keep it only if
+ad money per 1,000 guide views is more than the buy clicks it costs (buy clickers lost × about A$0.09 a buy click) and guide pages
+do not get slower. Read after 21 days or 300 buy clickers an arm.

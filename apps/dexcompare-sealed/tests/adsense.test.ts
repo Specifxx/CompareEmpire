@@ -3,7 +3,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { ADSENSE_CLIENT, ADSENSE_GUIDE_SLOT, DEFAULT_ADSENSE_CLIENT, adsTxt, normaliseClient, resolveClient } from "../src/lib/adsense";
+import { ADSENSE_CLIENT, ADSENSE_GUIDE_SLOT, DEFAULT_ADSENSE_CLIENT, GUIDE_AD_TEST_START, adsTxt, normaliseClient, parseAdUnit, resolveClient } from "../src/lib/adsense";
+import { gadArmOf, guideAdArm } from "../src/components/GuideAd";
 import { wrapWords } from "../src/lib/og-card";
 
 test("AdSense is on with the owner's publisher ID by default; the variable overrides it, and \"off\" switches it off", () => {
@@ -32,12 +33,28 @@ test("ads.txt is Google's line for the publisher", () => {
   assert.equal(adsTxt("ca-pub-1234567890123456"), "google.com, pub-1234567890123456, DIRECT, f08c47fec0942fa0\n");
 });
 
-test("the AdSense script never loads (owner, 2026-11-18: AdSense is off), and the guide unit has no slot", () => {
+test("the AdSense script never loads from the layout, and the guide unit has no slot until its variable is set", () => {
   const layout = readFileSync(new URL("../src/app/layout.tsx", import.meta.url), "utf8");
   assert.doesNotMatch(layout, /adsenseScriptSrc|googlesyndication/);
   assert.equal(ADSENSE_GUIDE_SLOT, null);
+  assert.equal(parseAdUnit("8906204952"), "8906204952");
+  for (const bad of [undefined, "", "abc", "12", "ca-pub-1234567890123456"]) assert.equal(parseAdUnit(bad), null, String(bad));
   const kit = readFileSync(new URL("../src/content/guides/kit.tsx", import.meta.url), "utf8");
   assert.match(kit, /ADSENSE_CLIENT && ADSENSE_GUIDE_SLOT \? adsenseIndex/);
+  assert.match(kit, /<GuideAd client=/);
+});
+
+test("the guides ad test: half of visitors, guides only, never before 2 Dec, never for a member, script loaded by the unit", () => {
+  assert.equal(GUIDE_AD_TEST_START, Date.UTC(2026, 11, 2));
+  const c = readFileSync(new URL("../src/components/GuideAd.tsx", import.meta.url), "utf8");
+  assert.match(c, /now < GUIDE_AD_TEST_START\) return null/);
+  assert.match(c, /hasAttribute\("data-adfree"\)\) return null/);
+  assert.match(c, /< 128 \? "ad" : "none"/);
+  assert.match(c, /track\(name, \{ arm \}\)/);
+  assert.match(c, /arm === "ad" \? <AdSenseUnit/);
+  assert.equal(gadArmOf("ad"), "ad");
+  assert.equal(gadArmOf("x"), null);
+  assert.equal(guideAdArm(), null, "no window: never in the test");
 });
 
 test("share-card headlines wrap on words", () => {

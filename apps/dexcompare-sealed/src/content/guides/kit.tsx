@@ -10,7 +10,7 @@ import { AmazonLink } from "@/components/AmazonLink";
 import { AMAZON_ASSOCIATE_STATEMENT, amazonFor, amazonHref, amazonUrl } from "@/lib/amazon";
 import Link from "next/link";
 import { Fragment, type ReactNode } from "react";
-import { AdSenseUnit } from "@/components/AdSenseUnit";
+import { GuideAd } from "@/components/GuideAd";
 import { Ago } from "@/components/Ago";
 import { EbayStrip } from "@/components/EbayStrip";
 import { Icon } from "@/components/Icon";
@@ -89,7 +89,7 @@ export function GuideBody({ guide, r, outline, data }: { guide: Guide; r: Region
             {s.body}
           </section>
           {i === at && <GuideStrip guide={guide} r={r} />}
-          {i === adAt && <AdSenseUnit client={ADSENSE_CLIENT!} slot={ADSENSE_GUIDE_SLOT!} placement="adsense-guide" />}
+          {i === adAt && <GuideAd client={ADSENSE_CLIENT!} slot={ADSENSE_GUIDE_SLOT!} />}
         </Fragment>
       ))}
     </>

@@ -23,8 +23,20 @@ export function resolveClient(v: string | undefined): string | null {
 }
 
 /** The ad unit ID of the guides' in-article unit (AdSense → Ads → By ad unit → In-article), or null: no unit. */
-// No unit since the AdSense script left the layout (owner, 2026-11-18: AdSense is off): an ad unit without it is an empty box.
-export const ADSENSE_GUIDE_SLOT: string | null = null;
+// AdSense left the layout on 2026-11-18 (owner: off). The guides-only test (owner asked to reconsider ads, 2026-11-24; DECISIONS.md
+// "Display ads: a guides-only test") brings back ONE unit, in guides only, for half of visitors, from GUIDE_AD_TEST_START: the unit
+// loads Google's script itself (components/GuideAd.tsx), so no other page ever loads it. Off until NEXT_PUBLIC_ADSENSE_SLOT_GUIDE
+// holds the unit's digits; unsetting it is the kill switch.
+export const ADSENSE_GUIDE_SLOT: string | null = parseAdUnit(process.env.NEXT_PUBLIC_ADSENSE_SLOT_GUIDE);
+
+/** An AdSense display unit id (digits only, as the console shows it), or null. */
+export function parseAdUnit(v: string | undefined): string | null {
+  const s = v?.trim() ?? "";
+  return /^\d{6,12}$/.test(s) ? s : null;
+}
+
+/** The guides test starts here (the A/B freeze ends 2 Dec 2026); before it, no unit renders even with the slot set. */
+export const GUIDE_AD_TEST_START = Date.UTC(2026, 11, 2);
 
 /** The adsbygoogle.js URL for the client. */
 export const adsenseScriptSrc = (client: string) => `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${client}`;
