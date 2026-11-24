@@ -1897,3 +1897,13 @@ The owner's 2026-11-23 review, P2 and the measure item, on DexCompare:
 - **Search funnel** (item 24): `search_zero` (nothing matched) and `search_fixed` (only the typo fallback matched), with the words
   (lower case, letters and digits, 40 characters) and the template, once per query after 1.5 s of no typing. Buy clicks already
   carry their template (`buy_click` page).
+
+## 2026-11-24: Booster Bundles and Ultra-Premium Collections can reach "Most popular" (merch, backlog M19)
+
+The region home's first tab ("Most popular", owner 2026-11-20) ranked only in-stock booster boxes, ETBs and packs. In the 7 days to
+23 Nov, Booster Bundles took 328 and Ultra-Premium Collections 311 of the site's 1,583 buy clicks (ETBs 301, boxes 240), and the two
+most-clicked products were the 30th Celebration UPC Day (213) and the 30th Celebration Booster Bundle (131): neither type could reach
+the tab. `homeRails` now also reads the eight best-ranked in-stock bundles and UPCs (same `inStockOfType`, upcoming sets excluded),
+for that pool only (no new tab or section), and they take at most three of the eight, entering only on demand
+(`lib/home-rank.ts` scores; boxes/ETBs/packs first among equals), the same rule MTG Compare uses for decks and Secret Lair (E6).
+Home list only: the quick view, price rows and paid rows are untouched (A/B freeze 20 Nov to 3 Dec). Read 1 Dec (merch E7).
