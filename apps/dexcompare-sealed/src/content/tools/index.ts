@@ -204,6 +204,29 @@ export function toolRegions(_t: Tool): Region[] {
   return REGION_LIST.map((r) => r.region);
 }
 
+/**
+ * The regions where Google is asked to index a tool (Job D, 2026-11-24, from the 23 Nov page scorecard: /uk/tools/trade-calculator,
+ * /ca/tools and /au/tools/deck-builder ranked past page 3 with no clicks and no visits). A calculator works the same in every
+ * region, so four indexed copies of it compete with each other: one copy is indexed, the US (US-first, 2026-11-22). Two tools read
+ * the region itself and keep a second copy: the fee calculator in AU (eBay's AU fee presets, lib/fees.ts) and the value checker in
+ * AU (Bing's top page on 2026-11-08, via /card-value). Every copy stays live and linked for visitors; the rest are noindex, out of
+ * the sitemap and out of hreflang. Always a subset of INDEXED_DETAIL_REGIONS.
+ */
+export const TOOL_INDEX_REGIONS: Readonly<Record<ToolSlug, readonly Region[]>> = {
+  "is-this-a-good-price": ["us"],
+  "value-checker": ["us", "au"],
+  "trade-calculator": ["us"],
+  "selling-fee-calculator": ["us", "au"],
+  "grading-value-calculator": ["us"],
+  "deck-builder": ["us"],
+};
+
+/** Is this tool's copy in this region the one Google indexes? */
+export const toolIndexed = (region: string, t: Pick<Tool, "slug">): boolean => (TOOL_INDEX_REGIONS[t.slug] as readonly string[]).includes(region);
+
+/** The tools index (/<region>/tools) is indexed where at least one tool is. */
+export const toolsIndexIndexed = (region: string): boolean => TOOLS.some((t) => toolIndexed(region, t));
+
 export const toolHref = (region: Region, slug: ToolSlug) => `/${region}/tools/${slug}`;
 
 /** The <title>: " | DexCompare" when it still fits in 65 characters. */

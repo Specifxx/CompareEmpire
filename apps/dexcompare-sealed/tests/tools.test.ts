@@ -13,9 +13,10 @@ import { staticSitemap } from "../src/lib/sitemap";
 import { SITE_URL } from "../src/lib/site";
 import { checkDeck, creditValue, formatDeckList, gradingResult, isBasicEnergy, parseDeckList, parseMoney, parsePct, pricePosition, tradeResult } from "../src/lib/tools";
 import { GUIDE_BY_SLUG } from "../src/content/guides";
-import { TOOLS, toolMetaTitle } from "../src/content/tools";
-import ToolPage from "../src/app/[region]/tools/[tool]/page";
-import ToolsIndex from "../src/app/[region]/tools/page";
+import { TOOL_INDEX_REGIONS, TOOLS, toolIndexed, toolMetaTitle, toolsIndexIndexed } from "../src/content/tools";
+import { detailIndexed } from "../src/lib/index-tiers";
+import ToolPage, { generateMetadata as toolMeta } from "../src/app/[region]/tools/[tool]/page";
+import ToolsIndex, { generateMetadata as toolsIndexMeta } from "../src/app/[region]/tools/page";
 
 (globalThis as unknown as { React: typeof React }).React = React;
 const text = (html: string) => html.replace(/<script[\s\S]*?<\/script>/g, " ").replace(/<[^>]+>/g, " ").replace(/&#x27;|&#39;/g, "'").replace(/&amp;/g, "&").replace(/\s+/g, " ");
@@ -228,12 +229,42 @@ test("store intro: its own numbers, its range of sets, how often it is cheapest;
   assert.equal(storeIndexable({ listed: 3, dormant: false }), true);
 });
 
-test("sitemap: the tools index in every region, every tool once in each indexed region (US, AU, UK, CA) and nowhere else", () => {
+test("one indexed copy of each tool (2026-11-24): the US, plus AU for the fee calculator and the value checker", () => {
+  assert.deepEqual(
+    Object.fromEntries(TOOLS.map((t) => [t.slug, REGION_LIST.filter((r) => toolIndexed(r.region, t)).map((r) => r.region)])),
+    {
+      "is-this-a-good-price": ["us"],
+      "value-checker": ["us", "au"],
+      "trade-calculator": ["us"],
+      "selling-fee-calculator": ["us", "au"],
+      "grading-value-calculator": ["us"],
+      "deck-builder": ["us"],
+    },
+  );
+  for (const t of TOOLS) for (const r of TOOL_INDEX_REGIONS[t.slug]) assert.ok(detailIndexed(r), `${t.slug}: ${r} is an indexed region`);
+  assert.deepEqual(REGION_LIST.filter((r) => toolsIndexIndexed(r.region)).map((r) => r.region), ["us", "au"]);
+});
+
+test("a tool page's robots tag and hreflang follow toolIndexed; the tools index follows toolsIndexIndexed", () => {
+  const robots = (m: { robots?: unknown }) => JSON.stringify(m.robots ?? null);
+  for (const r of REGION_LIST) {
+    for (const t of TOOLS) {
+      const m = toolMeta({ params: { region: r.region, tool: t.slug } });
+      assert.equal(robots(m).includes('"index":false'), !toolIndexed(r.region, t), `${r.region}/${t.slug}`);
+      const langs = Object.values((m.alternates?.languages ?? {}) as Record<string, string>);
+      for (const u of langs) assert.ok(TOOL_INDEX_REGIONS[t.slug].some((x) => u === `${SITE_URL}/${x}/tools/${t.slug}`), `${r.region}/${t.slug}: ${u}`);
+      assert.equal(m.alternates?.canonical, `${SITE_URL}/${r.region}/tools/${t.slug}`, "its own canonical everywhere");
+    }
+    const im = toolsIndexMeta({ params: { region: r.region } });
+    assert.equal(robots(im).includes('"index":false'), !toolsIndexIndexed(r.region), `${r.region}/tools`);
+  }
+});
+
+test("sitemap: each tool only in its indexed regions, the tools index only where a tool is indexed", () => {
   const urls = staticSitemap({}).map((e) => e.url);
   for (const r of REGION_LIST) {
-    assert.ok(urls.includes(`${SITE_URL}/${r.region}/tools`), r.region);
-    const indexed = ["us", "au", "uk", "ca"].includes(r.region);
-    for (const t of TOOLS) assert.equal(urls.filter((u) => u === `${SITE_URL}/${r.region}/tools/${t.slug}`).length, indexed ? 1 : 0, `${r.region}/${t.slug}`);
+    assert.equal(urls.includes(`${SITE_URL}/${r.region}/tools`), toolsIndexIndexed(r.region), r.region);
+    for (const t of TOOLS) assert.equal(urls.filter((u) => u === `${SITE_URL}/${r.region}/tools/${t.slug}`).length, toolIndexed(r.region, t) ? 1 : 0, `${r.region}/${t.slug}`);
   }
   // and the new guides, AU-only ones in AU only
   assert.ok(urls.includes(`${SITE_URL}/au/guides/where-to-buy-pokemon-cards-australia`));
