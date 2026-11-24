@@ -145,3 +145,17 @@ export function amazonClickEvent(o: { product: string; pathname: string }, props
 export function amazonGa4Params(o: { product: string; pathname: string }): Record<string, string> {
   return { product: clip(o.product), region: regionOfPath(o.pathname) ?? "none", page: pageTypeOf(o.pathname) };
 }
+
+/** A search's words, for the zero-result report: lower case, letters, digits and spaces only, 40 characters at most. */
+export function searchWords(q: string): string {
+  return q.toLowerCase().replace(/[^\p{L}\p{N} ]+/gu, " ").replace(/\s+/g, " ").trim().slice(0, 40);
+}
+
+/**
+ * The search funnel (owner, 2026-11-23 UX review, item 24): a query nothing matched ("search_zero", with its words, so the catalogue
+ * and the aliases can learn), and one the typo fallback rescued ("search_fixed"), each with the template it was typed on.
+ */
+export const searchMissEvent = (region: Region | null, q: string, pathname: string, fixed: boolean): AnalyticsEvent => [
+  fixed ? "search_fixed" : "search_zero",
+  { region: region ?? "none", q: searchWords(q), page: pageTypeOf(pathname) },
+];

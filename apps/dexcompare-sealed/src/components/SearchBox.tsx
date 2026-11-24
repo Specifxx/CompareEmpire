@@ -1,6 +1,6 @@
 "use client";
 
-import { searchEvent } from "@/lib/click-events";
+import { searchEvent, searchMissEvent } from "@/lib/click-events";
 import { send } from "@/lib/track-client";
 import { track } from "@vercel/analytics";
 import Link from "next/link";
@@ -151,6 +151,21 @@ export function SearchBox({ region, size = "sm", autoFocus = false }: { region: 
   // "Did you mean" (owner, 2026-11-23 UX review, P0 5): the typo-tolerant search already ranked the corrected words; say so.
   const fixed = useMemo(() => (engine && ix && term ? engine.suggestQuery(ix.cards, term) : null), [engine, ix, term]);
   const visible = mounted && open && !!term;
+  // The funnel (owner's review, item 24): once the words have stood for 1.5 s, a query nothing matched, or one only the typo
+  // fallback matched, is counted with its template, once per query.
+  const reported = useRef("");
+  useEffect(() => {
+    if (!ix || !term || term.length < 3) return;
+    const miss = ranked.total === 0;
+    if (!miss && !fixed) return;
+    const t = window.setTimeout(() => {
+      const key = `${term}|${miss}`;
+      if (reported.current === key) return;
+      reported.current = key;
+      send(searchMissEvent(region ?? null, term, window.location.pathname, !miss));
+    }, 1500);
+    return () => window.clearTimeout(t);
+  }, [ix, term, ranked.total, fixed, region]);
   const act = active < options.length ? active : -1;
 
   const close = useCallback(() => {

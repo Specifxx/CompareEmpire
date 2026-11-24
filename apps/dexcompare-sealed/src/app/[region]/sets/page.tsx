@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Icon } from "@/components/Icon";
+import { ListFilter } from "@/components/ListFilter";
 import { plural } from "@/lib/format";
 import { firstSetYear, nextSet, setsBySeries, setsIndexTitle, shortDate, titleText } from "@/lib/hub-copy";
 import { setCountsGrouped, type SetCount } from "@/lib/hub-data";
@@ -57,6 +58,8 @@ export default async function SetsPage({ params }: { params: { region: string } 
         </p>
       )}
 
+      <ListFilter target="set-list" label="Filter sets" placeholder="Filter sets: name, series or year" />
+
       <nav aria-label="Series" className="mt-6">
         <ul className="scroller -mx-4 gap-2 px-4 scroll-px-4 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:[-webkit-mask-image:none] sm:[mask-image:none]">
           {groups.map((g) => (
@@ -70,32 +73,40 @@ export default async function SetsPage({ params }: { params: { region: string } 
         </ul>
       </nav>
 
-      {groups.map((g) => {
-        const listed = g.sets.filter((s) => counts.has(s.code)).length;
-        const from = g.sets[g.sets.length - 1].releaseDate.slice(0, 4);
-        const to = g.sets[0].releaseDate.slice(0, 4);
-        return (
-          <section key={g.series} id={slugify(g.series)} aria-labelledby={`h-${slugify(g.series)}`} className="mt-12 sm:mt-14">
-            <div className="mb-4 flex flex-wrap items-end justify-between gap-x-4 gap-y-1">
-              <h2 id={`h-${slugify(g.series)}`} className="sub-h2">
-                {g.series}
-              </h2>
-              <p className="text-sm text-muted">
-                {plural(g.sets.length, "set")}, {from === to ? from : `${from}–${to}`} · {listed} listed in {r.inName}
-              </p>
-            </div>
-            <ol className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface/60">
-              {g.sets.map((s) => (
-                <SetRow key={s.code} r={r} s={s} c={counts.get(s.code)} />
-              ))}
-            </ol>
-          </section>
-        );
-      })}
+      <div id="set-list">
+        {groups.map((g) => {
+          const listed = g.sets.filter((s) => counts.has(s.code)).length;
+          const from = g.sets[g.sets.length - 1].releaseDate.slice(0, 4);
+          const to = g.sets[0].releaseDate.slice(0, 4);
+          return (
+            <section
+              key={g.series}
+              data-filter-group=""
+              id={slugify(g.series)}
+              aria-labelledby={`h-${slugify(g.series)}`}
+              className="mt-12 sm:mt-14"
+            >
+              <div className="mb-4 flex flex-wrap items-end justify-between gap-x-4 gap-y-1">
+                <h2 id={`h-${slugify(g.series)}`} className="sub-h2">
+                  {g.series}
+                </h2>
+                <p className="text-sm text-muted">
+                  {plural(g.sets.length, "set")}, {from === to ? from : `${from}–${to}`} · {listed} listed in {r.inName}
+                </p>
+              </div>
+              <ol className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface/60">
+                {g.sets.map((s) => (
+                  <SetRow key={s.code} r={r} s={s} c={counts.get(s.code)} series={g.series} />
+                ))}
+              </ol>
+            </section>
+          );
+        })}
+      </div>
 
       <p className="mt-10 max-w-2xl text-sm text-muted">
-        English-language sets from XY ({firstSetYear()}) on, each with its English release date. Sub-sets with no sealed product of their own
-        (trainer galleries, shiny vaults, promos, McDonald&rsquo;s collections) are left out. Upcoming sets and pre-orders are on the{" "}
+        English-language sets from XY ({firstSetYear()}) on, each with its English release date. Sub-sets with no sealed product of their
+        own (trainer galleries, shiny vaults, promos, McDonald&rsquo;s collections) are left out. Upcoming sets and pre-orders are on the{" "}
         <Link href={`/${r.region}/releases`} prefetch={false} className="font-semibold text-brand-strong hover:underline">
           release calendar
         </Link>
@@ -106,15 +117,26 @@ export default async function SetsPage({ params }: { params: { region: string } 
 }
 
 /** One set: its logo, name, English release date and, here, what stores list and have open. Linked only where a store lists it (an empty set page is noindex). */
-function SetRow({ r, s, c }: { r: RegionInfo; s: PokemonSet; c: SetCount | undefined }) {
+function SetRow({ r, s, c, series }: { r: RegionInfo; s: PokemonSet; c: SetCount | undefined; series: string }) {
   const pre = isPreorderSet(s.code);
   const body = (
     <>
       <span className="flex h-10 w-20 shrink-0 items-center justify-center sm:h-12 sm:w-24">
         {s.logo ? (
-          <img src={s.logo} alt={`${s.name} logo`} width={96} height={48} loading="lazy" decoding="async" className="max-h-full max-w-full object-contain" />
+          <img
+            src={s.logo}
+            alt={`${s.name} logo`}
+            width={96}
+            height={48}
+            loading="lazy"
+            decoding="async"
+            className="max-h-full max-w-full object-contain"
+          />
         ) : (
-          <span aria-hidden="true" className="flex h-full w-full items-center justify-center rounded-lg bg-raised font-display text-sm font-bold tracking-wide text-faint ring-1 ring-line">
+          <span
+            aria-hidden="true"
+            className="flex h-full w-full items-center justify-center rounded-lg bg-raised font-display text-sm font-bold tracking-wide text-faint ring-1 ring-line"
+          >
             {initials(s.name)}
           </span>
         )}
@@ -141,9 +163,13 @@ function SetRow({ r, s, c }: { r: RegionInfo; s: PokemonSet; c: SetCount | undef
     </>
   );
   return (
-    <li>
+    <li data-filter={`${s.name} ${series} ${s.code} ${s.releaseDate.slice(0, 4)}`}>
       {c ? (
-        <Link href={`/${r.region}/sets/${s.slug}`} prefetch={false} className="group flex min-h-16 items-center gap-3 px-4 py-2.5 transition-colors hover:bg-raised sm:gap-4 sm:px-5">
+        <Link
+          href={`/${r.region}/sets/${s.slug}`}
+          prefetch={false}
+          className="group flex min-h-16 items-center gap-3 px-4 py-2.5 transition-colors hover:bg-raised sm:gap-4 sm:px-5"
+        >
           {body}
         </Link>
       ) : (

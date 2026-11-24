@@ -1880,3 +1880,20 @@ this release on: the 10 Dec read compares desktop before and after this deploy t
   "N% under median" or "N% under 30-day typical", whichever its tab ranks by.
 - **One-line intros** (P1 14) on the deals, sets and Pokémon pages, with "How it works" linking /about.
 - **Reliable images** (P1 15): an image that fails is tried once more after 1.5 s, then shows the site mark (SiteAnalytics).
+
+## 2026-11-24 — Owner's UX review, P2 batch
+
+The owner's 2026-11-23 review, P2 and the measure item, on DexCompare:
+
+- **Deals menu: five entries at most** (P2 16): the season's one sale page starred first, then Today's deals, Cheapest per pack,
+  Back in stock and Price moves. The pre-order guides and the release calendar moved to a "Coming soon" column of the Sets menu,
+  the weekly digest to the Guides menu's "The data", so no page lost its header link (`tests/shell.test.ts`).
+- **Filter boxes on the sets and Pokémon indexes** (P2 17, `ListFilter.tsx`): every item stays in the server HTML; typing hides
+  the ones whose words don't match, and a series with none left. Set logos were already there; Pokémon get no artwork (not ours).
+- **Empty states** (P2 18): an empty shortlist offers today's deals for the visitor's region; search with no match shows the most
+  stocked products (P0 batch). "Cart" wording left on the shortlist's buttons is gone.
+- **Reduced motion everywhere** (P2 21): one catch-all rule at the end of globals.css stops every animation and transition for a
+  visitor whose system asks for less motion, the festive lights included. Focus rings were already on every element.
+- **Search funnel** (item 24): `search_zero` (nothing matched) and `search_fixed` (only the typo fallback matched), with the words
+  (lower case, letters and digits, 40 characters) and the template, once per query after 1.5 s of no typing. Buy clicks already
+  carry their template (`buy_click` page).
