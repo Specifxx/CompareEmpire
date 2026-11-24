@@ -535,7 +535,7 @@ export const GUIDES: readonly Guide[] = [
   {
     slug: "flowing-fists-mega-lucario-z",
     title: "Pokémon Flowing Fists: Mega Lucario Z ex and what we know",
-    description: "Pokémon TCG Flowing Fists, the first set of 2027 (5 February): Mega Lucario Z ex, its Japanese source set Aura Seeker, and how to pre-order.",
+    description: "Pokémon TCG Flowing Fists, the first set of 2027 (6 February): Mega Lucario Z ex, its Japanese source set Aura Seeker, and how to pre-order.",
     kicker: "Flowing Fists",
     published: "2026-11-03",
     updated: "2026-11-03",
