@@ -163,11 +163,14 @@ export async function homeRails(market: Market, today = new Date().toISOString()
       // Most likely to earn first (owner, 2026-11-18; lib/home-rank.ts): demand × value, newest first among equals.
       { today },
     ).slice(0, 8);
-  const [boxes, etbs, loosePacks, sleevedPacks, preorders, latest] = await Promise.all([
+  const [boxes, etbs, loosePacks, sleevedPacks, bundles, upcs, preorders, latest] = await Promise.all([
     inStockOfType("Booster Box"),
     inStockOfType("Elite Trainer Box"),
     inStockOfType("Booster Pack"),
     inStockOfType("Sleeved Booster"),
+    // Booster Bundles and Ultra-Premium Collections (merch, 2026-11-24): only for the "Most popular" pool, never a tab of their own.
+    inStockOfType("Booster Bundle"),
+    inStockOfType("Ultra-Premium Collection"),
     upcoming.length
       ? prisma.productStat.findMany({ where: { market, ...OPEN, product: { setCode: { in: upcoming } } }, take: 60, select: cardSelect })
       : Promise.resolve([]),
@@ -183,7 +186,7 @@ export async function homeRails(market: Market, today = new Date().toISOString()
   const packs: ProductCardData[] = [];
   const lists = [loosePacks, sleevedPacks];
   for (let i = 0; packs.length < 8 && lists.some((l) => i < l.length); i++) for (const l of lists) if (i < l.length && packs.length < 8) packs.push(l[i]);
-  return { boxes, etbs, packs, preorders: rankCards(sortCards(preorders.map(toCard)), { preorder: true, today }).slice(0, 8), latestSets: bySet };
+  return { boxes, etbs, packs, bundles, upcs, preorders: rankCards(sortCards(preorders.map(toCard)), { preorder: true, today }).slice(0, 8), latestSets: bySet };
 }
 
 export interface RegionOverview {

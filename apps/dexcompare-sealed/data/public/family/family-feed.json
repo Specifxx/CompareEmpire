@@ -1,7 +1,7 @@
 {
  "v": 1,
  "site": "dex",
- "generatedAt": "2026-11-23T21:20:31.452Z",
+ "generatedAt": "2026-11-24T05:42:43.683Z",
  "links": {
   "AU": {
    "deals": "https://dexcompare.io/au/deals"
@@ -184,15 +184,15 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "NZ",
-   "title": "30th Celebration Ditto Premium Collection",
-   "url": "https://dexcompare.io/nz/p/30th-celebration-ditto-premium-collection",
-   "cents": 16999,
+   "title": "Delta Reign 3 Pack Blister",
+   "url": "https://dexcompare.io/nz/p/delta-reign-3-pack-blister",
+   "cents": 3299,
    "currency": "NZD",
-   "store": "PlayX",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/704189_in_1000x1000.jpg",
-   "refCents": 19999,
+   "store": "WP Games",
+   "image": "https://cdn.shopify.com/s/files/1/0936/4737/2569/files/219_88212d3e-4d7d-4252-a1bc-0e69a94ae10d.png?v=1787724069",
+   "refCents": 3800,
    "refLabel": "median store price",
-   "savingPct": 15
+   "savingPct": 13
   },
   {
    "kind": "deal",
@@ -226,6 +226,20 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "US",
+   "title": "Terastal Festival ex Japanese Booster Pack (SV8a)",
+   "url": "https://dexcompare.io/us/p/terastal-festival-ex-sv8a-japanese-booster-pack",
+   "cents": 995,
+   "currency": "USD",
+   "store": "Black Wolf Collectibles",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/603429_in_1000x1000.jpg",
+   "refCents": 1797,
+   "refLabel": "median store price",
+   "savingPct": 45
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "US",
    "title": "Mega Symphonia Japanese Booster Pack (M1S)",
    "url": "https://dexcompare.io/us/p/mega-symphonia-m1s-japanese-booster-pack",
    "cents": 295,
@@ -233,20 +247,6 @@
    "store": "Black Wolf Collectibles",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/647499_in_1000x1000.jpg",
    "refCents": 500,
-   "refLabel": "median store price",
-   "savingPct": 41
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "US",
-   "title": "Terastal Festival ex Japanese Booster Pack (SV8a)",
-   "url": "https://dexcompare.io/us/p/terastal-festival-ex-sv8a-japanese-booster-pack",
-   "cents": 995,
-   "currency": "USD",
-   "store": "Black Wolf Collectibles",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/603429_in_1000x1000.jpg",
-   "refCents": 1695,
    "refLabel": "median store price",
    "savingPct": 41
   },
@@ -268,15 +268,15 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "US",
-   "title": "Pokémon Card 151 Japanese Booster Box (SV2a)",
-   "url": "https://dexcompare.io/us/p/pokemon-card-151-sv2a-japanese-booster-box",
-   "cents": 29980,
+   "title": "Ascended Heroes Mini Tin [Zorua & Cramorant]",
+   "url": "https://dexcompare.io/us/p/ascended-heroes-mini-tin-zorua-and-cramorant",
+   "cents": 2475,
    "currency": "USD",
    "store": "Common Lands",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/565243_in_1000x1000.jpg",
-   "refCents": 43150,
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/668533_in_1000x1000.jpg",
+   "refCents": 3260,
    "refLabel": "median store price",
-   "savingPct": 31
+   "savingPct": 24
   },
   {
    "kind": "deal",

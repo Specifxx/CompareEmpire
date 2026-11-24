@@ -8,7 +8,7 @@
 import type { MetadataRoute } from "next";
 import { guidesFor } from "../content/guides";
 import { COUNTRY_GUIDE } from "../content/guides/country-prices";
-import { TOOLS, toolRegions } from "../content/tools";
+import { TOOLS, toolIndexed, toolsIndexIndexed } from "../content/tools";
 import { openPreorderGuides } from "./preorder-guides";
 import { REGION_LIST, REGIONS, regionOfMarket, type Region, type RegionInfo } from "./regions";
 import { JAPANESE_TYPES, PRODUCT_TYPES } from "./sealed-title";
@@ -125,10 +125,11 @@ export function staticSitemap(
   const history = readPriceHistory();
   for (const r of REGION_LIST) for (const w of detailIndexed(r.region) ? publishedWeeks(history, r.market) : []) out.push(url(`/${r.region}/charts/${w}`, new Date(`${w}T00:00:00Z`), "weekly", 0.5));
   for (const r of REGION_LIST) for (const g of detailIndexed(r.region) ? guidesFor(r.region) : []) out.push(url(`/${r.region}/guides/${g.slug}`, null, "weekly", 0.6));
-  // The tools (src/content/tools): the index and every tool, in every region. No lastmod: their copy changes only when edited.
+  // The tools (src/content/tools): each tool in its TOOL_INDEX_REGIONS only, and the index where one is (2026-11-24). No lastmod:
+  // their copy changes only when edited.
   for (const r of REGION_LIST) {
-    out.push(url(`/${r.region}/tools`, null, "monthly", 0.5));
-    for (const t of TOOLS) if (detailIndexed(r.region) && toolRegions(t).includes(r.region)) out.push(url(`/${r.region}/tools/${t.slug}`, null, "monthly", 0.6));
+    if (toolsIndexIndexed(r.region)) out.push(url(`/${r.region}/tools`, null, "monthly", 0.5));
+    for (const t of TOOLS) if (toolIndexed(r.region, t)) out.push(url(`/${r.region}/tools/${t.slug}`, null, "monthly", 0.6));
   }
   // The one guide that compares every market, at its single region-less URL.
   out.push(url(COUNTRY_GUIDE.path, null, "weekly", 0.6));

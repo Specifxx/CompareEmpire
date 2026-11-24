@@ -1898,6 +1898,35 @@ The owner's 2026-11-23 review, P2 and the measure item, on DexCompare:
   (lower case, letters and digits, 40 characters) and the template, once per query after 1.5 s of no typing. Buy clicks already
   carry their template (`buy_click` page).
 
+## 2026-11-24: Booster Bundles and Ultra-Premium Collections can reach "Most popular" (merch, backlog M19)
+
+The region home's first tab ("Most popular", owner 2026-11-20) ranked only in-stock booster boxes, ETBs and packs. In the 7 days to
+23 Nov, Booster Bundles took 328 and Ultra-Premium Collections 311 of the site's 1,583 buy clicks (ETBs 301, boxes 240), and the two
+most-clicked products were the 30th Celebration UPC Day (213) and the 30th Celebration Booster Bundle (131): neither type could reach
+the tab. `homeRails` now also reads the eight best-ranked in-stock bundles and UPCs (same `inStockOfType`, upcoming sets excluded),
+for that pool only (no new tab or section), and they take at most three of the eight, entering only on demand
+(`lib/home-rank.ts` scores; boxes/ETBs/packs first among equals), the same rule MTG Compare uses for decks and Secret Lair (E6).
+Home list only: the quick view, price rows and paid rows are untouched (A/B freeze 20 Nov to 3 Dec). Read 1 Dec (merch E7).
+
+## 2026-11-24: one indexed copy of each tool (page scorecard, Job D)
+
+The 23 Nov page scorecard (`strategy/page-scorecard-2026-11-23.json`, Google's 28 days to 20 Nov) put DexCompare's tool copies at
+the bottom: `/uk/tools/trade-calculator` (79 impressions, position 46, no click, no visit), `/ca/tools` (28, position 44),
+`/au/tools/deck-builder` (27, position 57) and `/uk/tools` (8, no click), while no tool page reached `data/demand.json`'s
+top views in any region. A calculator works the same in every region, so four indexed copies of each one split the little
+signal it gets.
+
+- **Each tool is indexed in one region, the US** (US-first, 2026-11-22), except the two that read the region itself, which keep
+  AU too: the selling-fee calculator (eBay's AU fee presets, `lib/fees.ts`) and the value checker (Bing's top page on 2026-11-08,
+  reached through `/card-value`). `TOOL_INDEX_REGIONS` / `toolIndexed` in `src/content/tools/index.ts`; always a subset of
+  `INDEXED_DETAIL_REGIONS`.
+- **The tools index** (`/<region>/tools`) is indexed where at least one tool is (US, AU). Before, it was in the sitemap in all
+  seven regions, NZ/SG/EU included, though none of their tools was indexable.
+- Every other copy stays live and linked for visitors: `noindex, follow`, its own canonical, no hreflang, out of the sitemap.
+  Nothing redirects and no URL changes.
+
+Read ~8 Dec in Search Console: `/us/tools/*` impressions and position against the 23 Nov scorecard. If a US tool gains nothing
+and an AU/UK/CA copy shows real clicks before the change, give that region back to the tool.
 ## 2026-11-24: Store partner codes, starting with Cardboard Hero's COMPEMP5
 
 Cardboard Hero (CA, our GoAffPro affiliate store, most of whose referred orders came from DexCompare) issued COMPEMP5

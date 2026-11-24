@@ -50,11 +50,13 @@ test("NZ, SG and EU: product, guide and tool pages noindex and out of the sitema
   assert.deepEqual([...INDEXED_DETAIL_REGIONS], ["us", "au", "uk", "ca"]);
   for (const r of ["nz", "sg", "eu"]) assert.equal(detailIndexed(r), false, r);
   for (const m of ["NZ", "SG", "EU"]) assert.equal(SITEMAP_PRODUCTS[m], 0, m);
-  for (const f of ["app/[region]/guides/[slug]/page.tsx", "app/[region]/tools/[tool]/page.tsx"]) {
-    const page = src(f);
-    assert.match(page, /noindex: !detailIndexed\(r\.region\)/, f);
-    assert.match(page, /\.filter\(detailIndexed\)/, `${f}: hreflang names indexed regions only`);
-  }
+  const guide = src("app/[region]/guides/[slug]/page.tsx");
+  assert.match(guide, /noindex: !detailIndexed\(r\.region\)/);
+  assert.match(guide, /\.filter\(detailIndexed\)/, "guide hreflang names indexed regions only");
+  // Tools are narrower still since 2026-11-24 (TOOL_INDEX_REGIONS, tests/tools.test.ts), always inside the indexed regions.
+  const tool = src("app/[region]/tools/[tool]/page.tsx");
+  assert.match(tool, /noindex: !toolIndexed\(r\.region, t\)/);
+  assert.match(tool, /\.filter\(\(x\) => toolIndexed\(x, t\)\)/, "tool hreflang names indexed regions only");
   const urls = new Set(staticSitemap({}).map((e) => e.url));
   for (const r of ["nz", "sg", "eu"]) {
     assert.ok(urls.has(`https://dexcompare.io/${r}`), `${r} home stays`);

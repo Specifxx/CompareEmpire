@@ -29,7 +29,7 @@ test("on and after release day: no banner (the registry retires it), and the hub
   assert.doesNotMatch(renderToStaticMarkup(React.createElement(PreorderBanner, { region: "au", today: "2026-11-06" })), /delta-reign/);
   assert.doesNotMatch(renderToStaticMarkup(React.createElement(PreorderRegionLinks, { today: "2026-11-06" })), /delta-reign/);
   assert.ok(!openPreorderGuides("2026-11-06").some((g) => g.set.code === "me6"));
-  assert.equal(renderToStaticMarkup(React.createElement(PreorderBanner, { region: "au", today: "2027-02-05" })), "", "nothing once every set is out");
+  assert.equal(renderToStaticMarkup(React.createElement(PreorderBanner, { region: "au", today: "2027-02-06" })), "", "nothing once every set is out");
   const before = staticSitemap({}, undefined, "2026-10-22").map((e) => e.url);
   const after = staticSitemap({}, undefined, "2026-11-06").map((e) => e.url);
   for (const r of REGION_LIST) {

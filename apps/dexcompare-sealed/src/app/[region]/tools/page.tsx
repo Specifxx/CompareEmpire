@@ -2,8 +2,8 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Icon } from "@/components/Icon";
-import { TOOLS, toolHref } from "@/content/tools";
-import { regionOrNotFound } from "@/lib/regions";
+import { TOOLS, toolHref, toolsIndexIndexed } from "@/content/tools";
+import { REGION_LIST, regionOrNotFound } from "@/lib/regions";
 import { jsonLd, pageMeta, regionAlternates } from "@/lib/seo";
 import { SITE_URL } from "@/lib/site";
 
@@ -16,7 +16,9 @@ export function generateMetadata({ params }: { params: { region: string } }): Me
     title: "Pokémon TCG tools: value, trades, fees, grading, decks",
     description: `Free Pokémon TCG tools for ${r.inName}: a sealed value checker, trade calculator, selling-fee calculator, grading calculator and deck builder.`,
     path: `/${r.region}/tools`,
-    alternates: regionAlternates(r.region, "/tools"),
+    // Indexed where at least one tool is (US, AU; 2026-11-24): elsewhere noindex, its own canonical and no hreflang.
+    alternates: toolsIndexIndexed(r.region) ? regionAlternates(r.region, "/tools", REGION_LIST.filter((x) => toolsIndexIndexed(x.region))) : undefined,
+    noindex: !toolsIndexIndexed(r.region),
   });
 }
 
