@@ -1861,3 +1861,22 @@ The owner reviewed DexCompare on desktop (AU) and asked for these first, site-wi
 
 The heavy ad test (2026-11-19, read 10 Dec) loses its top pair and slide-in, and its pop-up drops from three a visit to one, from
 this release on: the 10 Dec read compares desktop before and after this deploy time separately (ops/product-ux/log.md), never pooled.
+
+## 2026-11-23: The owner's UX review, P1 (consistency)
+
+- **Delivered price by default** (P1 9): the table and the best-price card rank by price + shipping unless the visitor picked
+  "Price" (`lib/ship-mode.ts`). Cards and deal rows still show the item price: per-card shipping is not in the card data yet.
+- **Stores first, marketplaces below** (P1 10): on the product page the stores lead, cheapest first, and eBay, TCGplayer and Amazon
+  sit under a labelled "Marketplaces · Ad" block (`OfferRowsWithEbay marketplacesBelow`). This reverses the owner's 2026-10-26 and
+  2026-11-17 pinned-at-top order for the product page; the quick view keeps its order until its A/B reads (3 Dec). The product
+  page's rows test ends here (its arms changed shape).
+- **One primary action per row** (P1 11): "View deal" stays the button; the thumbs are hidden on phones; the cart button is a quiet
+  "Save" beside it.
+- **The cart is the Shortlist** (P1 12): every label says Shortlist / Save, and the drawer says what it is every time it opens:
+  "Prices you saved. DexCompare sells nothing: you buy at each store on its own site."
+- **Shorter product page** (P1 13): sticky jump links (Prices, History, Facts, FAQ) under the header; the price history moved up
+  beside the best price, and the small eBay + TCGplayer pair that sat there moved under the price table.
+- **One discount definition** (P1 8): a card's badge says "N% under median" with the definition on hover; a deal row says
+  "N% under median" or "N% under 30-day typical", whichever its tab ranks by.
+- **One-line intros** (P1 14) on the deals, sets and Pokémon pages, with "How it works" linking /about.
+- **Reliable images** (P1 15): an image that fails is tried once more after 1.5 s, then shows the site mark (SiteAnalytics).

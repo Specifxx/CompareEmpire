@@ -697,23 +697,40 @@ export default async function ProductPage({ params }: { params: { region: string
             prominent
             summary={here?.lowestPriceCents == null ? "Email me when a store has it at my price" : "Email me when the price drops"}
           />
-          {/* The small eBay + TCGplayer pair under the best price (owner, 2026-10-29: "much smaller … near the top … not
-              intrusive"): the product's own eBay listings (the strip's request) and the set's TCGplayer products. */}
-          <MiniSealedAds
-            region={r.region}
-            context={stripContext}
-            tcg={tcgTiles.map((t) => ({ slug: t.slug, name: t.name, imageUrl: thumb(t.imageUrl, 120) ?? t.imageUrl, priceCents: t.priceCents, href: tcgplayerAffiliateUrl(t.url, r.region, "tcgplayer-strip-mini") }))}
-            ebayPlacement="listings-product-mini"
-            tcgPlacement="tcgplayer-strip-mini"
-            ebayQuery={ebayQ}
-            floor={ebayFloor}
-            tcgSearchHref={tcgplayerSearchUrl(set?.name ?? "", r.region, "tcgplayer-strip-mini")}
-            className="mt-4"
-          />
+          {/* Price history next to the best price (owner, 2026-11-23 UX review, P1 13: "move price history above the fold, next to
+              the best price"). The ad pair that sat here is under the price table now: ads below content. */}
+          {showHistory && (
+            <section id="history" aria-labelledby="history-h" className="mt-5">
+              <h2 id="history-h" className="text-sm font-bold text-ink">
+                Price history <span className="font-normal text-muted">· cheapest in {r.inName} and TCGplayer&rsquo;s market price</span>
+              </h2>
+              <div className="mt-2">
+                <PriceHistoryTwoLine values={chartDays} market={r.market} tcg={tcgDays} />
+              </div>
+            </section>
+          )}
         </div>
       </div>
 
-      <Section id="prices" title={tableTitle}>
+      {/* Jump links (owner, 2026-11-23 UX review, P1 13: a ~9,500px page needs anchors). Sticky under the header. */}
+      <nav aria-label="On this page" className="sticky top-[var(--hdr)] z-20 -mx-4 mt-8 border-b border-line bg-bg/95 px-4 backdrop-blur sm:mx-0 sm:px-0">
+        <ul className="scroller gap-1 py-1.5 text-sm font-semibold">
+          {[
+            ["#prices", "Prices"],
+            ...(showHistory ? [["#history", "History"]] : []),
+            ["#facts", "Facts"],
+            ...(faq.length ? [["#faq-h", "FAQ"]] : []),
+          ].map(([href, label]) => (
+            <li key={href}>
+              <a href={href} className="chip min-h-9 whitespace-nowrap">
+                {label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      <Section id="prices" title={tableTitle} className="mt-8 sm:mt-10">
         {p.offers.length ? (
           // eBay and TCGplayer are pinned at the top of the table, eBay first, TCGplayer second, then the stores cheapest first; each is an
           // ordinary row with its own button colour, and the cheapest row of the whole table is highlighted (owner, 2026-10-26).
@@ -769,6 +786,21 @@ export default async function ProductPage({ params }: { params: { region: string
         </div>
       )}
 
+      <div className="mt-6">
+          {/* The small eBay + TCGplayer pair under the best price (owner, 2026-10-29: "much smaller … near the top … not
+              intrusive"): the product's own eBay listings (the strip's request) and the set's TCGplayer products. */}
+          <MiniSealedAds
+            region={r.region}
+            context={stripContext}
+            tcg={tcgTiles.map((t) => ({ slug: t.slug, name: t.name, imageUrl: thumb(t.imageUrl, 120) ?? t.imageUrl, priceCents: t.priceCents, href: tcgplayerAffiliateUrl(t.url, r.region, "tcgplayer-strip-mini") }))}
+            ebayPlacement="listings-product-mini"
+            tcgPlacement="tcgplayer-strip-mini"
+            ebayQuery={ebayQ}
+            floor={ebayFloor}
+            tcgSearchHref={tcgplayerSearchUrl(set?.name ?? "", r.region, "tcgplayer-strip-mini")}
+          />
+      </div>
+
       {/* The Discord hub, under the price table (owner, 2026-11-20): this site's own invite, with the reason to join. */}
       {/* TCGplayer's Cyber Weekend banner (lib/tcgplayer-cyber.ts): under the price table, 22 Nov to 1 Dec, labelled Ad. */}
       <TcgplayerCyberBanner href={tcgplayerSearchUrl(p.name, r.region, "tcgplayer-cyber-banner")} at={now} className="mt-6" />
@@ -793,11 +825,7 @@ export default async function ProductPage({ params }: { params: { region: string
         </>
       )}
 
-      {showHistory && (
-        <Section id="history" title="Price history" kicker={`Cheapest listing in ${r.inName} and TCGplayer's market price`}>
-          <PriceHistoryTwoLine values={chartDays} market={r.market} tcg={tcgDays} />
-        </Section>
-      )}
+
 
       <section aria-labelledby="about-h" className="mt-16 max-w-3xl sm:mt-20">
         <h2 id="about-h" className="sec-h2">
