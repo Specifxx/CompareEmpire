@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import type { Placement } from "@/lib/affiliate";
 import { abClick, useAb } from "@/lib/ab-client";
 import { ebayPopClick } from "@/lib/ebay-pop";
+import { mktOrderClick } from "@/lib/mkt-order";
 import { rtClick, useRowsTest } from "@/lib/rows-test-client";
 import { buyEvents, goHref, type BuyItem } from "@/lib/click-events";
 import { campaignEvent, readCampaign } from "@/lib/campaign";
@@ -62,6 +63,7 @@ export function OutboundLink({
   function record(el: Element | null) {
     abClick(ab, retailer, placement, rel);
     if (/^ebay/i.test(retailer)) ebayPopClick(el);
+    mktOrderClick(el, retailer);
     rtClick(rt, retailer, placement, rel);
     try {
       for (const [name, props] of buyEvents({ retailer, placement, rel, pathname: window.location.pathname, item })) track(name, props);

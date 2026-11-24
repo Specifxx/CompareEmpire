@@ -19,6 +19,7 @@ import {
   type FeedKind,
 } from "@/lib/ebay-context";
 import { FEED_FIRST_INDEX } from "@/lib/ebay-ads";
+import { mktOrderSeen } from "@/lib/mkt-order";
 import { listingCents, pickListing, type PriceFloor, ebayMayBeBest } from "@/lib/ebay-offer-row";
 import { money } from "@/lib/format";
 import { isRegion, REGIONS, type Region } from "@/lib/regions";
@@ -769,6 +770,11 @@ export function OfferRowsWithEbay({
   const placement: Placement = "listings-offer-row";
   const { ref, item, cents, bestable, age } = useEbayPick({ region, slug, floor, packs, placement });
   const { mode, rows } = useRankedRows(given);
+  // The marketplace order test (lib/mkt-order.ts): only a non-US product page's Marketplaces block; CSS does the reordering.
+  const nonUs = REGIONS[region].market !== "US";
+  useEffect(() => {
+    if (marketplacesBelow && nonUs) mktOrderSeen();
+  }, [marketplacesBelow, nonUs]);
   const byPrice = mode === "price";
   // The best price of the whole table: the cheapest store you can buy from, unless TCGplayer (comparable, open) or then the eBay listing
   // is strictly cheaper (a tie stays with the store).
@@ -825,7 +831,7 @@ export function OfferRowsWithEbay({
         <div className="group/offers divide-y divide-line" data-best={top ?? undefined}>
           <ul className="divide-y divide-line">{list(storeSlots)}</ul>
         </div>
-        <div className="border-t border-line bg-raised" data-marketplaces="">
+        <div className="border-t border-line bg-raised" data-marketplaces="" data-us={nonUs ? "0" : "1"}>
           <p className="flex items-center gap-2 px-4 pb-1 pt-3 text-xs font-bold uppercase tracking-wide text-muted sm:px-5">
             Marketplaces <span className="ad-pill">Ad</span>
             <span className="font-normal normal-case tracking-normal">many sellers, paid links</span>

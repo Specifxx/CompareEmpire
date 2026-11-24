@@ -1473,6 +1473,11 @@ html[data-ebaypop="pop"] li:not([role="dialog"] li):has(a.btn-ad[href*="ebay."])
 :root:not([data-theme="light"]) .profile-premium-pill { background: rgb(180 83 9 / 0.28); color: #fde68a; }
 .profile-gold { border-color: rgb(217 119 6 / 0.55); background-image: linear-gradient(160deg, rgb(251 191 36 / 0.12), transparent 60%); }
 
+/* The marketplace order test (lib/mkt-order.ts, from 3 Dec): outside the US, arm "local" lists the region's own Amazon above TCGplayer (a
+   US shop) in the product page's Marketplaces block: eBay, Amazon, TCGplayer. Same rows and words, only the order; never the quick view. */
+html[data-mktorder="local"] [data-marketplaces][data-us="0"] > ul { display: flex; flex-direction: column; }
+html[data-mktorder="local"] [data-marketplaces][data-us="0"] > ul > li[data-row="tcgplayer"] { order: 1; }
+
 /* Reduced motion, everywhere (owner's UX review P2 21, 2026-11-24): a safety net under every rule above, so no light, drift or
    slide added later moves for a visitor who asked the system for less motion. */
 @media (prefers-reduced-motion: reduce) {

@@ -1935,3 +1935,15 @@ credited to us even when the ref is lost. `lib/store-codes.ts` (ported from OP C
 such codes; `StoreCodeChip` shows one beside that store's open rows in the price table and quick view, tap to copy. A
 label only: never applied to a price, the sort or "Best price" (`tests/store-codes.test.ts`). A code hides itself 30
 days after it was last confirmed. The store kept the rate at 2% for every affiliate; we accepted, since it already earns.
+
+## 2026-11-24: Marketplace order outside the US, 50/50 from 3 Dec
+
+The owner asked whether eBay, TCGplayer and Amazon side by side take clicks from each other. 30 days to 23 Nov: eBay
+earns about A$0.35 a click, TCGplayer about A$0.42 (A$0.23 without orders over US$1k), Amazon about A$0.32. With Amazon's
+rows off (13-16 Nov) Dex's paid clicks per 100 visitors held (30.6 to 28.9) and mostly moved to TCGplayer, so the three
+mostly shift clicks among themselves. The open question is outside the US, where TCGplayer is a US shop: 1,309 of Dex's
+2,449 TCGplayer clicks came from abroad, and Impact cannot show how many of those buy. `lib/mkt-order.ts` tests arm
+"local" (eBay, the region's own Amazon, then TCGplayer) against today's order, in the product page's Marketplaces block
+only, by CSS order (same rows, words and links), never the US or the quick view, from 3 Dec (after the A/B freeze and
+Dex's 3 Dec reads; Dex's only new test). Event `mkt_order` {k}: `<arm>:seen`, then `<arm>:ebay|tcg|amz` once a visit.
+Read 17 Dec: clicks per 100 seen visits weighted by each network's A$ per click (`tests/mkt-order.test.ts`).

@@ -1,6 +1,7 @@
 "use client";
 
 import { track } from "@vercel/analytics";
+import { mktOrderClick } from "@/lib/mkt-order";
 import type { ReactNode } from "react";
 import { abClick, useAb } from "@/lib/ab-client";
 import { rtClick, useRowsTest } from "@/lib/rows-test-client";
@@ -27,8 +28,9 @@ declare global {
 export function AmazonLink({ region, href, product, placement, className, children }: { region: Region; href: string; product: string; placement: AmazonPlacement; className?: string; children: ReactNode }) {
   const ab = useAb();
   const rt = useRowsTest();
-  function record() {
+  function record(el: Element | null) {
     abClick(ab, amazonLabel(region), placement, AMAZON_REL);
+    mktOrderClick(el, amazonLabel(region));
     rtClick(rt, amazonLabel(region), placement, AMAZON_REL);
     try {
       const pathname = window.location.pathname;
@@ -50,10 +52,10 @@ export function AmazonLink({ region, href, product, placement, className, childr
       className={className}
       data-amazon={placement}
       onClick={(e) => {
-        if (e.button === 0) record();
+        if (e.button === 0) record(e.currentTarget);
       }}
       onAuxClick={(e) => {
-        if (e.button === 1) record();
+        if (e.button === 1) record(e.currentTarget);
       }}
     >
       {children}
