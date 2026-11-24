@@ -1,7 +1,7 @@
 {
  "v": 1,
  "site": "dex",
- "generatedAt": "2026-11-24T05:42:43.683Z",
+ "generatedAt": "2026-11-24T20:38:10.326Z",
  "links": {
   "AU": {
    "deals": "https://dexcompare.io/au/deals"
@@ -30,20 +30,6 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "AU",
-   "title": "Pokemon Day 2026 Collection",
-   "url": "https://dexcompare.io/au/p/pokemon-day-2026-collection",
-   "cents": 6700,
-   "currency": "AUD",
-   "store": "Crystal Collectables TCG",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/668590_in_1000x1000.jpg",
-   "refCents": 11998,
-   "refLabel": "median store price",
-   "savingPct": 44
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "AU",
    "title": "First Partner Illustration Collection (Series 2)",
    "url": "https://dexcompare.io/au/p/first-partner-illustration-collection-series-2-2",
    "cents": 3995,
@@ -58,15 +44,15 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "AU",
-   "title": "Miraidon ex / Koraidon ex Deluxe Battle Deck",
-   "url": "https://dexcompare.io/au/p/miraidon-ex-koraidon-ex-deluxe-battle-deck",
-   "cents": 2500,
+   "title": "Pokemon Day 2026 Collection",
+   "url": "https://dexcompare.io/au/p/pokemon-day-2026-collection",
+   "cents": 7400,
    "currency": "AUD",
-   "store": "Tabernacle Games",
-   "image": "https://cdn.shopify.com/s/files/1/0633/7940/6911/files/Pokemon-TCG-Koraidon-ex-Deluxe-Battle-Deck_EN-737x1024.jpg?v=1762960644",
-   "refCents": 3999,
+   "store": "Crystal Collectables TCG",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/668590_in_1000x1000.jpg",
+   "refCents": 11998,
    "refLabel": "median store price",
-   "savingPct": 37
+   "savingPct": 38
   },
   {
    "kind": "deal",
@@ -109,6 +95,20 @@
    "refCents": 9900,
    "refLabel": "median store price",
    "savingPct": 34
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "AU",
+   "title": "Abyss Eye Japanese Booster Pack (M5)",
+   "url": "https://dexcompare.io/au/p/abyss-eye-m5-japanese-booster-pack",
+   "cents": 400,
+   "currency": "AUD",
+   "store": "One Stop Poke Shop",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/695111_in_1000x1000.jpg",
+   "refCents": 600,
+   "refLabel": "median store price",
+   "savingPct": 33
   },
   {
    "kind": "deal",
@@ -200,13 +200,13 @@
    "region": "US",
    "title": "League Battle Deck - Mega Lucario ex",
    "url": "https://dexcompare.io/us/p/league-battle-deck-mega-lucario-ex",
-   "cents": 1275,
+   "cents": 1299,
    "currency": "USD",
-   "store": "Elite4TCG",
+   "store": "Zulus Games",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/684106_in_1000x1000.jpg",
    "refCents": 2499,
    "refLabel": "median store price",
-   "savingPct": 49
+   "savingPct": 48
   },
   {
    "kind": "deal",
@@ -218,9 +218,37 @@
    "currency": "USD",
    "store": "Apollo's Vault",
    "image": "https://cdn.shopify.com/s/files/1/1704/1809/files/Pokemon-MegaEvolution-ChaosRising-3PackBlister.png?v=1773419641",
-   "refCents": 2495,
+   "refCents": 2497,
    "refLabel": "median store price",
    "savingPct": 48
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "US",
+   "title": "Black Bolt Booster Pack",
+   "url": "https://dexcompare.io/us/p/black-bolt-booster-pack",
+   "cents": 799,
+   "currency": "USD",
+   "store": "Common Lands",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/630434_in_1000x1000.jpg",
+   "refCents": 1500,
+   "refLabel": "median store price",
+   "savingPct": 47
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "US",
+   "title": "White Flare Booster Pack",
+   "url": "https://dexcompare.io/us/p/white-flare-booster-pack",
+   "cents": 799,
+   "currency": "USD",
+   "store": "Common Lands",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/630699_in_1000x1000.jpg",
+   "refCents": 1500,
+   "refLabel": "median store price",
+   "savingPct": 47
   },
   {
    "kind": "deal",
@@ -253,34 +281,6 @@
   {
    "kind": "deal",
    "cluster": "cards",
-   "region": "US",
-   "title": "Ascended Heroes - Tech Sticker Collection - Charmander",
-   "url": "https://dexcompare.io/us/p/ascended-heroes-tech-sticker-collection-charmander",
-   "cents": 3075,
-   "currency": "USD",
-   "store": "Common Lands",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/666908_in_1000x1000.jpg",
-   "refCents": 4700,
-   "refLabel": "median store price",
-   "savingPct": 35
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "US",
-   "title": "Ascended Heroes Mini Tin [Zorua & Cramorant]",
-   "url": "https://dexcompare.io/us/p/ascended-heroes-mini-tin-zorua-and-cramorant",
-   "cents": 2475,
-   "currency": "USD",
-   "store": "Common Lands",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/668533_in_1000x1000.jpg",
-   "refCents": 3260,
-   "refLabel": "median store price",
-   "savingPct": 24
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
    "region": "UK",
    "title": "Origin Forme Palkia VSTAR League Battle Deck",
    "url": "https://dexcompare.io/uk/p/origin-forme-palkia-vstar-league-battle-deck",
@@ -291,6 +291,20 @@
    "refCents": 2995,
    "refLabel": "median store price",
    "savingPct": 50
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "UK",
+   "title": "30th Celebration Ultra-Premium Collection (Day)",
+   "url": "https://dexcompare.io/uk/p/30th-celebration-ultra-premium-collection-day",
+   "cents": 16999,
+   "currency": "GBP",
+   "store": "TCG Group",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/704190_in_1000x1000.jpg",
+   "refCents": 31999,
+   "refLabel": "median store price",
+   "savingPct": 47
   },
   {
    "kind": "deal",
@@ -351,26 +365,12 @@
   {
    "kind": "deal",
    "cluster": "cards",
-   "region": "UK",
-   "title": "Mega Brave Japanese Booster Box (M1L)",
-   "url": "https://dexcompare.io/uk/p/mega-brave-m1l-japanese-booster-box",
-   "cents": 5299,
-   "currency": "GBP",
-   "store": "PokeStadium Cards",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/647500_in_1000x1000.jpg",
-   "refCents": 8749,
-   "refLabel": "median store price",
-   "savingPct": 39
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
    "region": "CA",
    "title": "First Partner Illustration Collection (Series 2)",
    "url": "https://dexcompare.io/ca/p/first-partner-illustration-collection-series-2-2",
    "cents": 2499,
    "currency": "CAD",
-   "store": "Hairy Tarantula",
+   "store": "Sky Fox Games",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/688712_in_1000x1000.jpg",
    "refCents": 4995,
    "refLabel": "median store price",
@@ -414,7 +414,7 @@
    "currency": "CAD",
    "store": "Flaring Lair",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/695400_in_1000x1000.jpg",
-   "refCents": 4499,
+   "refCents": 4497,
    "refLabel": "median store price",
    "savingPct": 44
   },
@@ -590,20 +590,6 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "SG",
-   "title": "Ascended Heroes Booster Bundle",
-   "url": "https://dexcompare.io/sg/p/ascended-heroes-booster-bundle",
-   "cents": 7950,
-   "currency": "SGD",
-   "store": "TEFUDA",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/668541_in_1000x1000.jpg",
-   "refCents": 12106,
-   "refLabel": "median store price",
-   "savingPct": 34
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "SG",
    "title": "Pitch Black Elite Trainer Box",
    "url": "https://dexcompare.io/sg/p/pitch-black-elite-trainer-box",
    "cents": 8000,
@@ -613,6 +599,20 @@
    "refCents": 12000,
    "refLabel": "median store price",
    "savingPct": 33
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "SG",
+   "title": "First Partner Illustration Collection (Series 2)",
+   "url": "https://dexcompare.io/sg/p/first-partner-illustration-collection-series-2-2",
+   "cents": 3050,
+   "currency": "SGD",
+   "store": "TEFUDA",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/688712_in_1000x1000.jpg",
+   "refCents": 4500,
+   "refLabel": "median store price",
+   "savingPct": 32
   }
  ]
 }
