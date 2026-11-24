@@ -403,7 +403,7 @@ test("ProductCard: a photo on its plate, the name, one stock line and the price;
   assert.equal((render(React.createElement(ProductCard, { p: card({ lowestPriceCents: 9900 }), region: "us" })).match(/pc-badge/g) ?? []).length, 0, "over MSRP is not a badge");
   // The saving against the median of the stores that have it (10% or more, three stores or more) comes before the MSRP badge.
   const deal = render(React.createElement(ProductCard, { p: card({ medianOpenCents: 7000 }), region: "us" }));
-  assert.match(deal, /<span class="pc-badge" title="18% below the median of 12 stores">−18%<\/span>/);
+  assert.match(deal, /<span class="pc-badge" title="18% below the median of 12 stores\. The median is the middle in-stock store price today, across 12 stores\.">18% under median<\/span>/);
   assert.equal((deal.match(/pc-badge/g) ?? []).length, 1);
   // The price per pack, where the product line fixes a pack count.
   const box = render(React.createElement(ProductCard, { p: card({ slug: "pitch-black-booster-box", name: "Pitch Black Booster Box", productType: "Booster Box", lowestPriceCents: 16499 }), region: "us" }));

@@ -66,5 +66,6 @@ test("a Pokémon hub carries today's numbers in words, a FAQ with its markup, an
   }
   assert.notEqual(out[0], out[1], "each region's words differ, because its numbers do");
   const index = readFileSync("src/app/[region]/pokemon/page.tsx", "utf8");
-  assert.match(index, /Pokémon have a sealed product named after them/, "the index says how many Pokémon it lists");
+  // One line of intro since 2026-11-23 (owner's UX review, P1 14); the counts sit beside each name.
+  assert.match(index, /counts\.get\(p\.slug\)/, "each Pokémon shows its count");
 });

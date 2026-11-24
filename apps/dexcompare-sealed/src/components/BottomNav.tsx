@@ -106,7 +106,7 @@ export const tabs = (r: Region): Tab[] => [
   // The search: the all-sealed list, whose box searches the region's products (lib/index-client.ts searchHref with no words).
   { key: "search", label: "Search", href: sectionHref(r, "sealed"), also: [`/${r}/type`], icon: <Icon name="search" size={22} /> },
   { key: "deals", label: "Deals", href: sectionHref(r, "deals"), also: [sectionHref(r, "priceMoves"), sectionHref(r, "backInStock"), sectionHref(r, "blackFriday")], icon: <Icon name="tag" size={22} /> },
-  { key: "cart", label: "Cart", icon: <CartIcon size={22} /> },
+  { key: "cart", label: "Shortlist", icon: <CartIcon size={22} /> },
   // My collection (owner, 2026-11-19: "replace the menu with My Collection"); the header keeps its menu button on phones.
   { key: "collection", label: "Collection", href: "/collection", icon: <svg {...SVG}><rect x="7" y="3" width="13" height="17" rx="2" /><path d="M4 7v12a2 2 0 0 0 2 2h10" /></svg> },
 ];

@@ -100,7 +100,7 @@ export function CartListView() {
       <div className="ce-cart-page">
         <div className="ce-cart-empty">
           <CartIcon size={36} />
-          <p className="ce-cart-strong">Your cart is empty</p>
+          <p className="ce-cart-strong">Your shortlist is empty</p>
           <p>Tap the cart button beside any store&apos;s price to add it. Add from as many stores as you like: each store gets its own checkout button here.</p>
           <a className="ce-cart-btn" href="/">
             Find prices

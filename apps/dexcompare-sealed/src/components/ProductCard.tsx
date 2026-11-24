@@ -107,8 +107,9 @@ export function ProductCard({ p, region, priority = false }: { p: ProductCardDat
             <div className="pc-noimg">{p.productType}</div>
           )}
           {savingPct != null && savingPct < 0 ? (
-            <span className="pc-badge" title={saving ?? undefined}>
-              −{-savingPct}%
+            // One discount definition everywhere (owner, 2026-11-23 UX review, P1 8): "% under median", labelled, explained on hover.
+            <span className="pc-badge" title={`${saving ? `${saving}. ` : ""}The median is the middle in-stock store price today, across ${n} stores.`}>
+              {-savingPct}% under median
             </span>
           ) : belowMsrp ? (
             <span className="pc-badge">Below MSRP</span>

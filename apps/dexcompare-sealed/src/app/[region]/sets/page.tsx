@@ -40,8 +40,10 @@ export default async function SetsPage({ params }: { params: { region: string } 
       <Breadcrumbs items={[{ href: `/${r.region}`, label: r.name }, { label: "Sets" }]} />
       <h1 className="ph-h1">Pokémon TCG sets in order</h1>
       <p className="ph-lede">
-        Every English-language set from XY ({firstSetYear()}) on, newest first, with its English release date and how much of its sealed product{" "}
-        {r.adjective} stores have in stock today. A set links to its price comparison once a store we track lists it.
+        Every English set since {firstSetYear()}, newest first, with today&rsquo;s {r.adjective} stock.{" "}
+        <Link href="/about" prefetch={false} className="underline underline-offset-2 hover:text-ink">
+          How it works
+        </Link>
       </p>
       {next && (
         <p className="mt-4">

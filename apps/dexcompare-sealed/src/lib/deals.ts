@@ -452,9 +452,9 @@ export const dealsCopy = {
   h1: (r: R) => `Pokémon sealed cheaper than most ${r.adjective} stores today`,
   /** The lede, around the live "checked <Ago>": `${lead} <Ago/>${tail}`. */
   lede: (r: R) => ({
-    lead: `Products where the cheapest in-stock price is at least 10% under the median of 3 or more ${r.adjective} stores that have it, checked`,
-    tail:
-      `. The median is today’s, across stores; each product page has its own daily price chart.` + (tcg(r) ? ` In the US the cheapest can be a TCGplayer seller’s.` : ""),
+    // One line (owner, 2026-11-23 UX review, P1 14); the method is in "How these prices work" on /about.
+    lead: `Sealed at least 10% under the ${r.adjective} store median, checked`,
+    tail: ".",
   }),
   description: (r: R, deals: number, bestPct: number | null) =>
     deals > 0

@@ -2,7 +2,6 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { cache } from "react";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
-import { plural } from "@/lib/format";
 import { hubTitle, titleText } from "@/lib/hub-copy";
 import { pokemonCounts } from "@/lib/hub-data";
 import { POKEMON, pokemonPath } from "@/lib/pokemon-hubs";
@@ -37,17 +36,6 @@ export default async function PokemonIndex({ params }: { params: { region: strin
       <Breadcrumbs items={[{ href: `/${r.region}`, label: r.name }, { label: "By Pokémon" }]} />
       <h1 className="ph-h1">Shop by Pokémon in {r.inName}</h1>
       <p className="ph-lede">Collections, tins and premium boxes named for one Pokémon, each with every {r.adjective} store&apos;s price.</p>
-      {/* Today's counts in words (2026-11-14: the page had one sentence). Only what the list below already shows. */}
-      {list.length >= 3 && (
-        <p className="mt-3 max-w-2xl leading-7 text-muted">
-          {list.length} Pokémon have a sealed product named after them at the stores we compare in {r.inName} today. The most:{" "}
-          {list
-            .slice(0, 3)
-            .map((p) => `${p.name} (${plural(counts.get(p.slug) ?? 0, "product")})`)
-            .join(", ")}
-          . The number beside each name is how many of its products a store has in stock, or two or more stores list.
-        </p>
-      )}
       <ul className="mt-8 grid grid-cols-2 gap-2.5 sm:mt-10 sm:grid-cols-3 sm:gap-3 lg:grid-cols-4">
         {list.map((p) => (
           <li key={p.slug}>
