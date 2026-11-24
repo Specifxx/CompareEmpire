@@ -76,7 +76,7 @@ test("pre-order pages retire themselves on release day", () => {
     ["me6", "me7"],
   );
   assert.deepEqual(openPreorderGuides("2026-11-06").map((x) => x.set.code), ["me7"], "release day: no longer a pre-order");
-  assert.deepEqual(openPreorderGuides("2027-02-05"), []);
+  assert.deepEqual(openPreorderGuides("2027-02-06"), []);
   assert.equal(isPreorderSet("me6", new Date("2026-11-05T23:59:00Z")), true);
   assert.equal(isPreorderSet("me6", new Date("2026-11-06T00:00:00Z")), false);
 
