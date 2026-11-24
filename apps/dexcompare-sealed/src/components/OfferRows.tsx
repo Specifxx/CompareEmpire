@@ -13,6 +13,7 @@ import type { Region } from "@/lib/regions";
 import { offerStockLabel, type OfferStock } from "@/lib/sealed-offers";
 import { SHIP_UNKNOWN, type ShipCell } from "@/lib/shipping-quote";
 import { Ago } from "./Ago";
+import { StoreCodeChip } from "./StoreCodeChip";
 import { AmazonLink } from "./AmazonLink";
 import { OutboundLink } from "./OutboundLink";
 import { StockPill } from "./StockPill";
@@ -242,6 +243,8 @@ export function StoreRow({ d, preorder, top, hint }: { d: StoreRowData; preorder
         )}
         {d.note && ` · ${d.note}`}
         {d.sponsored && <span className="text-muted"> · affiliate link</span>}
+        {/* A store's own discount code for our visitors (lib/store-codes.ts): a label on an open store row, never applied to the price. */}
+        {d.open && !d.search && !d.marketplace && !d.kind && <StoreCodeChip host={d.host} />}
       </div>
       <div className="or-stock">
         {d.kind === "amazon" && d.live ? (
