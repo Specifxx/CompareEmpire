@@ -29,7 +29,7 @@ export interface HeaderNavItem {
 export function ShopMenuPanel({ columns, kind = "shop" }: { columns: MenuColumn[]; kind?: NonNullable<HeaderNavItem["menuKind"]> }) {
   return (
     <>
-      <div className={`grid max-w-[calc(100vw-2rem)] gap-6 rounded-2xl border border-line bg-surface p-5 shadow-lg ${columns.length > 3 ? "w-[46rem]" : columns.length > 2 ? "w-[40rem]" : columns.length > 1 ? "w-[28rem]" : "w-[15rem]"}`} style={{ gridTemplateColumns: `repeat(${columns.length}, minmax(0, 1fr))` }} data-menu={kind}>
+      <div className={`grid max-w-[calc(100vw-2rem)] gap-6 rounded-2xl border border-line bg-surface p-5 shadow-lg ${columns.length > 4 ? "w-[56rem]" : columns.length > 3 ? "w-[46rem]" : columns.length > 2 ? "w-[40rem]" : columns.length > 1 ? "w-[28rem]" : "w-[15rem]"}`} style={{ gridTemplateColumns: `repeat(${columns.length}, minmax(0, 1fr))` }} data-menu={kind}>
         {columns.map((col) => (
           <div key={col.title}>
             {col.href ? (

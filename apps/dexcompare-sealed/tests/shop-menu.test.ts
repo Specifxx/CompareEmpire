@@ -57,7 +57,11 @@ test("menus skip a set no store lists yet: its set page is a 404, so the link wa
 });
 
 test("sets menu: one column per series (the era), newest sets under it, heading and footer to the series' block on /sets; unlisted sets skipped", () => {
-  const cols = setsMenuColumns("us", "2026-11-03");
+  const all = setsMenuColumns("us", "2026-11-03");
+  // The last column is "Coming soon" (the pre-order guides and the release calendar, out of the Deals menu: UX review, 2026-11-23).
+  assert.equal(all.at(-1)!.title, "Coming soon");
+  assert.equal(all.at(-1)!.links.at(-1)!.href, "/us/releases");
+  const cols = all.slice(0, -1);
   assert.ok(cols.length >= 3 && cols.length <= 4);
   for (const c of cols) {
     assert.match(c.href!, /^\/us\/sets#[a-z0-9-]+$/, c.title);
@@ -93,7 +97,7 @@ test("Deals and Guides open mega menus of real links in the HTML (owner, 2026-11
   assert.match(nav, /data-menu="guides"/);
   assert.match(nav, /data-menu="pokemon"/);
   assert.equal((nav.match(/data-nav-trigger/g) ?? []).length, 5, "Deals, All sealed, Sets, Pokémon and Guides carry a menu");
-  assert.ok(dealsMenuColumns("au", "2026-11-09").length === 3 && guidesMenuColumns("au").length === 2);
+  assert.ok(dealsMenuColumns("au", "2026-11-09").length === 1 && dealsMenuColumns("au", "2026-11-09")[0].links.length <= 5 && guidesMenuColumns("au").length === 2);
   assert.deepEqual(guidesMenuColumns("au").map((c) => c.title), ["Learn & play", "The data"]);
 });
 

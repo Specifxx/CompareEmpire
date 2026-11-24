@@ -87,6 +87,7 @@ export function Header({ region, listed }: { region: Region | null; listed?: Rea
           href="/premium"
           prefetch={false}
           aria-label="DexCompare Premium"
+          title="DexCompare Premium"
           className="hidden h-9 min-[400px]:inline-flex shrink-0 items-center gap-1.5 rounded-full border border-line bg-surface px-2.5 text-sm font-semibold text-ink transition-colors hover:border-ink/30 sm:px-3.5"
         >
           <svg aria-hidden viewBox="0 0 20 20" className="h-4 w-4 fill-current text-amber-500"><path d="M10 1.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L10 14.9l-5.2 2.7 1-5.8L1.5 7.7l5.9-.9z" /></svg>
