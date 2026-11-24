@@ -6,7 +6,7 @@ import test from "node:test";
 import { regionSwitchFollow } from "../src/components/RegionSwitcher";
 import { findBannedCopy } from "../src/lib/copy-rules";
 import { prevNextSet } from "../src/lib/hub-copy";
-import { detailIndexed, HEADLINE_TYPES, INDEXED_DETAIL_REGIONS, listings, productInSitemap, productNoindex, productTier, SITEMAP_PRODUCTS } from "../src/lib/index-tiers";
+import { detailIndexed, HEADLINE_TYPES, INDEXED_DETAIL_REGIONS, listings, MIN_TYPE_INDEX_OPEN, productInSitemap, productNoindex, productTier, SITEMAP_PRODUCTS, typeHubIndexed } from "../src/lib/index-tiers";
 import { productFaq, type FaqInput } from "../src/lib/product-faq";
 import { dealsThin, movesThin, packsThin } from "../src/lib/section-thin";
 import { SETS } from "../src/lib/sets";
@@ -189,4 +189,22 @@ test("internal links: every listed set from the region home, set-less strong pro
   const hub = src("lib/hub-data.ts");
   assert.match(hub, /p\.setCode == null/);
   assert.match(hub, /\.filter\(\(r\) => productInSitemap\(r, label\)\)/, "strong products only");
+});
+
+test("type hubs: indexed only with ten open products in the market; the page, its hreflang and the sitemap follow one rule (2026-11-25)", () => {
+  assert.equal(MIN_TYPE_INDEX_OPEN, 10);
+  assert.equal(typeHubIndexed(9), false); // /nz/type/booster-box-cases (9 open, position 71)
+  assert.equal(typeHubIndexed(3), false); // /eu/type/booster-box-cases
+  assert.equal(typeHubIndexed(0), false); // /nz/type/booster-bundle-cases
+  assert.equal(typeHubIndexed(10), true);
+  assert.equal(typeHubIndexed(31), true); // /us/type/booster-box-cases keeps its index
+  const page = src("app/[region]/type/[type]/page.tsx");
+  assert.match(page, /const indexed = typeHubIndexed\(d\.openCount\)/);
+  assert.match(page, /noindex: !indexed/);
+  assert.match(page, /alternates: indexed \? regionAlternates\(r\.region, `\/type\/\$\{t\.slug\}`, regions\) : undefined/);
+  assert.match(page, /typeIndexedMarkets\(t\.label\)/);
+  const sitemap = src("app/sitemap.ts");
+  assert.match(sitemap, /typeHubIndexed\(open\.get\(k\) \?\? 0\)/);
+  assert.match(sitemap, />= \$\{MIN_TYPE_INDEX_OPEN\}/);
+  assert.match(src("lib/hub-data.ts"), /filter\(\(r\) => typeHubIndexed\(Number\(r\.open\)\)\)/);
 });

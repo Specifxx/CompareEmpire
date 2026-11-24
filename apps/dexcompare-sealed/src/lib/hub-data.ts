@@ -4,14 +4,14 @@
 // a page that needs one in generateMetadata too wraps it in React cache().
 import { cardSelect, OPEN, toCard, type ProductCardData } from "./data";
 import { prisma } from "./db";
-import type { Market } from "./regions";
+import { REGION_LIST, type Market } from "./regions";
 import { Prisma } from "@prisma/client";
 import { ascNullsLast, cardRow, isComparable, isOpen, statsInMarket } from "./public-data/joins";
 import { namesPokemon, pokemonOfName, pokemonSqlPattern, type PokemonHub } from "./pokemon-hubs";
 import { routeRaw } from "./public-data/route";
 import { publicRows } from "./public-data/store";
 import { STORE_MIN_LISTED } from "./hub-copy";
-import { productInSitemap } from "./index-tiers";
+import { productInSitemap, typeHubIndexed } from "./index-tiers";
 
 export interface SetCount {
   products: number;
@@ -96,6 +96,26 @@ export async function typeIndexRows(market: Market, label: string): Promise<Type
     .sort((a, b) => a.name.localeCompare(b.name))
     .slice(0, TYPE_INDEX_TAKE)
     .map(({ slug, name, inStockStores, lowestPriceCents }) => ({ slug, name, inStockStores, lowestPriceCents }));
+}
+
+/**
+ * The markets whose copy of a type page is indexable (index-tiers.ts typeHubIndexed: enough open products there), for the page's
+ * hreflang set. One GROUP BY, one row per market.
+ */
+export async function typeIndexedMarkets(label: string): Promise<Market[]> {
+  const fromFiles = () => {
+    const n = new Map<string, number>();
+    for (const { market: m } of REGION_LIST) {
+      for (const { s, p } of statsInMarket(m)) if (p.productType === label && isOpen(s)) n.set(m, (n.get(m) ?? 0) + 1);
+    }
+    return [...n].map(([market, open]) => ({ market, open }));
+  };
+  const rows = await routeRaw(fromFiles, () => prisma.$queryRaw<{ market: string; open: number }[]>`
+    SELECT s."market" AS "market", (count(*) FILTER (WHERE s."inStockStores" > 0 OR s."marketplaceOpen"))::int AS "open"
+    FROM "ProductStat" s JOIN "Product" p ON p."id" = s."productId"
+    WHERE p."productType" = ${label}
+    GROUP BY 1`);
+  return rows.filter((r) => typeHubIndexed(Number(r.open))).map((r) => r.market as Market);
 }
 
 /** The type page's grids: the 48 cheapest open products, then the 24 sold-out ones most stores list. */

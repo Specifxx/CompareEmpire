@@ -89,3 +89,13 @@ export const productInSitemap = (s: TierStat, productType: string): boolean => p
  * nothing to show; it used to be an empty 200 that Search Console called a soft 404).
  */
 export const MIN_HUB_PRODUCTS = 3;
+
+/**
+ * Type hubs (/<region>/type/<slug>): indexed only where this many of the type's products are open (in stock at a store, or on
+ * TCGplayer in the US) in the market (page scorecard, 2026-11-25). Fewer is a short shelf that repeats its products' own pages and
+ * the region's sealed list: the 23 Nov scorecard put /nz, /eu and /us booster-box-cases and /au booster-bundle copies at
+ * positions 33-71 with no click. Below it the page stays live and linked, but noindex, out of the sitemap and out of hreflang.
+ * Every US type has 10 or more today, so the rule only drops thin regional copies (cases, Build & Battle Stadiums, SG/NZ shelves).
+ */
+export const MIN_TYPE_INDEX_OPEN = 10;
+export const typeHubIndexed = (open: number): boolean => open >= MIN_TYPE_INDEX_OPEN;

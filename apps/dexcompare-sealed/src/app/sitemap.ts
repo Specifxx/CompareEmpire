@@ -2,11 +2,11 @@ import type { MetadataRoute } from "next";
 import { isPreviewBuild } from "@/lib/build-env";
 import { COMPARABLE } from "@/lib/data";
 import { prisma } from "@/lib/db";
-import { isComparable, statsInMarket } from "@/lib/public-data/joins";
+import { isComparable, isOpen, statsInMarket } from "@/lib/public-data/joins";
 import { routeRaw } from "@/lib/public-data/route";
 import { activeStoreKeys, pokemonCounts } from "@/lib/hub-data";
 import { POKEMON_INDEX_MIN } from "@/lib/pokemon-hubs";
-import { detailIndexed, MIN_HUB_PRODUCTS, sitemapProductSlugs } from "@/lib/index-tiers";
+import { detailIndexed, MIN_HUB_PRODUCTS, MIN_TYPE_INDEX_OPEN, sitemapProductSlugs, typeHubIndexed } from "@/lib/index-tiers";
 import { readPriceHistory } from "@/lib/price-history";
 import { regionOfSitemapId, SITEMAP_IDS, STATIC_SITEMAP_ID, regionSitemap, sitemapChanges, staticSitemap, type SitemapChanges } from "@/lib/sitemap";
 import { REGION_LIST, type Market } from "@/lib/regions";
@@ -78,11 +78,19 @@ function hubKeysFromFiles(market: Market, key: (p: Record<string, unknown>) => u
   return [...n].filter(([, c]) => c >= MIN_HUB_PRODUCTS).map(([k]) => ({ k }));
 }
 
+// Types also need MIN_TYPE_INDEX_OPEN open products (the page's own noindex rule, index-tiers.ts typeHubIndexed, 2026-11-25).
+function typeKeysFromFiles(market: Market): { k: string }[] {
+  const open = new Map<string, number>();
+  for (const { s, p } of statsInMarket(market)) if (isOpen(s)) open.set(String(p.productType), (open.get(String(p.productType)) ?? 0) + 1);
+  return hubKeysFromFiles(market, (p) => p.productType).filter(({ k }) => typeHubIndexed(open.get(k) ?? 0));
+}
+
 async function typesInMarket(market: Market): Promise<string[]> {
-  const rows = await routeRaw(() => hubKeysFromFiles(market, (p) => p.productType), () => prisma.$queryRaw<{ k: string }[]>`
+  const rows = await routeRaw(() => typeKeysFromFiles(market), () => prisma.$queryRaw<{ k: string }[]>`
     SELECT p."productType" AS k FROM "ProductStat" s JOIN "Product" p ON p."id" = s."productId"
     WHERE s."market" = ${market} AND (s."inStockStores" > 0 OR s."marketplaceOpen" OR s."listedStores" >= 2)
-    GROUP BY 1 HAVING COUNT(*) >= ${MIN_HUB_PRODUCTS}`);
+    GROUP BY 1 HAVING COUNT(*) >= ${MIN_HUB_PRODUCTS}
+      AND COUNT(*) FILTER (WHERE s."inStockStores" > 0 OR s."marketplaceOpen") >= ${MIN_TYPE_INDEX_OPEN}`);
   return rows.map((r) => r.k);
 }
 

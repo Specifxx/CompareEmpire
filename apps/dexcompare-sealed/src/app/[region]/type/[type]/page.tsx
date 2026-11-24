@@ -15,7 +15,7 @@ import { Empty, Section } from "@/components/Section";
 import { PriceAlertForm } from "@/components/PriceAlertForm";
 import { ALERT_SITE_KEY } from "@/lib/alert-feed";
 import { cardOpen } from "@/lib/compact";
-import { lastCheckedAt, marketsWithType, productIdBySlug } from "@/lib/data";
+import { lastCheckedAt, productIdBySlug } from "@/lib/data";
 import { rankCards } from "@/lib/home-demand";
 import { typeAlertLabel, typeAlertPick } from "@/lib/type-alert";
 import { gridPageHasRoomForFooter } from "@/lib/ebay-ads";
@@ -23,7 +23,8 @@ import { money, plural, timeAgo } from "@/lib/format";
 import { dealsAnchor, shortDate, titleText, typeDescription, typeMsrpFact, typeName, typePacksFact, typePerPackRows, typeTitle } from "@/lib/hub-copy";
 import { hubSummary } from "@/lib/hub-summary";
 import { storesInMarket } from "@/lib/stores";
-import { typeIndexRows, typePageData, typeLabelsInMarket } from "@/lib/hub-data";
+import { typeIndexedMarkets, typeIndexRows, typePageData, typeLabelsInMarket } from "@/lib/hub-data";
+import { typeHubIndexed } from "@/lib/index-tiers";
 import { regionOfMarket, regionOrNotFound, type Market, type RegionInfo } from "@/lib/regions";
 import { RRP_NOTE } from "@/lib/rrp";
 import { JAPANESE_TYPES, PRODUCT_TYPES, TYPE_BY_SLUG } from "@/lib/sealed-title";
@@ -52,14 +53,18 @@ export async function generateMetadata({ params }: { params: { region: string; t
   // Nothing of the type here: a real 404 (it was an empty 200 with noindex, a soft 404 to Search Console). Otherwise advertise only
   // the regions that list the type (their copies are the indexable ones).
   if (!total) notFound();
-  const regions = (await marketsWithType(t.label)).map(regionOfMarket).filter((x): x is RegionInfo => !!x);
+  // Indexed only where the type has MIN_TYPE_INDEX_OPEN open products (index-tiers.ts, 2026-11-25): a thinner copy is noindex, its
+  // own canonical and no hreflang, and the indexed copies advertise only each other.
+  const indexed = typeHubIndexed(d.openCount);
+  const regions = indexed ? (await typeIndexedMarkets(t.label)).map(regionOfMarket).filter((x): x is RegionInfo => !!x) : [];
   const title = typeTitle(t, r, d.openCount, from);
   return {
     ...pageMeta({
       title: titleText(title),
       description: typeDescription(t, r, { open: d.openCount, total }, from),
       path: `/${r.region}/type/${t.slug}`,
-      alternates: regionAlternates(r.region, `/type/${t.slug}`, regions),
+      alternates: indexed ? regionAlternates(r.region, `/type/${t.slug}`, regions) : undefined,
+      noindex: !indexed,
     }),
     title,
   };
