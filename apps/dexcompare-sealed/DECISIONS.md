@@ -1947,3 +1947,26 @@ mostly shift clicks among themselves. The open question is outside the US, where
 only, by CSS order (same rows, words and links), never the US or the quick view, from 3 Dec (after the A/B freeze and
 Dex's 3 Dec reads; Dex's only new test). Event `mkt_order` {k}: `<arm>:seen`, then `<arm>:ebay|tcg|amz` once a visit.
 Read 17 Dec: clicks per 100 seen visits weighted by each network's A$ per click (`tests/mkt-order.test.ts`).
+
+## 2026-11-25: Type hubs are indexed only with ten open products in the region
+
+The 23 Nov page scorecard (Job D) put several type-page copies at the bottom: `/nz`, `/eu` and `/us/type/booster-box-cases`
+(positions 71, 55, 33), `/au/type/booster-bundles` (65), no click on any. A type page was indexable wherever the region listed
+one product of the type, and in the sitemap from three comparable ones, so a case page with 3 of 16 products in stock (EU) or
+none of 38 (NZ ETB cases) was asked of Google as a hub. Now a type copy is indexed only where 10 or more of its products are
+open (in stock at a store, or TCGplayer in the US): `MIN_TYPE_INDEX_OPEN`, `typeHubIndexed` in `lib/index-tiers.ts`. Below it
+the page stays live and linked, with noindex, follow, its own canonical and no hreflang, and leaves the sitemap; the indexed
+copies' hreflang names only each other (`typeIndexedMarkets`). One rule for the page, its hreflang and the sitemap
+(`tests/index-tiers.test.ts`). No URL changes.
+
+By the 24 Nov data the sitemap loses 24 of its 119 type URLs: the case types in EU, UK, NZ, SG (and AU bundle cases), Build &
+Battle Stadiums outside the US, and short shelves (NZ/UK Build & Battle Boxes, AU/UK/NZ/SG UPC type pages, NZ booster bundles,
+EU Pokémon Center ETBs, SG decks and sleeved boosters). None is in `data/demand.json`'s top pages. The standalone UPC hubs
+(`/<region>/ultra-premium-collections`) are untouched. Every US type
+has 10 or more open and stays indexed, including `/us/type/booster-box-cases` (31 open of 33): the scorecard's noindex verdict
+there read 5 impressions, not a thin page. `/au/type/booster-bundles` (20 open) stays too. Read ~9 Dec in Search Console:
+indexed type pages and their positions against the 23 Nov scorecard.
+
+`/us/releases` (the scorecard's other noindex verdict, 29 impressions at 63) is NOT noindexed: it is the US copy of the release
+calendar, the one real answer for "Pokémon TCG release dates", and /nz/releases ranks 8.7 with the same template. A US hub
+at 63 needs work, not a noindex (US-first, 22 Nov).
