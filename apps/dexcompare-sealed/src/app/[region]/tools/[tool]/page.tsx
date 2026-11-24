@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { detailIndexed } from "@/lib/index-tiers";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
@@ -13,7 +12,7 @@ import { ValueChecker } from "@/components/tools/ValueChecker";
 import { guideFor } from "@/content/guides";
 import { newestReleased } from "@/content/guides/facts";
 import { guideHref, setHref, typeHref } from "@/content/guides/kit";
-import { TOOL_BY_SLUG, TOOLS, toolHref, toolMetaTitle, toolRegions, type Tool } from "@/content/tools";
+import { TOOL_BY_SLUG, TOOLS, toolHref, toolIndexed, toolMetaTitle, toolRegions, type Tool } from "@/content/tools";
 import { FEES_CHECKED, schedulesFor, scheduleText } from "@/lib/fees";
 import { money } from "@/lib/format";
 import { regionOrNotFound, type RegionInfo } from "@/lib/regions";
@@ -39,9 +38,10 @@ export function generateMetadata({ params }: { params: { region: string; tool: s
     title: t.title,
     description: t.description,
     path: toolHref(r.region, t.slug),
-    // Indexed in INDEXED_DETAIL_REGIONS only (2026-11-08): elsewhere noindex, its own canonical and no hreflang.
-    alternates: detailIndexed(r.region) ? regionAlternates(r.region, `/tools/${t.slug}`, toolRegions(t).filter(detailIndexed)) : undefined,
-    noindex: !detailIndexed(r.region),
+    // Indexed only in the tool's TOOL_INDEX_REGIONS (2026-11-24; US, plus AU for the two tools that read the region): elsewhere
+    // noindex, its own canonical and no hreflang.
+    alternates: toolIndexed(r.region, t) ? regionAlternates(r.region, `/tools/${t.slug}`, toolRegions(t).filter((x) => toolIndexed(x, t))) : undefined,
+    noindex: !toolIndexed(r.region, t),
   });
   return { ...meta, title: toolMetaTitle(t.title) };
 }

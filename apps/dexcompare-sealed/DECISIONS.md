@@ -1907,3 +1907,23 @@ the tab. `homeRails` now also reads the eight best-ranked in-stock bundles and U
 for that pool only (no new tab or section), and they take at most three of the eight, entering only on demand
 (`lib/home-rank.ts` scores; boxes/ETBs/packs first among equals), the same rule MTG Compare uses for decks and Secret Lair (E6).
 Home list only: the quick view, price rows and paid rows are untouched (A/B freeze 20 Nov to 3 Dec). Read 1 Dec (merch E7).
+
+## 2026-11-24: one indexed copy of each tool (page scorecard, Job D)
+
+The 23 Nov page scorecard (`strategy/page-scorecard-2026-11-23.json`, Google's 28 days to 20 Nov) put DexCompare's tool copies at
+the bottom: `/uk/tools/trade-calculator` (79 impressions, position 46, no click, no visit), `/ca/tools` (28, position 44),
+`/au/tools/deck-builder` (27, position 57) and `/uk/tools` (8, no click), while no tool page reached `data/demand.json`'s
+top views in any region. A calculator works the same in every region, so four indexed copies of each one split the little
+signal it gets.
+
+- **Each tool is indexed in one region, the US** (US-first, 2026-11-22), except the two that read the region itself, which keep
+  AU too: the selling-fee calculator (eBay's AU fee presets, `lib/fees.ts`) and the value checker (Bing's top page on 2026-11-08,
+  reached through `/card-value`). `TOOL_INDEX_REGIONS` / `toolIndexed` in `src/content/tools/index.ts`; always a subset of
+  `INDEXED_DETAIL_REGIONS`.
+- **The tools index** (`/<region>/tools`) is indexed where at least one tool is (US, AU). Before, it was in the sitemap in all
+  seven regions, NZ/SG/EU included, though none of their tools was indexable.
+- Every other copy stays live and linked for visitors: `noindex, follow`, its own canonical, no hreflang, out of the sitemap.
+  Nothing redirects and no URL changes.
+
+Read ~8 Dec in Search Console: `/us/tools/*` impressions and position against the 23 Nov scorecard. If a US tool gains nothing
+and an AU/UK/CA copy shows real clicks before the change, give that region back to the tool.
