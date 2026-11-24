@@ -1927,3 +1927,11 @@ signal it gets.
 
 Read ~8 Dec in Search Console: `/us/tools/*` impressions and position against the 23 Nov scorecard. If a US tool gains nothing
 and an AU/UK/CA copy shows real clicks before the change, give that region back to the tool.
+## 2026-11-24: Store partner codes, starting with Cardboard Hero's COMPEMP5
+
+Cardboard Hero (CA, our GoAffPro affiliate store, most of whose referred orders came from DexCompare) issued COMPEMP5
+on 24 Nov: 5% off the order, items already on sale excluded, linked to our affiliate account so a code order is
+credited to us even when the ref is lost. `lib/store-codes.ts` (ported from OP Compare's store partner deals) lists
+such codes; `StoreCodeChip` shows one beside that store's open rows in the price table and quick view, tap to copy. A
+label only: never applied to a price, the sort or "Best price" (`tests/store-codes.test.ts`). A code hides itself 30
+days after it was last confirmed. The store kept the rate at 2% for every affiliate; we accepted, since it already earns.
