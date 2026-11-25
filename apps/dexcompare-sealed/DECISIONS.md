@@ -1970,3 +1970,10 @@ indexed type pages and their positions against the 23 Nov scorecard.
 `/us/releases` (the scorecard's other noindex verdict, 29 impressions at 63) is NOT noindexed: it is the US copy of the release
 calendar, the one real answer for "Pokémon TCG release dates", and /nz/releases ranks 8.7 with the same template. A US hub
 at 63 needs work, not a noindex (US-first, 22 Nov).
+
+## 2026-11-25 — Fiverr usability review, ported from TCG Prices
+
+A paid tester's think-aloud on TCG Prices (tcgcompare DECISIONS.md, 2026-11-25) asked whether we compare every store or only the
+ones that pay us. Under the price table the product page now says "Every store we track is listed, whether it pays us or not, in
+price order" with a link to /methodology, and the group-chat share button reads "Share deal" (its full wording stays as the
+button's accessible name): the tester found the page's buttons too wordy. Cart and watch wording wait for their A/B verdicts.
