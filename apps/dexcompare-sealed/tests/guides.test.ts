@@ -813,3 +813,12 @@ test("Delta Reign ETB: a later shipment is read only from the store's own title"
   assert.deepEqual(now.map((o) => o.store), ["alpha", "gamma"]);
   assert.deepEqual(later.map((o) => o.store), ["beta", "delta"]);
 });
+
+test("Chaos Rising vs Perfect Order: the 'In this guide' tiles put the two sets side by side, box against box", async () => {
+  const { headToHeadTiles } = await import("../src/content/guides/pokemon-chaos-rising-vs-perfect-order");
+  const tile = (slug: string, set: string) => ({ slug, setCode: set, imageUrl: `https://img.example/${slug}.jpg`, lowestPriceCents: 1000 }) as never;
+  const a = { lines: [{ label: "Booster Box", p: tile("me4-box", "me4") }, { label: "Elite Trainer Box", p: tile("me4-etb", "me4") }, { label: "Booster Bundle", p: tile("me4-bundle", "me4") }] };
+  const b = { lines: [{ label: "Booster Box", p: null, missing: "None in stock right now" }, { label: "Elite Trainer Box", p: tile("me3-etb", "me3") }, { label: "Booster Bundle", p: tile("me3-bundle", "me3") }] };
+  assert.deepEqual(headToHeadTiles(a, b).map((p: { slug: string }) => p.slug), ["me4-box", "me4-etb", "me3-etb", "me4-bundle"]);
+  assert.deepEqual(headToHeadTiles({ lines: [] }, { lines: [] }), []);
+});

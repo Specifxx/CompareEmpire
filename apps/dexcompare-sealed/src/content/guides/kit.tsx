@@ -45,6 +45,8 @@ export interface GuideOutline {
   /** What comes before the first H2: the answer in a sentence or two. */
   intro: ReactNode;
   sections: GuideSection[];
+  /** The "In this guide" tiles, when the guide picks them itself (a comparison: each side's headline products, side by side). */
+  products?: ProductCardData[];
 }
 
 export interface BodyProps {
@@ -79,7 +81,7 @@ export function GuideBody({ guide, r, outline, data }: { guide: Guide; r: Region
   return (
     <>
       <div className="mt-8">{outline.intro}</div>
-      <GuideProducts r={r} data={data} />
+      <GuideProducts r={r} data={data} products={outline.products} />
       {outline.sections.map((s, i) => (
         <Fragment key={s.id}>
           <section aria-labelledby={s.id} className="mt-12 sm:mt-14">
@@ -681,8 +683,8 @@ export function guideProducts(data: GuideData | undefined, take = 4): ProductCar
 }
 
 /** "In this guide": the tiles of the products the guide prices, under its intro. */
-export function GuideProducts({ r, data }: { r: RegionInfo; data?: GuideData }) {
-  const products = guideProducts(data);
+export function GuideProducts({ r, data, products: picked }: { r: RegionInfo; data?: GuideData; products?: ProductCardData[] }) {
+  const products = picked ?? guideProducts(data);
   if (!data || products.length < 2) return null;
   return (
     <aside aria-label="Products in this guide" className="mt-8">

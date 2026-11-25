@@ -100,6 +100,18 @@ export function verdict(a: Side, b: Side, r: Pick<RegionInfo, "market" | "inName
   return `${win.set.name} is cheaper per pack today: ${money(w.perPack, r.market)} in its ${inline(w.p.productType)}, against ${money(l.perPack, r.market)} in ${lose.set.name}’s ${inline(l.p.productType)}, ${money(l.perPack - w.perPack, r.market)} a pack less.`;
 }
 
+/**
+ * The "In this guide" tiles: the two sets' headline products interleaved (box, box, ETB, ETB, bundle, bundle), at most four, so the
+ * first buy rows a reader sees compare the two sets instead of showing four of the newer set's cheapest items.
+ */
+export function headToHeadTiles(a: Pick<Side, "lines">, b: Pick<Side, "lines">, take = 4): ProductCardData[] {
+  const out: ProductCardData[] = [];
+  for (let i = 0; i < Math.max(a.lines.length, b.lines.length); i++) {
+    for (const p of [a.lines[i]?.p, b.lines[i]?.p]) if (p && p.imageUrl && p.lowestPriceCents != null && !out.some((x) => x.slug === p.slug)) out.push(p);
+  }
+  return out.slice(0, take);
+}
+
 /** A set's open products grouped by type: how many are open and the cheapest, most products first. */
 function lineup(products: readonly ProductCardData[] | undefined): { type: string; count: number; from: number | null }[] {
   const acc = new Map<string, { type: string; count: number; from: number | null }>();
@@ -490,6 +502,7 @@ export function outline(r: RegionInfo, data: GuideData): GuideOutline {
       </Lede>
     ),
     sections,
+    products: headToHeadTiles(A, B),
   };
 }
 
