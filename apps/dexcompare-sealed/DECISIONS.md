@@ -1977,3 +1977,23 @@ A paid tester's think-aloud on TCG Prices (tcgcompare DECISIONS.md, 2026-11-25) 
 ones that pay us. Under the price table the product page now says "Every store we track is listed, whether it pays us or not, in
 price order" with a link to /methodology, and the group-chat share button reads "Share deal" (its full wording stays as the
 button's accessible name): the tester found the page's buttons too wordy. Cart and watch wording wait for their A/B verdicts.
+
+## 2026-11-25: Best Basket on DexCompare, the plan for Premium members
+
+The owner (2026-11-25): Best Basket "on all the sites as premium", after users asked for it. `/<region>/best-basket` takes the
+shortlist's products (one line per product page in that region) and splits them across stores for the lowest total with
+shipping, with RiftCompare's solver ported as is (`lib/basket-optimize.ts`; types in `lib/postage.ts`).
+
+- **Rows:** in stock, read by the import in the last 48 hours, never a pre-order (an unreleased set, or "pre-order" in the
+  title or link), never TCGplayer, eBay or Amazon. These are Rift's rules after the Sprite Fountain report (TCGEmpire #653).
+- **Shipping:** each store's measured figure (`src/data/shipping-rates.json`) for that subtotal, at the dearest address, shown
+  as "up to" when addresses differ or the order holds more than one item (we measure single-item carts). A store we never
+  measured is left out and counted, never priced at zero.
+- **Free vs Premium:** everyone gets the delivered total and the saving. The store-by-store plan (buy links, each store's
+  shipping, one checkout per store, the one-store order) is returned by `/api/basket/<region>` only when RiftCompare's
+  sister-premium status says the token is Premium right now. It is withheld in the response, not hidden with CSS. The cheapest
+  price of every product stays free on its page.
+- **Links:** each line's link is the row's own `offerLink` under the placement `best-basket`. A Shopify cart permalink carries
+  the line's quantity, and a store whose lines are all permalinks gets one checkout link (`checkoutUrl`).
+- **Placement:** the only entry is a link on `/cart` once the list holds two or more products from one region. There is no
+  pop-up, and the page is noindex.
