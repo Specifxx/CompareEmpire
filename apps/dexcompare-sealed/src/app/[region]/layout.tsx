@@ -4,6 +4,8 @@ import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { HolidayStrip } from "@/components/HolidayStrip";
 import { SideAds } from "@/components/SideAds";
+import { GutterAds } from "@/components/GutterAds";
+import { AD_HEAVY } from "@/lib/ad-heavy";
 import { HeavyPopups } from "@/components/heavy/HeavyAds";
 import { regionOrNotFound } from "@/lib/regions";
 
@@ -26,7 +28,7 @@ export default async function RegionLayout({ children, params }: { children: Rea
       <HolidayStrip region={r.region} />
       {/* ONE navigation since 2026-11-13 (owner: "we're making things too complicated"): the header. The sidebar that repeated its
           menus down the left of every desktop page is gone; the page is one centred column. */}
-      <main id="main" className="min-w-0 flex-1">
+      <main id="main" className="relative min-w-0 flex-1">
         {/* The heavy test's banner pair at the TOP of every page is gone (owner, 2026-11-23 UX review, P0 6: about 200px of header
             before the title; ads below content). The pair stays below the content, as on every site. */}
         {children}
@@ -36,6 +38,8 @@ export default async function RegionLayout({ children, params }: { children: Rea
         <div className="page">
           <LayoutInlineAds region={r.region} tiles={tcg} />
         </div>
+        {/* The gutter ads (owner, 2026-11-25): a labelled eBay and TCGplayer column in each empty side of a wide window, from 1440px. */}
+        <GutterAds region={r.region} tiles={tcg} sides={AD_HEAVY ? "both" : "right"} />
       </main>
       <Footer region={r.region} listed={listed} />
       {/* Narrow screens only, drawn in the browser after a scroll: the phone dock (components/SideAds.tsx, AdDock.tsx). The side rails are gone

@@ -1983,3 +1983,19 @@ button's accessible name): the tester found the page's buttons too wordy. Cart a
 Owner, 2026-11-26: "I don't really like the Christmas lights on the very top." The string of lights hanging under the header
 (2026-11-20) is removed on every Compare site: the `.xmas-garland::after` rule is gone from the `xmas-logo` block in `globals.css`
 and the class is off the header. The Santa hat on the logo stays, and nothing else of the Christmas layer changes.
+## 2026-11-25: The landing page's banners mid-page, and ad columns in the empty sides of a wide window (owner)
+
+The owner, 2026-11-25, on a desktop: "Why are the display ads at the very bottom of the site? … there's so much space on the left and the
+right side of the website." (Ported from YGO Compare, #267.)
+
+- **Landing page (`/`):** the eBay and TCGplayer banner pair moves from under the FAQ to right after the product grid, before the
+  popular pages, the reading matter and the FAQ. The region home already had it under the in-stock shelf; product and set pages keep it
+  under their own content.
+- **Gutter ads** (`components/GutterAds.tsx`, `.gutter-ads` in globals.css): from 1440px wide, one slim labelled column in each empty
+  side, eBay's live sealed listings on the left (the banners' own CDN-cached read) and TCGplayer products on the right; a light-ad
+  setting (`AD_HEAVY` false) keeps only the TCGplayer column. Sized to the gutter beside the page's 1152px content (about 110px at
+  1440, 180px at most), 14px clear of it and of the window; absolutely inside `<main>` with a sticky card, so it starts under the
+  header line, ends where the content ends and never takes width from the page. Browser only (CLS 0, no SEO change), labelled Ad,
+  rel sponsored under `gutter-ebay` / `gutter-tcg`, never Amazon, never for ad-free members or in the app. Its tiles start after the
+  banner's six, so a page never shows the same product twice side by side. This reverses "never a rail" (2026-11-13) on the owner's word.
+- **Read:** gutter clicks per 100 desktop visitors from the release; if desktop store buy clicks per visitor fall 10%, the columns go.
