@@ -746,11 +746,14 @@ export function OfferRowsWithEbay({
   rowsTest = false,
   maxRows,
   marketplacesBelow = false,
+  marketplacesFirst = false,
 }: {
   rows: StoreRowData[];
   /** The product page (owner, 2026-11-23 UX review, P1 10: "Lead with the best-price store and move marketplaces to a labelled block
    *  below"): the stores first, cheapest first, then eBay, TCGplayer and Amazon under a "Marketplaces" label. Never the quick view. */
   marketplacesBelow?: boolean;
+  /** The labelled Marketplaces block above the stores instead of below (2026-11-26, Dex product page). */
+  marketplacesFirst?: boolean;
   /** The product page's rows test (lib/rows-test.ts); never the quick view. */
   rowsTest?: boolean;
   /** The TCGplayer row, pinned third, under eBay and Amazon (owner, 2026-11-06; OfferTable builds it); null = none. */
@@ -824,20 +827,28 @@ export function OfferRowsWithEbay({
     </details>
   );
   if (marketplacesBelow) {
-    // Every store row in the server HTML, as before (no folded group), then the marketplaces.
+    // Every store row in the server HTML, as before (no folded group), and the labelled Marketplaces block. Since 2026-11-26 the block
+    // sits ABOVE the stores on Dex (`marketplacesFirst`, Head of Conversion's read): with it below, phone visitors' paid clicks fell from
+    // 22.9 to 15.7 per 100 while store clicks rose from 23.0 to 29.0, and each click that moves to a store earns nothing.
     const storeSlots = slots.slice(pinSlots.length);
+    const stores = (
+      <div className="group/offers divide-y divide-line" data-best={top ?? undefined}>
+        <ul className="divide-y divide-line">{list(storeSlots)}</ul>
+      </div>
+    );
+    const block = (
+      <div className={`${marketplacesFirst ? "border-b" : "border-t"} border-line bg-raised`} data-marketplaces="" data-us={nonUs ? "0" : "1"}>
+        <p className="flex items-center gap-2 px-4 pb-1 pt-3 text-xs font-bold uppercase tracking-wide text-muted sm:px-5">
+          Marketplaces <span className="ad-pill">Ad</span>
+          <span className="font-normal normal-case tracking-normal">many sellers, paid links</span>
+        </p>
+        <ul className="divide-y divide-line">{list(pinSlots)}</ul>
+      </div>
+    );
     return (
       <div ref={ref}>
-        <div className="group/offers divide-y divide-line" data-best={top ?? undefined}>
-          <ul className="divide-y divide-line">{list(storeSlots)}</ul>
-        </div>
-        <div className="border-t border-line bg-raised" data-marketplaces="" data-us={nonUs ? "0" : "1"}>
-          <p className="flex items-center gap-2 px-4 pb-1 pt-3 text-xs font-bold uppercase tracking-wide text-muted sm:px-5">
-            Marketplaces <span className="ad-pill">Ad</span>
-            <span className="font-normal normal-case tracking-normal">many sellers, paid links</span>
-          </p>
-          <ul className="divide-y divide-line">{list(pinSlots)}</ul>
-        </div>
+        {marketplacesFirst ? block : stores}
+        {marketplacesFirst ? stores : block}
       </div>
     );
   }

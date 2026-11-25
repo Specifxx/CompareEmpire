@@ -2019,3 +2019,12 @@ shipping, with RiftCompare's solver ported as is (`lib/basket-optimize.ts`; type
   the line's quantity, and a store whose lines are all permalinks gets one checkout link (`checkoutUrl`).
 - **Placement:** the only entry is a link on `/cart` once the list holds two or more products from one region. There is no
   pop-up, and the page is noindex.
+
+## 2026-11-26: Marketplaces block back above the stores (product page)
+
+The owner's UX review (24 Nov, P1 10) moved eBay, TCGplayer and Amazon into a labelled block under the stores. The read
+the Head of Conversion promised the owner (revert at a 15% fall in paid clicks): Dex phone visitors, 17-23 Nov vs 24 Nov
+08:00 to 25 Nov 23:00 UTC, paid clickers 22.9 -> 15.7 per 100 (-31%) while store clickers rose 23.0 -> 29.0. The clicks
+moved from links that pay (about A$0.35 a click) to stores that pay nothing. The block keeps its label, its Ad pill and
+its rows, and now sits ABOVE the stores (`marketplacesFirst` in OfferTable). MTG (paid share of clicks 45% -> 48%, no
+shift) and Rift (paid up) keep the stores first. Quick view unchanged (its A/B freeze runs to 3 Dec).
