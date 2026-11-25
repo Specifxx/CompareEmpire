@@ -19,6 +19,7 @@ import { offerLink } from "./affiliate";
 import { REGIONS, type Region } from "./regions";
 import { productPage, type ProductPageData } from "./data";
 import { checkoutUrl } from "./cart-list";
+import { CART_SITE } from "@/components/cart/cart-config";
 
 export const BASKET_ROW_MAX_AGE_H = 48;
 export const BASKET_MAX_LINES = 30;
@@ -117,7 +118,7 @@ export function withQty(url: string, qty: number): string {
 }
 
 /** One checkout link for a store's lines, when every line is a cart permalink on the same store; else null. */
-export function storeCheckout(lines: { url: string; qty: number }[], site = "dexcompare"): string | null {
+export function storeCheckout(lines: { url: string; qty: number }[], site = CART_SITE): string | null {
   if (lines.length < 2) return null;
   const parts = lines.map((l) => PERMALINK.exec(l.url));
   if (parts.some((m) => !m) || new Set(parts.map((m) => m![1])).size !== 1) return null;

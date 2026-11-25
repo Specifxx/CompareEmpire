@@ -141,7 +141,7 @@ test("a plan line's cart permalink carries its quantity, and a store's permalink
     { url: "https://a.com/cart/111111111:1?utm_source=dexcompare", qty: 1 },
     { url: "https://a.com/cart/222222222:2?utm_source=dexcompare", qty: 2 },
   ]);
-  assert.match(c!, /^https:\/\/a\.com\/cart\/111111111:1,222222222:2\?utm_source=dexcompare/);
+  assert.match(c!, /^https:\/\/a\.com\/cart\/111111111:1,222222222:2\?utm_source=/);
   assert.equal(storeCheckout([{ url: "https://a.com/cart/111111111:1", qty: 1 }, { url: "https://a.com/products/x", qty: 1 }]), null);
   assert.equal(storeCheckout([{ url: "https://a.com/cart/111111111:1", qty: 1 }]), null);
 });
