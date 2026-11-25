@@ -1,0 +1,30 @@
+name: tmp dex UK probe
+on:
+  push:
+    branches: [claude/project-thread-5nzpz1]
+    paths: [".github/workflows/tmp-dex-uk-probe.yml"]
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: apps/dexcompare-sealed
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci --no-audit --no-fund
+      - run: npx prisma generate
+      - name: search the top UK products in every UK Shopify store
+        run: |
+          node -e '
+          const s=require("./src/data/stores.json").filter(x=>x.market==="UK"&&x.platform==="shopify");
+          const qs=["30th celebration ultra premium","delta reign elite trainer","30th celebration elite trainer","delta reign booster box","perfect order booster box"];
+          (async()=>{for(const st of s){const out=[];for(const q of qs){try{const r=await fetch(st.base+"/search/suggest.json?q="+encodeURIComponent(q)+"&resources[type]=product&resources[limit]=6",{headers:{"user-agent":"DexCompare price check (dexcompare.io)"}});if(!r.ok){out.push(q+": HTTP "+r.status);continue}const j=await r.json();const ps=(j.resources&&j.resources.results&&j.resources.results.products)||[];for(const p of ps)out.push(q+" => "+p.handle+" | "+p.title+" | avail="+p.available+" | "+p.price)}catch(e){out.push(q+": "+e.message)}await new Promise(r=>setTimeout(r,1100))}console.log("### "+st.key+" ["+st.collections.join(",")+"]\n"+out.join("\n"))}})()'
+      - name: probe UK stores collections (no write)
+        run: |
+          node -e 'const s=require("./src/data/stores.json").filter(x=>x.market==="UK"&&x.platform==="shopify").map(x=>({key:x.key,name:x.name,base:x.base,market:"UK"}));require("fs").writeFileSync("/tmp/uk.json",JSON.stringify(s))'
+          npx tsx scripts/probe-stores.ts --in /tmp/uk.json --out /tmp/probe.json --concurrency 4 || true
+          node -e 'const p=require("/tmp/probe.json");const st=require("./src/data/stores.json");const cur=Object.fromEntries(st.map(x=>[x.key,x.collections]));for(const r of (p.results||p)){console.log(r.key, "found="+r.allFound, "chosen="+r.sealedProducts, "inStock="+r.inStock, "chosen:["+r.collections.join(",")+"]", "current:["+(cur[r.key]||[]).join(",")+"]", r.error||"")}'
