@@ -92,7 +92,7 @@ export default async function Landing() {
         })
       : null;
   return (
-    <div>
+    <div className="home-flow">
       {/* The hero (owner, 2026-11-13: "get rid of the products on the hero"; it reverses the 2026-11-08 featured cards): the words,
           the search, the region row and six ways in, centred. Same h1, same search form. Nothing else lives here: no creators badge,
           no stat chips, no product. The Christmas gift guide is its one small line, in season. */}
@@ -115,18 +115,18 @@ export default async function Landing() {
           </form>
         </div>
         {/* The region row, with flags (owner, 2026-11-02): picks in place, like the header's switcher. */}
-        <RegionChips className="rise mt-6 justify-center" style={riseAt(3)} />
+        <RegionChips className="hero-regions rise mt-6 justify-center" style={riseAt(3)} />
         <SoftWaysIn formId="landing-search" links={HERO_LINKS} />
       </Hero>
       {/* The giveaway, while it is open (owner, 2026-11-22: "feature it on our homepage"). */}
-      <div className="page">
+      <div className="home-give page">
         <SignInSlides surface="home" variant="banner" fallback={<GiveawayHomeBanner />} />
       </div>
 
       {/* The owner's trim (2026-11-13): no Premium promo, no explainer paragraph and no guides list here; the space goes to
           products, ten of the region's most stocked. The explanation is on /about, Premium on /premium, the guides on
           each region's guides index. Everything here is server-rendered. */}
-      <div className="reveal mb-16 mt-6 sm:mt-10">
+      <div className="home-shelf reveal mb-16 mt-6 sm:mt-10">
         <HomeRegionGrid initial={picks} />
       </div>
 

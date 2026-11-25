@@ -35,7 +35,7 @@ export function PopularPages() {
       <h2 id="popular-h" className="mb-4 sub-h2">
         Popular right now
       </h2>
-      <ul className="flex flex-wrap gap-2">
+      <ul className="home-popular flex flex-wrap gap-2">
         {popularLinks().map((l) => (
           <li key={l.href}>
             <Link href={l.href} prefetch={false} className="chip min-h-10">
