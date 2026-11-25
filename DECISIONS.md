@@ -766,3 +766,23 @@ itself, so no other page loads it. Off until `NEXT_PUBLIC_ADSENSE_SLOT_GUIDE` ho
 approve dexcompare.app; unsetting it is the kill switch. Events `gad_seen` and `gad_buy` (with `arm`), once a visit. Keep it only if
 ad money per 1,000 guide views is more than the buy clicks it costs (buy clickers lost × about A$0.09 a buy click) and guide pages
 do not get slower. Read after 21 days or 300 buy clickers an arm.
+
+
+## 2026-11-26: Amazon's allowance moves toward DexCompare, spent where visitors click
+
+The owner (25 Nov): Amazon prices on DexCompare are "off", and Dex earns the most, so its share of the network's Amazon Creators API
+allowance should be revisited. On the live site, only 3 of the 26 most-visited US product pages showed an Amazon price: 13 had no ASIN
+at all (Delta Reign's whole launch, Prismatic Evolutions and Destined Rivals ETBs) and 10 had an ASIN but no price that passed the
+checks. The budget was not the limit (the US search spent 3 calls that day): a miss waited 30 days before a retry, so a product Amazon
+listed after its first search, like a new set, never got one, and both scripts ranked products by store count, not by what visitors click.
+
+- Order: both Amazon scripts go most-clicked first (data/demand.json, 28 days), then store count (`scripts/amazon-shared.ts`).
+- Retries: a miss is searched again after 3 days when the product had 5 or more clicks in 28 days, else after 14 (was 30 for all).
+  A miss is searched a second time with Amazon's own title form ("Pokemon TCG: ...") before it is recorded. The classifier still
+  decides: a wrong merge stays worse than a missing price.
+- Budget (code defaults; env vars can only lower them): searchItems US 800 a day (was 300), other regions 300; getItems at build US
+  100 calls (1,000 ASINs, was 30), other regions 50. Dex's US total goes from 330 to 900 a day; the network's US total from about 3,600
+  to about 4,200 of Amazon's 8,640 (first 30 days, to about 8 Dec). The 60%-160% price band is unchanged; the build log now says how
+  many ASINs were dropped and why (not returned, no new in-stock listing, under 60%, over 160%) so the next change can be measured.
+- If Amazon's revenue-based limit bites after 8 Dec, cut MTG, Wargame and Compare Empire first, then KaeYoung and ScentCompare's
+  search, and DexCompare last (ops/amazon-rate-limits.md).
