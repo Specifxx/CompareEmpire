@@ -1,7 +1,7 @@
 {
  "v": 1,
  "site": "dex",
- "generatedAt": "2026-11-25T04:27:12.928Z",
+ "generatedAt": "2026-11-25T18:06:01.091Z",
  "links": {
   "AU": {
    "deals": "https://dexcompare.io/au/deals"
@@ -36,9 +36,23 @@
    "currency": "AUD",
    "store": "Grand J Games",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/688712_in_1000x1000.jpg",
-   "refCents": 7250,
+   "refCents": 7500,
    "refLabel": "median store price",
-   "savingPct": 45
+   "savingPct": 47
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "AU",
+   "title": "Flowing Fists Elite Trainer Box",
+   "url": "https://dexcompare.io/au/p/flowing-fists-elite-trainer-box",
+   "cents": 12500,
+   "currency": "AUD",
+   "store": "Hobby Kitz",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/735050_in_1000x1000.jpg",
+   "refCents": 21900,
+   "refLabel": "median store price",
+   "savingPct": 43
   },
   {
    "kind": "deal",
@@ -46,13 +60,13 @@
    "region": "AU",
    "title": "Pokemon Day 2026 Collection",
    "url": "https://dexcompare.io/au/p/pokemon-day-2026-collection",
-   "cents": 6700,
+   "cents": 7400,
    "currency": "AUD",
    "store": "Crystal Collectables TCG",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/668590_in_1000x1000.jpg",
    "refCents": 11998,
    "refLabel": "median store price",
-   "savingPct": 44
+   "savingPct": 38
   },
   {
    "kind": "deal",
@@ -79,20 +93,6 @@
    "store": "One Stop Poke Shop",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/565238_in_1000x1000.jpg",
    "refCents": 600,
-   "refLabel": "median store price",
-   "savingPct": 34
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "AU",
-   "title": "Flowing Fists Booster Bundle",
-   "url": "https://dexcompare.io/au/p/flowing-fists-booster-bundle",
-   "cents": 6500,
-   "currency": "AUD",
-   "store": "Pokemon World Australia",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/735066_in_1000x1000.jpg",
-   "refCents": 9900,
    "refLabel": "median store price",
    "savingPct": 34
   },
@@ -198,6 +198,20 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "US",
+   "title": "Chaos Rising - 3 Pack Blister",
+   "url": "https://dexcompare.io/us/p/chaos-rising-3-pack-blister",
+   "cents": 1299,
+   "currency": "USD",
+   "store": "Apollo's Vault",
+   "image": "https://cdn.shopify.com/s/files/1/1704/1809/files/Pokemon-MegaEvolution-ChaosRising-3PackBlister.png?v=1773419641",
+   "refCents": 2499,
+   "refLabel": "median store price",
+   "savingPct": 48
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "US",
    "title": "League Battle Deck - Mega Lucario ex",
    "url": "https://dexcompare.io/us/p/league-battle-deck-mega-lucario-ex",
    "cents": 1299,
@@ -212,29 +226,15 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "US",
-   "title": "Chaos Rising - 3 Pack Blister",
-   "url": "https://dexcompare.io/us/p/chaos-rising-3-pack-blister",
-   "cents": 1299,
+   "title": "Journey Together - 3 Pack Blister - Scrafty",
+   "url": "https://dexcompare.io/us/p/journey-together-3-pack-blister-scrafty",
+   "cents": 1500,
    "currency": "USD",
-   "store": "Apollo's Vault",
-   "image": "https://cdn.shopify.com/s/files/1/1704/1809/files/Pokemon-MegaEvolution-ChaosRising-3PackBlister.png?v=1773419641",
-   "refCents": 2497,
+   "store": "Devastation Store Miami",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/610948_in_1000x1000.jpg",
+   "refCents": 2799,
    "refLabel": "median store price",
-   "savingPct": 48
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "US",
-   "title": "Black Bolt Booster Pack",
-   "url": "https://dexcompare.io/us/p/black-bolt-booster-pack",
-   "cents": 799,
-   "currency": "USD",
-   "store": "Common Lands",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/630434_in_1000x1000.jpg",
-   "refCents": 1500,
-   "refLabel": "median store price",
-   "savingPct": 47
+   "savingPct": 46
   },
   {
    "kind": "deal",
@@ -254,6 +254,20 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "US",
+   "title": "White Flare Japanese Booster Box (SV11W)",
+   "url": "https://dexcompare.io/us/p/white-flare-sv11w-japanese-booster-box",
+   "cents": 12499,
+   "currency": "USD",
+   "store": "Burbank Sportscards",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/637386_in_1000x1000.jpg",
+   "refCents": 21800,
+   "refLabel": "median store price",
+   "savingPct": 43
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "US",
    "title": "Mega Symphonia Japanese Booster Pack (M1S)",
    "url": "https://dexcompare.io/us/p/mega-symphonia-m1s-japanese-booster-pack",
    "cents": 295,
@@ -263,20 +277,6 @@
    "refCents": 500,
    "refLabel": "median store price",
    "savingPct": 41
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "US",
-   "title": "Pokémon Card 151 Japanese Booster Box (SV2a)",
-   "url": "https://dexcompare.io/us/p/pokemon-card-151-sv2a-japanese-booster-box",
-   "cents": 29980,
-   "currency": "USD",
-   "store": "Common Lands",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/565243_in_1000x1000.jpg",
-   "refCents": 43150,
-   "refLabel": "median store price",
-   "savingPct": 31
   },
   {
    "kind": "deal",
@@ -291,6 +291,20 @@
    "refCents": 2995,
    "refLabel": "median store price",
    "savingPct": 50
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "UK",
+   "title": "30th Celebration - 2-Pack Blister",
+   "url": "https://dexcompare.io/uk/p/30th-celebration-2-pack-blister",
+   "cents": 999,
+   "currency": "GBP",
+   "store": "JustPlay",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/704148_in_1000x1000.jpg",
+   "refCents": 1895,
+   "refLabel": "median store price",
+   "savingPct": 47
   },
   {
    "kind": "deal",
@@ -316,7 +330,7 @@
    "currency": "GBP",
    "store": "Impact League TCG",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/666255_in_1000x1000.jpg",
-   "refCents": 1200,
+   "refCents": 1199,
    "refLabel": "median store price",
    "savingPct": 42
   },
@@ -345,20 +359,6 @@
    "store": "Titan Cards",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/674454_in_1000x1000.jpg",
    "refCents": 350,
-   "refLabel": "median store price",
-   "savingPct": 39
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "UK",
-   "title": "Ninja Spinner Japanese Booster Pack (M4)",
-   "url": "https://dexcompare.io/uk/p/ninja-spinner-m4-japanese-booster-pack",
-   "cents": 245,
-   "currency": "GBP",
-   "store": "Titan Cards",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/683776_in_1000x1000.jpg",
-   "refCents": 400,
    "refLabel": "median store price",
    "savingPct": 39
   },
@@ -604,15 +604,15 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "SG",
-   "title": "First Partner Illustration Collection (Series 2)",
-   "url": "https://dexcompare.io/sg/p/first-partner-illustration-collection-series-2-2",
-   "cents": 3050,
+   "title": "Mega Dream ex Japanese Booster Pack (M2a)",
+   "url": "https://dexcompare.io/sg/p/mega-dream-ex-m2a-japanese-booster-pack",
+   "cents": 968,
    "currency": "SGD",
-   "store": "TEFUDA",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/688712_in_1000x1000.jpg",
-   "refCents": 4500,
+   "store": "Sawadeekard",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/666255_in_1000x1000.jpg",
+   "refCents": 1400,
    "refLabel": "median store price",
-   "savingPct": 32
+   "savingPct": 31
   }
  ]
 }
