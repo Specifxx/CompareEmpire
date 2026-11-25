@@ -1,7 +1,7 @@
 {
  "v": 1,
  "site": "dex",
- "generatedAt": "2026-11-24T20:38:10.326Z",
+ "generatedAt": "2026-11-25T04:27:12.928Z",
  "links": {
   "AU": {
    "deals": "https://dexcompare.io/au/deals"
@@ -36,9 +36,9 @@
    "currency": "AUD",
    "store": "Grand J Games",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/688712_in_1000x1000.jpg",
-   "refCents": 7000,
+   "refCents": 7250,
    "refLabel": "median store price",
-   "savingPct": 43
+   "savingPct": 45
   },
   {
    "kind": "deal",
@@ -46,13 +46,13 @@
    "region": "AU",
    "title": "Pokemon Day 2026 Collection",
    "url": "https://dexcompare.io/au/p/pokemon-day-2026-collection",
-   "cents": 7400,
+   "cents": 6700,
    "currency": "AUD",
    "store": "Crystal Collectables TCG",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/668590_in_1000x1000.jpg",
    "refCents": 11998,
    "refLabel": "median store price",
-   "savingPct": 38
+   "savingPct": 44
   },
   {
    "kind": "deal",
@@ -148,9 +148,9 @@
    "currency": "NZD",
    "store": "PlayX",
    "image": "https://cdn.shopify.com/s/files/1/0593/1037/5046/files/shopping_d8e79727-1561-4245-9f51-d0f19ab27a54.webp?v=1788469730",
-   "refCents": 2500,
+   "refCents": 2550,
    "refLabel": "median store price",
-   "savingPct": 20
+   "savingPct": 22
   },
   {
    "kind": "deal",
@@ -170,6 +170,20 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "NZ",
+   "title": "Surging Sparks Booster Pack",
+   "url": "https://dexcompare.io/nz/p/surging-sparks-booster-pack",
+   "cents": 1500,
+   "currency": "NZD",
+   "store": "Card Masters",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/565604_in_1000x1000.jpg",
+   "refCents": 1798,
+   "refLabel": "median store price",
+   "savingPct": 17
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "NZ",
    "title": "30th Celebration Japanese Booster Box (M6a)",
    "url": "https://dexcompare.io/nz/p/30th-celebration-m6a-japanese-booster-box",
    "cents": 35000,
@@ -179,20 +193,6 @@
    "refCents": 41588,
    "refLabel": "median store price",
    "savingPct": 16
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "NZ",
-   "title": "Delta Reign 3 Pack Blister",
-   "url": "https://dexcompare.io/nz/p/delta-reign-3-pack-blister",
-   "cents": 3299,
-   "currency": "NZD",
-   "store": "WP Games",
-   "image": "https://cdn.shopify.com/s/files/1/0936/4737/2569/files/219_88212d3e-4d7d-4252-a1bc-0e69a94ae10d.png?v=1787724069",
-   "refCents": 3800,
-   "refLabel": "median store price",
-   "savingPct": 13
   },
   {
    "kind": "deal",
@@ -240,20 +240,6 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "US",
-   "title": "White Flare Booster Pack",
-   "url": "https://dexcompare.io/us/p/white-flare-booster-pack",
-   "cents": 799,
-   "currency": "USD",
-   "store": "Common Lands",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/630699_in_1000x1000.jpg",
-   "refCents": 1500,
-   "refLabel": "median store price",
-   "savingPct": 47
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "US",
    "title": "Terastal Festival ex Japanese Booster Pack (SV8a)",
    "url": "https://dexcompare.io/us/p/terastal-festival-ex-sv8a-japanese-booster-pack",
    "cents": 995,
@@ -277,6 +263,20 @@
    "refCents": 500,
    "refLabel": "median store price",
    "savingPct": 41
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "US",
+   "title": "Pokémon Card 151 Japanese Booster Box (SV2a)",
+   "url": "https://dexcompare.io/us/p/pokemon-card-151-sv2a-japanese-booster-box",
+   "cents": 29980,
+   "currency": "USD",
+   "store": "Common Lands",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/565243_in_1000x1000.jpg",
+   "refCents": 43150,
+   "refLabel": "median store price",
+   "savingPct": 31
   },
   {
    "kind": "deal",
@@ -366,20 +366,6 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "CA",
-   "title": "First Partner Illustration Collection (Series 2)",
-   "url": "https://dexcompare.io/ca/p/first-partner-illustration-collection-series-2-2",
-   "cents": 2499,
-   "currency": "CAD",
-   "store": "Sky Fox Games",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/688712_in_1000x1000.jpg",
-   "refCents": 4995,
-   "refLabel": "median store price",
-   "savingPct": 50
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "CA",
    "title": "V Battle Deck Bundle [Lycanroc V / Corviknight V]",
    "url": "https://dexcompare.io/ca/p/v-battle-deck-bundle-lycanroc-v-corviknight-v",
    "cents": 1300,
@@ -408,13 +394,27 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "CA",
+   "title": "First Partner Illustration Collection (Series 2)",
+   "url": "https://dexcompare.io/ca/p/first-partner-illustration-collection-series-2-2",
+   "cents": 2499,
+   "currency": "CAD",
+   "store": "Sky Fox Games",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/688712_in_1000x1000.jpg",
+   "refCents": 4499,
+   "refLabel": "median store price",
+   "savingPct": 44
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "CA",
    "title": "First Partner Illustration Collection (Series 3)",
    "url": "https://dexcompare.io/ca/p/first-partner-illustration-collection-series-3",
    "cents": 2499,
    "currency": "CAD",
-   "store": "Flaring Lair",
+   "store": "A & C Games",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/695400_in_1000x1000.jpg",
-   "refCents": 4497,
+   "refCents": 4495,
    "refLabel": "median store price",
    "savingPct": 44
   },
@@ -436,13 +436,13 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "CA",
-   "title": "Chaos Rising 3 Pack Blister [Charmeleon]",
-   "url": "https://dexcompare.io/ca/p/chaos-rising-3-pack-blister-charmeleon",
-   "cents": 1899,
+   "title": "V Strikers Tin - Bundle",
+   "url": "https://dexcompare.io/ca/p/v-strikers-tin-bundle",
+   "cents": 11000,
    "currency": "CAD",
-   "store": "Flaring Lair",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/684458_in_1000x1000.jpg",
-   "refCents": 3299,
+   "store": "L'Atelier TCG",
+   "image": "https://cdn.shopify.com/s/files/1/1704/1809/files/Pokemon-V-Strikers-Tin-Bundle.jpg?v=1698508378",
+   "refCents": 18995,
    "refLabel": "median store price",
    "savingPct": 42
   },
@@ -456,7 +456,7 @@
    "currency": "EUR",
    "store": "Nordic Legends",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/484213_in_1000x1000.jpg",
-   "refCents": 3500,
+   "refCents": 3499,
    "refLabel": "median store price",
    "savingPct": 49
   },
