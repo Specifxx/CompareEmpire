@@ -1,7 +1,7 @@
 {
  "v": 1,
  "site": "dex",
- "generatedAt": "2026-11-25T18:06:01.091Z",
+ "generatedAt": "2026-11-25T19:43:18.449Z",
  "links": {
   "AU": {
    "deals": "https://dexcompare.io/au/deals"
@@ -380,20 +380,6 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "CA",
-   "title": "Pokemon GO V Battle Deck Bundle [Mewtwo V/Melmetal V]",
-   "url": "https://dexcompare.io/ca/p/go-battle-deck-mewtwo-v-melmetal-v",
-   "cents": 1300,
-   "currency": "CAD",
-   "store": "Derpy Cards",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/270712_in_1000x1000.jpg",
-   "refCents": 2320,
-   "refLabel": "median store price",
-   "savingPct": 44
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "CA",
    "title": "First Partner Illustration Collection (Series 2)",
    "url": "https://dexcompare.io/ca/p/first-partner-illustration-collection-series-2-2",
    "cents": 2499,
@@ -414,7 +400,7 @@
    "currency": "CAD",
    "store": "A & C Games",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/695400_in_1000x1000.jpg",
-   "refCents": 4495,
+   "refCents": 4499,
    "refLabel": "median store price",
    "savingPct": 44
   },
@@ -445,6 +431,34 @@
    "refCents": 18995,
    "refLabel": "median store price",
    "savingPct": 42
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "CA",
+   "title": "Temporal Forces - Checklane Blister Bundle",
+   "url": "https://dexcompare.io/ca/p/temporal-forces-checklane-blister-bundle",
+   "cents": 1499,
+   "currency": "CAD",
+   "store": "Manta Trading",
+   "image": "https://cdn.shopify.com/s/files/1/1704/1809/files/bundle2.png?v=1705342113",
+   "refCents": 2497,
+   "refLabel": "median store price",
+   "savingPct": 40
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "EU",
+   "title": "Mask of Change Japanese Booster Pack (SV6)",
+   "url": "https://dexcompare.io/eu/p/mask-of-change-sv6-japanese-booster-pack",
+   "cents": 250,
+   "currency": "EUR",
+   "store": "Lake Cards",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/565220_in_1000x1000.jpg",
+   "refCents": 490,
+   "refLabel": "median store price",
+   "savingPct": 49
   },
   {
    "kind": "deal",
@@ -487,20 +501,6 @@
    "refCents": 1147,
    "refLabel": "median store price",
    "savingPct": 48
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "EU",
-   "title": "Mask of Change Japanese Booster Pack (SV6)",
-   "url": "https://dexcompare.io/eu/p/mask-of-change-sv6-japanese-booster-pack",
-   "cents": 250,
-   "currency": "EUR",
-   "store": "Lake Cards",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/565220_in_1000x1000.jpg",
-   "refCents": 470,
-   "refLabel": "median store price",
-   "savingPct": 47
   },
   {
    "kind": "deal",
