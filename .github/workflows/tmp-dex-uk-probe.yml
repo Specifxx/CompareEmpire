@@ -6,7 +6,7 @@ on:
 jobs:
   probe:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 50
     defaults:
       run:
         working-directory: apps/dexcompare-sealed
@@ -15,21 +15,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: which collections hold the missed in-stock UK listings
+      - run: npm ci --no-audit --no-fund
+      - name: zatu ETB collection guesses
         run: |
-          cat > /tmp/p.js <<'JS'
-          const T=require(process.cwd()+"/tmp-targets.json");const S=require(process.cwd()+"/src/data/stores.json");
-          const UA={headers:{"user-agent":"DexCompare price check (dexcompare.io)"}};const z=ms=>new Promise(r=>setTimeout(r,ms));
-          async function j(u){try{const r=await fetch(u,UA);if(!r.ok)return {err:r.status};return await r.json()}catch(e){return {err:e.message}}}
-          async function handles(base,c){const out=new Set();for(let p=1;p<=8;p++){const d=await j(`${base}/collections/${c}/products.json?limit=250&page=${p}`);await z(1000);if(!d.products)return {err:d.err,out};d.products.forEach(x=>out.add(x.handle));if(d.products.length<250)break}return {out}}
-          (async()=>{for(const [k,hs] of Object.entries(T)){const st=S.find(x=>x.key===k);console.log("### "+k+" "+st.base+" cfg=["+st.collections+"]");
-            for(const h of hs){const d=await j(`${st.base}/products/${h}.json`);await z(1000);const p=d.product;if(p)console.log("  PRODUCT",h,"|",p.title,"| type="+p.product_type,"| tags="+(p.tags||"").slice(0,120),"| variants="+p.variants.map(v=>v.title+":"+v.price).join(";"));else console.log("  PRODUCT",h,"ERR",d.err)}
-            const found=Object.fromEntries(hs.map(h=>[h,[]]));
-            for(const c of st.collections){const r=await handles(st.base,c);if(r.err)console.log("  cfg",c,"ERR",r.err);for(const h of hs)if(r.out.has(h))found[h].push("CFG:"+c)}
-            const cols=[];for(let p=1;p<=4;p++){const d=await j(`${st.base}/collections.json?limit=250&page=${p}`);await z(1000);if(!d.collections)break;cols.push(...d.collections);if(d.collections.length<250)break}
-            const cand=cols.filter(c=>!st.collections.includes(c.handle)&&/pok|etb|elite|premium|upc|30th|delta|pre-?order|sealed|new|tcg|trading|celebration|anniversary|booster/i.test(c.handle+" "+c.title)&&!/single|graded|slab|accessor|sleeve|japan|korean|chinese|magic|lorcana|one-piece|yugioh|yu-gi|riftbound|digimon|star-wars|flesh/i.test(c.handle)).slice(0,25);
-            console.log("  collections total",cols.length,"candidates",cand.length);
-            for(const c of cand){const r=await handles(st.base,c.handle);const hit=hs.filter(h=>r.out.has(h));if(hit.length)console.log("  HIT",c.handle,"size="+r.out.size,"->",hit.join(","));for(const h of hit)found[h].push(c.handle+"("+r.out.size+")")}
-            for(const h of hs)console.log("  RESULT",h,"=>",found[h].join(" ")||"none")}})()
-          JS
-          node /tmp/p.js
+          for c in pokemon-tcg-elite-trainer-boxes elite-trainer-boxes-pokemon pokemon-elite-trainer-boxes elite-trainer-boxes pokemon-etb pokemon-tcg-etbs pokemon-tcg-sealed pokemon-tcg pokemon; do n=$(curl -s -A "DexCompare price check (dexcompare.io)" "https://zatu.com/collections/$c/products.json?limit=250" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const p=JSON.parse(s).products;console.log(p.length, p.filter(x=>/elite trainer/i.test(x.title)).length)}catch{console.log("ERR")}})'); echo "zatu $c $n"; sleep 1; done
+      - name: verify the added collections
+        env:
+          ADD: '{"collect":["pokemon-tcg"],"collectorskingdom":["english-pokemon"],"hoctcg":["pokemon-1"],"1moregogaming":["pokemon-battle-decks"],"trolltradercards":["pokemon-booster-boxes"],"koolthings":["pokemon"],"elemental":["pokemon"],"nortontcg":["pokemon-tcg"],"impactleague":["english-etb-ex-boxes-and-other-sealed-products","pokemon-booster-packs","pokemon-booster-boxes"],"justplaygames":["pokemon-league-preorders"],"tierzerogames":["pokemon"],"buyanycards":["pokemon-mini-tins"],"collectorsedge":["pokemon-tcg-booster-bundles-boxes"],"cosmiccollectables":["booster-boxes"],"eternacards":["all-pokemon-booster-packs"]}'
+        run: npx tsx tmp-verify.ts
