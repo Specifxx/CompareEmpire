@@ -5888,7 +5888,8 @@
     "country": "GB",
     "collections": [
       "pokemon-booster-boxes",
-      "elite-trainer-boxes"
+      "elite-trainer-boxes",
+      "pokemon-battle-decks"
     ]
   },
   {
@@ -5974,7 +5975,8 @@
       "pokemon-elite-trainer-boxes",
       "pokemon-trading-card-game",
       "pokemon-booster-boxes",
-      "booster-packs"
+      "booster-packs",
+      "pokemon-mini-tins"
     ]
   },
   {
@@ -6011,7 +6013,8 @@
       "pokemon-collection-boxes",
       "pokemon-tcg-tin-selection",
       "pokemon-tcg-3-packs",
-      "pokemon-tcg-booster-boxes"
+      "pokemon-tcg-booster-boxes",
+      "pokemon-tcg"
     ]
   },
   {
@@ -6059,7 +6062,8 @@
       "pokemon-tcg-collection-boxes",
       "pokemon-tcg-tins",
       "pokemon-tcg-booster-packs",
-      "pokemon-tcg-elite-trainer-boxes"
+      "pokemon-tcg-elite-trainer-boxes",
+      "pokemon-tcg-booster-bundles-boxes"
     ]
   },
   {
@@ -6157,7 +6161,8 @@
       "sealed-pokemon",
       "pokemon-booster-box",
       "pokemon-booster-pack",
-      "etb"
+      "etb",
+      "pokemon"
     ]
   },
   {
@@ -6275,7 +6280,8 @@
     "platform": "shopify",
     "country": "GB",
     "collections": [
-      "english-pokemon"
+      "english-pokemon",
+      "pokemon-1"
     ]
   },
   {
@@ -6299,7 +6305,10 @@
     "collections": [
       "pokemon-english-booster-packs",
       "pokemon",
-      "pokemon-english-booster-boxes"
+      "pokemon-english-booster-boxes",
+      "english-etb-ex-boxes-and-other-sealed-products",
+      "pokemon-booster-packs",
+      "pokemon-booster-boxes"
     ]
   },
   {
@@ -6337,7 +6346,8 @@
     "country": "GB",
     "collections": [
       "pokemon-tcg",
-      "preorders-live"
+      "preorders-live",
+      "pokemon-league-preorders"
     ]
   },
   {
@@ -6348,7 +6358,8 @@
     "platform": "shopify",
     "country": "GB",
     "collections": [
-      "pokemon-1"
+      "pokemon-1",
+      "pokemon"
     ]
   },
   {
@@ -6449,7 +6460,8 @@
     "country": "GB",
     "collections": [
       "pokemon-sealed-products",
-      "pokemon"
+      "pokemon",
+      "pokemon-tcg"
     ]
   },
   {
@@ -6778,7 +6790,8 @@
     "platform": "shopify",
     "country": "GB",
     "collections": [
-      "pokemon-booster-pack"
+      "pokemon-booster-pack",
+      "pokemon-booster-boxes"
     ]
   },
   {
@@ -6825,7 +6838,8 @@
       "pokemon-tcg-tins",
       "other-sealed-product-pokemon",
       "pokemon-tcg-collection-boxes",
-      "booster-packs-pokemon"
+      "booster-packs-pokemon",
+      "pokemon-tcg-elite-trainer-boxes"
     ]
   },
   {
