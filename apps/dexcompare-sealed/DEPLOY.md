@@ -425,6 +425,8 @@ compact "search" CTA and the in-feed tile report under the strip's own placement
 | `heavy-top-tcg` | The ad-intensity test: the TCGplayer banner of the top pair |
 | `heavy-popup` | The ad-intensity test: the TCGplayer "Recommended for you" pop-up (2nd, 5th and 8th page of a visit, closable) |
 | `heavy-slidein` | The ad-intensity test: the TCGplayer slide-in card at the bottom corner (after 12 s on a page, closable) |
+| `gutter-ebay` | The gutter columns (owner, 2026-11-25): eBay's live sealed listings in the left side of a window 1440px or wider |
+| `gutter-tcg` | The gutter columns: TCGplayer products in the right side of a window 1440px or wider |
 | `product-best`, `product-table`, `quickview-table`, `product-soldout`, `browse-empty`, `store-page` | the page's own store/TCGplayer buttons: the best-price card's button, the price table's rows (and the same rows in a product card's quick view), the sold-out callout's TCGplayer button (now the secondary choice under the eBay box), the browse page's "nothing matches" eBay/TCGplayer box, and a store page's "Visit" link |
 | `preorders` | a pre-order page (`/<region>/preorders/<set>`, `src/lib/preorder-guides.ts`): the STORE buttons of each product's price list, the stores alone, numbered in price order (TCGplayer moved to `preorders-tcgplayer` on 2026-10-16) |
 | `preorders-ebay` | a pre-order page: the eBay row pinned at the very top of each product's price list, in its "Marketplaces" group (`PreorderMarketplaces` in `src/components/Marketplaces.tsx`): the region's eBay Buy It Now search for the product (an unreleased set's eBay listings are pre-sales the importer refuses, so it is a search, never a price), eBay blue, "Ad"; unnumbered and never compared |

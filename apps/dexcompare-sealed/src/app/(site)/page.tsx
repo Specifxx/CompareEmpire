@@ -4,6 +4,8 @@ import { GiveawayHomeBanner } from "@/components/giveaway/GiveawayHomeBanner";
 import { Icon } from "@/components/Icon";
 import { SoftSideAds } from "@/components/SideAds";
 import { SoftInlineAds } from "@/components/InlineAds";
+import { SoftGutterAds } from "@/components/GutterAds";
+import { AD_HEAVY } from "@/lib/ad-heavy";
 import { FEATURE_MIN_USD_CENTS } from "@/lib/feature-floor";
 import { tcgplayerTiles, type TcgplayerTile } from "@/lib/data";
 import { HomeRegionGrid } from "@/components/HomeRegionGrid";
@@ -128,6 +130,12 @@ export default async function Landing() {
         <HomeRegionGrid initial={picks} />
       </div>
 
+      {/* The two ad banners mid-page (owner, 2026-11-25: "why are the display ads at the very bottom of the site?"): after the products
+          the visitor came for, before the reading matter and the FAQ; never under the hero. Browser only, height reserved; labelled Ad. */}
+      <div className="page mb-16">
+        <SoftInlineAds tiles={railTiles} />
+      </div>
+
       <PopularPages />
 
       <div className="page">
@@ -142,15 +150,12 @@ export default async function Landing() {
         {summary && <HubFaqSection faq={summary.faq} />}
       </div>
 
-      {/* The two ad banners, eBay and TCGplayer apart, below the page's own content (2026-11-19, core-update quality pass). Browser
-          only, height reserved; labelled Ad. */}
-      <div className="page mt-8">
-        <SoftInlineAds tiles={railTiles} />
-      </div>
 
       {/* The phone dock (below 1280px, after a scroll), browser-only, in the visitor's region (components/SideAds.tsx; the side rails
           that shared the file were removed 2026-11-13; owner 2026-11-06: "the home page must have this as well"). */}
       <SoftSideAds tiles={railTiles} />
+      {/* The gutter ads (owner, 2026-11-25): a labelled column in each empty side of a wide window, from 1440px. */}
+      <SoftGutterAds tiles={railTiles} sides={AD_HEAVY ? "both" : "right"} />
     </div>
   );
 }

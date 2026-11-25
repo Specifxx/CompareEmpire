@@ -130,7 +130,7 @@ test("the footer is drawn by each layout after its <main> (and by the 404 and er
 test("Header on a region page: search at every width (never in a hidden wrapper), the menu button, a compact region button", () => {
   const html = render(React.createElement(Header, { region: "us" }));
   // On the page's own ground, blurred; its line fades in once the page scrolls under it (globals.css .hdr).
-  assert.match(html, /^<header class="hdr sticky top-0 z-40 h-\[var\(--hdr\)\] border-b border-line bg-bg\/80 backdrop-blur-xl xmas-garland">/);
+  assert.match(html, /^<header class="hdr sticky top-0 z-40 h-\[var\(--hdr\)\] border-b border-line bg-bg\/80 backdrop-blur-xl">/);
   assert.match(html, /^<header[^>]*><div class="page flex h-full items-center gap-2 sm:gap-3 xl:gap-4">/, "the header's row is the page's column");
   const form = html.indexOf('role="search"');
   assert.ok(form > 0, "the search form is in the header");
@@ -204,7 +204,7 @@ test("the menu's groups: product types, sets, deals and the rest, every link a r
   assert.ok(!existsSync(new URL("../src/components/SideNav.tsx", import.meta.url)), "no sidebar component");
   for (const f of ["app/[region]/layout.tsx", "app/(site)/layout.tsx"]) {
     assert.doesNotMatch(src(f), /<SideNav|<SoftSideNav|<aside/, `${f}: no sidebar`);
-    assert.match(src(f), /<main id="main" className="min-w-0 flex-1">/, `${f}: the page is the whole row`);
+    assert.match(src(f), /<main id="main" className="(?:relative )?min-w-0 flex-1">/, `${f}: the page is the whole row`);
   }
   assert.match(src("components/Header.tsx"), /<MobileMenu region=\{region\} groups=\{groups\} built=\{built\} className="lg:hidden" \/>/, "the menu button's sheet, below lg");
   // What only the sidebar linked on a desktop is in the header's menus now.

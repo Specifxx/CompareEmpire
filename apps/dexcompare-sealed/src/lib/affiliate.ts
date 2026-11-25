@@ -107,6 +107,10 @@ export const PLACEMENTS = [
   "heavy-top-tcg",
   "heavy-popup",
   "heavy-slidein",
+  // The gutter columns (components/GutterAds.tsx, owner 2026-11-25): eBay on the left, TCGplayer on the right, in the empty sides of a
+  // wide window (from 1440px).
+  "gutter-ebay",
+  "gutter-tcg",
 ] as const;
 export type Placement = (typeof PLACEMENTS)[number];
 
