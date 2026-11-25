@@ -87,7 +87,7 @@ export function OfferTable({
       <div className="card overflow-hidden">
         {top}
         {ebay ? (
-          <OfferRowsWithEbay rows={rows} tcg={tcg} amazon={amazon} region={region} slug={ebay.slug} query={ebay.query} floor={ebay.floor} packs={ebay.packs} allowBest={!preorder} preorder={preorder} marketplacesBelow />
+          <OfferRowsWithEbay rows={rows} tcg={tcg} amazon={amazon} region={region} slug={ebay.slug} query={ebay.query} floor={ebay.floor} packs={ebay.packs} allowBest={!preorder} preorder={preorder} marketplacesBelow marketplacesFirst />
         ) : (
           <StoreRows rows={rows} preorder={preorder} />
         )}

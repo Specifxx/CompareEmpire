@@ -2056,3 +2056,11 @@ block of `globals.css` ("The phone's home page, tidied"), placed before the eBay
 **Read:** phone bounce (non-Reddit) and store buy clickers per 100 phone visitors on `/` and the region homes, the week after
 release against the week before. If phone region switches from the hero were doing work (GA `region_select`, placement
 `hero`), the region row comes back as one row on the region homes too.
+## 2026-11-26: Marketplaces block back above the stores (product page)
+
+The owner's UX review (24 Nov, P1 10) moved eBay, TCGplayer and Amazon into a labelled block under the stores. The read
+the Head of Conversion promised the owner (revert at a 15% fall in paid clicks): Dex phone visitors, 17-23 Nov vs 24 Nov
+08:00 to 25 Nov 23:00 UTC, paid clickers 22.9 -> 15.7 per 100 (-31%) while store clickers rose 23.0 -> 29.0. The clicks
+moved from links that pay (about A$0.35 a click) to stores that pay nothing. The block keeps its label, its Ad pill and
+its rows, and now sits ABOVE the stores (`marketplacesFirst` in OfferTable). MTG (paid share of clicks 45% -> 48%, no
+shift) and Rift (paid up) keep the stores first. Quick view unchanged (its A/B freeze runs to 3 Dec).

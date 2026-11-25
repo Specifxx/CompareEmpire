@@ -38,7 +38,7 @@ test("arm a draws every row; arm b the pinned rows and the cheapest five stores"
 
 test("only the product page's table passes the test on; the quick view and the pre-order page never do", () => {
   // Ended 2026-11-23 (owner's UX review, P1 10): the product page lists the stores first and the marketplaces below, outside the test.
-  assert.match(src("components/OfferTable.tsx"), /preorder=\{preorder\} marketplacesBelow \/>/);
+  assert.match(src("components/OfferTable.tsx"), /preorder=\{preorder\} marketplacesBelow marketplacesFirst \/>/);
   assert.doesNotMatch(src("components/QuickView.tsx"), /rowsTest/);
   assert.match(src("components/EbayStrip.tsx"), /rowsTest && !preorder && rtEligible/);
 });

@@ -104,13 +104,14 @@ test("the server table: the eBay row FIRST as a search (labelled Ad, sponsored, 
   const html = render(React.createElement(OfferTable, { offers, region: "us", preorder: false, ebay: { slug: "x-etb", query: "Surging Sparks Elite Trainer Box", floor: null, packs: null } }));
   const rows = [...html.matchAll(/<li data-offer-row=""([^>]*)>/g)].map((m) => m[1]);
   assert.equal(rows.length, 4, "three stores and eBay");
-  // The stores first, then the marketplaces under their own label (owner, 2026-11-23 UX review, P1 10).
-  const e = rows.length - 1;
-  assert.match(rows[e], /data-ad="listings-offer-row"/, "eBay leads the marketplaces block, under the stores");
+  // The labelled Marketplaces block (owner, 2026-11-23 UX review, P1 10), above the stores since 2026-11-26 (marketplacesFirst).
+  const e = 0;
+  assert.match(rows[e], /data-ad="listings-offer-row"/, "eBay leads the marketplaces block, above the stores");
   assert.ok(html.indexOf("data-marketplaces") < html.indexOf('data-ad="listings-offer-row"'), "under the Marketplaces label");
+  assert.ok(html.indexOf('data-ad="listings-offer-row"') < html.indexOf("alpha"), "the block comes before the stores");
   assert.match(rows[e], /data-state="search"/);
   assert.doesNotMatch(rows[e], /bg-ad|shadow-/, "no sponsored tint: it blends in with the store rows");
-  assert.equal(/class="([^"]*)"/.exec(rows[e])![1].replace(PIN_OUTLINE.ebay, "").trim(), /class="([^"]*)"/.exec(rows[1])![1].trim(), "the same grid as a store row");
+  assert.equal(/class="([^"]*)"/.exec(rows[e])![1].replace(PIN_OUTLINE.ebay, "").trim(), /class="([^"]*)"/.exec(rows[2])![1].trim(), "the same grid as a store row");
   assert.ok(rows[e].includes(PIN_OUTLINE.ebay), "its green outline (owner, 2026-11-06)");
   const ebay = html.slice(html.indexOf('data-ad="listings-offer-row"'));
   const a = /<a ([^>]*)>([\s\S]*?)<\/a>/.exec(ebay)!;
@@ -143,12 +144,12 @@ test("pinned TCGplayer: third, under eBay and Amazon (owner, 2026-11-06), its ow
   const us = render(React.createElement(OfferTable, { offers, region: "us", preorder: false, ebay: { slug: "x", query: "X", floor: null, packs: null }, pinned: { productName: "X", tcgplayer: null } }));
   const rows = [...us.matchAll(/<li data-offer-row=""([^>]*)>/g)].map((m) => m[1]);
   assert.equal(rows.length, 5, "eBay, Check on Amazon, TCGplayer and two stores");
-  // Since 2026-11-23 (owner's UX review, P1 10): the two stores first, then the marketplaces: eBay, TCGplayer, Amazon.
-  assert.match(rows[2], /data-ad="listings-offer-row"/);
-  assert.match(rows[3], /data-row="tcgplayer"/, "TCGplayer right under eBay");
-  assert.match(rows[4], /data-row="amazon"/, "Amazon right under TCGplayer");
+  // The Marketplaces block (eBay, TCGplayer, Amazon) above the two stores since 2026-11-26 (marketplacesFirst).
+  assert.match(rows[0], /data-ad="listings-offer-row"/);
+  assert.match(rows[1], /data-row="tcgplayer"/, "TCGplayer right under eBay");
+  assert.match(rows[2], /data-row="amazon"/, "Amazon right under TCGplayer");
   assert.match(us, /Check Amazon/);
-  assert.match(rows[3], /or-hl/, "cheapest of the whole table: highlighted");
+  assert.match(rows[1], /or-hl/, "cheapest of the whole table: highlighted");
   assert.match(us, /data-best="tcg"/);
   assert.doesNotMatch(us, /Best store price/, "no store badge when eBay or TCGplayer is cheaper (owner, 2026-11-13)");
   assert.equal([...us.matchAll(/class="btn-primary/g)].length, 1, "the filled orange button is a store's alone; eBay wears the ink ad button (Fiverr review F7, 2026-11-17)");
