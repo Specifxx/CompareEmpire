@@ -1,5 +1,7 @@
 // Helpers the two Amazon scripts share: the public catalogue, read straight from data/public/ (the files the import
-// just exported), per region: the products with an in-stock store offer in that market, most-compared first.
+// just exported), per region: the products with an in-stock store offer in that market, most-clicked first (data/demand.json,
+// the visitors' own clicks over 28 days; owner, 2026-11-26: Amazon's allowance goes where Dex's buyers are), then
+// most-compared.
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { REGIONS, type Region } from "../src/lib/regions";
@@ -10,8 +12,19 @@ interface PubOffer { productId: string; store: string; market: string; priceCent
 const PUBLIC = path.join(process.cwd(), "data", "public");
 const read = <T,>(f: string): T[] => (existsSync(path.join(PUBLIC, f)) ? (JSON.parse(readFileSync(path.join(PUBLIC, f), "utf8")) as T[]) : []);
 
-/** The region's products with at least one in-stock store offer, with those offers' prices (cents): most stores, then dearest, first. */
-export function regionProducts(region: Region): { p: PubProduct; prices: number[] }[] {
+/** Visitors' clicks per product slug over the last 28 days (data/demand.json, refreshed by the daily import); {} without it. */
+export function demandClicks(file = path.join(process.cwd(), "data", "demand.json")): Record<string, number> {
+  try {
+    const d = JSON.parse(readFileSync(file, "utf8")) as { clicks?: Record<string, [number, number]> };
+    return Object.fromEntries(Object.entries(d.clicks ?? {}).map(([k, v]) => [k, Number(v?.[0]) || 0]));
+  } catch {
+    return {};
+  }
+}
+
+/** The region's products with at least one in-stock store offer, with those offers' prices (cents) and 28-day clicks:
+ *  most clicked, then most stores, then dearest, first. */
+export function regionProducts(region: Region, clicks: Record<string, number> = demandClicks()): { p: PubProduct; prices: number[]; clicks: number }[] {
   const market = REGIONS[region].market;
   const prices = new Map<string, number[]>();
   for (const o of read<PubOffer>("offers.json")) {
@@ -20,8 +33,8 @@ export function regionProducts(region: Region): { p: PubProduct; prices: number[
   }
   return read<PubProduct>("products.json")
     .filter((p) => prices.has(p.id))
-    .map((p) => ({ p, prices: prices.get(p.id)!.sort((a, b) => a - b) }))
-    .sort((a, b) => b.prices.length - a.prices.length || b.prices[0] - a.prices[0]);
+    .map((p) => ({ p, prices: prices.get(p.id)!.sort((a, b) => a - b), clicks: clicks[p.slug] ?? 0 }))
+    .sort((a, b) => b.clicks - a.clicks || b.prices.length - a.prices.length || b.prices[0] - a.prices[0]);
 }
 
 export function median(xs: number[]): number | undefined {

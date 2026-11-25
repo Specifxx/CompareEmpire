@@ -90,3 +90,38 @@ test("Amazon's row only for types Amazon carries (owner, 2026-11-12)", async () 
   for (const t of ["booster-box-case", "etb-case", "jp-booster-box", null]) assert.equal(amazonCarries(t), false, String(t));
   assert.equal(amazonCarries("jp-booster-box", true), true, "a real ASIN wins");
 });
+
+// Owner, 2026-11-26: DexCompare earns the most, so it takes more of the network's Amazon allowance, spent where its
+// visitors click, and a popular product's miss is retried within days (Delta Reign waited 30 days and missed its launch).
+test("Amazon budget: US first and largest, env can only lower it", async () => {
+  const { searchBudget, SEARCH_BUDGET } = await import("../scripts/amazon-asins");
+  const { buildCalls, BUILD_CALLS } = await import("../scripts/fetch-amazon-prices");
+  assert.equal(SEARCH_BUDGET.us, 800);
+  assert.equal(BUILD_CALLS.us, 100);
+  for (const r of ["uk", "ca", "au", "eu"] as const) {
+    assert.ok(SEARCH_BUDGET[r]! <= 300 && BUILD_CALLS[r]! <= 50, r);
+  }
+  assert.equal(searchBudget("us", {}), 800);
+  assert.equal(searchBudget("us", { AMAZON_SEARCH_BUDGET: "100" }), 100);
+  assert.equal(searchBudget("us", { AMAZON_SEARCH_BUDGET: "5000" }), 800);
+  assert.equal(searchBudget("us", { AMAZON_SEARCH_BUDGET: "0" }), 0);
+  assert.equal(buildCalls("us", { AMAZON_BUILD_CALLS: "9999" }), 100);
+  assert.equal(buildCalls("uk", {}), 50);
+  assert.equal(searchBudget("nz" as never, {}), 0);
+});
+
+test("Amazon misses: a clicked product is retried in 3 days, the rest in 14", async () => {
+  const { missRecheckDays, amazonTitleQuery } = await import("../scripts/amazon-asins");
+  assert.equal(missRecheckDays(40), 3);
+  assert.equal(missRecheckDays(5), 3);
+  assert.equal(missRecheckDays(0), 14);
+  assert.equal(amazonTitleQuery("Delta Reign Booster Box"), "Pokemon TCG: Delta Reign Booster Box");
+  assert.equal(amazonTitleQuery("Pokemon TCG Prismatic Evolutions Elite Trainer Box"), "Pokemon TCG: Prismatic Evolutions Elite Trainer Box");
+});
+
+test("Amazon order: most-clicked products are searched and priced first", async () => {
+  const { demandClicks } = await import("../scripts/amazon-shared");
+  assert.deepEqual(demandClicks("/no/such/file.json"), {});
+  const src = readFileSync("scripts/amazon-shared.ts", "utf8");
+  assert.match(src, /b\.clicks - a\.clicks \|\| b\.prices\.length - a\.prices\.length/);
+});
