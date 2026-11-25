@@ -42,6 +42,9 @@ import { setCountsGrouped } from "@/lib/hub-data";
 import { SITE_URL } from "@/lib/site";
 import { guidesFor } from "@/content/guides";
 import { toolHref } from "@/content/tools";
+import { JapaneseEditionRow } from "@/components/JapaneseEditionRow";
+import { jaTwinOf } from "@/lib/japanese-twins";
+import { jaSetCode } from "@/lib/sets-ja";
 
 // Rendered per request and kept by Vercel's CDN for a day (next.config.js, CDN_PAGES), never ISR: an ISR write
 // costs about twenty renders, and the data only changes with a release, which empties the CDN anyway.
@@ -81,6 +84,14 @@ export default async function SetPage({ params }: { params: { region: string; se
   const s = SET_BY_SLUG.get(params.set);
   if (!s) notFound();
   const [products, checked, listedSets, tcgTiles] = await Promise.all([getProducts(r.market, s.code), lastCheckedAt(r.market), setCountsGrouped(r.market), setTcgplayerTiles(s.code).catch(() => [])]);
+  // The "Japanese edition" row (lib/japanese-twins.ts, 14 sets): the twin set's open Japanese booster box, else pack, in
+  // this market. One bounded read of that one set's rows (a handful), only on those 14 pages.
+  const jaTwin = jaTwinOf(s.code);
+  const jaPick = jaTwin
+    ? (await productsBySet(r.market, jaSetCode(jaTwin)).catch(() => [] as ProductCardData[]))
+        .filter((p) => cardOpen(p) && p.lowestPriceCents != null)
+        .sort((a, b) => (a.productType === "Japanese Booster Box" ? 0 : 1) - (b.productType === "Japanese Booster Box" ? 0 : 1) || a.lowestPriceCents! - b.lowestPriceCents!)[0] ?? null
+    : null;
   if (!products.length) notFound();
   const pre = isPreorderSet(s.code);
   const open = products.filter(cardOpen);
@@ -258,6 +269,17 @@ export default async function SetPage({ params }: { params: { region: string; se
           </>
         )}
       </Section>
+      {jaTwin && jaPick && (
+        <JapaneseEditionRow
+          href={`/${r.region}/p/${jaPick.slug}`}
+          enName={s.name}
+          jaName={jaTwin.name}
+          jaCode={jaTwin.code}
+          productType={jaPick.productType}
+          priceText={jaPick.lowestPriceCents != null ? money(jaPick.lowestPriceCents, r.market) : null}
+          region={r.region}
+        />
+      )}
       {perPack.length > 0 && (
         <Section id="per-pack" title={perPackHeading(perPack)} kicker={`Per booster pack, ${pre ? "cheapest pre-order" : "in stock now"}`}>
           <PerPackStrip r={r} items={perPack} />

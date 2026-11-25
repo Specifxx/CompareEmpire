@@ -1999,3 +1999,15 @@ right side of the website." (Ported from YGO Compare, #267.)
   rel sponsored under `gutter-ebay` / `gutter-tcg`, never Amazon, never for ad-free members or in the app. Its tiles start after the
   banner's six, so a page never shows the same product twice side by side. This reverses "never a rail" (2026-11-13) on the owner's word.
 - **Read:** gutter clicks per 100 desktop visitors from the release; if desktop store buy clicks per visitor fall 10%, the columns go.
+
+## 2026-11-26: "Japanese edition" rows on 14 English set pages (test, 2 to 16 Dec)
+
+The Japanese section (/<region>/japanese) was linked only from its own hub. Fourteen English set pages now carry one row,
+"Japanese edition", under the product grid (`components/JapaneseEditionRow.tsx`): the Japanese set the English one was
+built from (`lib/japanese-twins.ts`, one clear main source per pair, e.g. Prismatic Evolutions and Terastal Festival ex),
+its open Japanese booster box (else pack) in the visitor's market with that listing's price, and a link to its own page.
+It always says it is a different product (own card list, Japanese text, fewer cards a pack), is never ranked against the
+English stores, never called the cheapest, and nothing is merged (sets-ja.ts stays a separate list). With no open
+Japanese product in the market there is no row. One bounded read of that one set's rows, on those 14 pages only.
+- **Test:** starts with the 2 Dec merge, so the Black Friday read stays clean; pass is 150 taps (`ja_edition`) across
+  these rows and OP Compare's six in 14 days, read 16 Dec. The list stays at 14 until then (`tests/japanese-twins.test.ts`).
