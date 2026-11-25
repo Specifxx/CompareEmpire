@@ -6,7 +6,7 @@ on:
 jobs:
   probe:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 40
     defaults:
       run:
         working-directory: apps/dexcompare-sealed
@@ -15,16 +15,21 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: npm ci --no-audit --no-fund
-      - run: npx prisma generate
-      - name: search the top UK products in every UK Shopify store
+      - name: which collections hold the missed in-stock UK listings
         run: |
-          node -e '
-          const s=require("./src/data/stores.json").filter(x=>x.market==="UK"&&x.platform==="shopify");
-          const qs=["30th celebration ultra premium","delta reign elite trainer","30th celebration elite trainer","delta reign booster box","perfect order booster box"];
-          (async()=>{for(const st of s){const out=[];for(const q of qs){try{const r=await fetch(st.base+"/search/suggest.json?q="+encodeURIComponent(q)+"&resources[type]=product&resources[limit]=6",{headers:{"user-agent":"DexCompare price check (dexcompare.io)"}});if(!r.ok){out.push(q+": HTTP "+r.status);continue}const j=await r.json();const ps=(j.resources&&j.resources.results&&j.resources.results.products)||[];for(const p of ps)out.push(q+" => "+p.handle+" | "+p.title+" | avail="+p.available+" | "+p.price)}catch(e){out.push(q+": "+e.message)}await new Promise(r=>setTimeout(r,1100))}console.log("### "+st.key+" ["+st.collections.join(",")+"]\n"+out.join("\n"))}})()'
-      - name: probe UK stores collections (no write)
-        run: |
-          node -e 'const s=require("./src/data/stores.json").filter(x=>x.market==="UK"&&x.platform==="shopify").map(x=>({key:x.key,name:x.name,base:x.base,market:"UK"}));require("fs").writeFileSync("/tmp/uk.json",JSON.stringify(s))'
-          npx tsx scripts/probe-stores.ts --in /tmp/uk.json --out /tmp/probe.json --concurrency 4 || true
-          node -e 'const p=require("/tmp/probe.json");const st=require("./src/data/stores.json");const cur=Object.fromEntries(st.map(x=>[x.key,x.collections]));for(const r of (p.results||p)){console.log(r.key, "found="+r.allFound, "chosen="+r.sealedProducts, "inStock="+r.inStock, "chosen:["+r.collections.join(",")+"]", "current:["+(cur[r.key]||[]).join(",")+"]", r.error||"")}'
+          cat > /tmp/p.js <<'JS'
+          const T=require(process.cwd()+"/tmp-targets.json");const S=require(process.cwd()+"/src/data/stores.json");
+          const UA={headers:{"user-agent":"DexCompare price check (dexcompare.io)"}};const z=ms=>new Promise(r=>setTimeout(r,ms));
+          async function j(u){try{const r=await fetch(u,UA);if(!r.ok)return {err:r.status};return await r.json()}catch(e){return {err:e.message}}}
+          async function handles(base,c){const out=new Set();for(let p=1;p<=8;p++){const d=await j(`${base}/collections/${c}/products.json?limit=250&page=${p}`);await z(1000);if(!d.products)return {err:d.err,out};d.products.forEach(x=>out.add(x.handle));if(d.products.length<250)break}return {out}}
+          (async()=>{for(const [k,hs] of Object.entries(T)){const st=S.find(x=>x.key===k);console.log("### "+k+" "+st.base+" cfg=["+st.collections+"]");
+            for(const h of hs){const d=await j(`${st.base}/products/${h}.json`);await z(1000);const p=d.product;if(p)console.log("  PRODUCT",h,"|",p.title,"| type="+p.product_type,"| tags="+(p.tags||"").slice(0,120),"| variants="+p.variants.map(v=>v.title+":"+v.price).join(";"));else console.log("  PRODUCT",h,"ERR",d.err)}
+            const found=Object.fromEntries(hs.map(h=>[h,[]]));
+            for(const c of st.collections){const r=await handles(st.base,c);if(r.err)console.log("  cfg",c,"ERR",r.err);for(const h of hs)if(r.out.has(h))found[h].push("CFG:"+c)}
+            const cols=[];for(let p=1;p<=4;p++){const d=await j(`${st.base}/collections.json?limit=250&page=${p}`);await z(1000);if(!d.collections)break;cols.push(...d.collections);if(d.collections.length<250)break}
+            const cand=cols.filter(c=>!st.collections.includes(c.handle)&&/pok|etb|elite|premium|upc|30th|delta|pre-?order|sealed|new|tcg|trading|celebration|anniversary|booster/i.test(c.handle+" "+c.title)&&!/single|graded|slab|accessor|sleeve|japan|korean|chinese|magic|lorcana|one-piece|yugioh|yu-gi|riftbound|digimon|star-wars|flesh/i.test(c.handle)).slice(0,25);
+            console.log("  collections total",cols.length,"candidates",cand.length);
+            for(const c of cand){const r=await handles(st.base,c.handle);const hit=hs.filter(h=>r.out.has(h));if(hit.length)console.log("  HIT",c.handle,"size="+r.out.size,"->",hit.join(","));for(const h of hit)found[h].push(c.handle+"("+r.out.size+")")}
+            for(const h of hs)console.log("  RESULT",h,"=>",found[h].join(" ")||"none")}})()
+          JS
+          node /tmp/p.js
