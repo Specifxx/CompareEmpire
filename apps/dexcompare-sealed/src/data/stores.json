@@ -10374,5 +10374,16 @@
     "collections": [
       "pokemon"
     ]
+  },
+  {
+    "key": "iconictcg",
+    "name": "Iconic Trading Cards",
+    "base": "https://iconic-tcg.com",
+    "market": "UK",
+    "platform": "shopify",
+    "country": "GB",
+    "collections": [
+      "pokemon"
+    ]
   }
 ]
