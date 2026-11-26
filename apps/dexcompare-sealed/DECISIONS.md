@@ -2073,3 +2073,10 @@ eurozone shop the sister sites' registries list (and the Riftbound retailer dire
 runner because the container cannot reach store hosts) kept the ones with 3+ sealed Pokémon products in EUR. nerdbank.de
 was left out: same stock as spielewelt.de (one stock, two domains counts once). No existing store changed. Prices stay
 in EUR, never converted.
+
+## After a buy click, one price alert offer (2026-11-26, COO: compounding plan move 3)
+
+As MTG Compare's entry of the same day: `AfterBuyAlert` on the product page asks once, after the visitor's own buy click and once
+they are back on this tab, "Not buying today?" with the ordinary price alert. The visit's one prompt (`claimPromptSlot`), never on
+load, never a modal (inline under the price table on phones, never above where the visitor is reading; a corner card from 1024px only from 11 Dec, after the heavy-ad test read), ✕ silences 7 days, a created alert 30.
+Counted as `after_buy_alert` {k: shown|created|close}: alerts per 100 buy clickers, in Owned Audience's Monday self-review.

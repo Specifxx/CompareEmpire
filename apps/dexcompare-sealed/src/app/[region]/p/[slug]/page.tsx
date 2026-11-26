@@ -27,6 +27,7 @@ import { ReportPrice } from "@/components/ReportForms";
 import { PriceAlert } from "@/components/premium/PriceAlert";
 import { RestockAlert } from "@/components/premium/RestockAlert";
 import { ALERT_SITE_KEY } from "@/lib/alert-feed";
+import { AfterBuyAlert } from "@/components/AfterBuyAlert";
 import { ProductGrid } from "@/components/ProductGrid";
 import { ProductRail } from "@/components/ProductRail";
 import { Section } from "@/components/Section";
@@ -772,6 +773,9 @@ export default async function ProductPage({ params }: { params: { region: string
             </a>
           </p>
         )}
+        {/* After a buy click, once a visit: "Not buying today?" and the price alert (COO 2026-11-26; components/AfterBuyAlert.tsx).
+            Nothing in the server HTML; inline here on phones, in the corner from 1024px. */}
+        <AfterBuyAlert site={ALERT_SITE_KEY} productId={p.id} region={r.market} priceCents={here?.lowestPriceCents ?? null} productName={heading} />
       </Section>
 
       {/* eBay, TCGplayer and Amazon are rows of the table now (pinned at its top: eBay and TCGplayer by the owner 2026-10-26, Amazon
