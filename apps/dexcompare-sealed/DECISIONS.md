@@ -2080,3 +2080,15 @@ As MTG Compare's entry of the same day: `AfterBuyAlert` on the product page asks
 they are back on this tab, "Not buying today?" with the ordinary price alert. The visit's one prompt (`claimPromptSlot`), never on
 load, never a modal (inline under the price table on phones, never above where the visitor is reading; a corner card from 1024px only from 11 Dec, after the heavy-ad test read), ✕ silences 7 days, a created alert 30.
 Counted as `after_buy_alert` {k: shown|created|close}: alerts per 100 buy clickers, in Owned Audience's Monday self-review.
+
+## 2026-11-26 — No pre-order page in a market no store prices the set in
+
+The owner (26 Nov): "Make sure new sets and pre-orders go live on DexCompare the day pre-orders open, with real prices from the first
+store that lists them … Do not publish a set page with no prices." New sets already find themselves (TCGplayer's groups, 2026-11-03)
+and every sealed import releases (2026-11-23), so a store's first pre-order is live within the run that reads it. What was missing: the
+automatic pre-order page (2026-11-02) and every link to it (menus, the home pill and banner, popular pages, the release calendar, the
+set and product pages, guides, the sitemap, hreflang) appeared for every upcoming set in every region whether or not a store priced it.
+Now the export writes `data/sets/priced.json` (set code → the markets where at least one STORE prices it; TCGplayer is a marketplace
+and does not count) beside the snapshot, and `lib/priced-sets.ts` `setPricedIn` gates the page (a 404 until then, never a redirect:
+the URL comes back once priced) and every link. Flowing Fists (6 Feb 2027) is priced by stores in all seven markets today. Ported to
+MTG Compare the same day.
