@@ -2064,3 +2064,12 @@ the Head of Conversion promised the owner (revert at a 15% fall in paid clicks):
 moved from links that pay (about A$0.35 a click) to stores that pay nothing. The block keeps its label, its Ad pill and
 its rows, and now sits ABOVE the stores (`marketplacesFirst` in OfferTable). MTG (paid share of clicks 45% -> 48%, no
 shift) and Rift (paid up) keep the stores first. Quick view unchanged (its A/B freeze runs to 3 Dec).
+
+## 2026-11-26 — EU store sweep: 68 eurozone shops for Pokémon sealed
+
+Owner, 2026-11-26: "we need a much bigger European scene … we need all those stores in". The candidates were every
+eurozone shop the sister sites' registries list (and the Riftbound retailer directory) that this site did not list.
+`scripts/probe-stores.ts --in research/eu-candidates-2026-11-26.json --write` (`probe-stores-eu.yml`, run on a GitHub
+runner because the container cannot reach store hosts) kept the ones with 3+ sealed Pokémon products in EUR. nerdbank.de
+was left out: same stock as spielewelt.de (one stock, two domains counts once). No existing store changed. Prices stay
+in EUR, never converted.

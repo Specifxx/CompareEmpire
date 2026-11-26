@@ -5221,17 +5221,6 @@
     ]
   },
   {
-    "key": "nerdbank",
-    "name": "Spielewelt",
-    "base": "https://nerdbank.de",
-    "market": "EU",
-    "platform": "shopify",
-    "country": "DE",
-    "collections": [
-      "pokemon"
-    ]
-  },
-  {
     "key": "nordiclegends",
     "name": "Nordic Legends",
     "base": "https://nordic-legends.com",
