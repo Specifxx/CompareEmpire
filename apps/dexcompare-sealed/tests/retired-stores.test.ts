@@ -16,7 +16,7 @@ test("a retired store's old page redirects to its own region's store directory",
   assert.equal(retiredStoreRedirect("southtexastcg"), "/us/stores");
   assert.equal(retiredStoreRedirect("collectivecubed"), "/us/stores");
   assert.equal(retiredStoreRedirect("obsessiongaming"), "/au/stores");
-  assert.equal(retiredStoreRedirect("eldartcg"), "/eu/stores");
+  assert.equal(retiredStoreRedirect("industria61"), "/eu/stores");
   assert.equal(retiredStoreRedirect("thesidedeck"), null);
   assert.equal(retiredStoreRedirect("constructor"), null);
 });
