@@ -7,7 +7,8 @@
 // 404s: /<region>/stores/<key> answers a permanent redirect to its region's store directory (StoreListing.tsx).
 //
 // Retired 2026-11-20 (Dex site loop), probe of that day:
-// - eldartcg (EU): WooCommerce Store API answers 400, last good read 4 Nov.
+// - eldartcg (EU): WooCommerce Store API answered 400, last good read 4 Nov. Back 2026-11-26: the EU sweep's probe
+//   read 3+ sealed Pokémon in EUR, so it is listed again and its key left this list.
 // - industria61 (EU): 403 on every path, last good read 3 Nov.
 // - tradingcardgamestore (EU): Cloudflare challenge, last good read 29 Oct.
 // - kumacards (UK): shop behind a password page (401), last good read 27 Oct.
@@ -21,7 +22,6 @@
 //   we had listed 404s, and its only Pokémon collections left are singles: 0 of 144 products sealed). It listed 176
 //   (165 in stock) until 21 Nov. Add it back if it lists sealed again.
 export const RETIRED_STORES: Readonly<Record<string, "US" | "UK" | "CA" | "AU" | "EU">> = {
-  eldartcg: "EU",
   industria61: "EU",
   tradingcardgamestore: "EU",
   kumacards: "UK",
