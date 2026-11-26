@@ -90,6 +90,10 @@ export function runReport(s: RunSummary): string[] {
     out.push(`| ${b} | ${n(r.planned)} | ${n(r.refreshed)} | ${n(r.emptied)} | ${n(r.failed)} | ${n(r.skipped)} | ${n(r.fresh)} | ${b === "items" ? n(r.covered) : "-"} | ${n(r.calls)} | ${n(r.stored)} |`);
   }
   out.push(``, `(sweep: "planned" counts marketplaces; "refreshed" the item feeds it wrote; "empty" products it found only one listing for.)`);
+  {
+    const it = s.buckets.items;
+    out.push(``, `Per-product searches: ${n(it.clickedSearched)} for products visitors click to buy (searched first, most buy clicks × price first); ${n(it.cachedEmpty)} skipped because their last own search found nothing (the empty-search cache).`);
+  }
   if (s.sweep.length) {
     out.push(``, `| Sweep | Products | Pages | Hot-set pages (queries) | Listings | Matched | Products found | Item feeds written | General queries (pages, why it stopped) |`, `| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |`);
     for (const m of s.sweep) {

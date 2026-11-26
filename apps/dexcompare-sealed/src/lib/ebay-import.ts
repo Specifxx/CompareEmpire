@@ -62,14 +62,28 @@ import { SET_BY_CODE, SETS, type PokemonSet } from "./sets";
 
 // ─── Tunables ──────────────────────────────────────────────────────────────────
 
-export const DEFAULT_RUN_CAP = 2500;
+/**
+ * 2,200, not the whole 2,500 (owner, 2026-11-26: "DexCompare used 2,390 of 2,500 ... so the allowance does not run out on the top
+ * products"): the keyset's 5,000 a day are shared with OP Compare, and the last 300 stay for a manual run and the other site.
+ */
+export const DEFAULT_RUN_CAP = 2200;
 export const DEFAULT_DAILY_CAP = 2500;
 /** Calls the catalogue sweep may spend (of what the fixed feeds leave); the per-product searches get the rest. EBAY_SWEEP_CALLS overrides. */
 /**
  * Measured on the first full run (2026-10-11): the sweep wrote 4,673 item feeds with 1,800 calls (2.6 a call); the 408 per-product
  * searches after it found listings for 150 products (0.37 a call). So the sweep gets most of the day.
  */
-export const DEFAULT_SWEEP_CALLS = 2100;
+export const DEFAULT_SWEEP_CALLS = 1700;
+/**
+ * The empty-search cache (owner, 2026-11-26). On 2026-11-25, 117 of the 118 per-product searches after the sweep came back with
+ * nothing usable: eBay has no listing of that product under its name, and it will not have one tomorrow either. A feed whose own
+ * search found nothing is not searched again for EMPTY_SKIP_DAYS; one visitors click (data/demand.json) for CLICKED_EMPTY_SKIP_DAYS.
+ * A listing found for it (by the sweep or its own search) clears the record at once.
+ */
+export const EMPTY_SKIP_DAYS = 7;
+export const CLICKED_EMPTY_SKIP_DAYS = 2;
+/** Buy clicks of the last 7 days count this many times a 28-day click (they are in both windows: recent demand weighs more). */
+export const RECENT_CLICK_WEIGHT = 2;
 /** Feeds the sweep writes per database transaction. */
 export const SWEEP_WRITE_BATCH = 100;
 /** The hard ceiling for the daily cap setting: eBay's default limit is 5,000 a day for the whole application, shared with the owner's other site. */
@@ -224,6 +238,65 @@ export function hotItemKeys(rows: readonly PlanRow[], today = "9999-12-31"): Hot
     .sort((a, b) => a.rank - b.rank || order(a.marketplace) - order(b.marketplace) || b.value - a.value || a.productId.localeCompare(b.productId));
 }
 
+/**
+ * Visitors' buy clicks per product slug (data/demand.json, refreshed by the daily sealed import from RiftCompare's /api/demand/dex):
+ * 28-day clicks plus RECENT_CLICK_WEIGHT × the last 7 days'. What a product earns follows its buy clicks.
+ */
+export type Clicks = ReadonlyMap<string, number>;
+
+export function clickScores(demand: { clicks?: Record<string, readonly number[] | undefined> } | null | undefined): Map<string, number> {
+  const out = new Map<string, number>();
+  for (const [slug, v] of Object.entries(demand?.clicks ?? {})) {
+    const n28 = Number(v?.[0]) || 0;
+    const n7 = Number(v?.[1]) || 0;
+    const score = Math.max(0, n28) + RECENT_CLICK_WEIGHT * Math.max(0, n7);
+    if (score > 0) out.set(slug, score);
+  }
+  return out;
+}
+
+/** A product visitors click to buy, in one marketplace whose regions list it: searched before every other product. */
+export interface ClickedKey {
+  marketplace: MarketplaceId;
+  productId: string;
+  name: string;
+  type: TypeKey;
+  groupKey: string;
+  setCode: string | null;
+  clicks: number;
+  /** clicks × reference price (US$, 1 when unknown) × the marketplace's weight: what a search here is likely to earn. */
+  earn: number;
+}
+
+/**
+ * Every (marketplace, clicked product) key: products with buy clicks, any type and price, ordered by `earn` (clicks × price × market
+ * weight, so the US's best seller comes first and Canada's cheap pack last), then product id and marketplace (stable).
+ */
+export function clickedItemKeys(rows: readonly PlanRow[], clicks: Clicks): ClickedKey[] {
+  if (!clicks.size) return [];
+  const by = new Map<string, ClickedKey>();
+  for (const r of rows) {
+    const n = r.slug ? clicks.get(r.slug) ?? 0 : 0;
+    if (n <= 0) continue;
+    const marketplace = MARKETPLACE_OF_REGION[r.market.toLowerCase() as Region];
+    const type = TYPE_BY_LABEL.get(r.typeLabel)?.key;
+    if (!marketplace || !type) continue;
+    const usd = referenceUsd(r) ?? 1;
+    const earn = n * Math.max(1, usd) * MARKET_WEIGHT[marketplace];
+    const k = `${marketplace}|${r.productId}`;
+    const cur = by.get(k);
+    if (!cur || earn > cur.earn) by.set(k, { marketplace, productId: r.productId, name: r.name, type, groupKey: r.groupKey, setCode: r.setCode, clicks: n, earn });
+  }
+  return [...by.values()].sort((a, b) => b.earn - a.earn || a.productId.localeCompare(b.productId) || a.marketplace.localeCompare(b.marketplace));
+}
+
+/** Is an item feed still in the empty-search cache? */
+export function emptyCached(feed: string, empty: ReadonlyMap<string, Date> | undefined, now: number, clicked: boolean): boolean {
+  const at = empty?.get(feed);
+  if (!at) return false;
+  return now - at.getTime() < (clicked ? CLICKED_EMPTY_SKIP_DAYS : EMPTY_SKIP_DAYS) * 86_400_000;
+}
+
 // ─── Queries ───────────────────────────────────────────────────────────────────
 
 /**
@@ -324,6 +397,8 @@ export interface PlanFeed {
   item?: ItemKey;
   /** items only: a hot-set product of a priority marketplace (hotItemKeys), bought before every eligible key */
   hot?: boolean;
+  /** items only: a product visitors click to buy (clickedItemKeys), bought before everything else; its buy-click score */
+  clicks?: number;
 }
 
 export interface Plan {
@@ -411,15 +486,26 @@ const itemFeed = (k: ItemKey): PlanFeed => ({ ...productFeed(k), item: k });
  * order: core by value, then the extension). A hot product that is also an eligible key keeps its ItemKey (`item`), so it still counts
  * as a covered core or extension key.
  */
-export function perProductFeeds(rows: readonly PlanRow[], keys: readonly ItemKey[] = itemKeys(rows), today?: string): PlanFeed[] {
+export function perProductFeeds(rows: readonly PlanRow[], keys: readonly ItemKey[] = itemKeys(rows), today?: string, clicks: Clicks = new Map()): PlanFeed[] {
   const eligible = new Map(keys.map((k) => [feedKey(k.marketplace, "item", k.productId), k]));
-  const hot = hotItemKeys(rows, today).map((h): PlanFeed => {
-    const f = productFeed(h);
+  const hotSet = new Set(hotItemKeys(rows, today).map((h) => feedKey(h.marketplace, "item", h.productId)));
+  // The products visitors click to buy come first (owner, 2026-11-26: "prioritise calls to products with the most buy clicks and
+  // earnings"), most earning first; then the hot sets; then the eligible keys by value.
+  const clicked = clickedItemKeys(rows, clicks).map((c): PlanFeed => {
+    const f = productFeed(c);
     const item = eligible.get(f.feed);
-    return { ...f, hot: true, ...(item ? { item } : {}) };
+    return { ...f, clicks: c.clicks, ...(hotSet.has(f.feed) ? { hot: true } : {}), ...(item ? { item } : {}) };
   });
-  const seen = new Set(hot.map((f) => f.feed));
-  return [...hot, ...keys.map(itemFeed).filter((f) => !seen.has(f.feed))];
+  const seen = new Set(clicked.map((f) => f.feed));
+  const hot = hotItemKeys(rows, today)
+    .map((h): PlanFeed => {
+      const f = productFeed(h);
+      const item = eligible.get(f.feed);
+      return { ...f, hot: true, ...(item ? { item } : {}) };
+    })
+    .filter((f) => !seen.has(f.feed));
+  for (const f of hot) seen.add(f.feed);
+  return [...clicked, ...hot, ...keys.map(itemFeed).filter((f) => !seen.has(f.feed))];
 }
 
 export interface PlanOptions {
@@ -431,6 +517,8 @@ export interface PlanOptions {
   only?: readonly Bucket[];
   /** Feeds whose rows are fresh enough to keep (not bought again). They count as covered, cost nothing and do not end the plan. */
   fresh?: ReadonlySet<string>;
+  /** Visitors' buy clicks per product slug (clickScores): those products' own searches come first. */
+  clicks?: Clicks;
 }
 
 /**
@@ -443,7 +531,7 @@ export function buildPlan(rows: readonly PlanRow[], opts: PlanOptions): Plan {
   const want = (b: Bucket) => !opts.only || opts.only.includes(b);
   const keys = itemKeys(rows);
   const fixed = fixedFeeds(opts.today).filter((f) => want(f.bucket));
-  const items = perProductFeeds(rows, keys, opts.today).filter((f) => want(f.bucket));
+  const items = perProductFeeds(rows, keys, opts.today, opts.clicks).filter((f) => want(f.bucket));
   const byBucket = Object.fromEntries(BUCKETS.map((b) => [b, { feeds: 0, calls: 0, wanted: 0, wantedCalls: 0, fresh: 0 }])) as Plan["byBucket"];
   let left = Math.max(0, Math.floor(opts.cap));
   const feeds: PlanFeed[] = [];
@@ -557,6 +645,8 @@ export interface ImportDeps {
   api: Deps;
   env: CapEnv;
   log: (line: string) => void;
+  /** Visitors' buy clicks per product slug (clickScores of data/demand.json); none = the old order. */
+  clicks?: Clicks;
 }
 
 export interface BucketResult {
@@ -572,6 +662,10 @@ export interface BucketResult {
   stored: number;
   /** items only: eligible keys the catalogue sweep covered this run, so not searched one by one. */
   covered: number;
+  /** items only: feeds not searched because their last own search found nothing (the empty-search cache). */
+  cachedEmpty: number;
+  /** items only: searches spent on products visitors click to buy. */
+  clickedSearched: number;
 }
 
 /** What the catalogue sweep did in one marketplace: counts only. */
@@ -653,10 +747,10 @@ export interface RunSummary {
   oldestRowAgeMs: number | null;
 }
 
-/** Does a feed count in feedsPlanned / feedsRefreshed? All but a hot-set product's search that is not an eligible key (see RunSummary). */
-const counted = (f: PlanFeed) => !f.hot || !!f.item;
+/** Does a feed count in feedsPlanned / feedsRefreshed? All but a hot-set or clicked product's search that is not an eligible key (see RunSummary). */
+const counted = (f: PlanFeed) => (!f.hot && !f.clicks) || !!f.item;
 
-const emptyBucket = (): BucketResult => ({ planned: 0, refreshed: 0, failed: 0, skipped: 0, fresh: 0, calls: 0, emptied: 0, stored: 0, covered: 0 });
+const emptyBucket = (): BucketResult => ({ planned: 0, refreshed: 0, failed: 0, skipped: 0, fresh: 0, calls: 0, emptied: 0, stored: 0, covered: 0, cachedEmpty: 0, clickedSearched: 0 });
 
 /** Delete listings older than the bound plus the grace (3.1(b): copies no longer required are deleted). The store import calls the same helper. */
 export function purgeCutoff(nowMs: number, env: CapEnv): Date {
@@ -729,7 +823,15 @@ export async function runImport(deps: ImportDeps, opts: RunOptions = {}): Promis
     fresh = new Set([...ages].filter(([, at]) => now() - at.getTime() < freshMs).map(([feed]) => feed));
   }
   const today = new Date(now()).toISOString().slice(0, 10);
-  const plan = buildPlan(rows, { cap, sweepCalls: sweepCallsFromEnv(env), today, only: opts.only, fresh });
+  const clicks = deps.clicks ?? new Map<string, number>();
+  const plan = buildPlan(rows, { cap, sweepCalls: sweepCallsFromEnv(env), today, only: opts.only, fresh, clicks });
+  // The empty-search cache: item feeds whose own search found nothing lately (read once; a missing table caches nothing).
+  let empty = new Map<string, Date>();
+  try {
+    if (db.emptyFeeds) empty = await db.emptyFeeds();
+  } catch {
+    /* no table yet: nothing is cached */
+  }
 
   const buckets = Object.fromEntries(BUCKETS.map((b) => [b, emptyBucket()])) as Record<Bucket, BucketResult>;
   for (const b of BUCKETS) {
@@ -768,6 +870,8 @@ export async function runImport(deps: ImportDeps, opts: RunOptions = {}): Promis
   // Item feeds this run writes: the sweep's (`swept`, which also decides what the per-product searches skip) and the per-product searches'.
   const swept = new Set<string>();
   const itemWritten = new Set<string>();
+  /** Item feeds whose own search completed with nothing usable this run (written to the empty-search cache at the end). */
+  const itemEmptied = new Set<string>();
   /** The end of every run: the purge and the database summary (not in a dry run), then the hot-set coverage, counted from the feeds read at the start and those written since, less what the end purge removed. */
   async function close(): Promise<RunSummary> {
     if (!dry) await finish(deps, summary);
@@ -908,6 +1012,7 @@ export async function runImport(deps: ImportDeps, opts: RunOptions = {}): Promis
     const items = selectFeedItems(f, raw, at);
     if (!items.length) {
       b.emptied++; // an empty result keeps the old rows until the bound
+      if (f.kind === "item") itemEmptied.add(f.feed);
       return;
     }
     await db.replaceFeed(f.feed, items, new Date(at)); // one transaction: the feed's rows are REPLACED, never appended
@@ -1040,10 +1145,14 @@ export async function runImport(deps: ImportDeps, opts: RunOptions = {}): Promis
   // 3. Per-product searches for what the sweep did not cover, with what is left of the cap: the hot-set products of the US, UK and EU
   //    first (any type, any price), then the eligible keys, most valuable first (perProductFeeds: the plan's own order).
   const wantItems = !opts.only || opts.only.includes("items");
-  const perProduct = wantItems ? perProductFeeds(rows, plan.keys, today) : [];
+  const perProduct = wantItems ? perProductFeeds(rows, plan.keys, today, clicks) : [];
   const notFresh = perProduct.filter((f) => !fresh?.has(f.feed));
-  const open = notFresh.filter((f) => !swept.has(f.feed));
-  buckets.items.covered = notFresh.length - open.length;
+  const uncovered = notFresh.filter((f) => !swept.has(f.feed));
+  buckets.items.covered = notFresh.length - uncovered.length;
+  // The empty-search cache: a product eBay had nothing for lately is not searched again yet (its strip shows the search link).
+  const nowMs = now();
+  const open = opts.force ? uncovered : uncovered.filter((f) => !emptyCached(f.feed, empty, nowMs, (f.clicks ?? 0) > 0));
+  buckets.items.cachedEmpty = uncovered.length - open.length;
   const hotFeeds = perProduct.filter((f) => f.hot);
   summary.hotItems.keys = hotFeeds.length;
   summary.hotItems.fresh = hotFeeds.filter((f) => fresh?.has(f.feed)).length;
@@ -1056,8 +1165,19 @@ export async function runImport(deps: ImportDeps, opts: RunOptions = {}): Promis
     buckets.items.planned = list.length;
     summary.feedsPlanned += list.filter(counted).length;
     summary.hotItems.searched = list.filter((f) => f.hot).length;
+    buckets.items.clickedSearched = list.filter((f) => (f.clicks ?? 0) > 0).length;
     await runFeeds(list);
     summary.hotItems.refreshed = list.filter((f) => f.hot && itemWritten.has(f.feed)).length;
+  }
+
+  // The cache: what came back empty is recorded; anything that has listings again (sweep or own search) is forgotten.
+  if (!dry) {
+    try {
+      await db.markEmpty?.([...itemEmptied], new Date(now()));
+      await db.clearEmpty?.([...swept, ...itemWritten].filter((f) => empty.has(f)));
+    } catch {
+      /* the cache is an optimisation: never fail the import for it */
+    }
   }
 
   if (stop) summary.stopped = (stop as StopRun).why;
@@ -1069,7 +1189,7 @@ export async function runImport(deps: ImportDeps, opts: RunOptions = {}): Promis
       continue;
     }
     if (b === "items") {
-      r.skipped = plan.byBucket.items.wanted - plan.byBucket.items.fresh - r.covered - r.refreshed - r.failed - r.emptied;
+      r.skipped = plan.byBucket.items.wanted - plan.byBucket.items.fresh - r.covered - r.cachedEmpty - r.refreshed - r.failed - r.emptied;
       continue;
     }
     r.skipped = plan.byBucket[b].wanted - plan.byBucket[b].feeds - plan.byBucket[b].fresh + (r.planned - r.refreshed - r.failed - r.emptied);
