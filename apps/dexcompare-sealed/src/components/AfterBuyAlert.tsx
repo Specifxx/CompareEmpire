@@ -20,6 +20,9 @@ export const BUY_CLICK_EVENT = "buyclick";
 const SLOT = "after-buy-alert";
 const SILENT_KEY = "after_buy_alert_until";
 const DAY = 86_400_000;
+// Dex desktop runs the heavy-ad test until its 10 Dec read, and its pop-up can take a visit; the corner card waits until after it
+// (Noor, 2026-11-26). Until then Dex shows the offer on phones and tablets only, inline.
+const CORNER_FROM = Date.UTC(2026, 11, 11);
 
 function silentUntil(): number {
   try {
@@ -46,6 +49,7 @@ export function AfterBuyAlert(props: {
   const [open, setOpen] = useState(false);
   const [done, setDone] = useState(false);
   const clicked = useRef(false);
+  const spot = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (props.priceCents == null) return; // nothing to drop from
@@ -54,6 +58,11 @@ export function AfterBuyAlert(props: {
       clicked.current = false;
       if (silentUntil() > Date.now()) return;
       if (document.querySelector("dialog[open]")) return;
+      // Phones and tablets draw it inline: never above where the visitor is reading, or it would push the page down on their
+      // return (Noor, 2026-11-26). From 1024px it is a corner card and moves nothing.
+      const corner = window.matchMedia("(min-width: 1024px)").matches;
+      if (corner && Date.now() < CORNER_FROM) return;
+      if (!corner && (spot.current?.getBoundingClientRect().top ?? -1) < 0) return;
       if (!claimPromptSlot(SLOT)) return;
       setOpen(true);
       track("after_buy_alert", { k: "shown" });
@@ -86,7 +95,7 @@ export function AfterBuyAlert(props: {
     }
   }
 
-  if (!open) return null;
+  if (!open) return <div ref={spot} aria-hidden="true" />;
   return (
     <aside
       aria-label="Price alert"

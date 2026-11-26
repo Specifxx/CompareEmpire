@@ -2078,5 +2078,5 @@ in EUR, never converted.
 
 As MTG Compare's entry of the same day: `AfterBuyAlert` on the product page asks once, after the visitor's own buy click and once
 they are back on this tab, "Not buying today?" with the ordinary price alert. The visit's one prompt (`claimPromptSlot`), never on
-load, never a modal (inline under the price table on phones, a corner card from 1024px), ✕ silences 7 days, a created alert 30.
+load, never a modal (inline under the price table on phones, never above where the visitor is reading; a corner card from 1024px only from 11 Dec, after the heavy-ad test read), ✕ silences 7 days, a created alert 30.
 Counted as `after_buy_alert` {k: shown|created|close}: alerts per 100 buy clickers, in Owned Audience's Monday self-review.
