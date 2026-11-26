@@ -17,6 +17,8 @@ export interface FakeDb extends ImportDb {
   replaced: string[];
   ensured: number;
   purges: Date[];
+  /** the empty-search cache */
+  empties: Map<string, Date>;
 }
 
 export function fakeDb(rows: PlanRow[] = [], opts: { failReplace?: (feed: string) => boolean } = {}): FakeDb {
@@ -26,6 +28,16 @@ export function fakeDb(rows: PlanRow[] = [], opts: { failReplace?: (feed: string
     replaced: [],
     ensured: 0,
     purges: [],
+    empties: new Map(),
+    async emptyFeeds() {
+      return new Map(db.empties);
+    },
+    async markEmpty(feeds, at) {
+      for (const f of feeds) db.empties.set(f, at);
+    },
+    async clearEmpty(feeds) {
+      for (const f of feeds) db.empties.delete(f);
+    },
     async ensureTables() {
       db.ensured++;
     },
@@ -154,13 +166,14 @@ const SETS_FOR_KEY: Record<string, string> = { "booster-box": "Surging Sparks Bo
 
 let seq = 0;
 /** A PlanRow for a product of `type` priced `cents` in `market` (open unless `soldOut`). The group key is the real classifier's for `name`. */
-export function planRow(type: TypeKey, market: string, cents: number, o: { name?: string; id?: string; soldOut?: boolean; productId?: string } = {}): PlanRow {
+export function planRow(type: TypeKey, market: string, cents: number, o: { name?: string; id?: string; soldOut?: boolean; productId?: string; slug?: string } = {}): PlanRow {
   const label = TYPE_BY_KEY.get(type)!.label;
   const name = o.name ?? SETS_FOR_KEY[type] ?? `Test ${label} ${++seq}`;
   const idn = identify(name);
   const groupKey = isIdentity(idn) ? idn.groupKey : `${type}|-|${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
   return {
     productId: o.productId ?? o.id ?? `p-${type}-${seq++}`,
+    ...(o.slug ? { slug: o.slug } : {}),
     name,
     typeLabel: label,
     setCode: isIdentity(idn) ? idn.set?.code ?? null : null,

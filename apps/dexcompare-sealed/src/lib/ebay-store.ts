@@ -29,6 +29,8 @@ export function budgetDay(ms: number, tz: string = BUDGET_TZ): string {
 /** What the planner needs to know about one product in one region (a ProductStat row, with its cheapest listed offer). */
 export interface PlanRow {
   productId: string;
+  /** Product.slug: the key of the visitors' buy clicks in data/demand.json (optional: older fakes and rows have none). */
+  slug?: string;
   name: string;
   /** Product.productType: the type's label ("Booster Box"). */
   typeLabel: string;
@@ -67,6 +69,15 @@ export interface ImportDb {
   /** The feeds' keys and ages for the plan's "keep the old rows" decisions and the summary. */
   feedAges(): Promise<Map<string, Date>>;
   summary(): Promise<FeedSummary>;
+  /**
+   * The empty-search cache (owner, 2026-11-26): item feeds whose own search last came back with nothing usable, and when. A feed in it
+   * is not searched again until EMPTY_SKIP_DAYS pass (ebay-import.ts). Optional so a database or fake without it simply caches nothing.
+   */
+  emptyFeeds?(): Promise<Map<string, Date>>;
+  /** Record these item feeds as searched-and-empty at `at` (upsert). */
+  markEmpty?(feeds: readonly string[], at: Date): Promise<void>;
+  /** Forget these feeds' empty records (they have listings again). */
+  clearEmpty?(feeds: readonly string[]): Promise<void>;
 }
 
 // ─── DDL: what prisma db push makes, for the importer to self-heal with ────────
@@ -93,6 +104,11 @@ export const DDL: readonly string[] = [
     "total" INTEGER NOT NULL,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     CONSTRAINT "EbayCallDay_pkey" PRIMARY KEY ("day")
+  )`,
+  `CREATE TABLE IF NOT EXISTS "EbayEmptyFeed" (
+    "feed" TEXT NOT NULL,
+    "at" TIMESTAMP(3) NOT NULL,
+    CONSTRAINT "EbayEmptyFeed_pkey" PRIMARY KEY ("feed")
   )`,
 ];
 
@@ -181,13 +197,35 @@ export function prismaImportDb(prisma: Db): ImportDb {
 
     async planRows() {
       const rows = await prisma.$queryRaw<
-        { productId: string; name: string; typeLabel: string; setCode: string | null; groupKey: string; market: string; openCents: number | null; anyCents: number | null }[]
+        { productId: string; slug: string; name: string; typeLabel: string; setCode: string | null; groupKey: string; market: string; openCents: number | null; anyCents: number | null }[]
       >`
-        SELECT ps."productId" AS "productId", p."name" AS "name", p."productType" AS "typeLabel", p."setCode" AS "setCode",
+        SELECT ps."productId" AS "productId", p."slug" AS "slug", p."name" AS "name", p."productType" AS "typeLabel", p."setCode" AS "setCode",
                p."groupKey" AS "groupKey", ps."market" AS "market", ps."lowestPriceCents" AS "openCents",
                (SELECT min(o."priceCents") FROM "Offer" o WHERE o."productId" = ps."productId" AND o."market" = ps."market") AS "anyCents"
         FROM "ProductStat" ps JOIN "Product" p ON p."id" = ps."productId"`;
       return rows.map((r) => ({ ...r, openCents: r.openCents == null ? null : Number(r.openCents), anyCents: r.anyCents == null ? null : Number(r.anyCents) }));
+    },
+
+    async emptyFeeds() {
+      const has = await prisma.$queryRaw<{ ok: boolean }[]>`SELECT to_regclass('public."EbayEmptyFeed"') IS NOT NULL AS "ok"`;
+      if (!has[0]?.ok) return new Map();
+      const rows = await prisma.$queryRaw<{ feed: string; at: Date }[]>`SELECT "feed", "at" FROM "EbayEmptyFeed"`;
+      return new Map(rows.map((r) => [r.feed, new Date(r.at)]));
+    },
+
+    async markEmpty(feeds, at) {
+      const list = [...new Set(feeds)];
+      if (!list.length) return;
+      await prisma.$executeRaw`
+        INSERT INTO "EbayEmptyFeed" ("feed", "at")
+        SELECT f, ${utcTimestamp(at)} FROM unnest(${list}::text[]) AS f
+        ON CONFLICT ("feed") DO UPDATE SET "at" = EXCLUDED."at"`;
+    },
+
+    async clearEmpty(feeds) {
+      const list = [...new Set(feeds)];
+      if (!list.length) return;
+      await prisma.$executeRaw`DELETE FROM "EbayEmptyFeed" WHERE "feed" = ANY(${list}::text[])`;
     },
 
     async feedAges() {

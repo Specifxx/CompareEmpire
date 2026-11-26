@@ -19,6 +19,8 @@ import { demandSlugs, focusCatalog, mergedInto, type FocusOffer, type FocusProdu
 import { readTcgTwins } from "../src/lib/tcg-twins";
 import { dayOf, HISTORY_FILE, isPriceHistory, updatePriceHistory, type PriceHistory } from "../src/lib/price-history";
 import { readTcgHistory, readTcgMarket, TCG_HISTORY_FILE, tcgRows } from "../src/lib/tcg-market";
+import { buildPricedSets, serializePricedSets } from "../src/lib/priced-sets";
+import { STORES } from "../src/lib/stores";
 
 const BATCH = 5000;
 
@@ -137,6 +139,18 @@ async function main() {
   );
   fs.writeFileSync(path.join(dir, TCG_HISTORY_FILE), tcgHistory);
   bytes += tcgHistory.length;
+  // Which sets a store prices in each market (lib/priced-sets.ts): a set's pre-order page and its links exist only there. Written
+  // beside data/sets/discovered.json, from the same listed rows, so it rides the same data commit as the snapshot it describes.
+  const storeKeys = new Set(STORES.map((s) => s.key));
+  const pricedSets = buildPricedSets(
+    listed.Product as unknown as { id: string; setCode: string | null }[],
+    listed.Offer as unknown as { productId: string; store: string; market: string; priceCents: number | null }[],
+    (k) => storeKeys.has(k),
+  );
+  const pricedPath = path.join(process.cwd(), "data", "sets", "priced.json");
+  fs.mkdirSync(path.dirname(pricedPath), { recursive: true });
+  fs.writeFileSync(pricedPath, serializePricedSets(pricedSets));
+  console.log(`[export] ${Object.keys(pricedSets).length} sets priced by a store somewhere (data/sets/priced.json)`);
   console.log(`[export] wrote ${files.size} files (${(bytes / 1e6).toFixed(1)} MB) to ${path.relative(process.cwd(), dir)}:`, Object.fromEntries(Object.entries(tables).map(([k, v]) => [k, v.length])));
   await prisma.$disconnect();
 }

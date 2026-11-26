@@ -10,7 +10,7 @@ import { newestReleasedSet } from "@/lib/release";
  */
 export function popularLinks(today = new Date().toISOString().slice(0, 10)): { href: string; label: string }[] {
   const set = newestReleasedSet(today);
-  const pre = openPreorderGuides(today)[0]?.set ?? null;
+  const pre = openPreorderGuides(today, "us")[0]?.set ?? null;
   return [
     ...(set
       ? [
