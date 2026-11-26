@@ -2080,3 +2080,14 @@ As MTG Compare's entry of the same day: `AfterBuyAlert` on the product page asks
 they are back on this tab, "Not buying today?" with the ordinary price alert. The visit's one prompt (`claimPromptSlot`), never on
 load, never a modal (inline under the price table on phones, never above where the visitor is reading; a corner card from 1024px only from 11 Dec, after the heavy-ad test read), ✕ silences 7 days, a created alert 30.
 Counted as `after_buy_alert` {k: shown|created|close}: alerts per 100 buy clickers, in Owned Audience's Monday self-review.
+
+## Follow a product: a price drop or a restock, one alert (2026-11-26, owner)
+
+Owner: "let a visitor follow a sealed product and get an alert when its cheapest in-stock price drops below a threshold they
+set, or when it comes back in stock … start with US Pokemon sealed products only." No new form and no new prompt: the price
+alert the product page already offers (`PriceAlert` one tap for anyone signed in, `PriceAlertForm` otherwise, and the after-buy
+offer that reuses it) sends `restock: true` in the regions of `lib/follow.ts` (US only), and says so in one line. RiftCompare's
+service keeps it as one row (`alsoRestock`, TCGEmpire DECISIONS.md of the same day): one email when the price reaches the
+target, or once when it is back after selling out, never twice in three days, checked after each of the import's two daily
+releases. No pre-ticked box (the weekly email's opt-in rule stands). My watches shows "and back in stock" on a follow, and its
+stale "Premium only" restock copy is gone (restock has been free since 2026-11-18).

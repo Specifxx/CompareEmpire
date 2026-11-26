@@ -5,6 +5,7 @@ import { useState, type FormEvent } from "react";
 import { track } from "@vercel/analytics";
 import { PriceAlertForm, parseAmount, suggestTarget } from "@/components/PriceAlertForm";
 import { readStored, setPriceWatch, writeStored } from "@/lib/premium-member";
+import { followsRestock } from "@/lib/follow";
 import { usePremium } from "./usePremium";
 
 const SYMBOL: Record<string, string> = { US: "US$", CA: "CA$", AU: "A$", NZ: "NZ$", SG: "S$", UK: "£", EU: "€" };
@@ -26,14 +27,16 @@ export function PriceAlert(props: Props) {
   const now = props.priceCents;
   if (!signedIn || now == null) return <PriceAlertForm {...props} />;
   const suggested = suggestTarget(now);
+  // A follow (lib/follow.ts): the one tap also asks for one email if it sells out and comes back.
+  const follow = followsRestock(props.region);
 
   async function save(cents: number) {
     const cur = readStored();
     if (!cur) return setS({ t: "error", m: "Sign in again to set alerts with one tap." });
     setS({ t: "busy" });
-    const r = await setPriceWatch(cur.t, props.productId, props.region, cents);
+    const r = await setPriceWatch(cur.t, props.productId, props.region, cents, follow);
     if (r.ok) {
-      track("alert_created", { region: props.region, oneTap: true, weekly: false, prominent: !!props.prominent });
+      track("alert_created", { region: props.region, oneTap: true, weekly: false, prominent: !!props.prominent, restock: follow });
       props.onCreated?.();
       setS({ t: "done", cents, active: r.active });
     } else {
@@ -53,7 +56,7 @@ export function PriceAlert(props: Props) {
     return (
       <p className={`${props.className ?? ""} text-sm`} role="status">
         <strong>{s.active ? "Alert on." : "Check your inbox to confirm."}</strong>{" "}
-        {s.active ? `We'll email you when a ${props.region} store has it for ${money(s.cents, props.region)} or less.` : "One click in the email we just sent turns it on."}{" "}
+        {s.active ? `We'll email you when a ${props.region} store has it for ${money(s.cents, props.region)} or less${follow ? ", and once if it sells out and comes back" : ""}.` : "One click in the email we just sent turns it on."}{" "}
         <Link className="underline" href="/watches" prefetch={false}>My watches</Link>
       </p>
     );
@@ -82,6 +85,7 @@ export function PriceAlert(props: Props) {
           <button type="submit" className="btn-ghost">Set alert</button>
         </form>
       )}
+      {follow && s.t !== "error" && <p className="mt-1 text-xs text-muted">Also one email if it sells out and comes back in stock. Stop it any time in My watches.</p>}
       {s.t === "error" && <p className="mt-1 text-sm" role="alert">{s.m}</p>}
     </div>
   );
