@@ -1,7 +1,7 @@
 {
  "v": 1,
  "site": "dex",
- "generatedAt": "2026-11-26T04:13:49.220Z",
+ "generatedAt": "2026-11-26T09:51:40.895Z",
  "links": {
   "AU": {
    "deals": "https://dexcompare.io/au/deals"
@@ -254,6 +254,20 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "US",
+   "title": "White Flare Japanese Booster Box (SV11W)",
+   "url": "https://dexcompare.io/us/p/white-flare-sv11w-japanese-booster-box",
+   "cents": 12499,
+   "currency": "USD",
+   "store": "Burbank Sportscards",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/637386_in_1000x1000.jpg",
+   "refCents": 21800,
+   "refLabel": "median store price",
+   "savingPct": 43
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "US",
    "title": "Mega Symphonia Japanese Booster Pack (M1S)",
    "url": "https://dexcompare.io/us/p/mega-symphonia-m1s-japanese-booster-pack",
    "cents": 295,
@@ -263,20 +277,6 @@
    "refCents": 500,
    "refLabel": "median store price",
    "savingPct": 41
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "US",
-   "title": "Pokémon Card 151 Japanese Booster Box (SV2a)",
-   "url": "https://dexcompare.io/us/p/pokemon-card-151-sv2a-japanese-booster-box",
-   "cents": 29980,
-   "currency": "USD",
-   "store": "Common Lands",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/565243_in_1000x1000.jpg",
-   "refCents": 43150,
-   "refLabel": "median store price",
-   "savingPct": 31
   },
   {
    "kind": "deal",

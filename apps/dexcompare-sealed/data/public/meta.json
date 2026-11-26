@@ -1,6 +1,6 @@
 {
  "format": 1,
- "generatedAt": "2026-11-26T03:48:58.728Z",
+ "generatedAt": "2026-11-26T09:31:53.607Z",
  "source": "actions-postgres",
  "counts": {
   "Product": 1946,
@@ -735,7 +735,7 @@
   "tcgking": "2026-11-26T03:09:26.784Z",
   "tcgmanavault": "2026-11-26T03:09:26.784Z",
   "tcgplatform": "2026-11-26T03:09:26.784Z",
-  "tcgplayer": "2026-11-26T03:09:26.784Z",
+  "tcgplayer": "2026-11-26T09:30:03.806Z",
   "tcgroupau": "2026-11-26T03:09:26.784Z",
   "tcgsphere": "2026-11-26T03:09:26.784Z",
   "tcgstar": "2026-11-26T03:09:26.784Z",

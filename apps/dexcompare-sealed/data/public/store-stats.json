@@ -744,7 +744,7 @@
 {"store":"tcgking","market":"EU","listed":51,"inStock":49,"lastOkAt":"2026-11-26T03:09:26.784Z","lastError":null,"dormant":false,"updatedAt":"2026-11-26T03:48:46.098Z"},
 {"store":"tcgmanavault","market":"NZ","listed":23,"inStock":14,"lastOkAt":"2026-11-26T03:09:26.784Z","lastError":null,"dormant":false,"updatedAt":"2026-11-26T03:48:46.098Z"},
 {"store":"tcgplatform","market":"EU","listed":14,"inStock":3,"lastOkAt":"2026-11-26T03:09:26.784Z","lastError":null,"dormant":false,"updatedAt":"2026-11-26T03:48:46.099Z"},
-{"store":"tcgplayer","market":"US","listed":1693,"inStock":1693,"lastOkAt":"2026-11-26T03:09:26.784Z","lastError":null,"dormant":false,"updatedAt":"2026-11-26T03:48:44.461Z"},
+{"store":"tcgplayer","market":"US","listed":1695,"inStock":1695,"lastOkAt":"2026-11-26T09:30:03.806Z","lastError":null,"dormant":false,"updatedAt":"2026-11-26T09:31:42.326Z"},
 {"store":"tcgroupau","market":"AU","listed":202,"inStock":2,"lastOkAt":"2026-11-26T03:09:26.784Z","lastError":null,"dormant":false,"updatedAt":"2026-11-26T03:48:46.102Z"},
 {"store":"tcgsphere","market":"EU","listed":23,"inStock":6,"lastOkAt":"2026-11-26T03:09:26.784Z","lastError":null,"dormant":false,"updatedAt":"2026-11-26T03:48:46.100Z"},
 {"store":"tcgstar","market":"EU","listed":86,"inStock":15,"lastOkAt":"2026-11-26T03:09:26.784Z","lastError":null,"dormant":false,"updatedAt":"2026-11-26T03:48:46.101Z"},
