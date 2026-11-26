@@ -1,7 +1,7 @@
 {
  "v": 1,
  "site": "dex",
- "generatedAt": "2026-11-25T19:43:18.449Z",
+ "generatedAt": "2026-11-26T04:13:49.220Z",
  "links": {
   "AU": {
    "deals": "https://dexcompare.io/au/deals"
@@ -36,9 +36,9 @@
    "currency": "AUD",
    "store": "Grand J Games",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/688712_in_1000x1000.jpg",
-   "refCents": 7500,
+   "refCents": 7195,
    "refLabel": "median store price",
-   "savingPct": 47
+   "savingPct": 44
   },
   {
    "kind": "deal",
@@ -254,20 +254,6 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "US",
-   "title": "White Flare Japanese Booster Box (SV11W)",
-   "url": "https://dexcompare.io/us/p/white-flare-sv11w-japanese-booster-box",
-   "cents": 12499,
-   "currency": "USD",
-   "store": "Burbank Sportscards",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/637386_in_1000x1000.jpg",
-   "refCents": 21800,
-   "refLabel": "median store price",
-   "savingPct": 43
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "US",
    "title": "Mega Symphonia Japanese Booster Pack (M1S)",
    "url": "https://dexcompare.io/us/p/mega-symphonia-m1s-japanese-booster-pack",
    "cents": 295,
@@ -277,6 +263,20 @@
    "refCents": 500,
    "refLabel": "median store price",
    "savingPct": 41
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "US",
+   "title": "Pokémon Card 151 Japanese Booster Box (SV2a)",
+   "url": "https://dexcompare.io/us/p/pokemon-card-151-sv2a-japanese-booster-box",
+   "cents": 29980,
+   "currency": "USD",
+   "store": "Common Lands",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/565243_in_1000x1000.jpg",
+   "refCents": 43150,
+   "refLabel": "median store price",
+   "savingPct": 31
   },
   {
    "kind": "deal",
@@ -352,15 +352,15 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "UK",
-   "title": "Nihil Zero Japanese Booster Pack (M3)",
-   "url": "https://dexcompare.io/uk/p/nihil-zero-m3-japanese-booster-pack",
-   "cents": 215,
+   "title": "30th Celebration - Sylveon ex Tin",
+   "url": "https://dexcompare.io/uk/p/30th-celebration-sylveon-ex-tin",
+   "cents": 2199,
    "currency": "GBP",
-   "store": "Titan Cards",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/674454_in_1000x1000.jpg",
-   "refCents": 350,
+   "store": "JustPlay",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/718674_in_1000x1000.jpg",
+   "refCents": 3698,
    "refLabel": "median store price",
-   "savingPct": 39
+   "savingPct": 41
   },
   {
    "kind": "deal",
@@ -400,9 +400,9 @@
    "currency": "CAD",
    "store": "A & C Games",
    "image": "https://tcgplayer-cdn.tcgplayer.com/product/695400_in_1000x1000.jpg",
-   "refCents": 4499,
+   "refCents": 4395,
    "refLabel": "median store price",
-   "savingPct": 44
+   "savingPct": 43
   },
   {
    "kind": "deal",
@@ -506,6 +506,20 @@
    "kind": "deal",
    "cluster": "cards",
    "region": "EU",
+   "title": "30th Celebration - 2-Pack Blister",
+   "url": "https://dexcompare.io/eu/p/30th-celebration-2-pack-blister",
+   "cents": 2349,
+   "currency": "EUR",
+   "store": "DavidPTCG",
+   "image": "https://tcgplayer-cdn.tcgplayer.com/product/704148_in_1000x1000.jpg",
+   "refCents": 4497,
+   "refLabel": "median store price",
+   "savingPct": 48
+  },
+  {
+   "kind": "deal",
+   "cluster": "cards",
+   "region": "EU",
    "title": "Mega Dream ex Japanese Booster Pack (M2a)",
    "url": "https://dexcompare.io/eu/p/mega-dream-ex-m2a-japanese-booster-pack",
    "cents": 690,
@@ -515,20 +529,6 @@
    "refCents": 1299,
    "refLabel": "median store price",
    "savingPct": 47
-  },
-  {
-   "kind": "deal",
-   "cluster": "cards",
-   "region": "EU",
-   "title": "Shiny Treasure ex Japanese Booster Pack (SV4a)",
-   "url": "https://dexcompare.io/eu/p/shiny-treasure-ex-sv4a-japanese-booster-pack",
-   "cents": 999,
-   "currency": "EUR",
-   "store": "Side7",
-   "image": "https://tcgplayer-cdn.tcgplayer.com/product/565233_in_1000x1000.jpg",
-   "refCents": 1849,
-   "refLabel": "median store price",
-   "savingPct": 46
   },
   {
    "kind": "deal",
