@@ -13,7 +13,7 @@ import { staticSitemap } from "../src/lib/sitemap";
 import { SITE_URL } from "../src/lib/site";
 import { checkDeck, creditValue, formatDeckList, gradingResult, isBasicEnergy, parseDeckList, parseMoney, parsePct, pricePosition, tradeResult } from "../src/lib/tools";
 import { GUIDE_BY_SLUG } from "../src/content/guides";
-import { TOOL_INDEX_REGIONS, TOOLS, toolIndexed, toolMetaTitle, toolsIndexIndexed } from "../src/content/tools";
+import { TOOL_BY_SLUG, TOOL_INDEX_REGIONS, TOOLS, toolIndexed, toolMetaTitle, toolsIndexIndexed, toolTitleIn } from "../src/content/tools";
 import { detailIndexed } from "../src/lib/index-tiers";
 import ToolPage, { generateMetadata as toolMeta } from "../src/app/[region]/tools/[tool]/page";
 import ToolsIndex, { generateMetadata as toolsIndexMeta } from "../src/app/[region]/tools/page";
@@ -28,14 +28,14 @@ test("registry: six tools, unique slugs, descriptions ≤ 160, titles that fit a
   );
   for (const t of TOOLS) {
     assert.ok(t.description.length <= 160, `${t.slug}: description ${t.description.length}`);
-    for (const raw of [t.title, t.metaTitle ?? t.title]) {
+    for (const raw of [t.title, t.metaTitle ?? t.title, ...Object.values(t.metaTitleIn ?? {})]) {
       const title = toolMetaTitle(raw);
       assert.ok((typeof title === "string" ? `${title} | DexCompare` : title.absolute).length <= 65, t.slug);
     }
     assert.ok(t.faq.length >= 4, t.slug);
     assert.ok(t.about.length >= 3 && t.steps.length >= 3, t.slug);
     for (const g of t.guides) assert.ok(GUIDE_BY_SLUG.has(g), `${t.slug}: guide ${g}`);
-    const all = [t.title, t.metaTitle ?? "", t.description, t.lede, ...t.about, ...t.steps, ...t.faq.flatMap((f) => [f.q, f.a])].join(" ");
+    const all = [t.title, t.metaTitle ?? "", ...Object.values(t.metaTitleIn ?? {}), t.description, t.lede, ...t.about, ...t.steps, ...t.faq.flatMap((f) => [f.q, f.a])].join(" ");
     assert.equal(findBannedCopy(all), null, `${t.slug}: "${findBannedCopy(all)}"`);
     assert.doesNotMatch(all, /pull[-\s]*rates?|expected value|\bEV\b|invest/i, t.slug);
   }
@@ -272,4 +272,12 @@ test("sitemap: each tool only in its indexed regions, the tools index only where
   assert.ok(urls.includes(`${SITE_URL}/au/guides/where-to-buy-pokemon-cards-australia`));
   assert.ok(!urls.includes(`${SITE_URL}/us/guides/where-to-buy-pokemon-cards-australia`));
   for (const r of REGION_LIST) assert.equal(urls.includes(`${SITE_URL}/${r.region}/guides/pokemon-tcg-market-wrap`), ["us", "au", "uk", "ca"].includes(r.region), r.region);
+});
+
+test("toolTitleIn: a region's own title wins, then metaTitle, then the H1 (Job D, 2026-11-26)", () => {
+  const fee = TOOL_BY_SLUG.get("selling-fee-calculator")!;
+  assert.equal(toolTitleIn(fee, "au"), "eBay Fee Calculator Australia: Pokémon Card Sales");
+  assert.equal(toolTitleIn(fee, "us"), "eBay Fee Calculator for Pokémon Cards: What You Keep");
+  const deck = TOOL_BY_SLUG.get("deck-builder")!;
+  assert.equal(toolTitleIn(deck, "au"), deck.title);
 });
