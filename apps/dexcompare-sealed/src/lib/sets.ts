@@ -136,7 +136,15 @@ const ALIASES: Record<string, string[]> = {
   cel25: ["25th\\s*anniversary"],
   // Stores also write it "30th Celebrations", which must not read as
   // Celebrations (cel25, 2021). Longer names are tried first, so this wins.
-  cel30: ["30th\\s*anniversary\\s*celebration", "\\bpokemon\\s*30th\\s*anniversary\\b", "\\b30th[\\s:\\-]*celebrations\\b"],
+  cel30: [
+    "30th\\s*anniversary[\\s:\\-–]*celebration",
+    "\\bpokemon\\s*30th\\s*anniversary\\b",
+    "\\b30th[\\s:\\-]*celebrations\\b",
+    // "30th Celebration (Anniversary) Mini Tins[Mew]".
+    "\\b30th\\s*celebration\\s*\\(\\s*anniversary\\s*\\)",
+  ],
+  // "Prismatic Evolution - Mini Tin", "Prismatic Evolution Super Premium Collection" (2026-11-26): no page of its own, no set.
+  sv8pt5: ["\\bprismatic\\s*evolution\\b"],
   g1: ["\\bgenerations\\b"],
   xy9: ["break\\s*point"],
   xy8: ["break\\s*through"],

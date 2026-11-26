@@ -16,7 +16,7 @@
  * comparison: two in-stock sources in one market. Everything else is culled; its URL 301s to its type page (culled.json).
  */
 import { SET_BY_CODE } from "./sets";
-import { TYPE_BY_LABEL } from "./sealed-title";
+import { identifyAny, isIdentity, TYPE_BY_LABEL } from "./sealed-title";
 
 export const LOW_VALUE_TYPES = new Set(["Collection", "Tin", "Blister", "Deck"]);
 export const DEMAND_MIN_IMPRESSIONS = 10;
@@ -77,4 +77,33 @@ export function focusCatalog(products: readonly FocusProduct[], offers: readonly
     else culled[p.slug] = TYPE_BY_LABEL.get(p.productType)?.slug ?? "";
   }
   return { keep, culled };
+}
+
+/**
+ * Culled products that are now another listed product's page, product slug → that product's slug (2026-11-26). When the title
+ * rules learn a store's noise ("30th Celebration Mini Tin [Zapdos] [30C]") or a store's listing joins TCGplayer's key
+ * (importer.ts foldSetTwins), the old page loses its listings and is culled; its URL then goes to the page those listings went
+ * to, not to the type page. Two ways, both certain: the product's own name now identifies to a listed product's key, or the
+ * product has no offer left at all and a listed product holds the same type and words without the set (TCGplayer's key). Pure.
+ */
+export function mergedInto(
+  products: readonly { id: string; slug: string; groupKey: string; name: string }[],
+  offers: readonly { productId: string }[],
+  keep: ReadonlySet<string>,
+): Record<string, string> {
+  const byKey = new Map<string, { id: string; slug: string }>();
+  for (const p of products) if (keep.has(p.id)) byKey.set(p.groupKey, p);
+  const offered = new Set(offers.map((o) => o.productId));
+  const out: Record<string, string> = {};
+  for (const p of products) {
+    if (keep.has(p.id)) continue;
+    const id = identifyAny(p.name, { strict: false });
+    let to = isIdentity(id) && id.groupKey !== p.groupKey ? byKey.get(id.groupKey) : undefined;
+    if (!to && !offered.has(p.id)) {
+      const [type, set, sig] = p.groupKey.split("|");
+      if (set && set !== "-" && sig) to = byKey.get(`${type}|-|${sig}`);
+    }
+    if (to && to.id !== p.id) out[p.slug] = to.slug;
+  }
+  return out;
 }

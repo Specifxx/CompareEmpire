@@ -2080,3 +2080,32 @@ As MTG Compare's entry of the same day: `AfterBuyAlert` on the product page asks
 they are back on this tab, "Not buying today?" with the ordinary price alert. The visit's one prompt (`claimPromptSlot`), never on
 load, never a modal (inline under the price table on phones, never above where the visitor is reading; a corner card from 1024px only from 11 Dec, after the heavy-ad test read), ✕ silences 7 days, a created alert 30.
 Counted as `after_buy_alert` {k: shown|created|close}: alerts per 100 buy clickers, in Owned Audience's Monday self-review.
+
+## 2026-11-26 — The TCGplayer join: why a US product had no TCGplayer id, and what fixes it
+
+Owner, 2026-11-26: 345 of 1,578 US products could not be joined to TCGplayer by id, so they showed no TCGplayer price (TCGplayer
+is ~70% of earnings). On the day's data the count was 461 of 1,670 US product pages. A product gets TCGplayer's id only from its
+own TCGplayer offer, which exists when TCGplayer's catalogue title identifies to the same key as the stores' titles. Three causes:
+
+1. **Store noise split one product into many pages** (mostly the 30th Celebration: `[30C]`, "(Anniversary)", "CCG", "expected",
+   "(Late Nov)", "release novemeber 6", "Receive 1 at Random", "(Unopened)"). Each wording was its own page with no TCGplayer row.
+   `sealed-title.ts` now drops them (NOISE, a two-digit set code in SKU brackets, the celebration sets' own words), reads
+   "Prismatic Evolution" as the set, files every Collector Chest as one collection (TCGplayer and stores call it a tin or not), and
+   refuses a Classic Collection single card ("N (101) - ME: 30th Celebration Classic Collection") that the shorter key would have
+   filed as the pack. "(Styles May Vary)" is the assorted listing, as "Assorted" already was.
+2. **A set named on one side only.** TCGplayer names many collections without their set ("Kingambit Illustration Collection",
+   filed under SV: Shrouded Fable); stores name it. `tcgSetTwins` (tcgplayer.ts) lists TCGplayer's set-less keys with the set
+   TCGplayer files them under, and `foldSetTwins` (importer.ts) files the stores' set-named rows on TCGplayer's key. Certain only:
+   the set comes from TCGplayer's set name, every catalogue product on the key agrees (one under "Miscellaneous Cards & Products"
+   spoils it), and TCGplayer has no product of its own on the set-named key (the 30th Celebration Classic Collection Pack and the
+   2023 Classic Collection stay apart). The whole catalogue counts, listed or not, so rows do not move back and forth with sellers.
+   A run that does not read TCGplayer (`--only` a store) moves nothing.
+3. **Nothing to join, honestly.** Assorted listings ("Delta Reign 3 Pack Blister", "151 Mini Tin") are sold by TCGplayer only per
+   artwork, and products with no TCGplayer seller today have no TCGplayer price to show. Left as they are: a wrong join is worse
+   than none. Their TCGplayer history line now reads the product's TCGplayer photo id when there is no TCGplayer offer
+   (`tcgIdOfImage`, tcg-market.ts); a TCGplayer photo is given only when exactly one catalogue product lands on the key.
+
+A page emptied by these rules is culled as before, but its URL now 301s to the page its listings went to (`mergedInto`, focus.ts;
+`p:<slug>` in culled.json), not to its type page. Measured on the day's data against TCG Prices' 882-product Pokémon catalogue (a
+subset; the import reads TCGplayer's whole catalogue): 77 US pages, 262 US store listings, join a TCGplayer row (63 of them 30th
+Celebration). `tests/tcgplayer-join.test.ts`. Affiliate links unchanged.

@@ -215,8 +215,11 @@ const FOREIGN = new RegExp(
 // (those have two digits) — but "3 Pack Blister with Regigigas SWSH247" names
 // the blister's promo, not a single; "20 x Basic Fire Energy" is an energy lot;
 // "Arceus Figure (from Arceus V Figure Collection)" is a part of one.
+// (Last alternative: a single card of a Classic Collection, "N (101) - ME: 30th Celebration Classic Collection (30C)", "_____'s
+// Pikachu (24) [Celebrations: 25th Anniversary - Classic Collection]", "Palkia LV.X - ME: 30th Celebration Classic Collection":
+// its number in brackets, or TCGplayer's card-set label "ME: … Classic Collection", after the card's name.)
 const NOT_SEALED =
-  /\bholofoil\b|\(\s*from\b|\bblack\s*star\s*promos?\b|\b\d{3}\s*-\s*(?:holo|rare|common|uncommon)\b|\bunshrink(?:ed)?\b|\bno\s*shrink\b|\bloose\s*wrap\b|\bbox\s*wear\b|\bimperfections?\b|\bminor\s*damage\b|\bcode\s*cards?\b|\b\d+\s*x\s*basic\s*\w+\s*energy\b|(?<!\bwith\s+[a-z'.-]+\s+|\bwith\s+)\b(?:swsh|svp|sv|sm|xy|bw)\s*-?\s*(?!151\b)\d{3}\b|\b\d{1,3}[a-z]?\s*\/\s*\d{2,3}\b|\b[a-z]{1,4}\d{1,3}\s*\/\s*[a-z]{0,4}\d{2,3}\b|\b(?:ultra|secret|holo|illustration|hyper|double|shiny|amazing|radiant)\s*rare\b|\breverse\s*holo\b|\bfull\s*art\b|\b(psa|cgc|bgs|beckett|ace\s*grading|tag\s*grading|graded|slab|slabbed)\b|\bgem\s*mint\b|\bsingles\b|\bsingle\s*cards?\b|\bnear\s*mint\b|\blightly\s*played\b|\b(nm|lp|mp|hp)\b(?!\s*-?\s*\d)|\bopened\b|\bempty\b|\bbox\s*only\b|\bcase\s*only\b|\bwrappers?\b|\bdamaged\b|\bdented\b|\bcrushed\b|\b(?:torn|creased|ripped|rips)\b|\bdent\b|\bseal\s+(?:has\s+)?cut\b|\b(?:box|seal|wrap|corner|plastic|packaging|cardboard)\s+(?:tears?|rips?|dents?|creases?|cuts?|damage)\b|\b(?:tears?|rips?|dents?|creases?|cuts?)\s+(?:in|on|to|of)\s+(?:the\s+)?(?:wrap|plastic|seal|box|cardboard|shrink|packaging)\b|\b(?:small|slight|slightly|minor|major|mild|tiny|light)\s+(?:\d+\s*cm\s+)?(?:(?:box|seal|corner|packaging)\s+)?(?:tears?|rips?|dents?|creases?|damage|cuts?)\b|\bimperfect\b|\bresealed\b|\brepack(?:ed|s)?\b|\bmystery\b|\blucky\s*(?:dip|bag|box)\b|\bgrab\s*bag\b|\bcustom\b|\bproxy\b|\blive\s*break\b|\bbreaks?\b|\brip\s*(?:&|and)\s*ship\b|\b\d+\s*-?\s*cards?\s*(?:box|lot|hit|pack|bundle)\b|\bvalue\s*(?:lot|box|pack)\b|\bhit\s*pack\b|\bpound\s*of\b|\bmoonshot\b|\bgod\s*pack\b|\bcodes?\b|\bptcgl\b|\bptcgo\b|\bonline\b|\bdigital\b/i;
+  /\bholofoil\b|\(\s*from\b|\bblack\s*star\s*promos?\b|\b\d{3}\s*-\s*(?:holo|rare|common|uncommon)\b|\bunshrink(?:ed)?\b|\bno\s*shrink\b|\bloose\s*wrap\b|\bbox\s*wear\b|\bimperfections?\b|\bminor\s*damage\b|\bcode\s*cards?\b|\b\d+\s*x\s*basic\s*\w+\s*energy\b|(?<!\bwith\s+[a-z'.-]+\s+|\bwith\s+)\b(?:swsh|svp|sv|sm|xy|bw)\s*-?\s*(?!151\b)\d{3}\b|\b\d{1,3}[a-z]?\s*\/\s*\d{2,3}\b|\b[a-z]{1,4}\d{1,3}\s*\/\s*[a-z]{0,4}\d{2,3}\b|\b(?:ultra|secret|holo|illustration|hyper|double|shiny|amazing|radiant)\s*rare\b|\breverse\s*holo\b|\bfull\s*art\b|\b(psa|cgc|bgs|beckett|ace\s*grading|tag\s*grading|graded|slab|slabbed)\b|\bgem\s*mint\b|\bsingles\b|\bsingle\s*cards?\b|\bnear\s*mint\b|\blightly\s*played\b|\b(nm|lp|mp|hp)\b(?!\s*-?\s*\d)|\bopened\b|\bempty\b|\bbox\s*only\b|\bcase\s*only\b|\bwrappers?\b|\bdamaged\b|\bdented\b|\bcrushed\b|\b(?:torn|creased|ripped|rips)\b|\bdent\b|\bseal\s+(?:has\s+)?cut\b|\b(?:box|seal|wrap|corner|plastic|packaging|cardboard)\s+(?:tears?|rips?|dents?|creases?|cuts?|damage)\b|\b(?:tears?|rips?|dents?|creases?|cuts?)\s+(?:in|on|to|of)\s+(?:the\s+)?(?:wrap|plastic|seal|box|cardboard|shrink|packaging)\b|\b(?:small|slight|slightly|minor|major|mild|tiny|light)\s+(?:\d+\s*cm\s+)?(?:(?:box|seal|corner|packaging)\s+)?(?:tears?|rips?|dents?|creases?|damage|cuts?)\b|\bimperfect\b|\bresealed\b|\brepack(?:ed|s)?\b|\bmystery\b|\blucky\s*(?:dip|bag|box)\b|\bgrab\s*bag\b|\bcustom\b|\bproxy\b|\blive\s*break\b|\bbreaks?\b|\brip\s*(?:&|and)\s*ship\b|\b\d+\s*-?\s*cards?\s*(?:box|lot|hit|pack|bundle)\b|\bvalue\s*(?:lot|box|pack)\b|\bhit\s*pack\b|\bpound\s*of\b|\bmoonshot\b|\bgod\s*pack\b|\bcodes?\b|\bptcgl\b|\bptcgo\b|\bonline\b|\bdigital\b|\(\s*\d{1,3}\s*\)\s*[-–[(]\s*[^|]*\bclassic\s*collection\b|\S\s*-\s*(?:me|swsh)\s*:\s*[^|]*\bclassic\s*collection\b/i;
 
 // Accessories and merchandise. Hard exclusions: a title naming one of these is
 // never the sealed product itself ("Elite Trainer Box Sleeves" is sleeves).
@@ -451,6 +454,9 @@ export function classify(title: string): TypeKey | null {
   if (/build\s*(?:&|and|n)?\s*battle\s*stadium/.test(t)) return "build-battle-stadium";
   if (/build\s*(?:&|and|n)?\s*battle|pre-?release\s*(?:kit|box|pack)/.test(t)) return "build-battle";
   if (/ultra\s*-?\s*premium/.test(t)) return "upc";
+  // A Collector Chest is one product whether a store (or TCGplayer) calls it a tin or not: "Collector Chest Tin - Fall 2024" and
+  // "Collector Chest (Fall 2024)" were two pages, only one with TCGplayer's id (2026-11-26).
+  if (/collect(?:or'?s?|ion)\s*chest/.test(t)) return "collection";
   if (/\bmini\s*tins?\b|\btins?\b/.test(t)) return "tin";
   // "Tech Sticker Blister Collection" is the Tech Sticker Collection, sold in a
   // blister: the product's own name wins over its packaging.
@@ -496,7 +502,12 @@ const NOISE = new Set(
     // "(LIVE)", "MSRP DEAL", "0% VAT", "Flygon Line", "Box Set", "Base Set".
     "upc ver version random assorted willekeurig willekeurige zufallig aleatorio aleatoire ovp neu collectors item sams sam club costco target walmart " +
     "delay delayed backorder backordered wave tbd jan feb mar apr jun jul aug sep sept oct nov dec max per customer household person account limit local pickup pick up store livestream " +
-    "live stream msrp vat deal webstore presale gvms select see description line set base artwork artworks collectible collectable variant both unit units"
+    "live stream msrp vat deal webstore presale gvms select see description line set base artwork artworks collectible collectable variant both unit units " +
+    // Store notes that split one product into several pages, each without TCGplayer's id (2026-11-26: "30th Celebration Ex Tin
+    // [Sylveon ex] expected", "(Late Nov)", "release December 4, 2026", "Receive 1 at Random", "CCG 30th Celebration Figure
+    // Collection", "ready to ship", "(Unopened)"). Full month names: the abbreviations are above; "may" is read only as "may vary".
+    "usa ccg expected arrival arriving receive late ready unopened vary january february march april june july august september " +
+    "october november novemeber december"
   ).split(" "),
 );
 // Kept: they distinguish real products (mini tin ≠ tin, checklane ≠ 3-pack,
@@ -568,7 +579,12 @@ const DESCRIPTORS = new Set(
 // "[BLUE]"). A set's code in capitals ("[MEW]", "[MEW - 000]" for 151,
 // "[MEGA]") goes — the curated UPC list names the Pokémon.
 const SKU_WORD = "(?!(?:IONO|SINGLE|BLUE|PINK|PURPLE|RED|GOLD|DAY|NIGHT|MINI|PLUS)\\s*[)\\]])";
-const SKU_BRACKET = new RegExp(`\\[\\s*${SKU_WORD}[A-Z][A-Z0-9]{1,5}(?:\\s*-\\s*\\d{1,4})?\\s*\\]|\\(\\s*${SKU_WORD}[A-Z][A-Z0-9]{1,5}\\s*\\)`, "g");
+// A code may also lead with two digits: the 30th Celebration's "[30C]", "[30C - 2]", "(30C)" (one letter only, so a count like
+// "(16Ct)" or "[3PK]" is untouched).
+const SKU_BRACKET = new RegExp(
+  `\\[\\s*${SKU_WORD}(?:[A-Z][A-Z0-9]{1,5}|\\d{2}[A-Z])(?:\\s*-\\s*\\d{1,4})?\\s*\\]|\\(\\s*${SKU_WORD}(?:[A-Z][A-Z0-9]{1,5}|\\d{2}[A-Z])\\s*\\)`,
+  "g",
+);
 // Unbracketed store notes, removed before tokenising: "MAX 1 PER CUSTOMER",
 // "Limit 2", "Local Pick-Up Only", "Livestream Only", "Wave 2 - Date TBD",
 // "(Ships 12/9)", "0% VAT".
@@ -604,6 +620,8 @@ function signatureTokens(title: string, set: PokemonSet | null, type: TypeKey): 
     .replace(/\bpok[eé]\s*-?\s*balls?\b/g, " pokeball ")
     .replace(/\brocket'?s\b/g, " rocket ")
     .replace(/\bs\s*(?:&|and)\s*v\b/g, " scarlet & violet ")
+    // "(Styles May Vary)": the assorted listing, as "Assorted" is.
+    .replace(/\bmay\s*vary\b/g, " ")
     .replace(STORE_NOTE, " ");
   // Markers read from the whole title, before its punctuation goes.
   const markers: string[] = [];
@@ -625,6 +643,9 @@ function signatureTokens(title: string, set: PokemonSet | null, type: TypeKey): 
     const m = matchers();
     const own = [...m.specific, ...m.generic].find((x) => x.set.code === set.code);
     if (own) t = t.replace(new RegExp(own.re.source, "gi"), " ");
+    // The celebration sets' own words, whatever order a store puts them in ("30th Anniversary - Celebration Figure Collection",
+    // "30th Celebration (Anniversary) Mini Tins"): the set, not which product of it.
+    if (set.code === "cel30" || set.code === "cel25") t = t.replace(/\b(?:30th|25th|30c)\b|\banniversary\b|\bcelebrations?\b/g, " ");
   }
   // Series prefixes and bracketed store notes ("(Release 12/9)", "[Limit 1]").
   t = t
