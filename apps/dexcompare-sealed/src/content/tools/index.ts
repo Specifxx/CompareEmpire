@@ -19,6 +19,12 @@ export interface Tool {
   slug: ToolSlug;
   /** The H1 and the <title> (with " | DexCompare" where it fits in 65 characters). */
   title: string;
+  /**
+   * The <title> when it should differ from the H1: the searched words first, then the question the page answers (Job D,
+   * 2026-11-26, from the 23 Nov page scorecard's "fix" verdicts: /us/tools/trade-calculator at position 11 and
+   * /us/tools/value-checker at 5.1, both with impressions and no click). The H1, breadcrumbs and chips keep `title`.
+   */
+  metaTitle?: string;
   /** Meta description and the index card's text: at most 160 characters. */
   description: string;
   /** The index card's eyebrow. */
@@ -67,7 +73,8 @@ export const TOOLS: readonly Tool[] = [
   {
     slug: "value-checker",
     title: "Pokémon sealed value checker",
-    description: "Check what a Pokémon booster box, ETB or bundle sells for at stores today: the cheapest in-stock price, the median, and the price per pack.",
+    metaTitle: "Pokémon Sealed Value Checker: Today's Store Prices",
+    description: "Free Pokémon value checker for sealed product: see the cheapest in-stock store price, the median and price per pack for any booster box, ETB or bundle today.",
     kicker: "Value checker",
     lede: "Search any Pokémon TCG sealed product to see what independent stores charge for it today, and how a price you were quoted compares.",
     about: [
@@ -94,7 +101,8 @@ export const TOOLS: readonly Tool[] = [
   {
     slug: "trade-calculator",
     title: "Pokémon card trade calculator",
-    description: "Add up both sides of a Pokémon card or sealed product trade, see the difference in value and percentage, and work out store credit trade-ins.",
+    metaTitle: "Pokémon Card Trade Calculator: Is Your Trade Fair?",
+    description: "Free Pokémon card trade calculator: total both sides of a trade, see who is ahead in money and percent, and check a shop's store credit trade-in offer.",
     kicker: "Trade calculator",
     lede: "List what you give and what you get, with a value for each, and see straight away whether the trade is even and by how much.",
     about: [

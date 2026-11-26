@@ -28,12 +28,14 @@ test("registry: six tools, unique slugs, descriptions ≤ 160, titles that fit a
   );
   for (const t of TOOLS) {
     assert.ok(t.description.length <= 160, `${t.slug}: description ${t.description.length}`);
-    const title = toolMetaTitle(t.title);
-    assert.ok((typeof title === "string" ? `${title} | DexCompare` : title.absolute).length <= 65, t.slug);
+    for (const raw of [t.title, t.metaTitle ?? t.title]) {
+      const title = toolMetaTitle(raw);
+      assert.ok((typeof title === "string" ? `${title} | DexCompare` : title.absolute).length <= 65, t.slug);
+    }
     assert.ok(t.faq.length >= 4, t.slug);
     assert.ok(t.about.length >= 3 && t.steps.length >= 3, t.slug);
     for (const g of t.guides) assert.ok(GUIDE_BY_SLUG.has(g), `${t.slug}: guide ${g}`);
-    const all = [t.title, t.description, t.lede, ...t.about, ...t.steps, ...t.faq.flatMap((f) => [f.q, f.a])].join(" ");
+    const all = [t.title, t.metaTitle ?? "", t.description, t.lede, ...t.about, ...t.steps, ...t.faq.flatMap((f) => [f.q, f.a])].join(" ");
     assert.equal(findBannedCopy(all), null, `${t.slug}: "${findBannedCopy(all)}"`);
     assert.doesNotMatch(all, /pull[-\s]*rates?|expected value|\bEV\b|invest/i, t.slug);
   }
