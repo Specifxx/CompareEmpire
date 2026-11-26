@@ -83,25 +83,28 @@ export function focusCatalog(products: readonly FocusProduct[], offers: readonly
  * Culled products that are now another listed product's page, product slug → that product's slug (2026-11-26). When the title
  * rules learn a store's noise ("30th Celebration Mini Tin [Zapdos] [30C]") or a store's listing joins TCGplayer's key
  * (importer.ts foldSetTwins), the old page loses its listings and is culled; its URL then goes to the page those listings went
- * to, not to the type page. Two ways, both certain: the product's own name now identifies to a listed product's key, or the
- * product has no offer left at all and a listed product holds the same type and words without the set (TCGplayer's key). Pure.
+ * to, not to the type page. Only a product with no offer left at all, and only one of two ways: its own name now identifies to a
+ * listed product's key, or it is the set-named twin of a listed set-less product that TCGplayer files under that very set
+ * (`twins`: the importer's last tcgSetTwins map, tcg-twins.ts). Pure.
  */
 export function mergedInto(
   products: readonly { id: string; slug: string; groupKey: string; name: string }[],
   offers: readonly { productId: string }[],
   keep: ReadonlySet<string>,
+  twins: ReadonlyMap<string, { set: string }>,
 ): Record<string, string> {
   const byKey = new Map<string, { id: string; slug: string }>();
   for (const p of products) if (keep.has(p.id)) byKey.set(p.groupKey, p);
   const offered = new Set(offers.map((o) => o.productId));
   const out: Record<string, string> = {};
   for (const p of products) {
-    if (keep.has(p.id)) continue;
+    if (keep.has(p.id) || offered.has(p.id)) continue;
     const id = identifyAny(p.name, { strict: false });
     let to = isIdentity(id) && id.groupKey !== p.groupKey ? byKey.get(id.groupKey) : undefined;
-    if (!to && !offered.has(p.id)) {
+    if (!to) {
       const [type, set, sig] = p.groupKey.split("|");
-      if (set && set !== "-" && sig) to = byKey.get(`${type}|-|${sig}`);
+      const twin = `${type}|-|${sig}`;
+      if (set && set !== "-" && sig && twins.get(twin)?.set === set) to = byKey.get(twin);
     }
     if (to && to.id !== p.id) out[p.slug] = to.slug;
   }

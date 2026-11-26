@@ -7,7 +7,10 @@ import { tcgSetTwins, type TcgProduct } from "../src/lib/tcgplayer";
 import { foldSetTwins, type ImportRow, type StoreRead } from "../src/lib/importer";
 import { TCGPLAYER, type StoreConfig } from "../src/lib/stores";
 import { mergedInto } from "../src/lib/focus";
-import { tcgIdOfImage, tcgRows, type TcgMarketFile } from "../src/lib/tcg-market";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { readTcgTwins, writeTcgTwins } from "../src/lib/tcg-twins";
 
 function key(title: string): string {
   const id = identify(title, { strict: false });
@@ -127,26 +130,34 @@ test("a culled page whose listings moved goes to the page they moved to", () => 
     { id: "d", slug: "sf-kingambit", groupKey: "collection|sv6pt5|illustration-kingambit", name: "Shrouded Fable - Illustration Collection - Kingambit" },
     { id: "e", slug: "pikachu-v-sf", groupKey: "collection|swsh45|pikachu-v", name: "Shining Fates Pikachu V Box" },
     { id: "f", slug: "pikachu-v", groupKey: "collection|-|pikachu-v", name: "Pikachu V Box" },
+    { id: "g", slug: "classic-30th", groupKey: "collection|cel30|classic", name: "30th Celebration Classic Collection Pack" },
+    { id: "h", slug: "classic-2023", groupKey: "collection|-|classic", name: "Classic Collection" },
   ];
-  const keep = new Set(["a", "c", "f"]);
-  // e still has a listing: a set's own product, never sent to the set-less one.
-  const merged = mergedInto(products, [{ productId: "a" }, { productId: "c" }, { productId: "e" }, { productId: "f" }], keep);
+  const keep = new Set(["a", "c", "f", "h"]);
+  const twins = new Map([["collection|-|illustration-kingambit", { set: "sv6pt5" }]]);
+  // e still has a listing: never redirected. g is sold out everywhere, but TCGplayer vouches for no twin: never sent to the 2023 box.
+  const merged = mergedInto(products, [{ productId: "a" }, { productId: "c" }, { productId: "e" }, { productId: "f" }, { productId: "h" }], keep, twins);
   assert.deepEqual(merged, { "zapdos-30c": "zapdos", "sf-kingambit": "kingambit" });
 });
 
-test("the TCGplayer history line also reads a product's TCGplayer photo when TCGplayer has no seller today", () => {
-  assert.equal(tcgIdOfImage("https://tcgplayer-cdn.tcgplayer.com/product/704181_in_1000x1000.jpg"), "704181");
-  assert.equal(tcgIdOfImage("https://cdn.shopify.com/s/files/704181_in_1000x1000.jpg"), null);
-  const file: TcgMarketFile = { day: 100, fx: { USD: 1 }, prices: { "704181": 2500, "1": 900 } };
-  const rows = tcgRows(
-    [
-      { id: "a", slug: "photo-only", imageUrl: "https://tcgplayer-cdn.tcgplayer.com/product/704181_in_1000x1000.jpg" },
-      { id: "b", slug: "offer-wins", imageUrl: "https://tcgplayer-cdn.tcgplayer.com/product/704181_in_1000x1000.jpg" },
-      { id: "c", slug: "store-photo", imageUrl: "https://cdn.shopify.com/x.jpg" },
-    ],
-    [{ productId: "b", store: "tcgplayer", url: "https://www.tcgplayer.com/product/1/x" }],
-    file,
-    100,
-  );
-  assert.deepEqual(rows.map((r) => [r.slug, r.cents]), [["photo-only", 2500], ["offer-wins", 900]]);
+test("a run without a TCGplayer read folds with the last map written, so rows never move back for a day", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "twins-"));
+  const twins = tcgSetTwins([cat(553000, "Kingambit Illustration Collection", "SV: Shrouded Fable")]);
+  writeTcgTwins(twins as Map<string, { set: string; identity: SealedIdentity; title: string }>, dir);
+  const saved = readTcgTwins(dir);
+  assert.equal(saved.get("collection|-|illustration-kingambit")?.set, "sv6pt5");
+  const s: StoreRead = { store: shop, ok: true, error: null, products: 1, rediscovered: false, ms: 0, rows: [row("Shrouded Fable - Illustration Collection - Kingambit", 3499)] };
+  assert.equal(foldSetTwins([s], saved), 1);
+  assert.equal(s.rows[0].identity.groupKey, "collection|-|illustration-kingambit");
+  // An empty map never replaces a good one.
+  writeTcgTwins(new Map(), dir);
+  assert.equal(readTcgTwins(dir).size, 1);
+  fs.rmSync(dir, { recursive: true });
+});
+
+test("the store noise rules refuse nothing sealed and merge no counts", () => {
+  assert.equal(key("Pokemon TCG - ME: 30th Celebration Classic Collection"), "collection|cel30|classic");
+  // Only the celebration codes go: a bracketed count stays part of the key.
+  assert.equal(key("Pikachu Poster Collection (12P)"), "collection|-|12p-pikachu-poster");
+  assert.equal(key("Delta Reign 3 Pack Blister [3PK]"), key("Delta Reign 3 Pack Blister"));
 });

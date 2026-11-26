@@ -16,6 +16,7 @@ import { buildPublicFiles, type Tables } from "../src/lib/public-data/export";
 import { META_FILE, type PublicDataMeta } from "../src/lib/public-data/format";
 import { execFileSync } from "node:child_process";
 import { demandSlugs, focusCatalog, mergedInto, type FocusOffer, type FocusProduct } from "../src/lib/focus";
+import { readTcgTwins } from "../src/lib/tcg-twins";
 import { dayOf, HISTORY_FILE, isPriceHistory, updatePriceHistory, type PriceHistory } from "../src/lib/price-history";
 import { readTcgHistory, readTcgMarket, TCG_HISTORY_FILE, tcgRows } from "../src/lib/tcg-market";
 
@@ -82,8 +83,9 @@ async function main() {
     tables.Product as unknown as { id: string; slug: string; groupKey: string; name: string }[],
     tables.Offer as unknown as { productId: string }[],
     keep,
+    readTcgTwins(dir),
   );
-  for (const [slug, to] of Object.entries(merged)) culled[slug] = `p:${to}`;
+  for (const [slug, to] of Object.entries(merged)) culled[slug] = `p:${to}:${culled[slug] ?? ""}`;
   const listed = { ...tables } as Tables;
   listed.Product = tables.Product.filter((r) => keep.has(String(r.id)));
   listed.Offer = tables.Offer.filter((r) => keep.has(String(r.productId)));
@@ -129,7 +131,7 @@ async function main() {
   const tcgHistory = JSON.stringify(
     updatePriceHistory(
       readTcgHistory(dir),
-      tcgRows(tables.Product as unknown as { id: string; slug: string; imageUrl: string | null }[], tables.Offer as unknown as { productId: string; store: string; url: string }[], readTcgMarket(dir), dayOf(new Date())),
+      tcgRows(tables.Product as unknown as { id: string; slug: string }[], tables.Offer as unknown as { productId: string; store: string; url: string }[], readTcgMarket(dir), dayOf(new Date())),
       dayOf(new Date()),
     ),
   );

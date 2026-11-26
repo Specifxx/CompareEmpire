@@ -38,26 +38,8 @@ export function tcgIdOfUrl(url: string | null | undefined): string | null {
   return m ? m[1] : null;
 }
 
-/**
- * The TCGplayer product id in a TCGplayer photo URL (tcgplayer-cdn.tcgplayer.com/product/<id>_in_1000x1000.jpg), or null. The
- * importer gives a product TCGplayer's photo only when exactly one catalogue product lands on it (photosFromCatalogue), so the
- * photo names the product as surely as an offer's URL does.
- */
-export function tcgIdOfImage(url: string | null | undefined): string | null {
-  const m = /^https:\/\/tcgplayer-cdn\.tcgplayer\.com\/product\/(\d+)_/i.exec(url ?? "");
-  return m ? m[1] : null;
-}
-
-/**
- * Today's rows for the TCGplayer history: one per product whose TCGplayer offer carries an id with a market price, or, with no
- * TCGplayer offer (no seller there today: a pre-order, a product sold out on TCGplayer), whose TCGplayer photo does (2026-11-26).
- */
-export function tcgRows(
-  products: readonly { id: string; slug: string; imageUrl?: string | null }[],
-  offers: readonly { productId: string; store: string; url: string }[],
-  file: TcgMarketFile | null,
-  today: number,
-): TodayRow[] {
+/** Today's rows for the TCGplayer history: one per product whose TCGplayer offer carries an id with a market price. */
+export function tcgRows(products: readonly { id: string; slug: string }[], offers: readonly { productId: string; store: string; url: string }[], file: TcgMarketFile | null, today: number): TodayRow[] {
   if (!file || today - file.day > MAX_AGE_DAYS) return [];
   const idOf = new Map<string, string>();
   for (const o of offers) {
@@ -67,7 +49,7 @@ export function tcgRows(
   }
   const out: TodayRow[] = [];
   for (const p of products) {
-    const id = idOf.get(p.id) ?? tcgIdOfImage(p.imageUrl);
+    const id = idOf.get(p.id);
     const cents = id ? file.prices[id] : undefined;
     if (cents && cents > 0) out.push({ market: TCG_SERIES, slug: p.slug, cents, stores: 1 });
   }

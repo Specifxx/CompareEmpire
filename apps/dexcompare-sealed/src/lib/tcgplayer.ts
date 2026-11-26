@@ -302,6 +302,8 @@ function tcgSetLabel(setName: string | undefined): string {
 export interface TcgSetTwin {
   set: string;
   identity: SealedIdentity;
+  /** TCGplayer's title the identity was read from (tcgTitle), kept for tcg-twins.json. */
+  title?: string;
 }
 
 /**
@@ -315,15 +317,16 @@ export interface TcgSetTwin {
  * Kept only when it is certain: the set comes from TCGplayer's set name (never a title), every catalogue product on the key
  * is filed under that same set (one under "Miscellaneous Cards & Products" or another set spoils it), and TCGplayer has no product of its own on the set-qualified key (then the two are different products,
  * as the 30th Celebration Classic Collection Pack and the 2023 Classic Collection are). The whole catalogue counts, listed or
- * not, so a product with no seller today still holds its twin and the stores' rows do not move back and forth. Pure, tested
- * with the fixture (tests/tcgplayer.test.ts).
+ * not, so a product with no seller today still holds its twin and the stores' rows do not move back and forth (and a run
+ * without a TCGplayer read folds with the last map, tcg-twins.ts). Pure, tested in tests/tcgplayer-join.test.ts.
  */
 export function tcgSetTwins(products: TcgProduct[]): Map<string, TcgSetTwin> {
   const own = new Set<string>();
   const cand = new Map<string, TcgSetTwin | null>();
   for (const p of products) {
     if (!p?.productId || !p.productName) continue;
-    const id = identify(tcgTitle(p), { strict: false });
+    const title = tcgTitle(p);
+    const id = identify(title, { strict: false });
     if (!isIdentity(id)) continue;
     own.add(id.groupKey);
     const [, setPart, sig] = id.groupKey.split("|");
@@ -333,7 +336,7 @@ export function tcgSetTwins(products: TcgProduct[]): Map<string, TcgSetTwin> {
     const prev = cand.get(id.groupKey);
     // A product filed under no set ("Miscellaneous Cards & Products"), or two products in two sets: not certain.
     if (!set || (prev && prev.set !== set.code)) cand.set(id.groupKey, null);
-    else if (prev === undefined) cand.set(id.groupKey, { set: set.code, identity: id });
+    else if (prev === undefined) cand.set(id.groupKey, { set: set.code, identity: id, title });
   }
   const out = new Map<string, TcgSetTwin>();
   for (const [key, twin] of cand) {

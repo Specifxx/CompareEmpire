@@ -2098,14 +2098,15 @@ own TCGplayer offer, which exists when TCGplayer's catalogue title identifies to
    TCGplayer files them under, and `foldSetTwins` (importer.ts) files the stores' set-named rows on TCGplayer's key. Certain only:
    the set comes from TCGplayer's set name, every catalogue product on the key agrees (one under "Miscellaneous Cards & Products"
    spoils it), and TCGplayer has no product of its own on the set-named key (the 30th Celebration Classic Collection Pack and the
-   2023 Classic Collection stay apart). The whole catalogue counts, listed or not, so rows do not move back and forth with sellers.
-   A run that does not read TCGplayer (`--only` a store) moves nothing.
+   2023 Classic Collection stay apart). The whole catalogue counts, listed or not, so rows do not move back and forth with sellers,
+   and the map is written to `data/public/tcg-twins.json` (tcg-twins.ts) so a run that does not read TCGplayer (a failed read,
+   `--only` a store) folds with the last one.
 3. **Nothing to join, honestly.** Assorted listings ("Delta Reign 3 Pack Blister", "151 Mini Tin") are sold by TCGplayer only per
    artwork, and products with no TCGplayer seller today have no TCGplayer price to show. Left as they are: a wrong join is worse
-   than none. Their TCGplayer history line now reads the product's TCGplayer photo id when there is no TCGplayer offer
-   (`tcgIdOfImage`, tcg-market.ts); a TCGplayer photo is given only when exactly one catalogue product lands on the key.
+   than none. (A product's TCGplayer photo is not used as its id: a store's hotlinked TCGplayer photo can be another artwork's.)
 
-A page emptied by these rules is culled as before, but its URL now 301s to the page its listings went to (`mergedInto`, focus.ts;
-`p:<slug>` in culled.json), not to its type page. Measured on the day's data against TCG Prices' 882-product Pokémon catalogue (a
+A page emptied by these rules is culled as before, but its URL now 301s to the page its listings went to when that page is listed
+in the visitor's region, else to its type page as before (`mergedInto`, focus.ts, only for a product with no offer left: its own
+name now identifies to the listed key, or it is the set-named twin TCGplayer vouches for; `p:<product>:<type>` in culled.json). Measured on the day's data against TCG Prices' 882-product Pokémon catalogue (a
 subset; the import reads TCGplayer's whole catalogue): 77 US pages, 262 US store listings, join a TCGplayer row (63 of them 30th
 Celebration). `tests/tcgplayer-join.test.ts`. Affiliate links unchanged.
