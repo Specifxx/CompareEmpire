@@ -22,7 +22,9 @@ MODE="${1:-}"
 BRANCH="${DEX_DB_BRANCH:-dexcompare-db}"
 PG_IMAGE="${PG_IMAGE:-postgres:18}"
 LOCAL_URL="${LOCAL_URL:?LOCAL_URL, the job Postgres, is not set}"
-TABLES=(Product Offer ProductStat StoreStat EbayListing EbayCallDay)
+# EbayEmptyFeed (2026-11-26): the eBay import's empty-search cache. A snapshot saved before it existed has no rows or count
+# for it: restore checks only the tables the snapshot recorded, so the first run after the change loads cleanly with it empty.
+TABLES=(Product Offer ProductStat StoreStat EbayListing EbayCallDay EbayEmptyFeed)
 WORK="$(mktemp -d)"
 REPO="$(git rev-parse --show-toplevel)"
 
@@ -59,7 +61,8 @@ restore() {
   fi
   # The tables are already there (prisma db push, the step before); the rows go in as one transaction.
   pg pg_restore --data-only --no-owner --no-privileges --single-transaction --exit-on-error --disable-triggers -d "$LOCAL_URL" /w/dex.dump
-  counts "$LOCAL_URL" > "$WORK/got.txt"
+  # Only the tables the snapshot recorded (a table added since starts empty and has no expected count).
+  counts "$LOCAL_URL" | awk 'NR==FNR{want[$1];next} ($1 in want)' "$WORK/expected.txt" - > "$WORK/got.txt"
   summary "Database loaded from $source ($(du -h "$WORK/dex.dump" | cut -f1) dump)."
   summary ""; summary "| Table | Expected | Loaded |"; summary "|---|---|---|"
   join <(sort "$WORK/expected.txt") <(sort "$WORK/got.txt") | while read -r t a b; do summary "| $t | $a | $b |"; done
@@ -79,7 +82,7 @@ save() {
   if [ "$size" -gt 90000000 ]; then echo "::error::The snapshot is $size bytes, too close to GitHub's 100 MB file limit."; exit 1; fi
   [ "$size" -gt 45000000 ] && echo "::warning::The database snapshot is $((size / 1000000)) MB (GitHub refuses files over 100 MB)."
   cat > "$WORK/README.md" <<'MD'
-DexCompare's working database (the six tables of apps/dexcompare-sealed/prisma/schema.prisma), written by the data jobs after
+DexCompare's working database (the tables of apps/dexcompare-sealed/prisma/schema.prisma), written by the data jobs after
 every import (apps/dexcompare-sealed/scripts/db-snapshot.sh). Force-pushed, one commit; `dexcompare-db-prev` holds the one before.
 Never edit by hand, never merge into main.
 MD

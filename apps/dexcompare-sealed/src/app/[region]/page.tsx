@@ -91,7 +91,7 @@ export default async function RegionHome({ params }: { params: { region: string 
   // The seven regions side by side, moved here from the landing page (2026-10-25).
   const reports = await Promise.all(REGION_LIST.map((x) => (x.region === r.region ? report : loadMarketReport(x.market)))).catch(() => [report]);
   // The soonest upcoming set with a pre-order page: the hero's pill and the pre-order tab's "see all" go there.
-  const preorderGuide = openPreorderGuides()[0] ?? null;
+  const preorderGuide = openPreorderGuides(undefined, r.region)[0] ?? null;
   // The hero pill's one link (2026-11-23): Delta Reign's ETB guide until DELTA_REIGN_PILL_UNTIL, then the pre-order hub as before.
   const heroPill = new Date().toISOString().slice(0, 10) <= DELTA_REIGN_PILL_UNTIL ? "delta-reign-etb" : "preorder";
   const storeCount = storesInMarket(r.market).length;

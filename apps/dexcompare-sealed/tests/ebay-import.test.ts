@@ -256,7 +256,7 @@ test("buildPlan: spends the cap in priority order; a cap hit drops the LEAST val
 
   // The catalogue sweep's share comes after the sets and before the per-product (pre-plan) items: chase, sealed, types, sets, sweep, items.
   assert.deepEqual(BUCKETS, ["chase", "sealed", "types", "sets", "sweep", "items"]);
-  assert.equal(DEFAULT_SWEEP_CALLS, 2100);
+  assert.equal(DEFAULT_SWEEP_CALLS, 1700);
   const withSweep = buildPlan(rows, { cap: 270 + DEFAULT_SWEEP_CALLS + 300, today: TODAY }); // room for every fixed feed, the full share and all 300 items
   assert.equal(withSweep.sweepBudget, DEFAULT_SWEEP_CALLS);
   assert.equal(withSweep.calls, 270 + DEFAULT_SWEEP_CALLS + 300);
@@ -328,14 +328,14 @@ test("buildPlan: --only buckets, and the plan reports what it wanted vs got", ()
   const text = capacityReport(r).join("\n");
   assert.match(text, /NOT all core keys fit/);
   assert.match(capacityReport(buildPlan(rows, { cap: 2000, sweepCalls: 0, today: TODAY })).join("\n"), /ALL core keys fit/);
-  // with the sweep's default share at the default caps: 270 fixed + 2,100 sweep + what is left for the pre-plan
+  // with the sweep's default share at the default caps: 270 fixed + 1,700 sweep + what is left for the pre-plan
   const d = buildPlan(MANY(3000), { cap: DEFAULT_RUN_CAP, today: TODAY });
   assert.equal(d.calls, DEFAULT_RUN_CAP);
   assert.equal(d.sweepBudget, DEFAULT_SWEEP_CALLS);
   assert.equal(d.byBucket.items.feeds, DEFAULT_RUN_CAP - 270 - DEFAULT_SWEEP_CALLS);
   assert.equal(d.byBucket.items.wanted, 3000);
   const dt = capacityReport(d).join("\n");
-  assert.ok(dt.includes(`| sweep | 5 | 2,100 | 5 | 2,100 |`), dt);
+  assert.ok(dt.includes(`| sweep | 5 | 1,700 | 5 | 1,700 |`), dt);
   assert.match(dt, /NOT all core keys fit/);
 });
 
@@ -424,22 +424,22 @@ test("hot coverage: per hot set and priority marketplace, products with an item 
 
 // ─── caps ───────────────────────────────────────────────────────────────────────
 
-test("caps: daily 2500 (clamped 0..2500), run 2500, sweep 2100, and the run's allowance is what the database says is left", () => {
+test("caps: daily 2500 (clamped 0..2500), run 2200, sweep 1700, and the run's allowance is what the database says is left", () => {
   assert.equal(MAX_DAILY_CAP, 2500);
-  assert.deepEqual([DEFAULT_DAILY_CAP, DEFAULT_RUN_CAP, DEFAULT_SWEEP_CALLS], [2500, 2500, 2100]);
-  assert.deepEqual(capsFromEnv({}), { daily: 2500, run: 2500 });
+  assert.deepEqual([DEFAULT_DAILY_CAP, DEFAULT_RUN_CAP, DEFAULT_SWEEP_CALLS], [2500, 2200, 1700]);
+  assert.deepEqual(capsFromEnv({}), { daily: 2500, run: 2200 });
   assert.deepEqual(capsFromEnv({ EBAY_DAILY_CAP: "3000", EBAY_RUN_CAP: "9999" }), { daily: 2500, run: 2500 }, "never above the hard ceiling");
-  assert.deepEqual(capsFromEnv({ EBAY_DAILY_CAP: "-5", EBAY_RUN_CAP: "x" }), { daily: 0, run: 2500 });
+  assert.deepEqual(capsFromEnv({ EBAY_DAILY_CAP: "-5", EBAY_RUN_CAP: "x" }), { daily: 0, run: 2200 });
   assert.deepEqual(capsFromEnv({ EBAY_DAILY_CAP: " 1000 ", EBAY_RUN_CAP: "400" }), { daily: 1000, run: 400 });
-  // the sweep's allowance (EBAY_SWEEP_CALLS): default 2100, clamped 0..2500; "0" turns the sweep off
-  assert.equal(sweepCallsFromEnv({}), 2100);
+  // the sweep's allowance (EBAY_SWEEP_CALLS): default 1700, clamped 0..2500; "0" turns the sweep off
+  assert.equal(sweepCallsFromEnv({}), 1700);
   assert.equal(sweepCallsFromEnv({ EBAY_SWEEP_CALLS: "0" }), 0);
   assert.equal(sweepCallsFromEnv({ EBAY_SWEEP_CALLS: " 600 " }), 600);
   assert.equal(sweepCallsFromEnv({ EBAY_SWEEP_CALLS: "99999" }), 2500);
   assert.equal(sweepCallsFromEnv({ EBAY_SWEEP_CALLS: "-1" }), 0);
-  assert.equal(sweepCallsFromEnv({ EBAY_SWEEP_CALLS: "lots" }), 2100);
-  // the defaults: the whole run cap, bounded by what is left of the day
-  assert.equal(runCap(capsFromEnv({}), 0), 2500);
+  assert.equal(sweepCallsFromEnv({ EBAY_SWEEP_CALLS: "lots" }), 1700);
+  // the defaults: the run cap (2,200), bounded by what is left of the day
+  assert.equal(runCap(capsFromEnv({}), 0), 2200);
   assert.equal(runCap(capsFromEnv({}), 640), 1860);
   assert.equal(runCap(capsFromEnv({}), 2500), 0);
   assert.equal(runCap(capsFromEnv({}), 9999), 0);
@@ -874,7 +874,7 @@ test("the importer says what it will do with today's budget BEFORE the first sea
   const text = lines.join("\n");
   assert.match(text, /Budget day \d{4}-\d{2}-\d{2} \(the Pacific day/);
   assert.match(text, /reserved so far today: 640 of the 2,500 daily cap \(1,860 left\)/);
-  assert.match(text, /at most 300 searches, retries included \(the smallest of: run cap 2,500, 1,860 left of today's 2,500, --max-calls 300\)/);
+  assert.match(text, /at most 300 searches, retries included \(the smallest of: run cap 2,200, 1,860 left of today's 2,500, --max-calls 300\)/);
   assert.match(text, /Plan: \d+ feeds in 300 searches \(chase 5 feeds\/40 calls/);
   // 300 - 270 fixed = 30 for the sweep; nothing left for per-product searches
   assert.match(text, /sweep up to 30 calls over 5 marketplaces, items: whatever the sweep leaves/);

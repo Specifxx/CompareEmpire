@@ -109,7 +109,7 @@ export function staticSitemap(
     out.push(url(`/${r.region}/daily`, m, "daily", 0.5));
     out.push(url(`/${r.region}/guides`, null, "weekly", 0.5));
     // Pre-order pages, until release day (they are noindexed from then on: lib/preorder-guides.ts).
-    for (const { set } of openPreorderGuides(today)) out.push(url(`/${r.region}/preorders/${set.slug}`, m, "daily", 0.8));
+    for (const { set } of openPreorderGuides(today, r.region)) out.push(url(`/${r.region}/preorders/${set.slug}`, m, "daily", 0.8));
   }
   // Store pages are out of the sitemap since 2026-11-07 (SITEMAP_STORE_PAGES): nobody searches a shop's page on a comparison
   // site, and ~900 of them were a seventh of the sitemap while Google read a few URLs a day. They stay indexable, linked from

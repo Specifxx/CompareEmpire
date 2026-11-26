@@ -29,15 +29,16 @@
 // sweep's coverage shows only in a real run (the summary's Sweep table).
 // Env: DATABASE_URL; EBAY_CLIENT_ID / EBAY_CLIENT_SECRET (DEXCOMPARE_EBAY_CLIENT_ID / _SECRET win when set);
 // optional EBAY_DAILY_CAP (2500, max 2500: this site's share of a 5,000 keyset shared with the owner's other site; set it on
-// BOTH sites), EBAY_RUN_CAP (2500), EBAY_SWEEP_CALLS (2100), EBAY_LISTING_MAX_AGE_HOURS (26).
+// BOTH sites), EBAY_RUN_CAP (2200), EBAY_SWEEP_CALLS (1700), EBAY_LISTING_MAX_AGE_HOURS (26).
 // Exit 1: token failure (only eBay's OAuth error category is printed), a search refusal or the circuit breaker, or fewer than
 // half of the planned feeds refreshed (the fixed feeds and the per-product searches; the sweep is reported on its own).
 process.env.DEXCOMPARE_SCRIPT = "1";
 
-import { appendFileSync } from "node:fs";
+import { appendFileSync, readFileSync } from "node:fs";
+import path from "node:path";
 import { prisma } from "../src/lib/db";
 import { keysPresent, realDeps, type EbayEnv } from "../src/lib/ebay-api";
-import { BREAKER_EMPTY, BREAKER_FAILURES, BUCKETS, runImport, type Bucket, type CapEnv } from "../src/lib/ebay-import";
+import { BREAKER_EMPTY, BREAKER_FAILURES, BUCKETS, clickScores, runImport, type Bucket, type CapEnv } from "../src/lib/ebay-import";
 import { capacityReport, runReport } from "../src/lib/ebay-report";
 import { prismaImportDb } from "../src/lib/ebay-store";
 
@@ -71,8 +72,18 @@ async function main() {
     return;
   }
 
+  // Visitors' buy clicks (data/demand.json, refreshed daily by the sealed import): the products they click get their own search
+  // first. A missing or unreadable file only means the old order.
+  let clicks = new Map<string, number>();
+  try {
+    clicks = clickScores(JSON.parse(readFileSync(path.join(process.cwd(), "data", "demand.json"), "utf8")));
+  } catch {
+    console.log("::warning::data/demand.json could not be read: per-product searches keep the value order.");
+  }
+  console.log(`Buy clicks: ${clicks.size} products visitors clicked in the last 28 days come first.`);
+
   const summary = await runImport(
-    { db: prismaImportDb(prisma), api: realDeps(), env: process.env as CapEnv, log: (l) => console.log(l) },
+    { db: prismaImportDb(prisma), api: realDeps(), env: process.env as CapEnv, log: (l) => console.log(l), clicks },
     { dryRun: dry, only, maxCalls, force: flag("force") },
   );
 

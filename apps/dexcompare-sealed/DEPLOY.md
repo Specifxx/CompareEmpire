@@ -591,7 +591,7 @@ also cover every product.
 3. **Optional repository variables** (Variables tab): `EBAY_DAILY_CAP` (default 2500, also the maximum: this site's share of the keyset,
    see the box above), `EBAY_RUN_CAP` (2500), `EBAY_LISTING_MAX_AGE_HOURS` (26). The EPN campaign (`5339155912`, one campaign for every
    Compare site; owner, 2026-10-30) is hard-coded: the importer enforces it on every URL it stores, and no variable overrides it.
-   `EBAY_SWEEP_CALLS` (default 2100, clamped to 0..2500) is how many of a run's calls the catalogue sweep may spend (the per-product searches
+   `EBAY_SWEEP_CALLS` (default 1700 since 2026-11-26, clamped to 0..2500) is how many of a run's calls the catalogue sweep may spend (the per-product searches
    get what it leaves); the workflow passes the repository variable of that name to the importer. With the run cap equal to the daily cap, the scheduled run may spend the whole day: to keep room for a manual re-run on the
    same Pacific day, set `EBAY_RUN_CAP` lower (2,200 leaves 300).
 4. **Merge to `main`** (GitHub runs scheduled workflows from the default branch only). The schedule is 08:37 UTC daily: **after** eBay's
@@ -732,7 +732,7 @@ skip-fresh window (at least 50, or a quarter of its products if that is more: a 
 **A run, in order:**
 
 1. the fixed feeds: chase, sealed, types, sets (265 calls);
-2. the sweep, marketplace by marketplace (US, UK, EU, AU, CA), up to `EBAY_SWEEP_CALLS` (default **2,100**) of what the fixed feeds leave,
+2. the sweep, marketplace by marketplace (US, UK, EU, AU, CA), up to `EBAY_SWEEP_CALLS` (default **1,700** since 2026-11-26) of what the fixed feeds leave,
    each marketplace starting with the hot sets' own searches (at most half its share);
 3. per-product searches ("Pokemon <cleaned name>") **only for products the sweep did not cover**, with whatever is left of the run cap
    (about 135 at the defaults when the sweep spends its whole share, more when its queries stop early): first the **hot-set products of
@@ -835,7 +835,7 @@ Priority order (spent until the run cap; a cap hit drops the **least valuable**,
 | 2 | sealed | generic sealed Pokémon, 6 queries per marketplace, kept only if `identify()` accepts the title | 30 |
 | 3 | types | one query per high-value type (booster boxes, ETBs, Pokémon Center ETBs, UPCs, booster-box / ETB / bundle cases, Build & Battle Stadiums, collections) | 45 |
 | 4 | sets | chase cards of the 30 most recently released sets (never a series-named or common-word set), one query each | 150 |
-| 5 | sweep | the catalogue sweep (above): per marketplace (US, UK, EU, AU, CA) the hot pass, then 30 broad queries, 200 listings a call, an item feed for every product found | up to 2,100 (`EBAY_SWEEP_CALLS`) |
+| 5 | sweep | the catalogue sweep (above): per marketplace (US, UK, EU, AU, CA) the hot pass, then 30 broad queries, 200 listings a call, an item feed for every product found | up to 1,700 (`EBAY_SWEEP_CALLS`) |
 | 6 | items | one query per (marketplace, product) the sweep did **not** cover: first every **hot-set** product of the US, UK and EU, then every **eligible** product: "Pokemon <cleaned name>" (no "sealed": eBay requires every keyword) | what is left (~135) |
 
 The plan reserves the sweep's share after the fixed feeds; the item feeds it lists are a pre-plan, and the run buys them only for keys

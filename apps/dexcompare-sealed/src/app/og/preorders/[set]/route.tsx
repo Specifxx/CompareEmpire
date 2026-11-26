@@ -4,6 +4,7 @@ import { ImageResponse } from "next/og";
 import { BALL_DATA_URI } from "@/lib/logo-mark";
 import { OG_SIZE } from "@/lib/og-card";
 import { preorderGuideBySlug } from "@/lib/preorder-guides";
+import { setPricedIn } from "@/lib/priced-sets";
 import { PREORDER_OG_ART } from "@/lib/preorder-og";
 import { formatRelease } from "@/lib/release";
 import { REGION_LIST } from "@/lib/regions";
@@ -37,7 +38,8 @@ const POSE = [
 
 export function GET(_req: Request, { params }: { params: { set: string } }) {
   const found = preorderGuideBySlug(params.set);
-  if (!found) return new Response("Not found", { status: 404 });
+  // No store prices the set anywhere yet: no page, so no share card (lib/priced-sets.ts).
+  if (!found || !setPricedIn(found.set.code)) return new Response("Not found", { status: 404 });
   const { set } = found;
   const arts = (PREORDER_OG_ART[set.slug] ?? []).map((f) => art(set.slug, f));
   const nameSize = set.name.length > 14 ? 64 : 84;
