@@ -153,6 +153,9 @@ export default async function RegionHome({ params }: { params: { region: string 
                 products={popular}
                 href={`/${r.region}/sealed`}
                 all="All sealed products"
+                // The weekly Hot 100 as words at the shelf's foot (merch, 2026-11-26: /us/hot-100 took 1,025 views in 7 days against
+                // the home's 561, and no home link reached it). After the products, so the phone tidy's products-first order holds.
+                more={{ href: `/${r.region}/hot-100`, label: "This week's Hot 100" }}
               />
             ),
           },
@@ -358,6 +361,7 @@ function Shelf({
   all,
   empty,
   emptyActions,
+  more,
 }: {
   r: RegionInfo;
   heading: string;
@@ -367,16 +371,22 @@ function Shelf({
   all: string;
   empty?: string;
   emptyActions?: EmptyAction[];
+  more?: { href: string; label: string };
 }) {
   return (
     <>
       <h3 className="sr-only">{heading}</h3>
       {note && <p className="-mt-1 mb-5 text-sm text-muted">{note}</p>}
       {products.length ? <ProductGrid products={products} region={r.region} /> : <Empty actions={emptyActions}>{empty}</Empty>}
-      <p className="mt-8 flex justify-center sm:mt-10">
+      <p className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 sm:mt-10">
         <Link href={href} prefetch={false} className="btn-ghost min-h-11 px-5">
           {all} <span aria-hidden="true">→</span>
         </Link>
+        {more && (
+          <Link href={more.href} prefetch={false} className="inline-flex min-h-11 items-center font-semibold text-brand hover:underline">
+            {more.label} <span aria-hidden="true">&nbsp;→</span>
+          </Link>
+        )}
       </p>
     </>
   );
