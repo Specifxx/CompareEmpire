@@ -2114,6 +2114,17 @@ searches, of which 117 came back with nothing usable (the leftovers are products
 
 Read: the run summary's "Per-product searches" line (clicked searched, cached empty) and the day's total, from 27 Nov.
 
+## Follow a product: a price drop or a restock, one alert (2026-11-26, owner)
+
+Owner: "let a visitor follow a sealed product and get an alert when its cheapest in-stock price drops below a threshold they
+set, or when it comes back in stock … start with US Pokemon sealed products only." No new form and no new prompt: the price
+alert the product page already offers (`PriceAlert` one tap for anyone signed in, `PriceAlertForm` otherwise, and the after-buy
+offer that reuses it) sends `restock: true` in the regions of `lib/follow.ts` (US only), and says so in one line. RiftCompare's
+service keeps it as one row (`alsoRestock`, TCGEmpire DECISIONS.md of the same day): one email when the price reaches the
+target, or once when it is back after selling out, never twice in three days, checked after each of the import's two daily
+releases. No pre-ticked box (the weekly email's opt-in rule stands). My watches shows "and back in stock" on a follow, and its
+stale "Premium only" restock copy is gone (restock has been free since 2026-11-18).
+
 ## 2026-11-26 — The TCGplayer join: why a US product had no TCGplayer id, and what fixes it
 
 Owner, 2026-11-26: 345 of 1,578 US products could not be joined to TCGplayer by id, so they showed no TCGplayer price (TCGplayer

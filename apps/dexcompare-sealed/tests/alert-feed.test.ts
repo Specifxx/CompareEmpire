@@ -34,7 +34,7 @@ test("the form posts only to the shared service and parses prices strictly", () 
   assert.equal(suggestTarget(13999), 12500);
   const src = fs.readFileSync("src/components/PriceAlertForm.tsx", "utf8");
   assert.ok(!/localStorage|document\.cookie/.test(src));
-  assert.match(src, /JSON\.stringify\(\{ site, productId, region, email: [^}]*targetCents \}\)/);
+  assert.match(src, /JSON\.stringify\(\{ site, productId, region, email: [^}]*targetCents, \.\.\.\(restock \? \{ restock: true \} : \{\}\) \}\)/);
   assert.match(fs.readFileSync("src/app/alert-feed.json/route.ts", "utf8"), /export const dynamic = "force-static";/);
 });
 
@@ -50,4 +50,17 @@ test("the weekly price drops box is opt-in: unticked, and sent only as the visit
   assert.match(src, /<input type="checkbox" name="weekly" style=\{\{ marginTop: 3 \}\} \/>/);
   assert.ok(!/defaultChecked|checked=/.test(src), "never pre-ticked");
   assert.match(src, /const weekly = f\.get\("weekly"\) === "on";/);
+});
+
+test("follow (2026-11-26): US only to start, and every alert surface asks the service for the restock email through one switch", async () => {
+  const { followsRestock, FOLLOW_REGIONS } = await import("../src/lib/follow");
+  assert.deepEqual([...FOLLOW_REGIONS], ["US"]);
+  assert.ok(followsRestock("US"));
+  assert.ok(!followsRestock("AU") && !followsRestock("UK"));
+  for (const f of ["src/components/PriceAlertForm.tsx", "src/components/premium/PriceAlert.tsx"]) {
+    const src = fs.readFileSync(f, "utf8");
+    assert.match(src, /followsRestock\(/, `${f} reads lib/follow.ts`);
+    assert.ok(!/defaultChecked|checked=/.test(src), `${f}: nothing pre-ticked`);
+  }
+  assert.match(fs.readFileSync("src/lib/premium-member.ts", "utf8"), /\.\.\.\(restock \? \{ restock: true \} : \{\}\)/);
 });
