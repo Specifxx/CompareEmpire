@@ -2092,3 +2092,24 @@ Now the export writes `data/sets/priced.json` (set code → the markets where at
 and does not count) beside the snapshot, and `lib/priced-sets.ts` `setPricedIn` gates the page (a 404 until then, never a redirect:
 the URL comes back once priced) and every link. Flowing Fists (6 Feb 2027) is priced by stores in all seven markets today. Ported to
 MTG Compare the same day.
+
+## 2026-11-26: eBay calls go to what visitors click to buy first, and an empty search is cached
+
+Owner: "DexCompare used 2,390 of 2,500 eBay calls in a day and OP Compare used 2,310, 4,700 of the 5,000 daily allowance between
+them. Add caching and prioritise calls to products with the most buy clicks and earnings, so the allowance does not run out on the
+top products." The run of 25 Nov spent 2,488: 270 on the fixed feeds, 2,100 on the sweep (5,428 item feeds), and 118 per-product
+searches, of which 117 came back with nothing usable (the leftovers are products eBay has no listing of under their name).
+
+- **Buy clicks first.** The per-product searches start with every (marketplace, product) visitors clicked to buy
+  (`data/demand.json`, 28-day clicks plus twice the last 7 days', `clickScores`), most earning first: clicks × reference price ×
+  the marketplace's weight (`clickedItemKeys`). Then the hot sets, then the eligible keys by value, as before. A product the sweep
+  already covered this run is not searched again.
+- **The empty-search cache** (`EbayEmptyFeed`, saved in the snapshot with the other tables): an item feed whose own search found
+  nothing is not searched again for 7 days (2 days for a clicked product); a listing found for it by the sweep or its own search
+  clears it. `--force` ignores it. Listings themselves are not cached past the 26-hour bound (the licence's age rule).
+- **The run cap is 2,200 (was 2,500) and the sweep's share 1,700 (was 2,100)**: 270 fixed + 1,700 sweep + up to about 220
+  per-product searches, clicked products first. The last 300 of the site's 2,500 stay unspent for a manual run and OP Compare,
+  which shares the keyset. If a repository variable `EBAY_RUN_CAP` or `EBAY_SWEEP_CALLS` is set, it still wins.
+- The snapshot restore checks only the tables the snapshot recorded, so a table added later loads empty instead of failing.
+
+Read: the run summary's "Per-product searches" line (clicked searched, cached empty) and the day's total, from 27 Nov.

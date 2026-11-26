@@ -141,3 +141,11 @@ model EbayCallDay {
   total     Int
   updatedAt DateTime
 }
+
+// The empty-search cache (owner, 2026-11-26: "add caching ... so the allowance does not run out on the top products"): an item
+// feed whose own search last found nothing usable, and when. It is not searched again for EMPTY_SKIP_DAYS (lib/ebay-import.ts).
+// Public data only (a feed key and a time), kept in the snapshot with the other tables.
+model EbayEmptyFeed {
+  feed String   @id
+  at   DateTime
+}
