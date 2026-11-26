@@ -2154,3 +2154,13 @@ in the visitor's region, else to its type page as before (`mergedInto`, focus.ts
 name now identifies to the listed key, or it is the set-named twin TCGplayer vouches for; `p:<product>:<type>` in culled.json). Measured on the day's data against TCG Prices' 882-product Pokémon catalogue (a
 subset; the import reads TCGplayer's whole catalogue): 77 US pages, 262 US store listings, join a TCGplayer row (63 of them 30th
 Celebration). `tests/tcgplayer-join.test.ts`. Affiliate links unchanged.
+
+## 2026-11-26 — Member rewards on the account page
+
+Owner (26 Nov): "we really, really need a loyalty system ... on all of our Empire websites", one that never runs at a loss. The
+shared account service keeps one points balance (RiftCompare `lib/loyalty.ts`, `/api/loyalty`, DECISIONS there, "Compounding daily
+streaks, and member rewards"); this site draws it in its own name on the account page (`components/account/MemberRewards.tsx`),
+posting the member's token as every other account call does. A daily check-in is 1 point on day 1 of a streak, one more each day in
+a row, up to 10 a day; points buy 7 days of Premium (300 points, once a month, never for paying subscribers). It loads after render,
+opens nothing by itself and shows on no other page (one prompt a visit at most). Points have no cash value and never change giveaway
+entries.
