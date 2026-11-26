@@ -92,6 +92,8 @@ export interface Watch {
   kind: "restock" | "price";
   region: string;
   targetCents: number | null;
+  /** a follow: the price alert also emails once when it is back after selling out (lib/follow.ts) */
+  alsoRestock?: boolean;
   name: string | null;
   path: string | null;
   priceCents: number | null;
@@ -119,12 +121,12 @@ export async function loadWatches(token: string, remove?: string): Promise<Watch
 
 /** One-tap price alert for anyone signed in (free accounts too, 2026-11-19): the token names the address, so no email field and no
  *  confirmation email when the account's address is verified. "active" or "confirm", as the service answers. */
-export async function setPriceWatch(token: string, productId: string, region: string, targetCents: number): Promise<{ ok: true; active: boolean } | { ok: false; message: string; signIn?: boolean }> {
+export async function setPriceWatch(token: string, productId: string, region: string, targetCents: number, restock = false): Promise<{ ok: true; active: boolean } | { ok: false; message: string; signIn?: boolean }> {
   try {
     const r = await fetch("https://riftcompare.com/api/sister-alerts", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ site: "dex", productId, region, targetCents, token }),
+      body: JSON.stringify({ site: "dex", productId, region, targetCents, token, ...(restock ? { restock: true } : {}) }),
       credentials: "omit",
     });
     const j = (await r.json().catch(() => ({}))) as { ok?: boolean; status?: string; error?: string };

@@ -34,16 +34,11 @@ export function WatchesView() {
     );
   }
   if (state.s === "error") return <p>Couldn&rsquo;t load your watches. Try again in a minute.</p>;
-  const { watches, premium } = state;
+  const { watches } = state;
   return (
     <div>
-      {!premium && (
-        <p className="card mb-4 p-4 text-sm">
-          Your Premium is not active, so you can see and stop your watches but not add back-in-stock watches. <Link className="underline" href="/premium">See Premium</Link>.
-        </p>
-      )}
       {watches.length === 0 ? (
-        <p className="text-muted">No watches yet. On a sold-out product page, Premium members can tap &ldquo;Tell me when it&rsquo;s back in stock&rdquo;.</p>
+        <p className="text-muted">Nothing followed yet. On any product page, tap &ldquo;Email me when the price drops&rdquo; to follow it: we email you when it drops to your price, or (in the US) once when it comes back in stock after selling out.</p>
       ) : (
         <ul className="grid gap-3">
           {watches.map((w) => (
@@ -53,7 +48,7 @@ export function WatchesView() {
                   {w.path ? <a className="hover:underline" href={w.path.startsWith("/") ? w.path.replace("{r}", w.region.toLowerCase()) : "#"}>{w.name || "Product"}</a> : w.name || "New watch (first check runs on the next daily update)"}
                 </p>
                 <p className="text-sm text-muted">
-                  {w.kind === "restock" ? "Back-in-stock watch" : `Price alert at ${w.targetCents ? money(w.targetCents, w.region) : ""} or less`} · {w.region}
+                  {w.kind === "restock" ? "Back-in-stock watch" : `Price alert at ${w.targetCents ? money(w.targetCents, w.region) : ""} or less${w.alsoRestock ? ", and back in stock" : ""}`} · {w.region}
                   {w.priceCents ? ` · lowest in-stock price now ${money(w.priceCents, w.region)}` : w.name ? " · sold out right now" : ""}
                   {w.notifiedAt ? ` · last emailed ${new Date(w.notifiedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}` : ""}
                 </p>
@@ -63,7 +58,7 @@ export function WatchesView() {
           ))}
         </ul>
       )}
-      <p className="mt-6 text-sm text-muted">Emails come from our shared alert service, checked once a day after the price update. Prices are the lowest in-stock store price, before postage.</p>
+      <p className="mt-6 text-sm text-muted">Emails come from our shared alert service, checked after each of our twice-daily price updates: one email per alert, never twice in three days. To change a price, set the alert again on the product page. Prices are the lowest in-stock store price, before postage.</p>
     </div>
   );
 }

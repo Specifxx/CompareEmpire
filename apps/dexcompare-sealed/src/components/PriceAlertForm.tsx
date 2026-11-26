@@ -14,6 +14,7 @@
 // passes its own button class. The same file is copied into every site.
 import { useState, type CSSProperties, type FormEvent } from "react";
 import { track } from "@vercel/analytics";
+import { followsRestock } from "@/lib/follow";
 
 export const ALERT_SERVICE = "https://riftcompare.com/api/sister-alerts";
 export const ALERT_PRIVACY = "/privacy";
@@ -40,7 +41,7 @@ export function parseAmount(s: string): number | null {
   return c > 0 && c < 100_000_000 ? c : null;
 }
 
-type State = { status: "idle" | "sending" } | { status: "done"; confirm: boolean; weekly: boolean } | { status: "error"; message: string };
+type State = { status: "idle" | "sending" } | { status: "done"; confirm: boolean; weekly: boolean; restock?: boolean } | { status: "error"; message: string };
 
 export function PriceAlertForm({
   site,
@@ -72,12 +73,15 @@ export function PriceAlertForm({
   const [state, setState] = useState<State>({ status: "idle" });
   const sym = SYMBOL[region] ?? "";
   const start = priceCents ? (suggestTarget(priceCents) / 100).toFixed(0) : "";
+  // A follow (lib/follow.ts): the same alert also emails once when it is back after selling out, said plainly on the form.
+  const follow = followsRestock(region);
 
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
     if (String(f.get("website") ?? "")) return setState({ status: "done", confirm: true, weekly: false });
     const weekly = f.get("weekly") === "on";
+    const restock = follow;
     const targetCents = parseAmount(String(f.get("target") ?? ""));
     if (!targetCents) return setState({ status: "error", message: "Enter the price you want, like 45 or 45.50." });
     setState({ status: "sending" });
@@ -85,14 +89,14 @@ export function PriceAlertForm({
       const r = await fetch(ALERT_SERVICE, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ site, productId, region, email: String(f.get("email") ?? ""), weekly, targetCents }),
+        body: JSON.stringify({ site, productId, region, email: String(f.get("email") ?? ""), weekly, targetCents, ...(restock ? { restock: true } : {}) }), // restock: lib/follow.ts
       });
       const j = (await r.json().catch(() => ({}))) as { ok?: boolean; status?: string; error?: string };
       if (r.ok && j.ok) {
-        track("alert_created", { region, weekly, prominent });
+        track("alert_created", { region, weekly, prominent, restock });
         onCreated?.();
       }
-      setState(r.ok && j.ok ? { status: "done", confirm: j.status !== "active", weekly } : { status: "error", message: j.error || "Couldn't save your alert. Please try again." });
+      setState(r.ok && j.ok ? { status: "done", confirm: j.status !== "active", weekly, restock } : { status: "error", message: j.error || "Couldn't save your alert. Please try again." });
     } catch {
       setState({ status: "error", message: "Couldn't save your alert. Check your connection and try again." });
     }
@@ -133,7 +137,8 @@ export function PriceAlertForm({
       <div className={className} style={box} role="status">
         <strong>{state.confirm ? "Check your inbox to confirm." : "Done. Your alert is on."}</strong>
         <p style={{ ...hint, opacity: 0.85 }}>
-          {state.confirm ? "One click in the email we just sent, and we'll email you when a store reaches your price." : "We check prices once a day and email you when a store reaches your price."}
+          {state.confirm ? "One click in the email we just sent, and we'll email you when a store reaches your price." : "We check prices twice a day and email you when a store reaches your price."}
+          {state.restock ? " And once if it sells out and comes back in stock." : ""}
           {state.weekly ? " The weekly price drops email starts within about a week." : ""}
         </p>
       </div>
@@ -150,6 +155,7 @@ export function PriceAlertForm({
         Your email
       </label>
       <input id={`pa-email-${productId}`} name="email" type="email" required autoComplete="email" placeholder="Your email address" style={field} />
+      {follow && <p style={{ ...hint, marginTop: 6 }}>We&rsquo;ll also email you once if it sells out and comes back in stock.</p>}
       <label style={{ display: "flex", gap: 8, alignItems: "flex-start", fontSize: 13, margin: "10px 0 0", cursor: "pointer" }}>
         <input type="checkbox" name="weekly" style={{ marginTop: 3 }} />
         <span>Also email me this site&rsquo;s biggest price drops once a week</span>
@@ -168,7 +174,7 @@ export function PriceAlertForm({
         </p>
       )}
       <p style={hint}>
-        Free, no account. We email you once to confirm, then only when a store reaches your price (and once a week if you ticked the box); every email has a stop link, and alerts end after six months. Sent by our shared alert service (<a href={ALERT_PRIVACY} style={{ color: "inherit" }}>privacy</a>).
+        Free, no account. We email you once to confirm, then only when a store reaches your price{follow ? " or it is back in stock" : ""}, never twice in three days (and once a week if you ticked that box); every email has a stop link, and alerts end after six months. Sent by our shared alert service (<a href={ALERT_PRIVACY} style={{ color: "inherit" }}>privacy</a>).
       </p>
     </form>
   );
