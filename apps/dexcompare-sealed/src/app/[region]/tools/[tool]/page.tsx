@@ -12,7 +12,7 @@ import { ValueChecker } from "@/components/tools/ValueChecker";
 import { guideFor } from "@/content/guides";
 import { newestReleased } from "@/content/guides/facts";
 import { guideHref, setHref, typeHref } from "@/content/guides/kit";
-import { TOOL_BY_SLUG, TOOLS, toolHref, toolIndexed, toolMetaTitle, toolRegions, type Tool } from "@/content/tools";
+import { TOOL_BY_SLUG, TOOLS, toolHref, toolIndexed, toolMetaTitle, toolRegions, toolTitleIn, type Tool } from "@/content/tools";
 import { FEES_CHECKED, schedulesFor, scheduleText } from "@/lib/fees";
 import { money } from "@/lib/format";
 import { regionOrNotFound, type RegionInfo } from "@/lib/regions";
@@ -35,7 +35,7 @@ export function generateMetadata({ params }: { params: { region: string; tool: s
   const t = TOOL_BY_SLUG.get(params.tool);
   if (!t) return {};
   const meta = pageMeta({
-    title: t.metaTitle ?? t.title,
+    title: toolTitleIn(t, r.region),
     description: t.description,
     path: toolHref(r.region, t.slug),
     // Indexed only in the tool's TOOL_INDEX_REGIONS (2026-11-24; US, plus AU for the two tools that read the region): elsewhere
@@ -43,7 +43,7 @@ export function generateMetadata({ params }: { params: { region: string; tool: s
     alternates: toolIndexed(r.region, t) ? regionAlternates(r.region, `/tools/${t.slug}`, toolRegions(t).filter((x) => toolIndexed(x, t))) : undefined,
     noindex: !toolIndexed(r.region, t),
   });
-  return { ...meta, title: toolMetaTitle(t.metaTitle ?? t.title) };
+  return { ...meta, title: toolMetaTitle(toolTitleIn(t, r.region)) };
 }
 
 export default function ToolPage({ params }: { params: { region: string; tool: string } }) {
@@ -63,11 +63,13 @@ export default function ToolPage({ params }: { params: { region: string; tool: s
         <div className="eyebrow">{t.kicker}</div>
         <h1 className="mt-2 ph-h1">{t.title}</h1>
         <p className="ph-lede">{t.lede}</p>
-        {t.slug === "trade-calculator" && (
-          // Job D (2026-11-26): a sealed item in a trade needs a value both sides accept, and the scorecard asked for a way to the
-          // store prices above the fold. Plain links to pages we already have; no price is claimed here.
+        {(t.slug === "trade-calculator" || t.slug === "selling-fee-calculator") && (
+          // Job D (2026-11-26): a sealed item in a trade or a sale needs a price buyers accept, and the scorecard asked for a way to
+          // the store prices above the fold. Plain links to pages we already have; no price is claimed here.
           <p className="mt-3 text-[15px] leading-6 text-muted">
-            Trading sealed product? Get its value from today’s store prices first:{" "}
+            {t.slug === "trade-calculator"
+              ? "Trading sealed product? Get its value from today’s store prices first:"
+              : "Selling sealed product? Buyers compare your price with what stores charge today:"}{" "}
             <Link href={toolHref(r.region, "value-checker")} prefetch={false} className="font-semibold text-brand hover:underline">
               value checker
             </Link>

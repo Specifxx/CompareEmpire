@@ -25,6 +25,11 @@ export interface Tool {
    * /us/tools/value-checker at 5.1, both with impressions and no click). The H1, breadcrumbs and chips keep `title`.
    */
   metaTitle?: string;
+  /**
+   * A region's own <title>, where its searchers add the country (Job D, 2026-11-26: /au/tools/selling-fee-calculator at position
+   * 9.6 with 17 impressions and no click, the AU copy of a tool indexed in the US and AU). Wins over `metaTitle` in that region.
+   */
+  metaTitleIn?: Partial<Record<Region, string>>;
   /** Meta description and the index card's text: at most 160 characters. */
   description: string;
   /** The index card's eyebrow. */
@@ -128,7 +133,9 @@ export const TOOLS: readonly Tool[] = [
   {
     slug: "selling-fee-calculator",
     title: "Pokémon card selling fee calculator",
-    description: "Work out eBay's fees on a Pokémon card or sealed product sale, and what you keep after postage, with eBay's published rates or your own.",
+    metaTitle: "eBay Fee Calculator for Pokémon Cards: What You Keep",
+    metaTitleIn: { au: "eBay Fee Calculator Australia: Pokémon Card Sales" },
+    description: "Free eBay fee calculator for Pokémon cards and sealed product: eBay's fees on a sale and what you keep after postage, at eBay's published rates or your own.",
     kicker: "Selling fees",
     lede: "Enter the sale price and postage to see eBay's final value fee, the per-order fee, and what the sale leaves you after your own costs.",
     about: [
@@ -238,6 +245,11 @@ export const toolsIndexIndexed = (region: string): boolean => TOOLS.some((t) => 
 export const toolHref = (region: Region, slug: ToolSlug) => `/${region}/tools/${slug}`;
 
 /** The <title>: " | DexCompare" when it still fits in 65 characters. */
+/** The words a tool's <title> is built from in a region: its own title there, else `metaTitle`, else the H1. */
+export function toolTitleIn(t: Tool, region: Region): string {
+  return t.metaTitleIn?.[region] ?? t.metaTitle ?? t.title;
+}
+
 export function toolMetaTitle(title: string): string | { absolute: string } {
   return title.length + " | DexCompare".length <= 65 ? title : { absolute: title };
 }
