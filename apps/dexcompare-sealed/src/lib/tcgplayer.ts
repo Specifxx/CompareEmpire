@@ -42,7 +42,7 @@
 //     single unit (dropPlaceholderAsks in importer.ts).
 import type { FeedProduct } from "./feeds";
 import { SCRAPE_HEADERS, sleep } from "./scrape-http";
-import { detectSet, identify } from "./sealed-title";
+import { detectSet, identify, isIdentity, type SealedIdentity } from "./sealed-title";
 
 const SEARCH_URL = "https://mp-search-api.tcgplayer.com/v1/search/request?q=&isList=false";
 const PAGE_SIZE = 50;
@@ -289,9 +289,62 @@ export async function tcgImageExists(url: string): Promise<boolean> {
 export function tcgTitle(p: Pick<TcgProduct, "productName" | "setName">): string {
   const name = (p.productName ?? "").trim();
   if (identify(name) !== "no-set") return name;
-  // "SWSH07: Evolving Skies", "XY - BREAKthrough", "ME: Ascended Heroes".
-  const set = (p.setName ?? "").replace(/^(?:SV|SWSH|SM|XY|ME|BW)\d{0,2}(?:\.\d)?\s*[:\-–]\s*/i, "").trim();
+  const set = tcgSetLabel(p.setName);
   return set && detectSet(set) ? `${set} ${name}` : name;
+}
+
+/** A TCGplayer set name without its code: "SWSH07: Evolving Skies", "XY - BREAKthrough", "ME: Ascended Heroes" → the name. */
+function tcgSetLabel(setName: string | undefined): string {
+  return (setName ?? "").replace(/^(?:SV|SWSH|SM|XY|ME|BW)\d{0,2}(?:\.\d)?\s*[:\-–]\s*/i, "").trim();
+}
+
+/** A set-less TCGplayer identity and the set TCGplayer itself files that product under. */
+export interface TcgSetTwin {
+  set: string;
+  identity: SealedIdentity;
+  /** TCGplayer's title the identity was read from (tcgTitle), kept for tcg-twins.json. */
+  title?: string;
+}
+
+/**
+ * The English catalogue's set-less identities whose product TCGplayer files under one set, keyed by the set-less groupKey
+ * (2026-11-26). TCGplayer names many collections, tins and decks without their set ("Kingambit Illustration Collection" in
+ * "SV: Shrouded Fable", "Blooming Waters Premium Collection" in "SV: Scarlet & Violet 151"), while most stores name it
+ * ("Shrouded Fable - Illustration Collection - Kingambit"). The two titles identify to two keys, so the stores' page had no
+ * TCGplayer id and no TCGplayer price, and TCGplayer's page few stores. foldSetTwins (importer.ts) files the stores' rows on
+ * TCGplayer's key when TCGplayer's own set is the set the stores name.
+ *
+ * Kept only when it is certain: the set comes from TCGplayer's set name (never a title), every catalogue product on the key
+ * is filed under that same set (one under "Miscellaneous Cards & Products" or another set spoils it), and TCGplayer has no product of its own on the set-qualified key (then the two are different products,
+ * as the 30th Celebration Classic Collection Pack and the 2023 Classic Collection are). The whole catalogue counts, listed or
+ * not, so a product with no seller today still holds its twin and the stores' rows do not move back and forth (and a run
+ * without a TCGplayer read folds with the last map, tcg-twins.ts). Pure, tested in tests/tcgplayer-join.test.ts.
+ */
+export function tcgSetTwins(products: TcgProduct[]): Map<string, TcgSetTwin> {
+  const own = new Set<string>();
+  const cand = new Map<string, TcgSetTwin | null>();
+  for (const p of products) {
+    if (!p?.productId || !p.productName) continue;
+    const title = tcgTitle(p);
+    const id = identify(title, { strict: false });
+    if (!isIdentity(id)) continue;
+    own.add(id.groupKey);
+    const [, setPart, sig] = id.groupKey.split("|");
+    if (setPart !== "-" || !sig) continue;
+    const label = tcgSetLabel(p.setName);
+    const set = label ? detectSet(label) : null;
+    const prev = cand.get(id.groupKey);
+    // A product filed under no set ("Miscellaneous Cards & Products"), or two products in two sets: not certain.
+    if (!set || (prev && prev.set !== set.code)) cand.set(id.groupKey, null);
+    else if (prev === undefined) cand.set(id.groupKey, { set: set.code, identity: id, title });
+  }
+  const out = new Map<string, TcgSetTwin>();
+  for (const [key, twin] of cand) {
+    if (!twin) continue;
+    const [type, , sig] = key.split("|");
+    if (!own.has(`${type}|${twin.set}|${sig}`)) out.set(key, twin);
+  }
+  return out;
 }
 
 /** Is this listing's price partly in its shipping? */

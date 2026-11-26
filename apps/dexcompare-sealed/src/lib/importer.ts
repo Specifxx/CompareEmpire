@@ -44,8 +44,9 @@ import { canonicalName, cleanName, floorCents, identifyAny, isIdentity, roughUsd
 import { headlineOffer, offerStock } from "./sealed-offers";
 import { hostOf, loadDenylist } from "./denylist";
 import { SOURCES, STORE_BY_KEY, isMarketplace, storeCurrency, type StoreConfig } from "./stores";
-import { isTcgImage, JAPANESE_LINE, readTcgplayerCatalogue, tcgFeedProducts, tcgImageExists, tcgPhotoProducts } from "./tcgplayer";
+import { isTcgImage, JAPANESE_LINE, readTcgplayerCatalogue, tcgFeedProducts, tcgImageExists, tcgPhotoProducts, tcgSetTwins, type TcgSetTwin } from "./tcgplayer";
 import { writeTcgMarket } from "./tcg-market";
+import { readTcgTwins, writeTcgTwins } from "./tcg-twins";
 
 export interface ImportRow {
   identity: SealedIdentity;
@@ -70,6 +71,8 @@ export interface StoreRead {
   partial?: string;
   // TCGplayer only: catalogue photos of products no seller lists yet (photosFromCatalogue). A photo, never a row.
   photos?: ImportPhoto[];
+  // TCGplayer only: its set-less identities with the set TCGplayer files each under (tcgSetTwins, foldSetTwins).
+  setTwins?: Map<string, TcgSetTwin>;
 }
 
 /** A TCGplayer catalogue photo of one product identity, from a product with no buyable listing. */
@@ -274,13 +277,21 @@ async function readHtmlStore(store: StoreConfig, platform: HtmlPlatform): Promis
   return { reads, rediscovered: false, error: null };
 }
 
-async function readTcgplayer(): Promise<{ reads: CollectionRead[]; rediscovered: boolean; error: string | null; photos: { id: string; title: string; imageUrl: string }[] }> {
+async function readTcgplayer(): Promise<{
+  reads: CollectionRead[];
+  rediscovered: boolean;
+  error: string | null;
+  photos: { id: string; title: string; imageUrl: string }[];
+  setTwins: Map<string, TcgSetTwin>;
+}> {
   // The catalogue is TCGplayer's Pokémon product line, so its titles are read
   // like a store's Pokémon collection: they needn't say "Pokémon".
   const catalogue = await readTcgplayerCatalogue();
   const products = tcgFeedProducts(catalogue);
   const reads: CollectionRead[] = [{ handle: "pokemon", ok: true, products }];
   const photos = tcgPhotoProducts(catalogue);
+  const setTwins = tcgSetTwins(catalogue);
+  writeTcgTwins(setTwins as Map<string, TcgSetTwin & { title: string }>);
   // TCGplayer's market prices from the same reads, for the price history chart's TCGplayer line (lib/tcg-market.ts): no extra request.
   const market = [...catalogue];
   // The Japanese line, for the Japanese section, after it, on a shorter clock. A failed read costs nothing but its own rows
@@ -294,7 +305,40 @@ async function readTcgplayer(): Promise<{ reads: CollectionRead[]; rediscovered:
     console.warn(`  tcgplayer: the Japanese line was not read (${(e as Error).message}); the English catalogue is kept`);
   }
   await writeTcgMarket(market);
-  return { reads, rediscovered: false, error: null, photos };
+  return { reads, rediscovered: false, error: null, photos, setTwins };
+}
+
+/**
+ * File the stores' rows of a TCGplayer product on TCGplayer's own key when TCGplayer names it without its set and the stores
+ * with it (tcgSetTwins, 2026-11-26): "Shrouded Fable - Illustration Collection - Kingambit" (collection|sv6pt5|…) joins
+ * TCGplayer's "Kingambit Illustration Collection" (collection|-|…, filed by TCGplayer under SV: Shrouded Fable), so the page
+ * that carries TCGplayer's id and price also carries every store. Only a key TCGplayer's catalogue vouches for moves, and only
+ * to the set-less key whose product TCGplayer files under exactly that set; a store that lists both keeps its better row (as
+ * rowsFromReads does). A run without a TCGplayer read folds with `saved`, the last map written (tcg-twins.ts), so rows never
+ * move back for a day. Returns the rows moved. Pure.
+ */
+export function foldSetTwins(reads: StoreRead[], saved: ReadonlyMap<string, TcgSetTwin> = new Map()): number {
+  const fresh = reads.find((r) => r.setTwins?.size)?.setTwins;
+  const into = new Map<string, SealedIdentity>();
+  for (const [key, twin] of fresh ?? saved) {
+    const [type, , sig] = key.split("|");
+    into.set(`${type}|${twin.set}|${sig}`, twin.identity);
+  }
+  if (!into.size) return 0;
+  let moved = 0;
+  for (const r of reads) {
+    if (!r.rows.some((row) => into.has(row.identity.groupKey))) continue;
+    const best = new Map<string, ImportRow>();
+    for (const row of r.rows) {
+      const to = into.get(row.identity.groupKey);
+      const next = to ? { ...row, identity: to } : row;
+      if (to) moved++;
+      const prev = best.get(next.identity.groupKey);
+      if (!prev || better(next, prev)) best.set(next.identity.groupKey, next);
+    }
+    r.rows = [...best.values()];
+  }
+  return moved;
 }
 
 /**
@@ -317,7 +361,10 @@ export function photosFromCatalogue(rows: ImportRow[], photos: { id: string; tit
 export async function readStore(store: StoreConfig): Promise<StoreRead> {
   const t0 = Date.now();
   try {
-    const { reads, rediscovered, error, photos }: Awaited<ReturnType<typeof readShopifyStore>> & { photos?: { id: string; title: string; imageUrl: string }[] } =
+    const { reads, rediscovered, error, photos, setTwins }: Awaited<ReturnType<typeof readShopifyStore>> & {
+      photos?: { id: string; title: string; imageUrl: string }[];
+      setTwins?: Map<string, TcgSetTwin>;
+    } =
       store.platform === "tcgplayer"
         ? await readTcgplayer()
         : store.platform === "woocommerce"
@@ -339,6 +386,7 @@ export async function readStore(store: StoreConfig): Promise<StoreRead> {
     const rows = rowsFromReads(store, reads);
     const read: StoreRead = { store, ok: true, error: null, partial, rows, products, rediscovered, ms: Date.now() - t0 };
     if (photos?.length) read.photos = photosFromCatalogue(rows, photos);
+    if (setTwins?.size) read.setTwins = setTwins;
     return read;
   } catch (e) {
     const error = e instanceof RateLimitedError ? `rate limited: ${e.message}` : (e as Error).message || String(e);
@@ -1206,6 +1254,9 @@ export async function runImport(opts: { only?: string[]; concurrency?: number } 
     return r;
   });
 
+  // Before the price checks, so their medians see each product's stores together.
+  const twinRows = foldSetTwins(reads, readTcgTwins());
+  if (twinRows) console.log(`  ${twinRows} store rows filed on TCGplayer's key for the same product (foldSetTwins)`);
   const suspectStores = demoteSuspectStores(reads);
   const placeholderPrices = demotePlaceholderPrices(reads);
   const pageCheck = process.env.SKIP_PAGE_CHECK === "1" ? null : await verifyCheapestPages(reads);
