@@ -53,7 +53,14 @@ export function credentialsFor(region: Region, env: Record<string, string | unde
 }
 
 export interface Listing {
-  price?: { money?: { amount?: number; currency?: string } };
+  price?: {
+    money?: { amount?: number; currency?: string };
+    /** Amazon's own saving on this listing (part of the price resource): its percentage and what it is measured against. */
+    savings?: { money?: { amount?: number; currency?: string }; percentage?: number } | null;
+    savingBasis?: { money?: { amount?: number; currency?: string }; savingBasisType?: string; savingBasisTypeLabel?: string } | null;
+  };
+  /** A deal Amazon runs on this listing (Black Friday, Lightning Deal…): its badge and who can buy at that price. */
+  dealDetails?: { accessType?: string; badge?: string; endTime?: string; startTime?: string } | null;
   condition?: { value?: string };
   availability?: { type?: string };
   merchantInfo?: { name?: string };
@@ -77,15 +84,52 @@ const BUYABLE = new Set(["IN_STOCK", "IN_STOCK_SCARCE"]);
  * The price we show for an item: the buy-box listing if it is new, in stock and in the store's currency, else
  * the cheapest such listing. Null when none qualifies (the row then keeps its search link and no price).
  */
-export function pickListing(item: Item, currency: string): { amount: number; seller?: string } | null {
+export function pickListing(item: Item, currency: string): { amount: number; seller?: string; off?: number; deal?: string; until?: string } | null {
   const ok = (item.offersV2?.listings ?? []).filter(
     (l) => l.condition?.value === "New" && BUYABLE.has(l.availability?.type ?? "") && l.price?.money?.currency === currency && (l.price?.money?.amount ?? 0) > 0,
   );
   if (!ok.length) return null;
   const best = ok.find((l) => l.isBuyBoxWinner) ?? [...ok].sort((a, b) => a.price!.money!.amount! - b.price!.money!.amount!)[0];
   const seller = best.merchantInfo?.name;
-  return { amount: best.price!.money!.amount!, seller: seller && !/^amazon/i.test(seller) ? seller : undefined };
+  const out: { amount: number; seller?: string; off?: number; deal?: string; until?: string } = { amount: best.price!.money!.amount!, seller: seller && !/^amazon/i.test(seller) ? seller : undefined };
+  const saving = amazonSaving(best, currency);
+  if (saving.off) out.off = saving.off;
+  if (saving.deal) out.deal = saving.deal;
+  if (saving.until) out.until = saving.until;
+  return out;
 }
+
+/**
+ * Amazon's own discount on the listing we show (Black Friday, 2026-11-27). The percentage Amazon states, whole, 5 to 80,
+ * in the store's currency, and only against a price Amazon itself recently charged (a was-price or its typical price):
+ * a cut from a list price nobody pays is not a saving. A deal badge only for a deal open to everyone that has started
+ * and not ended (a Prime-only deal drops the percentage too: its price is not the one we show), with its end time so
+ * the browser hides it when the deal ends. Amazon's claim, shown as Amazon's on the Amazon row alone: never a deal
+ * list, a sort, the cheapest badge, an alert or history. Pure but for the clock.
+ */
+export function amazonSaving(l: Listing, currency: string, now = Date.now()): { off?: number; deal?: string; until?: string } {
+  const out: { off?: number; deal?: string; until?: string } = {};
+  const d = l.dealDetails;
+  if (d && d.accessType !== "ALL") return out;
+  const t = (x?: string) => (x && Number.isFinite(Date.parse(x)) ? Date.parse(x) : null);
+  const start = t(d?.startTime);
+  const endsAt = t(d?.endTime);
+  if (d && ((start !== null && start > now) || (endsAt !== null && endsAt <= now))) return out;
+  const pct = l.price?.savings?.percentage;
+  const cur = l.price?.savings?.money?.currency;
+  const basis = l.price?.savingBasis?.savingBasisType ?? "";
+  if (typeof pct === "number" && Number.isFinite(pct) && (!cur || cur === currency) && (d || /^(WAS_PRICE|LOWEST_PRICE)/.test(basis))) {
+    const off = Math.round(pct);
+    if (off >= 5 && off <= 80) out.off = off;
+  }
+  const badge = d?.badge?.replace(/\s+/g, " ").trim();
+  if (badge && badge.length <= 40 && /^[\p{L}\p{N} '&%-]+$/u.test(badge)) out.deal = badge;
+  if ((out.off || out.deal) && endsAt !== null) out.until = new Date(endsAt).toISOString();
+  return out;
+}
+
+/** The one extra resource the build adds to PRICE_RESOURCES for Amazon's deal badge; dropped for the run if Amazon refuses it. */
+export const DEAL_RESOURCE = "offersV2.listings.dealDetails";
 
 export const PRICE_RESOURCES = [
   "itemInfo.title",

@@ -5,7 +5,7 @@ import path from "node:path";
 import { test } from "node:test";
 import { amazonTitleMatches } from "../scripts/amazon-asins";
 import { amazonQuery } from "../src/lib/amazon";
-import { credentialsFor, itemsOf, pickListing, tokenEndpoint, type Item } from "../src/lib/amazon-creators";
+import { amazonSaving, credentialsFor, itemsOf, pickListing, tokenEndpoint, type Item } from "../src/lib/amazon-creators";
 import { amazonUrl } from "../src/lib/amazon";
 import { identifyAny } from "../src/lib/sealed-title";
 
@@ -124,4 +124,26 @@ test("Amazon order: most-clicked products are searched and priced first", async 
   assert.deepEqual(demandClicks("/no/such/file.json"), {});
   const src = readFileSync("scripts/amazon-shared.ts", "utf8");
   assert.match(src, /b\.clicks - a\.clicks \|\| b\.prices\.length - a\.prices\.length/);
+});
+
+test("Amazon's own saving and deal badge ride on the shown listing, only when sane, live and open to everyone", () => {
+  const now = Date.parse("2026-11-27T12:00:00Z");
+  const was = { savingBasisType: "WAS_PRICE" };
+  const l = (savings: unknown, dealDetails?: unknown, savingBasis: unknown = was) =>
+    ({ condition: { value: "New" }, availability: { type: "IN_STOCK" }, price: { money: { amount: 30, currency: "USD" }, savings, savingBasis }, dealDetails }) as never;
+  assert.deepEqual(amazonSaving(l({ percentage: 24.6, money: { amount: 9.8, currency: "USD" } }), "USD", now), { off: 25 });
+  assert.deepEqual(amazonSaving(l({ percentage: 25 }, undefined, { savingBasisType: "LIST_PRICE" }), "USD", now), {}, "a list price nobody pays");
+  assert.deepEqual(amazonSaving(l({ percentage: 25 }, undefined, null), "USD", now), {}, "no basis, no claim");
+  assert.deepEqual(amazonSaving(l({ percentage: 3 }), "USD", now), {}, "under 5% is noise");
+  assert.deepEqual(amazonSaving(l({ percentage: 92 }), "USD", now), {});
+  assert.deepEqual(amazonSaving(l({ percentage: 30, money: { currency: "CAD" } }), "USD", now), {}, "another currency");
+  const bf = { badge: "Black Friday Deal", accessType: "ALL", endTime: "2026-11-28T08:00:00Z" };
+  assert.deepEqual(amazonSaving(l({ percentage: 20 }, bf, { savingBasisType: "LIST_PRICE" }), "USD", now), { off: 20, deal: "Black Friday Deal", until: "2026-11-28T08:00:00.000Z" }, "a live deal speaks for its price");
+  assert.deepEqual(amazonSaving(l({ percentage: 25 }, { badge: "Prime Exclusive Deal", accessType: "PRIME_EXCLUSIVE" }), "USD", now), {}, "a Prime-only price is not the one shown");
+  assert.deepEqual(amazonSaving(l({ percentage: 25 }, { badge: "Lightning Deal" }), "USD", now), {}, "access unknown");
+  assert.deepEqual(amazonSaving(l(null, { ...bf, endTime: "2026-11-27T11:00:00Z" }), "USD", now), {}, "an ended deal");
+  assert.deepEqual(amazonSaving(l(null, { ...bf, startTime: "2026-11-28T00:00:00Z" }), "USD", now), {}, "a deal not started");
+  assert.deepEqual(amazonSaving(l(null, { ...bf, badge: "<b>Deal</b>" }), "USD", now), {}, "never markup");
+  const picked = pickListing({ asin: "B000000001", offersV2: { listings: [l({ percentage: 20 }, { badge: "Black Friday Deal", accessType: "ALL" })] } }, "USD");
+  assert.deepEqual(picked, { amount: 30, seller: undefined, off: 20, deal: "Black Friday Deal" });
 });
