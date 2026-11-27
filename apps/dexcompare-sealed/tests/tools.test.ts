@@ -7,7 +7,8 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { findBannedCopy } from "../src/lib/copy-rules";
 import { FEE_BY_KEY, FEE_SCHEDULES, schedulesFor, sellingFees } from "../src/lib/fees";
 import { productIntro } from "../src/lib/product-copy";
-import { STORE_MIN_LISTED, storeIndexable, storeIntro } from "../src/lib/hub-copy";
+import { renderedTitle, STORE_MIN_LISTED, storeIndexable, storeIntro, storeTitle, TITLE_MAX } from "../src/lib/hub-copy";
+import { STORES } from "../src/lib/stores";
 import { REGION_LIST, REGIONS } from "../src/lib/regions";
 import { staticSitemap } from "../src/lib/sitemap";
 import { SITE_URL } from "../src/lib/site";
@@ -280,4 +281,18 @@ test("toolTitleIn: a region's own title wins, then metaTitle, then the H1 (Job D
   assert.equal(toolTitleIn(fee, "us"), "eBay Fee Calculator for Pokémon Cards: What You Keep");
   const deck = TOOL_BY_SLUG.get("deck-builder")!;
   assert.equal(toolTitleIn(deck, "au"), deck.title);
+});
+
+test("store titles say what we add (the comparison) and fit in 65 characters", () => {
+  assert.equal(renderedTitle(storeTitle("House Rules Board Game Lounge", REGIONS.us)), "House Rules Board Game Lounge Pokémon Prices vs Other US Stores");
+  assert.equal(renderedTitle(storeTitle("Zatu", REGIONS.uk)), "Zatu Pokémon Prices vs Other UK Stores | DexCompare");
+  assert.match(renderedTitle(storeTitle("Zatu", REGIONS.uk, 3)), /— page 3/);
+  for (const s of STORES) {
+    const r = Object.values(REGIONS).find((x) => x.market === s.market) ?? REGIONS.us;
+    for (const page of [1, 12]) {
+      const t = renderedTitle(storeTitle(s.name, r, page));
+      assert.ok(t.length <= TITLE_MAX || t === `${s.name} Pokémon${page > 1 ? ` — page ${page}` : ""}`, t);
+      assert.ok(t.includes(s.name) && t.includes("Pokémon"), t);
+    }
+  }
 });

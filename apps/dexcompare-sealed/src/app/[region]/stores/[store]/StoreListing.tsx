@@ -13,7 +13,7 @@ import { REL_STORE, storeRetailer } from "@/lib/affiliate";
 import { PAGE_SIZE, storeOffers, storeStat, storeTypeRows } from "@/lib/data";
 import { listHasRoomForFooter } from "@/lib/ebay-ads";
 import { money, timeAgo } from "@/lib/format";
-import { hubTitle, storeIndexable, storeIntro, titleText } from "@/lib/hub-copy";
+import { storeIndexable, storeIntro, storeTitle, titleText } from "@/lib/hub-copy";
 import { thumb } from "@/lib/images";
 import { regionOfMarket, type RegionInfo } from "@/lib/regions";
 import { retiredStoreRedirect } from "@/lib/retired-stores";
@@ -62,13 +62,13 @@ const getStoreStat = cache((key: string) => storeStat(key));
  */
 export async function storeMeta(r: RegionInfo, s: StoreConfig, page: number): Promise<Metadata> {
   const st = await getStoreStat(s.key);
-  // A long store name pushes the title past 65 characters with " | DexCompare": then it goes out without the suffix.
-  const title = hubTitle(`${s.name} — Pokémon sealed stock & prices${page > 1 ? ` — page ${page}` : ""}`);
+  // "<Store> Pokémon Prices vs Other US Stores" (hub-copy.ts storeTitle); past 65 characters with " | DexCompare" it goes out without the suffix.
+  const title = storeTitle(s.name, r, page);
   return {
     ...pageMeta({
       title: titleText(title),
       description: st?.listed
-        ? `${s.name} (${storeHost(s)}) lists ${st.listed} Pokémon sealed products, ${st.inStock} in stock today: prices in ${r.currency}, compared with other ${r.adjective} stores.`
+        ? `${st.inStock} Pokémon sealed products in stock at ${s.name} (${storeHost(s)}) today, ${st.listed} listed: booster boxes, ETBs and more in ${r.currency}, compared with other ${r.adjective} stores.`
         : `Pokémon booster boxes, ETBs and sealed product at ${s.name} (${storeHost(s)}), with stock and prices compared against other ${r.adjective} stores.`,
       path: pageHref(`/${r.region}/stores/${s.key}`, page),
       noindex: !storeIndexable(st),
@@ -118,15 +118,8 @@ export async function StorePage({ r, s, page }: { r: RegionInfo; s: StoreConfig;
           Visit {storeHost(s)} <span aria-hidden="true">↗</span>
         </OutboundLink>
       </div>
-      {page === 1 && (
-        <div className="prose-dex mt-6">
-          {storeIntro({ name: s.name, host: storeHost(s), platform: s.platform, r, rows: typeRows, storesInRegion: storesInMarket(s.market).length, dormant: !!st?.dormant }).map((t) => (
-            <p key={t}>{t}</p>
-          ))}
-        </div>
-      )}
       {offers.length ? (
-        <div className="mt-8 overflow-hidden rounded-2xl border border-line bg-surface/60">
+        <div className="mt-6 overflow-hidden rounded-2xl border border-line bg-surface/60">
           <ul className="divide-y divide-line">
             {offers.map((o) => {
               const state = offerStock(o, now);
@@ -163,6 +156,15 @@ export async function StorePage({ r, s, page }: { r: RegionInfo; s: StoreConfig;
       )}
       <Pagination base={base} page={page} pages={pages} />
       <p className="mt-4 text-xs text-muted">In stock first, then cheapest first. Prices are the store&rsquo;s own, in {r.currency}, and exclude shipping.</p>
+      {/* The intro sits under the list (scorecard fix, 2026-11-27): the store's in-stock rows are what a searcher came for, so they
+          start right under the heading on a phone; the words stay in the server HTML. */}
+      {page === 1 && (
+        <div className="prose-dex mt-8">
+          {storeIntro({ name: s.name, host: storeHost(s), platform: s.platform, r, rows: typeRows, storesInRegion: storesInMarket(s.market).length, dormant: !!st?.dormant }).map((t) => (
+            <p key={t}>{t}</p>
+          ))}
+        </div>
+      )}
       {page === 1 && <StoreBadgeBox html={storeBadge(SITE_URL, SITE_NAME, "Pokémon sealed", base)} storeName={s.name} />}
       {/* After the store's list, not above it (the list is what the visitor came for). It is the page's one unit, so the strip above the footer is
           dropped. A short list gets no unit at all: a strip under a handful of rows would be over a quarter of the page (the §C4 density ceiling). */}

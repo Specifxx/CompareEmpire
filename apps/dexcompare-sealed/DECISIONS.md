@@ -2219,3 +2219,12 @@ was only 9 to 20% of them, and the owner asked to "capture this opportunity with
 product price table carries a small chip saying what its sale is (`TcgSaleChip`, 9AM 27 Nov to 11PM 30 Nov New York time,
 `lib/bf-mode.ts`). It is drawn only in the browser after the clock is read, so cached HTML never shows it outside the sale. It
 ranks nothing and marks no row the cheapest. Delete it with the bar after the sale.
+
+## 2026-11-27 — Store pages: the comparison in the title, the list first
+
+The 23 Nov page scorecard's fix verdict for `/us/stores/houseruleslounge` (position 11.7, no click): someone who searches a
+store's name already has the store's own site above us, so "<Store> — Pokémon sealed stock & prices" offered nothing it
+doesn't. Every store page's title now says what we add: "<Store> Pokémon Prices vs Other US Stores" (`storeTitle`,
+`lib/hub-copy.ts`; a long name drops the comparison, then "Sealed", never the name or "Pokémon"), and the description opens
+with today's in-stock count. On page 1 the store's own rows now start under the heading and the intro follows the list (still
+in the server HTML). URLs, h1, indexing and the sitemap are unchanged. Read ~10 Dec in GSC: CTR and position of `/*/stores/*`.
