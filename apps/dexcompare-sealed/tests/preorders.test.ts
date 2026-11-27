@@ -130,9 +130,9 @@ test("Delta Reign: the set's make-up, the new card type, the prerelease and the 
 test("Delta Reign page title and description: the pre-order prices AND the release date, in every region", () => {
   for (const r of REGION_LIST) {
     const t = titleText(preorderTitle(DR_SET, r, true));
-    assert.match(t, /^Delta Reign pre-orders in /);
-    assert.ok(t.includes(r.inName), `${r.region}: ${t}`);
-    assert.match(t, /prices & release date$/);
+    assert.match(t, /^Pokémon Delta Reign pre-orders: out /);
+    assert.ok(t.endsWith(`, ${r.short} prices`), `${r.region}: ${t}`);
+    assert.ok(t.includes(r.region === "us" || r.region === "ca" ? "Nov 6, 2026" : "6 Nov 2026"), `${r.region}: the date itself, in the region's order: ${t}`);
     assert.ok(t.length <= 65, `${r.region}: ${t.length}`);
     const d = preorderDescription(DR_SET, DR, r, true);
     assert.ok(d.length <= 160, `${r.region}: description is ${d.length} characters`);
@@ -142,6 +142,15 @@ test("Delta Reign page title and description: the pre-order prices AND the relea
     assert.equal(findBannedCopy(`${t} ${d}`), null);
   }
   assert.doesNotMatch(titleText(preorderTitle(DR_SET, REGIONS.au, false)), /pre-order/, "released: no pre-order title");
+  // Every set with a pre-order page keeps its title inside Google's width, in every region.
+  for (const g of PREORDER_GUIDES) {
+    const set = SET_BY_CODE.get(g.setCode);
+    if (!set) continue;
+    for (const r of REGION_LIST) {
+      const t = titleText(preorderTitle(set, r, true));
+      assert.ok(t.length <= 65, `${set.name} ${r.region}: ${t} (${t.length})`);
+    }
+  }
   assert.match(preorderDescription(DR_SET, DR, REGIONS.au, false), /released on 6 November 2026/);
 });
 

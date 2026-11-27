@@ -20,12 +20,25 @@ export function dayMonth(iso: string): string {
   return new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "long", timeZone: "UTC" });
 }
 
+/** "6 Feb 2027" (or "Feb 6, 2027" in the US): the release date in a <title>, in the region's own date order. */
+export function titleDate(iso: string, locale: string): string {
+  return new Date(`${iso}T00:00:00Z`).toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+}
+
 /**
  * The <title>: the pre-order prices the page is for, and the release date people search for ("delta reign release date"). Before
  * release only; from release day the page is noindexed and says the set is out.
+ *
+ * Job D, 2026-11-27 (the 23 Nov page scorecard: /nz/preorders/flowing-fists at position 5.6, 16 impressions, no click): the title
+ * now starts with "Pokémon" (the word every one of these searches carries) and states the date itself, which the old "prices &
+ * release date" only promised: "Pokémon Flowing Fists pre-orders: out 6 Feb 2027, NZ prices".
  */
-export function preorderTitle(set: Pick<PokemonSet, "name">, r: R, pre: boolean): HubTitle {
-  return hubTitle(pre ? `${set.name} pre-orders in ${r.inName}: prices & release date` : `${set.name} released: sealed prices in ${r.inName}`);
+export function preorderTitle(set: Pick<PokemonSet, "name" | "releaseDate">, r: R & Pick<RegionInfo, "short" | "locale">, pre: boolean): HubTitle {
+  return hubTitle(
+    pre
+      ? `Pokémon ${set.name} pre-orders: out ${titleDate(set.releaseDate, r.locale)}, ${r.short} prices`
+      : `${set.name} released: sealed prices in ${r.inName}`,
+  );
 }
 
 /** The meta description: the dates first (the answer to the search), then what the page compares. At most 160 characters. */
