@@ -27,6 +27,7 @@ import { hubSummary } from "@/lib/hub-summary";
 import { loadMarketReport } from "@/lib/market-report";
 import { REGIONS } from "@/lib/regions";
 import { storesInMarket } from "@/lib/stores";
+import { MascotGuide } from "@/components/MascotGuide";
 
 // Rendered per request and kept by Vercel's CDN for a day (next.config.js CDN_PAGES), never at build: the page carries
 // the default region's ten most-stocked products (lib/picks.ts), read from the public data files, so a crawler's first fetch has them. It reads no cookie, header or session: one copy for all.
@@ -114,6 +115,8 @@ export default async function Landing() {
             </button>
           </form>
         </div>
+        {/* Penny suggests a first search (owner, 2026-11-27: "a little mascot saying, hey, search this term here"). */}
+        <MascotGuide examples={["Prismatic Evolutions", "Destined Rivals", "Elite Trainer Box"]} submit />
         {/* The region row, with flags (owner, 2026-11-02): picks in place, like the header's switcher. */}
         <RegionChips className="hero-regions rise mt-6 justify-center" style={riseAt(3)} />
         <SoftWaysIn formId="landing-search" links={HERO_LINKS} />
