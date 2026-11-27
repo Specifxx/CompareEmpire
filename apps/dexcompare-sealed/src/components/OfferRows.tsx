@@ -19,6 +19,7 @@ import { OutboundLink } from "./OutboundLink";
 import { StockPill } from "./StockPill";
 import { BestHint, useBestHint } from "./BestHint";
 import { isPlainBest } from "@/lib/best-tag";
+import { TcgSaleChip } from "@/components/TcgSaleChip";
 
 // The price table's rows (OfferTable.tsx decides them on the server, as data): a client module because the visitor's "Price + shipping"
 // choice re-ranks them in the browser. Nothing here may import the stores' data or the shipping snapshot (they would join the bundle).
@@ -212,6 +213,7 @@ export function StoreRow({ d, preorder, top, hint }: { d: StoreRowData; preorder
           </span>
         )}
         <span className="or-name">{d.name}</span>
+        {tcg && <TcgSaleChip />}
         {d.marketplace && (
           <span className="hidden shrink-0 rounded-full border border-line bg-raised px-2 py-0.5 sm:inline text-[10px] font-bold uppercase leading-3 tracking-wide text-muted">Marketplace</span>
         )}
