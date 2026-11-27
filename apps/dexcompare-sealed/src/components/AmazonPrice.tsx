@@ -13,6 +13,9 @@ export interface AmazonLiveCell {
   at: string;
   timeZone: string;
   zoneLabel: string;
+  /** Amazon's own saving and deal badge on the listing (Black Friday, 2026-11-27): Amazon's claim, gone with the price */
+  off?: number;
+  deal?: string;
 }
 
 export function AmazonPrice({ live, fallback }: { live: AmazonLiveCell; fallback: string }) {
@@ -22,6 +25,11 @@ export function AmazonPrice({ live, fallback }: { live: AmazonLiveCell; fallback
   const when = new Date(live.at).toLocaleString("en-GB", { timeZone: live.timeZone, day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
   return (
     <span title={AMAZON_PRICE_DISCLAIMER}>
+      {(live.deal || live.off) && (
+        <span className="block truncate text-[11px] font-semibold leading-4 text-open">
+          {live.deal ? `${live.deal}${live.off ? ` · ${live.off}% off` : ""}` : `${live.off}% off at Amazon`}
+        </span>
+      )}
       <span className="tabular font-display text-lg font-bold leading-6">{live.price}</span>
       <span className="block truncate text-[11px] leading-4 text-muted sm:text-xs">as of {when} {live.zoneLabel}*</span>
     </span>

@@ -5,7 +5,7 @@ import path from "node:path";
 import { test } from "node:test";
 import { amazonTitleMatches } from "../scripts/amazon-asins";
 import { amazonQuery } from "../src/lib/amazon";
-import { credentialsFor, itemsOf, pickListing, tokenEndpoint, type Item } from "../src/lib/amazon-creators";
+import { amazonSaving, credentialsFor, itemsOf, pickListing, tokenEndpoint, type Item } from "../src/lib/amazon-creators";
 import { amazonUrl } from "../src/lib/amazon";
 import { identifyAny } from "../src/lib/sealed-title";
 
@@ -124,4 +124,19 @@ test("Amazon order: most-clicked products are searched and priced first", async 
   assert.deepEqual(demandClicks("/no/such/file.json"), {});
   const src = readFileSync("scripts/amazon-shared.ts", "utf8");
   assert.match(src, /b\.clicks - a\.clicks \|\| b\.prices\.length - a\.prices\.length/);
+});
+
+test("Amazon's own saving and deal badge ride on the shown listing, only when sane and open to everyone (Black Friday, 2026-11-27)", () => {
+  const l = (savings: unknown, dealDetails?: unknown) =>
+    ({ condition: { value: "New" }, availability: { type: "IN_STOCK" }, price: { money: { amount: 30, currency: "USD" }, savings }, dealDetails }) as never;
+  assert.deepEqual(amazonSaving(l({ percentage: 24.6, money: { amount: 9.8, currency: "USD" } }), "USD"), { off: 25 });
+  assert.deepEqual(amazonSaving(l({ percentage: 3 }), "USD"), {}, "under 5% is noise");
+  assert.deepEqual(amazonSaving(l({ percentage: 92 }), "USD"), {}, "a list price nobody pays");
+  assert.deepEqual(amazonSaving(l({ percentage: 30, money: { currency: "CAD" } }), "USD"), {}, "another currency");
+  assert.deepEqual(amazonSaving(l(null, { badge: "Black Friday Deal", accessType: "ALL" }), "USD"), { deal: "Black Friday Deal" });
+  assert.deepEqual(amazonSaving(l(null, { badge: "Prime Exclusive Deal", accessType: "PRIME_EXCLUSIVE" }), "USD"), {});
+  assert.deepEqual(amazonSaving(l(null, { badge: "Lightning Deal", endTime: "2020-01-01T00:00:00Z" }), "USD"), {});
+  assert.deepEqual(amazonSaving(l(null, { badge: "<b>Deal</b>" }), "USD"), {});
+  const picked = pickListing({ asin: "B000000001", offersV2: { listings: [l({ percentage: 20 }, { badge: "Black Friday Deal" })] } }, "USD");
+  assert.deepEqual(picked, { amount: 30, seller: undefined, off: 20, deal: "Black Friday Deal" });
 });

@@ -11,7 +11,7 @@
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { amazonFor } from "../src/lib/amazon";
-import { AmazonRefused, credentialsFor, creatorsClient, MARKETS, pickListing, PRICE_RESOURCES } from "../src/lib/amazon-creators";
+import { AmazonRefused, credentialsFor, creatorsClient, DEAL_RESOURCE, MARKETS, pickListing, PRICE_RESOURCES } from "../src/lib/amazon-creators";
 import type { AsinFile, LiveFile } from "../src/lib/amazon-live";
 import type { Region } from "../src/lib/regions";
 import { median, regionProducts } from "./amazon-shared";
@@ -42,15 +42,22 @@ async function region(r: Region) {
   const prices: LiveFile["prices"] = {};
   // Why an ASIN got no price, so the build log says whether Amazon had nothing to sell or we dropped its price.
   const dropped = { missing: 0, noNewInStock: 0, under60: 0, over160: 0 };
+  // Amazon's deal badge is asked for too (Black Friday, 2026-11-27); if Amazon refuses that resource, the run goes on without it.
+  let deals = true;
   for (let i = 0; i < todo.length; i += 10) {
     const batch = todo.slice(i, i + 10);
     const ids = [...new Set(batch.map((x) => known[x.p.slug].asin!))];
     let items;
     try {
-      items = await api.call("getItems", { itemIds: ids, itemIdType: "ASIN", resources: PRICE_RESOURCES });
+      items = await api.call("getItems", { itemIds: ids, itemIdType: "ASIN", resources: deals ? [...PRICE_RESOURCES, DEAL_RESOURCE] : PRICE_RESOURCES });
     } catch (e) {
       console.log(`Amazon prices ${r}: ${(e as Error).message}`);
       if (e instanceof AmazonRefused) break;
+      if (deals && i === 0) {
+        deals = false;
+        i -= 10;
+        console.log(`Amazon prices ${r}: retrying without ${DEAL_RESOURCE}.`);
+      }
       continue;
     }
     for (const x of batch) {
@@ -76,14 +83,15 @@ async function region(r: Region) {
         console.log(`Amazon prices ${r}: ${x.p.slug} dropped, ${cents} cents is over 160% of the store median ${ref}.`);
         continue;
       }
-      prices[x.p.slug] = { asin, cents };
+      prices[x.p.slug] = { asin, cents, ...(pick.off ? { off: pick.off } : {}), ...(pick.deal ? { deal: pick.deal } : {}) };
     }
   }
   const why = `not priced: ${dropped.missing} not returned, ${dropped.noNewInStock} no new in-stock listing, ${dropped.under60} under 60% and ${dropped.over160} over 160% of the store median`;
   if (!Object.keys(prices).length) return console.log(`Amazon prices ${r}: none (${api.calls()} calls; ${why}).`);
   mkdirSync(OUT_DIR, { recursive: true });
   writeFileSync(path.join(OUT_DIR, `${r}.json`), JSON.stringify({ fetchedAt, prices } satisfies LiveFile) + "\n");
-  console.log(`Amazon prices ${r}: ${Object.keys(prices).length} of ${todo.length} ASINs priced in ${api.calls()} calls; ${why}.`);
+  const onSale = Object.values(prices).filter((x) => x.off || x.deal).length;
+  console.log(`Amazon prices ${r}: ${Object.keys(prices).length} of ${todo.length} ASINs priced in ${api.calls()} calls, ${onSale} on sale at Amazon; ${why}.`);
 }
 
 async function main() {
