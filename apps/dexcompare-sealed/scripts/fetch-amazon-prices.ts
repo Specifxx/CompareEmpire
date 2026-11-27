@@ -53,7 +53,7 @@ async function region(r: Region) {
     } catch (e) {
       console.log(`Amazon prices ${r}: ${(e as Error).message}`);
       if (e instanceof AmazonRefused) break;
-      if (deals && i === 0) {
+      if (deals && i === 0 && /dealDetails|resource|InvalidParameter/i.test((e as Error).message)) {
         deals = false;
         i -= 10;
         console.log(`Amazon prices ${r}: retrying without ${DEAL_RESOURCE}.`);
@@ -83,7 +83,7 @@ async function region(r: Region) {
         console.log(`Amazon prices ${r}: ${x.p.slug} dropped, ${cents} cents is over 160% of the store median ${ref}.`);
         continue;
       }
-      prices[x.p.slug] = { asin, cents, ...(pick.off ? { off: pick.off } : {}), ...(pick.deal ? { deal: pick.deal } : {}) };
+      prices[x.p.slug] = { asin, cents, ...(pick.off ? { off: pick.off } : {}), ...(pick.deal ? { deal: pick.deal } : {}), ...(pick.until ? { until: pick.until } : {}) };
     }
   }
   const why = `not priced: ${dropped.missing} not returned, ${dropped.noNewInStock} no new in-stock listing, ${dropped.under60} under 60% and ${dropped.over160} over 160% of the store median`;

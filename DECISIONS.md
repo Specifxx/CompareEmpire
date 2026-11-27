@@ -796,7 +796,9 @@ searches stay out (2026-11-02: every Amazon link goes to one specific product).
 - The build's getItems also asks for `offersV2.listings.dealDetails`; if Amazon refuses it on the first batch, the run
   retries without it, so prices never depend on it. `price.savings` already came with the price resource.
 - `amazonSaving` (`lib/amazon-creators.ts`, the same as ScentCompare's and KaeYoung's) keeps Amazon's stated percentage
-  when it is 5 to 80 and in the store's currency, and a deal badge only for a deal open to everyone (not Prime-only),
-  not ended, plain words of 40 characters or fewer.
+  when it is 5 to 80, in the store's currency and measured against a price Amazon recently charged (was-price or typical
+  price, never a list price) or part of a live deal; and a deal badge only for a deal open to everyone (a Prime-only deal
+  drops the percentage too), started and not ended, plain words of 40 characters or fewer. The deal's end time rides
+  along and the browser hides both when it passes. The build drops the deal resource only when Amazon's error names it.
 - Shown only inside `AmazonPrice` on the product page's pinned Amazon row, so it goes with the price after 24 hours. Never a
   deal list, a sort, the best price, an alert, history or the quick view.

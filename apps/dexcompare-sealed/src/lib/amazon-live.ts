@@ -22,9 +22,11 @@ export interface AmazonLive {
   off?: number;
   /** Amazon's deal badge on it ("Black Friday Deal"), only for a deal everyone can buy */
   deal?: string;
+  /** when Amazon's deal ends: the browser hides the saving and badge after it */
+  until?: string;
 }
 export type AsinFile = Record<string, { asin: string | null; checked: string }>;
-export type LiveFile = { fetchedAt: string; prices: Record<string, { asin: string; cents: number; off?: number; deal?: string }> };
+export type LiveFile = { fetchedAt: string; prices: Record<string, { asin: string; cents: number; off?: number; deal?: string; until?: string }> };
 
 export const asinFile = (region: Region) => path.join(process.cwd(), "data", "amazon", `asins-${region}.json`);
 export const liveFile = (region: Region) => path.join(process.cwd(), "data", "amazon-live", `${region}.json`);
@@ -69,5 +71,5 @@ export function amazonLiveFor(slug: string, region: Region, now = Date.now()): A
   if (!asin) return null;
   const url = amazonUrl(region, { name: slug, asin }, "amazon-table")!;
   const l = live && isFreshAmazonPrice(live.fetchedAt, now) ? live.prices[slug] : undefined;
-  return l && l.asin === asin ? { asin, url, cents: l.cents, at: live!.fetchedAt, ...(l.off ? { off: l.off } : {}), ...(l.deal ? { deal: l.deal } : {}) } : { asin, url };
+  return l && l.asin === asin ? { asin, url, cents: l.cents, at: live!.fetchedAt, ...(l.off ? { off: l.off } : {}), ...(l.deal ? { deal: l.deal } : {}), ...(l.until ? { until: l.until } : {}) } : { asin, url };
 }
