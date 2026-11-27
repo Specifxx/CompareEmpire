@@ -2239,6 +2239,8 @@ while a text field has focus or a key was pressed in the last five seconds, and 
 slot. Its three links are this site's own tagged TCGplayer searches; no eBay and no Amazon (pop-ups are TCGplayer only). It
 is off by itself when the sale ends. Not on Compare Empire, KaeYoung or ScentCompare: TCGplayer sells nothing they compare.
 
+Released at 20:16 UTC: TCGplayer's sale chip and sale card, owner asked for urgent releases.
+
 ## 2026-11-27 — The rating card no longer asks on its own
 
 Owner, 27 Nov: "make sure that users have a good experience … not too many pop-ups … the feedback pop-up on Rift Compare
