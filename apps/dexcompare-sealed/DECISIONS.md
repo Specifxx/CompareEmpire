@@ -2228,3 +2228,9 @@ doesn't. Every store page's title now says what we add: "<Store> Pokémon Prices
 `lib/hub-copy.ts`; a long name drops the comparison, then "Sealed", never the name or "Pokémon"), and the description opens
 with today's in-stock count. On page 1 the store's own rows now start under the heading and the intro follows the list (still
 in the server HTML). URLs, h1, indexing and the sitemap are unchanged. Read ~10 Dec in GSC: CTR and position of `/*/stores/*`.
+
+## 2026-11-27 — The rating card no longer asks on its own
+
+Owner, 27 Nov: "make sure that users have a good experience … not too many pop-ups … the feedback pop-up on Rift Compare
+can be taken down a little because we already have enough feedback". The rate-us corner card never opens by itself any
+more (`AUTO_ASK = false`); a "Rate us" link still opens it. During Cyber Weekend the visit's one prompt goes to the sale card.
