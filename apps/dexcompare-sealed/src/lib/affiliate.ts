@@ -112,6 +112,7 @@ export const PLACEMENTS = [
   "gutter-ebay",
   "gutter-tcg",
   "tcgplayer-bf-mode", // the one-day Black Friday bar under the header (lib/bf-mode.ts, owner 2026-11-27)
+  "tcgplayer-sale-popup", // TCGplayer's sale card, once a visit while its sale runs (components/TcgSalePopup.tsx, owner 2026-11-27)
 ] as const;
 export type Placement = (typeof PLACEMENTS)[number];
 
