@@ -29,12 +29,14 @@ import "@/components/site-reviews/site-reviews.css";
 import { ReturnBeacon } from "@/components/ReturnBeacon";
 import { EbayPopArm } from "@/components/EbayPopArm";
 
+// Empire design v2 "Ledger" (2026-11-27): Geist for words and headings, Geist Mono for figures (OFL, fonts/Geist-OFL.txt).
 // Font display is optional, not swap: both faces are preloaded, so a warm visit renders in them from the first paint, and a slow
 // first visit keeps the size-adjusted fallback for that page instead of re-wrapping every line when the font lands (that swap
 // measured CLS 0.209 on /us/type/booster-boxes; 0 with "optional").
 // Self-hosted: the Google font loader fetched Google's CSS at build time and crashed the production build (RiftCompare 2026-11-05).
-const sans = localFont({ src: "./fonts/inter-latin-wght.woff2", weight: "100 900", variable: "--font-sans", display: "optional" });
-const display = localFont({ src: "./fonts/bricolage-grotesque-latin-wght.woff2", weight: "600 800", variable: "--font-display", display: "optional" });
+const sans = localFont({ src: "./fonts/Geist-Variable.woff2", weight: "100 900", variable: "--font-sans", display: "optional" });
+const display = localFont({ src: "./fonts/Geist-Variable.woff2", weight: "100 900", variable: "--font-display", display: "optional" });
+const mono = localFont({ src: "./fonts/GeistMono-Variable.woff2", weight: "100 900", variable: "--font-mono", display: "optional" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -54,7 +56,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${sans.variable} ${display.variable}`} data-festive={CHRISTMAS_FESTIVE_LAYER ? "" : undefined} suppressHydrationWarning>
+    <html lang="en" className={`${sans.variable} ${display.variable} ${mono.variable}`} data-festive={CHRISTMAS_FESTIVE_LAYER ? "" : undefined} suppressHydrationWarning>
       <head>
         <link rel="alternate" type="application/rss+xml" title={`${SITE_NAME} guides`} href="/feed.xml" />
         {/* Seasonal theme (Halloween, 16–31 October): data-season on <html> from the visitor's own date, before first paint, so the
