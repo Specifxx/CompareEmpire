@@ -334,6 +334,20 @@ export function setsOfYear(year: number): PokemonSet[] {
 
 // ─── Stores ────────────────────────────────────────────────────────────────────
 
+/**
+ * A store page's title (scorecard fix, 2026-11-27: /us/stores/houseruleslounge ranked 11.7 with no click on "<store> — Pokémon
+ * sealed stock & prices"). Someone who searches a store's name already has the store's own site above us; what we add is the
+ * comparison, so the title says it: "<Store> Pokémon Prices vs Other US Stores". A long name drops the comparison, then
+ * "Prices", so the store's name and "Pokémon" always fit in 65 characters. Page 2+ keeps its page number.
+ */
+export function storeTitle(name: string, r: Pick<RegionInfo, "adjective">, page = 1): HubTitle {
+  const tail = page > 1 ? ` — page ${page}` : "";
+  const options = [`${name} Pokémon Prices vs Other ${r.adjective} Stores`, `${name} Pokémon Sealed Prices`, `${name} Pokémon Prices`, `${name} Pokémon`];
+  const text = options.find((t) => (t + tail).length <= TITLE_MAX) ?? options[options.length - 1];
+  return hubTitle(text + tail);
+}
+
+
 /** A store page is worth indexing only when the store lists something and is not dormant; otherwise noindex, and no sitemap URL. */
 export function storeIndexable(st: { listed: number; dormant: boolean } | null | undefined): boolean {
   return !!st && st.listed >= STORE_MIN_LISTED && !st.dormant;
