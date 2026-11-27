@@ -111,6 +111,7 @@ export const PLACEMENTS = [
   // wide window (from 1440px).
   "gutter-ebay",
   "gutter-tcg",
+  "tcgplayer-bf-mode", // the one-day Black Friday bar under the header (lib/bf-mode.ts, owner 2026-11-27)
 ] as const;
 export type Placement = (typeof PLACEMENTS)[number];
 
