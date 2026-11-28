@@ -301,8 +301,8 @@ export const GUIDES: readonly Guide[] = [
   },
   {
     slug: "how-to-check-pokemon-card-value",
-    title: "Pokémon card value checker: how to check what it’s worth",
-    description: "Check what a Pokémon card or sealed product is worth: sold listings, condition and store prices, step by step, with our free value checker and today's data.",
+    title: "How to Check Pokémon Card Value, Step by Step",
+    description: "Free, step by step: check what a Pokémon card is worth from sold listings and condition, and what sealed product is worth from today's store prices.",
     kicker: "Valuing cards",
     published: "2026-10-21",
     updated: "2026-10-21",
